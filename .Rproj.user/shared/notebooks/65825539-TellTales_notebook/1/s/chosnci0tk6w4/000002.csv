@@ -1,9 +1,0 @@
-"0","perl DisTAL_v1.2_matest.pl -m T -n p SampleTALSaa.fa Out
-perl DisTAL_v1.2_matest.pl -m T -n p /home/baotram/tal/rvdArrayReader_test/tellTale_test/BAI3-1-1/correctedRepeatAASeqs.fas Out
-
-perl /home/baotram/tal/DisTAL1.2_MultipleAlignment/DisTAL_and_Additionalscripts/DisTAL_v1.2_matest_M.pl -m T -n p -o /home/baotram/tal/DisTAL_results/BAI3-1-1 /home/baotram/tal/rvdArrayReader_test/tellTale_test/BAI3-1-1/correctedRepeatAASeqs.fas correctedSeqs"
-"2","Can't open perl script ""DisTAL_v1.2_matest.pl"": No such file or directory
-Can't open perl script ""DisTAL_v1.2_matest.pl"": No such file or directory
-Can't locate Statistics/R.pm in @INC (you may need to install the Statistics::R module) (@INC contains: /etc/perl /usr/local/lib/x86_64-linux-gnu/perl/5.26.1 /usr/local/share/perl/5.26.1 /usr/lib/x86_64-linux-gnu/perl5/5.26 /usr/share/perl5 /usr/lib/x86_64-linux-gnu/perl/5.26 /usr/share/perl/5.26 /usr/local/lib/site_perl /usr/lib/x86_64-linux-gnu/perl-base) at /home/baotram/tal/DisTAL1.2_MultipleAlignment/DisTAL_and_Additionalscripts/DisTAL_v1.2_matest_M.pl line 5.
-BEGIN failed--compilation aborted at /home/baotram/tal/DisTAL1.2_MultipleAlignment/DisTAL_and_Additionalscripts/DisTAL_v1.2_matest_M.pl line 5.
-"

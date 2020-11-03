@@ -1,8 +1,0 @@
-Parameters of tool "TALE Analysis" (analyze, version: 1.1):
-n - Name (A name for this run of TALE Analysis, OPTIONAL)	= null
-t - TALE DNA sequences (The DNA sequences of the TALEs)	= /home/baotram/tal/xanthopore-scripts/tantale/test/telltale2/pxo99a_uncorrect/temp_annotale_8127021eb19/ROI_00015/putativeTalOrf.fasta
-outdir - The output directory, defaults to the current working directory (.)	= /home/baotram/tal/xanthopore-scripts/tantale/test/telltale2/pxo99a_uncorrect/temp_annotale_8127021eb19/ROI_00015
-Analyzing TALEs:
-ROI_00015
-
-Writing outputs.
