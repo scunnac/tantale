@@ -27,3 +27,10 @@
     - Wrappers around target predictors
     - General parser for results aggregation
     - Connector with daTALbase
+
+**NOTE** :  
+    - create vignette by `devtools:install(build_vignettes = TRUE)`  
+    - the perl lib is not included in the installed package, so `runDistal` doesn't work ... but I don't understand why `talvez()` works when you didn't specify a perl lib??
+
+    (https://github.com/marcschwartz/WriteXLS,
+      https://github.com/cran/gdata/blob/master/R/installXLSXsupport.R)
