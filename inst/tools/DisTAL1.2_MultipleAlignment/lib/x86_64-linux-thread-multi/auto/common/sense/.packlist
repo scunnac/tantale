@@ -1,0 +1,3 @@
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/x86_64-linux-thread-multi/common/sense.pm relocate_as=../../../common/sense.pm
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/x86_64-linux-thread-multi/common/sense.pod relocate_as=../../../common/sense.pod
+/home/baotram/miniconda3/envs/perly_env/man/man3/common::sense.3 relocate_as=../../../../../../../man/man3/common::sense.3

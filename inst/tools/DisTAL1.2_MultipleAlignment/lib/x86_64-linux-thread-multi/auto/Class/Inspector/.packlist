@@ -1,0 +1,4 @@
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/Class/Inspector.pm relocate_as=../../../../Class/Inspector.pm
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/Class/Inspector/Functions.pm relocate_as=../../../../Class/Inspector/Functions.pm
+/home/baotram/miniconda3/envs/perly_env/man/man3/Class::Inspector.3 relocate_as=../../../../../../../man/man3/Class::Inspector.3
+/home/baotram/miniconda3/envs/perly_env/man/man3/Class::Inspector::Functions.3 relocate_as=../../../../../../../man/man3/Class::Inspector::Functions.3

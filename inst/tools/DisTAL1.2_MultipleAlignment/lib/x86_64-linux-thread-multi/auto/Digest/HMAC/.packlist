@@ -1,0 +1,6 @@
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/Digest/HMAC.pm relocate_as=../../../../Digest/HMAC.pm
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/Digest/HMAC_MD5.pm relocate_as=../../../../Digest/HMAC_MD5.pm
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/Digest/HMAC_SHA1.pm relocate_as=../../../../Digest/HMAC_SHA1.pm
+/home/baotram/miniconda3/envs/perly_env/man/man3/Digest::HMAC.3 relocate_as=../../../../../../../man/man3/Digest::HMAC.3
+/home/baotram/miniconda3/envs/perly_env/man/man3/Digest::HMAC_MD5.3 relocate_as=../../../../../../../man/man3/Digest::HMAC_MD5.3
+/home/baotram/miniconda3/envs/perly_env/man/man3/Digest::HMAC_SHA1.3 relocate_as=../../../../../../../man/man3/Digest::HMAC_SHA1.3

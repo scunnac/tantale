@@ -1,0 +1,6 @@
+/home/baotram/miniconda3/envs/perly_env/bin/binhex.pl relocate_as=../../../../../../../bin/binhex.pl
+/home/baotram/miniconda3/envs/perly_env/bin/debinhex.pl relocate_as=../../../../../../../bin/debinhex.pl
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/Convert/BinHex.pm relocate_as=../../../../Convert/BinHex.pm
+/home/baotram/miniconda3/envs/perly_env/man/man1/binhex.pl.1 relocate_as=../../../../../../../man/man1/binhex.pl.1
+/home/baotram/miniconda3/envs/perly_env/man/man1/debinhex.pl.1 relocate_as=../../../../../../../man/man1/debinhex.pl.1
+/home/baotram/miniconda3/envs/perly_env/man/man3/Convert::BinHex.3 relocate_as=../../../../../../../man/man3/Convert::BinHex.3

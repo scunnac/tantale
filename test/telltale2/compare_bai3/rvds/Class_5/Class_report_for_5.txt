@@ -1,0 +1,40 @@
+Class 5 for (AffineCosts, 5.0, SEMI_GLOBAL)
+distance: 1.2
+significance: p=5.78E-8
+
+ NN HD NV HD NI NG NI NN NS HD HD NI	ROI_00006_telltale2_correct
+ NN HD NV HD NI NG NI NN NS HD HD NI	ROI_00006_telltale
+ NN HD NV HD NI NG NI NN NS HD HD NI	BAI3-tempTALE8_control
+ -- -- NV HD NI NG NI NN NS HD HD NI	BAI3-1-1-tempTALE7_annotale
+ -- -- NV HD NI NG NI NN NS HD HD NI	ROI_00006_telltale2_uncorrect
+
+Most likely common binding sequence:
+TG  C  A  C  A  T  A  G  A  C  C  A
+
+
+Class tree:
+(
+	(
+			(
+					ROI_00006_telltale2_correct:0.0		,					ROI_00006_telltale:0.0		
+):0.0	,			BAI3-tempTALE8_control:0.0	
+):1.2000000000000002,	(
+			BAI3-1-1-tempTALE7_annotale:0.0	,			ROI_00006_telltale2_uncorrect:0.0	
+):1.2000000000000002
+);
+
+Alignment scores:
+ROI_00006_telltale vs. ROI_00006_telltale2_correct: 0
+BAI3-tempTALE8_control vs. ROI_00006_telltale2_correct: 0
+BAI3-tempTALE8_control vs. ROI_00006_telltale: 0
+BAI3-1-1-tempTALE7_annotale vs. ROI_00006_telltale2_correct: 1.2
+BAI3-1-1-tempTALE7_annotale vs. ROI_00006_telltale: 1.2
+BAI3-1-1-tempTALE7_annotale vs. BAI3-tempTALE8_control: 1.2
+ROI_00006_telltale2_uncorrect vs. ROI_00006_telltale2_correct: 1.2
+ROI_00006_telltale2_uncorrect vs. ROI_00006_telltale: 1.2
+ROI_00006_telltale2_uncorrect vs. BAI3-tempTALE8_control: 1.2
+ROI_00006_telltale2_uncorrect vs. BAI3-1-1-tempTALE7_annotale: 0
+
+No related classes.
+
+

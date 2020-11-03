@@ -1,0 +1,571 @@
+# roxygen2::roxygenise() to write documentation
+
+#### Supporting functions ####
+
+
+fa2liststr <- function(fasta.file) {
+  fasta.file <- fasta.file
+  seqs <- Biostrings::readBStringSet(fasta.file)
+  seqsAsVectors <- stringr::str_split(seqs, pattern = "[- ]")
+  seqsAsVectors <- lapply(seqsAsVectors, function(x) { # Remove last residue if it is empty string
+    if ( x[length(x)] == "") {
+      warning("## Last element in 'vectorized' sequence is empty. It was removed from output.")
+      x[-length(x)]
+      } else x
+  }
+  )
+  names(seqsAsVectors) <- names(seqs)
+  return(seqsAsVectors)
+}
+
+
+
+
+#' @export
+formatDistalRepeatDistMat <- function(distalRepeatDistMatFile) {
+  # Distal-1.2 repeat distance matrix is 'almost' symetrical but does not contains the diagonal
+  # Top triangle of a symetrical :   Symetrical :
+  # 1234                              1234
+  #  234                              2234
+  #   34                              3334
+  #    4                              4434
+  # It is like this:
+  # 234
+  # 34
+  # 4
+  # So, we need to do a few transformations:
+  # Loading file content as a matrix
+  distalRepeatDist <- as.matrix(
+    read.table(distalRepeatDistMatFile,
+               sep = " ",
+               fill = TRUE,
+               blank.lines.skip = TRUE,
+               header = FALSE,
+               check.names = FALSE,
+               comment.char = "#"
+    )
+  )
+  # Getting ride of the last columns that appears because the lines in the file have a final space
+  distalRepeatDist <- distalRepeatDist[, -ncol(distalRepeatDist)]
+  # Adding a first column
+  distalRepeatDist <- cbind(V0 = NA, distalRepeatDist)
+  # Adding a last line
+  distalRepeatDist <- rbind(distalRepeatDist, NA)
+
+  # Shifting values to the right in rows with NAs
+  distalRepeatDist <- t(apply(distalRepeatDist, 1, function(x) {
+    row <- x
+    c(row[is.na(row)], row[!is.na(row)])
+  }))
+  # Filling diagonal with 0 values
+  diag(distalRepeatDist) <- 0
+  # Filling NA values with diagonal symetric values
+  newmat <- distalRepeatDist
+  for (i in 1:nrow(distalRepeatDist)) {
+    for (j in 1:ncol(distalRepeatDist)) {
+      if (is.na(distalRepeatDist[i, j])) {
+        distalRepeatDist[i, j] <- distalRepeatDist[j, i]
+      } else {
+        next()
+      }
+    }
+  }
+  # Names
+  stopifnot(exprs= all.equal(nrow(distalRepeatDist), ncol(distalRepeatDist)))
+  rownames(distalRepeatDist) <- 0:(nrow(distalRepeatDist) - 1)
+  colnames(distalRepeatDist) <- 0:(ncol(distalRepeatDist) - 1)
+  # Similarity rather than dissimilarity (that is what Alvaro does in his scripts)
+  distalRepeatSim <- 100 - distalRepeatDist
+  # str(distalRepeatSim)
+  # image(t(apply(distalRepeatSim, 2, rev)))
+
+  # Output in 'long format'
+  distalRepeatSimTable <- reshape2::melt(distalRepeatSim,
+                                         as.is = TRUE,
+                                         varnames = c("RepU1", "RepU2"),
+                                         value.name = "Sim")
+  # str(distalRepeatSimTable)
+  return(distalRepeatSimTable)
+}
+
+
+
+
+
+#' Generate a mapping between Distal repeat IDs and their cognate RVD.
+#'
+#' Uses Distal repeat sequences and RVD sequences from a set of TALEs to return
+#' the association between repeat ID and RVD.
+#'
+#' Care must be taken that TALEs in the two sets of sequences have the same name.
+#' In addition, the function tries hard to make sure that the two sets of sequences are identical in every ways but the individual 'values' they contain.
+#' It is therefore notably important to make sure that the sequences are consistent in wether they include N-term and C-term domains IDs/Tags or not.
+#'
+#' @param talesRepeatVectors Expects a list of Distal repeat IDs character
+#'   vectors. Each \strong{named} element corresponding to a TALE.
+#' @param talesRepeatVectors Expects a list of Distal RVDs character
+#'   vectors. Each \strong{named} element corresponding to a TALE.
+#' @return A two columns repeatID - RVD data frame.
+#' @export
+getRepeat2RvdMapping <- function(talesRepeatVectors, talesRvdVectors) {
+  # Making sure, these objects are indentical in every ways but the actual values of the vectors
+  stopifnot(setequal(names(talesRepeatVectors), names(talesRvdVectors)))
+  lrep <- sapply(talesRepeatVectors, length)
+  lrep <- lrep[order(names(lrep))]
+  lrvd <- sapply(talesRvdVectors, length)
+  lrvd <- lrvd[order(names(lrvd))]
+  stopifnot(names(lrvd) == names(lrep))
+  stopifnot(apply(cbind(lrep, lrvd), 1, function(x) x[1] == x[2]))
+
+  # Function to melt the lists
+  .l2df <- function(l) {
+    dplyr::bind_rows(lapply(l, function(v) data.frame(idx = 1:length(v),
+                                                      repeats = v,
+                                                      stringsAsFactors = FALSE)
+    ),
+    .id = "Name")
+  }
+  talesRepeatDf <- .l2df(talesRepeatVectors)
+  talesRvdDf <- .l2df(talesRvdVectors)
+  stopifnot(nrow(talesRepeatDf) == nrow(talesRvdDf))
+  # Merging to have the repeat ID vs RVDs
+  repeat2rvd <- dplyr::full_join(talesRepeatDf, talesRvdDf, by = c("idx" = "idx", "Name" = "Name"))
+  colnames(repeat2rvd) <- c("names", "idx", "repeatID", "RVD")
+  # Check that for each repeat there is only one corresponding RVD (the converse is NOT true)
+  repeat2rvd <- repeat2rvd %>% dplyr::group_by(repeatID, RVD) %>%
+    dplyr::summarise(count = dplyr::n())
+  check <- repeat2rvd %>%
+    dplyr::arrange(repeatID) %>%
+    dplyr::group_by(repeatID) %>%
+    dplyr::summarise(count = dplyr::n())
+  stopifnot(sum(check$count) == length(unique(repeat2rvd$repeatID)))
+  # Simplifiy the df
+  repeat2rvd <- repeat2rvd %>% dplyr::select(repeatID, RVD) %>% dplyr::ungroup()
+
+  return(repeat2rvd)
+}
+
+#' read alignment results of DisTal
+#' @description read multiple files (.RVDs/.Dists/.Reps) and output a list whose each element is a dataframe read from each file
+#' @export
+read_distal_aligns <- function(file.lists) {
+  output <- list()
+  for (x in file.lists) {
+    tab <- read.delim(x, header = F, row.names = 1, allowEscapes = T, stringsAsFactors = F, na.strings = c("-", "NA"))
+    tab <- tab[order(rownames(tab)), ]
+    tab <- as.matrix(tab)
+    Gname <- gsub("\\..*", "", basename(x))
+    rownames(tab) <- gsub(glue::glue("\\|{Gname}"), "", rownames(tab))
+    colnames(tab) <- sapply(1:ncol(tab), function(y) paste0("R", y))
+    output[[Gname]] <- tab
+  }
+  return(output)
+}
+
+
+
+
+
+
+
+
+
+
+
+#### MAIN functions ####
+
+
+
+#' @export
+runDistal <- function(fasta.file, outdir = NULL, treetype = "p", repeats.cluster.h.cut = 10, overwrite = F) {
+  if (is.null(outdir)) {
+    outdir <- tempdir(check = TRUE)
+  }
+  # whether it's necessary to run distal perl script or not
+  check_files <- list.files(outdir, "Output(.)*(.mat|.tre|.pdf|.fa|.txt)")
+  if (overwrite || length(check_files) < 6) {
+    fasta.file <- fasta.file
+    outdir <- outdir
+    sourcecode <- system.file("tools", "DisTAL1.2_MultipleAlignment", package = "tantale", mustWork = T)
+    disTal <- file.path(sourcecode, "DisTAL_v1.2_matest_M.pl")
+    lib <- file.path(sourcecode, "lib")
+    disTalCMD <- paste("perl -I", lib, disTal, "-m T", "-n", treetype, "-o", outdir, shQuote(fasta.file), sep = " ")
+    system(disTalCMD, ignore.stdout = T)
+  }
+
+
+  # read repeatscode.txt
+  repeatscode_File <- glue::glue("{outdir}/Output_Repeatscode.txt")
+  repeatscode <- read.csv(repeatscode_File, sep = "\t", header = F)
+  colnames(repeatscode) <- c("code", "AA Seq")
+
+  # read codedrepeats.fa
+  codedRepeats_File <- glue::glue("{outdir}/Output_CodedRepeats.fa")
+  codedRepeats_str <- fa2liststr(codedRepeats_File)
+
+  # read repeatmatrix.mat
+  repeatmatrix_File <- glue::glue("{outdir}/Output_Repeatmatrix.mat")
+  repeatSim <- formatDistalRepeatDistMat(repeatmatrix_File)
+
+  ## define 'col' based on clustering groups of repeats
+  unmelt_repeatSim <-  as.matrix(reshape2::acast(repeatSim, RepU1 ~ RepU2, value.var="Sim"))
+  dist_clust <- hclust(as.dist(unmelt_repeatSim))
+  dist_cut <- as.data.frame(cbind(RepID = dist_clust$labels, Rep_clust = cutree(dist_clust, h = repeats.cluster.h.cut)))
+  dist_cut$Rep_order <- order.dendrogram(as.dendrogram(dist_clust))
+  # dist_cut$color <- scales::hue_pal(l = 55)(nlevels(as.factor(dist_cut$Rep_clust)))[dist_cut$Rep_clust]
+  dist_cut <- dist_cut[order(dist_cut$Rep_order),]
+  # forCol <- dist_cut$color
+
+  # read tal seqs distance matrix and make sim df
+  talMatrix_File <- glue::glue("{outdir}/Output.mat")
+  raw_talMatrix <- read.table(talMatrix_File,
+                              header = T,
+                              sep = "\t",
+                              row.names = NULL,
+                              check.names = FALSE)
+  rownames(raw_talMatrix) <- raw_talMatrix[, 1] # rownames without 'matrix'
+  # Removing first column with row names and last column with NAs
+  raw_talMatrix <- raw_talMatrix[, c(-1, -ncol(raw_talMatrix))]
+  raw_talMatrix <- 100 - as.matrix(raw_talMatrix) # Distance to similarity conversion
+  # Checking if the matrix is square
+  stopifnot(all.equal(ncol(raw_talMatrix), nrow(raw_talMatrix)))
+  all(colnames(raw_talMatrix) == rownames(raw_talMatrix)) || warning("Sequences of Row and Col names do not match...")
+  talsim <- reshape2::melt(raw_talMatrix)
+  colnames(talsim) <-c("TAL1", "TAL2", "Sim")
+
+  # read newick tree
+  nw_tree_File <-  glue::glue("{outdir}/Output.tre")
+  nw_tree <- ape::read.tree(nw_tree_File)
+
+  # Assemble return object
+  outputlist <- list("repeats.code" = repeatscode, "coded.repeats.str" = codedRepeats_str, "repeat.similarity" = repeatSim, "tal.similarity" = talsim, "phylogentic.tree" = nw_tree, "repeats.cluster" = dist_cut)
+  return(outputlist)
+}
+
+
+#' @export
+buildDisTalGroups <- function(path, num.groups, overwrite = F) {
+  check_files <- list(
+    Aligned_TEV_ALL = list.files(path = path, pattern = "^Aligned_TEV_ALL$", full.names = T),
+    Coded_Reps_withgroups = list.files(path = path, pattern = "^Coded_Reps_withgroups_(\\d)+.*.fa$", full.names = T),
+    BigRepDist = list.files(path = path, pattern = "^BigRepDist.mat$", full.names = T),
+    Multiple_align = list.files(path = path, pattern = "^Multiple_align$", full.names = T),
+    aligns = list.files(path = path, pattern = "^ALIGNS$", full.names = T),
+    talgroups = list.files(path = path, pattern = "^TALgroups.txt$", full.names = T)
+  )
+  
+  if (length(check_files) < 6 || overwrite) {
+    # get perl scripts and perl lib
+    sourcecode <- system.file("tools", "DisTAL1.2_MultipleAlignment", package = "tantale", mustWork = T)
+    Analyze_TALs1 <- file.path(sourcecode, "Analyze_TALs1_M.pl")
+    Analyze_TALs2 <- file.path(sourcecode, "Analyze_TALs2_M.pl")
+    Generate_Bigmat <- file.path(sourcecode, "Generate_Bigmat.pl")
+    Alignement_files <- file.path(sourcecode, "Alignement_files_M.pl")
+    lib <- file.path(sourcecode, "lib")
+
+    # wrap 'Analyze_TALs1_M.pl'
+    mat <- list.files(path, ".mat", full.names = T)
+    tal_mat <- mat[!grepl("_Repeatmatrix|BigRepDist", mat)]
+    codedRepeats <-  list.files(path, "_CodedRepeats.fa", full.names =T)
+    analyze1CMD <- paste("perl -I", lib, Analyze_TALs1, tal_mat, num.groups, codedRepeats, "T", sep = " ")
+
+    # wrap 'Analyze_TALs2_M.pl'
+    # Aligned_TEV_ALL <- file.path(path, "Aligned_TEV_ALL")
+    # Coded_Reps_withgroups <- list.files(path, "Coded_Reps_withgroups_\\d+", full.names = T)
+    analyze2CMD <- paste("perl -I", lib, Analyze_TALs2, check_files$Aligned_TEV_ALL, check_files$Coded_Reps_withgroups, sep = " ")
+
+    # wrap 'Generate_Bigmat.pl'
+    repeat_mat <- mat[grepl("_Repeatmatrix", mat)]
+    # BigRepDist <- file.path(path, "BigRepDist.mat")
+    bigmatCMD <- paste("perl -I", lib, Generate_Bigmat, repeat_mat, check_files$BigRepDist, sep = " ")
+
+    # wrap 'Alignement_files_M.pl'
+    Repeatscode <- list.files(path, "_Repeatscode.txt", full.names = T)
+    # Multiple_align <- file.path(path, "Multiple_align")
+    alignmentCMD <- paste("perl -I", lib, Alignement_files, Repeatscode, check_files$Multiple_align, sep = " ")
+
+    # remove old files
+    unlink(check_files, recursive = T)
+
+    # run everything
+    system(paste(analyze1CMD, analyze2CMD, bigmatCMD, alignmentCMD, sep = " && "), ignore.stdout = T)
+
+    # check if tals classification is done
+    if (!file.exists(check_files$talgroups)) {
+      rlang::abort(message = glue::glue("Cannot classify {num.groups} groups!"))
+    }
+  }
+
+  # read outputs
+  RVDalignFiles <- list.files(check_files$aligns, ".RVDs", full.names = T)
+  RVDgroups <- read_distal_aligns(RVDalignFiles)
+
+  sim_within_group_File <- list.files(check_files$aligns, ".Dists", full.names = T)
+  sim_within_group <- read_distal_aligns(sim_within_group_File)
+  sim_within_group <- lapply(sim_within_group, function(x) x <- 100 - x)
+
+  # dist_between_rep_File <- file.path(path, "BigRepDist.mat")
+  dist_between_rep <- as.matrix(read.table(check_files$BigRepDist, header=TRUE, sep = "\t",row.names = 1, as.is=TRUE))
+
+  RepsalignFile <- list.files(check_files$aligns, ".Reps", full.names = T)
+  RepCodegroups <- read_distal_aligns(RepsalignFile)
+
+  # talgroupsFile <- list.files(path, "TALgroups.txt", full.names = T)
+  talgroups <- read.table(check_files$talgroups, header = T)
+  # talgroups <- readr::read_delim(talgroupsFile," ", escape_double = FALSE, trim_ws = TRUE)
+
+  outputlist <- list("SeqOfRvdAlignments" = RVDgroups, "SeqOfDistancesAlignments" = sim_within_group, "repeatUnitsDistanceMatrix" = dist_between_rep, "SeqOfRepsAlignments" = RepCodegroups, "TALgroups" = talgroups)
+  return(outputlist)
+  }
+
+
+
+
+
+#' @export
+groupTales <- function(taleSim, cutOff, plot = FALSE) {
+  # Building a hctree based on Distal tale distance and cut the tree using a user
+  # specified cutOff value to define tale groups. Ideally this function should be
+  # expanded to provide different methods (kmeans, ...) for clustering and offer
+  # the possibility to automatically define the number of TALE groups present in
+  # in the data...
+  # return value is a data.frame listing tales in one column and
+  # their group in the second taleSim is expected to be a 3 columns ("TAL1",
+  # "TAL2", "Sim") data.frame-like object produced after reformating of the
+  # Distal tale distance matrix.
+
+  taleTree <- hclust(
+    d = dist(
+      100 - reshape2::acast(taleSim, formula = TAL1 ~ TAL2, value.var = "Sim"),
+      method = "euclidean"
+    ),
+    method = "ward.D"
+  )
+  treeCuts <- cutree(taleTree, h = cutOff)
+  taleGroups <- data.frame(name = names(treeCuts), group = treeCuts, row.names = NULL)
+
+  # plot(taleTree, xlab = "TALEs", main = )
+  # abline(h = cutOff, lty = 2)
+  g <- split(names(treeCuts), treeCuts)
+  p <- taleTree  %>% ggtree::ggtree()
+  clades <- sapply(g, function(n) tidytree::MRCA(p, n))
+  p <- tidytree::groupClade(p, clades, group_name='subtree') + ggtree::aes(color=subtree)
+  p <- p + ggtree::layout_dendrogram() +
+    #ggtree::geom_tippoint(size=5, shape=21) +
+    ggtree::geom_tiplab(ggtree::aes(label=label),
+                        angle= 90, hjust=1,
+                        offset = -0.4,
+                        align = TRUE, color='black') +
+    ggplot2::scale_color_brewer("Groups", palette="BrBG") +
+    ggplot2::geom_vline(xintercept = -(cutOff/2), linetype = 2) +
+    ggtree::geom_text(x = (cutOff/2 - max(taleTree$height)/50),
+                      y = 4, label = "half of 'cutOff' value",
+                      color = "darkgrey", fontface = "plain") +
+    ggplot2::xlab("Height/2") +
+    ggtree::theme_dendrogram(plot.margin = ggplot2::margin(6,6,220,6))
+
+  if(plot == TRUE) {print(p)}
+  return(taleGroups)
+}
+
+
+
+
+
+
+#' Heatmap plotting of multiple alinged Tal sequences
+#' @description Heatmap plot in frame of \code{\link[gplots:heatmap.2]{heatmap.2}} for Tals alignment. 
+#' @param talsim a \emph{similarity matrix} of Tals.
+#' @param forCellNote a \emph{character matrix} of Tal RVDs MSA (for rvd plot) or a \emph{numeric matrix} of Tal repeat codes MSA (for repcode plot). The type of plot is determined by the type of this matrix.
+#' @param forMatrix a \emph{similarity matrix} or \emph{clusterId matrix} of Tal repeats MSA.
+#' @param forCol a \emph{function} to create vector of colors assigned for each repeat. By default, "\code{forCol = colorRampPalette(c("dodgerblue4", "dodgerblue3", "dodgerblue", "deepskyblue", "white"))}" for "repeat.similarity" plot, or "\code{forCol = scales::hue_pal(l = 55)}" for "repeat.clusters" plot.
+#' @param rvdSim (optional) a \emph{similarity matrix} of RVDs in Tals alignment.
+#' @param plot.type "repeat.similarity" or "repeat.clusters".
+#' @param save.path file path to save the plot. 
+#' @param ... any other arguments of \code{\link[gplots:heatmap.2]{heatmap.2}}
+#' @details Most of the arguments in this function \code{heatmap_msa} are corresponding to a number of arguments in \code{\link[gplots:heatmap.2]{heatmap.2}}:
+#'  \itemize{
+#'    \item forMatrix = x
+#'    \item talsim: used to derive a dendrogram for Rowv
+#'    \item forCellNote = cellnote
+#'    \item forCol: used for deriving col
+#'    \item rvdSim: used for deriving notecol
+#'    \item ... = any arguments passed to \code{\link[gplots:heatmap.2]{heatmap.2}}, that overrides all the input params and default params of \code{heatmap_msa}
+#'  }
+#'  "repeat.similarity" plot shows RVD alignment of Tals, hierarchical relationship between them in the dendrogram, similarity between repeats alignment by the color of cells, and (if rvdSim is provided) similarity between RVDs alignment in the color of cellnotes.
+#'  
+#'  "repeat.clusters" plot shows repeat alignment of Tals, hierarchical relationship between them in the dendrogram, and clustering groups of repeats by the color of cells.
+heatmap_msa <- function(talsim, forMatrix, forCellNote, rvdSim = NULL, plot.type, save.path, ...) {
+  
+  # for 'Rowv' = dend
+  talsim <- talsim[talsim$TAL1 %in% rownames(forCellNote), ]
+  talsim <- talsim[talsim$TAL2 %in% rownames(forCellNote), ]
+  talsim <- as.matrix(reshape2::acast(talsim, TAL1 ~ TAL2, value.var="Sim")) # melt then unmelt ...
+  taldist <- 100 -talsim
+  taldist <- taldist[order(rownames(taldist)), ]
+  
+  clust <- hclust(as.dist(taldist))
+  forRowv <- as.dendrogram(clust)
+  
+  dend_order <- order.dendrogram(forRowv)
+  # forCellNote <- forCellNote[order.dendrogram(forRowv), ]
+  forMatrix <- forMatrix[rownames(forCellNote), ]
+  
+  
+  if (plot.type == "repeat.clusters") { # in case of repcode plotting
+    # define 'col'
+    forCol <- function(x) scales::hue_pal(l = 55)(n=100)[0:x]
+    forBreaks <- 0:max(forMatrix, na.rm = T)
+    # define 'notecol'
+    forNoteCol = "black"
+    #
+    # define 'key'
+    forKeyxlab <- NA
+    forKey <- FALSE
+  }
+  else if (plot.type == "repeat.similarity") { # in case of rvd plotting
+    # define 'col'
+    forCol <- colorRampPalette(c("dodgerblue4", "dodgerblue3", "dodgerblue", "deepskyblue", "white"))
+    forBreaks <- 0:100
+    
+    # define 'notecol'
+    #
+    if (!is.null(rvdSim) && is.matrix(rvdSim) && is.numeric(rvdSim)) { # in case rvd similarity matrix is provided
+      col_range <- function(x) colorRampPalette(c("darkgreen", "black", "darkred"))(n=200)[as.integer(x)]
+      rvdSim <- rvdSim[rownames(forCellNote), ]
+      rvdcol <- rvdSim
+      for (i in 1:nrow(rvdSim)) {
+        for (j in 1:ncol(rvdSim)) {
+          if (is.na(rvdcol[i,j])) {
+            rvdcol[i,j] <- "grey"
+          } else {
+            rvdcol[i,j] <- col_range(rvdSim[i,j] * 100 + 100)
+          }
+        }
+      }
+      
+    } else { # default
+      sim_len <- apply(forMatrix, 1, function(x) {length(grep("100", x))})
+      reftal <- names(which.max(sim_len))
+      reftalID <- which(rownames(forCellNote) == reftal)
+      rvdcol <- forCellNote
+      for (k in 1:ncol(rvdcol)){
+        rvd <- as.character(forCellNote[reftalID, k])
+        rvdcol[,k] <- ifelse(rvdcol[,k] == rvd, "black", "red")
+      }
+    }
+    rvdcol <- rvdcol[order.dendrogram(forRowv), ]
+    forNoteCol <- t(as.matrix(rvdcol))
+    
+    # define 'key'
+    forKeyxlab <- "AA identity"
+    forKey = TRUE
+    
+  } else if (!hasArg(plot.type) || is.null(plot.type) || is.na(plot.type)) {
+    stop("Missing plot.type")
+  } else{
+    stop(glue::glue("\"{plot.type}\" plot is not available."))
+  }
+  
+  
+  # adjust size, position, ... of plot's elements
+  wid_left <- 1
+  wid_right <- 0.125 * ncol(forMatrix)
+  if (max(nchar(forCellNote), na.rm = T) >= 5) wid_right <- wid_right * 2
+  hei_top <- ifelse(isFALSE(forKey), .5, .75)
+  hei_bottom <- 0.125 * (nrow(forMatrix) + 1.5)
+  
+  # add "notecol" legend 
+  extra.key <- function(x = rvdSim, check.plot.type = plot.type, hei = hei_top * 2.54, wid = wid_left * 2.54) {
+    if (check.plot.type == "repeat.similarity") {
+      if (!is.null(x) && is.matrix(x) && is.numeric(rvdSim)) {
+        par(mai = c(hei*.25, wid*.1, hei*.45, 0), mgp = c(2, 1, 0), new=TRUE)
+        image(z = matrix(seq(-1, 1, by = .01), ncol = 1), col = colorRampPalette(c("darkgreen", "black", "darkred"))(200), yaxt = "n", xaxt = "n", xlab = "RVD similarity")
+        axis(1, at = seq(0, 1, by = .25), labels = c("-1", NA, "0", NA, "1"))
+      } else {
+        par(mai = c(hei*.25, wid*.1, hei*.45, 0), mgp = c(2, 1, 0), new=TRUE)
+        image(z = matrix(c(0, 1), ncol = 1), col = colorRampPalette(c("black", "red"))(2), yaxt = "n", xaxt = "n", xlab = "RVD alignment")
+        mtext(side = 1, at = c(0,1), text = c("matched", "mismatched"), cex = .75)
+      }
+    } else {
+      return(NULL)
+    }
+    
+  }
+  
+  # save plot to "save.path" if provided, the format of image depends on extension of "save.path"
+  if (hasArg(save.path)) {
+    img_format <- gsub(".*\\.", "", basename(save.path))
+    img_size <-  list(save.path, width = (wid_left + wid_right + wid_left) * 2, height = (hei_top + hei_bottom) * 2)
+    if (img_format %in% c("bmp", "jpeg", "png", "tiff")) {
+      img_size <- c(img_size, units = "in", res = 1440)
+    }
+    do.call(img_format, img_size)
+  }
+  
+  default_arg_list <- list(x = forMatrix, #
+                           
+                           # dendrogram control
+                           Rowv = forRowv, ##
+                           Colv = FALSE,
+                           dendrogram = "row",
+                           
+                           # colors
+                           col = forCol, #
+                           breaks = forBreaks, ##
+                           
+                           # cell labeling
+                           cellnote  = forCellNote, #
+                           notecex = 1.2,
+                           notecol = forNoteCol, ##
+                           na.color = "grey",
+                           extrafun = extra.key, ## key for notecol
+                           
+                           # Row/Column Labeling
+                           margins = c(3, 0),
+                           cexRow = 1,
+                           cexCol = 1,
+                           labCol = c(1:ncol(forMatrix)), ##
+                           adjCol = c(NA, .5),
+                           offsetCol = 0, 
+                           offsetRow = 0, 
+                           srtCol = 0,
+                           
+                           # block sepration
+                           colsep = 0:ncol(forMatrix), ##
+                           rowsep = 0:nrow(forMatrix), ##
+                           sepcolor = "#bbbbbb",
+                           sepwidth = c(0.005,0.005),
+                           
+                           # color key + density info
+                           density.info = "none",
+                           key = forKey, ##
+                           key.title = NA,
+                           key.par = list(mai = c(hei_top*.6*2.54, wid_left*.1*2.54, hei_top*.1*2.54, 0),
+                                          mgp = c(2, 1, 0)
+                           ),
+                           key.xlab = forKeyxlab, ##
+                           
+                           # plot labels
+                           xlab = "Domain",
+                           # ylab = "TAL ID",
+                           
+                           # plot layout
+                           lmat = rbind(c(4, 3, 0), c(2, 1, 0)),
+                           lhei = c(hei_top, hei_bottom), ##
+                           lwid = c(wid_left, wid_right, wid_left), ##
+                           
+                           # trace
+                           trace = "none")
+  
+  custom_arg_list <- as.list(substitute(list(...)))[-1L]
+  
+  default_arg_list <- default_arg_list[!names(default_arg_list) %in% names(custom_arg_list)]
+  
+  heatmap_plot <- do.call(gplots::heatmap.2, c(default_arg_list, custom_arg_list))
+  
+  if (hasArg(save.path)) {
+    dev.off()
+  }
+  return(invisible(heatmap_plot))
+}

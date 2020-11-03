@@ -1,0 +1,236 @@
+>YP_004030669.1	NG-GG-NN-NG-GG-NN-NI-NS-NI-NS-NI-NN-NG-GG-NK-NA-NI-NS-NI-NI-NI-ND-NS-NG-KG	Burkholderia rhizoxinica	HKI 454
+>YP_004022479.1_BurrH	NI-NI-NN-NT-NN-NI-NI-NN-ND-NI-NI-NT-NR-NS-ND-NN-NG-NG-NS	Burkholderia rhizoxinica	HKI 454
+>ABO27072.1	NH-SN-HD-IS	Ralstonia solanacearum	FJ4071619
+>AGG20296.1_RipTALI7	NT-NK-HN-HN-HN-HN-NG-HD-NK-HD-HD-SH-NP-NH-SN-HD-IS	Ralstonia solanacearum	FJ41
+>ABO27068.1	NP-NH-SN-HD-IS	Ralstonia solanacearum	FPJ16
+>AGG20303.1_RipTALI14	NT-NK-HN-HN-HN-NG-HD-NK-HD-HD-NP-NP-NH-SN-HD-IS	Ralstonia solanacearum	GD45
+>ABO27073.1	NT-NK-HN-HN-HN-HN-NG-XX-XX-XX-SH-NP-NH-SN-HD-IS	Ralstonia solanacearum	GD5061311
+>AGG20295.1_RipTALI6	NT-NK-HN-HN-HN-HN-NG-NK-HD-HD-SH-NP-NH-SN-HD-IS	Ralstonia solanacearum	GD52
+>CAD15517.1	NT-NK-HN-HN-HN-HN-NG-HD-NK-HD-HD-SH-NP-NH-SN-HD-IS	Ralstonia solanacearum	GMI1000
+>ABO27070.1	NT-NK-HN-HN-HN-NN-NG-XX-XX-XX-XX-XX-NP-NH-SN-HD-IS	Ralstonia solanacearum	GX5072306
+>ABO27074.1	NK-HN-HN-XX-XX-XX-XX-XX-XX-HD-HD-SH-HD-IS	Ralstonia solanacearum	GX5072605
+>AGG20300.1_RipTALI11	NT-NK-HN-HN-HN-QN-NG-HD-NK-HD-HD-SH-HD-IS	Ralstonia solanacearum	GX526
+>AGG20301.1_RipTALI12	NT-NK-HN-HN-HN-HN-NG-HD-NK-HD-HD-SH-NP-NH-SN-HD-IS	Ralstonia solanacearum	GX528
+>AGG20292.1_RipTALI3	NT-NK-HN-HN-HN-HN-NG-HD-NK-HD-HD-SH-NP-NH-SN-HD-IS	Ralstonia solanacearum	GX53
+>AGG20293.1_RipTALI4	NT-NK-HN-HN-HN-HN-NG-HD-NK-HD-HD-SH-NP-NH-SN-HD-IS	Ralstonia solanacearum	GX55
+>AGG20302.1_RipTALI13	NT-NK-HN-HN-HN-HN-NG-HD-NK-HD-HD-SH-NP-NH-SN-HD-IS	Ralstonia solanacearum	GZ522
+>AGG20291.1_RipTALI2	NT-NK-HN-HN-HN-NN-NG-HD-NK-HD-HD-SH-NP-NH-SN-HD-IS	Ralstonia solanacearum	HB53
+>AGG20294.1_RipTALI5	HD-IS	Ralstonia solanacearum	HN515
+>AGG20304.1_RipTALI15	NT-NK-HN-HN-HN-HN-NG-HD-NK-HD-HD-SH-NP-NH-SN-HD-IS	Ralstonia solanacearum	ICPM11110
+>ABO27069.1	NK-HN-HN-HN-HN-SH-XX-XX-XX-XX-XX-NP-NH-SN-HD-IS	Ralstonia solanacearum	ICPM11121
+>AGG20290.1_RipTALI1	NT-NK-HN-HN-HN-HN-NG-HD-NK-HD-HD-SH-NP-NH-SN-HD-IS	Ralstonia solanacearum	JS53
+>CBJ35887.1	NT-NN-NN-NN-NG-SI-NK-ND-ND-NN-NN-NN-NN	Ralstonia solanacearum	PSI07
+>BAD42396.1	HD-IS	Ralstonia solanacearum	RS1000
+>ABO27075.1	HD-IS	Ralstonia solanacearum	SD5072402
+>AGG20297.1_RipTALI8	HD-IS	Ralstonia solanacearum	SD58
+>AGG20299.1_RipTALI10	NT-NK-HN-HN-HN-HN-NG-HD-NK-HD-HD-SH-NP-NH-SN-HD-IS	Ralstonia solanacearum	UW148
+>AGG20298.1_RipTALI9	NT-NK-HN-HN-HN-HN-NG-HD-NK-HD-HD-SH-NP-NH-NH-SN-HY-IS	Ralstonia solanacearum	UW360
+>ABO27067.1	NT-NK-HN-HN-HN-HN-NG-XX-XX-XX-XX-SH-NP-NH-NH-SN-HY-IS	Ralstonia solanacearum	UW360
+>ABO27071.1	HN-HN-HN-NG-XX-XX-XX-XX-XX-XX-NH-SN-HD-IS	Ralstonia solanacearum	ZJ1993Bn1
+>CCA82456.1	NT-NN-NN-NN-NN-NN-NN-NN-NG-SI-NK-ND-ND-NN-NN-NN	Ralstonia sp.	R229
+>AAX12209.1	NI-NS-HD-NG-HD-NG-NG-HD-NI-NG-NI-NG-NI-NG-NI-HD-NI-HD-NI-NG-NG	Xanthomonas axonopodis pv. glycines	8ra
+>AAX12193.1	NI-NS-HD-NG-HD-NG-NG-HD-NI-NG-NI-NG-NI-NG-NI-HD-NI-HD-NI-NG-NG	Xanthomonas axonopodis pv. glycines	AG1
+>ACN82432.1	NI-NS-HD-NG-HD-NG-NG-HD-NI-NG-NI-NG-NI-NG-NI-HD-NI-HD-NI-NG-NG	Xanthomonas axonopodis pv. glycines	KU-P-SW005
+>ADM80412.1_TALE1Xam/PthB	NI-NG-NI-NN-NI-HD-NS-NS-NN-NG-HD-NN-NI-NG	Xanthomonas axonopodis pv. manihotis	CFBP1851
+>AGH79845.1_apl3	NI-HD-NI-HD-NI-HD-HD-NG-HD-HD-N*-NI-HD-HD-NI-HD-HD-NG-HD-NG-NI-HD-NG-NG	Xanthomonas axonopodis?	Xac29-1
+>AAB69865.1_PthN	NI-HD-HD-NI-HD-NI-NG-NI-NN-HD-NI-NG-N*-NN	Xanthomonas campestris	XcmN
+>AAA27592.1_aurBsP	NI-NG-NI-NI-NG-NG	Xanthomonas campestris	Xv 87-7
+>AAY43360.1_Hax4	NI-HD-HD-NG-NS-NS-NI-HD-NG-NI-NS-NI-NG-NI-NG	Xanthomonas campestris pv. armoraciae	5
+>AAY43359.1_Hax3	NI-HD-NI-HD-HD-HD-NS-NS-NS-HD-NI-NG	Xanthomonas campestris pv. armoraciae	5
+>AAY43358.1_Hax2	NN-IG-NG-NI-NG-NG-HD-NG-HD-NI-HD-NI-HD-NG-HD-NG-HD-HD-NG-NG-NI-NG	Xanthomonas campestris pv. armoraciae	5
+>ABO77782.1_PthC	HD-NG-HD-HD-NI-NG-NI-NG-NI-NI-HD-NG-HD-HD-HD-NG-NG-NG	Xanthomonas citri pv. aurantifolii	C340_ ATCC 51302
+>ADI48327.1_PthC1	HD-NG-HD-HD-NI-NG-NI-NG-NI-NI-HD-NG-HD-HD-HD-NG-NG-NG	Xanthomonas citri pv. aurantifolii	ICMP 8435
+>ADI48328.1_PthC2	NI-NI-NI-NG-NI-NI-HD-HD-HD-NI-HD-NG-NG-NG-NG	Xanthomonas citri pv. aurantifolii	ICMP 8435
+>EFF47385.1	HD-NG-HD-HD-NI-NG-NI-NG-NI-NI-HD-NG-HD-HD-HD-NG-NG-NG	Xanthomonas citri pv. aurantifolii	ICPB 10535
+>EFF47221.1	NI-NG-NI-NG-NI-NI-HD-HD-HD-NI-HD-NG-NG-NG-NG	Xanthomonas citri pv. aurantifolii	ICPB 10535
+>EFF48625.1	NI-NG-NI-NI-HD-HD-HD-HD-HD-HD-NG-NG-NG	Xanthomonas citri pv. aurantifolii	ICPB 10535
+>EFF45713.1	NV-NI-NG	Xanthomonas citri pv. aurantifolii	ICPB 10535
+>EFF43075.1	HD-NG-HD-NG-NI-NG-HD-NG-NG-NG	Xanthomonas citri pv. aurantifolii	ICPB 11122
+>EFF42065.1	NG-NG-NG-NG-NG-NG-NI-HD-NG-NG-NN-NN-NN-NG	Xanthomonas citri pv. aurantifolii	ICPB 11122
+>NP_644725.1_PthA2	NI-HD-NI-HD-NI-HD-HD-NG-HD-NG-NG-NG-NG-NI-NI-NG	Xanthomonas citri pv. citri	306
+>AAM39261.1_pthA3	NI-HD-NI-HD-NI-NG-HD-NG-NG-NG-NI-NI-NI-NI-HD-NG	Xanthomonas citri pv. citri	306
+>AAM39226.1_PthA1	NI-N*-NI-N*-NI-HD-HD-N*-NI-HD-NI-HD-N*-NI-HD-HD-NG	Xanthomonas citri pv. citri	306
+>AAM39311.1_PthA4	NI-N*-NI-NI-NI-HD-HD-NG-HD-NG-NG-NG-NG-NS-HD-HD-NG-NG	Xanthomonas citri pv. citri	306
+>AAC43587.1_PthA	NI-N*-NI-NI-NI-NG-HD-NG-HD-NG-NG-NG-NG-NS-HD-HD-NG-NG	Xanthomonas citri pv. citri	3213
+>BAF46270.1_pthA3	NI-HD-NI-HD-NI-NG-HD-NG-NG-NG-NI-NI-NI-NI-HD-NG	Xanthomonas citri pv. citri	KC21
+>BAF46269.1	NI-HD-NI-HD-NI-NG-N*-NI-N*-NI-HD-HD-NI-HD-NG	Xanthomonas citri pv. citri	KC21
+>BAF46272.1	NI-N*-NI-N*-NI-HD-HD-N*-NI-HD-NI-HD-N*-NI-HD-NI-HD-N*-NI-HD-HD-NG	Xanthomonas citri pv. citri	KC21
+>BAF46271.1_PthA4	NI-N*-NI-NI-NI-HD-HD-NG-HD-NG-NG-NG-NG-NS-HD-HD-NG-NG	Xanthomonas citri pv. citri	KC21
+>BAA37121.1_apl3	NI-HD-NI-HD-NI-HD-HD-NG-HD-HD-N*-NI-HD-HD-NI-HD-HD-NG-HD-NG-NI-HD-NG-NG	Xanthomonas citri pv. citri	NA-1
+>BAA37120.1_apl2	NI-N*-NI-HD-NI-HD-HD-NG-HD-NG-NG-NG-NG-NI-HD-NG	Xanthomonas citri pv. citri	NA-1
+>BAA37119.1_apl1	NI-N*-NI-NI-NI-HD-HD-NG-HD-NG-NG-NG-NG-NS-HD-HD-NG-NG	Xanthomonas citri pv. citri	NA-1
+>ACN39605.1_avrTaw	NI-N*-NI-NI-HD-NI-HD-HD-HD-N*-HD-NS-NI-HD-NI-N*-NI-NS-NG	Xanthomonas citri pv. citri	Wellington_ 12879
+>ABO77779.1_PthAW	NI-NG-NG-NG-NS-HD-HD-NS-HD-NG-NC-NG-NG-NS-HD-HD-NG-NG	Xanthomonas citri pv. citri	X0053
+>ABO77780.1_PthA*	NI-NG-NI-HD-NI-HD-HD-NG-HD-NG-NG-NG-NS-HD-NS-NG-NG-NG	Xanthomonas citri pv. citri	Xc270
+>ABO77781.1_PthA*2	NI-NI-N*-NI-N*-NI-HD-HD-NG-NI-HD-NI-HD-HD-HD-NG	Xanthomonas citri pv. citri	Xc270
+>ACZ62653.1_PthA	NI-N*-NI-NI-NI-HD-HD-NG-HD-NG-NG-NG-NG-NS-HD-HD-NG-NG	Xanthomonas citri pv. citri	XW19
+>ACZ62652.1_PthAf	NI-N*-NI-NI-NI-HD-HD-NG-HD-NG-NG-NG-NG-NG-HD-HD-NG-NG	Xanthomonas citri pv. citri	XW47
+>AAB00675.1_Avrb6	HD-NI-NG-HD-HD-NI-HD-NI-NS-HD-HD-HD-NN-NG	Xanthomonas citri subsp. malvacearum	?
+>YP_008640914.1_Xfutal2	NI-NG-HD-NG-HD-NI-NG-NI-HY-NN-N*-HD-NG-HY-NN-HD-NG	Xanthomonas fuscans subsp. fuscans	4834-R
+>CDF63714.1_Xfutal1	NI-NN-NN-HD-NI-HD-NI-HD-HD-HD-HD-HD-NI-NG-NI-NG-NI-NN-NG-NN-HD-HD-NF-HD-NI-HD-HD-HD-HD-HD-NG-NG	Xanthomonas fuscans subsp. fuscans	4834-R
+>EGD16589.1	NN-HD-H*-NG	Xanthomonas gardneri	ATCC 19865
+>ABP97430.1_AvrHah1	NN-IG-NI-NI-NI-HD-HD-NG-NN-NI-HD-HD-HD-NG	Xanthomonas gardneri	XV444
+>AAS58129.3_PthXo5	NI-HG-NI-NI-NS-HD-NI-HD-HG-HD-NI-N*-NS-NI-NI-HG-N*-NS-N*	Xanthomonas oryzae pv. oryzae	?
+>AAS58130.3_in vitro avrXa7 mutant	NI-HG-NI-NI-NS-HD-NI-N*-NS-NG	Xanthomonas oryzae pv. oryzae	?
+>AAS58128.2_AvrXa7_38	NI-HG-NI-NI-NS-HD-NN-HD-HD-HD-NS-N*-NG-HD-HD-N*-NS-NG	Xanthomonas oryzae pv. oryzae	?
+>AAS58127.2_PthXo4	NI-HG-NI-NI-NS-HD-NN-NI-NG-NN-NI-N*-NS-N*	Xanthomonas oryzae pv. oryzae	?
+>AEK86668.1_TalC	NS-NG-NS-HD-NI-NG-NN-NG-HD-NI-NN-N*-NI-NN-HD-NG-NI-NN-N*-HD-NN-NG	Xanthomonas oryzae pv. oryzae	BAI3
+>ACD11364.1_Avr/pthC8b	NI-HG-NI-NI-NI-NN-HD-NS-NN-NS-NN-HD-NN-NI-HD-NN-NS-NG	Xanthomonas oryzae pv. oryzae	C8
+>ABY60855.1	NN-HD-HD-HD-NI-NI-NN-NI-HD-HD-HD-HG-NN-NN-HD-NS-NN-HD-N*-NS-NG	Xanthomonas oryzae pv. oryzae	C8
+>AIA22682.1_PthXo6	NI-H*-NI-NN-NN-NN-NN-NN-HD-NI-HD-HG-HD-NI-N*-NS-NI-NI-HG-HD-NS-NS-NG	Xanthomonas oryzae pv. oryzae	ITCCBB0002
+>AIA22683.1_Tal8b	NI-HG-NS-HG-HG-HD-NS-NG-HD-NN-NG-HG-NG-HD-HG-HD-HD-NI-NN-NG	Xanthomonas oryzae pv. oryzae	ITCCBB0002
+>AAS46026.1_PthXo2	NI-HG-NI-NN-NN-NI-NN-HD-NI-HD-NS-NS-NS-HD-NN-HD-NG-HD-HD-HD-NG-NG	Xanthomonas oryzae pv. oryzae	JX01
+>ACM44927.1_Avrxa5	HD-HD-HD-NG-N*-NN-HD-HD-N*-NI-NN-HD-HI-ND-HD-NI-HD-HD-NG-NG	Xanthomonas oryzae pv. oryzae	JXOIII
+>AAN01357.1_Avrxa3	HD-HD-HD-NG-N*-NN-HD-HD-NG	Xanthomonas oryzae pv. oryzae	JXOIII
+>ABG37631.1_Avr/pth3	HD-NG	Xanthomonas oryzae pv. oryzae	JXOIII
+>ABG37632.1_Avr/pth56B	NI-NG	Xanthomonas oryzae pv. oryzae	JXOIII
+>YP_199878.1	HD	Xanthomonas oryzae pv. oryzae	KACC10331
+>YP_199877.1	HD-NG-N*-N*-NI-NI-NN-HD-HI-ND-HD-NI-HD-NG-NG	Xanthomonas oryzae pv. oryzae	KACC10331
+>AAW77510.1	NG-HD-HD-HD-NG-NG	Xanthomonas oryzae pv. oryzae	KACC10331
+>YP_200918.1	NI-H*-NI-NN-NN-NN-NN-NN-HD-NI-NS-HG-HD-NI-N*-NS-NI-NI-HD-N*-NS-NI-NG	Xanthomonas oryzae pv. oryzae	KACC10331
+>YP_200915.1	NI-HG-NI-NG-HG-HD-NS-NG-HD-NN-NG-HG-NG-HD-HG-HD-HD-NI-NN-NG	Xanthomonas oryzae pv. oryzae	KACC10331
+>YP_200767.1	NI-HG-NI-NI-NI-NN-HD-NS-NN-NS-NN-HD-NN-NI-HD-NN-NI-NG-HD-NG	Xanthomonas oryzae pv. oryzae	KACC10331
+>YP_201654.1	NI-HG-NI-NI-NS-HD-NN-HD-HD-HD-NS-N*-NG-HD-HD-NS-NS-NN-NG	Xanthomonas oryzae pv. oryzae	KACC10331
+>YP_201653.1	NI-HG-NI-NI-NS-HD-NN-HD-HG-NI-NI-HG-HD-NN-HD-HD-HD-NI-NI-NN-NI-HD-HD-HD-HG-NN-NN-HD-NS-NN-HD-N*-NS-NG	Xanthomonas oryzae pv. oryzae	KACC10331
+>YP_202894.1	NI-HG-NI-NN-NI-NN-HD-HD-HD-HD-NS-NS-HD-NI-NI-HD	Xanthomonas oryzae pv. oryzae	KACC10331
+>YP_200914.1	NI-N*-NI-NS-NN-NG-NN-NS-N*-NS-NN-NS-N*-HD-HG-HD-HD-HD-NS-N*-HD-HG-HD-HD-HD-HD-NG	Xanthomonas oryzae pv. oryzae	KACC10331
+>YP_201652.1	NI-NG-NN-NG-NK-NG-NI-NN-NI-NN-NI-NN-NS-NG-NS-NN-NI-N*-NS-NG	Xanthomonas oryzae pv. oryzae	KACC10331
+>YP_199876.1	NI-NN-NI-HG-HG-HD-NG-HD-HG-HD-HD-HD-NG	Xanthomonas oryzae pv. oryzae	KACC10331
+>YP_200903.1	NI-NN-NN-NI-NI-NI-NS-HG-HD-NI-N*-NS-NI-NI-NN-NI-NG	Xanthomonas oryzae pv. oryzae	KACC10331
+>YP_200766.1	NI-NS-HD-NG-NS-NN-HD-N*-NN-NN-NI-NN-HD-NG-HD-HD-HD-NG	Xanthomonas oryzae pv. oryzae	KACC10331
+>YP_200770.1	NN-HD-NS-NG-HD-NN-N*-NI-HD-NS-HD-NN-HD-NN-HD-NN-NN-NN-NN-NN-NN-NN-HD-NG	Xanthomonas oryzae pv. oryzae	KACC10331
+>AAS75145.1_AvrXa7	NI-HG-NI-NI-NS-HD-NN-HD-HD-HD-NS-N*-NG-HD-HD-NS-NS-NN-NN-NI-NG-NN-NI-N*-NS-NG	Xanthomonas oryzae pv. oryzae	KXO85
+>YP_450167.1	HD-HD-HD-NG-N*-NG-HD-S*-HG-NI-NI-NN-HD-NN-ND-HD-NI-HD-HG-NG	Xanthomonas oryzae pv. oryzae	MAFF 311018
+>YP_451893.1	HD-HD-HD-NS-N*-NN-NS-N*-NS-NN-NI-NN-NI-HG-NI-NI-NS-HD-NN-HD-NS-NS-NN-HD-NN-NN-NN-NN-NN-HD-HD-NG	Xanthomonas oryzae pv. oryzae	MAFF 311018
+>YP_450165.1	HD-HD-NN-NN-NS-NG-HD-S*-HG-HD-NG-N*-HD-HD-HD-N*-NN-NQ-NN-HD-HI-ND-HD-HG-NN-HG-NG	Xanthomonas oryzae pv. oryzae	MAFF 311018
+>YP_451189.1	NI-HG-NI-NG-HG-HD-NS-NG-HD-NN-NG-HG-NG-HD-HG-HD-HD-NI-NS-HG-HD-NI-N*-NS-NI-NI-HD-HD-N*-NS-N*	Xanthomonas oryzae pv. oryzae	MAFF 311018
+>YP_451895.1	NI-HG-NI-NI-HG-HD-NN-HD-HD-HD-NI-NI-NN-NI-HD-HD-HD-HG-NN-NN-HD-NS-NN-HD-NG-NS-N*	Xanthomonas oryzae pv. oryzae	MAFF 311018
+>YP_451027.1	NI-HG-NI-NI-NI-NN-HD-NS-NN-NS-NN-HD-NN-NI-HD-NN-NI-NG-HD-NG	Xanthomonas oryzae pv. oryzae	MAFF 311018
+>YP_451897.1	NI-HG-NI-NI-NS-HD-NN-HD-HD-HD-NS-N*-NG-HD-HD-NS-NS-NN-NN-NI-NG-NN-NI-N*-NS-N*	Xanthomonas oryzae pv. oryzae	MAFF 311018
+>YP_453043.1	NI-HG-NI-NN-NN-NI-NN-HD-NI-HD-NS-NS-NS-HD-NN-HD-NG-HD-HD-HD-NG-NG	Xanthomonas oryzae pv. oryzae	MAFF 311018
+>YP_451156.1	NI-N*-NI-HG-NI-NI-NS-HD-NN-HD-NS-NG-SS-HD-NI-NI-NN-NI-NN-NS-NG	Xanthomonas oryzae pv. oryzae	MAFF 311018
+>YP_451187.1	NI-N*-NI-NS-NN-NG-NN-NS-N*-NS-NN-NS-N*-HD-HG-HD-NI-HD-HD-NG	Xanthomonas oryzae pv. oryzae	MAFF 311018
+>YP_451894.1	NI-NG-NN-NG-NK-NG-NI-NN-NI-NN-NI-NN-NS-NG-NS-NN-NI-N*-NS-NG	Xanthomonas oryzae pv. oryzae	MAFF 311018
+>YP_450163.1	NI-NN-N*-NG-NS-NN-NN-NN-NI-NN-NI-N*-HD-HD-NI-NG-NG	Xanthomonas oryzae pv. oryzae	MAFF 311018
+>YP_450161.1	NI-NN-NI-HG-HG-NV-HG-HD-HG-HD-HD-HD-NG	Xanthomonas oryzae pv. oryzae	MAFF 311018
+>YP_451158.1	NI-NN-NN-NI-NI-NI-HD-NS-HG-NN-NN-NN-NI-NI-NG-HD	Xanthomonas oryzae pv. oryzae	MAFF 311018
+>YP_451025.1	NI-NS-HD-NG-NS-NN-HD-N*-NN-NN-NI-NG-HD-NG-HD-HD-HD-NG	Xanthomonas oryzae pv. oryzae	MAFF 311018
+>BAE68756.1	NN-HD-NS-NG-HD-NN-N*-NI-HD-NS-HD-NN-HD-NN-HD-NN-NN-NN-NN-NN-NN-NN-HD-NG	Xanthomonas oryzae pv. oryzae	MAFF 311018
+>YP_451696.1	NS-HD-NG-NG-NG-NG-HD-HD-HD-HD-NN-HD-NG-HD-HD-HD-NN-H*	Xanthomonas oryzae pv. oryzae	MAFF 311018
+>AAQ79773.2_Avrxa5_Putative	NS-HD-NI-NI-NI-N*	Xanthomonas oryzae pv. oryzae	PX0339
+>AAT46122.1_AvrXa71M	NI-HG-NI-NI-NS-HD-NN-HD-HD-HD-NS-N*-NG-HD-HD-NS-NS-NN-NN-NI-NG-NN-NI-N*-NS-NG	Xanthomonas oryzae pv. oryzae	PXO0314
+>AAF98332.1	NI-HG-NI-NI-NS-HD-NN-HD-HD-HD-NS-N*-NG-HD-HD-NS-NS-NN-NN-NI-NG-NN-NI-N*-NS-NG	Xanthomonas oryzae pv. oryzae	PXO1865
+>AAF98343.1_AvrXa7	NI-HG-NI-NI-NS-HD-NN-HD-HD-HD-NS-N*-NG-HD-HD-NS-NS-NN-NN-NI-NG-NN-NI-N*-NS-NG	Xanthomonas oryzae pv. oryzae	PXO2684
+>AAT46123.1_AvrXa72M	NI-H*-NI-NN-NN-NN-NN-NN-HD-NI-NS-HG-HD-NI-N*-NS-NI-NI-HD-HD-N*-NS-NG	Xanthomonas oryzae pv. oryzae	PXO348
+>AAT46124.1_AvrXa73M	NI-HG-NI-NI-HG-HD-NN-HD-HD-HD-NI-NI-NN-NI-HD-HD-HD-HG-NN-NN-HD-NS-NN-HD-NG-NS-NG	Xanthomonas oryzae pv. oryzae	PXO356
+>AAT46128.1_AvrXa73M	NI-HG-NI-NI-HG-HD-NN-HD-HD-HD-NI-NI-NN-NI-HD-HD-HD-HG-NN-NN-HD-NS-NN-HD-NG-NS-NG	Xanthomonas oryzae pv. oryzae	PXO357
+>AAT46126.1_AvrXa72M	NI-H*-NI-NN-NN-NN-NN-NN-HD-NI-NS-HG-HD-NI-N*-NS-NI-NI-HD-HD-N*-NS-NG	Xanthomonas oryzae pv. oryzae	PXO441
+>AAT46127.1_AvrXa72M	NI-H*-NI-NN-NN-NN-NN-NN-HD-NI-NS-HG-HD-NI-N*-NS-NI-NI-HD-HD-N*-NS-NG	Xanthomonas oryzae pv. oryzae	PXO448
+>AAT46125.1_AvrXa74M	NI-HG-NI-NI-NS-HD-NN-HD-HD-HD-NS-N*-NG-HD-HD-NS-NS-NN-NN-NI-NG-NN-NI-N*-NS-NG	Xanthomonas oryzae pv. oryzae	PXO557
+>AAS46027.1_PthXo3	NI-HG-NI-HG-NI-NI-NI-HD-NN-HD-HD-HD-NG-HD-NG-NI-HD-HD-NN-NS-NI-NN-NN-NG-NN-HD-N*-NS-NG	Xanthomonas oryzae pv. oryzae	PXO61
+>AAA92974.1_AvrXA10	NI-HG-NI-HG-NI-NI-NN-HD-NI-HD-NN-HG-NS-NG-HD-N*	Xanthomonas oryzae pv. oryzae	PXO86
+>AAG02079.2_AvrXa7	NI-HG-NI-NI-NS-HD-NN-HD-HD-HD-NS-N*-NG-HD-HD-NS-NN-NS-NN-NI-NG-NN-NI-N*-NS-NG	Xanthomonas oryzae pv. oryzae	PXO86
+>ACD60557.2_Tal9a	HD-HD-HD-NG-N*-NN-HD-HD-N*-NI-NI-NN-HD-HI-ND-HD-NI-HD-NG-NG	Xanthomonas oryzae pv. oryzae	PXO99A
+>ACD60561.1_Tal9b, AvrXa23	HD-HD-NN-NN-NG-NG-HD-NS-HG-HD-NG-N*-HD-HD-HD-N*-NN-NQ-NN-HD-HI-ND-HD-HG-NN-HG-NG	Xanthomonas oryzae pv. oryzae	PXO99A
+>ACD58920.2_Tal5b, PthXo6	NI-H*-NI-NN-NN-NN-NN-NN-HD-NI-HD-HG-HD-NI-N*-NS-NI-NI-HG-HD-NS-NS-NG	Xanthomonas oryzae pv. oryzae	PXO99A
+>ACD59223.2_Tal7a	NI-HG-NI-NI-NI-NN-HD-NS-NN-NS-NN-HD-NN-NI-HD-NN-NS-NG	Xanthomonas oryzae pv. oryzae	PXO99A
+>ACD59416.2_Tal8a	NI-HG-NI-NI-NI-NN-HD-NS-NN-NS-NN-HD-NN-NI-HD-NN-NS-NG	Xanthomonas oryzae pv. oryzae	PXO99A
+>ACD59227.2_Tal7b	NI-HG-NS-HG-HG-HD-NS-NG-HD-NN-NG-HG-NG-HD-HG-HD-HD-NI-NN-NG	Xanthomonas oryzae pv. oryzae	PXO99A
+>ACD59420.2_Tal8b	NI-HG-NS-HG-HG-HD-NS-NG-HD-NN-NG-HG-NG-HD-HG-HD-HD-NI-NN-NG	Xanthomonas oryzae pv. oryzae	PXO99A
+>ACD58948.2_Tal6a	NI-N*-NI-NS-NN-NG-NN-NS-N*-NS-NN-NS-N*-NI-HG-HD-NI-HD-HD-NG	Xanthomonas oryzae pv. oryzae	PXO99A
+>ACD57198.2_PthXo7, tal1	NI-NG-NI-NI-N*-NN-HD-HD-N*-NI-NI-NI-NG-HD-HG-NN-NS-NN-HD-HD-NG-N*	Xanthomonas oryzae pv. oryzae	PXO99A
+>ACD58246.1_Tal2a	NI-NG-NN-NG-NK-NG-NI-NN-NI-NN-NI-HD-N*-NS-NG	Xanthomonas oryzae pv. oryzae	PXO99A
+>ACD60565.2_Tal9c, Avrxa27	NI-NN-N*-NG-NS-NN-NN-NN-NI-NN-NI-N*-HD-HD-NI-NG-NG	Xanthomonas oryzae pv. oryzae	PXO99A
+>ACD60569.2_Tal9d	NI-NN-NI-HG-HG-NV-HG-HD-HG-HD-HD-HD-NG	Xanthomonas oryzae pv. oryzae	PXO99A
+>ACD58650.2_Tal4	NI-NN-NN-NI-NI-NI-HD-NS-HG-NN-NN-NN-NI-NI-HG-HD	Xanthomonas oryzae pv. oryzae	PXO99A
+>ACD58925.2_Tal5a	NI-NS-HD-HG-NS-NN-HD-H*-NG-NN-NN-HD-HD-NG-HD-NG	Xanthomonas oryzae pv. oryzae	PXO99A
+>ACD58243.2_PthXo1, tal2b	NN-HD-NI-HG-HD-NG-N*-HD-HD-NI-NG-NG-NI-HD-NG-NN-NG-NI-NI-NI-NI-N*-NS-N*	Xanthomonas oryzae pv. oryzae	PXO99A
+>ACD60573.2_Tal9e	NN-HD-NS-NG-HD-NN-N*-NI-HD-NS-HD-NN-HD-NN-HD-NN-NN-NN-NN-NN-NN-NN-HD-NG	Xanthomonas oryzae pv. oryzae	PXO99A
+>ACD58449.2_Tal3a	NS-HD-NG-NG-NG-HD-HD-NG-HD-NN-NG-HD-NN-HD-NG-HD-NI-NG	Xanthomonas oryzae pv. oryzae	PXO99A
+>ACD58455.2_Tal3b	NS-HD-NG-NG-NG-NG-NG-HD-HD-HD-NN-HD-NG-HD-HD-HD-HD-NG	Xanthomonas oryzae pv. oryzae	PXO99A
+>AAW59491.1_Avr/Pth13	N*-NN-HD-HD-HD-NG	Xanthomonas oryzae pv. oryzicola	?
+>AAW59492.1_Avr/pth3	NS-HD-NI-N*-NI-HG-NG-HD-NN-NI-NG-HD-NN-NS-NN-NG-NN	Xanthomonas oryzae pv. oryzicola	?
+>AEQ98462.1_Tal11b	HD-HD-HD-HD-HD-NG-HD-NN-HD-ND-NG-NG-NN-HG-ND-ND-HD-NG	Xanthomonas oryzae pv. oryzicola	BLS256
+>AEQ94695.1_Tal1c	HD-HD-HD-HD-HD-NG-HD-NN-HD-NG-HG-NN-HD-N*-NG-NG	Xanthomonas oryzae pv. oryzicola	BLS256
+>AEQ95751.1_Tal2a	HD-HD-NC-HD-NC-NG-HD-HH-HD-NI-NG-N*-NS-N*-HD-HD-NS-NI-HG-HD-NG	Xanthomonas oryzae pv. oryzicola	BLS256
+>AEQ95742.1_Tal2f	HD-HD-NG-NI-HG-HD-HG-NI-HD-NN-HD-HG-HG-HG-NG-NI-NG	Xanthomonas oryzae pv. oryzicola	BLS256
+>AEQ95745.1_Tal2c	HD-HD-NN-NN-NG-N*-HD-NI-NG-HD-NG-NS-HD-HA-ND-N*-ND-NN-HD-NN-NN-HD-HD-N*-NN-NG-HD	Xanthomonas oryzae pv. oryzicola	BLS256
+>AEQ98454.1_Tal10	HD-HG-HD-HG-N*-NN-NG-HD-NN-HD-NG-NG-NN-HD-N*-NG-NG	Xanthomonas oryzae pv. oryzicola	BLS256
+>AEQ98467.1_Tal11a	HD-NN-HD-N*-NS-NN-HG-NI-NI-NS-NI-NG-HD-NN-HD-HD-NG-HG-NG	Xanthomonas oryzae pv. oryzicola	BLS256
+>AEQ96610.1_Tal5b	HH-NN-HD-HD-NG-N*-HD-NN-HD-ND-N*-NG-NS-NS-NN-HD-HD-NG	Xanthomonas oryzae pv. oryzicola	BLS256
+>AEQ95744.1_Tal2d	NI-HG-N*-NN-N*-HD-HG-HD-NN-HD-NK-HG-NN-NN-NG-HD	Xanthomonas oryzae pv. oryzicola	BLS256
+>AEQ98746.1_Tal2b	NI-HG-NI-N*-HN-NG-NN-ND-HD-NG-HD-NI-HG-HG-HD-NN-HD-HH-NG	Xanthomonas oryzae pv. oryzicola	BLS256
+>AEQ95875.1_Tal3b	NI-N*-NI-NI-NN-N*-NI-NK-HD-HD-HD-NG-NI-NN-HD-NN-HD-NG	Xanthomonas oryzae pv. oryzicola	BLS256
+>AEQ96159.1_Tal4a	NI-NG-NI-NG-NN-NG-NN-NG-HD-NN-NN-HG-HD-NN-NS-NN-HD-HD-NG-NA-NN-HD-HD-HD-HD-NG	Xanthomonas oryzae pv. oryzicola	BLS256
+>AEQ98323.1_Tal9b	NI-NN-HN-NN-NI-NG-HD-NN-HD-HG-HD-HG-HG-HD-HD-NG	Xanthomonas oryzae pv. oryzicola	BLS256
+>AEQ94696.1_Tal1b	NI-NN-NI-NI-NG-HD-NG-NN-NI-NN-NI-NN-HD	Xanthomonas oryzae pv. oryzicola	BLS256
+>AEQ95743.1_Tal2e	NI-NN-NI-NI-NI-NI-N*-NI-NG-NN-NN-NN-NI-NS-NG-NG	Xanthomonas oryzae pv. oryzicola	BLS256
+>AEQ96996.1_Tal7	NN-HD-HD-HH-NN-NG-NS-NG-HD-NI-NG-HD-HH-NG-NG-NG-HA-NG	Xanthomonas oryzae pv. oryzicola	BLS256
+>AEQ95881.1_Tal3c	NN-HD-NI-HD-NN-NG-NG-HD-NN-HD-N*-NN-HD-HD-HD-NG	Xanthomonas oryzae pv. oryzicola	BLS256
+>AEQ95871.1_Tal3a	NN-HD-NI-NI-NG-NN-NN-HD-NN-NI-NI-NN-NN-NN-NG-NI-HD-NG	Xanthomonas oryzae pv. oryzicola	BLS256
+>AEQ96964.1_Tal6	NN-HD-NI-NI-NN-HA-NN-NS-NS-NI-HD-HA-HA-HA-HD-HD-HD-HA-HD-NG	Xanthomonas oryzae pv. oryzicola	BLS256
+>AEQ94698.1_Tal1a	NN-HD-NI-NK-HD-HD-HD-NG-NI-NN-HD-HD-NG	Xanthomonas oryzae pv. oryzicola	BLS256
+>AEQ96609.1_Tal5a	NN-HD-NS-NG-HD-NN-HD-NI-HD-NN-HD-NN-HD-NN-HD-NN-NN-NN-NN-NN-NN-NN-HD-NG	Xanthomonas oryzae pv. oryzicola	BLS256
+>AEQ98113.1_Tal8	NN-NG-HD-NG-HD-HD-NI-NH-HG-NI-NN-NN-HD-NS-NG-NN-HD-NG-NG-NG	Xanthomonas oryzae pv. oryzicola	BLS256
+>AEQ95741.1_Tal2g	NN-NN-ND-N*-NS-NS-YG-NI-SN-HD-HD-NG-HD-NS-NN-HD-NG	Xanthomonas oryzae pv. oryzicola	BLS256
+>AEQ98324.1_Tal9a	NN-NS-NG-NI-HD-HD-NG-NN-HD-NI-NG-N*-N*-NG-HD-HD-NS-NI-NN-NG-NG	Xanthomonas oryzae pv. oryzicola	BLS256
+>AEQ98589.1_Tal12	NS-HD-NI-N*-NI-HG-NI-NI-N*-NG-HD-NN-NI-NG-HD-NN-NS-NN-NG-NN	Xanthomonas oryzae pv. oryzicola	BLS256
+>AEQ96157.1_Tal4c	NS-HG-NI-NG-NS-NN-ND-N*-NG-N*-HN-NN-HD-NS-NI-NN-HD-HD-NG-NG-HG-HD-NG	Xanthomonas oryzae pv. oryzicola	BLS256
+>AEQ96158.1_Tal4b	NS-HG-NI-NG-NS-NN-NG-NN-NG-HD-NN-HD-HD-NG	Xanthomonas oryzae pv. oryzicola	BLS256
+>AEQ95737.1_Tal2h	NS-ND-HG-HG-HG-NG-HG-HG-HD-HD-HD-NN-NN-HD-HG-HH-H*-H*-NN-HD-HG	Xanthomonas oryzae pv. oryzicola	BLS256
+>AHA11379.1	NI-HG-HG-HG-HG-HG-NG-HD-HD-HD-NN-NN-HD-HG-HH-H*-H*-NN-HD-HG	Xanthomonas oryzae pv. oryzicola	JSB2-24
+>AHA11384.1	NI-ND-HG-HG-HG-HG-NG-HG-HG-HD-HD-HD-NN-NN-HD-HG-HH-H*-H*-NN-HD-HG	Xanthomonas oryzae pv. oryzicola	RS105
+>ELP96319.1_Tal8	HN-NI-NH	Xanthomonas translucens	DAR61454
+>ELP95554.1	NN-NN	Xanthomonas translucens	DAR61454
+>ELP96962.1_Tal9b	NN-NN-HD-NN	Xanthomonas translucens	DAR61454
+>CAA34257.1_AvrBs3	HD-NG-NS-NG-NI-NI-NI-HD-HD-NG-NS-NS-HD-HD-HD-NG-HD-NG	Xanthomonas vesicatoria	71-21
+>CAA48680.1_AvrBs4	NI-NG-NI-NI-NG-NG-NI-NS-NG-NI-NS-NG-HD-HD-NS-HD-NG-NG	Xanthomonas vesicatoria	82-8
+>EBN19408.1	HG-HD-HD-HG	marine metagenome	-
+>EBN19409.1	HG-HD-HD-NN-HG-HG-HD-HD-HD	marine metagenome	-
+>ECG96325.1	HG-NN-HG-HD-HI-HG-HN	marine metagenome	-
+>ECG96326.1	NT-HD-HI-HI-HD-NN-HG-HK	marine metagenome	-
+>YP_004030667.1_Bat3	NI-NG-NG-NG-NN	Burkholderia rhizoxinica	HKI 454
+>TAL13XAM668_TAL13	NI-NS-NN-HD-NG-HD-NI-NG-HD-NN-NI-NI-NG	Xanthomonas axonopodis pv. manihotis	XAM668
+>TAL14XAM668_TAL14	NI-NG-NI-NN-NG-HD-NS-NS-NN-NG-HD-NN-NI-NG	Xanthomonas axonopodis pv. manihotis	XAM668
+>TAL15XAM668_TAL15	NI-NG-NI-NN-HD-HD-NS-NS-NS-HD-HD-NS-HD-NG-NG	Xanthomonas axonopodis pv. manihotis	XAM668
+>TAL21CIO151_TAL21	NI-NG-HD-NG-HD-N*-NG-NG-HD-HD-HD-NG-N*-NG-HD-NG-NG-NG-HD-NG-NG	Xanthomonas axonopodis pv. manihotis	CIO151
+>TAL22XAM668_TAL22	NI-NG-HD-NG-NG-NG-HD-HD-NG-NG-HD-NG-HD-HD-NG-NG-HD-NG-NG-HD-NG-NG	Xanthomonas axonopodis pv. manihotis	XAM668
+>TAL20Xam668_TAL20	NI-NG-NI-NN-NI-HD-NS-NS-NN-NG-HD-NS-HD-NN-HD-HD-HD-NI-NG-NG	Xanthomonas axonopodis pv. manihotis	XAM668
+>NP_942641.1_PthB	HD-NG-HD-NG-NI-NG-HD-NG-HD-NI-NI-HD-HD-HD-HD-NG-NG-NG	Xanthomonas citri pv. aurantifolii	-
+>AJQ82709_PXO86_Tal2b	NI-HG-NI-NI-NS-HD-NN-HD-HD-HD-NS-N*-NG-HD-HD-NS-NS-NN-NN-NI-NG-NN-NI-N*-NS-NG	Xanthomonas oryzae pv. oryzae PXO86	PXO86
+>AJQ83294_PXO86_Tal4a	NI-N*-NI-NS-NN-NG-NN-HD-HD-HD-NG-HD-NS-HD-N*-NS-NG	Xanthomonas oryzae pv. oryzae	PXO86
+>AJQ83306_PXO86_Tal5a	NI-NS-HD-HG-NS-NN-HD-H*-NG-NN-NN-HD-HD-NG-HD-NG	Xanthomonas oryzae pv. oryzae	PXO86
+>AJQ83528_PXO86_Tal6a	NS-NG-NG-NG-NG-NG-NG-HD-HD-HD-NN-HD-NG-HD-HD-HD-HD-HG	Xanthomonas oryzae pv. oryzae	PXO86
+>AJQ84300_PXO86_Tal8a	HD-HD-HD-NG-N*-NN-HD-HD-N*-NI-NI-NN-HD-HI-ND-HD-NI-HD-NG-NG	Xanthomonas oryzae pv. oryzae	PXO86
+>AJQ81665_PXO86_Tal1	NI-HG-NI-NI-HG-HD-NN-HD-HD-HD-NI-NI-NN-NI-HD-HD-HD-HG-NN-NN-HD-NS-NN-HD-N*-NS-NG	Xanthomonas oryzae pv. oryzae	PXO86
+>AJQ82712_PXO86_Tal2a	NI-NG-NN-NG-NK-NG-NI-NN-NI-NN-NI-NN-NS-NG-NS-NN-NI-N*-NS-NG	Xanthomonas oryzae pv. oryzae	PXO86
+>AJQ83291_PXO86_Tal4b	NI-N*-NI-HG-NI-NI-NS-HD-NN-HD-NS-NG-SS-HD-NI-NI-NN-NI-NN-NI-NG	Xanthomonas oryzae pv. oryzae	PXO86
+>AJQ83309_PXO86_Tal5b	NI-HG-NS-HG-HG-HD-NS-NG-HD-NN-NG-HG-NG-HD-HG-HD-HD-NI-NN-NG	Xanthomonas oryzae pv. oryzae	PXO86
+>AJQ83314_PXO86_Tal5c	NI-H*-NI-NN-NN-NN-NN-NN-HD-NI-NN-HG-HD-NI-N*-NS-NI-NI-HD-N*-NS-NI-NG	Xanthomonas oryzae pv. oryzae	PXO86
+>AJQ83546_PXO86_Tal7b	NI-HG-NI-NI-NI-NN-HD-NS-NN-NS-NN-HD-NN-NI-HD-NN-NS-NG	Xanthomonas oryzae pv. oryzae	PXO86
+>AJQ84303_PXO86_Tal8b	HD-HD-NN-NN-NS-NG-HD-S*-HG-HD-NG-N*-HD-HD-HD-N*-NN-NQ-NN-HD-HI-ND-HD-HG-NN-HG-NG	Xanthomonas oryzae pv. oryzae	PXO86
+>AJQ84306_PXO86_Tal8c	NI-NN-N*-NG-NS-NN-NN-NN-NI-NN-NI-N*-HD-HD-NI-NG-NG	Xanthomonas oryzae pv. oryzae	PXO86
+>AJQ84309_PXO86_Tal8d	NI-NN-NI-HG-HG-NV-HG-HD-HG-HD-HD-HD-NG	Xanthomonas oryzae pv. oryzae	PXO86
+>AJQ84312_PXO86_Tal8e	NN-HD-NS-NG-HD-NN-N*-NI-HD-NS-HD-NN-HD-NN-HD-NN-NN-NN-NN-NN-NN-NN-HD-NG	Xanthomonas oryzae pv. oryzae	PXO86
+>AJQ85969_CFBP7342_Tal3	HD-HG-N*-NN-HG-HD-NN-HD-NN-NG-NN-HD-NN-HD-NG	Xanthomonas oryzae pv. oryzicola	CFBP7342
+>AJQ86074_CFBP7342_Tal4b	NI-NN-NI-NI-NG-HD-NG-NN-NI-NN-NI-NN-NG	Xanthomonas oryzae pv. oryzicola	CFBP7342
+>AJQ87298_CFBP7342_Tal6b	NI-HG-NI-NN-NG-NN-ND-N*-NG-N*-HN-NN-HD-HN-NN-NN-HD-HD-NG-NG-NG-HD-NG	Xanthomonas oryzae pv. oryzicola	CFBP7342
+>AJQ87299_CFBP7342_Tal6a	NI-HG-NS-NG-NN-NG-HH-NG-HD-NN-NN-HG-HD-NN-NS-NN-HD-HD-NG-NA-NN-HD-HD-HD-HD-NG	Xanthomonas oryzae pv. oryzicola	CFBP7342
+>AJQ87701_CFBP7342_Tal7b	HH-NN-HD-HD-NG-N*-HD-NN-HD-ND-N*-NG-NS-NS-NN-HD-HD-NG	Xanthomonas oryzae pv. oryzicola	CFBP7342
+>AJQ88017_CFBP7342_Tal8	NN-HD-NS-NS-NN-HA-NN-NS-NS-NI-HD-HD-HD-HA-HD-NN-ND-NN-HD-NG	Xanthomonas oryzae pv. oryzicola	CFBP7342
+>AJQ88045_CFBP7342_Tal9	NN-HD-HD-HH-NN-NG-NG-NG-HD-NI-NG-HD-HH-NG-NG-NG-NG	Xanthomonas oryzae pv. oryzicola	CFBP7342
+>AJQ88182_CFBP7342_Tal10c	NN-HD-NI-HD-NI-NG-NG-HD-NN-HD-N*-NN-HD-HD-NN-HD-HD-NG	Xanthomonas oryzae pv. oryzicola	CFBP7342
+>AJQ88183_CFBP7342_Tal10b	NI-N*-NI-NI-NN-N*-NI-NK-HD-HD-HD-NG-NI-NN-ND-N*-HD-NG	Xanthomonas oryzae pv. oryzicola	CFBP7342
+>AJQ88290_CFBP7342_Tal11c	NI-NG-N*-NN-N*-HD-HG-HD-NN-HD-NN-HG-HG-NS-NG-HD	Xanthomonas oryzae pv. oryzicola	CFBP7342
+>AJQ88291_CFBP7342_Tal11d	HD-HD-NN-NN-NN-NI-NN-NI-NN-NN-HD-HG-NG	Xanthomonas oryzae pv. oryzicola	CFBP7342
+>AJQ88292_CFBP7342_Tal11e	NN-HD-NI-N*-NI-NI-NK-HD-HD-HD-NG-HD-NN-HD-HD	Xanthomonas oryzae pv. oryzicola	CFBP7342
+>AJQ88293_CFBP7342_Tal11f	NN-NN-HD-N*-NS-SN-YG-NI-SN-HD-HD-NG-HD-NS-NN-HD-NG	Xanthomonas oryzae pv. oryzicola	CFBP7342
+>AJQ89403_CFBP7342_Tal12	NN-NG-NS-HD-NI-NG-NN-NN-HG-ND-ND-HG-NG	Xanthomonas oryzae pv. oryzicola	CFBP7342
+>AJQ85859_CFBP7342_Tal1	NI-HD-NI-N*-NI-HG-NI-NI-N*-NG-HD-NN-NI-NG-HD-NN-NS-NN-NG-NG	Xanthomonas oryzae pv. oryzicola	CFBP7342
+>AJQ85964_CFBP7342_Tal2b	HD-HD-NI-HD-HD-HG-HD-NN-ND-ND-NG-NG-NN-HG-HG-ND-HD-NG	Xanthomonas oryzae pv. oryzicola	CFBP7342
+>AJQ86073_CFBP7342_Tal4a	NN-NS-NG-NI-HD-HD-NG-NN-HD-NI-NG-N*-N*-NG-HD-HD-NS-NI-NN-NG-NG	Xanthomonas oryzae pv. oryzicola	CFBP7342
+>AJQ86298_CFBP7342_Tal5	NN-HG-HD-NG-HD-HD-NI-NH-HG-NI-NN-NN-HD-NS-NG-NN-HD-NG-NG-NG-NG	Xanthomonas oryzae pv. oryzicola	CFBP7342
+>AJQ87696_CFBP7342_Tal7a	HD-HD-NN-NN-NG-N*-HD-NI-NG-HD-NG-NG-NS-ND-HA-HD-N*-HD-NG-NI-NN-NN-HD-HD-NG-HD	Xanthomonas oryzae pv. oryzicola	CFBP7342
+>AJQ88184_CFBP7342_Tal10a	NN-HD-NI-NI-NG-NN-NN-HD-HH-NI-NI-NN-NN-NN-NG-NI-HD-NG	Xanthomonas oryzae pv. oryzicola	CFBP7342
+>AJQ88288_CFBP7342_Tal11a	NI-HG-NI-NG-HN-NG-NN-HD-ND-NG-HD-NI-HG-NG-HD-HH-N*-HH-N*-HD-NN-NG-HD-HD-NN-NN-NG-NN-NI-NV	Xanthomonas oryzae pv. oryzicola	CFBP7342
+>AJQ88289_CFBP7342_Tal11b	HD-HD-NN-NN-NG-N*-HD-NI-NG-HD-NG-NS-ND-HA-HD-N*-HH-NG-NI-NN-NN-HD-HD-NG-HD	Xanthomonas oryzae pv. oryzicola	CFBP7342

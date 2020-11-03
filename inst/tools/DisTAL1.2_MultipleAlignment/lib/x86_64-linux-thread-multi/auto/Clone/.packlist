@@ -1,0 +1,4 @@
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/x86_64-linux-thread-multi/Clone.pm relocate_as=../../Clone.pm
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/x86_64-linux-thread-multi/auto/Clone/Clone.so relocate_as=Clone.so
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/x86_64-linux-thread-multi/auto/Clone/autosplit.ix relocate_as=autosplit.ix
+/home/baotram/miniconda3/envs/perly_env/man/man3/Clone.3 relocate_as=../../../../../../man/man3/Clone.3

@@ -1,0 +1,4 @@
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/Error.pm relocate_as=../../../Error.pm
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/Error/Simple.pm relocate_as=../../../Error/Simple.pm
+/home/baotram/miniconda3/envs/perly_env/man/man3/Error.3 relocate_as=../../../../../../man/man3/Error.3
+/home/baotram/miniconda3/envs/perly_env/man/man3/Error::Simple.3 relocate_as=../../../../../../man/man3/Error::Simple.3

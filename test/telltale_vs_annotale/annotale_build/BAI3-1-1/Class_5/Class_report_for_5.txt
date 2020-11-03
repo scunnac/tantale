@@ -1,0 +1,42 @@
+Class 5 for (AffineCosts, 5.0, SEMI_GLOBAL)
+distance: -∞
+significance: p=0E0
+
+ NN ND NN NI NK NN HD NN NG NG N* HD N* HD NI NN HD NG HD HD HD NG NN HD HD NG	BAI3-1-1-tempTALE3 (Pseudo)
+
+Most likely common binding sequence:
+TG  C  G  A  G  G  C  G  T  T  C  C  C  C  A  G  C  T  C  C  C  T  G  C  C  T
+
+
+Class tree:
+BAI3-1-1-tempTALE3 (Pseudo);
+
+Alignment scores:
+
+Related classes with significant matches:
+Class 1 with members
+BAI3-1-1_hmmalign-ROI_00002 related to BAI3-1-1-tempTALE3 (Pseudo) with score 6.8 (p=2.25E-3)
+BAI3-1-1-tempTALE2 (Pseudo) related to BAI3-1-1-tempTALE3 (Pseudo) with score 6.8 (p=2.25E-3)
+BAI3-1-1_decipher-ROI_00002 related to BAI3-1-1-tempTALE3 (Pseudo) with score 6.8 (p=2.25E-3)
+
+Alignments:
+BAI3-1-1_hmmalign-ROI_00002 vs. BAI3-1-1-tempTALE3 (Pseudo):
+ NN ND NN NI NK NN HD NN NG NG N* HD N* HD NI NN HD NG HD HD HD NG NN HD HD NG
+                                     |: || || || || || || || :: || |: :: :: ||
+ -- -- -- -- -- -- -- -- -- -- -- -- NN HD NI NN HD NG HD HD NG NG NI NG NI NG
+Cost: 6.8
+
+BAI3-1-1-tempTALE2 (Pseudo) vs. BAI3-1-1-tempTALE3 (Pseudo):
+ NN ND NN NI NK NN HD NN NG NG N* HD N* HD NI NN HD NG HD HD HD NG NN HD HD NG
+                                     |: || || || || || || || :: || |: :: :: ||
+ -- -- -- -- -- -- -- -- -- -- -- -- NN HD NI NN HD NG HD HD NG NG NI NG NI NG
+Cost: 6.8
+
+BAI3-1-1_decipher-ROI_00002 vs. BAI3-1-1-tempTALE3 (Pseudo):
+ NN ND NN NI NK NN HD NN NG NG N* HD N* HD NI NN HD NG HD HD HD NG NN HD HD NG
+                                     |: || || || || || || || :: || |: :: :: ||
+ -- -- -- -- -- -- -- -- -- -- -- -- NN HD NI NN HD NG HD HD NG NG NI NG NI NG
+Cost: 6.8
+
+
+

@@ -1,0 +1,46 @@
+Parameters of tool "TALE Class Builder" (build, version: 1.4.1):
+t - TALE sequences (The sequences of the TALEs (DNA or protein), or "TALE DNA parts" or "TALE Protein parts" output of "TALE Analysis", or RVD sequences.)	= /home/baotram/tal/xanthopore-scripts/tantale/test/telltale_vs_annotale/annotale_build/BAI3-1-1/BAI3-1-1.fa
+c - Cutoff (Cutoff value defining the maximum distance of a TALE class, valid range = [0.0, 1.7976931348623157E308], default = 5.0)	= 5.0
+s - Significance level (Cutoff value on the p-value representing alignment significance, valid range = [0.0, 1.0], default = 0.01)	= 0.01
+outdir - The output directory, defaults to the current working directory (.)	= /home/baotram/tal/xanthopore-scripts/tantale/test/telltale_vs_annotale/annotale_build/BAI3-1-1
+BAI3-1-1-tempTALE1 (Pseudo) [2202262-2204173:1]
+BAI3-1-1-tempTALE2 (Pseudo) [2206726-2209111:1]
+BAI3-1-1-tempTALE3 (Pseudo) [2210286-2213541:1]
+BAI3-1-1-tempTALE4 (Pseudo) [4257712-4259503:-1]
+BAI3-1-1-tempTALE5 (Pseudo) [4183360-4186201:-1]
+BAI3-1-1-tempTALE6 (Pseudo) [1738050-1739877:-1]
+BAI3-1-1-tempTALE7 (Pseudo) [267448-268894:-1]
+BAI3-1-1-tempTALE8 (Pseudo) [207114-207183:-1]
+Removed putative pseudo gene BAI3-1-1-tempTALE8 (Pseudo), because it has zero repeats.
+BAI3-1-1_decipher-ROI_00001
+BAI3-1-1_decipher-ROI_00002
+BAI3-1-1_decipher-ROI_00003
+Removed putative pseudo gene BAI3-1-1_decipher-ROI_00003, because it has zero repeats.
+BAI3-1-1_decipher-ROI_00005
+Removed putative pseudo gene BAI3-1-1_decipher-ROI_00005, because it has zero repeats.
+BAI3-1-1_decipher-ROI_00006
+BAI3-1-1_decipher-ROI_00007
+Removed putative pseudo gene BAI3-1-1_decipher-ROI_00007, because it has zero repeats.
+BAI3-1-1_decipher-ROI_00008
+BAI3-1-1_decipher-ROI_00009
+BAI3-1-1_decipher-ROI_00010
+BAI3-1-1_hmmalign-ROI_00001
+BAI3-1-1_hmmalign-ROI_00002
+BAI3-1-1_hmmalign-ROI_00003
+Removed putative pseudo gene BAI3-1-1_hmmalign-ROI_00003, because it has zero repeats.
+BAI3-1-1_hmmalign-ROI_00005
+Removed putative pseudo gene BAI3-1-1_hmmalign-ROI_00005, because it has zero repeats.
+BAI3-1-1_hmmalign-ROI_00006
+BAI3-1-1_hmmalign-ROI_00007
+Removed putative pseudo gene BAI3-1-1_hmmalign-ROI_00007, because it has zero repeats.
+BAI3-1-1_hmmalign-ROI_00008
+BAI3-1-1_hmmalign-ROI_00009
+BAI3-1-1_hmmalign-ROI_00010
+Loaded TALEs from complete sequences.
+Building classes.
+Generating reports and plots for 5 classes...
+1
+2
+3
+4
+5

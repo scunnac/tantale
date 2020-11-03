@@ -1,0 +1,4 @@
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/x86_64-linux-thread-multi/IPC/ShareLite.pm relocate_as=../../../IPC/ShareLite.pm
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/x86_64-linux-thread-multi/auto/IPC/ShareLite/ShareLite.so relocate_as=ShareLite.so
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/x86_64-linux-thread-multi/auto/IPC/ShareLite/autosplit.ix relocate_as=autosplit.ix
+/home/baotram/miniconda3/envs/perly_env/man/man3/IPC::ShareLite.3 relocate_as=../../../../../../../man/man3/IPC::ShareLite.3

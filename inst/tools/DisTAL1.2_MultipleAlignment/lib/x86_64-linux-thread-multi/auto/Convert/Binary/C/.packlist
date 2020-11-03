@@ -1,0 +1,7 @@
+/home/baotram/miniconda3/envs/perly_env/bin/ccconfig relocate_as=../../../../../../../../bin/ccconfig
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/x86_64-linux-thread-multi/Convert/Binary/C.pm relocate_as=../../../../Convert/Binary/C.pm
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/x86_64-linux-thread-multi/Convert/Binary/C/Cached.pm relocate_as=../../../../Convert/Binary/C/Cached.pm
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/x86_64-linux-thread-multi/auto/Convert/Binary/C/C.so relocate_as=C.so
+/home/baotram/miniconda3/envs/perly_env/man/man1/ccconfig.1 relocate_as=../../../../../../../../man/man1/ccconfig.1
+/home/baotram/miniconda3/envs/perly_env/man/man3/Convert::Binary::C.3 relocate_as=../../../../../../../../man/man3/Convert::Binary::C.3
+/home/baotram/miniconda3/envs/perly_env/man/man3/Convert::Binary::C::Cached.3 relocate_as=../../../../../../../../man/man3/Convert::Binary::C::Cached.3

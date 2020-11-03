@@ -1,0 +1,4 @@
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/HTML/Entities/Numbered.pm relocate_as=../../../../../HTML/Entities/Numbered.pm
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/HTML/Entities/Numbered/Table.pm relocate_as=../../../../../HTML/Entities/Numbered/Table.pm
+/home/baotram/miniconda3/envs/perly_env/man/man3/HTML::Entities::Numbered.3 relocate_as=../../../../../../../../man/man3/HTML::Entities::Numbered.3
+/home/baotram/miniconda3/envs/perly_env/man/man3/HTML::Entities::Numbered::Table.3 relocate_as=../../../../../../../../man/man3/HTML::Entities::Numbered::Table.3

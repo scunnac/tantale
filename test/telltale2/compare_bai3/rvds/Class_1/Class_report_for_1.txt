@@ -1,0 +1,176 @@
+Class 1 for (AffineCosts, 5.0, SEMI_GLOBAL)
+distance: 1.6
+significance: p=3.33E-16
+
+ NN ND NN NI NK NN HD NN NG NG N* HD N* HD NI NN HD NG HD HD HD NG NN HD HD NG	ROI_00003_telltale2_correct
+ NN ND NN NI NK NN HD NN NG NG N* HD N* HD NI NN HD NG HD HD HD NG NN HD HD NG	BAI3-1-1-tempTALE3_annotale
+ NN ND NN NI NK NN HD NN NG NG N* HD N* HD NI NN HD NG HD HD HD NG NN HD HD NG	BAI3-tempTALE4_control
+ NN ND NN NI NK NN HD NN NG NG NX HD NX HD NI NN HD NG HD HD HD NG NN HD HD NG	ROI_00003_telltale
+
+Most likely common binding sequence:
+TG  C  G  A  G  G  C  G  T  T  C  C  C  C  A  G  C  T  C  C  C  T  G  C  C  T
+
+
+Class tree:
+(
+	(
+			(
+					ROI_00003_telltale2_correct:0.0		,					BAI3-1-1-tempTALE3_annotale:0.0		
+):0.0	,			BAI3-tempTALE4_control:0.0	
+):1.6,	ROI_00003_telltale:1.6
+);
+
+Alignment scores:
+BAI3-1-1-tempTALE3_annotale vs. ROI_00003_telltale2_correct: 0
+BAI3-tempTALE4_control vs. ROI_00003_telltale2_correct: 0
+BAI3-tempTALE4_control vs. BAI3-1-1-tempTALE3_annotale: 0
+ROI_00003_telltale vs. ROI_00003_telltale2_correct: 1.6
+ROI_00003_telltale vs. BAI3-1-1-tempTALE3_annotale: 1.6
+ROI_00003_telltale vs. BAI3-tempTALE4_control: 1.6
+
+Related classes with significant matches:
+Class 2 with members
+ROI_00002_telltale related to ROI_00003_telltale2_correct with score 6.8 (p=2.99E-3)
+BAI3-1-1-tempTALE2_annotale related to ROI_00003_telltale2_correct with score 6.8 (p=2.99E-3)
+BAI3-tempTALE3_control related to ROI_00003_telltale2_correct with score 6.8 (p=2.99E-3)
+ROI_00002_telltale2_uncorrect related to ROI_00003_telltale2_correct with score 6.8 (p=2.99E-3)
+ROI_00002_telltale2_correct related to ROI_00003_telltale2_correct with score 6.8 (p=2.99E-3)
+ROI_00002_telltale related to BAI3-1-1-tempTALE3_annotale with score 6.8 (p=2.99E-3)
+BAI3-1-1-tempTALE2_annotale related to BAI3-1-1-tempTALE3_annotale with score 6.8 (p=2.99E-3)
+BAI3-tempTALE3_control related to BAI3-1-1-tempTALE3_annotale with score 6.8 (p=2.99E-3)
+ROI_00002_telltale2_uncorrect related to BAI3-1-1-tempTALE3_annotale with score 6.8 (p=2.99E-3)
+ROI_00002_telltale2_correct related to BAI3-1-1-tempTALE3_annotale with score 6.8 (p=2.99E-3)
+ROI_00002_telltale related to BAI3-tempTALE4_control with score 6.8 (p=2.99E-3)
+BAI3-1-1-tempTALE2_annotale related to BAI3-tempTALE4_control with score 6.8 (p=2.99E-3)
+BAI3-tempTALE3_control related to BAI3-tempTALE4_control with score 6.8 (p=2.99E-3)
+ROI_00002_telltale2_uncorrect related to BAI3-tempTALE4_control with score 6.8 (p=2.99E-3)
+ROI_00002_telltale2_correct related to BAI3-tempTALE4_control with score 6.8 (p=2.99E-3)
+ROI_00002_telltale related to ROI_00003_telltale with score 6.8 (p=2.89E-3)
+BAI3-1-1-tempTALE2_annotale related to ROI_00003_telltale with score 6.8 (p=2.89E-3)
+BAI3-tempTALE3_control related to ROI_00003_telltale with score 6.8 (p=2.89E-3)
+ROI_00002_telltale2_uncorrect related to ROI_00003_telltale with score 6.8 (p=2.89E-3)
+ROI_00002_telltale2_correct related to ROI_00003_telltale with score 6.8 (p=2.89E-3)
+
+Alignments:
+ROI_00002_telltale vs. ROI_00003_telltale2_correct:
+ NN ND NN NI NK NN HD NN NG NG N* HD N* HD NI NN HD NG HD HD HD NG NN HD HD NG
+                                     |: || || || || || || || :: || |: :: :: ||
+ -- -- -- -- -- -- -- -- -- -- -- -- NN HD NI NN HD NG HD HD NG NG NI NG NI NG
+Cost: 6.8
+
+BAI3-1-1-tempTALE2_annotale vs. ROI_00003_telltale2_correct:
+ NN ND NN NI NK NN HD NN NG NG N* HD N* HD NI NN HD NG HD HD HD NG NN HD HD NG
+                                     |: || || || || || || || :: || |: :: :: ||
+ -- -- -- -- -- -- -- -- -- -- -- -- NN HD NI NN HD NG HD HD NG NG NI NG NI NG
+Cost: 6.8
+
+BAI3-tempTALE3_control vs. ROI_00003_telltale2_correct:
+ NN ND NN NI NK NN HD NN NG NG N* HD N* HD NI NN HD NG HD HD HD NG NN HD HD NG
+                                     |: || || || || || || || :: || |: :: :: ||
+ -- -- -- -- -- -- -- -- -- -- -- -- NN HD NI NN HD NG HD HD NG NG NI NG NI NG
+Cost: 6.8
+
+ROI_00002_telltale2_uncorrect vs. ROI_00003_telltale2_correct:
+ NN ND NN NI NK NN HD NN NG NG N* HD N* HD NI NN HD NG HD HD HD NG NN HD HD NG
+                                     |: || || || || || || || :: || |: :: :: ||
+ -- -- -- -- -- -- -- -- -- -- -- -- NN HD NI NN HD NG HD HD NG NG NI NG NI NG
+Cost: 6.8
+
+ROI_00002_telltale2_correct vs. ROI_00003_telltale2_correct:
+ NN ND NN NI NK NN HD NN NG NG N* HD N* HD NI NN HD NG HD HD HD NG NN HD HD NG
+                                     |: || || || || || || || :: || |: :: :: ||
+ -- -- -- -- -- -- -- -- -- -- -- -- NN HD NI NN HD NG HD HD NG NG NI NG NI NG
+Cost: 6.8
+
+ROI_00002_telltale vs. BAI3-1-1-tempTALE3_annotale:
+ NN ND NN NI NK NN HD NN NG NG N* HD N* HD NI NN HD NG HD HD HD NG NN HD HD NG
+                                     |: || || || || || || || :: || |: :: :: ||
+ -- -- -- -- -- -- -- -- -- -- -- -- NN HD NI NN HD NG HD HD NG NG NI NG NI NG
+Cost: 6.8
+
+BAI3-1-1-tempTALE2_annotale vs. BAI3-1-1-tempTALE3_annotale:
+ NN ND NN NI NK NN HD NN NG NG N* HD N* HD NI NN HD NG HD HD HD NG NN HD HD NG
+                                     |: || || || || || || || :: || |: :: :: ||
+ -- -- -- -- -- -- -- -- -- -- -- -- NN HD NI NN HD NG HD HD NG NG NI NG NI NG
+Cost: 6.8
+
+BAI3-tempTALE3_control vs. BAI3-1-1-tempTALE3_annotale:
+ NN ND NN NI NK NN HD NN NG NG N* HD N* HD NI NN HD NG HD HD HD NG NN HD HD NG
+                                     |: || || || || || || || :: || |: :: :: ||
+ -- -- -- -- -- -- -- -- -- -- -- -- NN HD NI NN HD NG HD HD NG NG NI NG NI NG
+Cost: 6.8
+
+ROI_00002_telltale2_uncorrect vs. BAI3-1-1-tempTALE3_annotale:
+ NN ND NN NI NK NN HD NN NG NG N* HD N* HD NI NN HD NG HD HD HD NG NN HD HD NG
+                                     |: || || || || || || || :: || |: :: :: ||
+ -- -- -- -- -- -- -- -- -- -- -- -- NN HD NI NN HD NG HD HD NG NG NI NG NI NG
+Cost: 6.8
+
+ROI_00002_telltale2_correct vs. BAI3-1-1-tempTALE3_annotale:
+ NN ND NN NI NK NN HD NN NG NG N* HD N* HD NI NN HD NG HD HD HD NG NN HD HD NG
+                                     |: || || || || || || || :: || |: :: :: ||
+ -- -- -- -- -- -- -- -- -- -- -- -- NN HD NI NN HD NG HD HD NG NG NI NG NI NG
+Cost: 6.8
+
+ROI_00002_telltale vs. BAI3-tempTALE4_control:
+ NN ND NN NI NK NN HD NN NG NG N* HD N* HD NI NN HD NG HD HD HD NG NN HD HD NG
+                                     |: || || || || || || || :: || |: :: :: ||
+ -- -- -- -- -- -- -- -- -- -- -- -- NN HD NI NN HD NG HD HD NG NG NI NG NI NG
+Cost: 6.8
+
+BAI3-1-1-tempTALE2_annotale vs. BAI3-tempTALE4_control:
+ NN ND NN NI NK NN HD NN NG NG N* HD N* HD NI NN HD NG HD HD HD NG NN HD HD NG
+                                     |: || || || || || || || :: || |: :: :: ||
+ -- -- -- -- -- -- -- -- -- -- -- -- NN HD NI NN HD NG HD HD NG NG NI NG NI NG
+Cost: 6.8
+
+BAI3-tempTALE3_control vs. BAI3-tempTALE4_control:
+ NN ND NN NI NK NN HD NN NG NG N* HD N* HD NI NN HD NG HD HD HD NG NN HD HD NG
+                                     |: || || || || || || || :: || |: :: :: ||
+ -- -- -- -- -- -- -- -- -- -- -- -- NN HD NI NN HD NG HD HD NG NG NI NG NI NG
+Cost: 6.8
+
+ROI_00002_telltale2_uncorrect vs. BAI3-tempTALE4_control:
+ NN ND NN NI NK NN HD NN NG NG N* HD N* HD NI NN HD NG HD HD HD NG NN HD HD NG
+                                     |: || || || || || || || :: || |: :: :: ||
+ -- -- -- -- -- -- -- -- -- -- -- -- NN HD NI NN HD NG HD HD NG NG NI NG NI NG
+Cost: 6.8
+
+ROI_00002_telltale2_correct vs. BAI3-tempTALE4_control:
+ NN ND NN NI NK NN HD NN NG NG N* HD N* HD NI NN HD NG HD HD HD NG NN HD HD NG
+                                     |: || || || || || || || :: || |: :: :: ||
+ -- -- -- -- -- -- -- -- -- -- -- -- NN HD NI NN HD NG HD HD NG NG NI NG NI NG
+Cost: 6.8
+
+ROI_00002_telltale vs. ROI_00003_telltale:
+ NN ND NN NI NK NN HD NN NG NG NX HD NX HD NI NN HD NG HD HD HD NG NN HD HD NG
+                                     |: || || || || || || || :: || |: :: :: ||
+ -- -- -- -- -- -- -- -- -- -- -- -- NN HD NI NN HD NG HD HD NG NG NI NG NI NG
+Cost: 6.8
+
+BAI3-1-1-tempTALE2_annotale vs. ROI_00003_telltale:
+ NN ND NN NI NK NN HD NN NG NG NX HD NX HD NI NN HD NG HD HD HD NG NN HD HD NG
+                                     |: || || || || || || || :: || |: :: :: ||
+ -- -- -- -- -- -- -- -- -- -- -- -- NN HD NI NN HD NG HD HD NG NG NI NG NI NG
+Cost: 6.8
+
+BAI3-tempTALE3_control vs. ROI_00003_telltale:
+ NN ND NN NI NK NN HD NN NG NG NX HD NX HD NI NN HD NG HD HD HD NG NN HD HD NG
+                                     |: || || || || || || || :: || |: :: :: ||
+ -- -- -- -- -- -- -- -- -- -- -- -- NN HD NI NN HD NG HD HD NG NG NI NG NI NG
+Cost: 6.8
+
+ROI_00002_telltale2_uncorrect vs. ROI_00003_telltale:
+ NN ND NN NI NK NN HD NN NG NG NX HD NX HD NI NN HD NG HD HD HD NG NN HD HD NG
+                                     |: || || || || || || || :: || |: :: :: ||
+ -- -- -- -- -- -- -- -- -- -- -- -- NN HD NI NN HD NG HD HD NG NG NI NG NI NG
+Cost: 6.8
+
+ROI_00002_telltale2_correct vs. ROI_00003_telltale:
+ NN ND NN NI NK NN HD NN NG NG NX HD NX HD NI NN HD NG HD HD HD NG NN HD HD NG
+                                     |: || || || || || || || :: || |: :: :: ||
+ -- -- -- -- -- -- -- -- -- -- -- -- NN HD NI NN HD NG HD HD NG NG NI NG NI NG
+Cost: 6.8
+
+
+

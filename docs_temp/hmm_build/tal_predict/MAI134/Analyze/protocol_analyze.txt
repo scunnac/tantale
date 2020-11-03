@@ -1,0 +1,25 @@
+Parameters of tool "TALE Analysis" (analyze, version: 1.1):
+n - Name (A name for this run of TALE Analysis, OPTIONAL)	= null
+t - TALE DNA sequences (The DNA sequences of the TALEs)	= /home/baotram/tal/xanthopore-scripts/tantale/inst/extdata/hmmProfile/tal_predict/MAI134/Predict/TALE_DNA_sequences_(MAI134).fasta
+outdir - The output directory, defaults to the current working directory (.)	= /home/baotram/tal/xanthopore-scripts/tantale/inst/extdata/hmmProfile/tal_predict/MAI134/Analyze
+Analyzing TALEs:
+MAI134-tempTALE1 [622120-625948:1]
+MAI134-tempTALE2 [2225709-2230011:1]
+MAI134-tempTALE3 [2230142-2233229:1]
+MAI134-tempTALE4 [2233360-2237155:1]
+MAI134-tempTALE5 [622120-625948:1]
+MAI134-tempTALE6 [2225709-2230011:1]
+MAI134-tempTALE7 [2230142-2233229:1]
+MAI134-tempTALE8 [2233360-2237155:1]
+MAI134-tempTALE9 [4298578-4302070:-1]
+MAI134-tempTALE10 [4224085-4227988:-1]
+MAI134-tempTALE11 [1750882-1754410:-1]
+MAI134-tempTALE12 [258485-261773:-1]
+MAI134-tempTALE13 [203770-207160:-1]
+MAI134-tempTALE14 [4298578-4302070:-1]
+MAI134-tempTALE15 [4224085-4227988:-1]
+MAI134-tempTALE16 [1750882-1754410:-1]
+MAI134-tempTALE17 [258485-261773:-1]
+MAI134-tempTALE18 [203770-207160:-1]
+
+Writing outputs.

@@ -1,0 +1,93 @@
+Class 17 for (AffineCosts, 5.0, SEMI_GLOBAL)
+distance: 1.6
+significance: p=6.73E-13
+
+ HD HD HD NG NX NN HD HD NX NI NI NN HD HI ND HD NI HD NG NG	PXO86_hmmalign-ROI_00009
+ HD HD HD NG NX NN HD HD NX NI NI NN HD HI ND HD NI HD NG NG	PXO86_decipher-ROI_00009
+ HD HD HD NG N* NN HD HD N* NI NI NN HD HI ND HD NI HD NG NG	PXO86-tempTALE8
+
+Most likely common binding sequence:
+TC  C  C  T  C  G  C  C  C  A  A  G  C  C  C  C  A  C  T  T
+
+
+Class tree:
+(
+	(
+			PXO86_hmmalign-ROI_00009:0.0	,			PXO86_decipher-ROI_00009:0.0	
+):1.6,	PXO86-tempTALE8:1.6
+);
+
+Alignment scores:
+PXO86_decipher-ROI_00009 vs. PXO86_hmmalign-ROI_00009: 0
+PXO86-tempTALE8 vs. PXO86_hmmalign-ROI_00009: 1.6
+PXO86-tempTALE8 vs. PXO86_decipher-ROI_00009: 1.6
+
+Related classes with significant matches:
+Class 16 with members
+PXO86_hmmalign-ROI_00010 related to PXO86_hmmalign-ROI_00009 with score 8.3 (p=1.12E-5)
+PXO86_decipher-ROI_00010 related to PXO86_hmmalign-ROI_00009 with score 8.3 (p=1.16E-5)
+PXO86-tempTALE9 related to PXO86_hmmalign-ROI_00009 with score 9.9 (p=6.72E-4)
+PXO86_hmmalign-ROI_00010 related to PXO86_decipher-ROI_00009 with score 8.3 (p=1.12E-5)
+PXO86_decipher-ROI_00010 related to PXO86_decipher-ROI_00009 with score 8.3 (p=1.16E-5)
+PXO86-tempTALE9 related to PXO86_decipher-ROI_00009 with score 9.9 (p=6.72E-4)
+PXO86_hmmalign-ROI_00010 related to PXO86-tempTALE8 with score 9.9 (p=6.26E-4)
+PXO86_decipher-ROI_00010 related to PXO86-tempTALE8 with score 9.9 (p=6.52E-4)
+PXO86-tempTALE9 related to PXO86-tempTALE8 with score 8.3 (p=8.19E-6)
+
+Alignments:
+PXO86_hmmalign-ROI_00010 vs. PXO86_hmmalign-ROI_00009:
+ -- -- -- -- -- -- -- HD HD HD NG NX NN HD HD NX NI NI NN HD HI ND HD NI HD NG NG
+                      :: |: || || || :: || || || |: || || || || || || :: :: :| |:
+ HD HD NN NN NS NG HD XX HG HD NG NX HD HD HD NX NN NI NN HD HI ND HD HG NN HG NX
+Cost: 8.3
+
+PXO86_decipher-ROI_00010 vs. PXO86_hmmalign-ROI_00009:
+ -- -- -- -- -- -- -- HD HD HD NG NX NN HD HD NX NI NI NN HD HI ND HD NI HD NG NG
+                      :: |: || || || :: || || || |: || || || || || || :: :: :| |:
+ HD HD NN NN NS NG HD XS HG HD NG NX HD HD HD NX NN NI NN HD HI ND HD HG NN HG NX
+Cost: 8.3
+
+PXO86-tempTALE9 vs. PXO86_hmmalign-ROI_00009:
+ -- -- -- -- -- -- -- HD HD HD NG NX NN HD HD NX NI NI NN HD HI ND HD NI HD NG NG
+                      :: |: || || |: :: || || |: |: || || || || || || :: :: :| |:
+ HD HD NN NN NS NG HD S* HG HD NG N* HD HD HD N* NN NI NN HD HI ND HD HG NN HG N*
+Cost: 9.9
+
+PXO86_hmmalign-ROI_00010 vs. PXO86_decipher-ROI_00009:
+ -- -- -- -- -- -- -- HD HD HD NG NX NN HD HD NX NI NI NN HD HI ND HD NI HD NG NG
+                      :: |: || || || :: || || || |: || || || || || || :: :: :| |:
+ HD HD NN NN NS NG HD XX HG HD NG NX HD HD HD NX NN NI NN HD HI ND HD HG NN HG NX
+Cost: 8.3
+
+PXO86_decipher-ROI_00010 vs. PXO86_decipher-ROI_00009:
+ -- -- -- -- -- -- -- HD HD HD NG NX NN HD HD NX NI NI NN HD HI ND HD NI HD NG NG
+                      :: |: || || || :: || || || |: || || || || || || :: :: :| |:
+ HD HD NN NN NS NG HD XS HG HD NG NX HD HD HD NX NN NI NN HD HI ND HD HG NN HG NX
+Cost: 8.3
+
+PXO86-tempTALE9 vs. PXO86_decipher-ROI_00009:
+ -- -- -- -- -- -- -- HD HD HD NG NX NN HD HD NX NI NI NN HD HI ND HD NI HD NG NG
+                      :: |: || || |: :: || || |: |: || || || || || || :: :: :| |:
+ HD HD NN NN NS NG HD S* HG HD NG N* HD HD HD N* NN NI NN HD HI ND HD HG NN HG N*
+Cost: 9.9
+
+PXO86_hmmalign-ROI_00010 vs. PXO86-tempTALE8:
+ -- -- -- -- -- -- -- HD HD HD NG N* NN HD HD N* NI NI NN HD HI ND HD NI HD NG NG
+                      :: |: || || |: :: || || |: |: || || || || || || :: :: :| |:
+ HD HD NN NN NS NG HD XX HG HD NG NX HD HD HD NX NN NI NN HD HI ND HD HG NN HG NX
+Cost: 9.9
+
+PXO86_decipher-ROI_00010 vs. PXO86-tempTALE8:
+ -- -- -- -- -- -- -- HD HD HD NG N* NN HD HD N* NI NI NN HD HI ND HD NI HD NG NG
+                      :: |: || || |: :: || || |: |: || || || || || || :: :: :| |:
+ HD HD NN NN NS NG HD XS HG HD NG NX HD HD HD NX NN NI NN HD HI ND HD HG NN HG NX
+Cost: 9.9
+
+PXO86-tempTALE9 vs. PXO86-tempTALE8:
+ -- -- -- -- -- -- -- HD HD HD NG N* NN HD HD N* NI NI NN HD HI ND HD NI HD NG NG
+                      :: |: || || || :: || || || |: || || || || || || :: :: :| |:
+ HD HD NN NN NS NG HD S* HG HD NG N* HD HD HD N* NN NI NN HD HI ND HD HG NN HG N*
+Cost: 8.3
+
+
+

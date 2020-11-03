@@ -1,0 +1,48 @@
+"0","do.call(rvdArrayReader, pxo99a_tellTale_args)
+"
+"2","It appears that some hmmer hits actually overlap.
+ It is thus possible that the inferred sequences of RVDs have artefactual insertions.
+"
+"2","Please check the hits in the following RegionsOfInterest:
+ROI_00001
+ROI_00002
+ROI_00003
+ROI_00004
+ROI_00005
+ROI_00006
+ROI_00007
+ROI_00008
+ROI_00009
+ROI_00010
+ROI_00011
+ROI_00012
+ROI_00013
+ROI_00014
+ROI_00015
+ROI_00016
+ROI_00017
+ROI_00018
+ROI_00019
+"
+"2","in 'x[[4]]': last base was ignored"
+"2","in 'x[[2]]': last 2 bases were ignored"
+"2","in 'x[[3]]': last 2 bases were ignored"
+"2","in 'x[[4]]': last 2 bases were ignored"
+"2","in 'x[[5]]': last 2 bases were ignored"
+"2","in 'x[[6]]': last 2 bases were ignored"
+"2","in 'x[[7]]': last 2 bases were ignored"
+"2","in 'x[[8]]': last 2 bases were ignored"
+"2","in 'x[[9]]': last 2 bases were ignored"
+"2","in 'x[[10]]': last 2 bases were ignored"
+"2","in 'x[[11]]': last 2 bases were ignored"
+"2","in 'x[[12]]': last 2 bases were ignored"
+"2","in 'x[[13]]': last 2 bases were ignored"
+"2","in 'x[[14]]': last 2 bases were ignored"
+"2","in 'x[[15]]': last 2 bases were ignored"
+"2","in 'x[[16]]': last 2 bases were ignored"
+"2","in 'x[[17]]': last 2 bases were ignored"
+"2","in 'x[[18]]': last 2 bases were ignored"
+"2","in 'x[[19]]': last 2 bases were ignored"
+"2","Error in join(hitsReport, indelReport, by.x = ""hitID"", by.y = ""hitID"") : 
+  unused arguments (by.x = ""hitID"", by.y = ""hitID"")
+"

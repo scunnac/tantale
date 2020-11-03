@@ -1,0 +1,81 @@
+Parameters of tool "TALE Class Builder" (build, version: 1.4.1):
+t - TALE sequences (The sequences of the TALEs (DNA or protein), or "TALE DNA parts" or "TALE Protein parts" output of "TALE Analysis", or RVD sequences.)	= /home/baotram/tal/xanthopore-scripts/tantale/test/telltale_vs_annotale/annotale_build/PXO86/PXO86.fa
+c - Cutoff (Cutoff value defining the maximum distance of a TALE class, valid range = [0.0, 1.7976931348623157E308], default = 5.0)	= 5.0
+s - Significance level (Cutoff value on the p-value representing alignment significance, valid range = [0.0, 1.0], default = 0.01)	= 0.01
+outdir - The output directory, defaults to the current working directory (.)	= /home/baotram/tal/xanthopore-scripts/tantale/test/telltale_vs_annotale/annotale_build/PXO86
+PXO86-tempTALE1 (Pseudo) [2020886-2023901:1]
+PXO86-tempTALE2 [2537143-2540440:1]
+PXO86-tempTALE3 [2541429-2545185:1]
+PXO86-tempTALE4 [2546991-2551011:1]
+PXO86-tempTALE5 [2836912-2840227:1]
+PXO86-tempTALE6 [2843503-2847022:1]
+PXO86-tempTALE7 [2848011-2851317:1]
+PXO86-tempTALE8 [3782462-3786179:1]
+PXO86-tempTALE9 [3787168-3791617:1]
+PXO86-tempTALE10 [3792606-3796017:1]
+PXO86-tempTALE11 [3797006-3800015:1]
+PXO86-tempTALE12 [3801004-3805132:1]
+PXO86-tempTALE13 (Pseudo) [2812524-2815116:-1]
+PXO86-tempTALE14 [2520710-2524121:-1]
+PXO86-tempTALE15 [2515866-2519721:-1]
+PXO86-tempTALE16 [1805488-1809208:-1]
+PXO86-tempTALE17 [1800158-1804499:-1]
+PXO86-tempTALE18 [557239-561670:-1]
+PXO86_decipher-ROI_00001
+PXO86_decipher-ROI_00002
+PXO86_decipher-ROI_00003
+PXO86_decipher-ROI_00004
+PXO86_decipher-ROI_00005
+PXO86_decipher-ROI_00006
+PXO86_decipher-ROI_00007
+PXO86_decipher-ROI_00008
+PXO86_decipher-ROI_00009
+PXO86_decipher-ROI_00010
+PXO86_decipher-ROI_00011
+PXO86_decipher-ROI_00012
+PXO86_decipher-ROI_00013
+PXO86_decipher-ROI_00014
+PXO86_decipher-ROI_00015
+PXO86_decipher-ROI_00016
+PXO86_decipher-ROI_00017
+PXO86_decipher-ROI_00018
+PXO86_decipher-ROI_00019
+PXO86_hmmalign-ROI_00001
+PXO86_hmmalign-ROI_00002
+PXO86_hmmalign-ROI_00003
+PXO86_hmmalign-ROI_00004
+PXO86_hmmalign-ROI_00005
+PXO86_hmmalign-ROI_00006
+PXO86_hmmalign-ROI_00007
+PXO86_hmmalign-ROI_00008
+PXO86_hmmalign-ROI_00009
+PXO86_hmmalign-ROI_00010
+PXO86_hmmalign-ROI_00011
+PXO86_hmmalign-ROI_00012
+PXO86_hmmalign-ROI_00013
+PXO86_hmmalign-ROI_00014
+PXO86_hmmalign-ROI_00015
+PXO86_hmmalign-ROI_00016
+PXO86_hmmalign-ROI_00017
+PXO86_hmmalign-ROI_00018
+PXO86_hmmalign-ROI_00019
+Loaded TALEs from RVD sequences. Some properties of TALEs (aberrant repeats, codon mismatches) cannot be displayed due to lacking information.
+Building classes.
+Generating reports and plots for 17 classes...
+1
+10
+11
+12
+13
+14
+15
+16
+17
+2
+3
+4
+5
+6
+7
+8
+9

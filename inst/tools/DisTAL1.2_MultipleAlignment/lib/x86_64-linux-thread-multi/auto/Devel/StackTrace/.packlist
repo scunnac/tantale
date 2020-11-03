@@ -1,0 +1,4 @@
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/Devel/StackTrace.pm relocate_as=../../../../Devel/StackTrace.pm
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/Devel/StackTrace/Frame.pm relocate_as=../../../../Devel/StackTrace/Frame.pm
+/home/baotram/miniconda3/envs/perly_env/man/man3/Devel::StackTrace.3 relocate_as=../../../../../../../man/man3/Devel::StackTrace.3
+/home/baotram/miniconda3/envs/perly_env/man/man3/Devel::StackTrace::Frame.3 relocate_as=../../../../../../../man/man3/Devel::StackTrace::Frame.3

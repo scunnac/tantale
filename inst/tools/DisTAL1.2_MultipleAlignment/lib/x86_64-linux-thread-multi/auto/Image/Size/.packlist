@@ -1,0 +1,4 @@
+/home/baotram/miniconda3/envs/perly_env/bin/imgsize relocate_as=../../../../../../../bin/imgsize
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/Image/Size.pm relocate_as=../../../../Image/Size.pm
+/home/baotram/miniconda3/envs/perly_env/man/man1/imgsize.1 relocate_as=../../../../../../../man/man1/imgsize.1
+/home/baotram/miniconda3/envs/perly_env/man/man3/Image::Size.3 relocate_as=../../../../../../../man/man3/Image::Size.3

@@ -1,0 +1,2335 @@
+# hmmsearch :: search profile(s) against a sequence database
+# HMMER 3.3 (Nov 2019); http://hmmer.org/
+# Copyright (C) 2019 Howard Hughes Medical Institute.
+# Freely distributed under the BSD open source license.
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# query HMM file:                  /home/cunnac/Lab-Related/MyScripts/xanthopore-scripts/tantale/inst/extdata/hmmProfile/TALE_repeat_AA_profile.hmm
+# target sequence database:        /home/cunnac/Lab-Related/MyScripts/xanthopore-scripts/tantale/test/telltale_output/MAI129/translatedCleanRepeatsAlignment.pep
+# per-seq hits tabular output:     /home/cunnac/Lab-Related/MyScripts/xanthopore-scripts/tantale/test/telltale_output/MAI129/hmmerAASearchOut.txt
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Query:       TALE_repeat_Protein_aligned  [M=34]
+Scores for complete sequences (score includes all domains):
+   --- full sequence ---   --- best 1 domain ---    -#dom-
+    E-value  score  bias    E-value  score  bias    exp  N  Sequence   Description
+    ------- ------ -----    ------- ------ -----   ---- --  --------   -----------
+    1.1e-29   95.7   1.4    1.2e-29   95.6   1.4    1.0  1  MDOM_00026  
+    1.1e-29   95.7   1.4    1.2e-29   95.6   1.4    1.0  1  MDOM_00027  
+    1.1e-29   95.7   1.4    1.2e-29   95.6   1.4    1.0  1  MDOM_00028  
+    1.1e-29   95.7   1.4    1.2e-29   95.6   1.4    1.0  1  MDOM_00029  
+    1.1e-29   95.7   1.4    1.2e-29   95.6   1.4    1.0  1  MDOM_00030  
+    1.1e-29   95.7   1.4    1.2e-29   95.6   1.4    1.0  1  MDOM_00031  
+    1.9e-29   95.0   1.2      2e-29   94.9   1.2    1.0  1  MDOM_00033  
+    1.9e-29   95.0   1.2      2e-29   94.9   1.2    1.0  1  MDOM_00034  
+    1.9e-29   95.0   1.2      2e-29   94.9   1.2    1.0  1  MDOM_00035  
+    2.1e-29   94.8   1.6    2.2e-29   94.7   1.6    1.0  1  MDOM_00072  
+    2.1e-29   94.8   1.6    2.2e-29   94.7   1.6    1.0  1  MDOM_00073  
+    2.1e-29   94.8   1.6    2.2e-29   94.7   1.6    1.0  1  MDOM_00074  
+    2.1e-29   94.8   1.6    2.2e-29   94.7   1.6    1.0  1  MDOM_00075  
+    2.1e-29   94.8   1.6    2.2e-29   94.7   1.6    1.0  1  MDOM_00076  
+    2.1e-29   94.8   1.6    2.2e-29   94.7   1.6    1.0  1  MDOM_00077  
+    2.1e-29   94.8   1.6    2.2e-29   94.7   1.6    1.0  1  MDOM_00078  
+    2.1e-29   94.8   1.6    2.2e-29   94.7   1.6    1.0  1  MDOM_00079  
+    2.1e-29   94.8   1.6    2.2e-29   94.7   1.6    1.0  1  MDOM_00080  
+    2.1e-29   94.8   1.6    2.2e-29   94.7   1.6    1.0  1  MDOM_00081  
+    2.1e-29   94.8   1.6    2.2e-29   94.7   1.6    1.0  1  MDOM_00086  
+    2.1e-29   94.8   1.6    2.2e-29   94.7   1.6    1.0  1  MDOM_00087  
+    2.1e-29   94.8   1.6    2.2e-29   94.7   1.6    1.0  1  MDOM_00104  
+    2.1e-29   94.8   1.6    2.2e-29   94.7   1.6    1.0  1  MDOM_00110  
+    2.1e-29   94.8   1.6    2.2e-29   94.7   1.6    1.0  1  MDOM_00128  
+    2.2e-29   94.7   1.5    2.3e-29   94.7   1.5    1.0  1  MDOM_00019  
+    2.2e-29   94.7   1.5    2.3e-29   94.7   1.5    1.0  1  MDOM_00020  
+    2.2e-29   94.7   1.5    2.3e-29   94.7   1.5    1.0  1  MDOM_00021  
+    2.2e-29   94.7   1.5    2.3e-29   94.7   1.5    1.0  1  MDOM_00022  
+    2.2e-29   94.7   1.5    2.3e-29   94.7   1.5    1.0  1  MDOM_00023  
+      3e-29   94.3   1.8    3.2e-29   94.2   1.8    1.0  1  MDOM_00047  
+      3e-29   94.3   1.8    3.2e-29   94.2   1.8    1.0  1  MDOM_00048  
+      3e-29   94.3   1.8    3.2e-29   94.2   1.8    1.0  1  MDOM_00049  
+      3e-29   94.3   1.8    3.2e-29   94.2   1.8    1.0  1  MDOM_00050  
+      3e-29   94.3   1.8    3.2e-29   94.2   1.8    1.0  1  MDOM_00051  
+      3e-29   94.3   1.8    3.2e-29   94.2   1.8    1.0  1  MDOM_00052  
+      3e-29   94.3   1.8    3.2e-29   94.2   1.8    1.0  1  MDOM_00053  
+      3e-29   94.3   1.8    3.2e-29   94.2   1.8    1.0  1  MDOM_00054  
+      3e-29   94.3   1.8    3.2e-29   94.2   1.8    1.0  1  MDOM_00060  
+      3e-29   94.3   1.8    3.2e-29   94.2   1.8    1.0  1  MDOM_00061  
+      3e-29   94.3   1.8    3.2e-29   94.2   1.8    1.0  1  MDOM_00082  
+      3e-29   94.3   1.8    3.2e-29   94.2   1.8    1.0  1  MDOM_00147  
+    3.1e-29   94.3   1.3    3.3e-29   94.2   1.3    1.0  1  MDOM_00036  
+    3.1e-29   94.3   1.3    3.3e-29   94.2   1.3    1.0  1  MDOM_00037  
+    3.1e-29   94.3   1.3    3.3e-29   94.2   1.3    1.0  1  MDOM_00099  
+    3.5e-29   94.1   1.6    3.8e-29   94.0   1.6    1.0  1  MDOM_00162  
+    3.6e-29   94.1   0.7    3.8e-29   94.0   0.7    1.0  1  MDOM_00063  
+    5.8e-29   93.4   1.5    6.2e-29   93.3   1.5    1.0  1  MDOM_00106  
+    5.8e-29   93.4   1.5    6.2e-29   93.3   1.5    1.0  1  MDOM_00107  
+    5.8e-29   93.4   1.5    6.2e-29   93.3   1.5    1.0  1  MDOM_00108  
+    5.8e-29   93.4   1.5    6.2e-29   93.3   1.5    1.0  1  MDOM_00109  
+    5.8e-29   93.4   1.5    6.2e-29   93.3   1.5    1.0  1  MDOM_00112  
+    5.8e-29   93.4   1.9    6.2e-29   93.3   1.9    1.0  1  MDOM_00114  
+    5.8e-29   93.4   1.9    6.2e-29   93.3   1.9    1.0  1  MDOM_00117  
+      6e-29   93.3   2.0    6.3e-29   93.3   2.0    1.0  1  MDOM_00055  
+      6e-29   93.3   2.0    6.3e-29   93.3   2.0    1.0  1  MDOM_00056  
+      6e-29   93.3   2.0    6.3e-29   93.3   2.0    1.0  1  MDOM_00057  
+      6e-29   93.3   2.0    6.3e-29   93.3   2.0    1.0  1  MDOM_00058  
+      6e-29   93.3   2.0    6.3e-29   93.3   2.0    1.0  1  MDOM_00059  
+      6e-29   93.3   2.0    6.3e-29   93.3   2.0    1.0  1  MDOM_00064  
+      6e-29   93.3   2.0    6.3e-29   93.3   2.0    1.0  1  MDOM_00065  
+      6e-29   93.3   2.0    6.3e-29   93.3   2.0    1.0  1  MDOM_00066  
+      6e-29   93.3   2.0    6.3e-29   93.3   2.0    1.0  1  MDOM_00067  
+      6e-29   93.3   2.0    6.3e-29   93.3   2.0    1.0  1  MDOM_00068  
+      6e-29   93.3   2.0    6.3e-29   93.3   2.0    1.0  1  MDOM_00069  
+      6e-29   93.3   2.0    6.3e-29   93.3   2.0    1.0  1  MDOM_00070  
+      6e-29   93.3   2.0    6.3e-29   93.3   2.0    1.0  1  MDOM_00071  
+      6e-29   93.3   2.0    6.3e-29   93.3   2.0    1.0  1  MDOM_00083  
+      6e-29   93.3   2.0    6.3e-29   93.3   2.0    1.0  1  MDOM_00098  
+      6e-29   93.3   2.0    6.3e-29   93.3   2.0    1.0  1  MDOM_00101  
+      6e-29   93.3   2.0    6.3e-29   93.3   2.0    1.0  1  MDOM_00116  
+      6e-29   93.3   1.5    6.4e-29   93.2   1.5    1.0  1  MDOM_00024  
+      6e-29   93.3   1.5    6.4e-29   93.2   1.5    1.0  1  MDOM_00025  
+    6.3e-29   93.3   1.0    6.7e-29   93.2   1.0    1.0  1  MDOM_00111  
+    8.2e-29   92.9   1.7    8.8e-29   92.8   1.7    1.0  1  MDOM_00090  
+    8.2e-29   92.9   1.7    8.8e-29   92.8   1.7    1.0  1  MDOM_00091  
+    8.2e-29   92.9   1.7    8.8e-29   92.8   1.7    1.0  1  MDOM_00092  
+    8.2e-29   92.9   1.7    8.8e-29   92.8   1.7    1.0  1  MDOM_00093  
+    8.2e-29   92.9   1.7    8.8e-29   92.8   1.7    1.0  1  MDOM_00095  
+    9.8e-29   92.7   1.5      1e-28   92.6   1.5    1.0  1  MDOM_00171  
+    9.9e-29   92.6   1.8    1.1e-28   92.6   1.8    1.0  1  MDOM_00089  
+    9.9e-29   92.6   1.8    1.1e-28   92.6   1.8    1.0  1  MDOM_00102  
+    9.9e-29   92.6   1.8    1.1e-28   92.6   1.8    1.0  1  MDOM_00103  
+    1.2e-28   92.4   2.3    1.2e-28   92.3   2.3    1.0  1  MDOM_00149  
+    1.2e-28   92.4   2.3    1.2e-28   92.3   2.3    1.0  1  MDOM_00150  
+    1.2e-28   92.4   2.3    1.2e-28   92.3   2.3    1.0  1  MDOM_00151  
+    1.2e-28   92.4   2.3    1.2e-28   92.3   2.3    1.0  1  MDOM_00152  
+    1.2e-28   92.4   2.3    1.2e-28   92.3   2.3    1.0  1  MDOM_00153  
+    1.2e-28   92.4   2.3    1.2e-28   92.3   2.3    1.0  1  MDOM_00154  
+    1.2e-28   92.4   2.3    1.2e-28   92.3   2.3    1.0  1  MDOM_00155  
+    1.2e-28   92.4   2.3    1.2e-28   92.3   2.3    1.0  1  MDOM_00156  
+    1.2e-28   92.4   2.3    1.2e-28   92.3   2.3    1.0  1  MDOM_00157  
+    1.2e-28   92.4   2.3    1.2e-28   92.3   2.3    1.0  1  MDOM_00158  
+    1.2e-28   92.4   2.3    1.2e-28   92.3   2.3    1.0  1  MDOM_00159  
+    1.2e-28   92.4   2.3    1.2e-28   92.3   2.3    1.0  1  MDOM_00164  
+    1.2e-28   92.4   2.3    1.2e-28   92.3   2.3    1.0  1  MDOM_00165  
+    1.2e-28   92.4   2.3    1.2e-28   92.3   2.3    1.0  1  MDOM_00174  
+    1.2e-28   92.4   2.2    1.3e-28   92.3   2.2    1.0  1  MDOM_00032  
+    1.2e-28   92.4   2.2    1.3e-28   92.3   2.2    1.0  1  MDOM_00038  
+    1.2e-28   92.4   2.2    1.3e-28   92.3   2.2    1.0  1  MDOM_00039  
+    1.2e-28   92.4   2.2    1.3e-28   92.3   2.2    1.0  1  MDOM_00040  
+    1.2e-28   92.4   2.2    1.3e-28   92.3   2.2    1.0  1  MDOM_00041  
+    1.2e-28   92.4   2.2    1.3e-28   92.3   2.2    1.0  1  MDOM_00042  
+    1.2e-28   92.4   2.2    1.3e-28   92.3   2.2    1.0  1  MDOM_00043  
+    1.2e-28   92.4   2.2    1.3e-28   92.3   2.2    1.0  1  MDOM_00044  
+    1.2e-28   92.4   2.2    1.3e-28   92.3   2.2    1.0  1  MDOM_00045  
+    1.2e-28   92.4   2.2    1.3e-28   92.3   2.2    1.0  1  MDOM_00084  
+    1.2e-28   92.4   2.2    1.3e-28   92.3   2.2    1.0  1  MDOM_00085  
+    1.2e-28   92.4   1.5    1.3e-28   92.3   1.5    1.0  1  MDOM_00046  
+    1.7e-28   91.9   2.5    1.8e-28   91.8   2.5    1.0  1  MDOM_00130  
+    1.7e-28   91.9   2.5    1.8e-28   91.8   2.5    1.0  1  MDOM_00131  
+    1.7e-28   91.9   2.5    1.8e-28   91.8   2.5    1.0  1  MDOM_00132  
+    1.7e-28   91.9   2.5    1.8e-28   91.8   2.5    1.0  1  MDOM_00133  
+    1.7e-28   91.9   2.5    1.8e-28   91.8   2.5    1.0  1  MDOM_00134  
+    1.7e-28   91.9   2.5    1.8e-28   91.8   2.5    1.0  1  MDOM_00135  
+    1.7e-28   91.9   2.5    1.8e-28   91.8   2.5    1.0  1  MDOM_00136  
+    1.7e-28   91.9   2.5    1.8e-28   91.8   2.5    1.0  1  MDOM_00137  
+    1.7e-28   91.9   2.5    1.8e-28   91.8   2.5    1.0  1  MDOM_00138  
+    1.7e-28   91.9   2.5    1.8e-28   91.8   2.5    1.0  1  MDOM_00139  
+    1.7e-28   91.9   1.2    1.8e-28   91.8   1.2    1.0  1  MDOM_00088  
+    1.8e-28   91.8   0.9    1.9e-28   91.7   0.9    1.0  1  MDOM_00144  
+      2e-28   91.7   2.2    2.1e-28   91.6   2.2    1.0  1  MDOM_00179  
+      2e-28   91.7   2.2    2.1e-28   91.6   2.2    1.0  1  MDOM_00180  
+      2e-28   91.7   2.2    2.1e-28   91.6   2.2    1.0  1  MDOM_00182  
+    2.1e-28   91.6   2.0    2.2e-28   91.5   2.0    1.0  1  MDOM_00113  
+    2.2e-28   91.5   1.0    2.4e-28   91.4   1.0    1.0  1  MDOM_00160  
+    2.3e-28   91.5   1.7    2.4e-28   91.4   1.7    1.0  1  MDOM_00129  
+    2.4e-28   91.4   2.2    2.6e-28   91.3   2.2    1.0  1  MDOM_00096  
+    2.4e-28   91.4   2.2    2.6e-28   91.3   2.2    1.0  1  MDOM_00097  
+    2.4e-28   91.4   1.0    2.6e-28   91.3   1.0    1.0  1  MDOM_00127  
+    2.5e-28   91.3   1.9    2.7e-28   91.3   1.9    1.0  1  MDOM_00125  
+    2.5e-28   91.3   1.9    2.7e-28   91.3   1.9    1.0  1  MDOM_00126  
+    3.1e-28   91.0   1.1    3.3e-28   91.0   1.1    1.0  1  MDOM_00148  
+    3.5e-28   90.9   1.2    3.7e-28   90.8   1.2    1.0  1  MDOM_00123  
+    3.9e-28   90.7   1.6    4.1e-28   90.7   1.6    1.0  1  MDOM_00141  
+    4.1e-28   90.7   1.1    4.3e-28   90.6   1.1    1.0  1  MDOM_00181  
+    4.3e-28   90.6   1.1    4.6e-28   90.5   1.1    1.0  1  MDOM_00140  
+    4.3e-28   90.6   1.1    4.6e-28   90.5   1.1    1.0  1  MDOM_00146  
+    5.6e-28   90.2   1.3      6e-28   90.1   1.3    1.0  1  MDOM_00122  
+    5.7e-28   90.2   1.3      6e-28   90.1   1.3    1.0  1  MDOM_00176  
+    6.3e-28   90.1   1.7    6.6e-28   90.0   1.7    1.0  1  MDOM_00184  
+    6.5e-28   90.0   1.3    6.8e-28   90.0   1.3    1.0  1  MDOM_00062  
+    6.6e-28   90.0   0.6    7.1e-28   89.9   0.6    1.0  1  MDOM_00115  
+    7.7e-28   89.8   1.9    8.1e-28   89.7   1.9    1.0  1  MDOM_00118  
+    7.7e-28   89.8   1.9    8.1e-28   89.7   1.9    1.0  1  MDOM_00119  
+    7.7e-28   89.8   1.9    8.1e-28   89.7   1.9    1.0  1  MDOM_00120  
+    7.7e-28   89.8   1.9    8.1e-28   89.7   1.9    1.0  1  MDOM_00121  
+    7.7e-28   89.8   1.9    8.1e-28   89.7   1.9    1.0  1  MDOM_00124  
+    9.5e-28   89.5   1.9      1e-27   89.4   1.9    1.0  1  MDOM_00163  
+    1.1e-27   89.3   0.9    1.2e-27   89.2   0.9    1.0  1  MDOM_00166  
+    1.1e-27   89.3   0.9    1.2e-27   89.2   0.9    1.0  1  MDOM_00167  
+    1.1e-27   89.3   0.9    1.2e-27   89.2   0.9    1.0  1  MDOM_00168  
+    1.1e-27   89.3   2.1    1.2e-27   89.2   2.1    1.0  1  MDOM_00100  
+    1.4e-27   88.9   1.6    1.5e-27   88.8   1.6    1.0  1  MDOM_00143  
+    1.5e-27   88.9   1.3    1.6e-27   88.8   1.3    1.0  1  MDOM_00142  
+    1.7e-27   88.7   1.8    1.8e-27   88.6   1.8    1.0  1  MDOM_00173  
+    2.2e-27   88.4   2.3    2.3e-27   88.3   2.3    1.0  1  MDOM_00169  
+    2.2e-27   88.4   2.3    2.3e-27   88.3   2.3    1.0  1  MDOM_00172  
+    2.4e-27   88.2   2.9    2.5e-27   88.1   2.9    1.0  1  MDOM_00145  
+    2.5e-27   88.2   1.7    2.6e-27   88.1   1.7    1.0  1  MDOM_00094  
+    2.6e-27   88.1   2.2    2.7e-27   88.0   2.2    1.0  1  MDOM_00178  
+    2.6e-27   88.1   2.2    2.7e-27   88.0   2.2    1.0  1  MDOM_00185  
+    3.2e-27   87.8   1.7    3.5e-27   87.7   1.7    1.0  1  MDOM_00105  
+    3.3e-27   87.8   1.9    3.5e-27   87.7   1.9    1.0  1  MDOM_00177  
+    3.6e-27   87.6   1.8    3.8e-27   87.6   1.8    1.0  1  MDOM_00170  
+    4.4e-27   87.4   0.5    4.7e-27   87.3   0.5    1.0  1  MDOM_00175  
+    5.3e-27   87.1   1.4    5.7e-27   87.0   1.4    1.0  1  MDOM_00183  
+    7.5e-27   86.6   1.6    7.9e-27   86.5   1.6    1.0  1  MDOM_00161  
+    2.3e-15   49.9   0.4    2.6e-15   49.7   0.4    1.1  1  MDOM_00186  
+    5.5e-15   48.7   0.7    6.1e-15   48.5   0.7    1.1  1  MDOM_00188  
+    5.5e-15   48.7   0.7    6.1e-15   48.5   0.7    1.1  1  MDOM_00189  
+    8.1e-15   48.1   0.4      9e-15   48.0   0.4    1.1  1  MDOM_00190  
+      1e-14   47.8   0.7    1.1e-14   47.7   0.7    1.1  1  MDOM_00187  
+    1.2e-14   47.6   0.8    1.4e-14   47.4   0.8    1.1  1  MDOM_00191  
+    1.2e-14   47.6   0.8    1.4e-14   47.4   0.8    1.1  1  MDOM_00192  
+    1.2e-14   47.6   0.8    1.4e-14   47.4   0.8    1.1  1  MDOM_00193  
+    1.2e-14   47.6   0.8    1.4e-14   47.4   0.8    1.1  1  MDOM_00194  
+    1.6e-08   28.0   0.0    1.8e-08   27.9   0.0    1.1  1  MDOM_00195  
+
+
+Domain annotation for each sequence (and alignments):
+>> MDOM_00026  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   95.6   1.4   1.2e-29   1.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 95.6 bits;  conditional E-value: 1.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00026  1 LTPDQVVAIASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00027  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   95.6   1.4   1.2e-29   1.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 95.6 bits;  conditional E-value: 1.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00027  1 LTPDQVVAIASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00028  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   95.6   1.4   1.2e-29   1.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 95.6 bits;  conditional E-value: 1.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00028  1 LTPDQVVAIASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00029  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   95.6   1.4   1.2e-29   1.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 95.6 bits;  conditional E-value: 1.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00029  1 LTPDQVVAIASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00030  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   95.6   1.4   1.2e-29   1.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 95.6 bits;  conditional E-value: 1.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00030  1 LTPDQVVAIASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00031  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   95.6   1.4   1.2e-29   1.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 95.6 bits;  conditional E-value: 1.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00031  1 LTPDQVVAIASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00033  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.9   1.2     2e-29     2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.9 bits;  conditional E-value: 2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00033  1 LTPDQVVAIASNSGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00034  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.9   1.2     2e-29     2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.9 bits;  conditional E-value: 2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00034  1 LTPDQVVAIASNSGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00035  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.9   1.2     2e-29     2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.9 bits;  conditional E-value: 2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00035  1 LTPDQVVAIASNSGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00072  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.7   1.6   2.2e-29   2.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.7 bits;  conditional E-value: 2.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00072  1 LTPDQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00073  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.7   1.6   2.2e-29   2.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.7 bits;  conditional E-value: 2.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00073  1 LTPDQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00074  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.7   1.6   2.2e-29   2.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.7 bits;  conditional E-value: 2.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00074  1 LTPDQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00075  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.7   1.6   2.2e-29   2.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.7 bits;  conditional E-value: 2.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00075  1 LTPDQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00076  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.7   1.6   2.2e-29   2.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.7 bits;  conditional E-value: 2.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00076  1 LTPDQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00077  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.7   1.6   2.2e-29   2.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.7 bits;  conditional E-value: 2.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00077  1 LTPDQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00078  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.7   1.6   2.2e-29   2.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.7 bits;  conditional E-value: 2.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00078  1 LTPDQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00079  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.7   1.6   2.2e-29   2.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.7 bits;  conditional E-value: 2.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00079  1 LTPDQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00080  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.7   1.6   2.2e-29   2.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.7 bits;  conditional E-value: 2.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00080  1 LTPDQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00081  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.7   1.6   2.2e-29   2.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.7 bits;  conditional E-value: 2.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00081  1 LTPDQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00086  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.7   1.6   2.2e-29   2.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.7 bits;  conditional E-value: 2.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00086  1 LTPDQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00087  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.7   1.6   2.2e-29   2.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.7 bits;  conditional E-value: 2.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00087  1 LTPDQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00104  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.7   1.6   2.2e-29   2.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.7 bits;  conditional E-value: 2.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00104  1 LTPDQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00110  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.7   1.6   2.2e-29   2.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.7 bits;  conditional E-value: 2.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00110  1 LTPDQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00128  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.7   1.6   2.2e-29   2.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.7 bits;  conditional E-value: 2.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00128  1 LTPDQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00019  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.7   1.5   2.3e-29   2.3e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.7 bits;  conditional E-value: 2.3e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00019  1 LTPDQVVAIASNIGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00020  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.7   1.5   2.3e-29   2.3e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.7 bits;  conditional E-value: 2.3e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00020  1 LTPDQVVAIASNIGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00021  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.7   1.5   2.3e-29   2.3e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.7 bits;  conditional E-value: 2.3e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00021  1 LTPDQVVAIASNIGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00022  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.7   1.5   2.3e-29   2.3e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.7 bits;  conditional E-value: 2.3e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00022  1 LTPDQVVAIASNIGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00023  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.7   1.5   2.3e-29   2.3e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.7 bits;  conditional E-value: 2.3e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00023  1 LTPDQVVAIASNIGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00047  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.2   1.8   3.2e-29   3.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.2 bits;  conditional E-value: 3.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00047  1 LTPDQVVAIASNGGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00048  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.2   1.8   3.2e-29   3.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.2 bits;  conditional E-value: 3.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00048  1 LTPDQVVAIASNGGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00049  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.2   1.8   3.2e-29   3.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.2 bits;  conditional E-value: 3.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00049  1 LTPDQVVAIASNGGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00050  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.2   1.8   3.2e-29   3.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.2 bits;  conditional E-value: 3.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00050  1 LTPDQVVAIASNGGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00051  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.2   1.8   3.2e-29   3.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.2 bits;  conditional E-value: 3.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00051  1 LTPDQVVAIASNGGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00052  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.2   1.8   3.2e-29   3.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.2 bits;  conditional E-value: 3.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00052  1 LTPDQVVAIASNGGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00053  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.2   1.8   3.2e-29   3.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.2 bits;  conditional E-value: 3.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00053  1 LTPDQVVAIASNGGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00054  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.2   1.8   3.2e-29   3.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.2 bits;  conditional E-value: 3.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00054  1 LTPDQVVAIASNGGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00060  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.2   1.8   3.2e-29   3.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.2 bits;  conditional E-value: 3.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00060  1 LTPDQVVAIASNGGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00061  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.2   1.8   3.2e-29   3.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.2 bits;  conditional E-value: 3.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00061  1 LTPDQVVAIASNGGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00082  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.2   1.8   3.2e-29   3.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.2 bits;  conditional E-value: 3.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00082  1 LTPDQVVAIASNGGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00147  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.2   1.8   3.2e-29   3.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.2 bits;  conditional E-value: 3.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00147  1 LTPDQVVAIASNGGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00036  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.2   1.3   3.3e-29   3.3e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.2 bits;  conditional E-value: 3.3e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00036  1 LTPEQVVAIASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00037  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.2   1.3   3.3e-29   3.3e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.2 bits;  conditional E-value: 3.3e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00037  1 LTPEQVVAIASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00099  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.2   1.3   3.3e-29   3.3e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.2 bits;  conditional E-value: 3.3e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00099  1 LTPEQVVAIASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00162  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.0   1.6   3.8e-29   3.8e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.0 bits;  conditional E-value: 3.8e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00162  1 LTPDQVVAIASNXGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00063  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   94.0   0.7   3.8e-29   3.8e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 94.0 bits;  conditional E-value: 3.8e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQV+AIAsndGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00063  1 LTPDQVMAIASNDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00106  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   93.3   1.5   6.2e-29   6.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 93.3 bits;  conditional E-value: 6.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00106  1 LTPEQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00107  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   93.3   1.5   6.2e-29   6.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 93.3 bits;  conditional E-value: 6.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00107  1 LTPEQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00108  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   93.3   1.5   6.2e-29   6.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 93.3 bits;  conditional E-value: 6.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00108  1 LTPEQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00109  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   93.3   1.5   6.2e-29   6.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 93.3 bits;  conditional E-value: 6.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00109  1 LTPEQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00112  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   93.3   1.5   6.2e-29   6.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 93.3 bits;  conditional E-value: 6.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00112  1 LTPEQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00114  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   93.3   1.9   6.2e-29   6.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 93.3 bits;  conditional E-value: 6.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsndGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00114  1 LTPAQVVAIASNDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00117  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   93.3   1.9   6.2e-29   6.2e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 93.3 bits;  conditional E-value: 6.2e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsndGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00117  1 LTPAQVVAIASNDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00055  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   93.3   2.0   6.3e-29   6.3e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 93.3 bits;  conditional E-value: 6.3e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00055  1 LTPAQVVAIASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00056  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   93.3   2.0   6.3e-29   6.3e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 93.3 bits;  conditional E-value: 6.3e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00056  1 LTPAQVVAIASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00057  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   93.3   2.0   6.3e-29   6.3e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 93.3 bits;  conditional E-value: 6.3e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00057  1 LTPAQVVAIASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00058  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   93.3   2.0   6.3e-29   6.3e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 93.3 bits;  conditional E-value: 6.3e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00058  1 LTPAQVVAIASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00059  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   93.3   2.0   6.3e-29   6.3e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 93.3 bits;  conditional E-value: 6.3e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00059  1 LTPAQVVAIASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00064  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   93.3   2.0   6.3e-29   6.3e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 93.3 bits;  conditional E-value: 6.3e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00064  1 LTPAQVVAIASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00065  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   93.3   2.0   6.3e-29   6.3e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 93.3 bits;  conditional E-value: 6.3e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00065  1 LTPAQVVAIASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00066  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   93.3   2.0   6.3e-29   6.3e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 93.3 bits;  conditional E-value: 6.3e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00066  1 LTPAQVVAIASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00067  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   93.3   2.0   6.3e-29   6.3e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 93.3 bits;  conditional E-value: 6.3e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00067  1 LTPAQVVAIASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00068  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   93.3   2.0   6.3e-29   6.3e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 93.3 bits;  conditional E-value: 6.3e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00068  1 LTPAQVVAIASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00069  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   93.3   2.0   6.3e-29   6.3e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 93.3 bits;  conditional E-value: 6.3e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00069  1 LTPAQVVAIASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00070  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   93.3   2.0   6.3e-29   6.3e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 93.3 bits;  conditional E-value: 6.3e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00070  1 LTPAQVVAIASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00071  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   93.3   2.0   6.3e-29   6.3e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 93.3 bits;  conditional E-value: 6.3e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00071  1 LTPAQVVAIASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00083  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   93.3   2.0   6.3e-29   6.3e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 93.3 bits;  conditional E-value: 6.3e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00083  1 LTPAQVVAIASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00098  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   93.3   2.0   6.3e-29   6.3e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 93.3 bits;  conditional E-value: 6.3e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00098  1 LTPAQVVAIASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00101  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   93.3   2.0   6.3e-29   6.3e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 93.3 bits;  conditional E-value: 6.3e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00101  1 LTPAQVVAIASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00116  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   93.3   2.0   6.3e-29   6.3e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 93.3 bits;  conditional E-value: 6.3e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00116  1 LTPAQVVAIASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00024  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   93.2   1.5   6.4e-29   6.4e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 93.2 bits;  conditional E-value: 6.4e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00024  1 LTPEQVVAIASNIGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00025  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   93.2   1.5   6.4e-29   6.4e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 93.2 bits;  conditional E-value: 6.4e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00025  1 LTPEQVVAIASNIGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00111  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   93.2   1.0   6.7e-29   6.7e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 93.2 bits;  conditional E-value: 6.7e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQV+AIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00111  1 LTPDQVMAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00090  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.8   1.7   8.8e-29   8.8e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.8 bits;  conditional E-value: 8.8e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00090  1 LTPEQVVAIASNGGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00091  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.8   1.7   8.8e-29   8.8e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.8 bits;  conditional E-value: 8.8e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00091  1 LTPEQVVAIASNGGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00092  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.8   1.7   8.8e-29   8.8e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.8 bits;  conditional E-value: 8.8e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00092  1 LTPEQVVAIASNGGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00093  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.8   1.7   8.8e-29   8.8e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.8 bits;  conditional E-value: 8.8e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00093  1 LTPEQVVAIASNGGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00095  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.8   1.7   8.8e-29   8.8e-29       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.8 bits;  conditional E-value: 8.8e-29
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00095  1 LTPEQVVAIASNGGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00171  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.6   1.5     1e-28     1e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.6 bits;  conditional E-value: 1e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00171  1 LTPEQVVAIASNXGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00089  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.6   1.8   1.1e-28   1.1e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.6 bits;  conditional E-value: 1.1e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00089  1 LTPAQVVAIASNSGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00102  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.6   1.8   1.1e-28   1.1e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.6 bits;  conditional E-value: 1.1e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00102  1 LTPAQVVAIASNSGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00103  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.6   1.8   1.1e-28   1.1e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.6 bits;  conditional E-value: 1.1e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00103  1 LTPAQVVAIASNSGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00149  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.3   2.3   1.2e-28   1.2e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.3 bits;  conditional E-value: 1.2e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00149  1 LTPAQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00150  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.3   2.3   1.2e-28   1.2e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.3 bits;  conditional E-value: 1.2e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00150  1 LTPAQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00151  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.3   2.3   1.2e-28   1.2e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.3 bits;  conditional E-value: 1.2e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00151  1 LTPAQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00152  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.3   2.3   1.2e-28   1.2e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.3 bits;  conditional E-value: 1.2e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00152  1 LTPAQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00153  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.3   2.3   1.2e-28   1.2e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.3 bits;  conditional E-value: 1.2e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00153  1 LTPAQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00154  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.3   2.3   1.2e-28   1.2e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.3 bits;  conditional E-value: 1.2e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00154  1 LTPAQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00155  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.3   2.3   1.2e-28   1.2e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.3 bits;  conditional E-value: 1.2e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00155  1 LTPAQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00156  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.3   2.3   1.2e-28   1.2e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.3 bits;  conditional E-value: 1.2e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00156  1 LTPAQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00157  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.3   2.3   1.2e-28   1.2e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.3 bits;  conditional E-value: 1.2e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00157  1 LTPAQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00158  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.3   2.3   1.2e-28   1.2e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.3 bits;  conditional E-value: 1.2e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00158  1 LTPAQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00159  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.3   2.3   1.2e-28   1.2e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.3 bits;  conditional E-value: 1.2e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00159  1 LTPAQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00164  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.3   2.3   1.2e-28   1.2e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.3 bits;  conditional E-value: 1.2e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00164  1 LTPAQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00165  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.3   2.3   1.2e-28   1.2e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.3 bits;  conditional E-value: 1.2e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00165  1 LTPAQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00174  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.3   2.3   1.2e-28   1.2e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.3 bits;  conditional E-value: 1.2e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00174  1 LTPAQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00032  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.3   2.2   1.3e-28   1.3e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.3 bits;  conditional E-value: 1.3e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00032  1 LTPAQVVAIASNIGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00038  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.3   2.2   1.3e-28   1.3e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.3 bits;  conditional E-value: 1.3e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00038  1 LTPAQVVAIASNIGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00039  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.3   2.2   1.3e-28   1.3e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.3 bits;  conditional E-value: 1.3e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00039  1 LTPAQVVAIASNIGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00040  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.3   2.2   1.3e-28   1.3e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.3 bits;  conditional E-value: 1.3e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00040  1 LTPAQVVAIASNIGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00041  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.3   2.2   1.3e-28   1.3e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.3 bits;  conditional E-value: 1.3e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00041  1 LTPAQVVAIASNIGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00042  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.3   2.2   1.3e-28   1.3e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.3 bits;  conditional E-value: 1.3e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00042  1 LTPAQVVAIASNIGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00043  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.3   2.2   1.3e-28   1.3e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.3 bits;  conditional E-value: 1.3e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00043  1 LTPAQVVAIASNIGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00044  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.3   2.2   1.3e-28   1.3e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.3 bits;  conditional E-value: 1.3e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00044  1 LTPAQVVAIASNIGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00045  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.3   2.2   1.3e-28   1.3e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.3 bits;  conditional E-value: 1.3e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00045  1 LTPAQVVAIASNIGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00084  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.3   2.2   1.3e-28   1.3e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.3 bits;  conditional E-value: 1.3e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00084  1 LTPAQVVAIASNIGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00085  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.3   2.2   1.3e-28   1.3e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.3 bits;  conditional E-value: 1.3e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00085  1 LTPAQVVAIASNIGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00046  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   92.3   1.5   1.3e-28   1.3e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 92.3 bits;  conditional E-value: 1.3e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIA+n+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00046  1 LTPEQVVAIANNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00130  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   91.8   2.5   1.8e-28   1.8e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 91.8 bits;  conditional E-value: 1.8e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00130  1 LTPAQVVAIASNGGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00131  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   91.8   2.5   1.8e-28   1.8e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 91.8 bits;  conditional E-value: 1.8e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00131  1 LTPAQVVAIASNGGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00132  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   91.8   2.5   1.8e-28   1.8e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 91.8 bits;  conditional E-value: 1.8e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00132  1 LTPAQVVAIASNGGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00133  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   91.8   2.5   1.8e-28   1.8e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 91.8 bits;  conditional E-value: 1.8e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00133  1 LTPAQVVAIASNGGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00134  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   91.8   2.5   1.8e-28   1.8e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 91.8 bits;  conditional E-value: 1.8e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00134  1 LTPAQVVAIASNGGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00135  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   91.8   2.5   1.8e-28   1.8e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 91.8 bits;  conditional E-value: 1.8e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00135  1 LTPAQVVAIASNGGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00136  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   91.8   2.5   1.8e-28   1.8e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 91.8 bits;  conditional E-value: 1.8e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00136  1 LTPAQVVAIASNGGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00137  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   91.8   2.5   1.8e-28   1.8e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 91.8 bits;  conditional E-value: 1.8e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00137  1 LTPAQVVAIASNGGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00138  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   91.8   2.5   1.8e-28   1.8e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 91.8 bits;  conditional E-value: 1.8e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00138  1 LTPAQVVAIASNGGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00139  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   91.8   2.5   1.8e-28   1.8e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 91.8 bits;  conditional E-value: 1.8e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00139  1 LTPAQVVAIASNGGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00088  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   91.8   1.2   1.8e-28   1.8e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 91.8 bits;  conditional E-value: 1.8e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn+G+KQALeTVqRLLPVLCQ+hG
+                   MDOM_00088  1 LTPDQVVAIASNGGSKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00144  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   91.7   0.9   1.9e-28   1.9e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 91.7 bits;  conditional E-value: 1.9e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QV+AIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00144  1 LTPEQVMAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00179  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   91.6   2.2   2.1e-28   2.1e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 91.6 bits;  conditional E-value: 2.1e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00179  1 LTPAQVVAIASNXGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00180  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   91.6   2.2   2.1e-28   2.1e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 91.6 bits;  conditional E-value: 2.1e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00180  1 LTPAQVVAIASNXGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00182  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   91.6   2.2   2.1e-28   2.1e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 91.6 bits;  conditional E-value: 2.1e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00182  1 LTPAQVVAIASNXGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00113  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   91.5   2.0   2.2e-28   2.2e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 91.5 bits;  conditional E-value: 2.2e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00113  1 LTPGQVVAIASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00160  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   91.4   1.0   2.4e-28   2.4e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 91.4 bits;  conditional E-value: 2.4e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTV+RLLPVLCQ+hG
+                   MDOM_00160  1 LTPAQVVAIASNNGGKQALETVRRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00129  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   91.4   1.7   2.4e-28   2.4e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 91.4 bits;  conditional E-value: 2.4e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIA++dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00129  1 LTPEQVVAIANHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00096  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   91.3   2.2   2.6e-28   2.6e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 91.3 bits;  conditional E-value: 2.6e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIA+n+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00096  1 LTPAQVVAIANNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00097  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   91.3   2.2   2.6e-28   2.6e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 91.3 bits;  conditional E-value: 2.6e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIA+n+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00097  1 LTPAQVVAIANNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00127  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   91.3   1.0   2.6e-28   2.6e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 91.3 bits;  conditional E-value: 2.6e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn+GGKQALeTVqRLLPVLCQ+ G
+                   MDOM_00127  1 LTPDQVVAIASNNGGKQALETVQRLLPVLCQARG 34
+                                 9*******************************98 PP
+
+>> MDOM_00125  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   91.3   1.9   2.7e-28   2.7e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 91.3 bits;  conditional E-value: 2.7e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LT dQVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00125  1 LTTDQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00126  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   91.3   1.9   2.7e-28   2.7e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 91.3 bits;  conditional E-value: 2.7e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LT dQVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00126  1 LTTDQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00148  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   91.0   1.1   3.3e-28   3.3e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 91.0 bits;  conditional E-value: 3.3e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLP+LCQ+hG
+                   MDOM_00148  1 LTPEQVVAIASNGGGKQALETVQRLLPMLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00123  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   90.8   1.2   3.7e-28   3.7e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 90.8 bits;  conditional E-value: 3.7e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAsn+GGKQALeTVqRLLP LCQ+hG
+                   MDOM_00123  1 LTPDQVVAIASNSGGKQALETVQRLLPALCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00141  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   90.7   1.6   4.1e-28   4.1e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 90.7 bits;  conditional E-value: 4.1e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVA Asn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00141  1 LTPDQVVATASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00181  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   90.6   1.1   4.3e-28   4.3e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 90.6 bits;  conditional E-value: 4.3e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAs+dGGKQALeTV+RLLPVLCQ+hG
+                   MDOM_00181  1 LTPAQVVAIASHDGGKQALETVRRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00140  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   90.5   1.1   4.6e-28   4.6e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 90.5 bits;  conditional E-value: 4.6e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTV+RLLPVLCQ+hG
+                   MDOM_00140  1 LTPAQVVAIASNIGGKQALETVRRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00146  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   90.5   1.1   4.6e-28   4.6e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 90.5 bits;  conditional E-value: 4.6e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTV+RLLPVLCQ+hG
+                   MDOM_00146  1 LTPAQVVAIASNIGGKQALETVRRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00122  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   90.1   1.3     6e-28     6e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 90.1 bits;  conditional E-value: 6e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLP LCQ+hG
+                   MDOM_00122  1 LTPEQVVAIASNNGGKQALETVQRLLPALCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00176  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   90.1   1.3     6e-28     6e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 90.1 bits;  conditional E-value: 6e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTV+RLLPVLCQ+hG
+                   MDOM_00176  1 LTPAQVVAIASNGGGKQALETVRRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00184  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   90.0   1.7   6.6e-28   6.6e-28       1      34 []       1      34 []       1      34 [] 0.98
+
+  Alignments for each domain:
+  == domain 1  score: 90.0 bits;  conditional E-value: 6.6e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 L pdQVVAIAsn GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00184  1 LAPDQVVAIASNXGGKQALETVQRLLPVLCQAHG 34
+                                 78*******************************9 PP
+
+>> MDOM_00062  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   90.0   1.3   6.8e-28   6.8e-28       1      34 []       1      34 []       1      34 [] 0.97
+
+  Alignments for each domain:
+  == domain 1  score: 90.0 bits;  conditional E-value: 6.8e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 L pdQVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00062  1 LPPDQVVAIASNIGGKQALETVQRLLPVLCQAHG 34
+                                 67*******************************9 PP
+
+>> MDOM_00115  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   89.9   0.6   7.1e-28   7.1e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 89.9 bits;  conditional E-value: 7.1e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAs+dGGKQALeTVqRLLPVL Q+hG
+                   MDOM_00115  1 LTPDQVVAIASHDGGKQALETVQRLLPVLYQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00118  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   89.7   1.9   8.1e-28   8.1e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 89.7 bits;  conditional E-value: 8.1e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LT +QVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00118  1 LTLEQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00119  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   89.7   1.9   8.1e-28   8.1e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 89.7 bits;  conditional E-value: 8.1e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LT +QVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00119  1 LTLEQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00120  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   89.7   1.9   8.1e-28   8.1e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 89.7 bits;  conditional E-value: 8.1e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LT +QVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00120  1 LTLEQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00121  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   89.7   1.9   8.1e-28   8.1e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 89.7 bits;  conditional E-value: 8.1e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LT +QVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00121  1 LTLEQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00124  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   89.7   1.9   8.1e-28   8.1e-28       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 89.7 bits;  conditional E-value: 8.1e-28
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LT +QVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00124  1 LTLEQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00163  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   89.4   1.9     1e-27     1e-27       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 89.4 bits;  conditional E-value: 1e-27
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LT +QVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00163  1 LTSAQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00166  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   89.2   0.9   1.2e-27   1.2e-27       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 89.2 bits;  conditional E-value: 1.2e-27
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAs+dGGK ALeTVqRLLPVLCQ+hG
+                   MDOM_00166  1 LTPDQVVAIASHDGGKPALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00167  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   89.2   0.9   1.2e-27   1.2e-27       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 89.2 bits;  conditional E-value: 1.2e-27
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAs+dGGK ALeTVqRLLPVLCQ+hG
+                   MDOM_00167  1 LTPDQVVAIASHDGGKPALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00168  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   89.2   0.9   1.2e-27   1.2e-27       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 89.2 bits;  conditional E-value: 1.2e-27
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTpdQVVAIAs+dGGK ALeTVqRLLPVLCQ+hG
+                   MDOM_00168  1 LTPDQVVAIASHDGGKPALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00100  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   89.2   2.1   1.2e-27   1.2e-27       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 89.2 bits;  conditional E-value: 1.2e-27
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LT +QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00100  1 LTLEQVVAIASNGGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00143  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   88.8   1.6   1.5e-27   1.5e-27       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 88.8 bits;  conditional E-value: 1.5e-27
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAI s+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00143  1 LTPEQVVAIVSHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00142  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   88.8   1.3   1.6e-27   1.6e-27       1      34 []       1      34 []       1      34 [] 0.98
+
+  Alignments for each domain:
+  == domain 1  score: 88.8 bits;  conditional E-value: 1.6e-27
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 L p+QVVAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00142  1 LIPEQVVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 679******************************9 PP
+
+>> MDOM_00173  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   88.6   1.8   1.8e-27   1.8e-27       1      34 []       1      34 []       1      34 [] 0.97
+
+  Alignments for each domain:
+  == domain 1  score: 88.6 bits;  conditional E-value: 1.8e-27
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 L p+QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00173  1 LPPAQVVAIASNNGGKQALETVQRLLPVLCQAHG 34
+                                 679******************************9 PP
+
+>> MDOM_00169  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   88.3   2.3   2.3e-27   2.3e-27       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 88.3 bits;  conditional E-value: 2.3e-27
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVA Asn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00169  1 LTPAQVVATASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00172  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   88.3   2.3   2.3e-27   2.3e-27       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 88.3 bits;  conditional E-value: 2.3e-27
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVA Asn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00172  1 LTPAQVVATASNNGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00145  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   88.1   2.9   2.5e-27   2.5e-27       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 88.1 bits;  conditional E-value: 2.5e-27
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LT +QVVAIAsn+GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00145  1 LTLAQVVAIASNGGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00094  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   88.1   1.7   2.6e-27   2.6e-27       1      34 []       1      34 []       1      34 [] 0.97
+
+  Alignments for each domain:
+  == domain 1  score: 88.1 bits;  conditional E-value: 2.6e-27
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 L pdQVVAIAsn GGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00094  1 LPPDQVVAIASNVGGKQALETVQRLLPVLCQAHG 34
+                                 67*******************************9 PP
+
+>> MDOM_00178  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   88.0   2.2   2.7e-27   2.7e-27       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 88.0 bits;  conditional E-value: 2.7e-27
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+Q VAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00178  1 LTPAQAVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00185  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   88.0   2.2   2.7e-27   2.7e-27       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 88.0 bits;  conditional E-value: 2.7e-27
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+Q VAIAs+dGGKQALeTVqRLLPVLCQ+hG
+                   MDOM_00185  1 LTPAQAVAIASHDGGKQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00105  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   87.7   1.7   3.5e-27   3.5e-27       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 87.7 bits;  conditional E-value: 3.5e-27
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLL VLCQ+hG
+                   MDOM_00105  1 LTPAQVVAIASNNGGKQALETVQRLLSVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00177  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   87.7   1.9   3.5e-27   3.5e-27       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 87.7 bits;  conditional E-value: 3.5e-27
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAsn+GGKQALeTVqRLLPVLCQ+ G
+                   MDOM_00177  1 LTPAQVVAIASNGGGKQALETVQRLLPVLCQARG 34
+                                 9*******************************98 PP
+
+>> MDOM_00170  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   87.6   1.8   3.8e-27   3.8e-27       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 87.6 bits;  conditional E-value: 3.8e-27
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIA+n+GGKQALeTV+RLLPVLCQ+hG
+                   MDOM_00170  1 LTPAQVVAIACNIGGKQALETVRRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00175  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   87.3   0.5   4.7e-27   4.7e-27       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 87.3 bits;  conditional E-value: 4.7e-27
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp QVVAIAs+dGGKQALeTVqRLLPVL Q+hG
+                   MDOM_00175  1 LTPSQVVAIASHDGGKQALETVQRLLPVLYQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00183  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   87.0   1.4   5.7e-27   5.7e-27       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 87.0 bits;  conditional E-value: 5.7e-27
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LTp+QVVAIAs+dGGK ALeTVqRLLPVLCQ+hG
+                   MDOM_00183  1 LTPAQVVAIASHDGGKPALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00161  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   86.5   1.6   7.9e-27   7.9e-27       1      34 []       1      34 []       1      34 [] 0.99
+
+  Alignments for each domain:
+  == domain 1  score: 86.5 bits;  conditional E-value: 7.9e-27
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTVqRLLPVLCQdhG 34
+                                 LT +QVVAIAsn+GG+QALeTVqRLLPVLCQ+hG
+                   MDOM_00161  1 LTLEQVVAIASNIGGRQALETVQRLLPVLCQAHG 34
+                                 9********************************9 PP
+
+>> MDOM_00186  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   49.7   0.4   2.6e-15   2.6e-15       1      22 [.       1      22 [.       1      26 [. 0.93
+
+  Alignments for each domain:
+  == domain 1  score: 49.7 bits;  conditional E-value: 2.6e-15
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTV 22
+                                 LTpdQVVAIAsn+GGKQALe +
+                   MDOM_00186  1 LTPDQVVAIASNIGGKQALESI 22
+                                 9*******************86 PP
+
+>> MDOM_00188  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   48.5   0.7   6.1e-15   6.1e-15       1      22 [.       1      22 [.       1      26 [. 0.93
+
+  Alignments for each domain:
+  == domain 1  score: 48.5 bits;  conditional E-value: 6.1e-15
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTV 22
+                                 LTp+QVVAIAsn+GGKQALe +
+                   MDOM_00188  1 LTPAQVVAIASNNGGKQALESI 22
+                                 9*******************86 PP
+
+>> MDOM_00189  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   48.5   0.7   6.1e-15   6.1e-15       1      22 [.       1      22 [.       1      26 [. 0.93
+
+  Alignments for each domain:
+  == domain 1  score: 48.5 bits;  conditional E-value: 6.1e-15
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTV 22
+                                 LTp+QVVAIAsn+GGKQALe +
+                   MDOM_00189  1 LTPAQVVAIASNNGGKQALESI 22
+                                 9*******************86 PP
+
+>> MDOM_00190  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   48.0   0.4     9e-15     9e-15       1      22 [.       1      22 [.       1      26 [. 0.93
+
+  Alignments for each domain:
+  == domain 1  score: 48.0 bits;  conditional E-value: 9e-15
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTV 22
+                                 LTp+QVVAIAsn+GGKQALe +
+                   MDOM_00190  1 LTPEQVVAIASNGGGKQALESI 22
+                                 9*******************86 PP
+
+>> MDOM_00187  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   47.7   0.7   1.1e-14   1.1e-14       1      22 [.       1      22 [.       1      26 [. 0.93
+
+  Alignments for each domain:
+  == domain 1  score: 47.7 bits;  conditional E-value: 1.1e-14
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTV 22
+                                 LTp+QVVAIAsn+GGKQALe +
+                   MDOM_00187  1 LTPAQVVAIASNIGGKQALESI 22
+                                 9*******************86 PP
+
+>> MDOM_00191  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   47.4   0.8   1.4e-14   1.4e-14       1      22 [.       1      22 [.       1      26 [. 0.93
+
+  Alignments for each domain:
+  == domain 1  score: 47.4 bits;  conditional E-value: 1.4e-14
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTV 22
+                                 LTp+QVVAIAsn+GGKQALe +
+                   MDOM_00191  1 LTPAQVVAIASNGGGKQALESI 22
+                                 9*******************86 PP
+
+>> MDOM_00192  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   47.4   0.8   1.4e-14   1.4e-14       1      22 [.       1      22 [.       1      26 [. 0.93
+
+  Alignments for each domain:
+  == domain 1  score: 47.4 bits;  conditional E-value: 1.4e-14
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTV 22
+                                 LTp+QVVAIAsn+GGKQALe +
+                   MDOM_00192  1 LTPAQVVAIASNGGGKQALESI 22
+                                 9*******************86 PP
+
+>> MDOM_00193  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   47.4   0.8   1.4e-14   1.4e-14       1      22 [.       1      22 [.       1      26 [. 0.93
+
+  Alignments for each domain:
+  == domain 1  score: 47.4 bits;  conditional E-value: 1.4e-14
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTV 22
+                                 LTp+QVVAIAsn+GGKQALe +
+                   MDOM_00193  1 LTPAQVVAIASNGGGKQALESI 22
+                                 9*******************86 PP
+
+>> MDOM_00194  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   47.4   0.8   1.4e-14   1.4e-14       1      22 [.       1      22 [.       1      26 [. 0.93
+
+  Alignments for each domain:
+  == domain 1  score: 47.4 bits;  conditional E-value: 1.4e-14
+  TALE_repeat_Protein_aligned  1 LTpdQVVAIAsndGGKQALeTV 22
+                                 LTp+QVVAIAsn+GGKQALe +
+                   MDOM_00194  1 LTPAQVVAIASNGGGKQALESI 22
+                                 9*******************86 PP
+
+>> MDOM_00195  
+   #    score  bias  c-Evalue  i-Evalue hmmfrom  hmm to    alifrom  ali to    envfrom  env to     acc
+ ---   ------ ----- --------- --------- ------- -------    ------- -------    ------- -------    ----
+   1 !   27.9   0.0   1.8e-08   1.8e-08       3      22 ..       3      22 ..       2      25 .. 0.89
+
+  Alignments for each domain:
+  == domain 1  score: 27.9 bits;  conditional E-value: 1.8e-08
+  TALE_repeat_Protein_aligned  3 pdQVVAIAsndGGKQALeTV 22
+                                 p Q VAIA + GGKQA e +
+                   MDOM_00195  3 PPQFVAIAXHAGGKQAFERI 22
+                                 78***************977 PP
+
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (34 nodes)
+Target sequences:                        177  (6018 residues searched)
+Passed MSV filter:                       177  (1); expected 3.5 (0.02)
+Passed bias filter:                      177  (1); expected 3.5 (0.02)
+Passed Vit filter:                       177  (1); expected 0.2 (0.001)
+Passed Fwd filter:                       177  (1); expected 0.0 (1e-05)
+Initial search space (Z):                177  [actual number of targets]
+Domain search space  (domZ):             177  [number of targets reported over threshold]
+# CPU time: 0.01u 0.00s 00:00:00.01 Elapsed: 00:00:00.01
+# Mc/sec: 17.94
+//
+[ok]

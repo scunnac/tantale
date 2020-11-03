@@ -1,0 +1,27 @@
+Class 13 for (AffineCosts, 5.0, SEMI_GLOBAL)
+distance: 0.8
+significance: p=0E0
+
+ NI NG NN NG NK NG NI NN NI NN NI NN NS NG NS NN NI NX NS NG	PXO86_hmmalign-ROI_00016
+ NI NG NN NG NK NG NI NN NI NN NI NN NS NG NS NN NI NX NS NG	PXO86_decipher-ROI_00016
+ NI NG NN NG NK NG NI NN NI NN NI NN NS NG NS NN NI N* NS NG	PXO86-tempTALE16
+
+Most likely common binding sequence:
+TA  T  G  T  G  T  A  G  A  G  A  G  A  T  A  G  A  C  A  T
+
+
+Class tree:
+(
+	(
+			PXO86_hmmalign-ROI_00016:0.0	,			PXO86_decipher-ROI_00016:0.0	
+):0.8,	PXO86-tempTALE16:0.8
+);
+
+Alignment scores:
+PXO86_decipher-ROI_00016 vs. PXO86_hmmalign-ROI_00016: 0
+PXO86-tempTALE16 vs. PXO86_hmmalign-ROI_00016: 0.8
+PXO86-tempTALE16 vs. PXO86_decipher-ROI_00016: 0.8
+
+No related classes.
+
+

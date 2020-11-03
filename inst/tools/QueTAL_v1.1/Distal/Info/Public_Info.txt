@@ -1,0 +1,229 @@
+>YP_450163.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>AGG20291.1_Ralstonia solanacearum_RipTALI-2	Ralstonia solanacearum
+>BAA37120.1_Xanthomonas citri pv. citri_apl2	Xanthomonas citri pv. citri
+>AEQ96609.1_Xanthomonas oryzae pv. oryzicola_Tal5a	Xanthomonas oryzae pv. oryzicola
+>YP_451189.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>YP_453043.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>ACD59227.2_Xanthomonas oryzae pv. oryzae_Tal7b	Xanthomonas oryzae pv. oryzae
+>CAA34257.1_Xanthomonas vesicatoria_AvrBs3	Xanthomonas vesicatoria
+>ABO77781.1_Xanthomonas citri pv. citri_PthA*2	Xanthomonas citri pv. citri
+>ACD60573.2_Xanthomonas oryzae pv. oryzae_Tal9e	Xanthomonas oryzae pv. oryzae
+>ACD58948.2_Xanthomonas oryzae pv. oryzae_Tal6a	Xanthomonas oryzae pv. oryzae
+>ADM80412.1_Xanthomonas axonopodis pv. manihotis_TALE1Xam/PthB	Xanthomonas axonopodis pv. manihotis
+>ABO27071.1_Ralstonia solanacearum	Ralstonia solanacearum
+>CAD15517.1_Ralstonia solanacearum	Ralstonia solanacearum
+>AEQ95745.1_Xanthomonas oryzae pv. oryzicola_Tal2c	Xanthomonas oryzae pv. oryzicola
+>ACD59416.2_Xanthomonas oryzae pv. oryzae_Tal8a	Xanthomonas oryzae pv. oryzae
+>BAE68756.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>AAT46126.1_Xanthomonas oryzae pv. oryzae_AvrXa7-2M 	Xanthomonas oryzae pv. oryzae
+>AAG02079.2_Xanthomonas oryzae pv. oryzae_AvrXa7	Xanthomonas oryzae pv. oryzae
+>AEQ95744.1_Xanthomonas oryzae pv. oryzicola_Tal2d	Xanthomonas oryzae pv. oryzicola
+>AEQ98462.1_Xanthomonas oryzae pv. oryzicola_Tal11b	Xanthomonas oryzae pv. oryzicola
+>ACD57198.2_Xanthomonas oryzae pv. oryzae_PthXo7, tal1	Xanthomonas oryzae pv. oryzae
+>AEQ94698.1_Xanthomonas oryzae pv. oryzicola_Tal1a	Xanthomonas oryzae pv. oryzicola
+>CBJ35887.1_Ralstonia solanacearum	Ralstonia solanacearum
+>YP_451894.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>AGG20298.1_Ralstonia solanacearum_RipTALI-9	Ralstonia solanacearum
+>AEQ96610.1_Xanthomonas oryzae pv. oryzicola_Tal5b	Xanthomonas oryzae pv. oryzicola
+>AAT46124.1_Xanthomonas oryzae pv. oryzae_AvrXa7-3M	Xanthomonas oryzae pv. oryzae
+>AEQ98746.1_Xanthomonas oryzae pv. oryzicola_Tal2b	Xanthomonas oryzae pv. oryzicola
+>AGG20300.1_Ralstonia solanacearum_RipTALI-11	Ralstonia solanacearum
+>AEQ94695.1_Xanthomonas oryzae pv. oryzicola_Tal1c	Xanthomonas oryzae pv. oryzicola
+>ACD60557.2_Xanthomonas oryzae pv. oryzae_Tal9a	Xanthomonas oryzae pv. oryzae
+>CDF63714.1_Xanthomonas fuscans subsp. fuscans_Xfutal1	Xanthomonas fuscans subsp. fuscans
+>AIA22683.1_Xanthomonas oryzae pv. oryzae_Tal8b	Xanthomonas oryzae pv. oryzae
+>YP_201654.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>YP_199876.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>AGH79845.1_Xanthomonas axonopodis?_apl3	Xanthomonas axonopodis?
+>CCA82456.1_Ralstonia sp.	Ralstonia sp.
+>YP_451158.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>ABY60855.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>AAY43358.1_Xanthomonas campestris pv. armoraciae_Hax2	Xanthomonas campestris pv. armoraciae
+>AAW59492.1_Xanthomonas oryzae pv. oryzicola_Avr/pth3	Xanthomonas oryzae pv. oryzicola
+>AGG20299.1_Ralstonia solanacearum_RipTALI-10	Ralstonia solanacearum
+>AEK86668.1_Xanthomonas oryzae pv. oryzae_TalC	Xanthomonas oryzae pv. oryzae
+>YP_200915.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>YP_451897.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>AGG20297.1_Ralstonia solanacearum_RipTALI-8	Ralstonia solanacearum
+>EBN19409.1_marine metagenome	Marine metagenome
+>YP_451895.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>YP_451187.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>AHA11379.1_Xanthomonas oryzae pv. oryzicola	Xanthomonas oryzae pv. oryzicola
+>AAM39226.1_Xanthomonas citri pv. citri_PthA1	Xanthomonas citri pv. citri
+>ACD58925.2_Xanthomonas oryzae pv. oryzae_Tal5a	Xanthomonas oryzae pv. oryzae
+>YP_200770.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>AAS75145.1_Xanthomonas oryzae pv. oryzae_AvrXa7	Xanthomonas oryzae pv. oryzae
+>YP_004022479.1_Burkholderia rhizoxinica_BurrH	Burkholderia rhizoxinica
+>ABO27075.1_Ralstonia solanacearum	Ralstonia solanacearum
+>AAM39311.1_Xanthomonas citri pv. citri_PthA4	Xanthomonas citri pv. citri
+>AAF98332.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>AEQ95881.1_Xanthomonas oryzae pv. oryzicola_Tal3c	Xanthomonas oryzae pv. oryzicola
+>YP_200766.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>AAX12193.1_Xanthomonas axonopodis pv. glycines	Xanthomonas axonopodis pv. glycines
+>AEQ96158.1_Xanthomonas oryzae pv. oryzicola_Tal4b	Xanthomonas oryzae pv. oryzicola
+>AAA92974.1_Xanthomonas oryzae pv. oryzae_AvrXA10	Xanthomonas oryzae pv. oryzae
+>YP_200918.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>ACZ62652.1_Xanthomonas citri pv. citri_PthAf	Xanthomonas citri pv. citri
+>ACN39605.1_Xanthomonas citri pv. citri_avrTaw	Xanthomonas citri pv. citri
+>EFF45713.1_Xanthomonas citri pv. aurantifolii	Xanthomonas citri pv. aurantifolii
+>AAT46122.1_Xanthomonas oryzae pv. oryzae_AvrXa7-1M	Xanthomonas oryzae pv. oryzae
+>YP_199877.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>ADI48327.1_Xanthomonas citri pv. aurantifolii_PthC1	Xanthomonas citri pv. aurantifolii
+>AAS58127.2_Xanthomonas oryzae pv. oryzae_PthXo4	Xanthomonas oryzae pv. oryzae
+>YP_201653.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>ABO77780.1_Xanthomonas citri pv. citri_PthA*	Xanthomonas citri pv. citri
+>YP_004030667.1_Burkholderia rhizoxinica_Bat3	Burkholderia rhizoxinica
+>ABO27073.1_Ralstonia solanacearum	Ralstonia solanacearum
+>AGG20303.1_Ralstonia solanacearum_RipTALI-14	Ralstonia solanacearum
+>EFF47221.1_Xanthomonas citri pv. aurantifolii	Xanthomonas citri pv. aurantifolii
+>BAF46272.1_Xanthomonas citri pv. citri	Xanthomonas citri pv. citri
+>AGG20292.1_Ralstonia solanacearum_RipTALI-3	Ralstonia solanacearum
+>ACD58920.2_Xanthomonas oryzae pv. oryzae_Tal5b, PthXo6	Xanthomonas oryzae pv. oryzae
+>AAY43360.1_Xanthomonas campestris pv. armoraciae_Hax4	Xanthomonas campestris pv. armoraciae
+>AAS46026.1_Xanthomonas oryzae pv. oryzae_PthXo2	Xanthomonas oryzae pv. oryzae
+>YP_200903.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>AAW59491.1_Xanthomonas oryzae pv. oryzicola_Avr/Pth13	Xanthomonas oryzae pv. oryzicola
+>AAT46123.1_Xanthomonas oryzae pv. oryzae_AvrXa7-2M 	Xanthomonas oryzae pv. oryzae
+>YP_451156.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>AEQ95741.1_Xanthomonas oryzae pv. oryzicola_Tal2g	Xanthomonas oryzae pv. oryzicola
+>YP_200767.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>AAN01357.1_Xanthomonas oryzae pv. oryzae_Avrxa3	Xanthomonas oryzae pv. oryzae
+>ELP96962.1_Xanthomonas translucens_Tal9b	Xanthomonas translucens
+>AAC43587.1_Xanthomonas citri pv. citri_PthA	Xanthomonas citri pv. citri
+>BAA37121.1_Xanthomonas citri pv. citri_apl3	Xanthomonas citri pv. citri
+>AGG20304.1_Ralstonia solanacearum_RipTALI-15	Ralstonia solanacearum
+>ACD60565.2_Xanthomonas oryzae pv. oryzae_Tal9c, Avrxa27	Xanthomonas oryzae pv. oryzae
+>ADI48328.1_Xanthomonas citri pv. aurantifolii_PthC2	Xanthomonas citri pv. aurantifolii
+>ABG37631.1_Xanthomonas oryzae pv. oryzae_Avr/pth3	Xanthomonas oryzae pv. oryzae
+>BAF46270.1_Xanthomonas citri pv. citri_pthA3	Xanthomonas citri pv. citri
+>AGG20302.1_Ralstonia solanacearum_RipTALI-13	Ralstonia solanacearum
+>EGD16589.1_Xanthomonas gardneri	Xanthomonas gardneri
+>AEQ95871.1_Xanthomonas oryzae pv. oryzicola_Tal3a	Xanthomonas oryzae pv. oryzicola
+>BAA37119.1_Xanthomonas citri pv. citri_apl1	Xanthomonas citri pv. citri
+>ABO77779.1_Xanthomonas citri pv. citri_PthAW	Xanthomonas citri pv. citri
+>ABO77782.1_Xanthomonas citri pv. aurantifolii_PthC	Xanthomonas citri pv. aurantifolii
+>AAS58128.2_Xanthomonas oryzae pv. oryzae_AvrXa7-_38	Xanthomonas oryzae pv. oryzae
+>AGG20290.1_Ralstonia solanacearum_RipTALI-1	Ralstonia solanacearum
+>ELP95554.1_Xanthomonas translucens	Xanthomonas translucens
+>ACD11364.1_Xanthomonas oryzae pv. oryzae_Avr/pthC8b	Xanthomonas oryzae pv. oryzae
+>AEQ95743.1_Xanthomonas oryzae pv. oryzicola_Tal2e	Xanthomonas oryzae pv. oryzicola
+>AEQ96964.1_Xanthomonas oryzae pv. oryzicola_Tal6	Xanthomonas oryzae pv. oryzicola
+>ACD58650.2_Xanthomonas oryzae pv. oryzae_Tal4	Xanthomonas oryzae pv. oryzae
+>AEQ98589.1_Xanthomonas oryzae pv. oryzicola_Tal12	Xanthomonas oryzae pv. oryzicola
+>AEQ98113.1_Xanthomonas oryzae pv. oryzicola_Tal8	Xanthomonas oryzae pv. oryzicola
+>ABO27072.1_Ralstonia solanacearum	Ralstonia solanacearum
+>ACD60569.2_Xanthomonas oryzae pv. oryzae_Tal9d	Xanthomonas oryzae pv. oryzae
+>AEQ98323.1_Xanthomonas oryzae pv. oryzicola_Tal9b	Xanthomonas oryzae pv. oryzicola
+>AEQ98454.1_Xanthomonas oryzae pv. oryzicola_Tal10	Xanthomonas oryzae pv. oryzicola
+>AAT46127.1_Xanthomonas oryzae pv. oryzae_AvrXa7-2M 	Xanthomonas oryzae pv. oryzae
+>AEQ95737.1_Xanthomonas oryzae pv. oryzicola_Tal2h	Xanthomonas oryzae pv. oryzicola
+>YP_451027.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>YP_004030669.1_Burkholderia rhizoxinica	Burkholderia rhizoxinica
+>AEQ98467.1_Xanthomonas oryzae pv. oryzicola_Tal11a	Xanthomonas oryzae pv. oryzicola
+>YP_451893.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>BAD42396.1_Ralstonia solanacearum	Ralstonia solanacearum
+>AGG20301.1_Ralstonia solanacearum_RipTALI-12	Ralstonia solanacearum
+>YP_200914.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>AEQ96159.1_Xanthomonas oryzae pv. oryzicola_Tal4a	Xanthomonas oryzae pv. oryzicola
+>AIA22682.1_Xanthomonas oryzae pv. oryzae_PthXo6	Xanthomonas oryzae pv. oryzae
+>ACD58243.2_Xanthomonas oryzae pv. oryzae_PthXo1, tal2b	Xanthomonas oryzae pv. oryzae
+>YP_201652.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>AAW77510.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>AHA11384.1_Xanthomonas oryzae pv. oryzicola	Xanthomonas oryzae pv. oryzicola
+>AEQ96996.1_Xanthomonas oryzae pv. oryzicola_Tal7	Xanthomonas oryzae pv. oryzicola
+>ACZ62653.1_Xanthomonas citri pv. citri_PthA 	Xanthomonas citri pv. citri
+>AEQ98324.1_Xanthomonas oryzae pv. oryzicola_Tal9a	Xanthomonas oryzae pv. oryzicola
+>AEQ96157.1_Xanthomonas oryzae pv. oryzicola_Tal4c	Xanthomonas oryzae pv. oryzicola
+>AAT46125.1_Xanthomonas oryzae pv. oryzae_AvrXa7-4M	Xanthomonas oryzae pv. oryzae
+>AEQ95742.1_Xanthomonas oryzae pv. oryzicola_Tal2f	Xanthomonas oryzae pv. oryzicola
+>YP_450167.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>ACD60561.1_Xanthomonas oryzae pv. oryzae_Tal9b, AvrXa23	Xanthomonas oryzae pv. oryzae
+>YP_450161.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>AGG20295.1_Ralstonia solanacearum_RipTALI-6	Ralstonia solanacearum
+>AGG20293.1_Ralstonia solanacearum_RipTALI-4	Ralstonia solanacearum
+>ACM44927.1_Xanthomonas oryzae pv. oryzae_Avrxa5	Xanthomonas oryzae pv. oryzae
+>YP_202894.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>ACD58455.2_Xanthomonas oryzae pv. oryzae_Tal3b	Xanthomonas oryzae pv. oryzae
+>AGG20296.1_Ralstonia solanacearum_RipTALI-7	Ralstonia solanacearum
+>BAF46269.1_Xanthomonas citri pv. citri	Xanthomonas citri pv. citri
+>ECG96325.1_marine metagenome	Marine metagenome
+>AEQ95751.1_Xanthomonas oryzae pv. oryzicola_Tal2a	Xanthomonas oryzae pv. oryzicola
+>AAM39261.1_Xanthomonas citri pv. citri_pthA3	Xanthomonas citri pv. citri
+>AAB00675.1_Xanthomonas citri subsp. malvacearum_Avrb6	Xanthomonas citri subsp. malvacearum
+>ABO27067.1_Ralstonia solanacearum	Ralstonia solanacearum
+>AAF98343.1_Xanthomonas oryzae pv. oryzae_AvrXa7	Xanthomonas oryzae pv. oryzae
+>AEQ94696.1_Xanthomonas oryzae pv. oryzicola_Tal1b	Xanthomonas oryzae pv. oryzicola
+>ECG96326.1_marine metagenome	Marine metagenome
+>BAF46271.1_Xanthomonas citri pv. citri_PthA4	Xanthomonas citri pv. citri
+>ACD58246.1_Xanthomonas oryzae pv. oryzae_Tal2a	Xanthomonas oryzae pv. oryzae
+>ACD59420.2_Xanthomonas oryzae pv. oryzae_Tal8b	Xanthomonas oryzae pv. oryzae
+>ABP97430.1_Xanthomonas gardneri_AvrHah1	Xanthomonas gardneri
+>AAX12209.1_Xanthomonas axonopodis pv. glycines	Xanthomonas axonopodis pv. glycines
+>EFF43075.1_Xanthomonas citri pv. aurantifolii	Xanthomonas citri pv. aurantifolii
+>YP_451025.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>AAB69865.1_Xanthomonas campestris_PthN	Xanthomonas campestris
+>ABO27068.1_Ralstonia solanacearum	Ralstonia solanacearum
+>AAS58129.3_Xanthomonas oryzae pv. oryzae_PthXo5	Xanthomonas oryzae pv. oryzae
+>YP_451696.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>AAS46027.1_Xanthomonas oryzae pv. oryzae_PthXo3	Xanthomonas oryzae pv. oryzae
+>ELP96319.1_Xanthomonas translucens_Tal8	Xanthomonas translucens
+>ACD58449.2_Xanthomonas oryzae pv. oryzae_Tal3a	Xanthomonas oryzae pv. oryzae
+>AGG20294.1_Ralstonia solanacearum_RipTALI-5	Ralstonia solanacearum
+>ACD59223.2_Xanthomonas oryzae pv. oryzae_Tal7a	Xanthomonas oryzae pv. oryzae
+>AEQ95875.1_Xanthomonas oryzae pv. oryzicola_Tal3b	Xanthomonas oryzae pv. oryzicola
+>ABO27070.1_Ralstonia solanacearum	Ralstonia solanacearum
+>AAQ79773.2_Xanthomonas oryzae pv. oryzae_Avrxa5_Putative	Xanthomonas oryzae pv. oryzae
+>AAS58130.3_Xanthomonas oryzae pv. oryzae_in vitro avrXa7 mutant	Xanthomonas oryzae pv. oryzae
+>NP_644725.1_Xanthomonas citri pv. citri_PthA2	Xanthomonas citri pv. citri
+>ABO27074.1_Ralstonia solanacearum	Ralstonia solanacearum
+>AAT46128.1_Xanthomonas oryzae pv. oryzae_AvrXa7-3M	Xanthomonas oryzae pv. oryzae
+>CAA48680.1_Xanthomonas vesicatoria_AvrBs4	Xanthomonas vesicatoria
+>EBN19408.1_marine metagenome	Marine metagenome
+>ACN82432.1_Xanthomonas axonopodis pv. glycines	Xanthomonas axonopodis pv. glycines
+>YP_008640914.1_Xanthomonas fuscans subsp. fuscans_Xfutal2	Xanthomonas fuscans subsp. fuscans
+>EFF42065.1_Xanthomonas citri pv. aurantifolii	Xanthomonas citri pv. aurantifolii
+>ABO27069.1_Ralstonia solanacearum	Ralstonia solanacearum
+>EFF48625.1_Xanthomonas citri pv. aurantifolii	Xanthomonas citri pv. aurantifolii
+>ABG37632.1_Xanthomonas oryzae pv. oryzae_Avr/pth56B	Xanthomonas oryzae pv. oryzae
+>AAA27592.1_Xanthomonas campestris_aurBsP	Xanthomonas campestris
+>YP_450165.1_Xanthomonas oryzae pv. oryzae	Xanthomonas oryzae pv. oryzae
+>AAY43359.1_Xanthomonas campestris pv. armoraciae_Hax3	Xanthomonas campestris pv. armoraciae
+>EFF47385.1_Xanthomonas citri pv. aurantifolii	Xanthomonas citri pv. aurantifolii
+>NC_005240.1_Xanthomonas citri pv. aurantifolii_PthB	Xanthomonas citri pv. aurantifolii
+>AJQ82709_Xanthomonas oryzae pv. oryzae PXO86	Xanthomonas oryzae pv. oryzae
+>AJQ83294_Xanthomonas oryzae pv. oryzae PXO86	Xanthomonas oryzae pv. oryzae
+>AJQ83306_Xanthomonas oryzae pv. oryzae PXO86	Xanthomonas oryzae pv. oryzae
+>AJQ83528_Xanthomonas oryzae pv. oryzae PXO86	Xanthomonas oryzae pv. oryzae
+>AJQ84300_Xanthomonas oryzae pv. oryzae PXO86	Xanthomonas oryzae pv. oryzae
+>AJQ85969_Xanthomonas oryzae pv. oryzicola	Xanthomonas oryzae pv. oryzicola
+>AJQ86074_Xanthomonas oryzae pv. oryzicola	Xanthomonas oryzae pv. oryzicola
+>AJQ87298_Xanthomonas oryzae pv. oryzicola	Xanthomonas oryzae pv. oryzicola
+>AJQ87299_Xanthomonas oryzae pv. oryzicola	Xanthomonas oryzae pv. oryzicola
+>AJQ87701_Xanthomonas oryzae pv. oryzicola	Xanthomonas oryzae pv. oryzicola
+>AJQ88017_Xanthomonas oryzae pv. oryzicola	Xanthomonas oryzae pv. oryzicola
+>AJQ88045_Xanthomonas oryzae pv. oryzicola	Xanthomonas oryzae pv. oryzicola
+>AJQ88182_Xanthomonas oryzae pv. oryzicola	Xanthomonas oryzae pv. oryzicola
+>AJQ88183_Xanthomonas oryzae pv. oryzicola	Xanthomonas oryzae pv. oryzicola
+>AJQ88290_Xanthomonas oryzae pv. oryzicola	Xanthomonas oryzae pv. oryzicola
+>AJQ88291_Xanthomonas oryzae pv. oryzicola	Xanthomonas oryzae pv. oryzicola
+>AJQ88292_Xanthomonas oryzae pv. oryzicola	Xanthomonas oryzae pv. oryzicola
+>AJQ88293_Xanthomonas oryzae pv. oryzicola	Xanthomonas oryzae pv. oryzicola
+>AJQ89403_Xanthomonas oryzae pv. oryzicola	Xanthomonas oryzae pv. oryzicola
+>AJQ81665_Xanthomonas oryzae pv. oryzae PXO86	Xanthomonas oryzae pv. oryzae
+>AJQ82712_Xanthomonas oryzae pv. oryzae PXO86	Xanthomonas oryzae pv. oryzae
+>AJQ83291_Xanthomonas oryzae pv. oryzae PXO86	Xanthomonas oryzae pv. oryzae
+>AJQ83309_Xanthomonas oryzae pv. oryzae PXO86	Xanthomonas oryzae pv. oryzae
+>AJQ83314_Xanthomonas oryzae pv. oryzae PXO86	Xanthomonas oryzae pv. oryzae
+>AJQ83546_Xanthomonas oryzae pv. oryzae PXO86	Xanthomonas oryzae pv. oryzae
+>AJQ84303_Xanthomonas oryzae pv. oryzae PXO86	Xanthomonas oryzae pv. oryzae
+>AJQ84306_Xanthomonas oryzae pv. oryzae PXO86	Xanthomonas oryzae pv. oryzae
+>AJQ84309_Xanthomonas oryzae pv. oryzae PXO86	Xanthomonas oryzae pv. oryzae
+>AJQ84312_Xanthomonas oryzae pv. oryzae PXO86	Xanthomonas oryzae pv. oryzae
+>AJQ85859_Xanthomonas oryzae pv. oryzicola	Xanthomonas oryzae pv. oryzicola
+>AJQ85964_Xanthomonas oryzae pv. oryzicola	Xanthomonas oryzae pv. oryzicola
+>AJQ86073_Xanthomonas oryzae pv. oryzicola	Xanthomonas oryzae pv. oryzicola
+>AJQ86298_Xanthomonas oryzae pv. oryzicola	Xanthomonas oryzae pv. oryzicola
+>AJQ87696_Xanthomonas oryzae pv. oryzicola	Xanthomonas oryzae pv. oryzicola
+>AJQ88184_Xanthomonas oryzae pv. oryzicola	Xanthomonas oryzae pv. oryzicola
+>AJQ88288_Xanthomonas oryzae pv. oryzicola	Xanthomonas oryzae pv. oryzicola
+>AJQ88289_Xanthomonas oryzae pv. oryzicola	Xanthomonas oryzae pv. oryzicola

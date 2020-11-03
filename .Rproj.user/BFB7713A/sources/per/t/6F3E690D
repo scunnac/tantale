@@ -1,0 +1,27 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1587477720884.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1483017260",
+    "id" : "6F3E690D",
+    "lastKnownWriteTime" : 1588517078,
+    "last_content_update" : 1588517078,
+    "path" : "~/tal/xanthopore-scripts/tantale/vignettes/01_TALE_mining_in_bacterial_sequences.rmd",
+    "project_path" : "vignettes/01_TALE_mining_in_bacterial_sequences.rmd",
+    "properties" : {
+        "chunk_output_type" : "console",
+        "cursorPosition" : "170,12",
+        "docOutlineVisible" : "1",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

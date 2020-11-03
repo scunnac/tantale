@@ -1,0 +1,4 @@
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/MIME/Lite.pm relocate_as=../../../../MIME/Lite.pm
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/MIME/changes.pod relocate_as=../../../../MIME/changes.pod
+/home/baotram/miniconda3/envs/perly_env/man/man3/MIME::Lite.3 relocate_as=../../../../../../../man/man3/MIME::Lite.3
+/home/baotram/miniconda3/envs/perly_env/man/man3/MIME::changes.3 relocate_as=../../../../../../../man/man3/MIME::changes.3

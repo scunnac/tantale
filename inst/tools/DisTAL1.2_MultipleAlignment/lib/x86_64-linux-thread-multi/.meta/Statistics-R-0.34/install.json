@@ -1,0 +1,1 @@
+{"name":"Statistics::R","dist":"Statistics-R-0.34","target":"Statistics::R","version":"0.34","pathname":"F/FA/FANGLY/Statistics-R-0.34.tar.gz","provides":{"Statistics::R":{"file":"lib/Statistics/R.pm","version":"0.34"},"Statistics::R::Win32":{"file":"lib/Statistics/R/Win32.pm"},"Statistics::R::Legacy":{"file":"lib/Statistics/R/Legacy.pm"}}}

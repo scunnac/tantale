@@ -1,0 +1,26 @@
+Parameters of tool "TALE Analysis" (analyze, version: 1.1):
+n - Name (A name for this run of TALE Analysis, OPTIONAL)	= null
+t - TALE DNA sequences (The DNA sequences of the TALEs)	= /home/baotram/tal/xanthopore-scripts/tantale/test/telltale_vs_annotale/annotale/PXO99A/Predict/TALE_DNA_sequences_(ref_PXO99A).fasta
+outdir - The output directory, defaults to the current working directory (.)	= /home/baotram/tal/xanthopore-scripts/tantale/test/telltale_vs_annotale/annotale/PXO99A/Analyze
+Analyzing TALEs:
+ref_PXO99A-tempTALE1 (Pseudo) [1859070-1862085:1]
+ref_PXO99A-tempTALE2 (Pseudo) [1864305-1866897:1]
+ref_PXO99A-tempTALE3 [2383483-2387197:1]
+ref_PXO99A-tempTALE4 [2388031-2392045:1]
+ref_PXO99A-tempTALE5 [2682828-2686347:1]
+ref_PXO99A-tempTALE6 [2687336-2689562:1]
+ref_PXO99A-tempTALE7 [2893385-2896904:1]
+ref_PXO99A-tempTALE8 [2897893-2901649:1]
+ref_PXO99A-tempTALE9 [4099563-4103280:1]
+ref_PXO99A-tempTALE10 [4104269-4108721:1]
+ref_PXO99A-tempTALE11 [4109710-4113121:1]
+ref_PXO99A-tempTALE12 [4114110-4117119:1]
+ref_PXO99A-tempTALE13 [4118108-4122236:1]
+ref_PXO99A-tempTALE14 [2360011-2363308:-1]
+ref_PXO99A-tempTALE15 [2354999-2359022:-1]
+ref_PXO99A-tempTALE16 [2083534-2086849:-1]
+ref_PXO99A-tempTALE17 [1650352-1653559:-1]
+ref_PXO99A-tempTALE18 [1645241-1649363:-1]
+ref_PXO99A-tempTALE19 [559109-563027:-1]
+
+Writing outputs.

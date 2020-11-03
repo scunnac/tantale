@@ -1,0 +1,18 @@
+Class 8 for (AffineCosts, 5.0, SEMI_GLOBAL)
+distance: -∞
+significance: p=0E0
+
+ NS NG NS HD NI NG NN NG HD NI NN N* NI NN HD NG NI NN N* HD NN NG	BAI3-tempTALE1_control
+
+Most likely common binding sequence:
+TA  T  A  C  A  T  G  T  C  A  G  C  A  G  C  T  A  G  C  C  G  T
+
+
+Class tree:
+BAI3-tempTALE1_control;
+
+Alignment scores:
+
+No related classes.
+
+

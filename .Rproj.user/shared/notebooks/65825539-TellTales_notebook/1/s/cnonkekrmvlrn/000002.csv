@@ -1,0 +1,20 @@
+"0","conda create --name perly_env
+conda activate perly_env
+conda install -c anaconda perl # Installing perl
+conda install -c conda-forge perl-app-cpanminus
+cpanm Statistics::R
+cpanm List::MoreUtils
+cpanm Algorithm::NeedlemanWunsch
+# cpanm Bio::Perl  <!-- # not working, cpanm doesn't install dependencies -->
+conda install -c bioconda perl-bioperl-core  # use this instead
+cpanm List::UtilsBy"
+"2","/tmp/Rtmpr61KDs/chunk-code-18e84ebd769.txt: line 1: conda: command not found
+/tmp/Rtmpr61KDs/chunk-code-18e84ebd769.txt: line 2: conda: command not found
+/tmp/Rtmpr61KDs/chunk-code-18e84ebd769.txt: line 3: conda: command not found
+/tmp/Rtmpr61KDs/chunk-code-18e84ebd769.txt: line 4: conda: command not found
+/tmp/Rtmpr61KDs/chunk-code-18e84ebd769.txt: line 5: cpanm: command not found
+/tmp/Rtmpr61KDs/chunk-code-18e84ebd769.txt: line 6: cpanm: command not found
+/tmp/Rtmpr61KDs/chunk-code-18e84ebd769.txt: line 7: cpanm: command not found
+/tmp/Rtmpr61KDs/chunk-code-18e84ebd769.txt: line 9: conda: command not found
+/tmp/Rtmpr61KDs/chunk-code-18e84ebd769.txt: line 10: cpanm: command not found
+"

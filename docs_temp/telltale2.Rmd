@@ -1,0 +1,604 @@
+---
+title: "Untitled"
+author: "Tram"
+date: "6/19/2020"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(eval = FALSE)
+# setwd("/home/baotram/tal/xanthopore-scripts/tantale")
+devtools::load_all("tantale")
+library(glue)
+library(stringr)
+library(Biostrings)
+library(reshape2)
+library(ggplot2)
+```
+
+```{r}
+testdir <- system.file("test", "telltale2", package = "tantale", mustWork = T)
+
+pxo86_correct <- file.path(testdir, "pxo86_correct")
+dir.create(pxo86_correct)
+tantale::tellTale2(subjectFile = "/home/baotram/tal/xanthopore-scripts/tantale/test/telltale_vs_annotale/genomes/PXO86.fa",
+                   outputDir = pxo86_correct,
+                   taleArrayStartAnchorCode = "N-TERM",
+                   taleArrayEndAnchorCode = "C-TERM",
+                   appendExtremityCodes = TRUE,
+                   rvdSep = "-",
+                   talArrayCorrection = TRUE,
+                   refForTalArrayCorrection = "/home/baotram/tal/xanthopore-scripts/talomes_analysis/correctframshift_ref/AA_ref.fa.gz",
+                   frameShiftCorrection = -11)
+
+
+bai311_uncorrect <- file.path(testdir, "bai311_uncorrect")
+dir.create(bai311_uncorrect)
+tantale::tellTale2(subjectFile = "/home/baotram/tal/xanthopore-scripts/tantale/test/telltale_vs_annotale/genomes/BAI3-1-1.fa",
+                   outputDir = bai311_uncorrect,
+                   taleArrayStartAnchorCode = "N-TERM",
+                   taleArrayEndAnchorCode = "C-TERM",
+                   appendExtremityCodes = FALSE,
+                   rvdSep = "-",
+                   talArrayCorrection = FALSE,
+                   hmmFilesDir = system.file("inst/extdata/hmmProfile_shortCterm", package = "tantale", mustWork = T))
+
+bai3_correct <- file.path(testdir, "bai3_correct")
+unlink(bai3_correct, recursive = T)
+tantale::tellTale2(subjectFile = "/home/baotram/tal/xanthopore-scripts/tantale/test/telltale_vs_annotale/genomes/BAI3.fa",
+                   outputDir = bai3_correct,
+                   taleArrayStartAnchorCode = "N-TERM",
+                   taleArrayEndAnchorCode = "C-TERM",
+                   appendExtremityCodes = TRUE,
+                   rvdSep = "-",
+                   talArrayCorrection = TRUE,
+                   refForTalArrayCorrection = "/home/baotram/tal/xanthopore-scripts/talomes_analysis/correctframshift_ref/AA_ref.fa.gz",
+                   frameShiftCorrection = -12,
+                   hmmFilesDir = system.file("inst/extdata/hmmProfile_shortCterm", package = "tantale", mustWork = T))
+```
+
+# compare telltale2, telltale, annotale with bai3-1-1
+## annotale
+```{r}
+annotale_output <- system.file("test/telltale_vs_annotale/annotale/BAI3-1-1", package = "tantale", mustWork = T)
+```
+
+## telltale
+```{r}
+telltale_output <- system.file("test/telltale_vs_annotale/telltale/BAI3-1-1_hmmalign", package = "tantale", mustWork = T)
+```
+
+## telltale2
+```{r}
+testdir <- system.file("test", "telltale2", package = "tantale", mustWork = T)
+bai311_uncorrect <- file.path(testdir, "bai3-1-1_uncorrect")
+tantale::tellTale2(subjectFile = "/home/baotram/tal/xanthopore-scripts/tantale/test/telltale_vs_annotale/genomes/BAI3-1-1.fa",
+                   outputDir = bai311_uncorrect,
+                   appendExtremityCodes = FALSE,
+                   rvdSep = "-",
+                   talArrayCorrection = FALSE)
+
+bai311_correct <- file.path(testdir, "bai3-1-1_correct")
+tantale::tellTale2(subjectFile = "/home/baotram/tal/xanthopore-scripts/tantale/test/telltale_vs_annotale/genomes/BAI3-1-1.fa",
+                   outputDir = bai311_correct,
+                   appendExtremityCodes = TRUE,
+                   rvdSep = "-",
+                   talArrayCorrection = TRUE,
+                   refForTalArrayCorrection = "/home/baotram/tal/xanthopore-scripts/talomes_analysis/correctframshift_ref/AA_ref.fa.gz",
+                   frameShiftCorrection = -11)
+
+pxo99a_correct <- file.path(testdir, "pxo99a_correct")
+tantale::tellTale2(subjectFile = "/home/baotram/tal/xanthopore-scripts/talomes_analysis/VXO_genomes/tal_analysis/genomes/ref_PXO99A.fasta",
+                   outputDir = pxo99a_correct,
+                   appendExtremityCodes = TRUE,
+                   rvdSep = "-",
+                   talArrayCorrection = TRUE,
+                   refForTalArrayCorrection = "/home/baotram/tal/xanthopore-scripts/talomes_analysis/correctframshift_ref/AA_ref.fa.gz",
+                   frameShiftCorrection = -11)
+```
+
+## control (bai3)
+```{r}
+control <- system.file("test/telltale_vs_annotale/annotale/BAI3", package = "tantale", mustWork = T)
+```
+
+## compare rvds
+```{r}
+compare_dir <- file.path(testdir, "compare_bai3")
+compare_rvd <- file.path(compare_dir, "rvds")
+unlink(compare_rvd, recursive = T)
+dir.create(compare_rvd, recursive = T)
+
+test_rvd <- file.path(compare_rvd, "rvds.fasta")
+unlink(test_rvd)
+list_of_outputs <- c(annotale_output, telltale_output, bai311_uncorrect, bai311_correct, control)
+
+for (output in list_of_outputs) {
+  if (grepl("uncorrect", output, fixed = T)) {
+    id <- "telltale2_uncorrect"
+  } else if (grepl("correct", output, fixed = T)) {
+    id <- "telltale2_correct"
+  } else if (grepl("hmmalign", output, fixed = T)) {
+    id <- "telltale"
+  } else if (grepl("BAI3-1-1", output, fixed = T)) {
+    id <- "annotale"
+  } else {
+    id <- "control"
+  }
+  # id <- basename(output)
+  f <- list.files(output, "(rvdSequences.fas|TALE_RVDs.fasta)", full.names = T, recursive = T)
+  f <- f[!grepl("temp_annotale", f, fixed = T)]
+  seqs <- readBStringSet(f, seek.first.rec = T)
+  names(seqs) <- gsub("\\[.*\\]", "", names(seqs))
+  names(seqs) <- gsub("\\(Pseudo\\)", "", names(seqs))
+  names(seqs) <- stringr::str_trim(names(seqs))
+  names(seqs) <- paste0(names(seqs), "_", id)
+  seqs <- seqs[width(seqs) != 0]
+  writeXStringSet(seqs, test_rvd, append = T)
+}
+
+buildAnnoTALE(test_rvd, compare_rvd)
+```
+
+## compare cds
+```{r}
+compare_cds <- file.path(compare_dir, "cds")
+dir.create(compare_cds)
+plot_dir <- file.path(compare_cds, "plots")
+dir.create(plot_dir)
+
+test_cds <- file.path(compare_cds, "cds.fasta")
+unlink(test_cds)
+
+for (output in list_of_outputs) {
+  if (grepl("uncorrect", output, fixed = T)) {
+    id <- "telltale2_uncorrect"
+  } else if (grepl("correct", output, fixed = T)) {
+    id <- "telltale2_correct"
+  } else if (grepl("hmmalign", output, fixed = T)) {
+    id <- "telltale"
+  } else if (grepl("BAI3-1-1", output, fixed = T)) {
+    id <- "annotale"
+  } else {
+    id <- "control"
+  }
+  # id <- basename(output)
+  f <- list.files(output, "(putativeTalCds.fasta|TALE_DNA_sequences_(.+).fasta|arrayOrfs.fas)", full.names = T, recursive = T)
+  f <- f[!grepl("temp_annotale", f, fixed = T)]
+  seqs <- readBStringSet(f, seek.first.rec = T)
+  names(seqs) <- gsub("\\[.*\\]", "", names(seqs))
+  names(seqs) <- gsub("\\(Pseudo\\)", "", names(seqs))
+  names(seqs) <- stringr::str_trim(names(seqs))
+  names(seqs) <- paste0(names(seqs), "_", id)
+  names(seqs) <- stringr::str_trim(names(seqs))
+  seqs <- seqs[width(seqs) != 0]
+  writeXStringSet(seqs, test_cds, append = T)
+}
+
+distal_output <- runDistal(test_cds, outdir = compare_cds, overwrite = T)
+distal_group <- buildDisTalGroups(compare_cds, num.groups = 9, overwrite = T)
+
+for (i in names(distal_group$SeqOfRepsAlignments)) {
+  tantale::heatmap_msa(talsim = distal_output$tal.similarity, forMatrix = distal_group$SeqOfDistancesAlignments[[i]], forCellNote = distal_group$SeqOfRvdAlignment[[i]], plot.type = "repeat.similarity", main = i, save.path = file.path(plot_dir, glue::glue("rvd_{i}_9.svg"))) 
+}
+
+for (i in names(distal_group$SeqOfRepsAlignments)) {
+  clustID_matrix <- tantale::convertRepeat2ClusterIDAlign(repeatSim = distal_output$repeat.similarity, repeatAlign =  distal_group$SeqOfRepsAlignments[[i]])
+  imgFile <- file.path(plot_dir, paste0("Repcode_", i, ".svg"))
+  tantale::heatmap_msa(talsim = distal_output$tal.similarity, forMatrix = clustID_matrix, forCellNote = distal_group$SeqOfRepsAlignments[[i]], plot.type = "repeat.clusters", main = i, save.path = imgFile)
+}
+
+
+```
+
+# Bugs 
+CorrectFrameshits often removes the GA in TGA codon, so the talCds does not end with stop codon. The reason is because I used the long Cterm profile so that Cterm seqs in BAI3 are extended
+--> try telltale2 for BAI3 with the short Cterm profile
+
+
+
+```{r}
+testdir <- system.file("test", "telltale2", package = "tantale", mustWork = T)
+bai311_uncorrect <- file.path(testdir, "bai3-1-1_uncorrect_shortCterm")
+tantale::tellTale2(subjectFile = "/home/baotram/tal/xanthopore-scripts/tantale/test/telltale_vs_annotale/genomes/BAI3-1-1.fa",
+                   outputDir = bai311_uncorrect,
+                   appendExtremityCodes = FALSE,
+                   rvdSep = "-",
+                   talArrayCorrection = FALSE,
+                   hmmFilesDir = system.file("inst/extdata/hmmProfile_shortCterm", package = "tantale", mustWork = T))
+
+bai311_correct <- file.path(testdir, "bai3-1-1_correct_shortCterm")
+tantale::tellTale2(subjectFile = "/home/baotram/tal/xanthopore-scripts/tantale/test/telltale_vs_annotale/genomes/BAI3-1-1.fa",
+                   outputDir = bai311_correct,
+                   appendExtremityCodes = FALSE,
+                   rvdSep = "-",
+                   talArrayCorrection = TRUE,
+                   refForTalArrayCorrection = "/home/baotram/tal/xanthopore-scripts/talomes_analysis/correctframshift_ref/AA_ref.fa.gz",
+                   frameShiftCorrection = -11,
+                   hmmFilesDir = system.file("inst/extdata/hmmProfile_shortCterm", package = "tantale", mustWork = T))
+```
+OK Cterm now is shorter and stops with TGA
+
+
+# PXO86
+
+## telltale2
+```{r}
+pxo86_correct <- file.path(testdir, "pxo86_correct")
+unlink(pxo86_correct, recursive = T)
+tantale::tellTale2(subjectFile = "/home/baotram/tal/xanthopore-scripts/tantale/test/telltale_vs_annotale/genomes/PXO86.fa",
+                   outputDir = pxo86_correct,
+                   appendExtremityCodes = TRUE,
+                   rvdSep = "-",
+                   talArrayCorrection = TRUE,
+                   refForTalArrayCorrection = "/home/baotram/tal/xanthopore-scripts/talomes_analysis/correctframshift_ref/AA_ref.fa.gz",
+                   frameShiftCorrection = -11)
+
+
+pxo86_uncorrect <- file.path(testdir, "pxo86_uncorrect")
+unlink(pxo86_uncorrect, recursive = T)
+tantale::tellTale2(subjectFile = "/home/baotram/tal/xanthopore-scripts/tantale/test/telltale_vs_annotale/genomes/PXO86.fa",
+                   outputDir = pxo86_uncorrect,
+                   appendExtremityCodes = FALSE,
+                   rvdSep = "-",
+                   talArrayCorrection = FALSE)
+
+pxo61_uncorrect <- file.path(testdir, "pxo61_uncorrect")
+unlink(pxo61_uncorrect, recursive = T)
+tantale::tellTale2(subjectFile = "/home/baotram/tal/xanthopore-scripts/talomes_analysis/VXO_genomes/tal_analysis/genomes/ref_PXO61.fasta",
+                   outputDir = pxo61_uncorrect,
+                   appendExtremityCodes = FALSE,
+                   rvdSep = "-",
+                   talArrayCorrection = FALSE)
+
+pxo99_uncorrect <- file.path(testdir, "pxo99a_uncorrect")
+unlink(pxo99_uncorrect, recursive = T)
+tantale::tellTale2(subjectFile = "/home/baotram/tal/xanthopore-scripts/talomes_analysis/VXO_genomes/tal_analysis/genomes/ref_PXO99A.fasta",
+                   outputDir = pxo99_uncorrect,
+                   appendExtremityCodes = FALSE,
+                   rvdSep = "-",
+                   talArrayCorrection = FALSE)
+```
+
+## telltale hmmalign
+```{r}
+pxo86_telltale <- system.file("test/telltale_vs_annotale/telltale/PXO86_hmmalign", package = "tantale", mustWork = T) 
+```
+
+## telltale annotale
+```{r}
+pxo86_annotale <- system.file("test/telltale_vs_annotale/annotale/PXO86", package = "tantale", mustWork = T)
+```
+
+## compare rvds
+```{r}
+compare_dir <- file.path(testdir, "compare_pxo86")
+compare_rvd <- file.path(compare_dir, "rvds")
+unlink(compare_rvd, recursive = T)
+dir.create(compare_rvd, recursive = T)
+
+test_rvd <- file.path(compare_rvd, "rvds.fasta")
+unlink(test_rvd)
+list_of_outputs <- c(pxo86_correct, pxo86_telltale, pxo86_annotale)
+
+for (output in list_of_outputs) {
+  if (grepl("correct", output, fixed = T)) {
+    id <- "telltale2_correct"
+  } else if (grepl("hmmalign", output, fixed = T)) {
+    id <- "telltale"
+  } else {
+    id <- "annotale"
+  } 
+  # id <- basename(output)
+  f <- list.files(output, "(rvdSequences.fas|TALE_RVDs.fasta)", full.names = T, recursive = T)
+  f <- f[!grepl("temp_annotale", f, fixed = T)]
+  seqs <- readBStringSet(f, seek.first.rec = T)
+  names(seqs) <- gsub("\\[.*\\]", "", names(seqs))
+  names(seqs) <- gsub("\\(Pseudo\\)", "", names(seqs))
+  names(seqs) <- stringr::str_trim(names(seqs))
+  names(seqs) <- paste0(names(seqs), "_", id)
+  seqs <- seqs[width(seqs) != 0]
+  writeXStringSet(seqs, test_rvd, append = T)
+}
+
+buildAnnoTALE(test_rvd, compare_rvd)
+```
+
+## compare cds
+```{r}
+compare_cds <- file.path(compare_dir, "cds")
+dir.create(compare_cds)
+plot_dir <- file.path(compare_cds, "plots")
+dir.create(plot_dir)
+
+test_cds <- file.path(compare_cds, "cds.fasta")
+unlink(test_cds)
+
+for (output in list_of_outputs) {
+  if (grepl("correct", output, fixed = T)) {
+    id <- "telltale2_correct"
+  } else if (grepl("hmmalign", output, fixed = T)) {
+    id <- "telltale"
+  } else {
+    id <- "annotale"
+  } 
+  # id <- basename(output)
+  f <- list.files(output, "(putativeTalCds.fasta|TALE_DNA_sequences_(.+).fasta|correctedRepeatDNASeqs.fas)", full.names = T, recursive = T)
+  f <- f[!grepl("temp_annotale", f, fixed = T)]
+  seqs <- readBStringSet(f, seek.first.rec = T)
+  names(seqs) <- gsub("\\[.*\\]", "", names(seqs))
+  names(seqs) <- gsub("\\(Pseudo\\)", "", names(seqs))
+  names(seqs) <- stringr::str_trim(names(seqs))
+  names(seqs) <- paste0(names(seqs), "_", id)
+  names(seqs) <- stringr::str_trim(names(seqs))
+  seqs <- seqs[width(seqs) != 0]
+  writeXStringSet(seqs, test_cds, append = T)
+}
+
+distal_output <- runDistal(test_cds, outdir = compare_cds, repeats.cluster.h.cut = 15, overwrite = T)
+distal_group <- buildDisTalGroups(compare_cds, num.groups = 17, overwrite = T)
+
+for (i in names(distal_group$SeqOfRepsAlignments)) {
+  tantale::heatmap_msa(talsim = distal_output$tal.similarity, forMatrix = distal_group$SeqOfDistancesAlignments[[i]], forCellNote = distal_group$SeqOfRvdAlignment[[i]], plot.type = "repeat.similarity", main = i, save.path = file.path(plot_dir, glue::glue("rvd_{i}_9.svg"))) 
+}
+
+for (i in names(distal_group$SeqOfRepsAlignments)) {
+  clustID_matrix <- tantale::convertRepeat2ClusterIDAlign(repeatSim = distal_output$repeat.similarity, repeatAlign =  distal_group$SeqOfRepsAlignments[[i]], h.cut = 93)
+  imgFile <- file.path(plot_dir, paste0("Repcode_", i, ".svg"))
+  tantale::heatmap_msa(talsim = distal_output$tal.similarity, forMatrix = clustID_matrix, forCellNote = distal_group$SeqOfRepsAlignments[[i]], plot.type = "repeat.clusters", main = i, n.palette = 30, save.path = imgFile)
+}
+
+
+```
+
+Something wrong with ROI_00019:
+- if not correct:
+Translated version of TALE ROI_00019 could not be created. Reason
+Both RVD positions are gaps.
+LPQQTL
+LTPDQVVAIASXXGGKQALE
+
+Protein version of TALE ROI_00019 could not be analyzed, splitting into regions failed.
+
+- if correct:
+C-term is truncated
+
+
+```{r}
+rvdVectors <- readBStringSet(test_rvd)
+rvdVectors[sapply(names(rvdVectors), function(n) grepl("annotale", n))] <- BStringSet(sapply(rvdVectors[sapply(names(rvdVectors), function(n) grepl("annotale", n))], 
+                                function(r) paste("Nterm", r, "Cterm", sep = "-")), 
+                         use.names = T)
+rvdVectors <- sapply(rvdVectors, function(r) strsplit(toString(r), split = "-"))
+rvdVectors$ROI_00005_telltale <- NULL
+sapply(rvdVectors, length)
+
+repeatVectors <- distal_output$coded.repeats.str
+repeatVectors <- if (nchar(as.character(distal_output$repeats.code$`AA Seq`[1])) == 0) {
+  sapply(repeatVectors, function(r) r <- r[!sapply(r, function(i) i == "0")])
+}
+sapply(repeatVectors, length)
+rep2rvd <- getRepeat2RvdMapping(talesRepeatVectors = repeatVectors, talesRvdVectors = rvdVectors)
+
+for (i in names(distal_group$SeqOfRepsAlignments)) {
+  clustID_matrix <- tantale::convertRepeat2ClusterIDAlign(repeatSim = distal_output$repeat.similarity, repeatAlign =  distal_group$SeqOfRepsAlignments[[i]], h.cut = 85)
+  if (nrow(clustID_matrix) < 2) next()
+  imgFile <- file.path(plot_dir, paste0("Repcode_", i, ".svg"))
+  tantale::heatmap_msa(talsim = distal_output$tal.similarity, forMatrix = clustID_matrix, forCellNote = distal_group$SeqOfRepsAlignments[[i]], plot.type = "repeat.clusters", main = i, save.path = imgFile)
+}
+
+# rvd
+for (i in names(distal_group$SeqOfRepsAlignments)) {
+  imgFile <- file.path(plot_dir, paste0("RVD_", i, ".svg"))
+  rvd_msa <- convertRepeat2RvdAlign(repeatAlign = distal_group$SeqOfRepsAlignments[[i]], repeat2RvdMapping = rep2rvd)
+  if (nrow(rvd_msa) < 2) next()
+  tantale::heatmap_msa(talsim = distal_output$tal.similarity, forMatrix = distal_group$SeqOfDistancesAlignments[[i]], forCellNote = rvd_msa, plot.type = "repeat.similarity", main = i, save.path = imgFile)
+}
+```
+
+pseudo tal `ROI_00005_telltale` is included in telltale output, there is an rvd seq for it but distal discards this tal seq
+```{r}
+tal2 <- readDNAStringSet(test_cds)
+tal2 <- tal2[names(tal2) %in% c("ROI_00003_telltale2_correct", "BAI3-tempTALE4_control", "BAI3-1-1-tempTALE3_annotale")]
+align_tal2 <- DECIPHER::AlignSeqs(tal2)
+DECIPHER::BrowseSeqs(align_tal2, colWidth = 120)
+
+tal2AA <- translate(tal2, no.init.codon = T, if.fuzzy.codon = "solve")
+DECIPHER::BrowseSeqs(DECIPHER::AlignSeqs(tal2AA), colWidth = 120)
+```
+
+# compare again telltale2 correct/uncorrect and annotale for pxo86, pxo99, pxo61
+
+```{r}
+strain <- c("PXO86", "PXO61", "PXO99A")
+file_name <-  "putativeTalOrf.fasta"
+ngroups <- c(17, 18, 19)
+
+for (n in 2) {
+  comparedir <- file.path(system.file("test/telltale2", package = "tantale", mustWork = T), paste0("compare_", strain[n]))
+  dir.create(comparedir)
+  distal_compare_dir <- file.path(comparedir, "by_distal")
+  all_orf <- file.path(comparedir, file_name)
+  telltale2_correct_input <- file.path("/home/baotram/tal/xanthopore-scripts/talomes_analysis/VXO_genomes/tal_analysis/telltale2", paste0("ref_", strain[n]), file_name)
+  tt_corr <- readBStringSet(telltale2_correct_input)
+  names(tt_corr) <- paste0("telltale2_correct_", names(tt_corr))
+  writeXStringSet(tt_corr, all_orf)
+  
+  telltale2_uncorrect_input <- file.path("/home/baotram/tal/xanthopore-scripts/tantale/test/telltale2", paste0(tolower(strain[n]), "_uncorrect"), file_name)
+  tt_uncorr <- readBStringSet(telltale2_uncorrect_input)
+  names(tt_uncorr) <- paste0("telltale2_uncorrect_", names(tt_uncorr))
+  writeXStringSet(tt_uncorr, all_orf, append = T)
+  
+  annotale_input <- file.path("/home/baotram/tal/xanthopore-scripts/talomes_analysis/VXO_genomes/tal_analysis/annotale", paste0("ref_", strain[n]), "Predict", glue("TALE_DNA_sequences_(ref_{strain[n]}).fasta"))
+  anno <- readBStringSet(annotale_input)
+  names(anno) <- gsub("\\[.*\\]", "", names(anno))
+  names(anno) <- gsub("\\(Pseudo\\)", "", names(anno))
+  names(anno) <- stringr::str_trim(names(anno))
+  writeXStringSet(anno, all_orf, append = T)
+  
+  # distal_output <- runDistal(all_orf, outdir = distal_compare_dir)
+  # distal_group <- buildDisTalGroups(distal_compare_dir, num.groups = 18)
+  # 
+  # for (i in names(distal_group$SeqOfRepsAlignments)) {
+  #   tantale::heatmap_msa(talsim = distal_output$tal.similarity, forMatrix = distal_group$SeqOfDistancesAlignments[[i]], forCellNote = distal_group$SeqOfRvdAlignment[[i]], plot.type = "repeat.similarity", main = paste0(strain[n], "_", i)) 
+  }
+}
+
+```
+
+```{r}
+roi4 <- readDNAStringSet(all_orf)
+names(roi4)
+roi4 <- roi4[grepl("(ROI_00004)|(tempTALE4)", names(roi4))]
+roi4aa <- translate(roi4, no.init.codon = T)
+roi4al <- DECIPHER::AlignSeqs(roi4aa)
+DECIPHER::BrowseSeqs(roi4al, colWidth = 120)
+
+roi10 <- readDNAStringSet(all_orf)
+names(roi10)
+roi10 <- roi10[grepl("(ROI_00010)|(tempTALE17)", names(roi10))]
+roi10aa <- translate(roi10, no.init.codon = T, if.fuzzy.codon = "solve")
+roi10al <- DECIPHER::AlignSeqs(roi10aa)
+DECIPHER::BrowseSeqs(roi10al, colWidth = 120)
+```
+
+```{r}
+strain <- c("PXO86", "PXO61", "PXO99A")
+file_name <-  "rvdSequences.fas"
+for (n in 1:3) {
+  comparedir <- file.path(system.file("test/telltale2", package = "tantale", mustWork = T), paste0("compare_", strain[n]))
+  anno_compare_dir <- file.path(comparedir, "by_annobuild")
+  dir.create(anno_compare_dir)
+  all_rvd <- file.path(anno_compare_dir, file_name)
+  
+  telltale2_correct_input <- file.path("/home/baotram/tal/xanthopore-scripts/talomes_analysis/VXO_genomes/tal_analysis/telltale2", paste0("ref_", strain[n]), file_name)
+  tt_corr <- readBStringSet(telltale2_correct_input)
+  names(tt_corr) <- paste0("telltale2_correct_", names(tt_corr))
+  tt_corr <- gsub("\\-{0,1}\\w{5}\\-{0,1}", "", tt_corr) %>% BStringSet()
+  writeXStringSet(tt_corr, all_rvd)
+  
+  telltale2_uncorrect_input <- file.path("/home/baotram/tal/xanthopore-scripts/tantale/test/telltale2", paste0(tolower(strain[n]), "_uncorrect"), file_name)
+  tt_uncorr <- readBStringSet(telltale2_uncorrect_input)
+  names(tt_uncorr) <- paste0("telltale2_uncorrect_", names(tt_uncorr))
+  tt_uncorr <- gsub("\\-{0,1}\\w{5}\\-{0,1}", "", tt_uncorr) %>% BStringSet()
+  writeXStringSet(tt_uncorr, all_rvd, append = T)
+  
+  annotale_input <- file.path("/home/baotram/tal/xanthopore-scripts/talomes_analysis/VXO_genomes/tal_analysis/annotale", paste0("ref_", strain[n]), "Analyze", "TALE_RVDs.fasta")
+  anno <- readBStringSet(annotale_input)
+  names(anno) <- gsub("\\[.*\\]", "", names(anno))
+  names(anno) <- gsub("\\(Pseudo\\)", "", names(anno))
+  names(anno) <- stringr::str_trim(names(anno))
+  writeXStringSet(anno, all_rvd, append = T)
+  
+  tantale::buildAnnoTALE(all_rvd, anno_compare_dir)
+}
+
+
+
+```
+
+# benchmarking correction
+## correction for gold genomes
+```{r, fig.width = 7, fig.height=8, eval=TRUE}
+bai3_correct <- file.path(testdir, "bai3_correct")
+pxo86_correct <- file.path(testdir, "pxo86_correct")
+pxo99a_correct <- file.path(testdir, "pxo99a_correct")
+all_arrayRp <- do.call(rbind, lapply(c(pxo86_correct, bai3_correct, pxo99a_correct), function(t) {
+  arrayRp <- file.path(t, "arrayReport.tsv") 
+  array <- read.table(arrayRp, sep = "\t", stringsAsFactors = F, header = T)
+  array$strain <- basename(t)
+  return(array)
+}))
+
+all_arrayRp_correction <- reshape2::melt(na.omit(all_arrayRp)[c("strain", "arrayID", "predicted_ins_count", "predicted_dels_count")], value.name = "count", variable.name = "type")
+ggplot(all_arrayRp_correction) +
+  facet_wrap(vars(type), nrow = 2, scales = "fixed") +
+  geom_bar(aes(x = strain, fill = factor(count)), width = .3) +
+  scale_fill_viridis_d() + 
+  guides(fill = guide_legend(title = "correction count"))
+```
+
+## correction for bai3 vs bai3-1-1
+```{r, fig.width = 6, fig.height=8, eval=TRUE}
+bai311_correct <- file.path(testdir, "bai3-1-1_correct")
+all_arrayRp <- do.call(rbind, lapply(c(bai311_correct, bai3_correct), function(t) {
+  arrayRp <- file.path(t, "arrayReport.tsv") 
+  array <- read.table(arrayRp, sep = "\t", stringsAsFactors = F, header = T)
+  array$strain <- basename(t)
+  return(array)
+}))
+all_arrayRp_correction <- reshape2::melt(na.omit(all_arrayRp)[c("strain", "arrayID", "predicted_ins_count", "predicted_dels_count")], value.name = "count", variable.name = "type")
+ggplot(all_arrayRp_correction) +
+  facet_wrap(vars(type), nrow = 2, scales = "fixed") +
+  geom_bar(aes(x = strain, fill = factor(count)), width = .3) +
+  scale_fill_viridis_d() + 
+  guides(fill = guide_legend(title = "correction count")) + 
+  scale_y_continuous(breaks = seq(0, 10)) + 
+  theme(panel.grid.minor.y = element_blank()) 
+```
+
+## compare rvd seqs detected by annotale, telltale2 correction, and no correction for bai3 and bai3-1-1
+```{r, fig.width = 10, fig.height=6, eval=TRUE}
+bai3_correct <- file.path(testdir, "bai3_correct")
+bai311_correct <- file.path(testdir, "bai3-1-1_correct")
+bai311_uncorrect <- file.path(testdir, "bai3-1-1_uncorrect")
+all_arrayRp <- do.call(rbind, lapply(c(bai3_correct, bai311_correct, bai311_uncorrect), function(t) {
+  arrayRp <- file.path(t, "arrayReport.tsv") 
+  array <- read.table(arrayRp, sep = "\t", stringsAsFactors = F, header = T)
+  array$strain <- basename(t)
+  array[c("predicted_ins_count", "predicted_dels_count")] <- NULL
+  return(array)
+}))
+
+all_arrayRp <- na.omit(all_arrayRp)
+
+
+bai311_annotale <- system.file("test/telltale_vs_annotale/annotale/BAI3-1-1", package = "tantale", mustWork = T)
+control <- system.file("test/telltale_vs_annotale/annotale/BAI3", package = "tantale", mustWork = T)
+for (x in c(control, bai311_annotale)) {
+  annotale_rvd <- readBStringSet(filepath = file.path(x, "Analyze/TALE_RVDs.fasta"))
+  annotale_rvd <- annotale_rvd[!width(annotale_rvd) == 0]
+  strain <- paste(tolower(basename(x)), "annotale", sep = "_")
+  annotale_report <- data.frame("strain" = strain, "aberrantRepeat" = grepl("[a-z]", annotale_rvd), "arrayID" = gsub("(BAI3(-1-1-)*| \\(.+\\])", "", names(annotale_rvd)), "SeqOfRVD" = as.character(annotale_rvd), "AllDomains" = TRUE)
+  all_arrayRp <- dplyr::full_join(all_arrayRp, annotale_report)
+}
+
+all_arrayRp$strain <- factor(all_arrayRp$strain, levels = c("bai3_annotale", "bai3_correct", "bai3-1-1_correct", "bai3-1-1_uncorrect", "bai3-1-1_annotale"), ordered = F)
+
+all_arrayRp %<>% dplyr::mutate(SeqOfRVD = gsub("(N-TERM-|NTERM-|-C-TERM|-CTERM)", "", SeqOfRVD)) %>% dplyr::mutate(SeqOfRVD = toupper(SeqOfRVD))
+ggplot(all_arrayRp) + # na.omit(arrayRp)
+  geom_bar(aes(x = strain, fill = factor(SeqOfRVD)), stat = "count", width = .6, show.legend = T, position = position_stack(reverse = T)) +
+  scale_fill_hue(l=50) +
+  scale_y_continuous(breaks = seq(0, 10)) + 
+  theme(panel.grid.minor.y = element_blank(),
+        axis.text.x = element_text(angle = 45))+
+  guides(fill = guide_legend(title = "RVD seqs"))
+
+```
+
+## checking the impact of correction on the tal orfs
+```{r}
+tantale::analyzeAnnoTALE("./talomes_analysis/VXO_genomes/tal_analysis/genomes/ref_PXO99A.fasta", "./tantale/test/telltale_vs_annotale/annotale/PXO99A")
+anno_pxo99a <- readDNAStringSet(filepath = file.path(system.file("test/telltale_vs_annotale/annotale/PXO99A", package = "tantale", mustWork = T), "Predict/TALE_DNA_sequences_(ref_PXO99A).fasta"))
+ttc_pxo99a <- readDNAStringSet(filepath = file.path(system.file("test/telltale2/pxo99a_correct", package = "tantale", mustWork = T), "putativeTalOrf.fasta"))
+ttu_pxo99a <- readDNAStringSet(filepath = file.path(system.file("test/telltale2/pxo99a_uncorrect", package = "tantale", mustWork = T), "putativeTalOrf.fasta"))
+roi01 <- c(anno_pxo99a[1], ttu_pxo99a[1], ttc_pxo99a[1])
+names(roi01) <- c("pxo99a_tal3a_annotale", "pxo99a_tal3a_telltale2_uncorrect", "pxo99a_tal3a_telltale2_correct")
+aligned_roi01 <- DECIPHER::AlignSeqs(translate(roi01, no.init.codon = T, if.fuzzy.codon = "solve"))
+aligned_roi01 <- DECIPHER::AlignSeqs(roi01)
+DECIPHER::BrowseSeqs(aligned_roi01, colWidth = 120)
+
+
+anno_pxo86 <- readDNAStringSet(filepath = file.path(system.file("test/telltale_vs_annotale/annotale/PXO86", package = "tantale", mustWork = T), "Analyze/TALE_DNA_parts.fasta"))
+ttc_pxo86 <- readDNAStringSet(filepath = file.path(system.file("test/telltale2/pxo86_correct", package = "tantale", mustWork = T), "putativeTalOrf.fasta"))
+ttu_pxo86 <- readDNAStringSet(filepath = file.path(system.file("test/telltale2/pxo86_uncorrect", package = "tantale", mustWork = T), "putativeTalOrf.fasta"))
+roi01 <- c(anno_pxo86[1], ttu_pxo86[1], ttc_pxo86[1])
+names(roi01) <- c("pxo86_tal3_annotale", "pxo86_tal3_telltale2_uncorrect", "pxo86_tal3_telltale2_uncorrect")
+aligned_roi01 <- DECIPHER::AlignSeqs(translate(roi01, no.init.codon = T, if.fuzzy.codon = "solve"))
+aligned_roi01 <- DECIPHER::AlignSeqs(roi01)
+DECIPHER::BrowseSeqs(aligned_roi01, colWidth = 120)
+```
+

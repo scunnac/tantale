@@ -1,0 +1,3 @@
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/x86_64-linux-thread-multi/XML/LibXSLT.pm relocate_as=../../../XML/LibXSLT.pm
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/x86_64-linux-thread-multi/auto/XML/LibXSLT/LibXSLT.so relocate_as=LibXSLT.so
+/home/baotram/miniconda3/envs/perly_env/man/man3/XML::LibXSLT.3 relocate_as=../../../../../../../man/man3/XML::LibXSLT.3

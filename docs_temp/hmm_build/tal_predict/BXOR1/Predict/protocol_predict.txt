@@ -1,0 +1,11 @@
+Parameters of tool "TALE Prediction" (predict, version: 1.1):
+g - Genome (The input Xanthomonas genome in FastA or Genbank format)	= /home/baotram/tal/xanthopore-scripts/tantale/inst/extdata/hmmProfile/ref_seqs/BXOR1.fa
+s - Strain (The name of the strain, will be used for annotated TALEs, OPTIONAL)	= BXOR1
+outdir - The output directory, defaults to the current working directory (.)	= /home/baotram/tal/xanthopore-scripts/tantale/inst/extdata/hmmProfile/tal_predict/BXOR1/Predict
+Loading input genome...
+Scanning genome for TALEs...
+...finished.
+
+Writing GFF output.
+Writing Genbank output.
+Writing FastA outputs.

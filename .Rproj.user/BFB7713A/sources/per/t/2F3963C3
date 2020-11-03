@@ -1,0 +1,28 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1587477728981.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3658171585",
+    "id" : "2F3963C3",
+    "lastKnownWriteTime" : 1588934447,
+    "last_content_update" : 1588934447866,
+    "path" : "~/tal/xanthopore-scripts/tantale/vignettes/02_TALE_classification_and_phylogeny.rmd",
+    "project_path" : "vignettes/02_TALE_classification_and_phylogeny.rmd",
+    "properties" : {
+        "chunk_output_type" : "console",
+        "cursorPosition" : "115,0",
+        "docOutlineSize" : "108",
+        "docOutlineVisible" : "1",
+        "scrollLine" : "0"
+    },
+    "read_only" : false,
+    "read_only_alternatives" : [
+    ],
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

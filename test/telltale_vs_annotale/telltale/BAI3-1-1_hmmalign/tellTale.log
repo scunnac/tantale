@@ -1,0 +1,41 @@
+#****************************************
+#**   tellTale analysis done     **
+Current date:	Tue Jun  2 00:25:38 2020
+#_________Provided I/O parameters __________
+File of subject DNA sequences:	/tmp/Rtmp5CF0bN/file774a13a9b081
+TALE N-term CDS region detection HMM file:	/home/baotram/tal/xanthopore-scripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Nterm_CDS_profile.hmm
+TALE repeat unit CDS detection HMM file:	/home/baotram/tal/xanthopore-scripts/tantale/inst/extdata/hmmProfile/Xo_TALE_repeat_CDS_profile.hmm
+TALE C-term CDS region detection HMM file:	/home/baotram/tal/xanthopore-scripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Cterm_CDS_profile.hmm
+Output directory:	/home/baotram/tal/xanthopore-scripts/tantale/test/telltale_vs_annotale/telltale/BAI3-1-1_hmmalign
+#____________Other parameters________________
+TALE_NtermDNAHitMinScore	:	300
+repeatDNAHitMinScore	:	20
+TALE_CtermDNAHitMinScore	:	200
+minRatioOfGapForColMasking	:	0.8
+minDomainHitsPerSubjSeq	:	4
+mergeHits	:	TRUE
+repMsaMethod	:	hmmalign
+minGapWidth	:	35
+minDomainHitsPerArrayForAssembl	:	5
+taleArrayStartAnchorCode	:	
+taleArrayEndAnchorCode	:	
+#__________Summary measures of TALE search outcome__________
+Number of analysed subject sequences :	2
+Total number of TALE repeat DNA coding sequence motif hits found with the nhmmer approach:	155
+Number of column masked in the repeat unit hits alignment:	0
+Total number of repeat HMM hits on the corresponding set of translated DNA hits:	155
+Total number of subject seqs with TALE motif hits after low hit number filtering:	1
+Total number of distinct regions (repeat arrays) with adjacent TALE motifs :	10
+Total number of 'complete' arrays (with both N- and C-term flanking motifs):	8
+Total number of distinct types of RVD:	10
+Minimum array length (number of TALE domain hits):	1
+Maximum array length:	28
+Median array length:	19.5
+Length of the longest 'complete' array:	28
+Length of the shortest 'complete' array:	14
+Number of gaps of size below 500nt between TALE motifs arrays:	1.5
+First quartile of size of gaps (below 500nt) between TALE motifs arrays:	131
+Median size of gaps (below 500nt) between TALE motifs arrays:	131
+Upper quartile of size of gaps (below 500nt) between TALE motifs arrays:	131
+#*************************
+

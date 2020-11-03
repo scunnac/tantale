@@ -1,0 +1,7 @@
+/home/baotram/miniconda3/envs/perly_env/bin/package-stash-conflicts relocate_as=../../../../../../../bin/package-stash-conflicts
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/Package/Stash.pm relocate_as=../../../../Package/Stash.pm
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/Package/Stash/Conflicts.pm relocate_as=../../../../Package/Stash/Conflicts.pm
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/Package/Stash/PP.pm relocate_as=../../../../Package/Stash/PP.pm
+/home/baotram/miniconda3/envs/perly_env/man/man1/package-stash-conflicts.1 relocate_as=../../../../../../../man/man1/package-stash-conflicts.1
+/home/baotram/miniconda3/envs/perly_env/man/man3/Package::Stash.3 relocate_as=../../../../../../../man/man3/Package::Stash.3
+/home/baotram/miniconda3/envs/perly_env/man/man3/Package::Stash::PP.3 relocate_as=../../../../../../../man/man3/Package::Stash::PP.3

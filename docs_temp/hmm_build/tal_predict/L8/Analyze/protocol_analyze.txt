@@ -1,0 +1,36 @@
+Parameters of tool "TALE Analysis" (analyze, version: 1.1):
+n - Name (A name for this run of TALE Analysis, OPTIONAL)	= null
+t - TALE DNA sequences (The DNA sequences of the TALEs)	= /home/baotram/tal/xanthopore-scripts/tantale/inst/extdata/hmmProfile/tal_predict/L8/Predict/TALE_DNA_sequences_(L8).fasta
+outdir - The output directory, defaults to the current working directory (.)	= /home/baotram/tal/xanthopore-scripts/tantale/inst/extdata/hmmProfile/tal_predict/L8/Analyze
+Analyzing TALEs:
+L8-tempTALE1 [168198-171891:1]
+L8-tempTALE2 [316764-320358:1]
+L8-tempTALE3 [322271-325766:1]
+L8-tempTALE4 [440001-443796:1]
+L8-tempTALE5 [443927-447206:1]
+L8-tempTALE6 [1706280-1709775:1]
+L8-tempTALE7 [1711494-1714983:1]
+L8-tempTALE8 [1716898-1720186:1]
+L8-tempTALE9 [1871671-1875373:1]
+L8-tempTALE10 [2751965-2756273:1]
+L8-tempTALE11 [2756406-2759493:1]
+L8-tempTALE12 [2759626-2763727:1]
+L8-tempTALE13 [2763860-2767859:1]
+L8-tempTALE14 [2971407-2974902:1]
+L8-tempTALE15 [4203759-4207455:1]
+L8-tempTALE16 [4377403-4380388:1]
+L8-tempTALE17 [4380521-4383809:1]
+L8-tempTALE18 [2264666-2268773:-1]
+L8-tempTALE19 [2257614-2261103:-1]
+L8-tempTALE20 [1580455-1584250:-1]
+L8-tempTALE21 [1573675-1578391:-1]
+L8-tempTALE22 [1569136-1573543:-1]
+L8-tempTALE23 [1565724-1569006:-1]
+L8-tempTALE24 [1562305-1565593:-1]
+L8-tempTALE25 [1558886-1562174:-1]
+L8-tempTALE26 [1555568-1558754:-1]
+L8-tempTALE27 [1552046-1555436:-1]
+L8-tempTALE28 (Pseudo) [1547239-1550131:-1]
+L8-tempTALE29 [331698-335085:-1]
+
+Writing outputs.

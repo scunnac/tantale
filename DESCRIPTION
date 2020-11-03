@@ -1,0 +1,28 @@
+Package: tantale
+Type: Package
+Title: Transcription Activator-Like Effectors (TALEs) tools
+Version: 0.1.0
+Author: c(
+    person("Bao Tram", "Vi", email = "vbt576@gmail.com", role = "cre"),
+    person("Sebastien", "Cunnac", email = "sebastien.cunnac@ird.fr", role = "cre"))
+Maintainer: The package maintainer <sebastien.cunnac@ird.fr>
+Description: An integrated collection of functions for TALE minning and analysis
+License: What license is it under?
+Encoding: UTF-8
+LazyData: true
+Depends: R (>= 3.6.3)
+Imports:
+    tidyverse, plyr, reshape2, scales, XVector,
+    RColorBrewer, dichromat,
+    Biostrings, GenomicRanges, GenomicFeatures, BSgenome,  plyranges,
+    Rsamtools, systemPipeR, msa, DECIPHER,
+    ape, ggtree,
+    ggvis, ggbio, gplots,
+    optparse
+Suggests:
+    knitr,
+    biomartr,
+    rmarkdown
+VignetteBuilder:
+    knitr
+RoxygenNote: 7.1.1

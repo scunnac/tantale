@@ -1,0 +1,4 @@
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/XML/SAX/Writer.pm relocate_as=../../../../../XML/SAX/Writer.pm
+/home/baotram/miniconda3/envs/perly_env/lib/site_perl/5.26.2/XML/SAX/Writer/XML.pm relocate_as=../../../../../XML/SAX/Writer/XML.pm
+/home/baotram/miniconda3/envs/perly_env/man/man3/XML::SAX::Writer.3 relocate_as=../../../../../../../../man/man3/XML::SAX::Writer.3
+/home/baotram/miniconda3/envs/perly_env/man/man3/XML::SAX::Writer::XML.3 relocate_as=../../../../../../../../man/man3/XML::SAX::Writer::XML.3

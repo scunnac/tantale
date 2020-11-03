@@ -1,0 +1,225 @@
+---
+title: "distal related scripts"
+author: "Tram"
+date: "4/8/2020"
+output: html_document
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tantale)
+```
+
+
+# run runDistal function
+```{r}
+# output1 <- runDistal("/home/baotram/tal/rvdArrayReader_test/tellTale_test/BAI3-1-1/correctedRepeatAASeqs.fas", "/home/baotram/tal/DisTAL_results/BAI3-1-1",outname = "correctedSeqs") 
+
+sampleTalesAsFile <- system.file("extdata", "SampleTALSaa.fa", package = "tantale", mustWork = T)
+output2 <- runDistal(fasta.file = sampleTalesAsFile)
+output3 <- runDistal(fasta.file = sampleTalesAsFile, outdir = tempfile())
+
+plot(output2$phylogentic.tree, cex = 0.7, align.tip.label = TRUE)
+
+```
+
+
+# Testing `getRepeat2RvdMapping()`
+
+## Getting the necessary TALE CDS DNA seq and TALE RVD seq file with AnnoTALE
+
+```{r}
+fa_file <- system.file("extdata", "BAI3.fa", package = "tantale", mustWork = T)
+
+outDir <- tempdir(check = TRUE)
+analyzeAnnoTALE(inputFastaFile = fa_file,
+                  outputDir = outDir
+                  )
+talesRvdStringsFile <- file.path(outDir, "Analyze", "TALE_RVDs.fasta")
+talesRvdVectors <- fa2liststr(talesRvdStringsFile)
+talesDNAFile <- list.files(outDir, pattern = "TALE_DNA_sequences_.*\\.fasta$", recursive = TRUE, full.names = TRUE)
+
+# This is executed just to test the function
+buildAnnoTALE(TALESeqsFastaFile = talesDNAFile,
+               outputDir = outDir
+              )
+
+```
+
+## Getting the repeat vectors with Distal
+
+```{r}
+talesRepeatVectors <- runDistal(fasta.file = talesDNAFile,
+                                outdir = outDir
+                                )$coded.repeats.str
+```
+
+## Testing `getRepeat2RvdMapping()`
+
+```{r}
+# ADD N and C term Labels for each TALE (with tellTale this would not be necessary)
+talesRvdVectors <- lapply(talesRvdVectors, function(x) c("NTERM", x, "CTERM"))
+
+getRepeat2RvdMapping(talesRepeatVectors, talesRvdVectors)
+
+```
+
+
+```{r}
+
+
+## Experiment with https://cran.r-project.org/web/packages/doFuture/vignettes/doFuture.html
+
+```
+
+
+
+# test with reference genomes
+## Download reference genomes
+`biomattr` package does not work well for most of strains (or I did not use right instruction ...)
+
+```{r}
+test_path <- system.file("test", package = "tantale", mustWork = T)
+seq.name = c("MAI129", "MAI68", "MAI1", "BAI3")
+accession = c("NZ_CP019090.1", "NZ_CP019085.1", "CP025609.1", "CP025610.1")
+genome_path <- file.path(test_path, "genomes")
+dir.create(genome_path, recursive = T)
+
+for (i in 1:length(accession)) {
+  fa_file <- paste0(genome_path, "/", seq.name[i], ".fa")
+  seq <- ape::read.GenBank(access.nb = accession[i])
+  names(seq) <- as.character(seq.name[i]) ## ISN'T IT A PROBLEM IF ALL THE SEQUENCES HAVE THE SAME NAME?
+  ape::write.FASTA(seq, fa_file)
+}
+
+```
+
+## run telltale
+
+```{r}
+subjectFile <- list.files(genome_path, "*.fa", full.names = T)
+telltale_outdir <- file.path(test_path, "telltale_output")
+io_args <- lapply(as.list(subjectFile), function(x) {
+  outdirname <- unlist(strsplit(basename(x), ".fa"))
+  outputDir <- file.path(telltale_outdir, outdirname)
+  dir.create(outputDir, recursive = T, showWarnings = F)
+  list("subjectFile" = x, "outputDir" = outputDir)
+})
+
+lapply(io_args, function(x) {
+    rvdArrayReader_args <- list(
+      subjectFile = x$subjectFile,
+      outputDir = x$outputDir,
+      hmmFilesDir = system.file("extdata", "hmmFilesDir", package = "tantale", mustWork = T),
+      minRatioOfGapForColMasking = 0.8, # columns of the tale repeat CDS alignment that contain a gap in a fraction of sequence higher than this value (betwen 0 and 1) will be masked from the alignment when translating the DNA sequences to protein.
+      TALE_NtermDNAHitMinScore = 40, # nhmmer score cut_off value
+      repeatDNAHitMinScore = 20, # nhmmer score cut_off value
+      TALE_CtermDNAHitMinScore = 30, # nhmmer score cut_off value
+      minDomainHitsPerSubjSeq = 4, # Minimum number of nhmmer hits for a subject sequence to be reported as having TALE diagnostic regions. This is a way to simplify output a little by getting ride of uninformative sequences
+      minGapWidth = 35, # minimum gap between two tale domain hits for them to be considered "contiguous" and grouped in the same array.
+      minDomainHitsPerArrayForAssembl = 5, # Minimum number of repeat in an array for its seq of RVD to be considered for assembly. This is a way to get ride of sequences that are too short reasonably be of any help for assembly
+      taleArrayStartAnchorCode = "BBB",
+      taleArrayEndAnchorCode = "ZZZ")
+    do.call(tantale::rvdArrayReader, rvdArrayReader_args)
+})
+
+```
+
+`tantale::rvdArrayReader()` doesnt work
+```
+Error in writeXStringSet(cleanDNASeqs, cleanedAlignOutFile) : 'x' must be an XStringSet object
+```
+
+`source(tellTale_function.R)` then it works (??)
+
+## run AnnoTALE
+
+**I assume we can run annotale with all the genomes combined into ONE fasta file**
+
+
+```{r}
+subjectFile <- list.files(genome_path, "*.fa", full.names = T)
+annotale_outdir <- file.path(test_path, "annotale_output")
+
+lapply(subjectFile, function(fastaFile) {
+  outdirname <- unlist(strsplit(basename(fastaFile), ".fa"))
+  outputDir <- file.path(annotale_outdir, outdirname)
+  dir.create(outputDir, recursive = T, showWarnings = F)
+  analyzeAnnoTALE(inputFastaFile = fastaFile,
+                  outputDir = outputDir
+  )
+})
+
+talesRvdStringsFiles <- list.files(file.path(annotale_outdir),
+                                   pattern = "TALE_RVDs.fasta",  full.names = TRUE, recursive = TRUE)
+rvdVectors <- do.call(c, lapply(talesRvdStringsFiles, fa2liststr))
+saveRDS(rvdVectors, file.path(annotale_outdir, "rvdVectors.rds"))
+
+talesDNAFiles <- list.files(file.path(annotale_outdir),
+                            pattern = "TALE_DNA_sequences_.*\\.fasta$", recursive = TRUE, full.names = TRUE)
+
+```
+
+
+
+## run Distal with AnnoTALE output
+
+```{r}
+DistalWithAnnotaleOutDir <- file.path(test_path, "distal_with_annotale")
+dir.create(DistalWithAnnotaleOutDir, showWarnings = TRUE)
+combine_input <- file.path(DistalWithAnnotaleOutDir, "combined_CDS_Seqs.fas")
+if (file.exists(combine_input)) {file.remove(combine_input)}
+file.append(combine_input, talesDNAFiles)
+combine_fa <- ape::read.FASTA(combine_input)
+names(combine_fa)
+distal_output <- runDistal(combine_input, outdir = DistalWithAnnotaleOutDir)
+str(distal_output)
+saveRDS(distal_output, file.path(DistalWithAnnotaleOutDir, "distal_output.rds"))
+```
+
+
+
+## run Distal
+
+```{r}
+
+combine_input <- file.path(telltale_outdir, "combined_correctedRepeatAASeqs.fas")
+if (file.exists(combine_input)) {file.remove(combine_input)}
+input_list <- list.files(telltale_outdir, "^correctedRepeatAASeqs.fas$", recursive = T, full.names = T)
+file.append(combine_input, input_list)
+combine_fa <- ape::read.FASTA(combine_input)
+names(combine_fa)
+
+distal_outdir <- file.path(test_path, "distal_output")
+# distal_output <- runDistal(combine_input)
+distal_output <- runDistal(combine_input, outdir = distal_outdir)
+```
+
+
+## run buildDisTalGroups
+
+```{r}
+groups_output <- buildDisTalGroups(distal_outdir, 4.5)
+names(groups_output)
+```
+
+## plot
+```{r}
+img_output <- file.path(test_path, "distal_images")
+dir.create(img_output, showWarnings = F)
+
+talgroup_plots <- tantale::plotGroupsByRVD(groups_output$SeqOfDistancesAlignments, groups_output$SeqOfRvdAlignments, distal_output$tal.distance, img_output)
+
+repcode_plots <- tantale::plotGroupsByRepcode(groups_output$SeqOfRepsAlignments, groups_output$repeatUnitsDistanceMatrix, distal_output$tal.distance, img_output)
+```
+
+`plotGroupsByRVD()` cannot plot if all seqs in group are 100% identical --> ok
+
+```{r}
+dend <- tantale::talsim2Dend(distal_output$tal.distance, groups_output$SeqOfRepsAlignments)
+g6_mat <- tantale::repcode_heatmap(RepCode = groups_output$SeqOfRepsAlignments$G6, dend = dend$G6, dist_between_rep = groups_output$repeatUnitsDistanceMatrix)
+```
+
