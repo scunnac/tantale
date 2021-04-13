@@ -23,6 +23,8 @@ Suggests:
     knitr,
     biomartr,
     rmarkdown
+biocViews:
+    Software
 VignetteBuilder:
     knitr
 RoxygenNote: 7.1.1
