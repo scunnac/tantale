@@ -30,7 +30,16 @@
 
 **NOTE** :  
     - create vignette by `devtools:install(build_vignettes = TRUE)`  
-    - the perl lib is not included in the installed package, so `runDistal` doesn't work ... but I don't understand why `talvez()` works when you didn't specify a perl lib??
+    - the perl lib is not included in the installed package, so `runDistal` doesn't work ... but I don't understand why `talvez()` works when you didn't specify a perl lib??  
+    - to install via the `remotes` package  
 
-    (https://github.com/marcschwartz/WriteXLS,
-      https://github.com/cran/gdata/blob/master/R/installXLSXsupport.R)
+```
+  remotes::install_github("vibaotram/tantale",
+                          type = "source",
+                          dependencies = TRUE,
+                          upgrade = "never",
+                          auth_token = "XYZ"
+                          )
+```  
+
+An actual access token value must be provided!
