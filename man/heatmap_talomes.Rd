@@ -38,15 +38,15 @@ heatmap_talomes(
 
 \item{x.lab, y.lab, title}{character for x axix, y axis names and title}
 
-\item{mapcol}{vector of hex colors for the cells.}
+\item{mapcol}{character vector of colors for the cells.}
 
 \item{mar.side}{margin of the heatmap for row dendrogram, col dendrogram, rownames, colnames, respectively. (by default, c(5, 5, 3, 3)).}
 
 \item{sepwid}{numeric value for the width of separator between adjacent cells.}
 
-\item{sepcol}{hex color for the separator between adjacent cells}
+\item{sepcol}{character of color for the separator between adjacent cells}
 
-\item{inner_sepcol}{hex color for the separator between colors within 1 cell if there are more than 1.}
+\item{inner_sepcol}{character of color for the separator between colors within 1 cell if there are more than 1.}
 
 \item{save.path}{(optional) file path to save the plot, format of the image depends on the file extension. If save.path is NULL, the heatmap will be printed. If save.path is specified, the image file will be created.}
 }

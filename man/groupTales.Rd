@@ -27,12 +27,5 @@ groupTales(
 a data frame containing name of tals from taleSim and their classified groups.
 }
 \description{
-Building a hierchical clustering tree based on Distal tale distance and cut the tree using a
-  user specified cutOff value to define tale groups. Ideally this function
-  has been expanded to provide a different methods, k-medoids, for
-  clustering and offer the possibility to automatically define the number of
-  TALE groups present in the data...
-  return value is a data.frame listing tales in one column and their group in
-  the second taleSim is expected to be a 3 columns ("TAL1", "TAL2", "Sim")
-  data.frame-like object produced after reformating of the Distal tale distance matrix.
+Classifying Tal groups by hierchical clustering or by k-medoids clustering based on their similarity.
 }

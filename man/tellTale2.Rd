@@ -97,6 +97,27 @@ This functions has only side effects (writing files, mostly).
   However, if everything ran smoothly, it will invisibly return the path of
   the directory where output files were written.
   In the arrayReport.tsv, column \emph{predicted_dels_count}/\emph{predicted_ins_count} shows the number of putative deletions/insertions in the raw sequences that have been corrected in the corrected sequences by deletion/insertion with the function \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}}.
+  LIst of output files:
+  \itemize{
+  \item allRanges.gff: gff file of all Tal arrays detected by HMMer
+  \item arrayReport.tsv: report of all Tal arrays
+  \item hitsReport.tsv: report of all hits detected by HMMer
+  \item hitsReport.gff: gff file of all hits detected by HMMer
+  \item domainsReport.tsv: report of all Tal domains detected by AnnoTALE analyze
+  \item putativeTalOrf.fasta: Tal putative ORFs
+  \item pseudoTalCds.fasta: pseudo Tal CDS, Tal arrays detected by HMMer but failed in AnnoTALE analyze
+  \item C-terminusAAAlignment.html: protein alignment of all C-termini
+  \item C-terminusDNAAlignment.html: DNA alignment of all C-termini
+  \item N-terminusAAAlignment.html: protein alignment of all N-termini
+  \item N-terminusDNAAlignment.html: DNA alignment of all N-termini
+  \item TALE_CDS_all_diagnostic_regions_hmmfile.out: 
+  \item hmmerSearchOut.txt: 
+  \item nhmmerHumanReadableOutputOfLastRun.txt: 
+  \item tellTale.log: 
+  \item temp_annotale folder: folder containing result of AnnoTALE analyze for all Tal arrays
+  \item CorrectionAlignmentAA folder: folder containing protein alignment of Tal array detected by HMMer and corrected Tal array if \code{talArrayCorrection} = TRUE
+  \item CorrectionAlignmentDNA folder: folder containing DNA alignment of Tal array detected by HMMer and corrected Tal array if \code{talArrayCorrection} = TRUE
+}
 }
 \description{
 \code{tellTale} has been primarily written to report on 'corrected' TALE RVD

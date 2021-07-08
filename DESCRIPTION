@@ -12,9 +12,9 @@ Encoding: UTF-8
 LazyData: true
 Depends: R (>= 3.6.3)
 Imports:
-    tidyverse, plyr, reshape2, scales, XVector,
+    magrittr, tidyverse, plyr, glue, reshape2, scales, XVector,
     RColorBrewer, dichromat,
-    Biostrings, GenomicRanges, GenomicFeatures, BSgenome,  plyranges,
+    IRanges, Biostrings, GenomicRanges, GenomicFeatures, BSgenome, plyranges,
     Rsamtools, systemPipeR, msa, DECIPHER,
     ape, ggtree,
     ggvis, ggbio, gplots,
@@ -23,6 +23,7 @@ Suggests:
     knitr,
     biomartr,
     rmarkdown
+OS_type: unix
 biocViews:
     Software
 VignetteBuilder:

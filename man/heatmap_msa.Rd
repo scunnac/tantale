@@ -23,7 +23,7 @@ heatmap_msa(
 
 \item{repeatAlign}{a multiple Tal repeat sequences alignment in the form of a matrix as returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}} or as one of the elements of the \code{SeqOfRepsAlignments} slot in the return object of the \code{\link{buildDisTalGroups}} function.}
 
-\item{rvdAlign}{a multiple Tal repeat sequences alignment in the form of a matrix as returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}} or as one of the elements of the \code{SeqOfRepsAlignments} slot in the return object of the \code{\link{buildDisTalGroups}} function....rvd MSA, when the rvds need to be labeled in the plot (plot.type = "repeat.similarity" or "repeat.clusters.with.rvd".}
+\item{rvdAlign}{(optional) when the rvds need to be labeled in the plot (plot.type = "repeat.similarity" or "repeat.clusters.with.rvd", a multiple Tal repeat sequences alignment in the form of a matrix as returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}} or as one of the elements of the \code{SeqOfRepsAlignments} slot in the return object of the \code{\link{buildDisTalGroups}} function.}
 
 \item{repeatSim}{A long, three columns data frame with pairwise similarity scores between repeats as available in the \code{repeat.similarity slot} of the object returned by the \code{\link[tantale:runDistal]{runDistal}} function. \strong{(CORRECT???!!!)}}
 
@@ -37,7 +37,7 @@ heatmap_msa(
 
 \item{plot.type}{Either \code{"repeat.similarity"}, \code{"repeat.clusters"} , \code{"repeat.clusters.with.rvd"}. Defines the type of plot that will be produced by the function. See below for details.}
 
-\item{save.path}{file path to save the plot. If save.path is NULL, the heatmap will be printed. If save.path is specified, the image file will be created.}
+\item{save.path}{file path to save the plot. If save.path is NULL, the heatmap will be printed. If save.path is specified, the image file will be created with the format based on file extension.}
 
 \item{...}{any other arguments of \code{\link[gplots:heatmap.2]{heatmap.2}}}
 }

@@ -7,7 +7,7 @@
 plotTaleTargetPred(predResults, subjDnaSeqFile, filterRange)
 }
 \arguments{
-\item{predResults}{A tibble of prediction results obtained with \code{preditale()} or \code{talvez()} or a custom table in this format.}
+\item{predResults}{A tibble of prediction results obtained with \code{\link[tantale:preditale]{preditale}} or \code{\link[tantale:talvez]{talvez}} or a custom table in this format.}
 
 \item{subjDnaSeqFile}{The fasta file of subject DNA sequences that was used to predict DNA binding elements.}
 
