@@ -168,7 +168,7 @@ tellTale2 <- function(
   hmmerpath = system.file("tools", "hmmer-3.3", "bin", package = "tantale", mustWork = T),
   extendedLength = 300,
   talArrayCorrection = TRUE,
-  refForTalArrayCorrection = NULL,
+  refForTalArrayCorrection = system.file("extdata", "AA_ref.fa.gz", package = "tantale", mustWork = T),
   frameShiftCorrection = -11,
   ...
 ) {
