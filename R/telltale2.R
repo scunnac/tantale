@@ -620,9 +620,17 @@ tellTale2 <- function(
     
     ## domains report
     parts_files <- list.files(AnnotaleDir, "TALE_Protein_parts.fasta", recursive = T, full.names = T)
-    parts <- Biostrings::readAAStringSet(parts_files)
+    parts <- try(Biostrings::readAAStringSet(parts_files))
+    if (!is.null(attr(parts, "condition"))) {
+      file.remove(parts_files)
+      return(annout(Biostrings::AAStringSet(), domainsReport = data.frame()))
+      } # in case annotale works but protein parts file is empty
     stops <- Biostrings::vcountPattern("*", parts)
-    domainsReport <- data.frame("arrayID" = talOrfID, "seqnames" = S4Vectors::mcols(hitsByArraysLst)$OriginalSubjectName[S4Vectors::mcols(hitsByArraysLst)$arrayID == talOrfID], "query_name" = gsub("(.+\\: )|( \\d+)", "", names(parts)), "codon_count" = width(parts) - stops)
+    domainsReport <- data.frame("arrayID" = talOrfID,
+                                "seqnames" = S4Vectors::mcols(hitsByArraysLst)$OriginalSubjectName[S4Vectors::mcols(hitsByArraysLst)$arrayID == talOrfID],
+                                "query_name" = gsub("(.+\\: )|( \\d+)", "", names(parts)),
+                                "codon_count" = width(parts) - stops
+                                )
     
     annotale_output <- annout(seqOfRVDs, domainsReport = domainsReport)
     return(annotale_output)
