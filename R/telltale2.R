@@ -620,8 +620,8 @@ tellTale2 <- function(
     
     ## domains report
     parts_files <- list.files(AnnotaleDir, "TALE_Protein_parts.fasta", recursive = T, full.names = T)
-    parts <- try(Biostrings::readAAStringSet(parts_files))
-    if (!is.null(attr(parts, "condition"))) {
+    parts <- Biostrings::readAAStringSet(parts_files)
+    if (Biostrings::width(parts) == 0) {
       file.remove(parts_files)
       return(annout(Biostrings::AAStringSet(), domainsReport = data.frame()))
       } # in case annotale works but protein parts file is empty
