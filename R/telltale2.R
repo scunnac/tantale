@@ -221,9 +221,7 @@ tellTale2 <- function(
             "Is this really what you want to do?")
   }
   
-  
-  
-  
+
   ## Deal with spaces in sequence names because this messes up parsing of HMMER output
   originalSeqs <- Biostrings::readDNAStringSet(filepath = subjectFile)
   originalSeqlevels <- names(originalSeqs)
@@ -487,9 +485,13 @@ tellTale2 <- function(
     TalOrfForAnnoTALE <- fullTalOrf
   } else { 
     #### Correct Tal arrays ####
+    cat("## Correcting putative TALE coding sequences. Be patient, this may take some time...")
     AAref <- Biostrings::readAAStringSet(refForTalArrayCorrection, seek.first.rec = TRUE, use.names = TRUE)
     rawArraySeq <- extdCompleteArraysSeqs
-    ArrayCorrection <- DECIPHER::CorrectFrameshifts(rawArraySeq, AAref, type = "both", maxComparisons = length(AAref), frameShift = frameShiftCorrection, ...)
+    ArrayCorrection <- DECIPHER::CorrectFrameshifts(rawArraySeq,
+                                                    AAref, type = "both",
+                                                    maxComparisons = length(AAref),
+                                                    frameShift = frameShiftCorrection, ...)
     corrExtdCompleteArraysSeqs <- ArrayCorrection$sequences
     
     #### Correction stats ####
@@ -526,11 +528,15 @@ tellTale2 <- function(
       names(substitutedSeq) <- paste0("forAnnoTALE", n)
       seqToAlign <- c(rawSeq, correctedSeq, substitutedSeq)
       alignedSeqs <- DECIPHER::AlignSeqs(seqToAlign)
-      DECIPHER::BrowseSeqs(alignedSeqs, htmlFile = file.path(alignmentDNADir, glue::glue("CorrectionAlignmentDNA_{n}.html")), openURL = F, colWidth = 120)
+      DECIPHER::BrowseSeqs(alignedSeqs,
+                           htmlFile = file.path(alignmentDNADir, glue::glue("CorrectionAlignmentDNA_{n}.html")),
+                           openURL = F, colWidth = 120)
       
       seqToAlignTranslated <- Biostrings::translate(seqToAlign, no.init.codon = T, if.fuzzy.codon = "solve")
       alignedSeqsTranslated <- DECIPHER::AlignSeqs(seqToAlignTranslated)
-      DECIPHER::BrowseSeqs(alignedSeqsTranslated, htmlFile = file.path(alignmentAADir, glue::glue("CorrectionAlignmentAA_{n}.html")), openURL = F, colWidth = 120)
+      DECIPHER::BrowseSeqs(alignedSeqsTranslated,
+                           htmlFile = file.path(alignmentAADir, glue::glue("CorrectionAlignmentAA_{n}.html")),
+                           openURL = F, colWidth = 120)
       
     }
     
@@ -580,51 +586,35 @@ tellTale2 <- function(
   tmpAnnotaleDir <- tempfile(pattern = "temp_annotale_", tmpdir = outputDir)
   dir.create(tmpAnnotaleDir)
   
-  # run annotale for tal arrays on tempdir
-  
-  # setClass(
-  #   # Set the name for the class
-  #   "annout",
-  # 
-  #   # Define the slots
-  #   slots = c(
-  #     domainsReport = "data.frame"
-  #   ),
-  # 
-  #   contains = "AAStringSet",
-  # 
-  #   # Make a function that can test to see if the data is consistent.
-  #   # This is not called if you have an initialize function defined!
-  #   validity = function(object) {
-  #     val <- is.data.frame(object@domainsReport)
-  #     return(val)
-  #   }
-  # )
-  
+  # run annotale for tal putative orfs in tempdir
+
   annoTaleOut <- sapply(names(TalOrfForAnnoTALE), function(talOrfID) {
     AnnotaleDir <- file.path(tmpAnnotaleDir, talOrfID)
     dir.create(AnnotaleDir)
-    
     TalOrf <- TalOrfForAnnoTALE[talOrfID]
-    
     correctedTalOrfFile <- file.path(AnnotaleDir, "putativeTalOrf.fasta")
     Biostrings::writeXStringSet(TalOrf, correctedTalOrfFile)
-    
-    checkAnnoTale <- try(AnnoTALEanalyze(correctedTalOrfFile, AnnotaleDir))
-    if (!is.null(attr(checkAnnoTale, "condition"))) return(annout(Biostrings::AAStringSet(), domainsReport = data.frame())) # in case annotale does not work
+    # Run Annotale on corrected ORF
+    checkAnnoTale <- try(AnnoTALEanalyze(correctedTalOrfFile, AnnotaleDir), silent = TRUE)
+    # Get Annotale output with conditions handling
     annoTaleRVD <- file.path(AnnotaleDir, "TALE_RVDs.fasta")
-    seqOfRVDs <- try(Biostrings::readAAStringSet(annoTaleRVD, seek.first.rec = T, use.names = T))
-    if (!is.null(attr(seqOfRVDs, "condition"))) return(annout(Biostrings::AAStringSet(), domainsReport = data.frame())) # in case annotale works but cannot find rvds
-    if (Biostrings::width(seqOfRVDs) == 0) return(annout(Biostrings::AAStringSet(), domainsReport = data.frame())) # in case annotale does not complain about rvds but does not output any rvds
+    seqOfRVDs <- try(Biostrings::readAAStringSet(annoTaleRVD, seek.first.rec = T, use.names = T), silent = TRUE)
+    parts_files <- list.files(AnnotaleDir, "TALE_Protein_parts.fasta", recursive = T, full.names = T)
+    parts <- try(Biostrings::readAAStringSet(parts_files), silent = TRUE)
+    
+    if (any(
+      !is.null(attr(checkAnnoTale, "condition")), # in case annotale does not work
+      if (!is.null(attr(seqOfRVDs, "condition"))) {!is.null(attr(seqOfRVDs, "condition"))} else {Biostrings::width(seqOfRVDs) == 0}, # in case annotale works but cannot find rvds or does not output any rvds
+      if (!is.null(attr(parts, "condition"))) {!is.null(attr(parts, "condition"))} else {length(parts) == 0L} # in case annotale works but protein parts file is empty
+            )
+        ) {
+      if(file.exists(parts_files)) file.remove(parts_files)
+      return(annout(Biostrings::AAStringSet(), domainsReport = data.frame()))
+      #print("There is a problem")
+    }
     names(seqOfRVDs) <- talOrfID
     
     ## domains report
-    parts_files <- list.files(AnnotaleDir, "TALE_Protein_parts.fasta", recursive = T, full.names = T)
-    parts <- Biostrings::readAAStringSet(parts_files)
-    if (Biostrings::width(parts) == 0) {
-      file.remove(parts_files)
-      return(annout(Biostrings::AAStringSet(), domainsReport = data.frame()))
-      } # in case annotale works but protein parts file is empty
     stops <- Biostrings::vcountPattern("*", parts)
     domainsReport <- data.frame("arrayID" = talOrfID,
                                 "seqnames" = S4Vectors::mcols(hitsByArraysLst)$OriginalSubjectName[S4Vectors::mcols(hitsByArraysLst)$arrayID == talOrfID],
