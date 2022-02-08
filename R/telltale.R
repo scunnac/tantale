@@ -1,42 +1,3 @@
-correction_tible <- function(indels) {
-  indelsTble <- lapply(indels, function(lst) {
-    info <- tibble::tibble()
-    colnames(info) <- c("variable","value")
-    for (talOrfID in 1:length(lst)) {
-      element <- lst[talOrfID]
-      if (length(unlist(element)) == 0L) {
-        next()
-      } else {
-        info %<>% dplyr::bind_rows(tibble::tibble(variable = names(element), value = as.numeric(unlist(element))))
-      }
-    }
-    return(info)
-  }
-  ) %>% dplyr::bind_rows(.id = "Seq")
-  return(indelsTble)
-} 
-
-#' annotale output 
-#' @exportClass annout
-#' @import Biostrings
-annout <- setClass(
-  # Set the name for the class
-  "annout",
-  
-  # Define the slots
-  slots = c(
-    domainsReport = "data.frame"
-  ),
-  
-  contains = "AAStringSet",
-  
-  # Make a function that can test to see if the data is consistent.
-  # This is not called if you have an initialize function defined!
-  validity = function(object) {
-    val <- is.data.frame(object@domainsReport)
-    return(val)
-  }
-)
 
 # subjectFile = "/home/baotram/tal/xanthopore-scripts/tantale/test/telltale_vs_annotale/genomes/BAI3-1-1.fa"
 # outputDir = "/home/baotram/tal/xanthopore-scripts/tantale/test/telltale2/bai311_correct"
@@ -53,7 +14,6 @@ annout <- setClass(
 # mergeHits = TRUE
 # # repMsaMethod = "decipher"
 # minGapWidth = 35
-# minDomainHitsPerArrayForAssembl  = 5
 # taleArrayStartAnchorCode = "N-TERM"
 # taleArrayEndAnchorCode = "C-TERM"
 # appendExtremityCodes = TRUE
@@ -64,34 +24,35 @@ annout <- setClass(
 #' in subject DNA sequences
 #'
 #' \code{tellTale} has been primarily written to report on 'corrected' TALE RVD
-#' sequences in noisy DNA sequences (suboptimally polished genomes assembly, raw
+#' sequences in indels prone, noisy DNA sequences (suboptimally polished genomes assembly, raw
 #' reads of long read sequencing technologies [eg PacBio, ONT]) that would
 #' otherwise be missed by conventional tools (eg AnnoTALE).
+#' 
+#' The approach is first to use \href{http://hmmer.org/}{HMMER}
+#' to find and categorize regions in the input DNA sequence that are related to 
+#' the coding sequence of canonical TALE protein domains (N-Term, repeats, C-term).
+#' Hits that are (nearly [see the minGapWidth parameter]) adjacent are grouped in
+#' "taleArrays" which are considered as potential tal genes.
+#' 
+#' If the \code{talArrayCorrection} parameter is turned off, these talArrays are
+#' fed to \href{http://www.jstacs.de/index.php/AnnoTALE}{AnnoTALE} to detect
+#' TALE domains in their predicted translation product. The Results should hence
+#' be very similar to what would be obtained with AnnoTALE,
+#' plus many additional informative output files such as tabular reports.
 #'
-#' It works but is far from optimal for 'corrected' repeat CDS and  \strong{it
-#' currently tends to remove 'unconventional' portions of repeat CDS}. This may
-#' be problematic for downstream analysis with DisTAL, especially for 'aberrant'
-#' repeats.
-#'
-#' N- and C-terminal domains CDS are not currently 'corrected'.
-#'
-#' It will work also if the subject DNA sequences are of high quality
-#' \strong{but may 'correct' genuine frame shifts in TALE repeat array CDS}.
-#'
-#' Will output a number of files including tabular reports on the TALE arrays
-#' (ie full length or partial tal gene CDS) and on the identified coding
-#' sequences for TALE domains, including repeat CDS.
+#' If \code{talArrayCorrection} is turned on, these talearrays are passed to the \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}} function that attemps to 'correct'
+#' potential frameshifts in the taleArray sequences. This conveniently removes 
+#' many artefactual indels but bear in mind that this may also \strong{erroneously} 'correct'
+#' genuine frame shifts which can be highly relevant especially for truncTALEs or iTALES.
+#' The resulting 'corrected' arrays are then passed to AnnoTALE.
+#' 
 #'
 #' @param subjectFile Fasta file with DNA sequence(s) to be searched for the
 #'   presence of TALE coding sequences (CDS).
-#' @param outputDir Path of the output directory. If not specified, resluts will
-#'   be written to working folder.
+#' @param outputDir Path of the output directory. If not specified, results will
+#'   be written to current working folder.
 #' @param hmmFilesDir Specify the path to a folder holding the hmmfiles if you
 #'   do not want to use the ones provided with tantale.
-#' @param minRatioOfGapForColMasking Columns of the tale repeat CDS alignment
-#'   that contain a gap in a fraction of sequence higher than this value (betwen
-#'   0 and 1) will be masked from the alignment when translating the DNA
-#'   sequences to protein.
 #' @param TALE_NtermDNAHitMinScore Minimal nhmmer score cut_off value to
 #'   consider the hit as genuine
 #' @param repeatDNAHitMinScore Minimal nhmmer score cut_off value to consider
@@ -101,32 +62,34 @@ annout <- setClass(
 #' @param minDomainHitsPerSubjSeq Minimum number of nhmmer hits for a subject
 #'   sequence to be reported as having TALE diagnostic regions. This is a way to
 #'   simplify output a little by getting ride of uninformative sequences
-#' @param mergeHits Perform overlapping hits merging per domain type.
+#' @param mergeHits Perform overlapping hits merging per domain type. Should not be modified.
 #' @param minGapWidth Minimum gap in base pairs between two tale domain hits for
 #'   them to be considered distinct. If the length of the gap is below this
 #'   value, domains are considered "contiguous" and grouped in the same array.
-#' @param minDomainHitsPerArrayForAssembl DEPRECATED argument. Used to speficy
-#'   the Minimum number of repeat in an array for its seq of RVD to be
-#'   considered for assembly. This is a way to get ride of sequences that are
-#'   too short reasonably be of any help for assembly
 #' @param taleArrayStartAnchorCode This scalar character vector will symbolize a
 #'   TALE N-TERM CDS hit in the RVD sequence
 #' @param taleArrayEndAnchorCode This scalar character vector will symbolize a
 #'   TALE C-TERM CDS hit in the RVD sequence
-#' @param appendExtremityCodes Set this to \code{FALSE} if you do not want the N- and C-TREM anchor codes in the output sequences of RVD
+#' @param appendExtremityCodes Set this to \code{FALSE} if you do not want the
+#'   N- and C-TREM anchor codes in the output sequences of RVD
 #' @param rvdSep Symbol acting as a separator in RVD sequences
 #' @param hmmerpath Specify the path to a directory holding the HMMER
 #'   executable if you do not want to use the ones provided with tantale.
-#' @param extendedLength number of nucleotides to extend in 3'-end
+#' @param extendedLength number of nucleotides to extend in 3'-end at the tal ORF prediction stage.
 #' @param talArrayCorrection True or False
-#' @param refForTalArrayCorrection reference AA sequences for tal array correction
+#' @param refForTalArrayCorrection Reference AA sequences for tal array predicted ORF correction if you do not want to use the ones provided with tantale.
 #' @param frameShiftCorrection default = 11
 #' @param ... \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}}
 #' @return This functions has only side effects (writing files, mostly).
 #'   However, if everything ran smoothly, it will invisibly return the path of
-#'   the directory where output files were written.
-#'   In the arrayReport.tsv, column \emph{predicted_dels_count}/\emph{predicted_ins_count} shows the number of putative deletions/insertions in the raw sequences that have been corrected in the corrected sequences by deletion/insertion with the function \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}}.
-#'   LIst of output files:
+#'   the directory where output files were written. In the arrayReport.tsv,
+#'   column \emph{predicted_dels_count}/\emph{predicted_ins_count} shows the
+#'   number of putative deletions/insertions in the raw sequences that have been
+#'   corrected in the corrected sequences with the
+#'   function \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}}.
+#'   
+#'   
+#'   List of output files:
 #'   \itemize{
 #'   \item allRanges.gff: gff file of all Tal arrays detected by HMMer
 #'   \item arrayReport.tsv: report of all Tal arrays
@@ -139,20 +102,19 @@ annout <- setClass(
 #'   \item C-terminusDNAAlignment.html: DNA alignment of all C-termini
 #'   \item N-terminusAAAlignment.html: protein alignment of all N-termini
 #'   \item N-terminusDNAAlignment.html: DNA alignment of all N-termini
-#'   \item TALE_CDS_all_diagnostic_regions_hmmfile.out: 
-#'   \item hmmerSearchOut.txt: 
-#'   \item nhmmerHumanReadableOutputOfLastRun.txt: 
-#'   \item tellTale.log: 
+#'   \item TALE_CDS_all_diagnostic_regions_hmmfile.out: HMMER profile used for tale cds search.
+#'   \item hmmerSearchOut.txt: ignore
+#'   \item nhmmerHumanReadableOutputOfLastRun.txt: primary HMMER output file.
+#'   \item tellTale.log: a log file
 #'   \item temp_annotale folder: folder containing result of AnnoTALE analyze for all Tal arrays
 #'   \item CorrectionAlignmentAA folder: folder containing protein alignment of Tal array detected by HMMer and corrected Tal array if \code{talArrayCorrection} = TRUE
 #'   \item CorrectionAlignmentDNA folder: folder containing DNA alignment of Tal array detected by HMMer and corrected Tal array if \code{talArrayCorrection} = TRUE
 #' }
 #' @export
-tellTale2 <- function(
+tellTale <- function(
   subjectFile,
   outputDir = getwd(),
   hmmFilesDir = system.file("extdata", "hmmProfile", package = "tantale", mustWork = T),
-  minRatioOfGapForColMasking = 0.8,
   TALE_NtermDNAHitMinScore = 300,
   repeatDNAHitMinScore = 20,
   TALE_CtermDNAHitMinScore = 200,
@@ -160,7 +122,6 @@ tellTale2 <- function(
   mergeHits = TRUE,
   # repMsaMethod = "decipher",
   minGapWidth = 35,
-  minDomainHitsPerArrayForAssembl  = 5,
   taleArrayStartAnchorCode = "NTERM",
   taleArrayEndAnchorCode = "CTERM",
   appendExtremityCodes = TRUE,
@@ -215,12 +176,6 @@ tellTale2 <- function(
   
   
   #####   Checks for parameters and other things   #####
-  if (minDomainHitsPerSubjSeq > minDomainHitsPerArrayForAssembl) {
-    warning("The value of the minDomainHits parameter for subject sequence selection\n",
-            "is more stringent than the value of the minNumberOfDomainHitsForAssembly!?\n",
-            "Is this really what you want to do?")
-  }
-  
 
   ## Deal with spaces in sequence names because this messes up parsing of HMMER output
   originalSeqs <- Biostrings::readDNAStringSet(filepath = subjectFile)
@@ -252,7 +207,7 @@ tellTale2 <- function(
     hmmName <- grep("NAME", x, perl = TRUE, value = TRUE)
     hmmName <- unlist(strsplit(hmmName, split = "\\s+"))
     if (length(hmmName) != 2) stop("One or several profile ",
-                                   "HMM have a name with with spaces. ",
+                                   "HMM have a name with spaces. ",
                                    "Please remove them in the file at the Tag 'NAME'")
     hmmName <- hmmName[2]
   }
@@ -294,8 +249,6 @@ tellTale2 <- function(
   
   ## Trick to re-order positions in an increasing order to satisfy IRanges() in preparation of creating a GRanges
   nhmmerTabularOutput[,c("start", "end")] <- plyr::adply(.data = nhmmerTabularOutput[,c("envfrom", "env_to")], .margins = 1, .fun = c(min, max))[,-(1:2)]
-  # nhmmerTabularOutput[,c("start", "end")] <- plyr::adply(.data = nhmmerTabularOutput[,c("alifrom", "ali_to")], .margins = 1, .fun = c(min, max))[,-(1:2)]
-  
   rownames(nhmmerTabularOutput) <- nhmmerTabularOutput$hitID
   
   #####   Storing all info about individual TALE domains in a GenomicRanges object   ####
@@ -308,6 +261,9 @@ tellTale2 <- function(
   nhmmerTabularOutput <- subset(nhmmerTabularOutput, target_name %in% temp_df[temp_df$V1 > minDomainHitsPerSubjSeq, "target_name"])
   nhmmerTabularOutput <- droplevels(nhmmerTabularOutput)
   
+  ####!!!!!!!
+  ####!!!!!!! DO SOMETHING (graciously exit) IF nhmmerTabularOutput HAS NO ROWS !!!!!!!!!!######
+  ####!!!!!!!
   
   ## Creating a GRanges object from nhmmerOutput
   nhmmerOutputGR <- GenomicRanges::makeGRangesFromDataFrame(
@@ -460,10 +416,6 @@ tellTale2 <- function(
   #str(S4Vectors::mcols(hitsByArraysLst))
   #####   Extend DNA Tal arrays   #####
   ## Extract the genomic sequence of arrays +-bp on the borders
-  ## run systemPipeR::predORF()
-  ## ask if the longest orf GRanges on the plus strand (perfectly) matches with the complete array GRanges
-  ## Record this info in the arrayReport object
-  ## Export the dna seq of the longest orf as the tal sequences
   completeArraysGR <- arraysGR #subset(arraysGR, S4Vectors::mcols(hitsByArraysLst)$AllDomains) #
   extdCompleteArraysGR <- GenomicRanges::resize(completeArraysGR,
                                                 width = GenomicRanges::width(completeArraysGR) + extendedLength,
@@ -495,8 +447,16 @@ tellTale2 <- function(
     corrExtdCompleteArraysSeqs <- ArrayCorrection$sequences
     
     #### Correction stats ####
-    deletions_count <- correction_tible(ArrayCorrection$indels) %>% dplyr::group_by(Seq) %>% dplyr::count(variable, name = "predicted_dels_count") %>% dplyr::filter(variable == "deletions") %>% dplyr::select(-variable)
-    insertions_count <- correction_tible(ArrayCorrection$indels) %>% dplyr::group_by(Seq) %>% dplyr::count(variable, name = "predicted_ins_count") %>% dplyr::filter(variable == "insertions") %>% dplyr::select(-variable)
+    deletions_count <- correction_tible(ArrayCorrection$indels) %>%
+      dplyr::group_by(Seq) %>%
+      dplyr::count(variable, name = "predicted_dels_count") %>%
+      dplyr::filter(variable == "deletions") %>%
+      dplyr::select(-variable)
+    insertions_count <- correction_tible(ArrayCorrection$indels) %>%
+      dplyr::group_by(Seq) %>%
+      dplyr::count(variable, name = "predicted_ins_count") %>%
+      dplyr::filter(variable == "insertions") %>%
+      dplyr::select(-variable)
     
     
     S4Vectors::mcols(hitsByArraysLst) <- merge(S4Vectors::mcols(hitsByArraysLst), 
@@ -647,17 +607,22 @@ tellTale2 <- function(
   if (appendExtremityCodes) {
     for (s in names(seqsOfRVDs)) {
       hitsByArray <- hitsByArraysLst[[s]]
-      seqsOfRVDs[s] <- paste(ifelse(TALE_NtermDNAHMMName %in% as.character(hitsByArray$query_name), taleArrayStartAnchorCode, "XXXXX"), 
+      seqsOfRVDs[s] <- paste(ifelse(TALE_NtermDNAHMMName %in% as.character(hitsByArray$query_name),
+                                    taleArrayStartAnchorCode, "XXXXX"), 
                              seqsOfRVDs[s], 
                              sep = rvdSep)
       seqsOfRVDs[s] <- paste(seqsOfRVDs[s], 
-                             ifelse(TALE_CtermDNAHMMName %in% as.character(hitsByArray$query_name), taleArrayEndAnchorCode, "XXXXX"), 
+                             ifelse(TALE_CtermDNAHMMName %in% as.character(hitsByArray$query_name),
+                                    taleArrayEndAnchorCode, "XXXXX"), 
                              sep = rvdSep)
     }
   }
   
   S4Vectors::mcols(hitsByArraysLst) <- merge(S4Vectors::mcols(hitsByArraysLst),
-                                             data.frame(SeqOfRVD = seqsOfRVDs, aberrantRepeat = aberrantRepeat, arrayID = names(seqsOfRVDs)),
+                                             data.frame(SeqOfRVD = seqsOfRVDs,
+                                                        aberrantRepeat = aberrantRepeat,
+                                                        arrayID = names(seqsOfRVDs)
+                                                        ),
                                              by = "arrayID", 
                                              all.x = T)
   S4Vectors::mcols(hitsByArraysLst)$SeqOfRVD[is.na(S4Vectors::mcols(hitsByArraysLst)$SeqOfRVD)] <- ""
@@ -673,7 +638,9 @@ tellTale2 <- function(
       return(onepart)
     }, simplify = "array", USE.NAMES = F) %>% Biostrings::DNAStringSetList() %>% unlist()
     dnaAlignment <- DECIPHER::AlignSeqs(allpart)
-    DECIPHER::BrowseSeqs(dnaAlignment, htmlFile = file.path(outputDir, glue::glue("{part}DNAAlignment.html")), openURL = F, colWidth = 120)
+    DECIPHER::BrowseSeqs(dnaAlignment,
+                         htmlFile = file.path(outputDir, glue::glue("{part}DNAAlignment.html")),
+                         openURL = F, colWidth = 120)
   }
   
   aaPartFiles <- list.files(tmpAnnotaleDir, "TALE_Protein_parts.fasta", recursive = T, full.names = T)
@@ -686,7 +653,9 @@ tellTale2 <- function(
       return(onepart)
     }, simplify = "array", USE.NAMES = F) %>% Biostrings::AAStringSetList() %>% unlist()
     dnaAlignment <- DECIPHER::AlignSeqs(allpart)
-    DECIPHER::BrowseSeqs(dnaAlignment, htmlFile = file.path(outputDir, glue::glue("{part}AAAlignment.html")), openURL = F, colWidth = 120)
+    DECIPHER::BrowseSeqs(dnaAlignment,
+                         htmlFile = file.path(outputDir, glue::glue("{part}AAAlignment.html")),
+                         openURL = F, colWidth = 120)
     return(allpart)
   }, USE.NAMES = T)
   
@@ -806,12 +775,10 @@ tellTale2 <- function(
     paste(Quote(TALE_NtermDNAHitMinScore),":", TALE_NtermDNAHitMinScore, sep = "\t"),
     paste(Quote(repeatDNAHitMinScore),":", repeatDNAHitMinScore, sep = "\t"),
     paste(Quote(TALE_CtermDNAHitMinScore),":", TALE_CtermDNAHitMinScore, sep = "\t"),
-    paste(Quote(minRatioOfGapForColMasking),":", minRatioOfGapForColMasking, sep = "\t"),
     paste(Quote(minDomainHitsPerSubjSeq),":", minDomainHitsPerSubjSeq, sep = "\t"),
     paste(Quote(mergeHits),":", mergeHits, sep = "\t"),
     # paste(Quote(repMsaMethod),":", repMsaMethod, sep = "\t"),
     paste(Quote(minGapWidth),":", minGapWidth, sep = "\t"),
-    paste(Quote(minDomainHitsPerArrayForAssembl),":", minDomainHitsPerArrayForAssembl, sep = "\t"),
     paste(Quote(taleArrayStartAnchorCode),":", taleArrayStartAnchorCode, sep = "\t"),
     paste(Quote(taleArrayEndAnchorCode),":", taleArrayEndAnchorCode, sep = "\t"),
     paste(Quote(extendedLength),":", extendedLength, sep = "\t"),
@@ -858,3 +825,11 @@ tellTale2 <- function(
   close(logf)
   return(invisible(outputDir))
 }
+
+#' This function name is deprecated and will ultimately be removed.
+#' It corresponds to the \link{tellTale} which should be used instead.
+#'
+#' @export
+tellTale2 <- tellTale
+
+

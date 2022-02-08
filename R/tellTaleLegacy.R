@@ -1,130 +1,17 @@
 
-##### FUNCTION DEFINITION #####
-
-# A function that checks that hmmer is accessible"
-
-getHMMER <- function() {
-  pathOfHmmerBinsDir <- system.file("tools", "hmmer-3.3", "bin", package = "tantale", mustWork = TRUE)
-  return(pathOfHmmerBinsDir)
-}
-
-checkHMMER <- function(hmmerpath) {
-  cmd <- file.path(hmmerpath, "hmmsearch -h | grep \"^#\"")
-  if (system(command = cmd, intern = FALSE, ignore.stdout = TRUE, ignore.stderr = TRUE)) {
-    stop("HMMER is not in PATH. Follow instructions at http://hmmer.org/documentation.html to install it.")
-  } else {
-    out <- system(command = cmd,intern = TRUE)
-    cat(out[2:3], sep = "\n")
-  }
-}
-
-
-
-writeHMMFile <- function(hmmerpath = NULL, alignmentFile, HMMOutFile) {
-  if (is.null(hmmerpath)) hmmerpath <- getHMMER()
-  checkHMMER(hmmerpath)
-  buildCmd <- paste(file.path(hmmerpath,"hmmbuild"),
-                    HMMOutFile,
-                    alignmentFile,
-                    sep = " ")
-  commandOut <- system(command = buildCmd, ignore.stderr = FALSE, intern = TRUE)
-  return(commandOut)
-}
-
-
-runHmmerSearch <- function(hmmerpath = NULL, subjectFile, hmmFile, searchTblOutFile, humReadableOutFile) {
-  if (is.null(hmmerpath)) hmmerpath <- getHMMER()
-  checkHMMER(hmmerpath)
-    searchCmd <- paste(file.path(hmmerpath, "hmmsearch"),
-                     "--tblout",
-                     searchTblOutFile,
-                     hmmFile,
-                     subjectFile,
-                     ">",
-                     humReadableOutFile,
-                     sep = " "
-  )
-  system(command = searchCmd, ignore.stderr = FALSE, intern = TRUE)
-}
-
-
-runNhmmerSearch <-  function(hmmerpath = NULL, subjectFile, hmmFile, searchTblOutFile, humReadableOutFile) {
-  if (is.null(hmmerpath)) hmmerpath <- getHMMER()
-  checkHMMER(hmmerpath)
-  searchCmd <- paste(file.path(hmmerpath, "nhmmer"),
-                     "--tblout",
-                     searchTblOutFile,
-                     hmmFile,
-                     subjectFile,
-                     ">",
-                     humReadableOutFile,
-                     sep = " "
-  )
-  system(command = searchCmd, ignore.stderr = FALSE, intern = TRUE)
-}
-
-
-
-runHmmalign <- function(hmmerpath = NULL, hmmFile, seqsFile, alignOutFile) {
-  if (is.null(hmmerpath)) hmmerpath <- getHMMER()
-  checkHMMER(hmmerpath)
-  alignCmd <- paste(file.path(hmmerpath, "hmmalign"),
-                    "--outformat Phylip", #Stockholm, SELEX, Clustal, Phylip, Pfam, A2M, PSIBLAST.
-                    "--trim",
-                    hmmFile,
-                    seqsFile,
-                    ">", alignOutFile,
-                    sep = " "
-  )
-  system(command = alignCmd, ignore.stderr = FALSE, intern = TRUE)
-}
-
-hitsReportToGFF <- function(f = "hitsReport.csv") {
-  # Convert the info contained in a HitReport file into a GFF file for display by
-  # a genome viewer.
-  # The f parameter corresponds to the path to a hitsReport file.
-  # Read the file as a data.frame
-  hitsReport <- read.delim(f)
-  # Create a GenomicRange that will be converted.
-  hitsGR <- GenomicRanges::makeGRangesFromDataFrame(hitsReport, keep.extra.columns=TRUE)
-  # Write a gff3 file to disk with this info.
-  rtracklayer::export.gff3(hitsGR,
-                           con = file.path(dirname(f), paste0(sub("\\..*$", "", basename(f)), ".gff"))
-  )
-
-}
-
-## !! THIS SHOULD BE MADE OBSOLETE AND CODE USING IT SHOULD BE MODIFIED
-extractSeqsfromHits <- function(nhmmerTabularOutputSelect, DNAsequences){
-  repeatSeqsSetList <- mapply(
-    function(hitID, start, end, strand, subjectID, sequences) {
-      seq <- XVector::subseq(sequences[subjectID], start, end)
-      if (strand == "-") {seq <- Biostrings::reverseComplement(seq)}
-      names(seq) <- hitID
-      return(seq)
-    },
-    hitID = nhmmerTabularOutputSelect$hitID,
-    start = nhmmerTabularOutputSelect$start,
-    end = nhmmerTabularOutputSelect$end,
-    strand = nhmmerTabularOutputSelect$strand,
-    subjectID = nhmmerTabularOutputSelect$target_name,
-    MoreArgs = list(sequences = DNAsequences),
-    USE.NAMES = FALSE)
-  do.call(c, repeatSeqsSetList)
-}
-
-
-
-
 #' Search and report on the features of TALE protein domains potentially encoded
 #' in subject DNA sequences
 #'
-#' \code{tellTale} has been primarily written to report on 'corrected' TALE RVD
+#' This function is maintained in the package temporarily and should not be used
+#' for other purpose than curiosity. You are better off using \link{tellTale}.
+#'
+#' \code{tellTaleLegacy}, the predecessor of the current \link{tellTale}} function
+#' and has been primarily written to report on 'corrected' TALE RVD
 #' sequences in noisy DNA sequences (suboptimally polished genomes assembly, raw
 #' reads of long read sequencing technologies [eg PacBio, ONT]) that would
 #' otherwise be missed by conventional tools (eg AnnoTALE).
 #'
-#' It works but is far from optimal for 'corrected' repeat CDS and  \strong{it
+#' It works but is far from optimal for 'corrected' repeat CDS and \strong{it
 #' currently tends to remove 'unconventional' portions of repeat CDS}. This may
 #' be problematic for downstream analysis with DisTAL, especially for 'aberrant'
 #' repeats.
@@ -186,7 +73,7 @@ extractSeqsfromHits <- function(nhmmerTabularOutputSelect, DNAsequences){
 #'   the directory where output files were written.
 #'
 #' @export
-tellTale <- function(
+tellTaleLegacy <- function(
   subjectFile,
   outputDir = getwd(),
   hmmFilesDir = system.file("extdata", "hmmProfile", package = "tantale", mustWork = T),
