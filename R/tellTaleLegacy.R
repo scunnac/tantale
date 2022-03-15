@@ -5,7 +5,7 @@
 #' This function is maintained in the package temporarily and should not be used
 #' for other purpose than curiosity. You are better off using \link{tellTale}.
 #'
-#' \code{tellTaleLegacy}, the predecessor of the current \link{tellTale}} function
+#' \code{tellTaleLegacy}, the predecessor of the current \link{tellTale} function
 #' and has been primarily written to report on 'corrected' TALE RVD
 #' sequences in noisy DNA sequences (suboptimally polished genomes assembly, raw
 #' reads of long read sequencing technologies [eg PacBio, ONT]) that would

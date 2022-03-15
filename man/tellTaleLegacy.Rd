@@ -97,5 +97,23 @@ This function is maintained in the package temporarily and should not be used
 for other purpose than curiosity. You are better off using \link{tellTale}.
 }
 \details{
+\code{tellTaleLegacy}, the predecessor of the current \link{tellTale} function
+and has been primarily written to report on 'corrected' TALE RVD
+sequences in noisy DNA sequences (suboptimally polished genomes assembly, raw
+reads of long read sequencing technologies [eg PacBio, ONT]) that would
+otherwise be missed by conventional tools (eg AnnoTALE).
 
+It works but is far from optimal for 'corrected' repeat CDS and \strong{it
+currently tends to remove 'unconventional' portions of repeat CDS}. This may
+be problematic for downstream analysis with DisTAL, especially for 'aberrant'
+repeats.
+
+N- and C-terminal domains CDS are not currently 'corrected'.
+
+It will work also if the subject DNA sequences are of high quality
+\strong{but may 'correct' genuine frame shifts in TALE repeat array CDS}.
+
+Will output a number of files including tabular reports on the TALE arrays
+(ie full length or partial tal gene CDS) and on the identified coding
+sequences for TALE domains, including repeat CDS.
 }

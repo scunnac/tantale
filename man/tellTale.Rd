@@ -22,9 +22,9 @@ tellTale(
   hmmerpath = system.file("tools", "hmmer-3.3", "bin", package = "tantale", mustWork =
     T),
   extendedLength = 300,
-  talArrayCorrection = TRUE,
-  refForTalArrayCorrection = system.file("extdata", "AA_ref.fa.gz", package =
-    "tantale", mustWork = T),
+  talArrayCorrection = FALSE,
+  refForTalArrayCorrection = system.file("extdata", "decipher_ref_tales_aa.fa.gz",
+    package = "tantale", mustWork = T),
   frameShiftCorrection = -11,
   ...
 )

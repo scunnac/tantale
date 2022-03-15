@@ -18,14 +18,16 @@ Imports:
     Rsamtools, systemPipeR, msa, DECIPHER,
     ape, ggtree,
     ggvis, ggbio, gplots,
-    optparse
+    optparse, logger
 Suggests:
     knitr,
     biomartr,
-    rmarkdown
+    rmarkdown,
+    testthat (>= 3.0.0)
 OS_type: unix
 biocViews:
     Software
 VignetteBuilder:
     knitr
 RoxygenNote: 7.1.2
+Config/testthat/edition: 3

@@ -44,10 +44,9 @@ bai311_fa <- system.file("extdata", "BAI3-1-1.fa", package = "tantale", mustWork
 
 Output dir to save all the results of this vignette:
 ```{r outdir}
-outdir <- "/tmp/test_tantale"
-dir.create(outdir, showWarnings = F)
+outdir <- tempdir(check = TRUE) #"/tmp/test_tantale"
 telltale2_outdir <- file.path(outdir, "telltale2")
-dir.create(telltale2_outdir, showWarnings = F)
+dir.create(telltale2_outdir, showWarnings = T)
 ```
 
 
@@ -62,7 +61,7 @@ By default, `telltale2()` adds NTERM and CTERM to RVD sequences as markers of th
 mclapply(c(mai1_fa, bai3_fa), function(fastaFile) {
   outdirname <- gsub(".fa", "_nocorrection", basename(fastaFile))
   outputDir <- file.path(telltale2_outdir, outdirname)
-  tellTale2(subjectFile = fastaFile,
+  tellTale(subjectFile = fastaFile,
             outputDir = outputDir,
             appendExtremityCodes = TRUE,
             rvdSep = "-",
@@ -73,15 +72,11 @@ mclapply(c(mai1_fa, bai3_fa), function(fastaFile) {
 ## run telltale2 correction
 
 ```{r telltale2_correction, eval=FALSE}
-correction_reference <- system.file("extdata", "AA_ref.fa.gz", package = "tantale", mustWork = T)
-
-tellTale2(subjectFile = bai311_fa,
+tellTale(subjectFile = bai311_fa,
           outputDir = file.path(telltale2_outdir, gsub(".fa", "_correction", basename(bai311_fa))),
           appendExtremityCodes = TRUE,
           rvdSep = "-",
-          talArrayCorrection = TRUE,
-          refForTalArrayCorrection = correction_reference,
-          frameShiftCorrection = -11)
+          talArrayCorrection = TRUE)
 ```
 
 ## overview of telltale2 results
