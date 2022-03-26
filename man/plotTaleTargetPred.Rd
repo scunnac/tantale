@@ -2,7 +2,7 @@
 % Please edit documentation in R/target_predictions.R
 \name{plotTaleTargetPred}
 \alias{plotTaleTargetPred}
-\title{Plot TALE RVD sequences along potential a DNA target region}
+\title{Plot TALE RVD sequences along a potential DNA target region}
 \usage{
 plotTaleTargetPred(predResults, subjDnaSeqFile, filterRange)
 }

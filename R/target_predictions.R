@@ -236,90 +236,7 @@ computeRVDSeqEBESeqMatchQualityString <- function(RVDSeq, EBESeq, RVDNucAssocMat
 
 
 
-
-plotRVDSeqsOnEBE <- function(RVDSeqs, EBESeq, mat, height = 2.5) {
-  # function that generate a colored alignment of a group of TALE RVD seqs based on how they fit to a given EBE
-  # This is the ancestor of plotTaleTargetPred(). Keeping just in case.
-  lstOfRVDSeqVector <- lapply(X = RVDSeqs, FUN = function(x) unlist(strsplit(x, split = "-")))
-
-  if (length(EBESeq) != 1) stop("There must be one and only one EBE seq for alignment.")
-  EBESeqVector <- unlist(strsplit(EBESeq, split = ""))[-1] # trimming position 0 nucleotide
-
-  # Build the matrix of RVD-Nuleotide matching index
-  lstRVDScores <- lapply(lstOfRVDSeqVector, FUN = function(x, EBESeqVector, ...) {
-    diff <- length(x) - length(EBESeqVector)
-    if (sign(diff) == -1) {
-      warning("Some RVD seqs are shorter than the EBE seq!")
-      EBESeqVector <- EBESeqVector[1:(length(EBESeqVector)+diff)]
-    }
-    if (sign(diff) == 1) {
-      warning("Some RVD seqs are longer than the EBE seq. They will be trimmed to the length of the EBE for the analysis!")
-      x <- x[1:(length(x) - diff)]
-    }
-    RVDScores <- computeRVDSeqEBESeqMatchQualityString(RVDSeqVector = x, EBESeqVector = EBESeqVector, RVDNucAssocMat = mat)
-    if (sign(diff) == -1) {
-      RVDScores <- c(RVDScores, rep(NA, times = -diff))
-      x <- c(x, rep("", times = -diff))
-    }
-    return(list(RVDScores = RVDScores, RVDSeqs = x))
-  }, EBESeqVector = EBESeqVector)
-
-  # Should end up with a matrix that has the same shape as the input list of RVD seqs
-  RVDScoresMat <- sapply(lstRVDScores, function(x) x$RVDScores)
-  RVDScoresMat <- t(RVDScoresMat)
-  colnames(RVDScoresMat) <- EBESeqVector
-
-  RVDSeqsMat <- sapply(lstRVDScores, function(x) x$RVDSeqs)
-  RVDSeqsMat <- t(RVDSeqsMat)
-  colnames(RVDSeqsMat) <- EBESeqVector
-
-  # Generate a heatmap like plot with the TALES as rows
-  # the EBE nucleotides as (colored) column label
-  # the cell color reflecting the matching score
-  # possibly color the RVD as a function of its prefered nucleotide.
-
-  my_palette <- rev(colorRampPalette(c("#990033", "white"))(n = 3))
-  #my_palette <- rev(brewer.pal(10, "Spectral"))
-
-  plotCode <- expression(a <- gplots::heatmap.2(RVDScoresMat, Colv = FALSE, dendrogram = "row",
-                                                density.info="none",trace = "none", col = my_palette,
-                                                na.color = "white",
-                                                margins = c(3.5, 7),
-                                                cellnote  = RVDSeqsMat, notecol = "black",
-                                                lhei = c(0.1, 0.1) ,lwid = c(0.5, 4),
-                                                colsep = 0:(ncol(RVDScoresMat) - 0),
-                                                rowsep = 0:(nrow(RVDScoresMat) - 0),
-                                                sepcolor="#666666",
-                                                sepwidth=c(0.01,0.01),
-                                                #notecex = 1.1,
-                                                adjCol = c(NA, 0.4),
-                                                offsetCol = 0.9,
-                                                cexCol = 1,
-                                                srtCol = 0,
-                                                labCol = paste(colnames(RVDScoresMat), 1:ncol(RVDScoresMat), sep = "\n"),
-                                                offsetRow = 0,
-                                                cexRow = 1,
-                                                key.title = NA,
-                                                key.xlab = "RVD-Nucleotide Match Index", main = "",
-                                                xlab = paste(names(EBESeq), "DNA sequence"), ylab = "TAL ID")
-  )
-  worked <- try(eval(plotCode))
-  returnedInfo <- list(RVDSeqsMat = RVDSeqsMat, RVDScoresMat = RVDScoresMat)
-
-  if (class(worked) == "try-error") return(returnedInfo)
-  else {
-    eval(plotCode)
-    svg(filename=paste0("RVD_seqs_aligned_to_", names(EBESeq), ".svg"),width = 11, height = height)
-    eval(plotCode)
-    dev.off()
-    return(returnedInfo)
-  }
-}
-
-
-
-
-#' Plot TALE RVD sequences along potential a DNA target region
+#' Plot TALE RVD sequences along a potential DNA target region
 #'
 #'This function enable visual inspection of TALE target predictions results that are located \strong{within} a specified subject DNA sequence region
 #'
@@ -341,11 +258,11 @@ plotTaleTargetPred <- function(predResults, subjDnaSeqFile, filterRange) {
   subjDnaSeqs <- Biostrings::readDNAStringSet(subjDnaSeqFile)
   predsGr <- predResults %>% #dplyr::filter(strand == "-") %>%
     GenomicRanges::makeGRangesFromDataFrame(seqnames.field = "subjSeqId", keep.extra.columns = TRUE)
-  if(!all(as.character(BSgenome::getSeq(subjDnaSeqs, predsGr)) == predsGr$ebeSeq)) stop(
+  if (!all(as.character(BSgenome::getSeq(subjDnaSeqs, predsGr)) == predsGr$ebeSeq)) stop(
     "EBE sequences in the target predictions table did not match those extracted from the subjDnaSeqs!\n",
     "Verify that the content of the objects supplied as parameters are consistent.")
 
-  if(length(filterRange) != 1L) stop(
+  if (length(filterRange) != 1L) stop(
     "The range used for filtering the displayed region must be of lenght one."
   )
   filterRange <- as(filterRange, "GRanges")
@@ -373,19 +290,20 @@ plotTaleTargetPred <- function(predResults, subjDnaSeqFile, filterRange) {
 
 
   grSubjSeqs <- tidySubjSeqs %>%
-    GenomicRanges::makeGRangesFromDataFrame(start.field="xPos", end.field="xPos",
+    GenomicRanges::makeGRangesFromDataFrame(start.field = "xPos",
+                                            end.field = "xPos",
                                             keep.extra.columns = TRUE)
 
   ######### FILTER WHAT WILL BE DISPLAYED
   if (!is.null(filterRange)) {
-    filteredPreds <- IRanges::subsetByOverlaps(predsGr, filterRange, type="within") %>%
+    filteredPreds <- IRanges::subsetByOverlaps(predsGr, filterRange, type = "within") %>%
       as.data.frame(optional = TRUE, stringsAsFactors = FALSE) %>%
       dplyr::as_tibble(.name_repair = "minimal") %>%
       dplyr::rename(subjSeqId = seqnames) %>%
       dplyr::mutate(width = NULL) #%>% print(n = Inf)
 
     relevantTidySubjSeqs <- grSubjSeqs %>%
-      IRanges::subsetByOverlaps(filterRange, type="within", ignore.strand = TRUE) %>%
+      IRanges::subsetByOverlaps(filterRange, type = "within", ignore.strand = TRUE) %>%
       as.data.frame(optional = TRUE, stringsAsFactors = FALSE) %>%
       dplyr::as_tibble(.name_repair = "minimal") %>%
       dplyr::rename(subjSeqId = seqnames, xPos = start) %>%
@@ -419,7 +337,7 @@ plotTaleTargetPred <- function(predResults, subjDnaSeqFile, filterRange) {
         rvd2ntMatchScore = computeRVDSeqEBESeqMatchQualityString(RVDSeq = .y$rvds, EBESeq = .y$ebeSeq)
       )
     }) %>%
-    dplyr::mutate(rvd = sapply(stringr::str_split(string = rvd, pattern = ""), paste, collapse = "\n"))#%>% print(n = Inf)
+    dplyr::mutate(rvd = sapply(stringr::str_split(string = rvd, pattern = ""), paste, collapse = "\n"))
 
   # Create a derived tibble to add prediction scores and EBE box to the plot
   predsForScoreAndEbe <- predsForPlot %>% dplyr::group_by(subjSeqId, taleId, ebeSeq, score, strand, yPos) %>%
@@ -502,8 +420,8 @@ plotTaleTargetPred <- function(predResults, subjDnaSeqFile, filterRange) {
       expand = ggplot2::expansion(add = 0.5)
     ) +
 
-    ggplot2::theme_linedraw () + #<--------- theme parameters
-    ggplot2::theme(legend.position="bottom",
+    ggplot2::theme_linedraw() + #<--------- theme parameters
+    ggplot2::theme(legend.position = "bottom",
           text = ggplot2::element_text(face = "bold",size = 11),
           panel.border = ggplot2::element_blank())
 
