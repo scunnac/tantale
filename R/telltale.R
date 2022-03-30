@@ -19,6 +19,29 @@
 # extendedLength = 300
 # ... = NULL
 
+# subjectFile = subjectFile
+# outputDir = file.path("/home/cunnac/TEMP", gsub("(\\.fasta)|(\\.fa)|(\\.fna)|(\\.fsa)", "", basename(subjectFile)))
+# hmmFilesDir = system.file("extdata", "hmmProfile", package = "tantale", mustWork = T)
+# hmmerpath = system.file("tools", "hmmer-3.3", "bin", package = "tantale", mustWork = T)
+# talArrayCorrection = TRUE
+# refForTalArrayCorrection = system.file("extdata", "decipher_ref_tales_aa.fa.gz", package = "tantale", mustWork = T)
+# frameShiftCorrection = -11
+# TALE_NtermDNAHitMinScore = 300
+# repeatDNAHitMinScore = 20
+# TALE_CtermDNAHitMinScore = 200
+# minDomainHitsPerSubjSeq = 4
+# mergeHits = TRUE
+# minGapWidth = 35
+# taleArrayStartAnchorCode = "NTERM"
+# taleArrayEndAnchorCode = "CTERM"
+# appendExtremityCodes = TRUE
+# rvdSep = "-"
+# extendedLength = 300
+# ... = NULL
+
+
+
+
 
 
 
@@ -156,6 +179,14 @@ tellTale <- function(
   ## fasta file of translation of products of central repeat domain "corrected" CDS for each array
   #correctedArrayAaSeqsFile <- file.path(outputDir, "correctedRepeatAASeqs.fas")
   
+  
+  #### TODO ####
+  # Add an ooptional argument that olds the circularity status of molecules in genome
+  # update the seqinfo objects accrodingly. This may solve some issues if a tale is located
+  # at the junction of extremities in a circular molecule.
+  # Could also implement an autotmated mecanisms "findCircular" that would
+  # find a temr (eg 'circular') in the sequence title and act accrodingly.
+  
   ## Path of the directories where DECIPHER alignments will be written
   alignmentDNADir <- file.path(outputDir, "CorrectionAlignmentDNA")
   dir.create(alignmentDNADir, showWarnings = F)
@@ -245,8 +276,8 @@ tellTale <- function(
   
   #####   Load, process, filter TALE domain CDS HMMER hit results    #####
   ## Loading search tabular output file
-  nhmmerTabularOutput <-try(read.table(searchOutFile))
-  if(class(nhmmerTabularOutput) == "try-error") {
+  nhmmerTabularOutput <- try(read.table(searchOutFile))
+  if (class(nhmmerTabularOutput) == "try-error") {
     warning("NhmmerSearch found no TALE cds hit in ", subjectFile , " Exitting...")
     return(invisible(outputDir))
   }
@@ -436,7 +467,8 @@ tellTale <- function(
   completeArraysGR <- arraysGR
   extdCompleteArraysGR <- GenomicRanges::resize(completeArraysGR,
                                                 width = GenomicRanges::width(completeArraysGR) + extendedLength,
-                                                fix="start", ignore.strand=FALSE) #%>%
+                                                fix = "start", ignore.strand = FALSE) %>%
+    GenomicRanges::trim(use.names = TRUE)
   # GenomicRanges::resize(., width = GenomicRanges::width(.) + 3,
   #                       fix="end", ignore.strand=FALSE)
   extdCompleteArraysSeqs <- BSgenome::getSeq(subjectDNASequences, extdCompleteArraysGR)
