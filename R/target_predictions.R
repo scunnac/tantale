@@ -130,7 +130,7 @@ talvez <- function(rvdSeqs, subjDnaSeqFile, optParam = "-t 0 -l 19", outDir = NU
          "##  the path to a fasta file containing strings of RVD sequences (space/dash-separated\n",
          "##  rvd) or a Biostrings XStringSet object.")
   }
-  if(!file.exists(subjDnaSeqFile)) stop("Unable to find the set of target DNA sequences (fasta file)",
+  if (!file.exists(subjDnaSeqFile)) stop("Unable to find the set of target DNA sequences (fasta file)",
                                         " at the specified location. Please verify the file exists")
 
   # Creating a temporary output dir to run everything inside it
@@ -226,7 +226,7 @@ computeRVDSeqEBESeqMatchQualityString <- function(RVDSeq, EBESeq, RVDNucAssocMat
     RVDScores <- RVDNucAssocMat[rownames(RVDNucAssocMat) == RSV, ]
     if (nrow(RVDScores) == 0) RVDScores <- RVDNucAssocMat[rownames(RVDNucAssocMat) == "XX", ] # in case the RVD under consideration has no dedicated row in the matrix
     RVDScoresRanks <- rank(RVDScores, ties.method = "min") #
-    RVDScoresRanksInverted <- max(RVDScoresRanks) +1 - RVDScoresRanks
+    RVDScoresRanksInverted <- max(RVDScoresRanks) + 1 - RVDScoresRanks
     if (RVDScoresRanksInverted[ESV] == min(RVDScoresRanks)) {3}
     else if (RVDScoresRanksInverted[ESV] == max(RVDScoresRanks)) {1}
     else 2
