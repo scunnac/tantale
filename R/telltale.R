@@ -38,7 +38,7 @@
 # rvdSep = "-"
 # extendedLength = 300
 # ... = NULL
-
+# 
 
 
 
@@ -224,11 +224,16 @@ tellTale <- function(
   #####   Checks for parameters and other things   #####
 
   ## Deal with spaces in sequence names because this messes up parsing of HMMER output
+  logger::log_info("HMMER is very picky about forbiden characters in sequence name. Renaming sequences in {subjectFile}.")
   originalSeqs <- Biostrings::readDNAStringSet(filepath = subjectFile)
+  Rsamtools::indexFa(subjectFile)
+  originalSeqInfo <- Rsamtools::seqinfo(Rsamtools::FaFile(subjectFile))
   originalSeqlevels <- names(originalSeqs)
   foolproofSeqlevels <- paste0("seq", 1:length(originalSeqlevels))
   names(originalSeqlevels) <- foolproofSeqlevels
   names(originalSeqs) <- foolproofSeqlevels
+  logger::log_info("Original seq names : {glue::glue_collapse(originalSeqlevels, sep = ' ; ')}.")
+  logger::log_info("Dummy seq names : {glue::glue_collapse(names(originalSeqlevels), sep = ' ; ')}.")
   subjectFile <- tempfile()
   Biostrings::writeXStringSet(originalSeqs, filepath = subjectFile)
   
@@ -318,16 +323,14 @@ tellTale <- function(
   ## Creating a GRanges object from nhmmerOutput
   nhmmerOutputGR <- GenomicRanges::makeGRangesFromDataFrame(
     df = nhmmerTabularOutput, keep.extra.columns = TRUE,
-    seqnames.field= "target_name"
+    seqnames.field = "target_name"
   )
   names(nhmmerOutputGR) <- nhmmerOutputGR$hitID
-  GenomeInfoDb::seqinfo(nhmmerOutputGR) <- GenomeInfoDb::Seqinfo(
-    seqnames = as.character(temp_df$target_name),
-    seqlengths=temp_df$sq_len,
-    isCircular=NA,
-    genome=NA
-  )
-  GenomeInfoDb::seqlevels(nhmmerOutputGR) <- originalSeqlevels[match(GenomeInfoDb::seqlevels(nhmmerOutputGR), names(originalSeqlevels))]
+  
+  ## Updating seqinfo with original seqinfo from the sequences before renaming
+  nhmmerOutputGR <- GenomeInfoDb::renameSeqlevels(nhmmerOutputGR, value = originalSeqlevels)
+  GenomeInfoDb::seqinfo(nhmmerOutputGR, pruning.mode = "coarse") <- originalSeqInfo[GenomeInfoDb::seqlevels(nhmmerOutputGR)]
+  
   nhmmerOutputGRBeforeMerge <- nhmmerOutputGR
   
   #####   Domain-wise merge of overlapping hits  #####
