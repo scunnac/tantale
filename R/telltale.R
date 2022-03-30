@@ -23,7 +23,7 @@
 # outputDir = file.path("/home/cunnac/TEMP", gsub("(\\.fasta)|(\\.fa)|(\\.fna)|(\\.fsa)", "", basename(subjectFile)))
 # hmmFilesDir = system.file("extdata", "hmmProfile", package = "tantale", mustWork = T)
 # hmmerpath = system.file("tools", "hmmer-3.3", "bin", package = "tantale", mustWork = T)
-# talArrayCorrection = TRUE
+# talArrayCorrection = FALSE
 # refForTalArrayCorrection = system.file("extdata", "decipher_ref_tales_aa.fa.gz", package = "tantale", mustWork = T)
 # frameShiftCorrection = -11
 # TALE_NtermDNAHitMinScore = 300
@@ -159,33 +159,19 @@ tellTale <- function(
   ...
 ) {
   
-  dir.create(outputDir, recursive = T, mode = "755", showWarnings = FALSE)
-  
-  #####   Paths of output files   #####
-  ## Sequences of hmmer hits extracted from subject sequence using hmmer hit positions
-  #repeatDNASeqsFile <- file.path(outputDir, "hmmerRepeatHitsDNASeqs.fas")
-  ## hmmerAlign alignment of repeat CDS
-  #repeatsAlignOutFile <- file.path(outputDir, "repeatsAlignOut.txt")
-  ## sequences of the 'corrected/cleaned' repeat CDS
-  #correctedRepeatsAlignOutFile <- file.path(outputDir, "hmmerCleanedAlignOut.fas")
-  ## sequences of the 'corrected/cleaned' repeat Translations after removing stop codon translations (*)
-  #translatedCorrectedRepeatsAlignOutFile <- file.path(outputDir, "translatedCleanRepeatsAlignment.pep")
-  ## output of hmmer search on the repeat AA sequences
-  #repeatAaSearchOutFile <- file.path(outputDir, "hmmerAASearchOut.txt")
-  ## hmmerAlign alignment of the repeat AA sequences
-  #repeatsAaAlignOutFile <- file.path(outputDir, "hmmerAAAlignOut.txt")
-  ## fasta file of central repeat domain "corrected" CDS for each array
-  #correctedArrayDnaSeqsFile <- file.path(outputDir, "correctedRepeatDNASeqs.fas")
-  ## fasta file of translation of products of central repeat domain "corrected" CDS for each array
-  #correctedArrayAaSeqsFile <- file.path(outputDir, "correctedRepeatAASeqs.fas")
-  
-  
+
   #### TODO ####
   # Add an ooptional argument that olds the circularity status of molecules in genome
   # update the seqinfo objects accrodingly. This may solve some issues if a tale is located
   # at the junction of extremities in a circular molecule.
   # Could also implement an autotmated mecanisms "findCircular" that would
   # find a temr (eg 'circular') in the sequence title and act accrodingly.
+  
+  
+  #####   Paths of output files   #####
+  dir.create(outputDir, recursive = T, mode = "755", showWarnings = FALSE)
+  
+  
   
   ## Path of the directories where DECIPHER alignments will be written
   alignmentDNADir <- file.path(outputDir, "CorrectionAlignmentDNA")
@@ -545,7 +531,7 @@ tellTale <- function(
     
     #### Get ORFs from corrected arrays sequences that have 'Ns' substituted by 'Cs' ####
     orfs <- systemPipeR::predORF(x = TalOrfForAnnoTALE,
-                                 n=1, type = "gr", mode = "ORF", strand = "sense")
+                                 n = 1, type = "gr", mode = "ORF", strand = "sense")
     TalOrfForAnnoTALE <- BSgenome::getSeq(TalOrfForAnnoTALE, orfs)
     names(TalOrfForAnnoTALE) <- as.character(GenomicRanges::seqnames(orfs))
     
@@ -611,7 +597,7 @@ tellTale <- function(
       if (!is.null(attr(parts, "condition"))) {!is.null(attr(parts, "condition"))} else {length(parts) == 0L} # in case annotale works but protein parts file is empty
             )
         ) {
-      if(file.exists(parts_files)) file.remove(parts_files)
+      if(length(parts_files) !=0L && file.exists(parts_files)) file.remove(parts_files)
       return(annout(Biostrings::AAStringSet(), domainsReport = data.frame()))
       #print("There is a problem")
     }
