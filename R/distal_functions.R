@@ -38,7 +38,7 @@ formatDistalRepeatDistMat <- function(distalRepeatDistMatFile) {
   # 1234                              1234
   #  234                              2234
   #   34                              3334
-  #    4                              4434
+  #    4                              4444
   # It is like this:
   # 234
   # 34
@@ -172,6 +172,18 @@ read_distal_aligns <- function(file.lists) {
 }
 
 
+clusterRep <- function(repeatSimMat, repeats.cluster.h.cut) {
+  dist_clust <- hclust(as.dist(repeatSimMat))
+  dist_cut <- as.data.frame(
+    cbind(RepID = dist_clust$labels,
+          Rep_clust = cutree(dist_clust, h = repeats.cluster.h.cut)
+    )
+  )
+  dist_cut$Rep_order <- order.dendrogram(as.dendrogram(dist_clust))
+  dist_cut <- dist_cut[order(dist_cut$Rep_order),] %>%
+    dplyr::as_tibble()
+  return(dist_cut)
+}
 
 
 
@@ -231,14 +243,12 @@ runDistal <- function(fasta.file, outdir = NULL, treetype = "p", repeats.cluster
   repeatmatrix_File <- glue::glue("{outdir}/Output_Repeatmatrix.mat")
   repeatSim <- formatDistalRepeatDistMat(repeatmatrix_File)
 
+  
+  
   ## define 'col' based on clustering groups of repeats
   unmelt_repeatSim <-  as.matrix(reshape2::acast(repeatSim, RepU1 ~ RepU2, value.var="Sim"))
-  dist_clust <- hclust(as.dist(unmelt_repeatSim))
-  dist_cut <- as.data.frame(cbind(RepID = dist_clust$labels, Rep_clust = cutree(dist_clust, h = repeats.cluster.h.cut)))
-  dist_cut$Rep_order <- order.dendrogram(as.dendrogram(dist_clust))
-  # dist_cut$color <- scales::hue_pal(l = 55)(nlevels(as.factor(dist_cut$Rep_clust)))[dist_cut$Rep_clust]
-  dist_cut <- dist_cut[order(dist_cut$Rep_order),]
-  # forCol <- dist_cut$color
+  dist_cut <-  clusterRep(repeatSimMat = unmelt_repeatSim,
+             repeats.cluster.h.cut = repeats.cluster.h.cut)
 
   # read tal seqs distance matrix and make sim df
   talMatrix_File <- glue::glue("{outdir}/Output.mat")
@@ -271,7 +281,7 @@ runDistal <- function(fasta.file, outdir = NULL, treetype = "p", repeats.cluster
 
 #' Run Alvaro's Perl scripts for TALEs grouping
 #' @description take distal output and classify groups
-#' @param path directory containing DisTal output files, or the same object as the input of \code{outdir} for \code{\link[tantale:runDistal]{runDistal}}
+#' @param path directory containing DisTal output files, or the same object as the output of \code{outdir} for \code{\link[tantale:runDistal]{runDistal}}
 #' @param num.groups an integer indicating the number of TALEs groups you want to classify.
 #' @param overwrite logical indicating whether to rerun the Perl scripts or only load the existing results.
 #' @return A list containing: 
@@ -357,6 +367,9 @@ buildDisTalGroups <- function(path, num.groups, overwrite = F) {
   outputlist <- list("SeqOfRvdAlignments" = RVDgroups, "SeqOfDistancesAlignments" = sim_within_group, "repeatUnitsDistanceMatrix" = dist_between_rep, "SeqOfRepsAlignments" = RepCodegroups, "TALgroups" = talgroups)
   return(outputlist)
   }
+
+
+
 
 
 

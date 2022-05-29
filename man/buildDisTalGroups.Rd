@@ -7,7 +7,7 @@
 buildDisTalGroups(path, num.groups, overwrite = F)
 }
 \arguments{
-\item{path}{directory containing DisTal output files, or the same object as the input of \code{outdir} for \code{\link[tantale:runDistal]{runDistal}}}
+\item{path}{directory containing DisTal output files, or the same object as the output of \code{outdir} for \code{\link[tantale:runDistal]{runDistal}}}
 
 \item{num.groups}{an integer indicating the number of TALEs groups you want to classify.}
 

@@ -1,0 +1,43 @@
+---
+title: "R Notebook"
+output:
+  html_document:
+    df_print: paged
+editor_options:
+  chunk_output_type: console
+---
+
+e a small test set of tale cds sequences (5 = 2 groups of 2 + outlier)
+
+```{r}
+library(tantale)
+tellTaleSubjSeqsFile <- system.file("extdata", "bai3_sample_tal_regions.fasta", package = "tantale", mustWork = T)
+tellTaleOutDir <- system.file("extdata", "tellTaleExampleOutput", package = "tantale", mustWork = T)
+# 
+# tantale::tellTale(subjectFile = tellTaleSubjSeqsFile,
+#                           outputDir = tellTaleOutDir
+# )
+```
+
+# Parse annotale output (rvd, aa, dna, domain type, array id) in a tellTale output dir
+
+```{r parse tale parts from tellTale output dir}
+taleParts <- getTaleParts(system.file("extdata", "tellTaleExampleOutput", package = "tantale", mustWork = T))
+```
+
+
+## Perform systematic pairwise alignment between "repeats" aa seqs
+
+```{r systematic aa seqs pairwise alignment}
+
+
+dres <- distalr(taleParts = taleParts, repeats.cluster.h.cut = 10, ncores = 6)
+
+
+
+
+
+
+```
+
+

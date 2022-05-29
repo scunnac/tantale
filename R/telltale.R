@@ -38,7 +38,7 @@
 # rvdSep = "-"
 # extendedLength = 300
 # ... = NULL
-# 
+
 
 
 
@@ -185,7 +185,7 @@ tellTale <- function(
   #fullCtermAAseqFile <- file.path(outputDir, "fullCtermAAseq.pep")
   
   # fasta of tals orfs that have rvds
-  correctedTalArrayFile <- file.path(outputDir, "putativeTalOrf.fasta")
+  putatieOrfOfTaleWithRvdFile <- file.path(outputDir, "putativeTalOrf.fasta")
   
   # annotale output directory
   annotaleMainDir <- file.path(outputDir, "annotale")# tempfile(pattern = "annotale_", tmpdir = outputDir)
@@ -467,7 +467,7 @@ tellTale <- function(
   if (!talArrayCorrection) {
     #### Get ORFs from uncorrected Tal arrays if frame shifts correction is OFF ####
     orfs <- systemPipeR::predORF(x = extdCompleteArraysSeqs,
-                                 n=1, type = "gr", mode = "ORF", strand = "sense")
+                                 n = 1, type = "gr", mode = "ORF", strand = "sense")
     fullTalOrf <- BSgenome::getSeq(extdCompleteArraysSeqs, orfs)
     names(fullTalOrf) <- as.character(GenomicRanges::seqnames(orfs))
     TalOrfForAnnoTALE <- fullTalOrf
@@ -618,8 +618,12 @@ tellTale <- function(
   seqsOfRVDs <- unlist(Biostrings::AAStringSetList(annoTaleOut))
   domainsReport <- do.call(rbind, lapply(annoTaleOut, function(x) x@domainsReport))
   
-  # save tals that have rvds
-  Biostrings::writeXStringSet(fullTalOrf[names(fullTalOrf) %in% names(seqsOfRVDs)], correctedTalArrayFile)
+  
+  #### TODO  #####
+  # The exact content of the files below needs to be reassesed and 
+  # we need to determine if this is really what we want.
+  # save tals orfs that have rvds
+  Biostrings::writeXStringSet(fullTalOrf[names(fullTalOrf) %in% names(seqsOfRVDs)], putatieOrfOfTaleWithRvdFile)
   
   # save tals that DO NOT have rvds
   pseudoTalFile <- file.path(outputDir, "pseudoTalCds.fasta")

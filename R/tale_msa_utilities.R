@@ -172,7 +172,6 @@ convertRepeat2ClusterIDAlign <- function(repeatSim, repeatAlign, h.cut = 10) {
 #'
 #' @export
 groupTales <- function(taleSim, plotTree = FALSE, k = NULL, k_test = NULL, method = "k-medoids") {
-
   distMat <- 100 - reshape2::acast(taleSim, formula = TAL1 ~ TAL2, value.var = "Sim")
 
   if (method == "k-medoids") {
@@ -189,7 +188,6 @@ groupTales <- function(taleSim, plotTree = FALSE, k = NULL, k_test = NULL, metho
 
     silhVals <- sapply(allPam, function(a) a$silinfo$avg.width)
 
-
     if (is.null(k)) {
       plot(k_test, pch = 19, col = "cornflowerblue", silhVals, xlab = "number of groups", ylab = "average silhouette values")
       cat("Choose a number of groups:\t")
@@ -204,7 +202,7 @@ groupTales <- function(taleSim, plotTree = FALSE, k = NULL, k_test = NULL, metho
       find_elbow <- function(v, k) {
         stopifnot(length(v) == length(k))
         n <- length(v)
-        a <- (v[n] - v[1])/(k[n]-k[1])
+        a <- (v[n] - v[1])/(k[n] - k[1])
         b <- -1
         c <- (v[1]*k[n] - v[n]*k[1])/(k[n]-k[1])
         d <- sapply(1:n, function(i) abs(a*i + b*v[i] + c)/sqrt(a*a + b*b))
@@ -230,8 +228,8 @@ groupTales <- function(taleSim, plotTree = FALSE, k = NULL, k_test = NULL, metho
     taleGroups <- data.frame(name = names(group), group = group, row.names = NULL)
   } else if (method == "hclust") {
     numGroups <- k
-    if (!is.null(k)) message("'k' will be ignore")
-    if (!is.numeric(numGroups) || length(numGroups) !=1) stop("'k' must be specified as a number!")
+    if (!is.null(k)) message("'k' will be ignored")
+    if (!is.numeric(numGroups) || length(numGroups) != 1) stop("'k' must be specified as a number!")
     if (method == "euclidean") {
       taleTree <- hclust(
         d = dist(
