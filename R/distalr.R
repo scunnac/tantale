@@ -19,8 +19,10 @@
 #' @description
 #' 
 #' This function get sequences from Annotale "TALE_Protein_parts.fasta" and "TALE_DNA_parts.fasta"
-#' files and returns a tibble. Each row describes a domain from a tale array and includes the 'arrayID', the 'domainType' (type of domain, repeat, N-term or C-term), the position of the domain inside the array and
-#'  the DNA and amino acid sequences of the corresponding domain.
+#' files and returns a tibble. Each row describes a domain from a tale array and includes the 'arrayID',
+#'  the id of the sequence where this array was found, the 'domainType' (type of domain, repeat,
+#'  N-term or C-term), the position of the domain inside the array,
+#' the RVD is relevant and the DNA and amino acid sequences of the corresponding domain.
 #'
 #' @param tellTaleOutDir Path to a \code{\link[tantale:tellTale]{tellTale}} run output directory
 #' @return A tibble.
@@ -28,6 +30,9 @@
 getTaleParts <- function(tellTaleOutDir) {
   protPartsFiles <- list.files(tellTaleOutDir, "TALE_Protein_parts.fasta", recursive = T, full.names = T)
   dnaPartsFiles <- list.files(tellTaleOutDir, "TALE_DNA_parts.fasta", recursive = T, full.names = T)
+  rvds <- fa2liststr(list.files(tellTaleOutDir, "rvdSequences.fas", recursive = T, full.names = T)) %>%
+    lapply(function(x) tibble::tibble(rvd = x, position = 1:length(x) )) %>%
+    dplyr::bind_rows(.id = "arrayID")
   
   taleProtString <- lapply(protPartsFiles, .getTalePartsFromAFile) %>% dplyr::bind_rows()
   taleDnaString <- lapply(dnaPartsFiles, .getTalePartsFromAFile) %>% dplyr::bind_rows()
@@ -37,6 +42,14 @@ getTaleParts <- function(tellTaleOutDir) {
     dplyr::mutate(domCode = as.character(factor(aaSeq, labels = 1:length(unique(aaSeq)))),
                   aaSeq = gsub("[*]", "", aaSeq)
                   )
+  taleParts %<>% dplyr::left_join(rvds, by = c("arrayID", "position"))
+  
+  taleParts %<>% dplyr::left_join(
+  readr::read_tsv(list.files(tellTaleOutDir, "hitsReport.tsv", recursive = T, full.names = T),
+                  show_col_types = FALSE) %>%
+    dplyr::select(arrayID, seqnames) %>%
+    dplyr::distinct(), by = "arrayID"
+  )
   return(taleParts)
 }
 
