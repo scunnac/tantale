@@ -115,6 +115,19 @@ diag(identSubMat) <- 1
 #' @export
 distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = ncores) {
   
+  ## Make sure that arrayID - position combinations are unique
+  # in case somone would not have made arrayIDs unique before
+  # mixing tale predictions from several genomes...
+  arayPosCombinCounts <- taleParts %>%
+    dplyr::group_by(arrayID, position) %>%
+    dplyr::count() %>%
+    dplyr::pull(n)
+  if (!all(arayPosCombinCounts == 1L)) {
+    stop("Your tale arrays identifers are probably not unique.",
+         "\n",
+         "Make sure that there is only one part per position and per arrayID.")
+  }
+  
   ## Assemble repeat code strings and write in a file for arlem
   repeatStrings <- taleParts %>% dplyr::group_by(arrayID) %>%
     dplyr::arrange(position) %>%
