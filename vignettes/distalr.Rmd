@@ -26,17 +26,10 @@ taleParts <- getTaleParts(system.file("extdata", "tellTaleExampleOutput", packag
 ```
 
 
-## Perform systematic pairwise alignment between "repeats" aa seqs
+## Run `distalr` to investigate TALE protein domains composition relatedness
 
-```{r systematic aa seqs pairwise alignment}
-
-
+```{r use distalr}
 dres <- distalr(taleParts = taleParts, repeats.cluster.h.cut = 10, ncores = 6)
-
-
-
-
-
 
 ```
 
