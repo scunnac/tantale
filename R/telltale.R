@@ -584,19 +584,20 @@ tellTale <- function(
     
     if (any(
       inherits(checkAnnoTale, "try-error"), # in case annotale does not work
-      if (inherits(seqOfRVDs, "try-error")) { # in case annotale works but cannot find rvds or does not output any rvds
+      if (inherits(seqOfRVDs, "try-error")) { # in case annotale works but cannot find rvds or rvd seq file is empty.
         inherits(seqOfRVDs, "try-error") 
       } else {
-        Biostrings::width(seqOfRVDs) == 0
+        if (Biostrings::width(seqOfRVDs) == 0) file.remove(annoTaleRVD) # should also return TRUE
       }, 
-      if (inherits(prot_parts, "try-error")) { # in case annotale works but protein prot_parts file is empty
+      if (inherits(prot_parts, "try-error")) { # in case annotale does not return a prot_parts file or if it is empty.
         inherits(prot_parts, "try-error")
       } else {
-        length(prot_parts) == 0L
+        if (length(prot_parts_files) != 0L && file.exists(prot_parts_files) &&length(prot_parts) == 0L) {
+          file.remove(prot_parts_files) # should also return TRUE
+        }
       } 
     )) {
-      if(length(prot_parts_files) != 0L && file.exists(prot_parts_files)) file.remove(prot_parts_files)
-      annoTaleMessages <- c(annoTaleMessages, glue::glue("Annotale failed to parse TALE domains for {talOrfID}"))
+      annoTaleMessages <- c(annoTaleMessages, glue::glue("Annotale failed to parse TALE domains for {talOrfID}."))
       return(annout(Biostrings::AAStringSet(), domainsReport = data.frame()))
     }
     names(seqOfRVDs) <- talOrfID
