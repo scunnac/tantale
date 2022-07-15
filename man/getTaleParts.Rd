@@ -14,8 +14,9 @@ A tibble.
 }
 \description{
 This function get sequences from Annotale "TALE_Protein_parts.fasta" and "TALE_DNA_parts.fasta"
-files and returns a tibble. Each row describes a domain from a tale array and includes the 'arrayID',
+files from a specified \code{\link[tantale:tellTale]{tellTale}} run output directory
+and returns a tibble. Each row describes a domain from a tale array and includes the 'arrayID',
  the id of the sequence where this array was found, the 'domainType' (type of domain, repeat,
  N-term or C-term), the position of the domain inside the array,
-the RVD is relevant and the DNA and amino acid sequences of the corresponding domain.
+the DNA of the corresponding domain and the RVD and amino acid sequences if relevant.
 }
