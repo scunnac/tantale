@@ -4,12 +4,14 @@
   if (grepl("TALE_DNA_parts.fasta", basename(fasta))) taleStrings <- Biostrings::readDNAStringSet(fasta)
   if (length(taleStrings) == 0L) {
     tibble::tibble(arrayIDs = character(), domainType = character(),
-                   "position" = character(), "string" = character())
+                   "position" = character(), "string" = character(),
+                   "sourceDirectory" = character())
   } else {
     tibble::tibble(arrayID = gsub("(.*): .*", "\\1", names(taleStrings)),
                    domainType = gsub(".*: (.*?)[ ]?[0-9]{0,}$", "\\1", names(taleStrings)),
                    position = 1:length(taleStrings),
-                   string = as.character(taleStrings)
+                   string = as.character(taleStrings),
+                   sourceDirectory = dirname(fasta)
     )
   }
 }
@@ -19,10 +21,11 @@
 #' @description
 #' 
 #' This function get sequences from Annotale "TALE_Protein_parts.fasta" and "TALE_DNA_parts.fasta"
-#' files and returns a tibble. Each row describes a domain from a tale array and includes the 'arrayID',
+#' files from a specified \code{\link[tantale:tellTale]{tellTale}} run output directory
+#' and returns a tibble. Each row describes a domain from a tale array and includes the 'arrayID',
 #'  the id of the sequence where this array was found, the 'domainType' (type of domain, repeat,
 #'  N-term or C-term), the position of the domain inside the array,
-#' the RVD is relevant and the DNA and amino acid sequences of the corresponding domain.
+#' the DNA of the corresponding domain and the RVD and amino acid sequences if relevant.
 #'
 #' @param tellTaleOutDir Path to a \code{\link[tantale:tellTale]{tellTale}} run output directory
 #' @return A tibble.
@@ -38,10 +41,15 @@ getTaleParts <- function(tellTaleOutDir) {
   taleDnaString <- lapply(dnaPartsFiles, .getTalePartsFromAFile) %>% dplyr::bind_rows()
   taleParts <- dplyr::full_join(taleDnaString %>% dplyr::rename(dnaSeq = string),
                                 taleProtString %>% dplyr::rename(aaSeq = string),
-                                by = c("arrayID", "domainType", "position")) %>%
-    dplyr::mutate(domCode = as.character(factor(aaSeq, labels = 1:length(unique(aaSeq)))),
+                                by = c("arrayID", "domainType", "position", "sourceDirectory"))
+  
+  taleParts %<>% dplyr::group_by(aaSeq) %>%
+    dplyr::mutate(domCode = as.character(dplyr::cur_group_id())) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(domCode = dplyr::if_else(is.na(aaSeq), as.character(NA), domCode),
                   aaSeq = gsub("[*]", "", aaSeq)
                   )
+  
   taleParts %<>% dplyr::left_join(rvds, by = c("arrayID", "position"))
   
   taleParts %<>% dplyr::left_join(
@@ -115,6 +123,13 @@ diag(identSubMat) <- 1
 #' @export
 distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = ncores) {
   
+  #### Reality checks ####
+  
+  ## Make sure we are dealing only with parts that have defined protein sequences.
+  if (any(is.na(taleParts$aaSeq) | taleParts$aaSeq == "")) {
+    stop("It seems that some of the provided TALE parts miss an amino acid sequence. Cannot proceed!")
+    } 
+  
   ## Make sure that arrayID - position combinations are unique
   # in case somone would not have made arrayIDs unique before
   # mixing tale predictions from several genomes...
@@ -128,7 +143,7 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = ncores) {
          "Make sure that there is only one part per position and per arrayID.")
   }
   
-  ## Assemble repeat code strings and write in a file for arlem
+  #### Assemble repeat code strings and write in a file for arlem ####
   repeatStrings <- taleParts %>% dplyr::group_by(arrayID) %>%
     dplyr::arrange(position) %>%
     dplyr::summarise(repeatString = paste(domCode, collapse = " "),
@@ -139,7 +154,7 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = ncores) {
   codesSeqsfile <- tempfile(fileext = ".fasta")
   Biostrings::writeXStringSet(codesSeqSet, codesSeqsfile)
   
-  ## Prepare Arlem cfile with systematic pairwise distances between 'repeat' units.
+  #### Prepare Arlem cfile with systematic pairwise distances between 'repeat' units. ####
   taleAaParts <- Biostrings::AAStringSet(taleParts$aaSeq)
   names(taleAaParts) <- taleParts$domCode
   
@@ -180,10 +195,10 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = ncores) {
   cfile <- tempfile()
   writeLines(cfile, text = dissimMatLines)
   
-  # run arlem with a system call and parse std output
+  #### run arlem with a system call and parse std output ####
   arlemPath <- system.file("tools", "DisTAL1.2_MultipleAlignment","arlem", package = "tantale", mustWork = T)
-  
   arlemCmd <- glue::glue("{arlemPath} -f {codesSeqsfile} -cfile {cfile} -align -insert -showalign")
+  
   arlemRes <- grep("Score of aligning Seq:", system(arlemCmd, intern = TRUE), value = TRUE)
   arlemScores <- gsub("Score of aligning Seq:([0-9]*), Seq:([0-9]*) =([0-9]*)", "\\1|\\2|\\3", arlemRes)
   arlemScores <- strsplit(arlemScores, split = "\\|")
@@ -191,7 +206,7 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = ncores) {
     do.call(rbind, .)
   colnames(arlemScores) <- c("TAL1", "TAL2", "arlemScore")
   
-  # Compute normalized arlem scores and include arrayIDs rather than arlem index
+  #### Compute normalized arlem scores and include arrayIDs rather than arlem index ####
   arrayLengths <- taleParts %>% dplyr::group_by(arrayID) %>% dplyr::count()
   
   normArlemScoresTble <- arlemScores %>% tibble::as_tibble() %>%
@@ -208,13 +223,14 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = ncores) {
     ) %>%
     dplyr::ungroup()
   
-  ## return a list of results emulating the return value of tantale::runDistal
+  #### return a list of results emulating the return value of tantale::runDistal ####
   outputlist <- list("repeats.code" = taleParts %>%
                        dplyr::group_by(domCode, aaSeq) %>%
                        dplyr::count() %>%
                        dplyr::rename(code = domCode, "AA Seq"  = aaSeq) %>%
                        dplyr::mutate(code = as.integer(code)) %>%
-                       dplyr::select(-n),
+                       dplyr::select(-n) %>%
+                       dplyr::ungroup(),
                      "coded.repeats.str" = fa2liststr(codesSeqsfile),
                      "repeat.similarity" = dissimLong %>% dplyr::rename(RepU1 = subj, RepU2 = pattern),
                      "tal.similarity" = normArlemScoresTble,
