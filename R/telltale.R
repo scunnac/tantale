@@ -59,9 +59,11 @@
 #' Hits that are (nearly [see the minGapWidth parameter]) adjacent are grouped in
 #' "taleArrays" which are considered as potential tal genes.
 #' 
-#' If the \code{talArrayCorrection} parameter is turned off, these talArrays are
+#'  
+#' If the \code{talArrayCorrection} parameter is turned off, the longest predicted
+#' open reading frame for each talArray is 
 #' fed to \href{http://www.jstacs.de/index.php/AnnoTALE}{AnnoTALE} to detect
-#' TALE domains in their predicted translation product. The Results should hence
+#' TALE domains in the predicted translation product. The Results should hence
 #' be very similar to what would be obtained with AnnoTALE,
 #' plus many additional informative output files such as tabular reports.
 #'
@@ -69,7 +71,12 @@
 #' potential frameshifts in the taleArray sequences. This conveniently removes 
 #' many artefactual indels but bear in mind that this may also \strong{erroneously} 'correct'
 #' genuine frame shifts which can be highly relevant especially for truncTALEs or iTALES.
-#' The resulting 'corrected' arrays are then passed to AnnoTALE.
+#' The resulting 'corrected' taleArray open reading frames are then passed to AnnoTALE.
+#' 
+#' Note that occasionally, when a putative open reading frame does not encode 
+#' a canonical TALE protein (early frame shift, incomplete ORF, etc...),
+#' the "analyze" module of AnnoTALE outputs DNA parts but no protein parts
+#' and/or RVD sequence. This should be detected and reported in the tellTale log.
 #' 
 #'
 #' @param subjectFile Fasta file with DNA sequence(s) to be searched for the
