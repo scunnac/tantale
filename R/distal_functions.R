@@ -220,6 +220,8 @@ runDistal <- function(fasta.file, outdir = NULL, treetype = "p", repeats.cluster
   # whether it's necessary to run distal perl script or not
   check_files <- list.files(outdir, "Output(.)*(.mat|.tre|.pdf|.fa|.txt)")
   if (overwrite || length(check_files) < 6) {
+    logger::log_info("Running the DisTAL perl program. Be patient this may take a while to complete...",
+                     "Pre-existing DisTAL ouput files in {outdir} will be overwritten.")
     fasta.file <- fasta.file
     outdir <- outdir
     sourcecode <- system.file("tools", "DisTAL1.2_MultipleAlignment", package = "tantale", mustWork = T)
@@ -227,6 +229,9 @@ runDistal <- function(fasta.file, outdir = NULL, treetype = "p", repeats.cluster
     lib <- file.path(sourcecode, "lib")
     disTalCMD <- paste("perl -I", lib, disTal, "-m T", "-n", treetype, "-o", outdir, shQuote(fasta.file), sep = " ")
     system(disTalCMD, ignore.stdout = T)
+  } else {
+    logger::log_info("The specified {outdir} already contains all DisTAL output files. ",
+                     "The returned results object will be build from their content.")
   }
 
 

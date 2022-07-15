@@ -131,7 +131,7 @@
 #'   \item hmmerSearchOut.txt: ignore
 #'   \item nhmmerHumanReadableOutputOfLastRun.txt: primary HMMER output file.
 #'   \item tellTale.log: a log file
-#'   \item temp_annotale folder: folder containing result of AnnoTALE analyze for all Tal arrays
+#'   \item annotale folder: folder containing result of AnnoTALE analyze for all Tal arrays
 #'   \item CorrectionAlignmentAA folder: folder containing protein alignment of Tal array detected by HMMer and corrected Tal array if \code{talArrayCorrection} = TRUE
 #'   \item CorrectionAlignmentDNA folder: folder containing DNA alignment of Tal array detected by HMMer and corrected Tal array if \code{talArrayCorrection} = TRUE
 #' }
@@ -267,7 +267,7 @@ tellTale <- function(
   
   #####   Load, process, filter TALE domain CDS HMMER hit results    #####
   ## Loading search tabular output file
-  nhmmerTabularOutput <- try(read.table(searchOutFile))
+  nhmmerTabularOutput <- try(read.table(searchOutFile), silent = TRUE)
   if (class(nhmmerTabularOutput) == "try-error") {
     warning("NhmmerSearch found no TALE cds hit in ", subjectFile , " Exitting...")
     return(invisible(outputDir))
@@ -557,8 +557,8 @@ tellTale <- function(
     # Define output dirs for the various stages of annoTALE
     stopifnot(dir.exists(outputDir) || dir.create(path = outputDir, showWarnings = TRUE,
                                                   recursive = TRUE, mode = "775"))
-    # Define a prefix for TALEs (the strain or assembly ID) derived from the genome file name.
-    if( is.null(prefix) ) {
+    # Define a prefix for TALEs (assembly ID) derived from the genome file name.
+    if (is.null(prefix)) {
       prefix <- gsub(pattern = "^(.*)\\.(fasta|fa|fas)$" ,
                      replacement  = "\\1", basename(inputFastaFile),
                      perl = TRUE)
@@ -576,7 +576,9 @@ tellTale <- function(
   }
   
   ## run annotale for tal putative orfs
-
+  
+  annoTaleMessages <- character()
+  
   annoTaleOut <- sapply(names(TalOrfForAnnoTALE), function(talOrfID) {
     AnnotaleDir <- file.path(annotaleMainDir, talOrfID)
     dir.create(AnnotaleDir)
@@ -588,27 +590,35 @@ tellTale <- function(
     # Get Annotale output with conditions handling
     annoTaleRVD <- file.path(AnnotaleDir, "TALE_RVDs.fasta")
     seqOfRVDs <- try(Biostrings::readAAStringSet(annoTaleRVD, seek.first.rec = T, use.names = T), silent = TRUE)
-    parts_files <- list.files(AnnotaleDir, "TALE_Protein_parts.fasta", recursive = T, full.names = T)
-    parts <- try(Biostrings::readAAStringSet(parts_files), silent = TRUE)
+    prot_parts_files <- list.files(AnnotaleDir, "TALE_Protein_parts.fasta", recursive = T, full.names = T)
+    dna_parts_files <- list.files(AnnotaleDir, "TALE_DNA_parts.fasta", recursive = T, full.names = T)
+    prot_parts <- try(Biostrings::readAAStringSet(prot_parts_files), silent = TRUE)
     
     if (any(
-      !is.null(attr(checkAnnoTale, "condition")), # in case annotale does not work
-      if (!is.null(attr(seqOfRVDs, "condition"))) {!is.null(attr(seqOfRVDs, "condition"))} else {Biostrings::width(seqOfRVDs) == 0}, # in case annotale works but cannot find rvds or does not output any rvds
-      if (!is.null(attr(parts, "condition"))) {!is.null(attr(parts, "condition"))} else {length(parts) == 0L} # in case annotale works but protein parts file is empty
-            )
-        ) {
-      if(length(parts_files) !=0L && file.exists(parts_files)) file.remove(parts_files)
+      inherits(checkAnnoTale, "try-error"), # in case annotale does not work
+      if (inherits(seqOfRVDs, "try-error")) { # in case annotale works but cannot find rvds or does not output any rvds
+        inherits(seqOfRVDs, "try-error") 
+      } else {
+        Biostrings::width(seqOfRVDs) == 0
+      }, 
+      if (inherits(prot_parts, "try-error")) { # in case annotale works but protein prot_parts file is empty
+        inherits(prot_parts, "try-error")
+      } else {
+        length(prot_parts) == 0L
+      } 
+    )) {
+      if(length(prot_parts_files) != 0L && file.exists(prot_parts_files)) file.remove(prot_parts_files)
+      annoTaleMessages <- c(annoTaleMessages, glue::glue("Annotale failed to parse TALE domains for {talOrfID}"))
       return(annout(Biostrings::AAStringSet(), domainsReport = data.frame()))
-      #print("There is a problem")
     }
     names(seqOfRVDs) <- talOrfID
     
     ## domains report
-    stops <- Biostrings::vcountPattern("*", parts)
-    domainsReport <- data.frame("arrayID" = talOrfID,
+    stops <- Biostrings::vcountPattern("*", prot_parts)
+    domainsReport <- tibble::tibble("arrayID" = talOrfID,
                                 "seqnames" = S4Vectors::mcols(hitsByArraysLst)$OriginalSubjectName[S4Vectors::mcols(hitsByArraysLst)$arrayID == talOrfID],
-                                "query_name" = gsub("(.+\\: )|( \\d+)", "", names(parts)),
-                                "codon_count" = width(parts) - stops
+                                "query_name" = gsub("(.+\\: )|( \\d+)", "", names(prot_parts)),
+                                "codon_count" = width(prot_parts) - stops
                                 )
     
     annotale_output <- annout(seqOfRVDs, domainsReport = domainsReport)
@@ -850,6 +860,9 @@ tellTale <- function(
     paste("First quartile of size of gaps (below 500nt) between TALE motifs arrays:", quartilesGapLength[1], sep = "\t"),
     paste("Median size of gaps (below 500nt) between TALE motifs arrays:", quartilesGapLength[2], sep = "\t"),
     paste("Upper quartile of size of gaps (below 500nt) between TALE motifs arrays:", quartilesGapLength[3], sep = "\t"),
+    
+    "#__________Noteworthy AnnoTale issues__________",
+    paste("#", annoTaleMessages),
     
     "#*************************\n"
   )
