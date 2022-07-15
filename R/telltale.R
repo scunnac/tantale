@@ -175,7 +175,7 @@ tellTale <- function(
   # find a temr (eg 'circular') in the sequence title and act accrodingly.
   
   
-  #####   Paths of output files   #####
+  ####   Paths of output files   ####
   dir.create(outputDir, recursive = T, mode = "755", showWarnings = FALSE)
   
   
@@ -214,7 +214,7 @@ tellTale <- function(
   analysisLogFile <- file.path(outputDir, "tellTale.log")
   
   
-  #####   Checks for parameters and other things   #####
+  ####   Checks for parameters and other things   ####
 
   ## Deal with spaces in sequence names because this messes up parsing of HMMER output
   logger::log_info("HMMER is very picky about forbiden characters in sequence name. Renaming sequences in {subjectFile}.")
@@ -230,7 +230,7 @@ tellTale <- function(
   subjectFile <- tempfile()
   Biostrings::writeXStringSet(originalSeqs, filepath = subjectFile)
   
-  #####   Full paths of input HMM files for TALE domains (DNA and AA)   ####
+  ####   Full paths of input HMM files for TALE domains (DNA and AA)   ####
   
   ## TODO come up with a mechanism for the user to be able to provide the FULL PATH
   ## to custom hmm !!! hmmFilesDir parameter is useless unless custom hmm are named
@@ -245,7 +245,7 @@ tellTale <- function(
   
   
   
-  #####   Concatenate HMM files for TALE DNA motifs and parse HMM names   #####
+  ####   Concatenate HMM files for TALE DNA motifs and parse HMM names   ####
   hmmslines <- plyr::llply(DNAHMMFiles, function(x) txt <- readLines(con = x))
   names(DNAHMMFiles) <- plyr::llply(hmmslines, function(x) {
     hmmName <- grep("NAME", x, perl = TRUE, value = TRUE)
@@ -263,7 +263,7 @@ tellTale <- function(
   
   writeLines(text = unlist(hmmslines), con = mergedDNAHMMFile)
   
-  #####   Perform TALE domain CDS search with HMMER  #####
+  ####   Perform TALE domain CDS search with HMMER  #####
   searchOutFile <- file.path(outputDir, "hmmerSearchOut.txt")
   
   runNhmmerSearch(hmmerpath = hmmerpath,
@@ -272,7 +272,7 @@ tellTale <- function(
                   searchTblOutFile = searchOutFile,
                   humReadableOutFile = file.path(outputDir, "nhmmerHumanReadableOutputOfLastRun.txt"))
   
-  #####   Load, process, filter TALE domain CDS HMMER hit results    #####
+  ####   Load, process, filter TALE domain CDS HMMER hit results    ####
   ## Loading search tabular output file
   nhmmerTabularOutput <- try(read.table(searchOutFile), silent = TRUE)
   if (class(nhmmerTabularOutput) == "try-error") {
@@ -416,25 +416,6 @@ tellTale <- function(
   
   
   #####   Storing all info about domain arrays in a central object   ####
-  stitchSeqs <- function(grl, seqType, sep = "-", onlyRepeats = FALSE) {
-    BiocGenerics::sapply(grl, function(x) {
-      if (onlyRepeats) {
-        gr <- BiocGenerics::subset(x = x, query_name == repeatDNAHMMName)
-      } else {
-        gr <- x
-      }
-      v <- as.character(S4Vectors::mcols(gr)[, seqType])
-      if (all(as.character(BiocGenerics::strand(gr)) == "+")) {
-        seq <- paste0(v, collapse = sep)
-      } else if (all(as.character(BiocGenerics::strand(gr)) == "-")) {
-        seq <- paste0(rev(v), collapse = sep)
-      } else {
-        stop("The current array has domains on different strands. Something is very wrong!")
-      }
-    }, simplify = TRUE, USE.NAMES = TRUE)
-  }
-  
-  
   ## Populate metadata about the elements of the list of arrays
   
   
