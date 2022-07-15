@@ -461,13 +461,15 @@ tellTale <- function(
     TalOrfForAnnoTALE <- fullTalOrf
   } else { 
     #### Correct Tal arrays frame shifts if requested  ####
-    cat("## Correcting putative TALE coding sequences. Be patient, this may take a LONG time...\n")
+    ####   Run CorrectFrameshifts   ####
+    logger::log_info("Correcting putative TALE coding sequences. Be patient, this may take a LONG time...")
     AAref <- Biostrings::readAAStringSet(refForTalArrayCorrection, seek.first.rec = TRUE, use.names = TRUE)
     rawArraySeq <- extdCompleteArraysSeqs
     ArrayCorrection <- DECIPHER::CorrectFrameshifts(rawArraySeq,
                                                     AAref, type = "both",
                                                     maxComparisons = length(AAref),
                                                     frameShift = frameShiftCorrection, ...)
+    logger::log_info("Correction of putative TALE coding sequences is done!")
     corrExtdCompleteArraysSeqs <- ArrayCorrection$sequences
     
     ####   Correction stats   ####
@@ -490,18 +492,20 @@ tellTale <- function(
     S4Vectors::mcols(hitsByArraysLst)[c("predicted_dels_count", "predicted_ins_count")] %<>% apply(., 2, function(v) ifelse(is.na(v), 0, v))
     
     #### Multiple alignenment of orginal vs corrected vs corrected+N/C subtituted sequences  ####
+    
     for (n in names(corrExtdCompleteArraysSeqs)[vcountPattern("N", corrExtdCompleteArraysSeqs) > 0]) {
       warning(glue::glue("Sequence {n} contains 'N's and will be substituted by 'C's in order to run AnnoTALE analyze for RVDs prediction."))
     }
-    TalOrfForAnnoTALE <- Biostrings::chartr("N", "C", corrExtdCompleteArraysSeqs)
+    substCorrExtdCompleteArraysSeqs <- Biostrings::chartr("N", "C", corrExtdCompleteArraysSeqs)
     
-    # correctedTalOrf <- corrExtdCompleteArraysSeqs[sapply(names(corrExtdCompleteArraysSeqs), function(n) n %in% c(insertions_count$Seq, deletions_count$Seq))]
+
+    
     for (n in names(corrExtdCompleteArraysSeqs)) {
       rawSeq <- rawArraySeq[n]
       names(rawSeq) <- paste0("raw_", n)
       correctedSeq <- corrExtdCompleteArraysSeqs[n]
       names(correctedSeq) <- paste0("corrected_", n)
-      substitutedSeq <- TalOrfForAnnoTALE[n]
+      substitutedSeq <- substCorrExtdCompleteArraysSeqs[n]
       names(substitutedSeq) <- paste0("forAnnoTALE", n)
       seqToAlign <- c(rawSeq, correctedSeq, substitutedSeq)
       alignedSeqs <- DECIPHER::AlignSeqs(seqToAlign)
@@ -517,24 +521,39 @@ tellTale <- function(
       
     }
     
-    #### Get ORFs from corrected arrays sequences that have 'Ns' substituted by 'Cs' ####
-    orfs <- systemPipeR::predORF(x = TalOrfForAnnoTALE,
+    ####   TalOrfForAnnoTALE   ####
+    orfs <- systemPipeR::predORF(x = substCorrExtdCompleteArraysSeqs,
                                  n = 1, type = "gr", mode = "ORF", strand = "sense")
-    TalOrfForAnnoTALE <- BSgenome::getSeq(TalOrfForAnnoTALE, orfs)
+    TalOrfForAnnoTALE <- BSgenome::getSeq(substCorrExtdCompleteArraysSeqs, orfs)
     names(TalOrfForAnnoTALE) <- as.character(GenomicRanges::seqnames(orfs))
     
+    #### Get ORFs from corrected arrays sequences that have 'Ns' substituted by 'Cs' ####
+    
     fullTalOrf <- TalOrfForAnnoTALE
-    insPosition <- vmatchPattern("N", corrExtdCompleteArraysSeqs)
-    for (i in names(insPosition)) {
-      if (length(width(insPosition[[i]])) == 0) next()
-      insPositionAfCorr <- insPosition[[i]][BiocGenerics::start(insPosition[[i]]) < width(fullTalOrf[i])]
-      fullTalOrf[i] <- replaceAt(fullTalOrf[i], insPositionAfCorr, value = "N")
-    }
+    
+    # The idea here was to convert back the Ns that were substituted for AnnoTALE in order to output
+    # an unsubstituted orf.
+    # I am not sure the code below properly does that and retrospectively,
+    # it may be a problem for downstream bioinformatic analyses to have Ns in the sequence...
+    #
+    # insPosition <- vmatchPattern("N", corrExtdCompleteArraysSeqs)
+    # for (i in names(insPosition)) {
+    #   if (length(width(insPosition[[i]])) == 0) next()
+    #   insPositionAfCorr <- insPosition[[i]][BiocGenerics::start(insPosition[[i]]) < width(fullTalOrf[i])]
+    #   fullTalOrf[i] <- replaceAt(fullTalOrf[i], insPositionAfCorr, value = "N")
+    # }
+    
+    
   }
   
   
   
   #### annoTALE analyze on tal ORFs  ####
+  
+  # Shall we also run the predict stage of annotale? May be it will do a better job at
+  # finding orf and/or filtering out "pseudo tales" because some times analyse output a RVD from
+  # a domain that does not look like a repeat....
+  
   
   AnnoTALEanalyze <- function(inputFastaFile,
                               outputDir = getwd(),
@@ -576,28 +595,35 @@ tellTale <- function(
     # Run Annotale on corrected ORF
     checkAnnoTale <- try(AnnoTALEanalyze(correctedTalOrfFile, AnnotaleDir), silent = TRUE)
     # Get Annotale output with conditions handling
-    annoTaleRVD <- file.path(AnnotaleDir, "TALE_RVDs.fasta")
-    seqOfRVDs <- try(Biostrings::readAAStringSet(annoTaleRVD, seek.first.rec = T, use.names = T), silent = TRUE)
-    prot_parts_files <- list.files(AnnotaleDir, "TALE_Protein_parts.fasta", recursive = T, full.names = T)
-    dna_parts_files <- list.files(AnnotaleDir, "TALE_DNA_parts.fasta", recursive = T, full.names = T)
+    dna_parts_files <- file.path(AnnotaleDir, "TALE_DNA_parts.fasta")
+    prot_parts_files <- file.path(AnnotaleDir, "TALE_Protein_parts.fasta")
+    annoTaleRVD_file <- file.path(AnnotaleDir, "TALE_RVDs.fasta")
+    seqOfRVDs <- try(Biostrings::readAAStringSet(annoTaleRVD_file,
+                                                 seek.first.rec = T,
+                                                 use.names = T),
+                     silent = TRUE)
     prot_parts <- try(Biostrings::readAAStringSet(prot_parts_files), silent = TRUE)
     
     if (any(
-      inherits(checkAnnoTale, "try-error"), # in case annotale does not work
-      if (inherits(seqOfRVDs, "try-error")) { # in case annotale works but cannot find rvds or rvd seq file is empty.
-        inherits(seqOfRVDs, "try-error") 
-      } else {
-        if (Biostrings::width(seqOfRVDs) == 0) file.remove(annoTaleRVD) # should also return TRUE
-      }, 
+      inherits(checkAnnoTale, "try-error"), # in case annotale does not work 
       if (inherits(prot_parts, "try-error")) { # in case annotale does not return a prot_parts file or if it is empty.
-        inherits(prot_parts, "try-error")
+        file.exists(prot_parts_files) && file.remove(prot_parts_files)
+        TRUE
       } else {
-        if (length(prot_parts_files) != 0L && file.exists(prot_parts_files) &&length(prot_parts) == 0L) {
+        if (file.exists(prot_parts_files) && length(prot_parts) == 0L) {
           file.remove(prot_parts_files) # should also return TRUE
         }
-      } 
+      },
+      if (inherits(seqOfRVDs, "try-error")) { # in case annotale works but cannot find rvds or rvd seq file is empty.
+        file.exists(annoTaleRVD_file) && file.remove(annoTaleRVD_file)
+        TRUE 
+      } else {
+        if (Biostrings::width(seqOfRVDs) == 0) file.remove(annoTaleRVD_file) # should also return TRUE
+      }
     )) {
-      annoTaleMessages <- c(annoTaleMessages, glue::glue("Annotale failed to parse TALE domains for {talOrfID}."))
+      annoTaleMessages <<- c(annoTaleMessages,
+                            (m <- glue::glue("Annotale failed to parse TALE domains for {talOrfID}.")))
+      logger::log_info(m)
       return(annout(Biostrings::AAStringSet(), domainsReport = data.frame()))
     }
     names(seqOfRVDs) <- talOrfID
@@ -856,7 +882,7 @@ tellTale <- function(
     "#*************************\n"
   )
   
-  message(paste(txt, collapse ="\n"))
+  message(paste(txt, collapse = "\n"))
   logf <- file(analysisLogFile, open = "w")
   writeLines(text = txt, con = logf)
   close(logf)
