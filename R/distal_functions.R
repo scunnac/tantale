@@ -397,7 +397,11 @@ buildDisTalGroups <- function(path, num.groups, overwrite = F) {
 #' @param inner_sepcol character of color for the separator between colors within 1 cell if there are more than 1.
 #' @param save.path (optional) file path to save the plot, format of the image depends on the file extension. If save.path is NULL, the heatmap will be printed. If save.path is specified, the image file will be created.
 #' @export
-heatmap_talomes <- function(tale_annotation, col, row, value, truncTaleLab = NULL, extraCol = NULL, x.lab = "TALE Group", y.lab = "Strain", title = "RVD sequences variants", plot.type = "all", mapcol = viridis::viridis(10), mar.side = c(5, 5, 3, 3), sepwid = 5, sepcol = "white", inner_sepcol = "white", save.path = NULL) {
+heatmap_talomes <- function(tale_annotation, col, row, value, truncTaleLab = NULL, extraCol = NULL,
+                            x.lab = "TALE Group", y.lab = "Strain", title = "RVD sequences variants",
+                            plot.type = "all",
+                            mapcol = viridis::viridis(10), mar.side = c(5, 5, 3, 3),
+                            sepwid = 5, sepcol = "white", inner_sepcol = "white", save.path = NULL) {
 
   ## rename colnames of tale annotation
   colnames(tale_annotation)[which(colnames(tale_annotation) == col)] <- "group"

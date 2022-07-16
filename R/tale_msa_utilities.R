@@ -365,7 +365,7 @@ buildRepeatMsa <- function(inputSeqs, distalRepeatSims = NULL,
   seqsOfHex <- sapply(seqsAsVectors, function(x) {
     idxs <- match(x, residues)
     paste(asciitableForMafft$hex[idxs], collapse = " ")
-  }
+    }
   )
   seqsOfHex <- Biostrings::BStringSet(seqsOfHex)
   names(seqsOfHex) <- names(seqsAsVectors)
@@ -379,7 +379,7 @@ buildRepeatMsa <- function(inputSeqs, distalRepeatSims = NULL,
   } else if (!is.null(distalRepeatSims)) {
     cat(glue::glue("##  [{date()}] The provided similarity matrix file will be used to compute msa."), "\n")
     if (length(distalRepeatSims) > 1 &&
-        (is.data.frame(distalRepeatSims) | tibble::is.tibble(distalRepeatSims))
+        (is.data.frame(distalRepeatSims) | tibble::is_tibble(distalRepeatSims))
     ) {
       repeatSims <- distalRepeatSims
     } else if (length(distalRepeatSims) == 1 && is.character(distalRepeatSims)) {
