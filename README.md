@@ -28,18 +28,24 @@
     - General parser for results aggregation
     - Connector with daTALbase
 
-**NOTE** :  
-    - create vignette by `devtools:install(build_vignettes = TRUE)`  
-    - the perl lib is not included in the installed package, so `runDistal` doesn't work ... but I don't understand why `talvez()` works when you didn't specify a perl lib??  
-    - to install via the `remotes` package  
+**NOTE** :
+
+- Install via the `remotes` package
 
 ```
-  remotes::install_github("vibaotram/tantale",
+remotes::install_github("vibaotram/tantale",
                           type = "source",
                           dependencies = TRUE,
-                          upgrade = "never",
-                          auth_token = "XYZ"
+                          upgrade = "never"
                           )
-```  
+```
 
-An actual access token value must be provided!
+- This is still a **work in progress** and is not necessarily fully and **properly** implemented!!!
+- Documentation is also minimal and not necessarily up-to-date.
+- If you feel like contributing, that is great, please send me an email: sebastien.cunnac@ird.fr
+- tantale has been written with only Linux systems in mind and will very likely not work on other OS (eg Windows)
+- Some of Tantale wrappers use code written in other languages. For them to work, you must ideally have Java and Perl on the PATH in your system.
+- Perl scripts (Talvez & DisTAL) used in tantale require a number of perl libraries. Upon experimenting a bit we realized it was more convenient to include those libraries in tantale. The consequence is that those files cause tantale to occupy a **lot** of disk space...
+    
+    
+
