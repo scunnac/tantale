@@ -7,7 +7,7 @@ Author: c(
     person("Sebastien", "Cunnac", email = "sebastien.cunnac@ird.fr", role = "cre"))
 Maintainer: The package maintainer <sebastien.cunnac@ird.fr>
 Description: An integrated collection of functions for TALE minning and analysis
-License: What license is it under?
+License: MIT
 Encoding: UTF-8
 LazyData: true
 Depends: R (>= 3.6.3)
@@ -18,7 +18,9 @@ Imports:
     Rsamtools, systemPipeR, msa, DECIPHER,
     ape, ggtree,
     ggvis, ggbio, gplots,
-    optparse, logger
+    optparse, logger,
+    genomicsR (>= 0.0.4)
+Remotes: git::git@forge.ird.fr:phim/cunnac/genomicsr.git
 Suggests:
     knitr,
     biomartr,
