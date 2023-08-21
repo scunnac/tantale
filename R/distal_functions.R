@@ -15,7 +15,7 @@
 #' @export
 fa2liststr <- function(fasta.file) {
   fasta.file <- fasta.file
-  seqs <- Biostrings::readBStringSet(fasta.file)
+  seqs <- as.character(Biostrings::readBStringSet(fasta.file), use.names=TRUE)
   seqsAsVectors <- stringr::str_split(seqs, pattern = "[- ]")
   seqsAsVectors <- lapply(seqsAsVectors, function(x) { # Remove last residue if it is empty string
     if ( x[length(x)] == "") {

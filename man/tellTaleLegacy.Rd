@@ -22,8 +22,7 @@ tellTaleLegacy(
   taleArrayEndAnchorCode = "C-TERM",
   appendExtremityCodes = TRUE,
   rvdSep = " ",
-  hmmerpath = system.file("tools", "hmmer-3.3", "bin", package = "tantale", mustWork =
-    T)
+  hmmerpath = system.file("tools", "hmmer-3.3", "bin", package = "tantale", mustWork = T)
 )
 }
 \arguments{

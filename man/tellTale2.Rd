@@ -19,8 +19,7 @@ tellTale2(
   taleArrayEndAnchorCode = "CTERM",
   appendExtremityCodes = TRUE,
   rvdSep = "-",
-  hmmerpath = system.file("tools", "hmmer-3.3", "bin", package = "tantale", mustWork =
-    T),
+  hmmerpath = system.file("tools", "hmmer-3.3", "bin", package = "tantale", mustWork = T),
   extendedLength = 300,
   talArrayCorrection = FALSE,
   refForTalArrayCorrection = system.file("extdata", "decipher_ref_tales_aa.fa.gz",

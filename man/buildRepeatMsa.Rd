@@ -8,8 +8,7 @@ buildRepeatMsa(
   inputSeqs,
   distalRepeatSims = NULL,
   mafftOpts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5",
-  mafftPath = system.file("tools", "mafft-linux64", package = "tantale", mustWork =
-    TRUE),
+  mafftPath = system.file("tools", "mafft-linux64", package = "tantale", mustWork = TRUE),
   gapSymbol = NA
 )
 }

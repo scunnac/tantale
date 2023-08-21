@@ -57,7 +57,7 @@ By default, `telltale2()` adds NTERM and CTERM to RVD sequences as markers of th
 
 ## run telltale2 no correction
 
-```{r telltale_no_correction, eval=FALSE}
+```{r telltale_no_correction, eval=TRUE}
 mclapply(c(mai1_fa, bai3_fa), function(fastaFile) {
   outdirname <- gsub(".fa", "_nocorrection", basename(fastaFile))
   outputDir <- file.path(telltale2_outdir, outdirname)
@@ -71,7 +71,7 @@ mclapply(c(mai1_fa, bai3_fa), function(fastaFile) {
 
 ## run telltale2 correction
 
-```{r telltale2_correction, eval=FALSE}
+```{r telltale2_correction, eval=TRUE}
 tellTale(subjectFile = bai311_fa,
           outputDir = file.path(telltale2_outdir, gsub(".fa", "_correction", basename(bai311_fa))),
           appendExtremityCodes = TRUE,
@@ -112,8 +112,8 @@ Column name            | Content
 -----------------------|------------------------------------------------------------------
 `AllDomains`           | TRUE/FALSE, whether all the 3 domains of Tal arrays are detected
 `aberrantRepeat`       | TRUE/FALSE, whether there is any aberrant repeat
-`predicted_ins_count`  | number of insertions have been corrected by `telltale2()`
-`predicted_dels_count` | number of deletions have been corrected by `telltale2()`
+`predicted_ins_count`  | number of insertions corrected by `telltale2()`
+`predicted_dels_count` | number of deletions corrected by `telltale2()`
 
 
 ### count AllDomains and aberrantRepeat
@@ -230,21 +230,22 @@ We run DisTal for all the putative TAL ORFs (from `telltale2` output).
 
 ```{r distal_io, warning=FALSE}
 distal_telltale <- file.path(outdir, "distal")
+unlink(distal_telltale, recursive = TRUE)
 dir.create(distal_telltale, showWarnings = F)
-
-
 telltale2_cds <- file.path(distal_telltale, "cds.fasta")
 unlink(telltale2_cds)
 
-distal_telltale_input <- list.files(telltale2_outdir, "putativeTalOrf.fasta", recursive = T, full.names = T)
-distal_telltale_input <- distal_telltale_input[!grepl("temp_annotale", distal_telltale_input, fixed = T)]
 
+distal_telltale_input <- list.files(telltale2_outdir,
+                                    "putativeTalOrf.fasta",
+                                    recursive = T, full.names = T)
+distal_telltale_input <- distal_telltale_input[!grepl("ROI", distal_telltale_input, fixed = T)]
 for (input in distal_telltale_input) {
-  id <- gsub("\\_.+", "", basename(dirname(input)))
+  ttRunId <- gsub("\\_.+", "", basename(dirname(input)))
   seqs <- readBStringSet(input, seek.first.rec = T)
-  names(seqs) <- paste0(id, "_", names(seqs))
-  names(seqs) <- stringr::str_trim(names(seqs))
+  names(seqs) <- paste0(ttRunId, "_", names(seqs))
   seqs <- seqs[width(seqs) != 0]
+  #cat(names(seqs))
   writeXStringSet(seqs, telltale2_cds, append = T)
 }
 
@@ -382,7 +383,7 @@ talvezPreds$group <- sapply(talvezPreds$taleId, function(id) {
   ifelse(id %in% taleGroups$name, taleGroups$group[taleGroups$name == id], NA)
 }, USE.NAMES = F)
 
-slctPromoters <- c("SWEET14p_Kitaake_or_Nip_?_Sense", "SWEET13p_Nipponbare_Sense", "SWEET11p_Nipponbare_Sense")
+slctPromoters <- c("SWEET14p_Nipponbare_Sense", "SWEET13p_Nipponbare_Sense", "SWEET11p_Nipponbare_Sense")
 selectedPreds <- talvezPreds %>%
   dplyr::filter(subjSeqId %in% slctPromoters) 
 
@@ -406,7 +407,7 @@ heatmap.2(selectedPredsMat,
 
 To see how RVD sequences match a promoter region, we supply the prediction table and the promoter sequence with the genomic range to `plotTaleTargetPred()`:
 ```{r SWEET13, fig.width = 8, fig.height = 5}
-grFilter <- "SWEET14p_Kitaake_or_Nip_?_Sense:340-370"
+grFilter <- "SWEET14p_Nipponbare_Sense:340-450"
 plotTaleTargetPred(predResults = selectedPreds, subjDnaSeqFile = subjDnaSeqFile, filterRange = grFilter)
 ```
 
@@ -424,7 +425,7 @@ talvezPreds$group <- sapply(talvezPreds$taleId, function(id) {
   ifelse(id %in% taleGroups$name, taleGroups$group[taleGroups$name == id], NA)
 }, USE.NAMES = F)
 
-slctPromoters <- c("SWEET14p_Kitaake_or_Nip_?_Sense", "SWEET13p_Nipponbare_Sense", "SWEET11p_Nipponbare_Sense")
+slctPromoters <- c("SWEET14p_Nipponbare_Sense", "SWEET13p_Nipponbare_Sense", "SWEET11p_Nipponbare_Sense")
 selectedPreds <- preditalePreds %>%
   dplyr::filter(subjSeqId %in% slctPromoters) 
 
@@ -447,6 +448,6 @@ gplots::heatmap.2(selectedPredsMat,
 ```
 
 ```{r SWEET14, fig.width = 8, fig.height = 4}
-grFilter <- "SWEET14p_Kitaake_or_Nip_?_Sense:420-450"
+grFilter <- "SWEET14p_Nipponbare_Sense:340-450"
 plotTaleTargetPred(predResults = selectedPreds, subjDnaSeqFile = subjDnaSeqFile, filterRange = grFilter)
 ```

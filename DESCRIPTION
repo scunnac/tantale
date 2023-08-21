@@ -1,7 +1,7 @@
 Package: tantale
 Type: Package
 Title: Transcription Activator-Like Effectors (TALEs) tools
-Version: 2022.07.121
+Version: 0.1.1
 Author: c(
     person("Bao Tram", "Vi", email = "vbt576@gmail.com", role = "cre"),
     person("Sebastien", "Cunnac", email = "sebastien.cunnac@ird.fr", role = "cre"))
@@ -15,12 +15,10 @@ Imports:
     magrittr, tidyverse, plyr, glue, reshape2, scales, XVector,
     RColorBrewer, dichromat,
     IRanges, Biostrings, GenomicRanges, GenomicFeatures, BSgenome, plyranges,
-    Rsamtools, systemPipeR, msa, DECIPHER,
+    Rsamtools, systemPipeR, msa, DECIPHER, ggmsa,
     ape, ggtree,
-    ggvis, ggbio, gplots,
-    optparse, logger,
-    genomicsR (>= 0.0.4)
-Remotes: git::git@forge.ird.fr:phim/cunnac/genomicsr.git
+    ggvis, ggbio, gplots, ggmsa,
+    reticulate, optparse, logger
 Suggests:
     knitr,
     biomartr,
@@ -31,5 +29,5 @@ biocViews:
     Software
 VignetteBuilder:
     knitr
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.3
 Config/testthat/edition: 3
