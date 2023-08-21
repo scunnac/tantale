@@ -1,18 +1,7 @@
-#' Run a bash command in a specified Conda environment
-#'
-#'
-#' @param envName A character string with the name of an installed Conda environment
-#' @param command A Bash command to execute in this env with system() as a character string
-#' @param condaBinPath Path the conda binary to be used
-#' @param ... Additional parameters for \code{system()}
-#' @return The \code{system()} return value
-#' @export
+
 systemInCondaEnv <- function(envName, command,
                              condaBinPath = "auto",
                              ...) {
-  # Found this 'conda shell.bash hook ' trick for the 'conda activate' command to run smoothly
-  # in a bash call at the end of this post:
-  # https://stackoverflow.com/questions/55854189/how-to-activate-anaconda-environment-within-r/55854475
   activateEnvCmd <- glue::glue("eval \"$({reticulate::conda_binary(conda = condaBinPath)} shell.bash hook)\"; conda activate {envName}")
   fullCommand <- glue::glue_collapse(c(activateEnvCmd, command), sep = "; ")
   logger::log_debug("Starting the following command in the '{envName}' conda env :
@@ -20,30 +9,43 @@ systemInCondaEnv <- function(envName, command,
   system(command = fullCommand, ...)
 }
 
-#' Install Conda environments on a system
-#'
-#'
-#' @param customCondaEnvYaml A named vector of Conda env recipe yaml file paths. Names correspond to
-#' env names in the recipes.
-#' @param condaBinPath Path to the conda binary to be used
-#' @param ... Additional parameters for \code{system()}
-#' @return The \code{system()} return value
-#' @export
-condaEnvCheckInstall <- function(customCondaEnvYaml, condaBinPath = "auto")
-{
-  condaEnvs <- reticulate::conda_list(conda = condaBinPath)
-  if (!all(names(customCondaEnvYaml) %in% condaEnvs$name)) {
-    condaToInstall <- customCondaEnvYaml[!names(customCondaEnvYaml) %in% condaEnvs$name]
-    logger::log_warn("This custom conda env recipes are not installed on your system : {condaToInstall}")
-    res <- lapply(condaToInstall, function(condayml) {
-      systemInCondaEnv(envName = "base",
-                       condaBinPath = reticulate::conda_binary(conda = condaBinPath),
-                       command = glue::glue("mamba env create -f {condayml}"))
-    })
-    if (!all(sapply(res, function(x) x == 0L))) {
-      logger::log_warn("Installation of a conda environment failed.")
+
+createBioPerlEnv <- function(condaBinPath = "auto") {
+  envName <- "perlforal"
+  if (!envName %in% (reticulate::conda_list(conda = condaBinPath)["name"] %>% unlist())) {
+    logger::log_warn("A custom conda env will be installed on your system to run perl scripts dependencies")
+    condayml <- system.file("tools", "bioperl_conda_env.yaml", package = "tantale", mustWork = T)
+    res <- systemInCondaEnv(envName = "base",
+                            condaBinPath = condaBinPath,
+                            command = glue::glue("mamba env create -f {condayml}"))
+    if (!res == 0L) {
+      logger::log_warn("Installation of the conda environment failed.")
     }
+    return(invisible(res))
   } else {
-    logger::log_info("A Conda environment with the name '{names(customCondaEnvYaml)}' has been found on your system and can be used for analysis.")
+    logger::log_info("A Conda environment with the name '{envName}' has been found on your system and can be used for analysis.")
+    return(invisible(0L))
   }
 }
+
+# reticulate::conda_binary()
+# reticulate::conda_list(conda = "/home/cunnac/bin/miniconda3/condabin/conda")["name"] %>% unlist()
+# createBioPerlEnv(condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")
+# #perl-data-dumper
+
+# use warnings;
+# use strict;
+# use Getopt::Std;
+# use Statistics::R;
+# use List::MoreUtils qw(uniq);
+# use List::Util qw( min max );
+# use Algorithm::NeedlemanWunsch;
+# use Bio::Perl;
+# use Statistics::Basic qw(:all);
+# use List::Util qw( min max );
+# use POSIX qw(ceil);
+
+
+
+
+

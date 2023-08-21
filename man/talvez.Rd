@@ -9,7 +9,8 @@ talvez(
   subjDnaSeqFile,
   optParam = "-t 0 -l 19",
   outDir = NULL,
-  talvezDir = system.file("tools", "TALVEZ_3.2", package = "tantale", mustWork = T)
+  talvezDir = system.file("tools", "TALVEZ_3.2", package = "tantale", mustWork = T),
+  condaBinPath = "auto"
 )
 }
 \arguments{
@@ -35,6 +36,10 @@ directory. If not supplied, output files will be temporary.}
 \item{talvezDir}{If you want to use another version of Talvez than the one
 supplied with tantale, specify the path of the directory containning the
 necessary files here.}
+
+\item{condaBinPath}{Path to your Conda binary file if you need to specify
+a path different from the one that is automatically searched by the
+reticulate package functions.}
 }
 \value{
 A tibble with the EBE predictions. \strong{Note that column names
@@ -51,4 +56,7 @@ and runs Talvez
 \details{
 Note that this talvez wrapper, uses the RVD - Nucleotide specificity matrices
 used with talvez, it is not possible to use custom ones.
+Note also that the talvez script is run in a conda environment providing the
+necessary dependencies. This environment will be created automatically if
+necessary.
 }

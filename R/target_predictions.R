@@ -93,6 +93,9 @@ preditale <- function(rvdSeqs, subjDnaSeqFile, optParam = "", outDir = NULL,
 #'
 #' Note that this talvez wrapper, uses the RVD - Nucleotide specificity matrices
 #' used with talvez, it is not possible to use custom ones.
+#' Note also that the talvez script is run in a conda environment providing the
+#' necessary dependencies. This environment will be created automatically if
+#' necessary.
 #'
 #' @param rvdSeqs Tale RVD sequences are supplied as either a fasta file (atomic
 #'   character vector) with Tale info (name) in title and sequences of RVD as a
@@ -112,13 +115,17 @@ preditale <- function(rvdSeqs, subjDnaSeqFile, optParam = "", outDir = NULL,
 #' @param talvezDir If you want to use another version of Talvez than the one
 #'   supplied with tantale, specify the path of the directory containning the
 #'   necessary files here.
+#' @param condaBinPath Path to your Conda binary file if you need to specify
+#'   a path different from the one that is automatically searched by the
+#'   reticulate package functions.
 #' @return A tibble with the EBE predictions. \strong{Note that column names
 #'   have been modified} relative to the column names found in the originale
 #'   programs's output in order to homogenize column names across TALE target
 #'   prediction programs in tantale.
 #' @export
 talvez <- function(rvdSeqs, subjDnaSeqFile, optParam = "-t 0 -l 19", outDir = NULL,
-                      talvezDir = system.file("tools", "TALVEZ_3.2", package = "tantale", mustWork = T)) {
+                   talvezDir = system.file("tools", "TALVEZ_3.2", package = "tantale", mustWork = T),
+                   condaBinPath = "auto") {
 
   # Checking input args
   if (class(rvdSeqs) == "character") {
@@ -155,15 +162,19 @@ talvez <- function(rvdSeqs, subjDnaSeqFile, optParam = "-t 0 -l 19", outDir = NU
   rvdSeqsFileForTv <- tempfile(pattern = "rvdSeqsTalvez_", tmpdir = tempOutDir, fileext = ".tsv")
   writeLines(text = paste(">", names(rvdSeqs), "\t", as.character(rvdSeqs), sep = ""),
              con = rvdSeqsFileForTv)
-
-  # Assembling talvez command
-  cmd <- glue::glue("cd {tempOutDir}; "
-    , "perl TALVEZ_3.2.pl {optParam} -e mat1 -z mat2 {basename(rvdSeqsFileForTv)} {basename(subjDnaSeqFile)}")
-
-  glue::glue("## Invoking Talvez using the following command:\n", stringr::str_wrap(cmd, 80), "\n")
-
-  # Running talvez
-  system(command = cmd)
+  
+  # Assembling and running talvez command
+  perlReady <- !as.logical(createBioPerlEnv(condaBinPath = condaBinPath))
+  if (perlReady) {
+    cmd <- glue::glue("cd {tempOutDir};",
+                      "perl TALVEZ_3.2.pl {optParam} -e mat1 -z mat2 {basename(rvdSeqsFileForTv)} {basename(subjDnaSeqFile)}")
+    logger::log_info("Invoking Talvez using the following command:\n {stringr::str_wrap(cmd, 80)}")
+    res <- systemInCondaEnv(envName = "perlforal",
+                            condaBinPath = condaBinPath,
+                            command = cmd)
+  } else {
+    stop("Could not create the Perl infrastructure on your machine to run Talvez...")
+  }
 
   # Parsing and reformating output
   predictions <- suppressMessages(readr::read_tsv(file.path(tempOutDir, "output_complete"))) %>%

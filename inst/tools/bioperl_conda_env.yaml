@@ -1,7 +1,9 @@
-name: bioperl
+name: perlforal
 channels:
   - conda-forge
   - bioconda
   - defaults
 dependencies:
   - perl-bioperl=1.7.8
+  - perl-statistics-r=0.34
+
