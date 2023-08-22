@@ -97,6 +97,70 @@ diag(identSubMat) <- 1
   return(pairAlignScores)
 }
 
+condaBinPath <- "/home/cunnac/bin/miniconda3/condabin/conda"
+taleParts <- getTaleParts(system.file("extdata", "tellTaleExampleOutput", package = "tantale", mustWork = T)) %>%
+  dplyr::mutate(partId = paste(arrayID, position, sep = "_"))
+
+partAaStringSet <- Biostrings::AAStringSet(taleParts$aaSeq)
+names(partAaStringSet) <- taleParts$partId
+
+
+.distalPairwiseAlign2 <- function(partAaStringSet, ncores = 1, condaBinPath = "auto") {
+  outdir <- tempdir(check = TRUE)
+  partAaStringSetFile <- file.path(outdir, "taleAsParts.fsa")
+  mmseq2DbPath <- file.path(outdir, 'mmseq2DB')
+  prefDbPath <- file.path(outdir, 'resultDB_pref')
+  alnDbPath <- file.path(outdir, 'resultDB_aln')
+  alnTabFile <- file.path(outdir, 'alnRes.tab')
+  
+  df <- expand.grid(names(partAaStringSet), names(partAaStringSet), stringsAsFactors = FALSE) %>% tibble::as_tibble()
+  colnames(df) <- c("query", "target")
+  
+  Biostrings::writeXStringSet(partAaStringSet, filepath = partAaStringSetFile)
+  mmseq2Cmd <- glue::glue("mmseqs createdb {partAaStringSetFile} -v 3 {mmseq2DbPath};",
+                          "mmseqs prefilter {mmseq2DbPath} {mmseq2DbPath} {prefDbPath}",
+                          "-v 3 --max-seqs 1000000 -s 7.5 --add-self-matches 1",
+                          "--cov-mode 0;",
+                          "mmseqs align {mmseq2DbPath} {mmseq2DbPath} {prefDbPath} {alnDbPath}",
+                          "-v 3 --threads {ncores} --add-self-matches 1 --min-seq-id 0 --cov-mode 0",
+                          "-a 1 --alignment-output-mode 0;",
+                          "mmseqs convertalis {mmseq2DbPath} {mmseq2DbPath} {alnDbPath} {alnTabFile}",
+                          "--format-mode 4",
+                          "--format-output query,target,evalue,gapopen,pident,nident,qstart,qend,qlen,tstart,tend,tlen,alnlen,bits,mismatch,qcov,tcov",
+                          .sep = " ")
+
+  if (!as.logical(createBioPerlEnv(condaBinPath = condaBinPath))) {
+    logger::log_info("Invoking mmseq2 using the following command:\n {stringr::str_wrap(mmseq2Cmd, 80)}")
+    res <- systemInCondaEnv(envName = "perlforal",
+                            condaBinPath = condaBinPath,
+                            command = mmseq2Cmd,
+                            ignore.stdout = T)
+  } else {
+    stop("Could not create the Perl infrastructure on your machine to run mmseq2...")
+  }
+  
+  pairAlignScores <- readr::read_tsv(alnTabFile) %>%
+    dplyr::mutate(query = as.character(query), target = as.character(target))
+  pairAlignScores <- dplyr::left_join(df, pairAlignScores) %>%
+    dplyr::rename(pattern = target, subj = query) %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(Dissim = ifelse(is.na(pident), 100, 100 - pident*(max(qcov, tcov))))
+  
+  # Check that there is a single pairwise alignment records for all possible parts pairs
+  partCombinCounts <- pairAlignScores %>% dplyr::select(pattern, subj) %>%
+    dplyr::count() %>%
+    dplyr::pull(n)
+  if (!all(partCombinCounts == 1L) || length(partCombinCounts) != length(partAaStringSet)^2) {
+    stop("There is not a single pairwise alignment records for all possible parts pairs",)
+  }
+  # pairAlignScores %>% dplyr::group_by(query, target) %>% dplyr::tally() %>%
+  #   dplyr::ungroup() %>% dplyr::filter(n != 1)
+  # pairAlignScores %>% dplyr::filter(Dissim > 18, Dissim < 80)
+  # pairAlignScores$Dissim %>%  hist(breaks = 100)
+  
+  return(pairAlignScores)
+}
+
 
 
 
@@ -110,7 +174,12 @@ diag(identSubMat) <- 1
 #' systematically pairwise aligned.
 #' 
 #' @param taleParts a table of TALE parts as returned by the \code{\link[tantale:getTaleParts]{getTaleParts}} function.
-#' @param repeats.cluster.h.cut numeric value to cut the hierachycal clustering tree of the repeat.
+#' @param repeats.cluster.h.cut numeric value to cut the hierarchical clustering tree of the repeat.
+#' @param pairwiseAlnMethod Specify the underlying approach for computing pairwise similarities between
+#' TALE parts amino acid sequences. Must be either "Biostrings" or "mmseq2" 
+#' @param condaBinPath Path to your Conda binary file if you need to specify a
+#'   path different from the one that is automatically searched by the
+#'   reticulate package functions.
 #' @return A list with DisTal output components: 
 #' \itemize{
 #'   \item repeats.code: a data frame of the unique repeat AA sequences and their numeric codes
@@ -121,7 +190,8 @@ diag(identSubMat) <- 1
 #'   \item repeats.cluster: a data frame containing repeat code and repeat clusters.
 #' }
 #' @export
-distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = ncores) {
+distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
+                    pairwiseAlnMethod = "mmseq2", condaBinPath = "auto") {
   
   #### Reality checks ####
   
@@ -131,7 +201,7 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = ncores) {
     } 
   
   ## Make sure that arrayID - position combinations are unique
-  # in case somone would not have made arrayIDs unique before
+  # in case someone would not have made arrayIDs unique before
   # mixing tale predictions from several genomes...
   arayPosCombinCounts <- taleParts %>%
     dplyr::group_by(arrayID, position) %>%
@@ -140,7 +210,7 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = ncores) {
   if (!all(arayPosCombinCounts == 1L)) {
     stop("Your tale arrays identifers are probably not unique.",
          "\n",
-         "Make sure that there is only one part per position and per arrayID.")
+         "Make sure that there is only one part per position, arrayID and DNA sequence name 'seqnames'.")
   }
   
   #### Assemble repeat code strings and write in a file for arlem ####
@@ -159,10 +229,17 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = ncores) {
   names(taleAaParts) <- taleParts$domCode
   
   # Get pairwise repeat aa sequence dissimilarity scores in a long tibble
-  dissimLong <- .distalPairwiseAlign(partAaStringSet = unique(taleAaParts), ncores = ncores) %>%
-    dplyr::mutate(
-      Sim = 100 - Dissim,
-      Dissim = round(Dissim) %>% as.character())
+  if (pairwiseAlnMethod == "mmseq2") {
+    dissimLong <- .distalPairwiseAlign2(partAaStringSet = unique(taleAaParts), ncores = ncores,
+                                        condaBinPath = condaBinPath) 
+  } else if (pairwiseAlnMethod == "Biostrings") {
+    dissimLong <- .distalPairwiseAlign(partAaStringSet = unique(taleAaParts), ncores = ncores) 
+  } else {
+    stop("'pairwiseAlnMethod' parameter must be either 'Biostrings' or 'mmseq2'")
+  }
+
+  dissimLong %<>% dplyr::mutate(Sim = 100 - Dissim,
+                                Dissim = round(Dissim) %>% as.character())
   
   # Convert to symetric matrix
   dissimMat <- reshape2::acast(dissimLong, formula = subj ~ pattern, value.var = "Dissim")

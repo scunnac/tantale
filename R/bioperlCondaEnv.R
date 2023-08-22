@@ -13,7 +13,7 @@ systemInCondaEnv <- function(envName, command,
 createBioPerlEnv <- function(condaBinPath = "auto") {
   envName <- "perlforal"
   if (!envName %in% (reticulate::conda_list(conda = condaBinPath)["name"] %>% unlist())) {
-    logger::log_warn("A custom conda env will be installed on your system to run perl scripts dependencies")
+    logger::log_warn("A custom conda env will be installed on your system to run external dependencies...")
     condayml <- system.file("tools", "bioperl_conda_env.yaml", package = "tantale", mustWork = T)
     res <- systemInCondaEnv(envName = "base",
                             condaBinPath = condaBinPath,

@@ -4,6 +4,6 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - perl-bioperl=1.7.8
+  - mmseqs2=14.7e284
   - perl-statistics-r=0.34
 

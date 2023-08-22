@@ -29,8 +29,12 @@ taleParts <- getTaleParts(system.file("extdata", "tellTaleExampleOutput", packag
 ## Run `distalr` to investigate TALE protein domains composition relatedness
 
 ```{r use distalr}
-dres <- distalr(taleParts = taleParts, repeats.cluster.h.cut = 10, ncores = 6)
+dres <- distalr(taleParts = taleParts, repeats.cluster.h.cut = 10, ncores = 6,
+                pairwiseAlnMethod = "Biostrings",condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")
 
+
+dres2 <- distalr(taleParts = taleParts, repeats.cluster.h.cut = 10, ncores = 6,
+                pairwiseAlnMethod = "mmseq2",condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")
 ```
 
 
