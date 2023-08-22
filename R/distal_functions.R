@@ -195,23 +195,14 @@ clusterRep <- function(repeatSimMat, repeats.cluster.h.cut) {
 
 #### MAIN functions ####
 
-
-
 #' Run the Distal tool
-#' @description Run the Distal tool of the
-#'   \href{https://doi.org/10.3389/fpls.2015.00545}{QueTal} suite to classify
-#'   and compare TAL effectors functionally and phylogenetically.
+#' @description Run the Distal tool of the \href{https://doi.org/10.3389/fpls.2015.00545}{QueTal} suite to classify and compare TAL effectors functionally and phylogenetically.
 #'
 #' @param fasta.file fasta file containing TALE DNA/AA sequences.
 #' @param outdir directory to store disTal output.
-#' @param repeats.cluster.h.cut numeric value to cut the hierachycal clustering
-#'   tree of the repeat.
-#' @param overwrite logical indicating whether to rerun disTal or only load the
-#'   existing results.
-#' @param condaBinPath Path to your Conda binary file if you need to specify a
-#'   path different from the one that is automatically searched by the
-#'   reticulate package functions.
-#' @return A list with DisTal output components:
+#' @param repeats.cluster.h.cut numeric value to cut the hierachycal clustering tree of the repeat.
+#' @param overwrite logical indicating whether to rerun disTal or only load the existing results.
+#' @return A list with DisTal output components: 
 #' \itemize{
 #'   \item repeats.code: a data frame of the unique repeat AA sequences and there numeric codes
 #'   \item coded.repeats.str: a list of repeat-coded TALE strings
@@ -221,9 +212,7 @@ clusterRep <- function(repeatSimMat, repeats.cluster.h.cut) {
 #'   \item repeats.cluster: a data frame containing repeat code and repeat clusters.
 #' }
 #' @export
-runDistal <- function(fasta.file, outdir = NULL,
-                      treetype = "p", repeats.cluster.h.cut = 10,
-                      overwrite = F, condaBinPath = "auto") {
+runDistal <- function(fasta.file, outdir = NULL, treetype = "p", repeats.cluster.h.cut = 10, overwrite = F) {
   if (is.null(outdir)) {
     outdir <- tempdir(check = TRUE)
   }
@@ -234,52 +223,37 @@ runDistal <- function(fasta.file, outdir = NULL,
                      "Pre-existing DisTAL ouput files in {outdir} will be overwritten.")
     fasta.file <- fasta.file
     outdir <- outdir
-    disTal <- file.path(system.file("tools", "DisTAL1.2_MultipleAlignment", package = "tantale", mustWork = T),
-                        "DisTAL_v1.2_matest_M.pl")
-    #lib <- system.file("tools", "perlModules", package = "tantale", mustWork = T)
-    lib <- system.file("tools", "DisTAL1.2_MultipleAlignment", "lib", package = "tantale", mustWork = T)
-
-    
-    #disTalCMD <- paste("perl -I", lib, disTal, "-m T", "-n", treetype, "-o", outdir, shQuote(fasta.file), sep = " ")
-    #system(disTalCMD, ignore.stdout = T)
-    disTalCMD <- glue::glue("perl {disTal} -I {lib} -m T -n {treetype} -o {outdir} {shQuote(fasta.file)}")
-    
-    perlReady <- !as.logical(createBioPerlEnv(condaBinPath = condaBinPath))
-    if (perlReady) {
-      logger::log_info("Invoking Distal using the following command:\n {stringr::str_wrap(disTalCMD, 80)}")
-      res <- systemInCondaEnv(envName = "perlforal",
-                              condaBinPath = condaBinPath,
-                              command = disTalCMD,
-                              ignore.stdout = T)
-    } else {
-      stop("Could not create the Perl infrastructure on your machine to run Distal...")
-    }
+    sourcecode <- system.file("tools", "DisTAL1.2_MultipleAlignment", package = "tantale", mustWork = T)
+    disTal <- file.path(sourcecode, "DisTAL_v1.2_matest_M.pl")
+    lib <- file.path(sourcecode, "lib")
+    disTalCMD <- paste("perl -I", lib, disTal, "-m T", "-n", treetype, "-o", outdir, shQuote(fasta.file), sep = " ")
+    system(disTalCMD, ignore.stdout = T)
   } else {
     logger::log_info("The specified {outdir} already contains all DisTAL output files. ",
                      "The returned results object will be build from their content.")
   }
-
-
+  
+  
   # read repeatscode.txt
   repeatscode_File <- glue::glue("{outdir}/Output_Repeatscode.txt")
   repeatscode <- read.csv(repeatscode_File, sep = "\t", header = F)
   colnames(repeatscode) <- c("code", "AA Seq")
-
+  
   # read codedrepeats.fa
   codedRepeats_File <- glue::glue("{outdir}/Output_CodedRepeats.fa")
   codedRepeats_str <- fa2liststr(codedRepeats_File)
-
+  
   # read repeatmatrix.mat
   repeatmatrix_File <- glue::glue("{outdir}/Output_Repeatmatrix.mat")
   repeatSim <- formatDistalRepeatDistMat(repeatmatrix_File)
-
+  
   
   
   ## define 'col' based on clustering groups of repeats
   unmelt_repeatSim <-  as.matrix(reshape2::acast(repeatSim, RepU1 ~ RepU2, value.var="Sim"))
   dist_cut <-  clusterRep(repeatSimMat = unmelt_repeatSim,
-             repeats.cluster.h.cut = repeats.cluster.h.cut)
-
+                          repeats.cluster.h.cut = repeats.cluster.h.cut)
+  
   # read tal seqs distance matrix and make sim df
   talMatrix_File <- glue::glue("{outdir}/Output.mat")
   raw_talMatrix <- read.table(talMatrix_File,
@@ -299,11 +273,11 @@ runDistal <- function(fasta.file, outdir = NULL,
   if (setequal(colnames(raw_talMatrix), rownames(raw_talMatrix))) {warning("Sequences of Row and Col names do not match...")}
   talsim <- reshape2::melt(raw_talMatrix)
   colnames(talsim) <-c("TAL1", "TAL2", "Sim")
-
+  
   # read newick tree
   nw_tree_File <-  glue::glue("{outdir}/Output.tre")
   nw_tree <- ape::read.tree(nw_tree_File)
-
+  
   # Assemble return object
   outputlist <- list("repeats.code" = repeatscode, "coded.repeats.str" = codedRepeats_str, "repeat.similarity" = repeatSim, "tal.similarity" = talsim, "tree" = nw_tree, "repeats.cluster" = dist_cut)
   return(outputlist)

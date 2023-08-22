@@ -91,13 +91,16 @@ sunset10 <- c("#ba6b57", "#87556f", "#848ccf", "#93b5e1", "#6f4a8e", "#a2738c", 
 
 arrayReport_files <- list.files(telltale2_outdir, "arrayReport.tsv", recursive = T, full.names = T)
 
-arrayRp <- data.frame()
+arrayRp <- tibble()
 for (f in arrayReport_files) {
-  a <- read.table(f, sep = "\t", stringsAsFactors = F, header = T)
-  if (!any(c("predicted_ins_count", "predicted_dels_count") %in% colnames(a))) a[c("predicted_ins_count", "predicted_dels_count")] <- NA # 2 columns "predicted_ins_count" and "predicted_dels_count" are not displayed in the report in case of no correction
+  a <- read_tsv(f)
+  if (!any(c("predicted_ins_count", "predicted_dels_count") %in% colnames(a)))
+    # 2 columns "predicted_ins_count" and "predicted_dels_count" are not displayed in the report in case of no correction
+    {a[c("predicted_ins_count", "predicted_dels_count")] <- NA} 
   a$strain <- gsub("\\_.+", "", basename(dirname(f)))
   arrayRp <- rbind(arrayRp, a)
 }
+arrayRp <- as_tibble(arrayRp)
 ```
 
 This report takes result of HMMer for Tals motif detection, result of correction and AnnoTALE analyze.\
@@ -256,15 +259,37 @@ distal_output <- runDistal(telltale2_cds, outdir = distal_telltale, overwrite = 
 ## run the R implementation of DisTal
 
 
-```{r}
-
+```{r doing the same with distalr}
 distalrOutDir <- file.path(outdir, "distalr")
 unlink(distalrOutDir, recursive = TRUE)
 dir.create(distalrOutDir, showWarnings = F)
 
-taleParts <- getTaleParts(telltale2_outdir)
-dres2 <- distalr(taleParts = taleParts, repeats.cluster.h.cut = 10, ncores = 1,
-                pairwiseAlnMethod = "mmseq2",condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")
+# ttGenomeDir <- list.dirs(telltale2_outdir, recursive = FALSE)[3]
+taleParts <- lapply(list.dirs(telltale2_outdir, recursive = FALSE), function(ttGenomeDir) {
+  genomeId <- gsub("_.*correction", "", basename(ttGenomeDir))
+  taleParts <- getTaleParts(ttGenomeDir) %>%
+    mutate(arrayID = paste0(genomeId, "_", arrayID))
+  return(taleParts)
+}) %>%
+  bind_rows()
+
+partsForPlots <- taleParts %>% mutate(isNaAaSeq = is.na(aaSeq))
+
+partsForPlots %>% filter(arrayID == "BAI3-1-1_ROI_00007")
+
+partsForPlots %>% filter(is.na(aaSeq))
+
+partsForPlots %>% ggplot(mapping = aes(fill = domainType, y = arrayID, x = position), color = isNaAaSeq) +
+  geom_point(shape = 21)
+
+
+distalr_bs_output <- distalr(taleParts = partsForPlots %>% filter(grepl("MAI1", arrayID)),
+                             repeats.cluster.h.cut = 10, ncores = 6,
+                             pairwiseAlnMethod = "Biostrings")
+
+distalr_mms_output <- distalr(taleParts = partsForPlots %>% filter(grepl("MAI1", arrayID)),
+                              repeats.cluster.h.cut = 10, ncores = 6,
+                              pairwiseAlnMethod = "mmseq2",condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")
 ```
 
 

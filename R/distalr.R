@@ -48,15 +48,15 @@ getTaleParts <- function(tellTaleOutDir) {
     dplyr::ungroup() %>%
     dplyr::mutate(domCode = dplyr::if_else(is.na(aaSeq), as.character(NA), domCode),
                   aaSeq = gsub("[*]", "", aaSeq)
-                  )
+    )
   
   taleParts %<>% dplyr::left_join(rvds, by = c("arrayID", "position"))
   
   taleParts %<>% dplyr::left_join(
-  readr::read_tsv(list.files(tellTaleOutDir, "hitsReport.tsv", recursive = T, full.names = T),
-                  show_col_types = FALSE) %>%
-    dplyr::select(arrayID, seqnames) %>%
-    dplyr::distinct(), by = "arrayID"
+    readr::read_tsv(list.files(tellTaleOutDir, "hitsReport.tsv", recursive = T, full.names = T),
+                    show_col_types = FALSE) %>%
+      dplyr::select(arrayID, seqnames) %>%
+      dplyr::distinct(), by = "arrayID"
   )
   return(taleParts)
 }
@@ -128,7 +128,7 @@ diag(identSubMat) <- 1
                           .sep = " ")
 
   if (!as.logical(createBioPerlEnv(condaBinPath = condaBinPath))) {
-    logger::log_info("Invoking mmseq2 using the following command:\n {stringr::str_wrap(mmseq2Cmd, 80)}")
+    logger::log_debug("Invoking mmseq2 using the following command:\n {stringr::str_wrap(mmseq2Cmd, 80)}")
     res <- systemInCondaEnv(envName = "perlforal",
                             condaBinPath = condaBinPath,
                             command = mmseq2Cmd,
@@ -145,11 +145,10 @@ diag(identSubMat) <- 1
   pairAlignScores <- dplyr::left_join(df, pairAlignScores) %>%
     dplyr::rename(subj = target, pattern = query) %>%
     dplyr::rowwise() %>%
-    #dplyr::mutate(Dissim = ifelse(is.na(pident), 100, 100 - pident)) #*(min(qcov, tcov))
     dplyr::mutate(Dissim = ifelse(is.na(raw), 0, raw/alnlen)) %>%
     dplyr::ungroup()
   
-  # Trying to generate a simetrical dissimilarity matrix which
+  # Trying to generate a symetrical dissimilarity matrix which
   # meets triangle inequality criteria otherwise Arlem complains
   dissimMat <- reshape2::acast(pairAlignScores, formula = subj ~ pattern, value.var = "Dissim")
   distMat <- stats::dist(dissimMat, method = "euclidean", diag = TRUE, upper = TRUE)
@@ -161,7 +160,6 @@ diag(identSubMat) <- 1
   # Parameters may need to be adjusted
   pairAlignScores %<>% dplyr::mutate(Sim = 100/(1+exp(-1*-0.9*(Dissim-3))))
 
-  
   # Check that there is a single pairwise alignment records for all possible parts pairs
   partCombinCounts <- pairAlignScores %>% dplyr::select(pattern, subj) %>%
     dplyr::count(pattern, subj) %>%
@@ -169,12 +167,6 @@ diag(identSubMat) <- 1
   if (!all(partCombinCounts == 1L) || length(partCombinCounts) != length(partAaStringSet)^2) {
     stop("There is not a single pairwise alignment records for all possible parts pairs",)
   }
-  
-  # pairAlignScores %>% dplyr::group_by(query, target) %>% dplyr::tally() %>%
-  #   dplyr::ungroup() %>% dplyr::filter(n != 1)
-  # pairAlignScores %>% dplyr::filter(Dissim > 18, Dissim < 80)
-  # pairAlignScores$Dissim %>%  hist(breaks = 100)
-  
   return(pairAlignScores)
 }
 

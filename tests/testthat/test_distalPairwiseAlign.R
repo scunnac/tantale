@@ -16,24 +16,17 @@ test_that(".distalPairwiseAlign2 output a tibble with the expected dims", {
 })
 
 
-
-# pairAlignScores %>% dplyr::group_by(query, target) %>% dplyr::tally() %>%
-#   dplyr::ungroup() %>% dplyr::filter(n != 1)
-# pairAlignScores %>% dplyr::filter(raw < 100) %>% dplyr::arrange(raw)
 # pairAlignScores$raw %>%  hist(breaks = 100)
-
-
-pairAlignScores$raw %>%  hist(breaks = 100)
-pairAlignScores$Dissim %>%  hist(breaks = 100)
-pairAlignScores %>% dplyr::filter(Dissim < 1000, Dissim > 30)
-pairAlignScores %>% dplyr::filter(Dissim < 10, Dissim >= 0)
-pairAlignScores %>% dplyr::filter(Dissim < 20, Dissim > 10)
-
-pairAlignScores %<>% dplyr::mutate(Sim = 100/(1+exp(-1*-0.9*(Dissim-3))))
-pairAlignScores$Sim %>%  hist(breaks = 100)
-skimr::skim(pairAlignScores$Dissim)
-ggplot2::ggplot(pairAlignScores, mapping = ggplot2::aes(x= Dissim, y= Sim)) +
-  ggplot2::geom_point(alpha = 0.1)
+# pairAlignScores$Dissim %>%  hist(breaks = 100)
+# pairAlignScores %>% dplyr::filter(Dissim < 1000, Dissim > 30)
+# pairAlignScores %>% dplyr::filter(Dissim < 10, Dissim >= 0)
+# pairAlignScores %>% dplyr::filter(Dissim < 20, Dissim > 10)
+# 
+# pairAlignScores %<>% dplyr::mutate(Sim = 100/(1+exp(-1*-0.9*(Dissim-3))))
+# pairAlignScores$Sim %>%  hist(breaks = 100)
+# skimr::skim(pairAlignScores$Dissim)
+# ggplot2::ggplot(pairAlignScores, mapping = ggplot2::aes(x= Dissim, y= Sim)) +
+#   ggplot2::geom_point(alpha = 0.1)
 
 
 

@@ -231,13 +231,7 @@ groupTales <- function(taleSim, plotTree = FALSE, k = NULL, k_test = NULL, metho
     if (!is.null(k)) message("'k' will be ignored")
     if (!is.numeric(numGroups) || length(numGroups) != 1) stop("'k' must be specified as a number!")
     if (method == "euclidean") {
-      taleTree <- hclust(
-        d = dist(
-          distMat,
-          method = "euclidean"
-          ),
-        method = "ward.D"
-        )
+      taleTree <- hclust(d = dist(distMat, method = "euclidean"), method = "ward.D")
     } else if (method == "distal") {
       taleTree <- hclust(as.dist(distMat), method = "ward.D")
     }
