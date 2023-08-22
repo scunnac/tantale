@@ -253,6 +253,21 @@ for (input in distal_telltale_input) {
 distal_output <- runDistal(telltale2_cds, outdir = distal_telltale, overwrite = F)
 ```
 
+## run the R implementation of DisTal
+
+
+```{r}
+
+distalrOutDir <- file.path(outdir, "distalr")
+unlink(distalrOutDir, recursive = TRUE)
+dir.create(distalrOutDir, showWarnings = F)
+
+taleParts <- getTaleParts(telltale2_outdir)
+dres2 <- distalr(taleParts = taleParts, repeats.cluster.h.cut = 10, ncores = 1,
+                pairwiseAlnMethod = "mmseq2",condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")
+```
+
+
 ## classify TAL groups
 
 ```{r test_tale_group, fig.width = 6, fig.height=4}

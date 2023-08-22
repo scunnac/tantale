@@ -90,19 +90,20 @@ diag(identSubMat) <- 1
       maxLength = max(nchar(partAaStringSet[subj]), nchar(partAaStringSet[pattern])),
       # This is an approximate equivalent of how Alvaro computed dissimilarity in distal
       Dissim = 100 - 100 * (maxLength - score) / maxLength,
-      Dissim = ifelse(Dissim < 0, 100, 100 - Dissim)
+      Dissim = ifelse(Dissim < 0, 100, 100 - Dissim),
+      Sim = 100 - Dissim
     ) %>%
     dplyr::ungroup()
   #pairAlignScores$Dissim %>%  hist(breaks = 40)
   return(pairAlignScores)
 }
 
-condaBinPath <- "/home/cunnac/bin/miniconda3/condabin/conda"
-taleParts <- getTaleParts(system.file("extdata", "tellTaleExampleOutput", package = "tantale", mustWork = T)) %>%
-  dplyr::mutate(partId = paste(arrayID, position, sep = "_"))
-
-partAaStringSet <- Biostrings::AAStringSet(taleParts$aaSeq)
-names(partAaStringSet) <- taleParts$partId
+# condaBinPath <- "/home/cunnac/bin/miniconda3/condabin/conda"
+# taleParts <- getTaleParts(system.file("extdata", "tellTaleExampleOutput", package = "tantale", mustWork = T)) %>%
+#   dplyr::mutate(partId = paste(arrayID, position, sep = "_"))
+# 
+# partAaStringSet <- Biostrings::AAStringSet(taleParts$aaSeq)
+# names(partAaStringSet) <- taleParts$partId
 
 
 .distalPairwiseAlign2 <- function(partAaStringSet, ncores = 1, condaBinPath = "auto") {
@@ -112,9 +113,6 @@ names(partAaStringSet) <- taleParts$partId
   prefDbPath <- file.path(outdir, 'resultDB_pref')
   alnDbPath <- file.path(outdir, 'resultDB_aln')
   alnTabFile <- file.path(outdir, 'alnRes.tab')
-  
-  df <- expand.grid(names(partAaStringSet), names(partAaStringSet), stringsAsFactors = FALSE) %>% tibble::as_tibble()
-  colnames(df) <- c("query", "target")
   
   Biostrings::writeXStringSet(partAaStringSet, filepath = partAaStringSetFile)
   mmseq2Cmd <- glue::glue("mmseqs createdb {partAaStringSetFile} -v 3 {mmseq2DbPath};",
@@ -126,7 +124,7 @@ names(partAaStringSet) <- taleParts$partId
                           "-a 1 --alignment-output-mode 0;",
                           "mmseqs convertalis {mmseq2DbPath} {mmseq2DbPath} {alnDbPath} {alnTabFile}",
                           "--format-mode 4",
-                          "--format-output query,target,evalue,gapopen,pident,nident,qstart,qend,qlen,tstart,tend,tlen,alnlen,bits,mismatch,qcov,tcov",
+                          "--format-output query,target,evalue,raw,pident,nident,mismatch,gapopen,qstart,qend,qlen,tstart,tend,tlen,alnlen,bits,qcov,tcov",
                           .sep = " ")
 
   if (!as.logical(createBioPerlEnv(condaBinPath = condaBinPath))) {
@@ -139,20 +137,39 @@ names(partAaStringSet) <- taleParts$partId
     stop("Could not create the Perl infrastructure on your machine to run mmseq2...")
   }
   
+  df <- expand.grid(names(partAaStringSet), names(partAaStringSet), stringsAsFactors = FALSE) %>% tibble::as_tibble()
+  colnames(df) <- c("query", "target")
+  
   pairAlignScores <- readr::read_tsv(alnTabFile) %>%
-    dplyr::mutate(query = as.character(query), target = as.character(target))
+    dplyr::mutate(target = as.character(target), query = as.character(query))
   pairAlignScores <- dplyr::left_join(df, pairAlignScores) %>%
-    dplyr::rename(pattern = target, subj = query) %>%
+    dplyr::rename(subj = target, pattern = query) %>%
     dplyr::rowwise() %>%
-    dplyr::mutate(Dissim = ifelse(is.na(pident), 100, 100 - pident*(max(qcov, tcov))))
+    #dplyr::mutate(Dissim = ifelse(is.na(pident), 100, 100 - pident)) #*(min(qcov, tcov))
+    dplyr::mutate(Dissim = ifelse(is.na(raw), 0, raw/alnlen)) %>%
+    dplyr::ungroup()
+  
+  # Trying to generate a simetrical dissimilarity matrix which
+  # meets triangle inequality criteria otherwise Arlem complains
+  dissimMat <- reshape2::acast(pairAlignScores, formula = subj ~ pattern, value.var = "Dissim")
+  distMat <- stats::dist(dissimMat, method = "euclidean", diag = TRUE, upper = TRUE)
+  distLong <- reshape2::melt(as.matrix(distMat)) %>% tibble::as_tibble()
+  colnames(distLong) <- c("pattern", "subj", "Dissim")
+  distLong %<>% dplyr::mutate(pattern = as.character(pattern), subj = as.character(subj))
+  pairAlignScores <- dplyr::left_join(pairAlignScores %>% dplyr::select(-Dissim), distLong)
+  # Convert Distance (dissimilarity) measures to Similarity with a four-parameter logistic function
+  # Parameters may need to be adjusted
+  pairAlignScores %<>% dplyr::mutate(Sim = 100/(1+exp(-1*-0.9*(Dissim-3))))
+
   
   # Check that there is a single pairwise alignment records for all possible parts pairs
   partCombinCounts <- pairAlignScores %>% dplyr::select(pattern, subj) %>%
-    dplyr::count() %>%
+    dplyr::count(pattern, subj) %>%
     dplyr::pull(n)
   if (!all(partCombinCounts == 1L) || length(partCombinCounts) != length(partAaStringSet)^2) {
     stop("There is not a single pairwise alignment records for all possible parts pairs",)
   }
+  
   # pairAlignScores %>% dplyr::group_by(query, target) %>% dplyr::tally() %>%
   #   dplyr::ungroup() %>% dplyr::filter(n != 1)
   # pairAlignScores %>% dplyr::filter(Dissim > 18, Dissim < 80)
@@ -231,15 +248,15 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
   # Get pairwise repeat aa sequence dissimilarity scores in a long tibble
   if (pairwiseAlnMethod == "mmseq2") {
     dissimLong <- .distalPairwiseAlign2(partAaStringSet = unique(taleAaParts), ncores = ncores,
-                                        condaBinPath = condaBinPath) 
+                                        condaBinPath = condaBinPath)
+    #saveRDS(dissimLong, file = "/home/cunnac/TEMP/dissimLong")
   } else if (pairwiseAlnMethod == "Biostrings") {
     dissimLong <- .distalPairwiseAlign(partAaStringSet = unique(taleAaParts), ncores = ncores) 
   } else {
     stop("'pairwiseAlnMethod' parameter must be either 'Biostrings' or 'mmseq2'")
   }
 
-  dissimLong %<>% dplyr::mutate(Sim = 100 - Dissim,
-                                Dissim = round(Dissim) %>% as.character())
+  dissimLong %<>% dplyr::mutate(Dissim = round(Dissim) %>% as.character())
   
   # Convert to symetric matrix
   dissimMat <- reshape2::acast(dissimLong, formula = subj ~ pattern, value.var = "Dissim")
