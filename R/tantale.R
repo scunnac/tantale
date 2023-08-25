@@ -44,9 +44,16 @@
 #' @docType package
 #' @name tantale
 #'
-#'
-#'
 #' @importFrom glue glue
+#' @import fs
 #' @import magrittr
-#' @importFrom IRanges IRanges
-NULL
+#' @import logger
+.onAttach <- function(...){
+  packageStartupMessage(logger::log_info('Loading the tantale package'))
+  packageStartupMessage(logger::log_debug('Email sebastien.cunnac@ird.fr for comments'))
+}
+
+.onLoad <- function(...){
+  logger::log_layout(logger::layout_glue_colors,namespace ='tantale')
+  logger::log_threshold('TRACE', namespace = 'tantale')
+}

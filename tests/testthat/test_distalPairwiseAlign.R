@@ -15,6 +15,14 @@ test_that(".distalPairwiseAlign2 output a tibble with the expected dims", {
   expect_true(identical(dim(pairAlignScores), c(9216L,20L)))
 })
 
+test_that(".distalPairwiseAlign3 output a tibble with the expected dims", {
+  pairAlignScores <- .distalPairwiseAlign3(partAaStringSet)
+  expect_true(identical(dim(pairAlignScores), c(9216L,4L)))
+})
+
+
+
+
 
 # pairAlignScores$raw %>%  hist(breaks = 100)
 # pairAlignScores$Dissim %>%  hist(breaks = 100)

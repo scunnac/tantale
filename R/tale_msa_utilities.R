@@ -22,7 +22,7 @@ pickRefName <- function(align, refTag = NULL) {
   }
   # If no refTag is provided, pick the longest seq(s) and if there are ties, pick the first one alphabetically
   if (is.null(refTag)) {
-    strippedAlignLengths <- apply(align, 1, function(seq) length(seq[! is.na(seq)]))
+    strippedAlignLengths <- apply(align, 1, function(seq) length(seq[!is.na(seq)]))
     longest <- rownames(align)[strippedAlignLengths == max(strippedAlignLengths)]
     ifelse(length(longest) == 1, refName <- longest, refName <- sort(longest)[1])
   }

@@ -32,11 +32,14 @@ taleParts <- getTaleParts(system.file("extdata", "tellTaleExampleOutput", packag
 taleParts <- partsForPlots %>% filter(grepl("MAI1", arrayID))
 
 dres <- distalr(taleParts = taleParts, repeats.cluster.h.cut = 10, ncores = 6,
-                pairwiseAlnMethod = "Biostrings",condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")
-
+                pairwiseAlnMethod = "Biostrings")
 
 dres2 <- distalr(taleParts = taleParts, repeats.cluster.h.cut = 10, ncores = 6,
-                pairwiseAlnMethod = "mmseq2",condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")
+                pairwiseAlnMethod = "mmseq2", condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")
+
+dres3 <- distalr(taleParts = taleParts, repeats.cluster.h.cut = 10, ncores = 6,
+                pairwiseAlnMethod = "DECIPHER")
+
 ```
 
 

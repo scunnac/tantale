@@ -2,7 +2,7 @@
 ##### Utility functions ####
 ## -convert TALE RVD sequences into different formats
 ## - run external TALE clustering tools (FuncTALE and AnnoTALE)
-## - plot pretty alignments between RVD seq and EBE
+
 
 
 
@@ -100,7 +100,7 @@ analyzeAnnoTALE <- function(inputFastaFile,
   )
   cat("##  Now running annoTALE predict for", prefix, "using the following command:\n##  ",  comPredict, "\n")
   exitPredict <- system(comPredict)
-  ! exitPredict || stop("##  annoTALE predict failed with an error. Aborting...")
+  !exitPredict || stop("##  annoTALE predict failed with an error. Aborting...")
 
   # Run the "analyze" stage of annoTALE
   comAnalyze <- paste0(
