@@ -4,10 +4,12 @@
 \alias{fa2liststr}
 \title{Load the content of fasta file containing TALE sequences}
 \usage{
-fa2liststr(fasta.file)
+fa2liststr(fasta.file, sep = "-")
 }
 \arguments{
 \item{fasta.file}{Path to a fasta file}
+
+\item{sep}{Separator of the elements of the sequence}
 }
 \value{
 A list of named vectors representing the 'splited' sequence.

@@ -4,12 +4,25 @@
 \alias{distalr}
 \title{Emulate DisTal in R}
 \usage{
-distalr(taleParts, repeats.cluster.h.cut = 10, ncores = ncores)
+distalr(
+  taleParts,
+  repeats.cluster.h.cut = 10,
+  ncores = 1,
+  pairwiseAlnMethod = "mmseq2",
+  condaBinPath = "auto"
+)
 }
 \arguments{
 \item{taleParts}{a table of TALE parts as returned by the \code{\link[tantale:getTaleParts]{getTaleParts}} function.}
 
-\item{repeats.cluster.h.cut}{numeric value to cut the hierachycal clustering tree of the repeat.}
+\item{repeats.cluster.h.cut}{numeric value to cut the hierarchical clustering tree of the repeat.}
+
+\item{pairwiseAlnMethod}{Specify the underlying approach for computing pairwise similarities between
+TALE parts amino acid sequences. Must be "Biostrings", "mmseq2" or "DECIPHER"}
+
+\item{condaBinPath}{Path to your Conda binary file if you need to specify a
+path different from the one that is automatically searched by the
+reticulate package functions.}
 }
 \value{
 A list with DisTal output components: 

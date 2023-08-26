@@ -9,8 +9,7 @@ runDistal(
   outdir = NULL,
   treetype = "p",
   repeats.cluster.h.cut = 10,
-  overwrite = F,
-  condaBinPath = "auto"
+  overwrite = F
 )
 }
 \arguments{
@@ -18,18 +17,12 @@ runDistal(
 
 \item{outdir}{directory to store disTal output.}
 
-\item{repeats.cluster.h.cut}{numeric value to cut the hierachycal clustering
-tree of the repeat.}
+\item{repeats.cluster.h.cut}{numeric value to cut the hierachycal clustering tree of the repeat.}
 
-\item{overwrite}{logical indicating whether to rerun disTal or only load the
-existing results.}
-
-\item{condaBinPath}{Path to your Conda binary file if you need to specify a
-path different from the one that is automatically searched by the
-reticulate package functions.}
+\item{overwrite}{logical indicating whether to rerun disTal or only load the existing results.}
 }
 \value{
-A list with DisTal output components:
+A list with DisTal output components: 
 \itemize{
   \item repeats.code: a data frame of the unique repeat AA sequences and there numeric codes
   \item coded.repeats.str: a list of repeat-coded TALE strings
@@ -40,7 +33,5 @@ A list with DisTal output components:
 }
 }
 \description{
-Run the Distal tool of the
-  \href{https://doi.org/10.3389/fpls.2015.00545}{QueTal} suite to classify
-  and compare TAL effectors functionally and phylogenetically.
+Run the Distal tool of the \href{https://doi.org/10.3389/fpls.2015.00545}{QueTal} suite to classify and compare TAL effectors functionally and phylogenetically.
 }

@@ -3,10 +3,10 @@
   if (grepl("TALE_Protein_parts.fasta", basename(fasta))) taleStrings <- Biostrings::readAAStringSet(fasta)
   if (grepl("TALE_DNA_parts.fasta", basename(fasta))) taleStrings <- Biostrings::readDNAStringSet(fasta)
   if (length(taleStrings) == 0L) {
+    logger::log_warn("No part sequence found in: {fasta}. Returning an empty tibble.")
     tibble::tibble(arrayIDs = character(), domainType = character(),
                    "position" = character(), "string" = character(),
                    "sourceDirectory" = character())
-    logger::log_warn("No part sequence found in: {fasta}")
   } else {
     tibble::tibble(arrayID = gsub("(.*): .*", "\\1", names(taleStrings)),
                    domainType = gsub(".*: (.*?)[ ]?[0-9]{0,}$", "\\1", names(taleStrings)),
@@ -23,16 +23,21 @@
 #' Fetch Annotale parts from a tellTale output directory.
 #'
 #' @description
-#' 
-#' This function get sequences from Annotale "rvdSequences.fas", "TALE_Protein_parts.fasta" and "TALE_DNA_parts.fasta"
-#' files from a specified \code{\link[tantale:tellTale]{tellTale}} run output directory
-#' and returns a tibble. Each row describes a domain from a tale array and includes the 'arrayID',
-#'  the id of the sequence where this array was found, the 'domainType' (type of domain, repeat,
-#'  N-term or C-term), the position of the domain inside the array,
-#' the DNA of the corresponding domain and the RVD and amino acid sequences if relevant.
-#' IMPORTANT: arrayIDs in the tellTale run output directory must be unique.
 #'
-#' @param tellTaleOutDir Path to a \code{\link[tantale:tellTale]{tellTale}} run output directory
+#' This function get sequences from Annotale "rvdSequences.fas",
+#' "TALE_Protein_parts.fasta" and "TALE_DNA_parts.fasta" files from a SINGLE
+#' \code{\link[tantale:tellTale]{tellTale}} run output directory and returns a
+#' tibble. Each row describes a domain from a tale array and includes the
+#' 'arrayID', the id of the sequence where this array was found, the
+#' 'domainType' (type of domain, repeat, N-term or C-term), the position of the
+#' domain inside the array, the DNA of the corresponding domain and the RVD and
+#' amino acid sequences if relevant.
+#'
+#'
+#' **IMPORTANT**: telltale MUST have been run with the appendExtremityCodes = TRUE
+#'
+#' @param tellTaleOutDir Path to a \code{\link[tantale:tellTale]{tellTale}} run
+#'   output directory
 #' @return A tibble.
 #' @export
 getTaleParts <- function(tellTaleOutDir) {
@@ -40,12 +45,10 @@ getTaleParts <- function(tellTaleOutDir) {
   # !!!! arrayID are assumed to be unique !!!!
   protPartsFiles <- list.files(tellTaleOutDir, "TALE_Protein_parts.fasta", recursive = T, full.names = T)
   dnaPartsFiles <- list.files(tellTaleOutDir, "TALE_DNA_parts.fasta", recursive = T, full.names = T)
-  rvds <- fa2liststr(list.files(tellTaleOutDir, "rvdSequences.fas", recursive = T, full.names = T)) %>%
-    lapply(function(x) tibble::tibble(rvd = x, position = 1:length(x) )) %>%
-    dplyr::bind_rows(.id = "arrayID")
   # Fetch info from annotale/telltale files with .getTalePartsFromAFile
   taleProtString <- lapply(protPartsFiles, .getTalePartsFromAFile) %>% dplyr::bind_rows()
   taleDnaString <- lapply(dnaPartsFiles, .getTalePartsFromAFile) %>% dplyr::bind_rows()
+  stopifnot(nrow(taleProtString) == nrow(taleDnaString)) ### TESTME
   # Join info in a table with one domain per row
   taleParts <- dplyr::full_join(taleDnaString %>% dplyr::rename(dnaSeq = string),
                                 taleProtString %>% dplyr::rename(aaSeq = string),
@@ -57,6 +60,34 @@ getTaleParts <- function(tellTaleOutDir) {
     dplyr::ungroup() %>%
     dplyr::mutate(domCode = dplyr::if_else(is.na(aaSeq), as.character(NA), domCode))
   # Add RVDs
+  # !!!!!!!!!! NOTE that if AnnoTALE did not report on a N-Term seq, because we are using the rvd seq file from telltale,
+  # this may shift the position of everything...
+  # if AnnoTALE did not report on a C-Term seq, the corresponding domain
+  # in the rvd seq file from telltale will be disregarded (left_join)
+  rvds <- fa2liststr(list.files(tellTaleOutDir, "rvdSequences.fas", recursive = T, full.names = T)) %>%
+    lapply(function(x) tibble::tibble(rvd = x, position = 1:length(x) )) %>%
+    dplyr::bind_rows(.id = "arrayID")  
+  anchorCodes <- c("NTERM", "CTERM", "XXXXX")
+  
+  arraysConsistency <- dplyr::full_join(taleParts %>% dplyr::count(arrayID, name = "AnnoTALELength"),
+                                        rvds %>% dplyr::count(arrayID, name = "rvdFileLength"),
+                                        by = "arrayID") %>%
+    dplyr::mutate(sameLength = AnnoTALELength == rvdFileLength)
+  if(any(is.na(arraysConsistency$sameLength))) {
+    cat(knitr::kable(arraysConsistency %>% dplyr::filter(is.na(arraysConsistency$sameLength)), "simple"),
+        sep = "\n")
+    logger::log_error("There are mismatches in array IDs")
+    stop()
+  } else if (!all(arraysConsistency$sameLength)) {
+    cat(knitr::kable(arraysConsistency %>% dplyr::filter(!arraysConsistency$sameLength), "simple"),
+        sep = "\n")
+    logger::log_error("See table above: array lengths are incosistent between rvd",
+                      "seq file and AnnoTALE parts files...")
+    stop()
+  }
+  
+  
+  
   taleParts %<>% dplyr::left_join(rvds, by = c("arrayID", "position"))
   # Add seqnames
   taleParts %<>% dplyr::left_join(
@@ -110,7 +141,6 @@ diag(identSubMat) <- 1
       # This is an approximate equivalent of how Alvaro computed dissimilarity in distal
       Dissim = 100 - 100 * (maxLength - score) / maxLength,
       Dissim = ifelse(Dissim < 0, 100, 100 - Dissim),
-      Sim = 100 - Dissim
     ) %>%
     dplyr::ungroup()
   #pairAlignScores$Dissim %>%  hist(breaks = 40)
@@ -164,7 +194,6 @@ diag(identSubMat) <- 1
   }
   
 
-  
   pairAlignScores <- readr::read_tsv(alnTabFile) %>%
     dplyr::mutate(target = as.character(target), query = as.character(query)) %>%
     dplyr::group_by(target, query) %>%
@@ -172,28 +201,13 @@ diag(identSubMat) <- 1
   pairAlignScores <- dplyr::left_join(df, pairAlignScores) %>%
     dplyr::rename(subj = target, pattern = query) %>%
     dplyr::rowwise() %>%
-    dplyr::mutate(Dissim = ifelse(is.na(raw), 0, raw/alnlen)) %>%
+    dplyr::mutate(Dissim = ifelse(is.na(pident), 0, pident/alnlen)) %>%
     dplyr::ungroup()
   
   # pairAlignScores %>% group_by(subj, pattern) %>%
   #   tally() %>% filter(n != 1L)
   # pairAlignScores %>% group_by(target, query) %>%
   #   tally() %>% filter(n != 1L)
-
-  
-  # Trying to generate a symetrical dissimilarity matrix which
-  # meets triangle inequality criteria otherwise Arlem complains
-  logger::log_debug("Casting Dissim tible")
-  dissimMat <- reshape2::acast(pairAlignScores, formula = subj ~ pattern, value.var = "Dissim")
-  distMat <- stats::dist(dissimMat, method = "euclidean", diag = TRUE, upper = TRUE)
-  distLong <- reshape2::melt(as.matrix(distMat)) %>% tibble::as_tibble()
-  colnames(distLong) <- c("pattern", "subj", "Dissim")
-  distLong %<>% dplyr::mutate(pattern = as.character(pattern), subj = as.character(subj))
-  logger::log_debug("Joinning to obtain the complete Dissim tible: all dom vs dom combinations ({nrow(df)})")
-  pairAlignScores <- dplyr::left_join(pairAlignScores %>% dplyr::select(-Dissim), distLong)
-  # Convert Distance (dissimilarity) measures to Similarity with a four-parameter logistic function
-  # Parameters may need to be adjusted
-  pairAlignScores %<>% dplyr::mutate(Sim = 100/(1+exp(-1*-0.9*(Dissim-3))))
 
   # Check that there is a single pairwise alignment records for all possible parts pairs
   partCombinCounts <- pairAlignScores %>% dplyr::select(pattern, subj) %>%
@@ -215,8 +229,7 @@ diag(identSubMat) <- 1
   distLong <- reshape2::melt(as.matrix(distMat)) %>% tibble::as_tibble()
   colnames(distLong) <- c("pattern", "subj", "Dissim")
   distLong %<>% dplyr::mutate(pattern = as.character(pattern), subj = as.character(subj))
-  distLong %<>% dplyr::mutate(Dissim = Dissim*100,
-                              Sim = 100 - Dissim) %>%
+  distLong %<>% dplyr::mutate(Dissim = Dissim*100) %>%
     dplyr::ungroup()
   return(distLong)
 }
@@ -309,7 +322,36 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
     logger::log_errors() && stop("'pairwiseAlnMethod' parameter must be either 'Biostrings', 'mmseq2' or 'DECIPHER'")
   }
   
+  
+  # # Trying to generate a symetrical dissimilarity matrix which
+  # # meets triangle inequality criteria otherwise Arlem complains
+  # logger::log_debug("Casting Dissim tible")
+  # dissimMat <- reshape2::acast(pairAlignScores, formula = subj ~ pattern, value.var = "Dissim")
+  # distMat <- stats::dist(dissimMat, method = "euclidean", diag = TRUE, upper = TRUE)
+  # distLong <- reshape2::melt(as.matrix(distMat)) %>% tibble::as_tibble()
+  # colnames(distLong) <- c("pattern", "subj", "Dissim")
+  # distLong %<>% dplyr::mutate(pattern = as.character(pattern), subj = as.character(subj))
+  # logger::log_debug("Joinning to obtain the complete Dissim tible: all dom vs dom combinations ({nrow(df)})")
+  # pairAlignScores <- dplyr::left_join(pairAlignScores %>% dplyr::select(-Dissim), distLong)
+  # # Convert Distance (dissimilarity) measures to Similarity with a four-parameter logistic function
+  # # Parameters may need to be adjusted
+  # pairAlignScores %<>% dplyr::mutate(Sim = 100/(1+exp(-1*-0.9*(Dissim-3))))
+  # Sim = 100 - Dissim
+  
+  
+  
+  
+  
   dissimLong %<>% dplyr::mutate(Dissim = round(Dissim) %>% as.character())
+  
+  
+  
+  
+  
+  
+  
+  
+  
   
   # Convert to symetric matrix
   dissimMat <- reshape2::acast(dissimLong, formula = subj ~ pattern, value.var = "Dissim")

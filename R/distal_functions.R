@@ -9,14 +9,16 @@
 #' @description Load the content of fasta file containing TALE sequences (either RVD or Distal repeat code) and return a list of vectors each one composed of the individual elements of the sequence.
 #'
 #' @param fasta.file Path to a fasta file
+#' @param sep Separator of the elements of the sequence
 #'
 #' @return A list of named vectors representing the 'splited' sequence.
 #'
 #' @export
-fa2liststr <- function(fasta.file) {
+fa2liststr <- function(fasta.file, sep = "-") {
   fasta.file <- fasta.file
+  stopifnot(fs::file_exists(fasta.file))
   seqs <- as.character(Biostrings::readBStringSet(fasta.file), use.names=TRUE)
-  seqsAsVectors <- stringr::str_split(seqs, pattern = "[- ]")
+  seqsAsVectors <- stringr::str_split(seqs, pattern = glue("[{sep}]"))
   seqsAsVectors <- lapply(seqsAsVectors, function(x) { # Remove last residue if it is empty string
     if ( x[length(x)] == "") {
       warning("## Last element in 'vectorized' sequence is empty. It was removed from output.")

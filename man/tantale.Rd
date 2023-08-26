@@ -3,7 +3,11 @@
 \docType{package}
 \name{tantale}
 \alias{tantale}
+\alias{.onAttach}
 \title{tantale: Transcription Activator-Like Effectors (TALEs) tools}
+\usage{
+.onAttach(...)
+}
 \description{
 An integrated collection of functions for (IDEALLY):
 }

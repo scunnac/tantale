@@ -1,23 +1,22 @@
 
-
-taleParts <- getTaleParts(system.file("extdata", "tellTaleExampleOutput", package = "tantale", mustWork = T)) %>%
+taleParts <- getTaleParts(test_path("data_for_tests", "tellTaleExampleOutput")) %>%
   dplyr::mutate(partId = paste(arrayID, position, sep = "_"))
-partAaStringSet <- Biostrings::AAStringSet(taleParts$aaSeq)
+partAaStringSet <-  Biostrings::AAStringSet(taleParts$aaSeq)
 names(partAaStringSet) <- taleParts$partId
 
 test_that(".distalPairwiseAlign output a tibble with the expected dims", {
   pairAlignScores <- .distalPairwiseAlign(partAaStringSet, ncores = 6)
-  expect_true(identical(dim(pairAlignScores), c(9216L,7L)))
+  expect_true(identical(dim(pairAlignScores), c(9216L,6L)))
 })
 
 test_that(".distalPairwiseAlign2 output a tibble with the expected dims", {
   pairAlignScores <- .distalPairwiseAlign2(partAaStringSet, condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")
-  expect_true(identical(dim(pairAlignScores), c(9216L,20L)))
+  expect_true(identical(dim(pairAlignScores), c(9216L,19L)))
 })
 
 test_that(".distalPairwiseAlign3 output a tibble with the expected dims", {
   pairAlignScores <- .distalPairwiseAlign3(partAaStringSet)
-  expect_true(identical(dim(pairAlignScores), c(9216L,4L)))
+  expect_true(identical(dim(pairAlignScores), c(9216L,3L)))
 })
 
 

@@ -15,8 +15,6 @@ tellTale2(
   minDomainHitsPerSubjSeq = 4,
   mergeHits = TRUE,
   minGapWidth = 35,
-  taleArrayStartAnchorCode = "NTERM",
-  taleArrayEndAnchorCode = "CTERM",
   appendExtremityCodes = TRUE,
   rvdSep = "-",
   hmmerpath = system.file("tools", "hmmer-3.3", "bin", package = "tantale", mustWork = T),

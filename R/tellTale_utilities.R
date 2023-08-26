@@ -100,7 +100,7 @@ correction_tible <- function(indels) {
 #' @import Biostrings
 annout <- setClass(
   # Set the name for the class
-  "annout",
+  Class = "annout",
   
   # Define the slots
   slots = c(
