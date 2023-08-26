@@ -45,6 +45,7 @@
 #' @name tantale
 #'
 #' @importFrom glue glue
+#' @importFrom IRanges IRanges
 #' @import fs
 #' @import magrittr
 #' @import logger
