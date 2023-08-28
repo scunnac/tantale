@@ -20,7 +20,7 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>>")
 ```
 
 ```{r package, warning=FALSE, message=FALSE}
-library(tantale)
+#library(tantale)
 library(ggplot2)
 library(tidyverse)
 library(Biostrings)
@@ -39,12 +39,13 @@ Get the fasta files:
 mai1_fa <- system.file("extdata", "MAI1.fa", package = "tantale", mustWork = T)
 bai3_fa <- system.file("extdata", "BAI3.fa", package = "tantale", mustWork = T)
 bai311_fa <- system.file("extdata", "BAI3-1-1.fa", package = "tantale", mustWork = T)
+pxo86 <- system.file("extdata", "PXO86.fa", package = "tantale", mustWork = T)
 ```
 
 Output dir to save all the results of this vignette:
 
 ```{r outdir}
-outdir <- tempdir(check = TRUE) #"/tmp/test_tantale"
+outdir <- fs::dir_create("~/TEMP/test_tantale") # tempdir(check = TRUE)
 telltale2_outdir <- file.path(outdir, "telltale2")
 dir.create(telltale2_outdir, showWarnings = T)
 ```
@@ -57,7 +58,7 @@ By default, `telltale2()` adds NTERM and CTERM to RVD sequences as markers of th
 ## run telltale2 no correction
 
 ```{r telltale_no_correction, eval=TRUE}
-mclapply(c(mai1_fa, bai3_fa), function(fastaFile) {
+mclapply(c(mai1_fa, bai3_fa, pxo86), function(fastaFile) {
   outdirname <- gsub(".fa", "_nocorrection", basename(fastaFile))
   outputDir <- file.path(telltale2_outdir, outdirname)
   tellTale(subjectFile = fastaFile,
@@ -72,10 +73,11 @@ mclapply(c(mai1_fa, bai3_fa), function(fastaFile) {
 
 ```{r telltale2_correction, eval=TRUE}
 tellTale(subjectFile = bai311_fa,
-          outputDir = file.path(telltale2_outdir, gsub(".fa", "_correction", basename(bai311_fa))),
-          appendExtremityCodes = TRUE,
-          rvdSep = "-",
-          talArrayCorrection = TRUE)
+         outputDir = file.path(telltale2_outdir, gsub(".fa", "_correction", basename(bai311_fa))),
+         TALE_CtermDNAHitMinScore = 300,
+         appendExtremityCodes = TRUE,
+         rvdSep = "-",
+         talArrayCorrection = TRUE)
 ```
 
 ## overview of telltale2 results
@@ -255,7 +257,9 @@ for (input in distal_telltale_input) {
 }
 
 # run DisTal
-distal_output <- runDistal(telltale2_cds, outdir = distal_telltale, overwrite = F)
+distal_output <- runDistal(telltale2_cds, outdir = distal_telltale, overwrite = T)
+
+# distal_output$tal.similarity %>%as_tibble() %>% filter(TAL1 == | TAL2 == )
 ```
 
 ## run the R implementation of DisTal
@@ -268,25 +272,45 @@ dir.create(distalrOutDir, showWarnings = F)
 # ttGenomeDir <- list.dirs(telltale2_outdir, recursive = FALSE)[3]
 taleParts <- lapply(list.dirs(telltale2_outdir, recursive = FALSE), function(ttGenomeDir) {
   genomeId <- gsub("_.*correction", "", basename(ttGenomeDir))
+  logger::log_debug("Current genome: {genomeId}")
   taleParts <- getTaleParts(ttGenomeDir) %>%
     mutate(arrayID = paste0(genomeId, "_", arrayID))
   return(taleParts)
 }) %>%
   bind_rows()
 
-partsForPlots <- taleParts
-partsForPlots <- taleParts %>% mutate(isNaAaSeq = is.na(aaSeq))
-partsForPlots %>% ggplot(mapping = aes(fill = domainType, y = arrayID, x = position), color = isNaAaSeq) +
-  geom_point(shape = 21)
 
+partsForPlots <- taleParts %>%
+  mutate(label = if_else(domainType == "repeat", rvd, ""),
+         aaSeqLength = factor(nchar(aaSeq))
+  )
+partsForPlots %>% ggplot(mapping = aes(fill = aaSeqLength,
+                                       color = domainType,
+                                       label = label,
+                                       y = arrayID,
+                                       x = positionInArray),
+                         color = isNaAaSeq) +
+  scale_color_viridis_d(option = "rocket") +
+  scale_fill_discrete() +
+  scale_x_continuous(breaks = 1:50, minor_breaks = NULL) +
+  geom_point(shape = 21, size = 5, stroke = 0.9) +
+  ggnewscale::new_scale_color() +
+  ggnewscale::new_scale_fill() +
+  geom_text(size = 2.1, color = "white") + 
+  facet_grid(seqnames~ ., scales = "free_y", space = "free") +
+  theme_light()
+
+
+
+partsForDistalr <- taleParts
 selectedArrays <- taleParts %>% pull(arrayID) %>% sample(6)
 partsForDistalr <- taleParts %>% filter(arrayID %in% selectedArrays)
-
 partsForDistalr <- taleParts %>% filter(grepl("MAI1", arrayID))
 
 distalr_mms_output <- distalr(taleParts = partsForDistalr,
                               repeats.cluster.h.cut = 10, ncores = 6,
-                              pairwiseAlnMethod = "mmseq2",condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")
+                              pairwiseAlnMethod = "mmseq2",
+                              condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")
 
 distalr_deci_output <- distalr(taleParts = partsForDistalr,
                               repeats.cluster.h.cut = 10, ncores = 6,
@@ -298,6 +322,52 @@ distalr_bs_output <- distalr(taleParts = partsForDistalr,
 
 
 ```
+
+
+## Contrast the output of the various distal functions
+
+
+```{r}
+talSimOutAgregated <- list(distalALV = distal_output$tal.similarity,
+     distalDECI = distalr_deci_output$tal.similarity,
+     distalBIOS = distalr_bs_output$tal.similarity
+) %>% bind_rows(.id = "method")
+
+talSimOutAgregatedLong <- reshape2::dcast(talSimOutAgregated %>% select(method, TAL1, TAL2, Sim),
+                                          formula = TAL1 + TAL2 ~ method, value.var = "Sim"
+                                            ) %>% as_tibble()
+
+talSimOutAgregatedLong %>%
+  dplyr::filter(distalALV != 1 | distalBIOS != 1 | distalDECI != 1) %>%
+  arrange(TAL1, TAL2) %>%
+  print(n = 200)
+
+talSimOutAgregatedLong
+
+
+domSimOutAgregated <- list(distalALV = distal_output$repeat.similarity,
+     distalDECI = distalr_deci_output$repeat.similarity,
+     distalBIOS = distalr_bs_output$repeat.similarity
+) %>% bind_rows(.id = "method")
+
+domSimOutAgregatedLong <- reshape2::dcast(domSimOutAgregated %>% select(method, RepU1, RepU2, Sim),
+                                          formula = RepU1 + RepU2 ~ method, value.var = "Sim"
+                                            ) %>% as_tibble()
+
+domSimOutAgregatedLong %>%
+  dplyr::filter(is.na(distalALV) | is.na(distalBIOS) | is.na(distalDECI)) %>%
+  arrange(RepU1, RepU2) %>%
+  print(n = 200)
+
+library('corrr')
+library(ggcorrplot)
+library("FactoMineR")
+
+
+```
+
+
+
 
 ## classify TAL groups
 

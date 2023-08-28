@@ -14,10 +14,11 @@ Depends: R (>= 3.6.3)
 Imports:
     magrittr, tidyverse, plyr, glue, reshape2, scales, XVector,
     RColorBrewer, dichromat,
-    IRanges, Biostrings, GenomicRanges, GenomicFeatures, BSgenome, plyranges,
+    IRanges, Biostrings, seqinr, GenomicRanges, GenomicFeatures, BSgenome, plyranges,
     Rsamtools, systemPipeR, msa, DECIPHER, ggmsa,
     ape, ggtree,
-    ggvis, ggbio, gplots, ggmsa,
+    fossil,
+    gplots, ggmsa,
     reticulate, optparse, logger
 Suggests:
     knitr,

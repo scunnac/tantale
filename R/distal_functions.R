@@ -272,7 +272,12 @@ runDistal <- function(fasta.file, outdir = NULL, treetype = "p", repeats.cluster
   raw_talMatrix <- 100 - as.matrix(raw_talMatrix) # Distance to similarity conversion
   # Checking if the matrix is square
   stopifnot(all.equal(ncol(raw_talMatrix), nrow(raw_talMatrix)))
-  if (setequal(colnames(raw_talMatrix), rownames(raw_talMatrix))) {warning("Sequences of Row and Col names do not match...")}
+  if (!setequal(colnames(raw_talMatrix), rownames(raw_talMatrix))) {
+    logger::log_warn("Sequences of Row and Col names in TALEs distance matrix do not match...")
+    logger::log_warn("Set dif Col vs Row names : {setdiff(colnames(raw_talMatrix), rownames(raw_talMatrix))}")
+    logger::log_warn("Set dif Row vs Col names : {setdiff(rownames(raw_talMatrix), colnames(raw_talMatrix))}")
+    
+    }
   talsim <- reshape2::melt(raw_talMatrix)
   colnames(talsim) <-c("TAL1", "TAL2", "Sim")
   
@@ -281,7 +286,12 @@ runDistal <- function(fasta.file, outdir = NULL, treetype = "p", repeats.cluster
   nw_tree <- ape::read.tree(nw_tree_File)
   
   # Assemble return object
-  outputlist <- list("repeats.code" = repeatscode, "coded.repeats.str" = codedRepeats_str, "repeat.similarity" = repeatSim, "tal.similarity" = talsim, "tree" = nw_tree, "repeats.cluster" = dist_cut)
+  outputlist <- list("repeats.code" = repeatscode %>% tibble::as_tibble(),
+                     "coded.repeats.str" = codedRepeats_str,
+                     "repeat.similarity" = repeatSim %>% tibble::as_tibble(),
+                     "tal.similarity" = talsim %>% tibble::as_tibble(),
+                     "tree" = nw_tree,
+                     "repeats.cluster" = dist_cut %>% tibble::as_tibble())
   return(outputlist)
 }
 

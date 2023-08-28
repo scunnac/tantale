@@ -193,15 +193,13 @@ tellTale <- function(
   
   ####   Paths of output files   ####
   dir.create(outputDir, recursive = T, mode = "755", showWarnings = FALSE)
-  ## Path of the directories where DECIPHER alignments will be written
-  alignmentDNADir <- file.path(outputDir, "CorrectionAlignmentDNA")
-  dir.create(alignmentDNADir, showWarnings = F)
-  alignmentAADir <- file.path(outputDir, "CorrectionAlignmentAA")
-  dir.create(alignmentAADir, showWarnings = F)
-  # fasta of tals orfs that have rvds
-  putatieOrfOfTaleWithRvdFile <- file.path(outputDir, "putativeTalOrf.fasta")
-  # fasta of tals orfs that were not predicted to contain rvds
-  pseudoTalFile <- file.path(outputDir, "pseudoTalCds.fasta")
+  ## Path of the directories where DECIPHER correction alignments will be written
+  if (talArrayCorrection) {
+    alignmentDNADir <- file.path(outputDir, "CorrectionAlignmentDNA")
+    dir.create(alignmentDNADir, showWarnings = F)
+    alignmentAADir <- file.path(outputDir, "CorrectionAlignmentAA")
+    dir.create(alignmentAADir, showWarnings = F)
+  }
   # annotale output directory
   annotaleMainDir <- file.path(outputDir, "annotale")# tempfile(pattern = "annotale_", tmpdir = outputDir)
   dir.create(annotaleMainDir)
@@ -212,6 +210,10 @@ tellTale <- function(
   arrayReportFile <- file.path(outputDir, "arrayReport.tsv")
   ## Gff file with all the identified domains and arrays and their associated data
   affRangesGffFile <- file.path(outputDir, "allRanges.gff")
+  # fasta of tals orfs that have rvds
+  putatieOrfOfTaleWithRvdFile <- file.path(outputDir, "putativeTalOrf.fasta")
+  # fasta of tals orfs that were not predicted to contain rvds
+  pseudoTalFile <- file.path(outputDir, "pseudoTalCds.fasta")
   ## A fasta file of the selected seq of RVDs without the - separator
   seqsOfRVDFile <- file.path(outputDir, "rvdSequences.fas")
   ## A fasta file with array ORFs DNA sequences
@@ -465,10 +467,12 @@ tellTale <- function(
     TalOrfForAnnoTALE <- fullTalOrf
   } else { 
     #### Correct Tal arrays frame shifts if requested  ####
+    # An alternative approach: https://github.com/Jstacs/Jstacs/tree/master/projects/talecorrect
     ####   Run CorrectFrameshifts   ####
     logger::log_info("Correcting putative TALE coding sequences. Be patient, this may take a LONG time...")
     AAref <- Biostrings::readAAStringSet(refForTalArrayCorrection, seek.first.rec = TRUE, use.names = TRUE)
     rawArraySeq <- extdCompleteArraysSeqs
+    ## TO SPEEDUP CORRECTION could correct only predicted ORFs that cover less than X% of the rawArraySeq
     ArrayCorrection <- DECIPHER::CorrectFrameshifts(rawArraySeq,
                                                     AAref, type = "both",
                                                     maxComparisons = length(AAref),
@@ -513,13 +517,13 @@ tellTale <- function(
       substitutedSeq <- substCorrExtdCompleteArraysSeqs[n]
       names(substitutedSeq) <- paste0("forAnnoTALE", n)
       seqToAlign <- c(rawSeq, correctedSeq, substitutedSeq)
-      alignedSeqs <- DECIPHER::AlignSeqs(seqToAlign)
+      alignedSeqs <- DECIPHER::AlignSeqs(seqToAlign, verbose = FALSE)
       DECIPHER::BrowseSeqs(alignedSeqs,
                            htmlFile = file.path(alignmentDNADir, glue::glue("CorrectionAlignmentDNA_{n}.html")),
                            openURL = F, colWidth = 120)
       
       seqToAlignTranslated <- Biostrings::translate(seqToAlign, no.init.codon = T, if.fuzzy.codon = "solve")
-      alignedSeqsTranslated <- DECIPHER::AlignSeqs(seqToAlignTranslated)
+      alignedSeqsTranslated <- DECIPHER::AlignSeqs(seqToAlignTranslated, verbose = FALSE)
       DECIPHER::BrowseSeqs(alignedSeqsTranslated,
                            htmlFile = file.path(alignmentAADir, glue::glue("CorrectionAlignmentAA_{n}.html")),
                            openURL = F, colWidth = 120)
@@ -547,8 +551,7 @@ tellTale <- function(
     #   insPositionAfCorr <- insPosition[[i]][BiocGenerics::start(insPosition[[i]]) < width(fullTalOrf[i])]
     #   fullTalOrf[i] <- replaceAt(fullTalOrf[i], insPositionAfCorr, value = "N")
     # }
-    
-    
+
   }
   
   
@@ -591,7 +594,6 @@ tellTale <- function(
   
   annoTaleMessages <- character()
   
-  ##!!! NOTE: correction could easily be parallelized in the "sapply" below...
   annoTaleOut <- sapply(names(TalOrfForAnnoTALE), function(talOrfID) {
     AnnotaleDir <- file.path(annotaleMainDir, talOrfID)
     dir.create(AnnotaleDir)
@@ -701,7 +703,7 @@ tellTale <- function(
     }, simplify = "array", USE.NAMES = F) %>%
       Biostrings::DNAStringSetList() %>%
       unlist()
-    dnaAlignment <- DECIPHER::AlignSeqs(allpart)
+    dnaAlignment <- DECIPHER::AlignSeqs(allpart, verbose = FALSE)
     DECIPHER::BrowseSeqs(dnaAlignment,
                          htmlFile = file.path(outputDir, glue::glue("{part}DNAAlignment.html")),
                          openURL = F, colWidth = 120)
@@ -718,7 +720,7 @@ tellTale <- function(
     }, simplify = "array", USE.NAMES = F) %>%
       Biostrings::AAStringSetList() %>%
       unlist()
-    dnaAlignment <- DECIPHER::AlignSeqs(allpart)
+    dnaAlignment <- DECIPHER::AlignSeqs(allpart, verbose = FALSE)
     DECIPHER::BrowseSeqs(dnaAlignment,
                          htmlFile = file.path(outputDir, glue::glue("{part}AAAlignment.html")),
                          openURL = F, colWidth = 120)
@@ -780,7 +782,6 @@ tellTale <- function(
   ) %>% dplyr::bind_rows(.id = "arrayID")
   readr::write_tsv(x = hitsReport, file = hitsReportFile)
   hitsReportToGFF(hitsReportFile) # saving to gff format
-  
   readr::write_tsv(x = domainsReport, file = domainsReportFile)
   
   ##   Report with info on arrays, including the seq of RVD
@@ -844,10 +845,7 @@ tellTale <- function(
     paste(Quote(TALE_CtermDNAHitMinScore),":", TALE_CtermDNAHitMinScore, sep = "\t"),
     paste(Quote(minDomainHitsPerSubjSeq),":", minDomainHitsPerSubjSeq, sep = "\t"),
     paste(Quote(mergeHits),":", mergeHits, sep = "\t"),
-    # paste(Quote(repMsaMethod),":", repMsaMethod, sep = "\t"),
     paste(Quote(minGapWidth),":", minGapWidth, sep = "\t"),
-    paste(Quote(taleArrayStartAnchorCode),":", taleArrayStartAnchorCode, sep = "\t"),
-    paste(Quote(taleArrayEndAnchorCode),":", taleArrayEndAnchorCode, sep = "\t"),
     paste(Quote(extendedLength),":", extendedLength, sep = "\t"),
     paste(Quote(talArrayCorrection),":", talArrayCorrection, sep = "\t"),
     paste(Quote(refForTalArrayCorrection),":", refForTalArrayCorrection, sep = "\t"),

@@ -10,7 +10,7 @@ test_that("send message if no hmmer hit", {
 })
 
 test_that("telltale no correction runs without error", {
-  expect_invisible(tellTale(subjectFile = system.file("extdata", "bai3_sample_tal_regions.fasta", package = "tantale", mustWork = T),
+  expect_invisible(tellTale(subjectFile = system.file("extdata", "bai3_sample_tal_genomic_regions.fasta", package = "tantale", mustWork = T),
                           outputDir = tempfile()
                           )
                  )

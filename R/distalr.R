@@ -5,27 +5,44 @@
   if (length(taleStrings) == 0L) {
     logger::log_warn("No part sequence found in: {fasta}. Returning an empty tibble.")
     tibble::tibble(arrayIDs = character(), domainType = character(),
-                   "position" = character(), "string" = character(),
+                   "positionInArray" = character(), "positionInCrd" = character(),
+                   "string" = character(),
                    "sourceDirectory" = character())
   } else {
     tibble::tibble(arrayID = gsub("(.*): .*", "\\1", names(taleStrings)),
                    domainType = gsub(".*: (.*?)[ ]?[0-9]{0,}$", "\\1", names(taleStrings)),
-                   position = 1:length(taleStrings),
-                   string = as.character(taleStrings),
+                   positionInArray = 1:length(taleStrings),
+                   positionInCrd = gsub(".*: repeat[ ]([0-9]{0,})$", "\\1", names(taleStrings)) %>%
+                     as.integer() %>% suppressWarnings(),
+                   string = as.character(taleStrings) %>% as.vector(),
                    sourceDirectory = dirname(fasta)
     )
   }
 }
 
-
+.getRvdsFromAnAnnotaleFile <- function(fasta) {
+  if (!grepl("TALE_RVDs.fasta", basename(fasta))) {
+    logger::log_error("The provided file does not seem to be an AnnoTALE RVDs file: {fasta}")
+    stop()
+  } else {
+    rvdTble <- fa2liststr(fasta) %>%
+      lapply(function(x) tibble::tibble(string = x,
+                                        positionInCrd = 1:length(x))
+             ) %>%
+      dplyr::bind_rows(.id = "arrayID")
+    rvdTble <- rvdTble %>% dplyr::mutate(sourceDirectory = dirname(fasta),
+                                         domainType = "repeat")
+  }
+  return(rvdTble)
+}
 
 
 #' Fetch Annotale parts from a tellTale output directory.
 #'
 #' @description
 #'
-#' This function get sequences from Annotale "rvdSequences.fas",
-#' "TALE_Protein_parts.fasta" and "TALE_DNA_parts.fasta" files from a SINGLE
+#' This function get sequences from tellTale "rvdSequences.fas" and
+#' AnnoTALE "TALE_Protein_parts.fasta" and "TALE_DNA_parts.fasta" files from a SINGLE
 #' \code{\link[tantale:tellTale]{tellTale}} run output directory and returns a
 #' tibble. Each row describes a domain from a tale array and includes the
 #' 'arrayID', the id of the sequence where this array was found, the
@@ -45,6 +62,11 @@ getTaleParts <- function(tellTaleOutDir) {
   # !!!! arrayID are assumed to be unique !!!!
   protPartsFiles <- list.files(tellTaleOutDir, "TALE_Protein_parts.fasta", recursive = T, full.names = T)
   dnaPartsFiles <- list.files(tellTaleOutDir, "TALE_DNA_parts.fasta", recursive = T, full.names = T)
+  if (dirname(protPartsFiles) %>% dirname() %>% unique() %>% length() != 1L) {
+    log_error("The provided path most likely does not correspond to a SINGLE tellTale output directory.")
+  }
+  
+  
   # Fetch info from annotale/telltale files with .getTalePartsFromAFile
   taleProtString <- lapply(protPartsFiles, .getTalePartsFromAFile) %>% dplyr::bind_rows()
   taleDnaString <- lapply(dnaPartsFiles, .getTalePartsFromAFile) %>% dplyr::bind_rows()
@@ -52,61 +74,54 @@ getTaleParts <- function(tellTaleOutDir) {
   # Join info in a table with one domain per row
   taleParts <- dplyr::full_join(taleDnaString %>% dplyr::rename(dnaSeq = string),
                                 taleProtString %>% dplyr::rename(aaSeq = string),
-                                by = c("arrayID", "domainType", "position", "sourceDirectory")) %>%
+                                by = c("arrayID", "domainType", "positionInArray", "positionInCrd", "sourceDirectory"),
+                                relationship = "one-to-one") %>%
     dplyr::mutate(aaSeq = gsub("[*]", "", aaSeq))
-  # Assign domain codes
-  taleParts %<>% dplyr::group_by(aaSeq) %>%
-    dplyr::mutate(domCode = as.character(dplyr::cur_group_id())) %>%
-    dplyr::ungroup() %>%
-    dplyr::mutate(domCode = dplyr::if_else(is.na(aaSeq), as.character(NA), domCode))
-  # Add RVDs
-  # !!!!!!!!!! NOTE that if AnnoTALE did not report on a N-Term seq, because we are using the rvd seq file from telltale,
-  # this may shift the position of everything...
-  # if AnnoTALE did not report on a C-Term seq, the corresponding domain
-  # in the rvd seq file from telltale will be disregarded (left_join)
+
+  # Get RVDs
   rvds <- fa2liststr(list.files(tellTaleOutDir, "rvdSequences.fas", recursive = T, full.names = T)) %>%
-    lapply(function(x) tibble::tibble(rvd = x, position = 1:length(x) )) %>%
+    lapply(function(x) tibble::tibble(rvd = x, positionInArray = 1:length(x) )) %>%
     dplyr::bind_rows(.id = "arrayID")  
   anchorCodes <- c("NTERM", "CTERM", "XXXXX")
   
+  
+  # Check that postions are not going to be shifted
+  # NOTE that if AnnoTALE did not report on a N-Term seq, because we are using the rvd seq file from telltale,
+  # this may shift the position of everything...
+  # if AnnoTALE did not report on a C-Term seq, the corresponding domain
+  # in the rvd seq file from telltale will be disregarded (left_join)
   arraysConsistency <- dplyr::full_join(taleParts %>% dplyr::count(arrayID, name = "AnnoTALELength"),
                                         rvds %>% dplyr::count(arrayID, name = "rvdFileLength"),
                                         by = "arrayID") %>%
     dplyr::mutate(sameLength = AnnoTALELength == rvdFileLength)
+  
   if(any(is.na(arraysConsistency$sameLength))) {
-    cat(knitr::kable(arraysConsistency %>% dplyr::filter(is.na(arraysConsistency$sameLength)), "simple"),
-        sep = "\n")
-    logger::log_error("There are mismatches in array IDs")
+    logger::log_error("There are mismatches in array IDs between rvd seq file and AnnoTALE parts files:")
+    cat(knitr::kable(arraysConsistency %>% dplyr::filter(is.na(arraysConsistency$sameLength)), sep = "\n"))
     stop()
   } else if (!all(arraysConsistency$sameLength)) {
+    logger::log_error("Array lengths are inconsistent between rvd",
+                      "seq file and AnnoTALE parts files:")
     cat(knitr::kable(arraysConsistency %>% dplyr::filter(!arraysConsistency$sameLength), "simple"),
         sep = "\n")
-    logger::log_error("See table above: array lengths are incosistent between rvd",
-                      "seq file and AnnoTALE parts files...")
     stop()
   }
   
-  
-  
-  taleParts %<>% dplyr::left_join(rvds, by = c("arrayID", "position"))
-  # Add seqnames
+  # Include RVDs in the talParts tibble
+  taleParts <- dplyr::left_join(taleParts, 
+                                rvds,
+                                by = c("arrayID", "positionInArray"),
+                                unmatched = "error", relationship = "one-to-one")
+  # Include seqnames in the talParts tibble
   taleParts %<>% dplyr::left_join(
     readr::read_tsv(list.files(tellTaleOutDir, "hitsReport.tsv", recursive = T, full.names = T),
                     show_col_types = FALSE) %>%
       dplyr::select(arrayID, seqnames) %>%
-      dplyr::distinct(), by = "arrayID"
+      dplyr::distinct(),
+    by = "arrayID", relationship = "many-to-one"
   )
   # Check talparts
-  domWithNonUniqueAaSeq <- taleParts %>% dplyr::group_by(domCode) %>%
-    dplyr::summarise(uniqueAaSeqCount = length(unique(aaSeq))) %>%
-    dplyr::filter(uniqueAaSeqCount != 1)
-  if (nrow(domWithNonUniqueAaSeq) != 0) {
-    taleParts %>%
-      filter(domCode %in% domWithNonUniqueAaSeq$domCode) %>%
-      knitr::kable()
-    stop("Domain aa seq are not unique for some domain codes...")
-  }
-  
+
   
   return(taleParts)
 }
@@ -120,6 +135,11 @@ diag(identSubMat) <- 1
 
 .distalPairwiseAlign <- function(partAaStringSet, ncores = 1) {
   bpparam <- BiocParallel::MulticoreParam(ncores, progressbar = TRUE)
+  
+  if (anyDuplicated(names(partAaStringSet))) {
+    stop("Parts in the provided input have duplicated names. Cannot proceeed...")
+  }
+  
   pairAlignScores <- BiocParallel::bplapply(1:length(partAaStringSet), function(i) {
     singleSubAln <- Biostrings::pairwiseAlignment(pattern = partAaStringSet,
                                                   subject = partAaStringSet[i],
@@ -142,20 +162,14 @@ diag(identSubMat) <- 1
       Dissim = 100 - 100 * (maxLength - score) / maxLength,
       Dissim = ifelse(Dissim < 0, 100, 100 - Dissim),
     ) %>%
-    dplyr::ungroup()
-  #pairAlignScores$Dissim %>%  hist(breaks = 40)
+    dplyr::ungroup() %>%
+    dplyr::select(-maxLength)
+  
+  # Check the pairAlignScores tibble
+  .checkPairAlignTble(pairAlignScores = pairAlignScores, partAaStringSet = partAaStringSet)
+  
   return(pairAlignScores)
 }
-
-# condaBinPath <- "/home/cunnac/bin/miniconda3/condabin/conda"
-# taleParts <- getTaleParts(system.file("extdata", "tellTaleExampleOutput", package = "tantale", mustWork = T)) %>%
-#   dplyr::mutate(partId = paste(arrayID, position, sep = "_"))
-# 
-# partAaStringSet <- Biostrings::AAStringSet(taleParts$aaSeq)
-# names(partAaStringSet) <- taleParts$domCode
-# partAaStringSet <- partAaStringSet[unique(names(partAaStringSet))]
-# anyDuplicated(partAaStringSet)
-# anyDuplicated(names(partAaStringSet))
 
 
 .distalPairwiseAlign2 <- function(partAaStringSet, ncores = 1, condaBinPath = "auto") {
@@ -173,13 +187,14 @@ diag(identSubMat) <- 1
   Biostrings::writeXStringSet(partAaStringSet, filepath = partAaStringSetFile)
   mmseq2Cmd <- glue::glue("mmseqs createdb {partAaStringSetFile} {mmseq2DbPath};",
                           "mmseqs prefilter {mmseq2DbPath} {mmseq2DbPath} {prefDbPath}",
-                          "--threads {ncores} -v 3 --max-seqs 1000000 -s 7.5 --add-self-matches 1",
+                          "--threads {ncores} -v 3 --max-seqs 100000 -s 7.5 --add-self-matches 1",
                           "--cov-mode 0;",
                           "mmseqs align {mmseq2DbPath} {mmseq2DbPath} {prefDbPath} {alnDbPath}",
-                          "-v 3 --threads {ncores} --add-self-matches 1 --min-seq-id 0 --cov-mode 0",
-                          "-a 1 --alignment-output-mode 0;",
+                          "-v 3 --threads {ncores} --add-self-matches 1 --min-seq-id 0",
+                          "--gap-extend aa:11 --cov-mode 0",
+                          "-a 1 --alignment-mode 3 --alignment-output-mode 0 --seq-id-mode 1;",
                           "mmseqs convertalis {mmseq2DbPath} {mmseq2DbPath} {alnDbPath} {alnTabFile}",
-                          "--format-mode 4",
+                          "--format-mode 4 -v 3",
                           "--format-output query,target,evalue,raw,pident,nident,mismatch,gapopen,qstart,qend,qlen,tstart,tend,tlen,alnlen,bits,qcov,tcov",
                           .sep = " ")
 
@@ -201,21 +216,11 @@ diag(identSubMat) <- 1
   pairAlignScores <- dplyr::left_join(df, pairAlignScores) %>%
     dplyr::rename(subj = target, pattern = query) %>%
     dplyr::rowwise() %>%
-    dplyr::mutate(Dissim = ifelse(is.na(pident), 0, pident/alnlen)) %>%
+    dplyr::mutate(Dissim = ifelse(is.na(pident), 100, 100 - pident)) %>%
     dplyr::ungroup()
-  
-  # pairAlignScores %>% group_by(subj, pattern) %>%
-  #   tally() %>% filter(n != 1L)
-  # pairAlignScores %>% group_by(target, query) %>%
-  #   tally() %>% filter(n != 1L)
 
-  # Check that there is a single pairwise alignment records for all possible parts pairs
-  partCombinCounts <- pairAlignScores %>% dplyr::select(pattern, subj) %>%
-    dplyr::count(pattern, subj) %>%
-    dplyr::pull(n)
-  if (!all(partCombinCounts == 1L) || length(partCombinCounts) != length(partAaStringSet)^2) {
-    stop("There is not a single pairwise alignment records for all possible parts pairs",)
-  }
+  # Check the pairAlignScores tibble
+  .checkPairAlignTble(pairAlignScores = pairAlignScores, partAaStringSet = partAaStringSet)
   return(pairAlignScores)
 }
 
@@ -223,18 +228,42 @@ diag(identSubMat) <- 1
 
 
 .distalPairwiseAlign3 <- function(partAaStringSet, ncores = 1) {
-  msa <- DECIPHER::AlignSeqs(myXStringSet = partAaStringSet, normPower=0, processors = ncores) %>%
-    DECIPHER::StaggerAlignment(fullLength = TRUE)
-  distMat <- DECIPHER::DistanceMatrix(msa, method = "longest", includeTerminalGaps = TRUE, processors = ncores)
-  distLong <- reshape2::melt(as.matrix(distMat)) %>% tibble::as_tibble()
-  colnames(distLong) <- c("pattern", "subj", "Dissim")
-  distLong %<>% dplyr::mutate(pattern = as.character(pattern), subj = as.character(subj))
-  distLong %<>% dplyr::mutate(Dissim = Dissim*100) %>%
+  if (anyDuplicated(names(partAaStringSet))) {
+    stop("Parts in the provided input have duplicated names. Cannot proceeed...")
+  }
+  msa <- DECIPHER::AlignSeqs(myXStringSet = partAaStringSet, normPower = 0,
+                             processors = ncores, verbose = FALSE) %>%
+    DECIPHER::StaggerAlignment(fullLength = TRUE, processors = ncores, verbose = FALSE)
+  distMat <- DECIPHER::DistanceMatrix(msa, method = "longest",
+                                      includeTerminalGaps = TRUE,
+                                      processors = ncores, verbose = FALSE)
+  pairAlignScores <- reshape2::melt(as.matrix(distMat)) %>% tibble::as_tibble()
+  colnames(pairAlignScores) <- c("pattern", "subj", "Dissim")
+  pairAlignScores %<>% dplyr::mutate(pattern = as.character(pattern), subj = as.character(subj))
+  pairAlignScores %<>% dplyr::mutate(Dissim = Dissim*100) %>%
     dplyr::ungroup()
-  return(distLong)
+  
+  # Check the pairAlignScores tibble
+  .checkPairAlignTble(pairAlignScores = pairAlignScores, partAaStringSet = partAaStringSet)
+  
+  return(pairAlignScores)
 }
 
 
+
+
+
+.checkPairAlignTble <- function(pairAlignScores, partAaStringSet) {
+  partCombinCounts <- pairAlignScores %>% dplyr::select(pattern, subj) %>%
+    dplyr::count(pattern, subj) %>%
+    dplyr::pull(n)
+  if (!all(partCombinCounts == 1L)) {
+    stop("Some alignment pairs have more than one record...",)
+  }
+  if (length(names(partAaStringSet))^2 != nrow(pairAlignScores)) {
+    stop("Some parts pairs are absent from the pairwise parts distance table")
+  }
+}
 
 
 
@@ -273,41 +302,58 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
   
   ## Make sure we are dealing only with parts that have defined protein sequences.
   if (any(is.na(taleParts$aaSeq) | taleParts$aaSeq == "")) {
-    stop("It seems that some of the provided TALE parts miss an amino acid sequence. Cannot proceed!")
-    } 
+    logger::log_error("It seems that some of the provided TALE parts miss an amino acid sequence. Cannot proceed!")
+    stop()
+  }
+  if (any(is.na(taleParts$dnaSeq) | taleParts$dnaSeq == "")) {
+    logger::log_warn("It seems that some of the provided TALE parts miss the DNA sequence!")
+  } 
   
   ## Make sure that arrayID - position combinations are unique
   # in case someone would not have made arrayIDs unique before
   # mixing tale predictions from several genomes...
   arayPosCombinCounts <- taleParts %>%
-    dplyr::group_by(arrayID, position) %>%
+    dplyr::group_by(arrayID, positionInArray) %>%
     dplyr::count() %>%
     dplyr::pull(n)
   if (!all(arayPosCombinCounts == 1L)) {
-    stop("Your tale arrays identifers are probably not unique.",
+    logger::log_error("Your tale arrays identifers are probably not unique.",
          "\n",
-         "Make sure that there is only one part per position with a unique arrayID.")
+         "Make sure that there is only one part per position per arrayID.")
+    stop()
   }
   
+  # Assign domain codes
+  taleParts %<>% dplyr::group_by(aaSeq) %>%
+    dplyr::mutate(domCode = dplyr::cur_group_id() %>% unlist() %>% as.character()) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(domCode = dplyr::if_else(is.na(aaSeq), as.character(NA), domCode))
+  
+  
   #### Assemble repeat code strings and write in a file for arlem ####
-  repeatStrings <- taleParts %>% dplyr::group_by(arrayID) %>%
-    dplyr::arrange(position) %>%
+  repeatStrings <- taleParts %>%
+    dplyr::group_by(arrayID) %>%
+    dplyr::arrange(positionInArray) %>%
     dplyr::summarise(repeatString = paste(domCode, collapse = " "),
-                     posString = paste(position, collapse = " "))
+                     posString = paste(positionInArray, collapse = " "))
   codesSeqSet <- Biostrings::BStringSet(repeatStrings$repeatString)
   names(codesSeqSet) <- repeatStrings$arrayID
   
-  codesSeqsfile <- tempfile(fileext = ".fasta")
-  Biostrings::writeXStringSet(codesSeqSet, codesSeqsfile)
+  codesSeqLst <- as.list(repeatStrings$repeatString)
+  names(codesSeqLst) <- repeatStrings$arrayID
   
-  #### Prepare Arlem cfile with systematic pairwise distances between 'repeat' units. ####
-  # Get unduplicated sequences of unduplicated domains
-
+  codesSeqsfile <- tempfile(fileext = ".fasta")
+  # Must use seqinr because Biostrings wraps sequences in fasta file which messes up Arlem...
+  seqinr::write.fasta(codesSeqLst, names = names(codesSeqLst),
+                      file.out = codesSeqsfile, as.string = TRUE, nbchar = 10000)
+  #### Compute systematic pairwise dissimilarities (distances) between 'repeat' units. ####
+  
+  # Get unique domains sequences
   taleAaParts <- Biostrings::AAStringSet(taleParts$aaSeq)
   names(taleAaParts) <- taleParts$domCode
-  uniqueTaleAaParts <- taleAaParts[unique(names(taleAaParts))]
+  uniqueTaleAaParts <- unique(taleAaParts)
   stopifnot(!anyDuplicated(names(uniqueTaleAaParts)))
-  
+  stopifnot(!anyDuplicated(names(unique(taleAaParts))))
   
   # Get pairwise repeat aa sequence dissimilarity scores in a long tibble
   if (pairwiseAlnMethod == "mmseq2") {
@@ -321,48 +367,40 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
   } else {
     logger::log_errors() && stop("'pairwiseAlnMethod' parameter must be either 'Biostrings', 'mmseq2' or 'DECIPHER'")
   }
-  
-  
-  # # Trying to generate a symetrical dissimilarity matrix which
-  # # meets triangle inequality criteria otherwise Arlem complains
-  # logger::log_debug("Casting Dissim tible")
-  # dissimMat <- reshape2::acast(pairAlignScores, formula = subj ~ pattern, value.var = "Dissim")
-  # distMat <- stats::dist(dissimMat, method = "euclidean", diag = TRUE, upper = TRUE)
-  # distLong <- reshape2::melt(as.matrix(distMat)) %>% tibble::as_tibble()
-  # colnames(distLong) <- c("pattern", "subj", "Dissim")
-  # distLong %<>% dplyr::mutate(pattern = as.character(pattern), subj = as.character(subj))
-  # logger::log_debug("Joinning to obtain the complete Dissim tible: all dom vs dom combinations ({nrow(df)})")
-  # pairAlignScores <- dplyr::left_join(pairAlignScores %>% dplyr::select(-Dissim), distLong)
-  # # Convert Distance (dissimilarity) measures to Similarity with a four-parameter logistic function
-  # # Parameters may need to be adjusted
+  dissimLong %<>% dplyr::mutate(Sim = 100 - Dissim)
+  # Convert Distance (dissimilarity) measures to Similarity with a four-parameter logistic function
   # pairAlignScores %<>% dplyr::mutate(Sim = 100/(1+exp(-1*-0.9*(Dissim-3))))
-  # Sim = 100 - Dissim
   
   
-  
-  
-  
-  dissimLong %<>% dplyr::mutate(Dissim = round(Dissim) %>% as.character())
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  
-  # Convert to symetric matrix
+  # Convert to square matrix
   dissimMat <- reshape2::acast(dissimLong, formula = subj ~ pattern, value.var = "Dissim")
   stopifnot(nrow(dissimMat) == ncol(dissimMat))
   # reorder row and colnames because I suspect arlem expect them in increasing order
   dissimMat <- dissimMat[rownames(dissimMat) %>% as.numeric() %>% order(),
                          colnames(dissimMat) %>% as.numeric() %>% order()]
+  
+  # # Trying to generate a symetrical dissimilarity matrix which
+  # # meets triangle inequality criteria otherwise Arlem complains
+  if (TRUE) {
+    dissimMat <- as.matrix(stats::dist(dissimMat, method = "manhattan", diag = TRUE, upper = TRUE))
+    dissimMat <- dissimMat/max(dissimMat) * 100
+    #(scale(dissimMat)+1)/2 * 100
+  }
+  if (!fossil::tri.ineq(dissimMat)) {
+    logger::log_error("TALE domains dissimilarity (distance) matrix does not respect the triangle inequality",
+                      "Arlem will fail. Aborting...")
+    stop()
+  }
+  
+  #### Prepare Arlem cfile with systematic pairwise distances between 'repeat' units. ####
   # Get parameters for arlem
   TypeNo <- glue::glue("# Type no. ", nrow(dissimMat))
   Types <- glue::glue("# Types ", paste(1:nrow(dissimMat), collapse = " "))
-  
+  # Convert mat to character, beware of the ceiling in conversion...
+  dissimMat <- matrix(ceiling(dissimMat) %>% format(),
+                      ncol = ncol(dissimMat),
+                      dimnames = list(rownames(dissimMat), colnames(dissimMat))
+                      )
   # 'erase' lower triangle and diag
   dissimMat[lower.tri(dissimMat)] <- ""
   diag(dissimMat) <- ""
@@ -388,18 +426,36 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
   arlemPath <- system.file("tools", "DisTAL1.2_MultipleAlignment","arlem", package = "tantale", mustWork = T)
   arlemCmd <- glue::glue("{arlemPath} -f {codesSeqsfile} -cfile {cfile} -align -insert -showalign")
   arlemRawRes <- system(arlemCmd, intern = TRUE)
-  logger::log_debug(arlemRawRes)
-  arlemRes <- grep("Score of aligning Seq:", arlemRawRes, value = TRUE)
-  arlemScores <- gsub("Score of aligning Seq:([0-9]*), Seq:([0-9]*) =([0-9]*)", "\\1|\\2|\\3", arlemRes)
+  logger::log_debug(logger::skip_formatter(arlemRawRes))
+  arlemSelfRes <- grep("Processed Seq[.]:", arlemRawRes, value = TRUE) 
+  arlemSelfScores <- gsub("Processed Seq[.]: ([0-9]+) Score: ([0-9]+),", "\\1|\\2",
+                          substring(arlemSelfRes, 1, 30)) %>%
+    strsplit(split = "\\|") %>%
+    lapply(function(s) t(as.matrix(as.numeric(s)))) %>%
+    do.call(rbind, .) %>% tibble::as_tibble()
+  arlemRes <- grep("Score of aligning Seq:",
+                   arlemRawRes, value = TRUE)
+  arlemScores <- gsub("Score of aligning Seq:([0-9]+), Seq:([0-9]+) =([0-9]+)", "\\1|\\2|\\3",
+                      arlemRes)
   arlemScores <- strsplit(arlemScores, split = "\\|")
   arlemScores <- lapply(arlemScores, function(s) {t(as.matrix(as.numeric(s)))}) %>%
-    do.call(rbind, .)
+    do.call(rbind, .) %>% tibble::as_tibble()
+  colnames(arlemScores) <- c("TAL1", "TAL2", "arlemScore")
+  # Shaping into matrix to have scores in both directions
+  arlemScoresMat <- reshape2::acast(arlemScores, formula = TAL1 ~ TAL2, value.var = "arlemScore")
+  arlemScoresMat <- cbind("0" = NA, arlemScoresMat)
+  arlemScoresMat <- rbind(arlemScoresMat, "43" = NA)
+  # dim(arlemScoresMat)
+  # dimnames(arlemScoresMat)
+  arlemScores <- stats::as.dist(t(arlemScoresMat), diag = TRUE, upper = TRUE) %>% as.matrix() %>%
+    reshape2::melt(value.name = "arlemScore") %>%
+    tibble::as_tibble()
   colnames(arlemScores) <- c("TAL1", "TAL2", "arlemScore")
   
   #### Compute normalized arlem scores and include arrayIDs rather than arlem index ####
   arrayLengths <- taleParts %>% dplyr::group_by(arrayID) %>% dplyr::count()
   
-  normArlemScoresTble <- arlemScores %>% tibble::as_tibble() %>%
+  normArlemScoresTble <- arlemScores %>%
     dplyr::mutate(
       TAL1 = names(codesSeqSet)[TAL1 + 1],
       TAL2 = names(codesSeqSet)[TAL2 + 1]
@@ -413,9 +469,25 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
     ) %>%
     dplyr::ungroup()
   
+  #### Check features of the Arlem results table
+  
+  arraysCount <- codesSeqSet %>% length()
+  if (nrow(normArlemScoresTble) != arraysCount^2) {
+    allCombs <- expand.grid(names(codesSeqSet), names(codesSeqSet), stringsAsFactors = FALSE) %>% tibble::as_tibble()
+    colnames(allCombs) <- c("TAL1", "TAL2")
+    absentCombs <- dplyr::left_join(allCombs, normArlemScoresTble) %>%
+      dplyr::filter(is.na(Sim))
+    cat(knitr::kable(absentCombs), sep = "\n")
+    logger::log_error("The TALE similarity table does not have the expected number",
+    "of comparisons (number of missing comps: {nrow(absentCombs)})...")
+    stop()
+  }
+  
+  
   #### return a list of results emulating the return value of tantale::runDistal ####
-  outputlist <- list("repeats.code" = taleParts %>%
-                       dplyr::group_by(domCode, aaSeq) %>%
+  outputlist <- list(taleParts = taleAaParts,
+                     "repeats.code" = taleParts %>%
+                       dplyr::group_by(domCode, aaSeq, rvd) %>%
                        dplyr::count() %>%
                        dplyr::rename(code = domCode, "AA Seq"  = aaSeq) %>%
                        dplyr::mutate(code = as.integer(code)) %>%
