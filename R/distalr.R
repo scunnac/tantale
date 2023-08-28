@@ -25,7 +25,7 @@
     logger::log_error("The provided file does not seem to be an AnnoTALE RVDs file: {fasta}")
     stop()
   } else {
-    rvdTble <- fa2liststr(fasta) %>%
+    rvdTble <- toListOfSplitedStr(fasta) %>%
       lapply(function(x) tibble::tibble(string = x,
                                         positionInCrd = 1:length(x))
              ) %>%
@@ -79,7 +79,7 @@ getTaleParts <- function(tellTaleOutDir) {
     dplyr::mutate(aaSeq = gsub("[*]", "", aaSeq))
 
   # Get RVDs
-  rvds <- fa2liststr(list.files(tellTaleOutDir, "rvdSequences.fas", recursive = T, full.names = T)) %>%
+  rvds <- toListOfSplitedStr(list.files(tellTaleOutDir, "rvdSequences.fas", recursive = T, full.names = T)) %>%
     lapply(function(x) tibble::tibble(rvd = x, positionInArray = 1:length(x) )) %>%
     dplyr::bind_rows(.id = "arrayID")  
   anchorCodes <- c("NTERM", "CTERM", "XXXXX")
@@ -187,7 +187,7 @@ diag(identSubMat) <- 1
   Biostrings::writeXStringSet(partAaStringSet, filepath = partAaStringSetFile)
   mmseq2Cmd <- glue::glue("mmseqs createdb {partAaStringSetFile} {mmseq2DbPath};",
                           "mmseqs prefilter {mmseq2DbPath} {mmseq2DbPath} {prefDbPath}",
-                          "--threads {ncores} -v 3 --max-seqs 100000 -s 7.5 --add-self-matches 1",
+                          "-v 3 --threads {max(floor(ncores/2), 1)} --max-seqs 1000 -s 7.5 --add-self-matches 1",
                           "--cov-mode 0;",
                           "mmseqs align {mmseq2DbPath} {mmseq2DbPath} {prefDbPath} {alnDbPath}",
                           "-v 3 --threads {ncores} --add-self-matches 1 --min-seq-id 0",
@@ -205,7 +205,7 @@ diag(identSubMat) <- 1
                             command = mmseq2Cmd,
                             ignore.stdout = T)
   } else {
-    stop("Could not create the Perl infrastructure on your machine to run mmseq2...")
+    stop("Could not create the tantale conda environment on your machine to run mmseq2...")
   }
   
 
@@ -504,7 +504,7 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
                        dplyr::mutate(code = as.integer(code)) %>%
                        dplyr::select(-n) %>%
                        dplyr::ungroup(),
-                     "coded.repeats.str" = fa2liststr(codesSeqsfile),
+                     "coded.repeats.str" = toListOfSplitedStr(codesSeqsfile),
                      "repeat.similarity" = dissimLong %>% dplyr::rename(RepU1 = subj, RepU2 = pattern),
                      "tal.similarity" = normArlemScoresTble,
                      "repeats.cluster" = clusterRep(

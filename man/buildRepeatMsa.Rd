@@ -6,6 +6,7 @@
 \usage{
 buildRepeatMsa(
   inputSeqs,
+  sep = " ",
   distalRepeatSims = NULL,
   mafftOpts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5",
   mafftPath = system.file("tools", "mafft-linux64", package = "tantale", mustWork = TRUE),
@@ -13,7 +14,9 @@ buildRepeatMsa(
 )
 }
 \arguments{
-\item{inputSeqs}{Either the path to a fasta file containing the TALE sequences to be aligned or a named list of vectors, each made up of the individual residues that will be aligned, as returned by the \code{\link[tantale:fa2liststr]{fa2liststr}} function or available in the \code{coded.repeats.str} slot of the object returned by the \code{\link[tantale:runDistal]{runDistal}} function.  Can also be the return value of the \code{\link[tantale:convertRepeat2RvdAlign]{convertRepeat2RvdAlign}} function if one wants to align RVD sequences.}
+\item{inputSeqs}{Either the path to a fasta file containing the TALE sequences to be aligned or a named list of vectors, each made up of the individual residues that will be aligned, as returned by the \code{\link[tantale:toListOfSplitedStr]{toListOfSplitedStr}} function or available in the \code{coded.repeats.str} slot of the object returned by the \code{\link[tantale:runDistal]{runDistal}} function.  Can also be the return value of the \code{\link[tantale:convertRepeat2RvdAlign]{convertRepeat2RvdAlign}} function if one wants to align RVD sequences.}
+
+\item{sep}{Passed to \code{toListOfSplitedStr()} to split the TALEs strings in input.}
 
 \item{distalRepeatSims}{A long, three columns data frame with pairwise similarity scores between repeats as available in the \code{repeat.similarity slot} of the object returned by the \code{\link[tantale:runDistal]{runDistal}} function.}
 

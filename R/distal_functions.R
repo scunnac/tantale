@@ -4,20 +4,32 @@
 
 
 #'
-#' Load the content of fasta file containing TALE sequences
+#' Split strings of TALE sequences (`sep`-separated rvd or distal repeat IDs)
 #'
-#' @description Load the content of fasta file containing TALE sequences (either RVD or Distal repeat code) and return a list of vectors each one composed of the individual elements of the sequence.
+#' @description Load the content of fasta file containing TALE sequences (either RVD or Distal repeat code)
+#' and return a list of vectors each one composed of the individual elements of the sequence.
 #'
-#' @param fasta.file Path to a fasta file
+#' @param atomicStrings Either, the path to a fasta file, an AAStringSet or "BStringSet"
+#' or or a list. In all cases, the content of these objects is composed of strings of
+#' tale sequences (`sep`-separated rvd or distal repeat IDs)
 #' @param sep Separator of the elements of the sequence
 #'
 #' @return A list of named vectors representing the 'splited' sequence.
 #'
 #' @export
-fa2liststr <- function(fasta.file, sep = "-") {
-  fasta.file <- fasta.file
-  stopifnot(fs::file_exists(fasta.file))
-  seqs <- as.character(Biostrings::readBStringSet(fasta.file), use.names=TRUE)
+toListOfSplitedStr <- function(atomicStrings, sep = "-") {
+  if (length(atomicStrings) > 1 && is.list(atomicStrings)) {
+    seqs <- atomicStrings
+  } else if (length(atomicStrings) == 1 && is.character(atomicStrings)) {
+    stopifnot(fs::file_exists(atomicStrings))
+    seqs <- as.character(Biostrings::readBStringSet(atomicStrings), use.names=TRUE)
+  } else if (class(atomicStrings) %in% c("AAStringSet", "BStringSet")) {
+    seqs <- as.character(atomicStrings, use.names=TRUE)
+  } else {
+    logger::log_error("Something is wrong with the value provided for atomicStrings.")
+    stop()
+  }
+
   seqsAsVectors <- stringr::str_split(seqs, pattern = glue("[{sep}]"))
   seqsAsVectors <- lapply(seqsAsVectors, function(x) { # Remove last residue if it is empty string
     if ( x[length(x)] == "") {
@@ -243,7 +255,7 @@ runDistal <- function(fasta.file, outdir = NULL, treetype = "p", repeats.cluster
   
   # read codedrepeats.fa
   codedRepeats_File <- glue::glue("{outdir}/Output_CodedRepeats.fa")
-  codedRepeats_str <- fa2liststr(codedRepeats_File)
+  codedRepeats_str <- toListOfSplitedStr(codedRepeats_File)
   
   # read repeatmatrix.mat
   repeatmatrix_File <- glue::glue("{outdir}/Output_Repeatmatrix.mat")

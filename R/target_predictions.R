@@ -173,7 +173,7 @@ talvez <- function(rvdSeqs, subjDnaSeqFile, optParam = "-t 0 -l 19", outDir = NU
                             condaBinPath = condaBinPath,
                             command = cmd)
   } else {
-    stop("Could not create the Perl infrastructure on your machine to run Talvez...")
+    stop("Could not create the tantale conda environment on your machine to run Talvez...")
   }
 
   # Parsing and reformating output

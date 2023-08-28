@@ -398,23 +398,19 @@ getTALEsTree(distalr_bs_output$tal.similarity) %>%
 
 ape::cophyloplot(getTALEsTree(distal_output$tal.similarity) %>% as.phylo(),
                  getTALEsTree(distalr_deci_output$tal.similarity) %>% as.phylo(),
+                 assoc = matrix(rep(distal_output$tal.similarity$TAL1 %>% unique() %>% as.character(), 2),
+                                ncol = 2, byrow = FALSE),
+                 length.line = 0, space=200, gap=10,
                  col = "red")
 
-distal_output$tal.similarity$TAL1 %>% unique()
 
-
-distal_output$tal.similarity
-
-reshape2::acast(dissimLong, formula = subj ~ pattern, value.var = "Dissim")
-
-distalALV <- hclust(as.dist(distal_output$tal.similarity), method = "ward.D")
 ```
 
 
 ## classify TAL groups
 
 ```{r test_tale_group, fig.width = 6, fig.height=4}
-taleGroups <- groupTales(distal_output$tal.similar, k_test = 5:15, k = "auto")
+taleGroups <- groupsBIOS
 ```
 
 Based on the silhoutte values, `groupTales()` will take the value at the elbow of the curve. In this case it picked k = 9, and it makes sense as we already know that the each of the gold genomes have 9 Tals.
@@ -436,9 +432,9 @@ repeatMsaByGroup_withSim <- lapply(sort(unique(taleGroups$group)), function(G) {
     return(msa)
     next()
   }
-  repeatMsa <- buildRepeatMsa(inputSeqs = repeatVectorsForGroup,
+  repeatMsa <- buildRepeatMsa(inputSeqs = repeatVectorsForGroup, sep = " ",
                               distalRepeatSims = repeatSim,
-                              mafftOpts = "--globalpair --weighti 1 --maxiterate 1000 --reorder --op 0 --ep 5 --thread 8")
+                              mafftOpts = "--globalpair --weighti 1 --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1")
   }
 )
 ```
@@ -463,16 +459,16 @@ for (input in rvdSeqs_fasta) {
   writeXStringSet(seqs, telltale2_rvd, append = T)
 }
 
-rvdVectors <- readBStringSet(telltale2_rvd)
-rvdVectors <- sapply(rvdVectors, function(r) strsplit(toString(r), split = "-"))
-repeatVectors <- distal_output$coded.repeats.str
+
+rvdVectors <- toListOfSplitedStr(telltale2_rvd, sep = "-")
+repeatVectors <- toListOfSplitedStr(distal_output$coded.repeats.str, sep = " ")
 
 # map repeatID to RVD
 rep2rvd <- getRepeat2RvdMapping(talesRepeatVectors = repeatVectors, talesRvdVectors = rvdVectors)
 datatable(rep2rvd, options = list(pageLength = 5))
 
 # convert repeat MSA to RVD MSA
-repeatMSA <- repeatMsaByGroup_withSim[[3]]
+repeatMSA <- repeatMsaByGroup_withSim[[5]]
 rvdMSA <-  convertRepeat2RvdAlign(repeatAlign = repeatMSA, repeat2RvdMapping = rep2rvd)
 
 # plot MSA
@@ -554,7 +550,10 @@ readBStringSet(subjDnaSeqFile) %>% names
 The output of `talvez()` contains the position, score and rank of each prediction.
 
 ```{r talvez, eval = TRUE}
-talvezPreds <- talvez(rvdSeqs = rvdSeqsXstrings, subjDnaSeqFile = subjDnaSeqFile, optParam = "-t 0 -l 19")
+talvezPreds <- talvez(rvdSeqs = rvdSeqsXstrings,
+                      subjDnaSeqFile = subjDnaSeqFile,
+                      optParam = "-t 0 -l 19",
+                      condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")
 datatable(talvezPreds, options = list(pageLength = 1))
 ```
 
