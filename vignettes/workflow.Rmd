@@ -28,6 +28,8 @@ library(parallel)
 library(magrittr)
 library(DT)
 library(gplots)
+library(ape)
+library(ggtree)
 ```
 
 This vignette will go through all steps in a talomes analysis pipeline from Xoo genome sequences using functions in package `tantale`.\
@@ -269,7 +271,7 @@ distalrOutDir <- file.path(outdir, "distalr")
 unlink(distalrOutDir, recursive = TRUE)
 dir.create(distalrOutDir, showWarnings = F)
 
-# ttGenomeDir <- list.dirs(telltale2_outdir, recursive = FALSE)[3]
+
 taleParts <- lapply(list.dirs(telltale2_outdir, recursive = FALSE), function(ttGenomeDir) {
   genomeId <- gsub("_.*correction", "", basename(ttGenomeDir))
   logger::log_debug("Current genome: {genomeId}")
@@ -303,14 +305,10 @@ partsForPlots %>% ggplot(mapping = aes(fill = aaSeqLength,
 
 
 partsForDistalr <- taleParts
-selectedArrays <- taleParts %>% pull(arrayID) %>% sample(6)
-partsForDistalr <- taleParts %>% filter(arrayID %in% selectedArrays)
-partsForDistalr <- taleParts %>% filter(grepl("MAI1", arrayID))
-
-distalr_mms_output <- distalr(taleParts = partsForDistalr,
-                              repeats.cluster.h.cut = 10, ncores = 6,
-                              pairwiseAlnMethod = "mmseq2",
-                              condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")
+# distalr_mms_output <- distalr(taleParts = partsForDistalr,
+#                               repeats.cluster.h.cut = 10, ncores = 6,
+#                               pairwiseAlnMethod = "mmseq2",
+#                               condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")
 
 distalr_deci_output <- distalr(taleParts = partsForDistalr,
                               repeats.cluster.h.cut = 10, ncores = 6,
@@ -326,47 +324,91 @@ distalr_bs_output <- distalr(taleParts = partsForDistalr,
 
 ## Contrast the output of the various distal functions
 
-
-```{r}
+```{r correlation of TALE distances from various distal implementations}
+library('corrr')
+library(ggcorrplot)
 talSimOutAgregated <- list(distalALV = distal_output$tal.similarity,
      distalDECI = distalr_deci_output$tal.similarity,
      distalBIOS = distalr_bs_output$tal.similarity
 ) %>% bind_rows(.id = "method")
 
 talSimOutAgregatedLong <- reshape2::dcast(talSimOutAgregated %>% select(method, TAL1, TAL2, Sim),
-                                          formula = TAL1 + TAL2 ~ method, value.var = "Sim"
-                                            ) %>% as_tibble()
+                                          formula = method ~ TAL1 + TAL2, value.var = "Sim"
+                                            )
+rownames(talSimOutAgregatedLong) <- talSimOutAgregatedLong$method
+talSimOutAgregatedLong$method <- NULL
+talSimOutAgregatedLong %<>% as.matrix() %>% t()
+rownames(talSimOutAgregatedLong) <- NULL
 
-talSimOutAgregatedLong %>%
-  dplyr::filter(distalALV != 1 | distalBIOS != 1 | distalDECI != 1) %>%
-  arrange(TAL1, TAL2) %>%
-  print(n = 200)
-
-talSimOutAgregatedLong
-
-
-domSimOutAgregated <- list(distalALV = distal_output$repeat.similarity,
-     distalDECI = distalr_deci_output$repeat.similarity,
-     distalBIOS = distalr_bs_output$repeat.similarity
-) %>% bind_rows(.id = "method")
-
-domSimOutAgregatedLong <- reshape2::dcast(domSimOutAgregated %>% select(method, RepU1, RepU2, Sim),
-                                          formula = RepU1 + RepU2 ~ method, value.var = "Sim"
-                                            ) %>% as_tibble()
-
-domSimOutAgregatedLong %>%
-  dplyr::filter(is.na(distalALV) | is.na(distalBIOS) | is.na(distalDECI)) %>%
-  arrange(RepU1, RepU2) %>%
-  print(n = 200)
-
-library('corrr')
-library(ggcorrplot)
-library("FactoMineR")
+corr_matrix <- cor(talSimOutAgregatedLong)
+knitr::kable(corr_matrix)
+ggcorrplot(corr_matrix)
 
 
 ```
 
 
+```{r tale trees comparisons}
+
+groupsALV <- invisible(groupTales(taleSim = distal_output$tal.similarity,
+                     plotTree = TRUE, k = "auto", k_test = 10:43,
+                     method = "k-medoids"))
+
+groupsDECI <- invisible(groupTales(taleSim = distalr_deci_output$tal.similarity,
+                     plotTree = TRUE, k = "auto", k_test = 10:43,
+                     method = "k-medoids"))
+
+groupsBIOS <- invisible(groupTales(taleSim = distalr_bs_output$tal.similarity,
+                     plotTree = TRUE, k = "auto", k_test = 10:43,
+                     method = "k-medoids"))
+
+
+
+getTALEsTree <- function(taleSim) {
+  distMat <- 100 - reshape2::acast(taleSim, formula = TAL1 ~ TAL2, value.var = "Sim")
+  hclust(as.dist(distMat), method = "ward.D")
+}
+
+getTALEsTree(distal_output$tal.similarity) %>%
+  ggtree::ggtree() +
+  ggtree::layout_dendrogram() +
+  ggtree::geom_tiplab(ggtree::aes(label=label),
+                          angle= 90, hjust=0,
+                          offset = -3,
+                      
+                      , color='black')
+
+getTALEsTree(distalr_deci_output$tal.similarity) %>%
+  ggtree::ggtree() +
+  ggtree::layout_dendrogram() +
+  ggtree::geom_tiplab(ggtree::aes(label=label),
+                          angle= 90, hjust=0,
+                          offset = -3,
+                      
+                      , color='black')
+
+getTALEsTree(distalr_bs_output$tal.similarity) %>%
+  ggtree::ggtree() +
+  ggtree::layout_dendrogram() +
+  ggtree::geom_tiplab(ggtree::aes(label=label),
+                          angle= 90, hjust=0,
+                          offset = -3,
+                      
+                      , color='black')
+
+ape::cophyloplot(getTALEsTree(distal_output$tal.similarity) %>% as.phylo(),
+                 getTALEsTree(distalr_deci_output$tal.similarity) %>% as.phylo(),
+                 col = "red")
+
+distal_output$tal.similarity$TAL1 %>% unique()
+
+
+distal_output$tal.similarity
+
+reshape2::acast(dissimLong, formula = subj ~ pattern, value.var = "Dissim")
+
+distalALV <- hclust(as.dist(distal_output$tal.similarity), method = "ward.D")
+```
 
 
 ## classify TAL groups
@@ -394,7 +436,9 @@ repeatMsaByGroup_withSim <- lapply(sort(unique(taleGroups$group)), function(G) {
     return(msa)
     next()
   }
-  repeatMsa <- buildRepeatMsa(inputSeqs = repeatVectorsForGroup, distalRepeatSims = repeatSim, mafftOpts = "--globalpair --weighti 1 --maxiterate 1000 --reorder --op 0 --ep 5 --thread 8")
+  repeatMsa <- buildRepeatMsa(inputSeqs = repeatVectorsForGroup,
+                              distalRepeatSims = repeatSim,
+                              mafftOpts = "--globalpair --weighti 1 --maxiterate 1000 --reorder --op 0 --ep 5 --thread 8")
   }
 )
 ```
@@ -432,13 +476,22 @@ repeatMSA <- repeatMsaByGroup_withSim[[3]]
 rvdMSA <-  convertRepeat2RvdAlign(repeatAlign = repeatMSA, repeat2RvdMapping = rep2rvd)
 
 # plot MSA
-tantale::heatmap_msa(talsim = distal_output$tal.similarity, repeatAlign = repeatMSA, repeatSim = distal_output$repeat.similarity, rvdAlign = rvdMSA, plot.type = "repeat.similarity", main = "Repeat MSA with similarity - Group 3")
+tantale::heatmap_msa(talsim = distal_output$tal.similarity,
+                     repeatAlign = repeatMSA,
+                     repeatSim = distal_output$repeat.similarity,
+                     rvdAlign = rvdMSA,
+                     plot.type = "repeat.similarity",
+                     main = "Repeat MSA with similarity - Group 3")
 ```
 
 #### msa of repeat cluster ID
 
 ```{r repeat.clusters_plot, fig.width = 12, fig.height = 4}
-tantale::heatmap_msa(talsim = distal_output$tal.similarity, repeatAlign = repeatMSA, repeatSim = distal_output$repeat.similarity, plot.type = "repeat.clusters", main = "Repeat Cluster MSA - Group 3")
+tantale::heatmap_msa(talsim = distal_output$tal.similarity,
+                     repeatAlign = repeatMSA,
+                     repeatSim = distal_output$repeat.similarity,
+                     plot.type = "repeat.clusters",
+                     main = "Repeat Cluster MSA - Group 3")
 ```
 
 #### msa of repeat ID with RVD labeled
@@ -447,7 +500,13 @@ For this plot, we also use the RVD MSA converted from repeat MSA.
 
 ```{r repeat.clusters.with.rvd_plot, fig.width = 12, fig.height = 4}
 rvdMSA <-  convertRepeat2RvdAlign(repeatAlign = repeatMSA, repeat2RvdMapping = rep2rvd)
-tantale::heatmap_msa(talsim = distal_output$tal.similarity, repeatAlign = repeatMSA, repeatSim = distal_output$repeat.similarity,  rvdAlign = rvdMSA, plot.type = "repeat.clusters.with.rvd", main = "Repeat Cluster MSA with RVD - Group 3", consensusSeq = TRUE)
+tantale::heatmap_msa(talsim = distal_output$tal.similarity,
+                     repeatAlign = repeatMSA,
+                     repeatSim = distal_output$repeat.similarity,
+                     rvdAlign = rvdMSA,
+                     plot.type = "repeat.clusters.with.rvd",
+                     main = "Repeat Cluster MSA with RVD - Group 3",
+                     consensusSeq = TRUE)
 ```
 
 # overview of talomes
@@ -456,10 +515,18 @@ With the Tal classification result and RVD sequences, we can represent RVD seque
 
 ```{r talomes_overview, fig.width = 8, fig.height = 6}
 tale_annotation <- merge(taleGroups, 
-      data.frame("name" = names(rvdVectors), "rvdseq" = sapply(rvdVectors, function(i) paste(i, collapse = "-")), stringsAsFactors = FALSE))
+                         data.frame("name" = names(rvdVectors),
+                                    "rvdseq" = sapply(rvdVectors,
+                                                      function(i) paste(i, collapse = "-")
+                                                      ), stringsAsFactors = FALSE
+                                    )
+                         )
 tale_annotation$strain <- gsub("\\_.+", "", tale_annotation$name)
 
-heatmap_talomes(tale_annotation, col = "group", row = "strain", value = "rvdseq", mapcol = sunset10)
+heatmap_talomes(tale_annotation,
+                col = "group", row = "strain",
+                value = "rvdseq",
+                mapcol = sunset10)
 ```
 
 # predict target

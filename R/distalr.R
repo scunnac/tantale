@@ -216,7 +216,8 @@ diag(identSubMat) <- 1
   pairAlignScores <- dplyr::left_join(df, pairAlignScores) %>%
     dplyr::rename(subj = target, pattern = query) %>%
     dplyr::rowwise() %>%
-    dplyr::mutate(Dissim = ifelse(is.na(pident), 100, 100 - pident)) %>%
+    dplyr::mutate(Dissim = ifelse(is.na(pident), 100, 100 - pident*min(qcov,tcov))) %>%
+    #dplyr::mutate(Dissim = ifelse(is.na(pident), 100, 100 - pident)) %>%
     dplyr::ungroup()
 
   # Check the pairAlignScores tibble
@@ -274,9 +275,9 @@ diag(identSubMat) <- 1
 #' This is meant to approximate the results of DisTal in R and is very similar to
 #' \code{\link[tantale:runDistal]{runDistal}}.
 #' It still uses the Arlem binary just like DisTal but performs the rest of the operations
-#' with R support. Even with parallel computing it is slower than the original perl code...
-#' Computational bottleneck occurs probably at the stage where repeat amino acid sequences are
-#' systematically pairwise aligned.
+#' with R support and parallelization. Depending on the \code{pairwiseAlnMethod} parameter value it is 
+#' much faster than the orginial Perl code and returns similar results. Please take a look at the vignette for
+#' tips on how to use it properly.
 #' 
 #' @param taleParts a table of TALE parts as returned by the \code{\link[tantale:getTaleParts]{getTaleParts}} function.
 #' @param repeats.cluster.h.cut numeric value to cut the hierarchical clustering tree of the repeat.
@@ -296,7 +297,7 @@ diag(identSubMat) <- 1
 #' }
 #' @export
 distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
-                    pairwiseAlnMethod = "mmseq2", condaBinPath = "auto") {
+                    pairwiseAlnMethod = "DECIPHER", condaBinPath = "auto") {
   
   #### Reality checks ####
   
@@ -331,6 +332,7 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
   
   
   #### Assemble repeat code strings and write in a file for arlem ####
+  logger::log_info("Assemble repeat code TALE strings and write in a file for ARLEM")
   repeatStrings <- taleParts %>%
     dplyr::group_by(arrayID) %>%
     dplyr::arrange(positionInArray) %>%
@@ -346,8 +348,9 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
   # Must use seqinr because Biostrings wraps sequences in fasta file which messes up Arlem...
   seqinr::write.fasta(codesSeqLst, names = names(codesSeqLst),
                       file.out = codesSeqsfile, as.string = TRUE, nbchar = 10000)
-  #### Compute systematic pairwise dissimilarities (distances) between 'repeat' units. ####
   
+  
+  #### Compute systematic pairwise dissimilarities (distances) between 'repeat' units. ####
   # Get unique domains sequences
   taleAaParts <- Biostrings::AAStringSet(taleParts$aaSeq)
   names(taleAaParts) <- taleParts$domCode
@@ -356,6 +359,8 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
   stopifnot(!anyDuplicated(names(unique(taleAaParts))))
   
   # Get pairwise repeat aa sequence dissimilarity scores in a long tibble
+  logger::log_info("Computing a distance matrix between TALE parts amino acid sequences ",
+                   "using: {pairwiseAlnMethod}")
   if (pairwiseAlnMethod == "mmseq2") {
     dissimLong <- .distalPairwiseAlign2(partAaStringSet = uniqueTaleAaParts, ncores = ncores,
                                         condaBinPath = condaBinPath)
@@ -379,10 +384,13 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
   dissimMat <- dissimMat[rownames(dissimMat) %>% as.numeric() %>% order(),
                          colnames(dissimMat) %>% as.numeric() %>% order()]
   
-  # # Trying to generate a symetrical dissimilarity matrix which
-  # # meets triangle inequality criteria otherwise Arlem complains
+  #### Generate an ARLEM cost matrix ####
   if (TRUE) {
-    dissimMat <- as.matrix(stats::dist(dissimMat, method = "manhattan", diag = TRUE, upper = TRUE))
+    #method <- "euclidean"
+    method <- "canberra"
+    logger::log_info("Generate an ARLEM cost matrix which meets triangle inequality criteria by computing ",
+                     "the {method} distance between pairwise distance vectors.")
+    dissimMat <- as.matrix(stats::dist(dissimMat, method = method, diag = TRUE, upper = TRUE))
     dissimMat <- dissimMat/max(dissimMat) * 100
     #(scale(dissimMat)+1)/2 * 100
   }
@@ -425,6 +433,9 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
   #### run arlem with a system call and parse std output ####
   arlemPath <- system.file("tools", "DisTAL1.2_MultipleAlignment","arlem", package = "tantale", mustWork = T)
   arlemCmd <- glue::glue("{arlemPath} -f {codesSeqsfile} -cfile {cfile} -align -insert -showalign")
+  logger::log_info("Running ARLEM version 1.0 : ")
+  logger::log_info("Copyright by Mohamed I. Abouelhoda")
+  logger::log_info("Plz. cite Abouelhoda, Giegerich, Behzadi, and Steyaert")
   arlemRawRes <- system(arlemCmd, intern = TRUE)
   logger::log_debug(logger::skip_formatter(arlemRawRes))
   arlemSelfRes <- grep("Processed Seq[.]:", arlemRawRes, value = TRUE) 
@@ -498,9 +509,10 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
                      "tal.similarity" = normArlemScoresTble,
                      "repeats.cluster" = clusterRep(
                        repeatSimMat = reshape2::acast(dissimLong, formula = subj ~ pattern, value.var = "Sim"),
-                       repeats.cluster.h.cut = 10
-                     )
+                       repeats.cluster.h.cut = repeats.cluster.h.cut
+                       )
   )
+  logger::log_info("Finished! Returning a list with the results.")
   return(outputlist)
 }
 
