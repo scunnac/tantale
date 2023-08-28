@@ -386,13 +386,11 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
   
   #### Generate an ARLEM cost matrix ####
   if (TRUE) {
-    #method <- "euclidean"
     method <- "canberra"
     logger::log_info("Generate an ARLEM cost matrix which meets triangle inequality criteria by computing ",
                      "the {method} distance between pairwise distance vectors.")
     dissimMat <- as.matrix(stats::dist(dissimMat, method = method, diag = TRUE, upper = TRUE))
     dissimMat <- dissimMat/max(dissimMat) * 100
-    #(scale(dissimMat)+1)/2 * 100
   }
   if (!fossil::tri.ineq(dissimMat)) {
     logger::log_error("TALE domains dissimilarity (distance) matrix does not respect the triangle inequality",

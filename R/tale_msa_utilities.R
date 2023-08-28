@@ -228,7 +228,7 @@ groupTales <- function(taleSim, plotTree = FALSE, k = NULL, k_test = NULL, metho
     taleGroups <- data.frame(name = names(group), group = group, row.names = NULL)
   } else if (method == "hclust") {
     numGroups <- k
-    if (!is.null(k)) message("'k' will be ignored")
+    if (is.null(k)) message("WE SHOULD BE DOING SOMETHING")
     if (!is.numeric(numGroups) || length(numGroups) != 1) stop("'k' must be specified as a number!")
     # if (method == "euclidean") {
     #   taleTree <- hclust(d = dist(distMat, method = "euclidean"), method = "ward.D")
@@ -260,19 +260,22 @@ groupTales <- function(taleSim, plotTree = FALSE, k = NULL, k_test = NULL, metho
     clades <- sapply(g, function(n) tidytree::MRCA(p, n))
     p <- tidytree::groupClade(p, clades, group_name='subtree') + ggtree::aes(color=subtree)
     p <- p + ggtree::layout_dendrogram() +
-      #ggtree::geom_tippoint(size=5, shape=21) +
-      ggtree::geom_tiplab(ggtree::aes(label=label),
-                          angle= 90, hjust=1,
-                          offset = -0.4,
-                          align = TRUE, color='black') +
+      ggtree::geom_tiplab(ggtree::aes(label = label),
+                          hjust = 1,
+                          angle = 90,
+                          align = FALSE,
+                          color='black',
+                          offset = -2,
+                          
+      ) +
       # ggplot2::scale_color_brewer("Groups", palette="BrBG") + # allowed maximum for palette BrBG is 11
       viridis::scale_color_viridis(discrete = T, option = "C", breaks = 1:numGroups) +
       ggplot2::geom_vline(xintercept = -(cutOff/2), linetype = 2) +
       ggtree::geom_text(x = (cutOff/2 - max(taleTree$height)/50),
-                        y = 4, label = paste("half of 'cutOff' value: ", sprintf("%.2f", cutOff/2)),
+                        y = 8, label = paste("half of 'cutOff' value: ", sprintf("%.2f", cutOff/2)),
                         color = "darkgrey", fontface = "plain") +
       ggplot2::xlab("Height/2") +
-      ggtree::theme_dendrogram(plot.margin = ggplot2::margin(6,6,220,6))
+      ggtree::theme_dendrogram(plot.margin = ggplot2::margin(6,6,150,6))
     }
 
 

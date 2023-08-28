@@ -349,18 +349,29 @@ ggcorrplot(corr_matrix)
 
 
 ```{r tale trees comparisons}
-
+k <- 16
 groupsALV <- invisible(groupTales(taleSim = distal_output$tal.similarity,
-                     plotTree = TRUE, k = "auto", k_test = 10:43,
+                     plotTree = TRUE, k = k, k_test = 10:43,
                      method = "k-medoids"))
 
 groupsDECI <- invisible(groupTales(taleSim = distalr_deci_output$tal.similarity,
-                     plotTree = TRUE, k = "auto", k_test = 10:43,
+                     plotTree = TRUE, k = k, k_test = 10:43,
                      method = "k-medoids"))
 
 groupsBIOS <- invisible(groupTales(taleSim = distalr_bs_output$tal.similarity,
-                     plotTree = TRUE, k = "auto", k_test = 10:43,
+                     plotTree = TRUE, k = k, k_test = 10:43,
                      method = "k-medoids"))
+
+
+groupTales(taleSim = distal_output$tal.similarity,
+                     plotTree = TRUE, k = k,
+                     method = "hclust")
+groupTales(taleSim = distalr_deci_output$tal.similarity,
+                     plotTree = TRUE, k = k,
+                     method = "hclust")
+groupTales(taleSim = distalr_bs_output$tal.similarity,
+                     plotTree = TRUE, k = k,
+                     method = "hclust")
 
 
 
@@ -468,7 +479,7 @@ rep2rvd <- getRepeat2RvdMapping(talesRepeatVectors = repeatVectors, talesRvdVect
 datatable(rep2rvd, options = list(pageLength = 5))
 
 # convert repeat MSA to RVD MSA
-repeatMSA <- repeatMsaByGroup_withSim[[5]]
+repeatMSA <- repeatMsaByGroup_withSim[[9]]
 rvdMSA <-  convertRepeat2RvdAlign(repeatAlign = repeatMSA, repeat2RvdMapping = rep2rvd)
 
 # plot MSA
