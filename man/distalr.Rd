@@ -8,7 +8,7 @@ distalr(
   taleParts,
   repeats.cluster.h.cut = 10,
   ncores = 1,
-  pairwiseAlnMethod = "mmseq2",
+  pairwiseAlnMethod = "DECIPHER",
   condaBinPath = "auto"
 )
 }
@@ -39,7 +39,7 @@ A list with DisTal output components:
 This is meant to approximate the results of DisTal in R and is very similar to
 \code{\link[tantale:runDistal]{runDistal}}.
 It still uses the Arlem binary just like DisTal but performs the rest of the operations
-with R support. Even with parallel computing it is slower than the original perl code...
-Computational bottleneck occurs probably at the stage where repeat amino acid sequences are
-systematically pairwise aligned.
+with R support and parallelization. Depending on the \code{pairwiseAlnMethod} parameter value it is 
+much faster than the orginial Perl code and returns similar results. Please take a look at the vignette for
+tips on how to use it properly.
 }

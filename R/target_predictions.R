@@ -164,12 +164,12 @@ talvez <- function(rvdSeqs, subjDnaSeqFile, optParam = "-t 0 -l 19", outDir = NU
              con = rvdSeqsFileForTv)
   
   # Assembling and running talvez command
-  perlReady <- !as.logical(createBioPerlEnv(condaBinPath = condaBinPath))
+  perlReady <- !as.logical(createTantaleEnv(condaBinPath = condaBinPath))
   if (perlReady) {
     cmd <- glue::glue("cd {tempOutDir};",
                       "perl TALVEZ_3.2.pl {optParam} -e mat1 -z mat2 {basename(rvdSeqsFileForTv)} {basename(subjDnaSeqFile)}")
     logger::log_info("Invoking Talvez using the following command:\n {stringr::str_wrap(cmd, 80)}")
-    res <- systemInCondaEnv(envName = "perlforal",
+    res <- systemInCondaEnv(envName = "tantale",
                             condaBinPath = condaBinPath,
                             command = cmd)
   } else {

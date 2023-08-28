@@ -198,9 +198,9 @@ diag(identSubMat) <- 1
                           "--format-output query,target,evalue,raw,pident,nident,mismatch,gapopen,qstart,qend,qlen,tstart,tend,tlen,alnlen,bits,qcov,tcov",
                           .sep = " ")
 
-  if (!as.logical(createBioPerlEnv(condaBinPath = condaBinPath))) {
+  if (!as.logical(createTantaleEnv(condaBinPath = condaBinPath))) {
     logger::log_debug("Invoking mmseq2 using the following command:\n {stringr::str_wrap(mmseq2Cmd, 80)}")
-    res <- systemInCondaEnv(envName = "perlforal",
+    res <- systemInCondaEnv(envName = "tantale",
                             condaBinPath = condaBinPath,
                             command = mmseq2Cmd,
                             ignore.stdout = T)

@@ -10,7 +10,7 @@
 # lib <- "/home/cunnac/Lab-Related/MyScripts/tantale/inst/tools/DisTAL1.2_MultipleAlignment/lib/Algorithm"
 # disTalCMD <- glue::glue("perl {disTal} -I {lib} -h")
 # 
-# res <- systemInCondaEnv(envName = "perlforal",
+# res <- systemInCondaEnv(envName = "tantale",
 #                         condaBinPath = condaBinPath,
 #                         command = disTalCMD,
 #                         ignore.stdout = T)

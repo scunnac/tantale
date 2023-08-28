@@ -10,11 +10,11 @@ systemInCondaEnv <- function(envName, command,
 }
 
 
-createBioPerlEnv <- function(condaBinPath = "auto") {
-  envName <- "perlforal"
+createTantaleEnv <- function(condaBinPath = "auto") {
+  envName <- "tantale"
   if (!envName %in% (reticulate::conda_list(conda = condaBinPath)["name"] %>% unlist())) {
     logger::log_warn("A custom conda env will be installed on your system to run external dependencies...")
-    condayml <- system.file("tools", "bioperl_conda_env.yaml", package = "tantale", mustWork = T)
+    condayml <- system.file("tools", "tantale_conda_env.yaml", package = "tantale", mustWork = T)
     res <- systemInCondaEnv(envName = "base",
                             condaBinPath = condaBinPath,
                             command = glue::glue("mamba env create -f {condayml}"))
@@ -30,7 +30,7 @@ createBioPerlEnv <- function(condaBinPath = "auto") {
 
 # reticulate::conda_binary()
 # reticulate::conda_list(conda = "/home/cunnac/bin/miniconda3/condabin/conda")["name"] %>% unlist()
-# createBioPerlEnv(condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")
+# createTantaleEnv(condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")
 # #perl-data-dumper
 
 # use warnings;

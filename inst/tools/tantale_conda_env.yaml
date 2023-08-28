@@ -1,4 +1,4 @@
-name: perlforal
+name: tantale
 channels:
   - conda-forge
   - bioconda
