@@ -17,7 +17,6 @@ Imports:
     IRanges, Biostrings, seqinr, GenomicRanges, GenomicFeatures, BSgenome, plyranges,
     Rsamtools, systemPipeR, msa, DECIPHER, ggmsa,
     ape, ggtree,
-    fossil,
     gplots, ggmsa,
     reticulate, optparse, logger
 Suggests:

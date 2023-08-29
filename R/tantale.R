@@ -57,5 +57,4 @@
 
 .onLoad <- function(...){
   logger::log_layout(logger::layout_glue_colors,namespace ='tantale')
-  logger::log_threshold('TRACE', namespace = 'tantale')
 }

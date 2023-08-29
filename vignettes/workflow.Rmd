@@ -20,7 +20,7 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>>")
 ```
 
 ```{r package, warning=FALSE, message=FALSE}
-#library(tantale)
+library(tantale)
 library(ggplot2)
 library(tidyverse)
 library(Biostrings)
@@ -345,21 +345,31 @@ knitr::kable(corr_matrix)
 ggcorrplot(corr_matrix)
 
 
+talSimOutAgregated <- reshape2::dcast(talSimOutAgregated %>% select(method, TAL1, TAL2, Sim),
+                                          formula = TAL1 + TAL2 ~ method, value.var = "Sim"
+                                            ) %>% as_tibble()
+talSimOutAgregated %>%
+  select(-distalBIOS) %>%
+  mutate(pointLab = paste(TAL1, TAL2, sep = "|")) %>%
+  ggplot(mapping = aes(x = distalALV, distalDECI)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope = 1)
+
 ```
 
 
 ```{r tale trees comparisons}
-k <- 16
+k <- 14
 groupsALV <- invisible(groupTales(taleSim = distal_output$tal.similarity,
-                     plotTree = TRUE, k = k, k_test = 10:43,
+                     plotTree = TRUE, k = "auto", k_test = 10:40,
                      method = "k-medoids"))
 
 groupsDECI <- invisible(groupTales(taleSim = distalr_deci_output$tal.similarity,
-                     plotTree = TRUE, k = k, k_test = 10:43,
+                     plotTree = TRUE, k = "auto", k_test = 10:40,
                      method = "k-medoids"))
 
 groupsBIOS <- invisible(groupTales(taleSim = distalr_bs_output$tal.similarity,
-                     plotTree = TRUE, k = k, k_test = 10:43,
+                     plotTree = TRUE, k = "auto", k_test = 10:40,
                      method = "k-medoids"))
 
 
@@ -424,15 +434,15 @@ ape::cophyloplot(getTALEsTree(distal_output$tal.similarity) %>% as.phylo(),
 taleGroups <- groupsBIOS
 ```
 
-Based on the silhoutte values, `groupTales()` will take the value at the elbow of the curve. In this case it picked k = 9, and it makes sense as we already know that the each of the gold genomes have 9 Tals.
+Based on the silhouette values, `groupTales()` will take the value at the elbow of the curve. In this case it picked k = 9, and it makes sense as we already know that the each of the gold genomes have 9 Tals.
 
 ### msa with similarity
 
 We can make MSA of repeatID sequence or RVD sequence with the function `buildRepeatMsa()`, however it make more sense to align repeat than RVD. For mafft, the combo of gap opening score = 0 and gap extending score = 5 creates better alignment than default values.
 
 ```{r msa_with_sim, results=FALSE}
-repeatVectors <- distal_output$coded.repeats.str
-repeatSim <- distal_output$repeat.similarity
+repeatVectors <- distalr_deci_output$coded.repeats.str
+repeatSim <- distalr_deci_output$repeat.similarity %>% select(-Dissim) #distal_output$repeat.similarity
 repeatMsaByGroup_withSim <- lapply(sort(unique(taleGroups$group)), function(G) {
   repeatVectorsForGroup <- repeatVectors[taleGroups$name[taleGroups$group == G]]
   if (length(repeatVectorsForGroup) < 2) {
@@ -472,20 +482,20 @@ for (input in rvdSeqs_fasta) {
 
 
 rvdVectors <- toListOfSplitedStr(telltale2_rvd, sep = "-")
-repeatVectors <- toListOfSplitedStr(distal_output$coded.repeats.str, sep = " ")
+repeatVectors <- toListOfSplitedStr(distalr_deci_output$coded.repeats.str, sep = " ")
 
 # map repeatID to RVD
 rep2rvd <- getRepeat2RvdMapping(talesRepeatVectors = repeatVectors, talesRvdVectors = rvdVectors)
 datatable(rep2rvd, options = list(pageLength = 5))
 
 # convert repeat MSA to RVD MSA
-repeatMSA <- repeatMsaByGroup_withSim[[9]]
+repeatMSA <- repeatMsaByGroup_withSim[[2]]
 rvdMSA <-  convertRepeat2RvdAlign(repeatAlign = repeatMSA, repeat2RvdMapping = rep2rvd)
 
 # plot MSA
-tantale::heatmap_msa(talsim = distal_output$tal.similarity,
+tantale::heatmap_msa(talsim = distalr_deci_output$tal.similarity,
                      repeatAlign = repeatMSA,
-                     repeatSim = distal_output$repeat.similarity,
+                     repeatSim = distalr_deci_output$repeat.similarity,
                      rvdAlign = rvdMSA,
                      plot.type = "repeat.similarity",
                      main = "Repeat MSA with similarity - Group 3")
@@ -494,9 +504,9 @@ tantale::heatmap_msa(talsim = distal_output$tal.similarity,
 #### msa of repeat cluster ID
 
 ```{r repeat.clusters_plot, fig.width = 12, fig.height = 4}
-tantale::heatmap_msa(talsim = distal_output$tal.similarity,
+tantale::heatmap_msa(talsim = distalr_deci_output$tal.similarity,
                      repeatAlign = repeatMSA,
-                     repeatSim = distal_output$repeat.similarity,
+                     repeatSim = distalr_deci_output$repeat.similarity,
                      plot.type = "repeat.clusters",
                      main = "Repeat Cluster MSA - Group 3")
 ```
@@ -507,9 +517,9 @@ For this plot, we also use the RVD MSA converted from repeat MSA.
 
 ```{r repeat.clusters.with.rvd_plot, fig.width = 12, fig.height = 4}
 rvdMSA <-  convertRepeat2RvdAlign(repeatAlign = repeatMSA, repeat2RvdMapping = rep2rvd)
-tantale::heatmap_msa(talsim = distal_output$tal.similarity,
+tantale::heatmap_msa(talsim = distalr_deci_output$tal.similarity,
                      repeatAlign = repeatMSA,
-                     repeatSim = distal_output$repeat.similarity,
+                     repeatSim = distalr_deci_output$repeat.similarity,
                      rvdAlign = rvdMSA,
                      plot.type = "repeat.clusters.with.rvd",
                      main = "Repeat Cluster MSA with RVD - Group 3",

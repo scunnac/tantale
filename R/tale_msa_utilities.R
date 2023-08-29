@@ -236,7 +236,7 @@ groupTales <- function(taleSim, plotTree = FALSE, k = NULL, k_test = NULL, metho
     #   taleTree <- hclust(as.dist(distMat), method = "ward.D")
     # }
     
-    taleTree <- hclust(as.dist(distMat), method = "ward.D")
+    taleTree <- hclust(d = dist(distMat, method = "euclidean"), method = "ward.D")
     
     hi <- max(taleTree$height)
     lo <- min(taleTree$height)

@@ -386,17 +386,17 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
   
   #### Generate an ARLEM cost matrix ####
   if (TRUE) {
-    method <- "canberra"
+    method <- "minkowski"
     logger::log_info("Generate an ARLEM cost matrix which meets triangle inequality criteria by computing ",
                      "the {method} distance between pairwise distance vectors.")
-    dissimMat <- as.matrix(stats::dist(dissimMat, method = method, diag = TRUE, upper = TRUE))
+    dissimMat <- as.matrix(stats::dist(dissimMat, method = method, p = 3.5, diag = TRUE, upper = TRUE))
     dissimMat <- dissimMat/max(dissimMat) * 100
   }
-  if (!fossil::tri.ineq(dissimMat)) {
-    logger::log_error("TALE domains dissimilarity (distance) matrix does not respect the triangle inequality",
-                      "Arlem will fail. Aborting...")
-    stop()
-  }
+  # if (!fossil::tri.ineq(dissimMat)) {
+  #   logger::log_error("TALE domains dissimilarity (distance) matrix does not respect the triangle inequality",
+  #                     "Arlem will fail. Aborting...")
+  #   stop()
+  # }
   
   #### Prepare Arlem cfile with systematic pairwise distances between 'repeat' units. ####
   # Get parameters for arlem
@@ -441,14 +441,14 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
                           substring(arlemSelfRes, 1, 30)) %>%
     strsplit(split = "\\|") %>%
     lapply(function(s) t(as.matrix(as.numeric(s)))) %>%
-    do.call(rbind, .) %>% tibble::as_tibble()
+    do.call(rbind, .) %>% tibble::as_tibble(.name_repair = "minimal")
   arlemRes <- grep("Score of aligning Seq:",
                    arlemRawRes, value = TRUE)
   arlemScores <- gsub("Score of aligning Seq:([0-9]+), Seq:([0-9]+) =([0-9]+)", "\\1|\\2|\\3",
                       arlemRes)
   arlemScores <- strsplit(arlemScores, split = "\\|")
   arlemScores <- lapply(arlemScores, function(s) {t(as.matrix(as.numeric(s)))}) %>%
-    do.call(rbind, .) %>% tibble::as_tibble()
+    do.call(rbind, .) %>% tibble::as_tibble(name_repair = "minimal")
   colnames(arlemScores) <- c("TAL1", "TAL2", "arlemScore")
   # Shaping into matrix to have scores in both directions
   arlemScoresMat <- reshape2::acast(arlemScores, formula = TAL1 ~ TAL2, value.var = "arlemScore")
