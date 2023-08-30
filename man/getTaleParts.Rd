@@ -14,8 +14,8 @@ output directory}
 A tibble.
 }
 \description{
-This function get sequences from tellTale "rvdSequences.fas" and
-AnnoTALE "TALE_Protein_parts.fasta" and "TALE_DNA_parts.fasta" files from a SINGLE
+This function get sequences from tellTale "rvdSequences.fas" and AnnoTALE
+"TALE_Protein_parts.fasta" and "TALE_DNA_parts.fasta" files from a SINGLE
 \code{\link[tantale:tellTale]{tellTale}} run output directory and returns a
 tibble. Each row describes a domain from a tale array and includes the
 'arrayID', the id of the sequence where this array was found, the

@@ -8,8 +8,8 @@ analyzeAnnoTALE(
   inputFastaFile,
   outputDir = getwd(),
   prefix = NULL,
-  annoTALE = system.file("tools", "AnnoTALEcli-1.4.1.jar", package = "tantale", mustWork
-    = T)
+  annoTALE = system.file("tools", "AnnoTALEcli-1.5.jar", package = "tantale", mustWork =
+    T)
 )
 }
 \arguments{
