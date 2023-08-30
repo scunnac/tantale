@@ -333,6 +333,8 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
   
   #### Assemble repeat code strings and write in a file for arlem ####
   logger::log_info("Assemble repeat code TALE strings and write in a file for ARLEM")
+  
+  codesSeqsfile <- tempfile(fileext = ".fasta")
   repeatStrings <- taleParts %>%
     dplyr::group_by(arrayID) %>%
     dplyr::arrange(positionInArray) %>%
@@ -341,13 +343,16 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
   codesSeqSet <- Biostrings::BStringSet(repeatStrings$repeatString)
   names(codesSeqSet) <- repeatStrings$arrayID
   
-  codesSeqLst <- as.list(repeatStrings$repeatString)
-  names(codesSeqLst) <- repeatStrings$arrayID
+  # # Must use seqinr because Biostrings wraps sequences in fasta file which messes up Arlem...
+  # codesSeqLst <- as.list(repeatStrings$repeatString)
+  # names(codesSeqLst) <- repeatStrings$arrayID
+  # seqinr::write.fasta(codesSeqLst, names = names(codesSeqLst),
+  #                     file.out = codesSeqsfile, as.string = TRUE, nbchar = 10000)
   
-  codesSeqsfile <- tempfile(fileext = ".fasta")
-  # Must use seqinr because Biostrings wraps sequences in fasta file which messes up Arlem...
-  seqinr::write.fasta(codesSeqLst, names = names(codesSeqLst),
-                      file.out = codesSeqsfile, as.string = TRUE, nbchar = 10000)
+  Biostrings::writeXStringSet(x = codesSeqSet,
+                              filepath = codesSeqsfile,
+                              format = "fasta", width = 20000L)
+  
   
   
   #### Compute systematic pairwise dissimilarities (distances) between 'repeat' units. ####

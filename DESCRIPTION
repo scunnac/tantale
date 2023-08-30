@@ -14,7 +14,7 @@ Depends: R (>= 3.6.3)
 Imports:
     magrittr, tidyverse, plyr, glue, reshape2, scales, XVector,
     RColorBrewer, dichromat,
-    IRanges, Biostrings, seqinr, GenomicRanges, GenomicFeatures, BSgenome, plyranges,
+    IRanges, Biostrings, GenomicRanges, GenomicFeatures, BSgenome, plyranges,
     Rsamtools, systemPipeR, msa, DECIPHER, ggmsa,
     ape, ggtree,
     gplots, ggmsa,
