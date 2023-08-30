@@ -15,15 +15,15 @@
 #'@section   - TALE mining in bacterial sequences:
 #'
 #'  \itemize{
-#'    \item Wrapper around annotale
-#'    \item tellTale
+#'    \item Wrapper around annoTALE and correcTALE
+#'    \item tellTale, an R function similar to annoTALE
 #'    \item Analysis tools for RVD inventory, repeat lenght}
 #'
 #'
 #'@section   - TALEs classification, phylogeny:
 #'
 #'  \itemize{
-#'    \item Wrappers around distal, functal, annoTALE and correcTALE
+#'    \item Wrappers around distal, functal, annoTALE
 #'    \item TALE groups inference
 #'    \item Easily build Multiple alignments and generate nice plots}
 #'
@@ -33,7 +33,7 @@
 #'  \itemize{
 #'    \item Wrappers around target predictors
 #'    \item General parser for results aggregation
-#'    \item Connector with daTALbase}
+#'    \item Connector with daTALbase (to be done)}
 #'
 #'@note CAUTIONARY NOTES:
 #'

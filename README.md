@@ -1,8 +1,7 @@
 <p align="right">
   <img src="./man/figures/tantale_logo_small.gif">
 
-## An integrated collection of functions for [TALE](https://en.wikipedia.org/wiki/Transcription_activator-like_effector)
-## minning and analysis with the R language
+## An integrated collection of functions for [TALE](https://en.wikipedia.org/wiki/Transcription_activator-like_effector) minning and analysis with the R language
 
 
 
@@ -12,21 +11,21 @@
 
 
 - TALE mining in bacterial sequences:
-    - Wrapper around annotale
-    - tellTale
+    - Wrapper around annoTALE and correcTALE
+    - tellTale, an R function similar to annoTALE
     - Analysis tools for RVD inventory, repeat lenght
 
 
 - TALEs classification, phylogeny:
-    - Wrappers around distal, functal, annotale
+    - Wrappers around distal, functal, annoTALE
     - TALE groups inference
-    - Multiple alignments plotting  
+    - Easily build Multiple alignments and generate nice plots
 
 
 - TALE targets mining:
     - Wrappers around target predictors
     - General parser for results aggregation
-    - Connector with daTALbase
+    - Connector with daTALbase (to be done)
 
 
 <p align="center">
@@ -48,7 +47,7 @@ remotes::install_github("vibaotram/tantale",
 ```
 
 - This is still a **work in progress** and is not necessarily fully and **properly** implemented!!!
-- Documentation is also minimal and not necessarily up-to-date.
+- Documentation could be improved and extended.
 - If you feel like contributing, that is great, please send me an email: sebastien.cunnac@ird.fr
 - tantale has been written with only Linux systems in mind and will very likely not work on other OS (eg Windows)
 - Some of tantale wrappers use code written in other languages. For them to work, you must ideally have Java and Perl on the PATH in your system.
