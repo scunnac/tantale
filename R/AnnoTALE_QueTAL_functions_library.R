@@ -80,7 +80,7 @@ QueTALRVD2AnnoTALE <- function(inputFile, outputFile = "RVDSeqs.AnnoTALE.fasta")
 analyzeAnnoTALE <- function(inputFastaFile,
                             outputDir = getwd(),
                             prefix = NULL,
-                            annoTALE = system.file("tools", "AnnoTALEcli-1.4.1.jar", package = "tantale", mustWork = T)
+                            annoTALE = system.file("tools", "AnnoTALEcli-1.5.jar", package = "tantale", mustWork = T)
                             ) {
   # Define output dirs for the various stages of annoTALE
   stopifnot(dir.exists(outputDir) || dir.create(path = outputDir, showWarnings = TRUE, recursive = TRUE, mode = "775"))
@@ -135,7 +135,7 @@ analyzeAnnoTALE <- function(inputFastaFile,
 #' @export
 buildAnnoTALE <- function(TALESeqsFastaFile,
                           outputDir = getwd(),
-                          annoTALE = system.file("tools", "AnnoTALEcli-1.4.1.jar", package = "tantale", mustWork = T)
+                          annoTALE = system.file("tools", "AnnoTALEcli-1.5.jar", package = "tantale", mustWork = T)
                           ) {
   if(! dir.exists(outputDir)) dir.create(path = outputDir, showWarnings = TRUE, recursive = TRUE, mode = "775")
   comBuild <- paste0(

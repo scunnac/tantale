@@ -566,7 +566,7 @@ tellTale <- function(
   AnnoTALEanalyze <- function(inputFastaFile,
                               outputDir = getwd(),
                               prefix = NULL,
-                              annoTALE = system.file("tools", "AnnoTALEcli-1.4.1.jar",
+                              annoTALE = system.file("tools", "AnnoTALEcli-1.5.jar",
                                                      package = "tantale", mustWork = T)
                               ) {
     # Define output dirs for the various stages of annoTALE
@@ -585,7 +585,8 @@ tellTale <- function(
       " t=", inputFastaFile,
       " outdir=", outputDir
     )
-    cat("##  Now running annoTALE analyze for", prefix, "using the following command:\n##  ",  comAnalyze, "\n")
+    logger::log_info("Now running annoTALE analyze for {prefix}")
+    logger::log_debug("Using the following command: {comAnalyze}")
     exitAnalyze <- system(comAnalyze, ignore.stdout = TRUE, ignore.stderr = TRUE)
     return(invisible(exitAnalyze))
   }
