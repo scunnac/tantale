@@ -266,7 +266,7 @@ distal_output <- runDistal(telltale2_cds, outdir = distal_telltale, overwrite = 
 
 ## run the R implementation of DisTal
 
-```{r doing the same with distalr}
+```{r doing the same with distalr, fig.width = 10, fig.height=10}
 distalrOutDir <- file.path(outdir, "distalr")
 unlink(distalrOutDir, recursive = TRUE)
 dir.create(distalrOutDir, showWarnings = F)
@@ -358,18 +358,18 @@ talSimOutAgregated %>%
 ```
 
 
-```{r tale trees comparisons}
-k <- 14
+```{r tale trees}
+k <- 26
 groupsALV <- invisible(groupTales(taleSim = distal_output$tal.similarity,
-                     plotTree = TRUE, k = "auto", k_test = 10:40,
+                     plotTree = TRUE, k = k, k_test = 10:40,
                      method = "k-medoids"))
 
 groupsDECI <- invisible(groupTales(taleSim = distalr_deci_output$tal.similarity,
-                     plotTree = TRUE, k = "auto", k_test = 10:40,
+                     plotTree = TRUE, k = k, k_test = 10:40,
                      method = "k-medoids"))
 
 groupsBIOS <- invisible(groupTales(taleSim = distalr_bs_output$tal.similarity,
-                     plotTree = TRUE, k = "auto", k_test = 10:40,
+                     plotTree = TRUE, k = k, k_test = 10:40,
                      method = "k-medoids"))
 
 
@@ -387,7 +387,7 @@ groupTales(taleSim = distalr_bs_output$tal.similarity,
 
 getTALEsTree <- function(taleSim) {
   distMat <- 100 - reshape2::acast(taleSim, formula = TAL1 ~ TAL2, value.var = "Sim")
-  hclust(as.dist(distMat), method = "ward.D")
+  hclust(dist(distMat, method = "euclidean"), method = "ward.D")
 }
 
 getTALEsTree(distal_output$tal.similarity) %>%
@@ -416,15 +416,16 @@ getTALEsTree(distalr_bs_output$tal.similarity) %>%
                           offset = -3,
                       
                       , color='black')
+```
 
+
+```{r tale trees comparisons}
 ape::cophyloplot(getTALEsTree(distal_output$tal.similarity) %>% as.phylo(),
                  getTALEsTree(distalr_deci_output$tal.similarity) %>% as.phylo(),
                  assoc = matrix(rep(distal_output$tal.similarity$TAL1 %>% unique() %>% as.character(), 2),
                                 ncol = 2, byrow = FALSE),
                  length.line = 0, space=200, gap=10,
                  col = "red")
-
-
 ```
 
 
@@ -610,7 +611,7 @@ heatmap.2(selectedPredsMat,
 
 To see how RVD sequences match a promoter region, we supply the prediction table and the promoter sequence with the genomic range to `plotTaleTargetPred()`:
 
-```{r SWEET13, fig.width = 8, fig.height = 5}
+```{r SWEET13, fig.width = 12, fig.height = 4}
 grFilter <- "SWEET14p_Nipponbare_Sense:340-450"
 plotTaleTargetPred(predResults = selectedPreds, subjDnaSeqFile = subjDnaSeqFile, filterRange = grFilter)
 ```
@@ -652,7 +653,14 @@ gplots::heatmap.2(selectedPredsMat,
                   )
 ```
 
-```{r SWEET14, fig.width = 8, fig.height = 4}
+```{r SWEET14, fig.width = 12, fig.height = 4}
 grFilter <- "SWEET14p_Nipponbare_Sense:340-450"
 plotTaleTargetPred(predResults = selectedPreds, subjDnaSeqFile = subjDnaSeqFile, filterRange = grFilter)
 ```
+
+# Session info
+
+```{r session info}
+sessionInfo()
+```
+

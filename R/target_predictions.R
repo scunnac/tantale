@@ -60,7 +60,9 @@ preditale <- function(rvdSeqs, subjDnaSeqFile, optParam = "", outDir = NULL,
   system(command = cmd)
   # Parsing output
   predFiles <- list.files(path = outDir, pattern = "^Predicted_binding.*tsv$", full.names = TRUE)
-  predictions <- lapply(predFiles, function(f) suppressMessages(readr::read_tsv(f))) %>%
+  predictions <- lapply(predFiles, function(f) {
+    suppressMessages(readr::read_tsv(f, show_col_types = FALSE))
+    }) %>%
     dplyr::bind_rows() %>%
     dplyr::rename(subjSeqId = `# Seq-ID`,
                   start = Position,
@@ -164,8 +166,8 @@ talvez <- function(rvdSeqs, subjDnaSeqFile, optParam = "-t 0 -l 19", outDir = NU
              con = rvdSeqsFileForTv)
   
   # Assembling and running talvez command
-  perlReady <- !as.logical(createTantaleEnv(condaBinPath = condaBinPath))
-  if (perlReady) {
+  envReady <- !as.logical(createTantaleEnv(condaBinPath = condaBinPath))
+  if (envReady) {
     cmd <- glue::glue("cd {tempOutDir};",
                       "perl TALVEZ_3.2.pl {optParam} -e mat1 -z mat2 {basename(rvdSeqsFileForTv)} {basename(subjDnaSeqFile)}")
     logger::log_info("Invoking Talvez using the following command:\n {stringr::str_wrap(cmd, 80)}")
@@ -177,7 +179,9 @@ talvez <- function(rvdSeqs, subjDnaSeqFile, optParam = "-t 0 -l 19", outDir = NU
   }
 
   # Parsing and reformating output
-  predictions <- suppressMessages(readr::read_tsv(file.path(tempOutDir, "output_complete"))) %>%
+  predictions <- suppressMessages(
+    readr::read_tsv(file.path(tempOutDir, "output_complete"), show_col_types = FALSE)
+    ) %>%
   dplyr::rename(subjSeqId = `SEQ_ID`,
                 start = TALBS_start,
                 end = TALBS_end,

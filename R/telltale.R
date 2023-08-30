@@ -481,12 +481,12 @@ tellTale <- function(
     corrExtdCompleteArraysSeqs <- ArrayCorrection$sequences
     
     ####   Correction stats   ####
-    deletions_count <- correction_tible(ArrayCorrection$indels) %>%
+    deletions_count <- correction_tibble(ArrayCorrection$indels) %>%
       dplyr::group_by(Seq) %>%
       dplyr::count(variable, name = "predicted_dels_count") %>%
       dplyr::filter(variable == "deletions") %>%
       dplyr::select(-variable)
-    insertions_count <- correction_tible(ArrayCorrection$indels) %>%
+    insertions_count <- correction_tibble(ArrayCorrection$indels) %>%
       dplyr::group_by(Seq) %>%
       dplyr::count(variable, name = "predicted_ins_count") %>%
       dplyr::filter(variable == "insertions") %>%
