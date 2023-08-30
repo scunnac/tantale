@@ -1,10 +1,10 @@
 # tantale package
-## An integrated collection of functions for TALE minning and analysis
+## An integrated collection of functions for [TALE](https://en.wikipedia.org/wiki/Transcription_activator-like_effector)
+## minning and analysis with the R language
 
 <p align="center">
-  <img src="./man/figures/pipeline.svg">
+  <img src="./man/figures/tanatle_logo.png">
 </p>
-
 
 
 - A TALE-oriented OOP framework:
@@ -27,6 +27,13 @@
     - Wrappers around target predictors
     - General parser for results aggregation
     - Connector with daTALbase
+
+
+<p align="center">
+  <img src="./man/figures/pipeline.svg">
+</p>
+
+
 
 **NOTE** :
 
