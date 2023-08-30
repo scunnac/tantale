@@ -13,13 +13,11 @@ editor_options:
   chunk_output_type: console
 ---
 
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(cache = TRUE)
 knitr::opts_chunk$set(warning = FALSE)
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>>")
 ```
-
 
 ```{r package, warning=FALSE, message=FALSE}
 library(tantale)
@@ -30,25 +28,29 @@ library(parallel)
 library(magrittr)
 library(DT)
 library(gplots)
+library(ape)
+library(ggtree)
 ```
 
 This vignette will go through all steps in a talomes analysis pipeline from Xoo genome sequences using functions in package `tantale`.\
 Genomes used for this vignette are MAI1, BAI3, and BAI3-1-1 (an error-prone genome with TalC deleted).\
 
 Get the fasta files:
+
 ```{r fasta_files}
 mai1_fa <- system.file("extdata", "MAI1.fa", package = "tantale", mustWork = T)
 bai3_fa <- system.file("extdata", "BAI3.fa", package = "tantale", mustWork = T)
 bai311_fa <- system.file("extdata", "BAI3-1-1.fa", package = "tantale", mustWork = T)
+pxo86 <- system.file("extdata", "PXO86.fa", package = "tantale", mustWork = T)
 ```
 
 Output dir to save all the results of this vignette:
+
 ```{r outdir}
-outdir <- tempdir(check = TRUE) #"/tmp/test_tantale"
+outdir <- fs::dir_create("~/TEMP/test_tantale") # tempdir(check = TRUE)
 telltale2_outdir <- file.path(outdir, "telltale2")
 dir.create(telltale2_outdir, showWarnings = T)
 ```
-
 
 # find TALs
 
@@ -58,7 +60,7 @@ By default, `telltale2()` adds NTERM and CTERM to RVD sequences as markers of th
 ## run telltale2 no correction
 
 ```{r telltale_no_correction, eval=TRUE}
-mclapply(c(mai1_fa, bai3_fa), function(fastaFile) {
+mclapply(c(mai1_fa, bai3_fa, pxo86), function(fastaFile) {
   outdirname <- gsub(".fa", "_nocorrection", basename(fastaFile))
   outputDir <- file.path(telltale2_outdir, outdirname)
   tellTale(subjectFile = fastaFile,
@@ -73,10 +75,11 @@ mclapply(c(mai1_fa, bai3_fa), function(fastaFile) {
 
 ```{r telltale2_correction, eval=TRUE}
 tellTale(subjectFile = bai311_fa,
-          outputDir = file.path(telltale2_outdir, gsub(".fa", "_correction", basename(bai311_fa))),
-          appendExtremityCodes = TRUE,
-          rvdSep = "-",
-          talArrayCorrection = TRUE)
+         outputDir = file.path(telltale2_outdir, gsub(".fa", "_correction", basename(bai311_fa))),
+         TALE_CtermDNAHitMinScore = 300,
+         appendExtremityCodes = TRUE,
+         rvdSep = "-",
+         talArrayCorrection = TRUE)
 ```
 
 ## overview of telltale2 results
@@ -91,30 +94,33 @@ sunset10 <- c("#ba6b57", "#87556f", "#848ccf", "#93b5e1", "#6f4a8e", "#a2738c", 
 
 arrayReport_files <- list.files(telltale2_outdir, "arrayReport.tsv", recursive = T, full.names = T)
 
-arrayRp <- data.frame()
+arrayRp <- tibble()
 for (f in arrayReport_files) {
-  a <- read.table(f, sep = "\t", stringsAsFactors = F, header = T)
-  if (!any(c("predicted_ins_count", "predicted_dels_count") %in% colnames(a))) a[c("predicted_ins_count", "predicted_dels_count")] <- NA # 2 columns "predicted_ins_count" and "predicted_dels_count" are not displayed in the report in case of no correction
+  a <- read_tsv(f)
+  if (!any(c("predicted_ins_count", "predicted_dels_count") %in% colnames(a)))
+    # 2 columns "predicted_ins_count" and "predicted_dels_count" are not displayed in the report in case of no correction
+    {a[c("predicted_ins_count", "predicted_dels_count")] <- NA} 
   a$strain <- gsub("\\_.+", "", basename(dirname(f)))
   arrayRp <- rbind(arrayRp, a)
 }
+arrayRp <- as_tibble(arrayRp)
 ```
 
 This report takes result of HMMer for Tals motif detection, result of correction and AnnoTALE analyze.\
 What information it contains:
+
 ```{r content_arrayRport}
 colnames(arrayRp)
 ```
 
 Some important points:
 
-Column name            | Content
------------------------|------------------------------------------------------------------
-`AllDomains`           | TRUE/FALSE, whether all the 3 domains of Tal arrays are detected
-`aberrantRepeat`       | TRUE/FALSE, whether there is any aberrant repeat
-`predicted_ins_count`  | number of insertions corrected by `telltale2()`
-`predicted_dels_count` | number of deletions corrected by `telltale2()`
-
+| Column name            | Content                                                          |
+|-------------------|-----------------------------------------------------|
+| `AllDomains`           | TRUE/FALSE, whether all the 3 domains of Tal arrays are detected |
+| `aberrantRepeat`       | TRUE/FALSE, whether there is any aberrant repeat                 |
+| `predicted_ins_count`  | number of insertions corrected by `telltale2()`                  |
+| `predicted_dels_count` | number of deletions corrected by `telltale2()`                   |
 
 ### count AllDomains and aberrantRepeat
 
@@ -126,8 +132,8 @@ ggplot(arrayRp) +
   guides(color = guide_legend(override.aes = list(fill = sunset10[4])))
 ```
 
-
 ### count corrections
+
 total correction count per genome (in this case, there is only 1 genome that has been corrected)
 
 ```{r correction count per genome 2, fig.width = 6, fig.height=6}
@@ -142,6 +148,7 @@ ggplot(arrayRp_correction) +
 ```
 
 correction count per array per genome
+
 ```{r count per array per genome, fig.width = 6, fig.height=4}
 ggplot(na.omit(arrayRp_correction), aes(x = arrayID, y = count, color = type, shape = type)) +
   facet_wrap(vars(strain), nrow = 2) +
@@ -153,6 +160,7 @@ ggplot(na.omit(arrayRp_correction), aes(x = arrayID, y = count, color = type, sh
 ```
 
 correction distribution per genome
+
 ```{r correction distribution, fig.width = 6, fig.height=4}
 ggplot(na.omit(arrayRp_correction), aes(x = strain, y = count)) +
   geom_dotplot(aes(fill = type, color = type), binaxis = "y", stackdir = "center", position = "dodge", binwidth = 1/10) +
@@ -162,11 +170,10 @@ ggplot(na.omit(arrayRp_correction), aes(x = strain, y = count)) +
         panel.grid.minor.y = element_blank())
 ```
 
-
-
 ### count domain codon
 
 Another report that we can reveal is "hitsReport.tsv", which contains results of HMMer.
+
 ```{r codon_count_annotale_1}
 hitsReport_files <- dir(telltale2_outdir, "hitsReport.tsv", recursive = T, full.names = T)
 
@@ -180,11 +187,13 @@ hitsReport$query_name <- factor(hitsReport$query_name, levels = c("TALE_N-termin
 ```
 
 information in the hitsReport
+
 ```{r codon_count_annotale_2}
 colnames(hitsReport)
 ```
 
 We could see the length distribution of each Tal protein domain (`query_name`) predicted by HMMer.
+
 ```{r codon_count_annotale_3, fig.width = 10, fig.height=6}
 ggplot(hitsReport) +
   facet_wrap(vars(query_name), scales = "free", nrow = 1) +
@@ -250,26 +259,191 @@ for (input in distal_telltale_input) {
 }
 
 # run DisTal
-distal_output <- runDistal(telltale2_cds, outdir = distal_telltale, overwrite = F)
+distal_output <- runDistal(telltale2_cds, outdir = distal_telltale, overwrite = T)
+
+# distal_output$tal.similarity %>%as_tibble() %>% filter(TAL1 == | TAL2 == )
 ```
+
+## run the R implementation of DisTal
+
+```{r doing the same with distalr, fig.width = 10, fig.height=10}
+distalrOutDir <- file.path(outdir, "distalr")
+unlink(distalrOutDir, recursive = TRUE)
+dir.create(distalrOutDir, showWarnings = F)
+
+
+taleParts <- lapply(list.dirs(telltale2_outdir, recursive = FALSE), function(ttGenomeDir) {
+  genomeId <- gsub("_.*correction", "", basename(ttGenomeDir))
+  logger::log_debug("Current genome: {genomeId}")
+  taleParts <- getTaleParts(ttGenomeDir) %>%
+    mutate(arrayID = paste0(genomeId, "_", arrayID))
+  return(taleParts)
+}) %>%
+  bind_rows()
+
+
+partsForPlots <- taleParts %>%
+  mutate(label = if_else(domainType == "repeat", rvd, ""),
+         aaSeqLength = factor(nchar(aaSeq))
+  )
+partsForPlots %>% ggplot(mapping = aes(fill = aaSeqLength,
+                                       color = domainType,
+                                       label = label,
+                                       y = arrayID,
+                                       x = positionInArray),
+                         color = isNaAaSeq) +
+  scale_color_viridis_d(option = "rocket") +
+  scale_fill_discrete() +
+  scale_x_continuous(breaks = 1:50, minor_breaks = NULL) +
+  geom_point(shape = 21, size = 5, stroke = 0.9) +
+  ggnewscale::new_scale_color() +
+  ggnewscale::new_scale_fill() +
+  geom_text(size = 2.1, color = "white") + 
+  facet_grid(seqnames~ ., scales = "free_y", space = "free") +
+  theme_light()
+
+
+
+partsForDistalr <- taleParts
+# distalr_mms_output <- distalr(taleParts = partsForDistalr,
+#                               repeats.cluster.h.cut = 10, ncores = 6,
+#                               pairwiseAlnMethod = "mmseq2",
+#                               condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")
+
+distalr_deci_output <- distalr(taleParts = partsForDistalr,
+                              repeats.cluster.h.cut = 10, ncores = 6,
+                              pairwiseAlnMethod = "DECIPHER")
+
+distalr_bs_output <- distalr(taleParts = partsForDistalr,
+                             repeats.cluster.h.cut = 10, ncores = 6,
+                             pairwiseAlnMethod = "Biostrings")
+
+
+```
+
+
+## Contrast the output of the various distal functions
+
+```{r correlation of TALE distances from various distal implementations}
+library('corrr')
+library(ggcorrplot)
+talSimOutAgregated <- list(distalALV = distal_output$tal.similarity,
+     distalDECI = distalr_deci_output$tal.similarity,
+     distalBIOS = distalr_bs_output$tal.similarity
+) %>% bind_rows(.id = "method")
+
+talSimOutAgregatedLong <- reshape2::dcast(talSimOutAgregated %>% select(method, TAL1, TAL2, Sim),
+                                          formula = method ~ TAL1 + TAL2, value.var = "Sim"
+                                            )
+rownames(talSimOutAgregatedLong) <- talSimOutAgregatedLong$method
+talSimOutAgregatedLong$method <- NULL
+talSimOutAgregatedLong %<>% as.matrix() %>% t()
+rownames(talSimOutAgregatedLong) <- NULL
+
+corr_matrix <- cor(talSimOutAgregatedLong)
+knitr::kable(corr_matrix)
+ggcorrplot(corr_matrix)
+
+
+talSimOutAgregated <- reshape2::dcast(talSimOutAgregated %>% select(method, TAL1, TAL2, Sim),
+                                          formula = TAL1 + TAL2 ~ method, value.var = "Sim"
+                                            ) %>% as_tibble()
+talSimOutAgregated %>%
+  select(-distalBIOS) %>%
+  mutate(pointLab = paste(TAL1, TAL2, sep = "|")) %>%
+  ggplot(mapping = aes(x = distalALV, distalDECI)) +
+  geom_point() +
+  geom_abline(intercept = 0, slope = 1)
+
+```
+
+
+```{r tale trees}
+k <- 26
+groupsALV <- invisible(groupTales(taleSim = distal_output$tal.similarity,
+                     plotTree = TRUE, k = k, k_test = 10:40,
+                     method = "k-medoids"))
+
+groupsDECI <- invisible(groupTales(taleSim = distalr_deci_output$tal.similarity,
+                     plotTree = TRUE, k = k, k_test = 10:40,
+                     method = "k-medoids"))
+
+groupsBIOS <- invisible(groupTales(taleSim = distalr_bs_output$tal.similarity,
+                     plotTree = TRUE, k = k, k_test = 10:40,
+                     method = "k-medoids"))
+
+
+groupTales(taleSim = distal_output$tal.similarity,
+                     plotTree = TRUE, k = k,
+                     method = "hclust")
+groupTales(taleSim = distalr_deci_output$tal.similarity,
+                     plotTree = TRUE, k = k,
+                     method = "hclust")
+groupTales(taleSim = distalr_bs_output$tal.similarity,
+                     plotTree = TRUE, k = k,
+                     method = "hclust")
+
+
+
+getTALEsTree <- function(taleSim) {
+  distMat <- 100 - reshape2::acast(taleSim, formula = TAL1 ~ TAL2, value.var = "Sim")
+  hclust(dist(distMat, method = "euclidean"), method = "ward.D")
+}
+
+getTALEsTree(distal_output$tal.similarity) %>%
+  ggtree::ggtree() +
+  ggtree::layout_dendrogram() +
+  ggtree::geom_tiplab(ggtree::aes(label=label),
+                          angle= 90, hjust=0,
+                          offset = -3,
+                      
+                      , color='black')
+
+getTALEsTree(distalr_deci_output$tal.similarity) %>%
+  ggtree::ggtree() +
+  ggtree::layout_dendrogram() +
+  ggtree::geom_tiplab(ggtree::aes(label=label),
+                          angle= 90, hjust=0,
+                          offset = -3,
+                      
+                      , color='black')
+
+getTALEsTree(distalr_bs_output$tal.similarity) %>%
+  ggtree::ggtree() +
+  ggtree::layout_dendrogram() +
+  ggtree::geom_tiplab(ggtree::aes(label=label),
+                          angle= 90, hjust=0,
+                          offset = -3,
+                      
+                      , color='black')
+```
+
+
+```{r tale trees comparisons}
+ape::cophyloplot(getTALEsTree(distal_output$tal.similarity) %>% as.phylo(),
+                 getTALEsTree(distalr_deci_output$tal.similarity) %>% as.phylo(),
+                 assoc = matrix(rep(distal_output$tal.similarity$TAL1 %>% unique() %>% as.character(), 2),
+                                ncol = 2, byrow = FALSE),
+                 length.line = 0, space=200, gap=10,
+                 col = "red")
+```
+
 
 ## classify TAL groups
 
 ```{r test_tale_group, fig.width = 6, fig.height=4}
-taleGroups <- groupTales(distal_output$tal.similar, k_test = 5:15, k = "auto")
+taleGroups <- groupsBIOS
 ```
 
-Based on the silhoutte values, `groupTales()` will take the value at the elbow of the curve. 
-In this case it picked k = 9, and it makes sense as we already know that the each of the gold genomes have 9 Tals.
-
+Based on the silhouette values, `groupTales()` will take the value at the elbow of the curve. In this case it picked k = 9, and it makes sense as we already know that the each of the gold genomes have 9 Tals.
 
 ### msa with similarity
-We can make MSA of repeatID sequence or RVD sequence with the function `buildRepeatMsa()`, however it make more sense to align repeat than RVD.
-For mafft, the combo of gap opening score = 0 and gap extending score = 5 creates better alignment than default values.
+
+We can make MSA of repeatID sequence or RVD sequence with the function `buildRepeatMsa()`, however it make more sense to align repeat than RVD. For mafft, the combo of gap opening score = 0 and gap extending score = 5 creates better alignment than default values.
 
 ```{r msa_with_sim, results=FALSE}
-repeatVectors <- distal_output$coded.repeats.str
-repeatSim <- distal_output$repeat.similarity
+repeatVectors <- distalr_deci_output$coded.repeats.str
+repeatSim <- distalr_deci_output$repeat.similarity %>% select(-Dissim) #distal_output$repeat.similarity
 repeatMsaByGroup_withSim <- lapply(sort(unique(taleGroups$group)), function(G) {
   repeatVectorsForGroup <- repeatVectors[taleGroups$name[taleGroups$group == G]]
   if (length(repeatVectorsForGroup) < 2) {
@@ -280,7 +454,9 @@ repeatMsaByGroup_withSim <- lapply(sort(unique(taleGroups$group)), function(G) {
     return(msa)
     next()
   }
-  repeatMsa <- buildRepeatMsa(inputSeqs = repeatVectorsForGroup, distalRepeatSims = repeatSim, mafftOpts = "--globalpair --weighti 1 --maxiterate 1000 --reorder --op 0 --ep 5 --thread 8")
+  repeatMsa <- buildRepeatMsa(inputSeqs = repeatVectorsForGroup, sep = " ",
+                              distalRepeatSims = repeatSim,
+                              mafftOpts = "--globalpair --weighti 1 --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1")
   }
 )
 ```
@@ -305,34 +481,50 @@ for (input in rvdSeqs_fasta) {
   writeXStringSet(seqs, telltale2_rvd, append = T)
 }
 
-rvdVectors <- readBStringSet(telltale2_rvd)
-rvdVectors <- sapply(rvdVectors, function(r) strsplit(toString(r), split = "-"))
-repeatVectors <- distal_output$coded.repeats.str
+
+rvdVectors <- toListOfSplitedStr(telltale2_rvd, sep = "-")
+repeatVectors <- toListOfSplitedStr(distalr_deci_output$coded.repeats.str, sep = " ")
 
 # map repeatID to RVD
 rep2rvd <- getRepeat2RvdMapping(talesRepeatVectors = repeatVectors, talesRvdVectors = rvdVectors)
 datatable(rep2rvd, options = list(pageLength = 5))
 
 # convert repeat MSA to RVD MSA
-repeatMSA <- repeatMsaByGroup_withSim[[3]]
+repeatMSA <- repeatMsaByGroup_withSim[[2]]
 rvdMSA <-  convertRepeat2RvdAlign(repeatAlign = repeatMSA, repeat2RvdMapping = rep2rvd)
 
 # plot MSA
-tantale::heatmap_msa(talsim = distal_output$tal.similarity, repeatAlign = repeatMSA, repeatSim = distal_output$repeat.similarity, rvdAlign = rvdMSA, plot.type = "repeat.similarity", main = "Repeat MSA with similarity - Group 3")
+tantale::heatmap_msa(talsim = distalr_deci_output$tal.similarity,
+                     repeatAlign = repeatMSA,
+                     repeatSim = distalr_deci_output$repeat.similarity,
+                     rvdAlign = rvdMSA,
+                     plot.type = "repeat.similarity",
+                     main = "Repeat MSA with similarity - Group 3")
 ```
 
 #### msa of repeat cluster ID
 
 ```{r repeat.clusters_plot, fig.width = 12, fig.height = 4}
-tantale::heatmap_msa(talsim = distal_output$tal.similarity, repeatAlign = repeatMSA, repeatSim = distal_output$repeat.similarity, plot.type = "repeat.clusters", main = "Repeat Cluster MSA - Group 3")
+tantale::heatmap_msa(talsim = distalr_deci_output$tal.similarity,
+                     repeatAlign = repeatMSA,
+                     repeatSim = distalr_deci_output$repeat.similarity,
+                     plot.type = "repeat.clusters",
+                     main = "Repeat Cluster MSA - Group 3")
 ```
 
 #### msa of repeat ID with RVD labeled
 
 For this plot, we also use the RVD MSA converted from repeat MSA.
+
 ```{r repeat.clusters.with.rvd_plot, fig.width = 12, fig.height = 4}
 rvdMSA <-  convertRepeat2RvdAlign(repeatAlign = repeatMSA, repeat2RvdMapping = rep2rvd)
-tantale::heatmap_msa(talsim = distal_output$tal.similarity, repeatAlign = repeatMSA, repeatSim = distal_output$repeat.similarity,  rvdAlign = rvdMSA, plot.type = "repeat.clusters.with.rvd", main = "Repeat Cluster MSA with RVD - Group 3", consensusSeq = TRUE)
+tantale::heatmap_msa(talsim = distalr_deci_output$tal.similarity,
+                     repeatAlign = repeatMSA,
+                     repeatSim = distalr_deci_output$repeat.similarity,
+                     rvdAlign = rvdMSA,
+                     plot.type = "repeat.clusters.with.rvd",
+                     main = "Repeat Cluster MSA with RVD - Group 3",
+                     consensusSeq = TRUE)
 ```
 
 # overview of talomes
@@ -341,10 +533,18 @@ With the Tal classification result and RVD sequences, we can represent RVD seque
 
 ```{r talomes_overview, fig.width = 8, fig.height = 6}
 tale_annotation <- merge(taleGroups, 
-      data.frame("name" = names(rvdVectors), "rvdseq" = sapply(rvdVectors, function(i) paste(i, collapse = "-")), stringsAsFactors = FALSE))
+                         data.frame("name" = names(rvdVectors),
+                                    "rvdseq" = sapply(rvdVectors,
+                                                      function(i) paste(i, collapse = "-")
+                                                      ), stringsAsFactors = FALSE
+                                    )
+                         )
 tale_annotation$strain <- gsub("\\_.+", "", tale_annotation$name)
 
-heatmap_talomes(tale_annotation, col = "group", row = "strain", value = "rvdseq", mapcol = sunset10)
+heatmap_talomes(tale_annotation,
+                col = "group", row = "strain",
+                value = "rvdseq",
+                mapcol = sunset10)
 ```
 
 # predict target
@@ -352,6 +552,7 @@ heatmap_talomes(tale_annotation, col = "group", row = "strain", value = "rvdseq"
 We wrap Talvez and Preditale tools in 2 functions, `talvez()` and `preditale()`, that take the same types of RVD sequences and promoter DNA sequences as inputs and output a data frame containing predictions.
 
 We need to concatenate all RVD sequences from 3 `telltale2` outputs and remove NTERM and CTERM markers.
+
 ```{r predict_input}
 ## rvd sequences from telltale2 output
 rvdSeqs_tt <-  readBStringSet(telltale2_rvd)
@@ -366,17 +567,20 @@ subjDnaSeqFile <-  system.file("extdata", "cladeIII_sweet_promoters.fasta", pack
 readBStringSet(subjDnaSeqFile) %>% names
 ```
 
+## talvez
 
-
-## talvez 
 The output of `talvez()` contains the position, score and rank of each prediction.
 
 ```{r talvez, eval = TRUE}
-talvezPreds <- talvez(rvdSeqs = rvdSeqsXstrings, subjDnaSeqFile = subjDnaSeqFile, optParam = "-t 0 -l 19")
+talvezPreds <- talvez(rvdSeqs = rvdSeqsXstrings,
+                      subjDnaSeqFile = subjDnaSeqFile,
+                      optParam = "-t 0 -l 19",
+                      condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")
 datatable(talvezPreds, options = list(pageLength = 1))
 ```
 
 Here is an example of summarizing prediction result with `heatmap.2()` (scores are display by color scale, black refers no prediction):
+
 ```{r talvez_predict, fig.width = 8, fig.height = 8}
 talvezPreds$strain <- gsub("\\_.+", "", talvezPreds$taleId)
 talvezPreds$group <- sapply(talvezPreds$taleId, function(id) {
@@ -406,7 +610,8 @@ heatmap.2(selectedPredsMat,
 ```
 
 To see how RVD sequences match a promoter region, we supply the prediction table and the promoter sequence with the genomic range to `plotTaleTargetPred()`:
-```{r SWEET13, fig.width = 8, fig.height = 5}
+
+```{r SWEET13, fig.width = 12, fig.height = 4}
 grFilter <- "SWEET14p_Nipponbare_Sense:340-450"
 plotTaleTargetPred(predResults = selectedPreds, subjDnaSeqFile = subjDnaSeqFile, filterRange = grFilter)
 ```
@@ -414,6 +619,7 @@ plotTaleTargetPred(predResults = selectedPreds, subjDnaSeqFile = subjDnaSeqFile,
 ## preditale
 
 With Preditale, we get similar data frame output but with p value additionally. Preditale takes a little bit longer than Talvez and may give some different predictions.
+
 ```{r preditale, eval = TRUE}
 preditalePreds <- preditale(rvdSeqs = rvdSeqsXstrings, subjDnaSeqFile = subjDnaSeqFile, outDir = NULL)
 datatable(preditalePreds, options = list(pageLength = 1))
@@ -447,7 +653,14 @@ gplots::heatmap.2(selectedPredsMat,
                   )
 ```
 
-```{r SWEET14, fig.width = 8, fig.height = 4}
+```{r SWEET14, fig.width = 12, fig.height = 4}
 grFilter <- "SWEET14p_Nipponbare_Sense:340-450"
 plotTaleTargetPred(predResults = selectedPreds, subjDnaSeqFile = subjDnaSeqFile, filterRange = grFilter)
 ```
+
+# Session info
+
+```{r session info}
+sessionInfo()
+```
+

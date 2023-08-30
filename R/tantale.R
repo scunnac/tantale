@@ -1,6 +1,9 @@
-#' tantale: Transcription Activator-Like Effectors (TALEs) tools
+#'tantale: Transcription Activator-Like Effectors (TALEs) tools
 #'
-#' @description An integrated collection of functions for (IDEALLY):
+#'\figure{tantale_logo.png}{options: width=100 alt="tantale_logo"}
+#'
+#'
+#'@description An integrated collection of functions for (IDEALLY):
 #'
 #'
 #'@section   - A TALE-oriented OOP framework:
@@ -32,13 +35,38 @@
 #'    \item General parser for results aggregation
 #'    \item Connector with daTALbase}
 #'
+#'@note CAUTIONARY NOTES:
 #'
-#' @docType package
-#' @name tantale
+#'#'  \itemize{
+#'    \item tantale has been written with only Linux systems in mind and will very
+#'     likely \strong{not work on other OS} (eg Windows)
+#'    \item Some of tantale wrappers use code written in other languages :
+#'     \strong{Java and Conda must be on the PATH} in your system
+#'    \item For direction on how to use Conda with R, consult the
+#'     \href{https://rstudio.github.io/reticulate/reference/install_miniconda.html}{install_miniconda()} help page.}
 #'
 #'
+#'@docType package
+#'@name tantale
 #'
-#' @importFrom glue glue
-#' @import magrittr
-#' @importFrom IRanges IRanges
-NULL
+#'@importFrom IRanges IRanges
+#'@import fs
+#'@import magrittr
+#'@import logger
+.onAttach <- function(...){
+  packageStartupMessage(logger::log_info('Loading the tantale package'))
+  packageStartupMessage(logger::log_debug('Email sebastien.cunnac@ird.fr for comments'))
+  logger::log_threshold('INFO', namespace = 'tantale')
+}
+
+.onLoad <- function(...){
+  logger::log_layout(logger::layout_glue_colors,namespace ='tantale')
+}
+
+g <- glue::glue
+m <- dplyr::mutate
+s <- dplyr::select
+gb <- dplyr::group_by
+
+
+

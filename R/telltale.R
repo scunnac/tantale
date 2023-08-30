@@ -49,35 +49,37 @@
 #' in subject DNA sequences
 #'
 #' \code{tellTale} has been primarily written to report on 'corrected' TALE RVD
-#' sequences in indels prone, noisy DNA sequences (suboptimally polished genomes assembly, raw
-#' reads of long read sequencing technologies [eg PacBio, ONT]) that would
-#' otherwise be missed by conventional tools (eg AnnoTALE).
-#' 
-#' The approach is first to use \href{http://hmmer.org/}{HMMER}
-#' to find and categorize regions in the input DNA sequence that are related to 
-#' the coding sequence of canonical TALE protein domains (N-Term, repeats, C-term).
-#' Hits that are (nearly [see the minGapWidth parameter]) adjacent are grouped in
-#' "taleArrays" which are considered as potential tal genes.
-#' 
-#'  
-#' If the \code{talArrayCorrection} parameter is turned off, the longest predicted
-#' open reading frame for each talArray is 
-#' fed to \href{http://www.jstacs.de/index.php/AnnoTALE}{AnnoTALE} to detect
-#' TALE domains in the predicted translation product. The Results should hence
-#' be very similar to what would be obtained with AnnoTALE,
-#' plus many additional informative output files such as tabular reports.
+#' sequences in indels prone, noisy DNA sequences (suboptimally polished genomes
+#' assembly, raw reads of long read sequencing technologies [eg PacBio, ONT])
+#' that would otherwise be missed by conventional tools (eg AnnoTALE).
 #'
-#' If \code{talArrayCorrection} is turned on, these talearrays are passed to the \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}} function that attemps to 'correct'
-#' potential frameshifts in the taleArray sequences. This conveniently removes 
-#' many artefactual indels but bear in mind that this may also \strong{erroneously} 'correct'
-#' genuine frame shifts which can be highly relevant especially for truncTALEs or iTALES.
-#' The resulting 'corrected' taleArray open reading frames are then passed to AnnoTALE.
-#' 
-#' Note that occasionally, when a putative open reading frame does not encode 
-#' a canonical TALE protein (early frame shift, incomplete ORF, etc...),
-#' the "analyze" module of AnnoTALE outputs DNA parts but no protein parts
-#' and/or RVD sequence. This should be detected and reported in the tellTale log.
-#' 
+#' The approach is first to use \href{http://hmmer.org/}{HMMER} to find and
+#' categorize regions in the input DNA sequence that are related to the coding
+#' sequence of canonical TALE protein domains (N-Term, repeats, C-term). Hits
+#' that are (nearly [see the minGapWidth parameter]) adjacent are grouped in
+#' "taleArrays" which are considered as potential tal genes.
+#'
+#'
+#' If the \code{talArrayCorrection} parameter is turned off, the longest
+#' predicted open reading frame (+extendedLength) for each talArray is fed to
+#' \href{http://www.jstacs.de/index.php/AnnoTALE}{AnnoTALE} to detect TALE
+#' domains in the predicted translation product. The Results should hence be
+#' very similar to what would be obtained with AnnoTALE, plus many additional
+#' informative output files such as tabular reports.
+#'
+#' If \code{talArrayCorrection} is turned on, these talearrays are passed to the
+#' \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}} function that
+#' attemps to 'correct' potential frameshifts in the taleArray sequences. This
+#' conveniently removes many artefactual indels but bear in mind that this may
+#' also \strong{erroneously} 'correct' genuine frame shifts which can be highly
+#' relevant especially for truncTALEs or iTALES. The resulting 'corrected'
+#' taleArray open reading frames are then passed to AnnoTALE.
+#'
+#' Note that occasionally, when a putative open reading frame does not encode a
+#' canonical TALE protein (early frame shift, incomplete ORF, etc...), the
+#' "analyze" module of AnnoTALE outputs DNA parts but no protein parts and/or
+#' RVD sequence. This should be detected and reported in the tellTale log.
+#'
 #'
 #' @param subjectFile Fasta file with DNA sequence(s) to be searched for the
 #'   presence of TALE coding sequences (CDS).
@@ -94,42 +96,52 @@
 #' @param minDomainHitsPerSubjSeq Minimum number of nhmmer hits for a subject
 #'   sequence to be reported as having TALE diagnostic regions. This is a way to
 #'   simplify output a little by getting ride of uninformative sequences
-#' @param mergeHits Perform overlapping hits merging per domain type. Should not be modified.
+#' @param mergeHits Perform overlapping hits merging per domain type. Should not
+#'   be modified.
 #' @param minGapWidth Minimum gap in base pairs between two tale domain hits for
 #'   them to be considered distinct. If the length of the gap is below this
 #'   value, domains are considered "contiguous" and grouped in the same array.
-#' @param taleArrayStartAnchorCode This scalar character vector will symbolize a
-#'   TALE N-TERM CDS hit in the RVD sequence
-#' @param taleArrayEndAnchorCode This scalar character vector will symbolize a
-#'   TALE C-TERM CDS hit in the RVD sequence
 #' @param appendExtremityCodes Set this to \code{FALSE} if you do not want the
 #'   N- and C-TREM anchor codes in the output sequences of RVD
 #' @param rvdSep Symbol acting as a separator in RVD sequences
-#' @param hmmerpath Specify the path to a directory holding the HMMER
-#'   executable if you do not want to use the ones provided with tantale.
-#' @param extendedLength number of nucleotides to extend in 3'-end at the tal ORF prediction stage.
+#' @param hmmerpath Specify the path to a directory holding the HMMER executable
+#'   if you do not want to use the ones provided with tantale.
+#' @param extendedLength number of nucleotides to extend in 3'-end at the tal
+#'   ORF prediction stage.
 #' @param talArrayCorrection True or False
-#' @param refForTalArrayCorrection Reference AA sequences for tal array predicted ORF correction if you do not want to use the ones provided with tantale.
-#' @param frameShiftCorrection default = 11
-#' @param ... \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}}
+#' @param refForTalArrayCorrection Reference AA sequences for tal array
+#'   predicted ORF correction if you do not want to use the ones provided with
+#'   tantale.
+#' @param frameShiftCorrection This is an internal parameter of the
+#'   \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}} function. The
+#'   default is 11 and fiddle with this at your own risk...
+#' @param ... Additional parameters for the
+#'   \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}} function.
 #' @return This functions has only side effects (writing files, mostly).
 #'   However, if everything ran smoothly, it will invisibly return the path of
-#'   the directory where output files were written. In the arrayReport.tsv,
+#'   the directory where output files were written.
+#'
+#'
+#'   List of output files:
+#'   \itemize{
+#'   \item allRanges.gff: gff file of all Tal arrays detected by HMMer
+#'   \item arrayReport.tsv: report of all Tal arrays. In the arrayReport.tsv,
 #'   column \emph{predicted_dels_count}/\emph{predicted_ins_count} shows the
 #'   number of putative deletions/insertions in the raw sequences that have been
 #'   corrected in the corrected sequences with the
 #'   function \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}}.
-#'   
-#'   
-#'   List of output files:
-#'   \itemize{
-#'   \item allRanges.gff: gff file of all Tal arrays detected by HMMer
-#'   \item arrayReport.tsv: report of all Tal arrays
 #'   \item hitsReport.tsv: report of all hits detected by HMMer
 #'   \item hitsReport.gff: gff file of all hits detected by HMMer
-#'   \item domainsReport.tsv: report of all Tal domains detected by AnnoTALE analyze
+#'   \item domainsReport.tsv: report of all Tal amino acid domains detected by AnnoTALE analyze
 #'   \item putativeTalOrf.fasta: Tal putative ORFs
-#'   \item pseudoTalCds.fasta: pseudo Tal CDS, Tal arrays detected by HMMer but failed in AnnoTALE analyze
+#'   \item pseudoTalCds.fasta: pseudo Tal CDS, putative Tal array ORFs detected by HMMer for whch
+#'    AnnoTALE analyze failed to find RVD(s).
+#'   \item rvdSequences.fas: Sequence of RVDs (separated by rvdSep) predicted to be encoded in the Tal array
+#'    ORFs by AnnoTALE. Note that if appendExtremityCodes is \code{TRUE} (by default),
+#'    the N- and C-TREM anchor codes will be appended at the beginning and end of the sequences
+#'    if the corresponding domain coding sequence was wound by HMMer at the DNA level.
+#'    If no such HMMer hits were found, the "XXXXX" string will be appended
+#'    to denote that AA sequences outside of the RVD array are likely to be atypical.
 #'   \item C-terminusAAAlignment.html: protein alignment of all C-termini
 #'   \item C-terminusDNAAlignment.html: DNA alignment of all C-termini
 #'   \item N-terminusAAAlignment.html: protein alignment of all N-termini
@@ -140,8 +152,8 @@
 #'   \item tellTale.log: a log file
 #'   \item annotale folder: folder containing result of AnnoTALE analyze for all Tal arrays
 #'   \item CorrectionAlignmentAA folder: folder containing protein alignment of Tal array detected by HMMer and corrected Tal array if \code{talArrayCorrection} = TRUE
-#'   \item CorrectionAlignmentDNA folder: folder containing DNA alignment of Tal array detected by HMMer and corrected Tal array if \code{talArrayCorrection} = TRUE
-#' }
+#'   \item CorrectionAlignmentDNA folder: folder containing DNA alignment of Tal array detected by HMMer and corrected Tal array if \code{talArrayCorrection = TRUE}
+#'   }
 #' @export
 tellTale <- function(
   subjectFile,
@@ -152,10 +164,7 @@ tellTale <- function(
   TALE_CtermDNAHitMinScore = 200,
   minDomainHitsPerSubjSeq = 4,
   mergeHits = TRUE,
-  # repMsaMethod = "decipher",
   minGapWidth = 35,
-  taleArrayStartAnchorCode = "NTERM",
-  taleArrayEndAnchorCode = "CTERM",
   appendExtremityCodes = TRUE,
   rvdSep = "-",
   hmmerpath = system.file("tools", "hmmer-3.3", "bin", package = "tantale", mustWork = T),
@@ -165,7 +174,14 @@ tellTale <- function(
   frameShiftCorrection = -11,
   ...
 ) {
-  
+
+  # @param taleArrayStartAnchorCode This scalar character vector will symbolize a
+  #   TALE N-TERM CDS hit in the RVD sequence
+  # @param taleArrayEndAnchorCode This scalar character vector will symbolize a
+  #   TALE C-TERM CDS hit in the RVD sequence
+  taleArrayStartAnchorCode <- "NTERM"
+  taleArrayEndAnchorCode <- "CTERM"
+  taleArrayAtypicalExtremityCode <- "XXXXX"
 
   #### TODO ####
   # Add an ooptional argument that olds the circularity status of molecules in genome
@@ -177,28 +193,16 @@ tellTale <- function(
   
   ####   Paths of output files   ####
   dir.create(outputDir, recursive = T, mode = "755", showWarnings = FALSE)
-  
-  
-  
-  ## Path of the directories where DECIPHER alignments will be written
-  alignmentDNADir <- file.path(outputDir, "CorrectionAlignmentDNA")
-  dir.create(alignmentDNADir, showWarnings = F)
-  alignmentAADir <- file.path(outputDir, "CorrectionAlignmentAA")
-  dir.create(alignmentAADir, showWarnings = F)
-  
-  ## Fasta (.pep) file where sequences of translated TALE N-Term CDS domains are written
-  #fullNtermAAseqFile <- file.path(outputDir, "fullNtermAAseq.pep")
-  ## Fasta (.pep) file where sequences of translated TALE C-Term CDS domains are written
-  #fullCtermAAseqFile <- file.path(outputDir, "fullCtermAAseq.pep")
-  
-  # fasta of tals orfs that have rvds
-  putatieOrfOfTaleWithRvdFile <- file.path(outputDir, "putativeTalOrf.fasta")
-  
+  ## Path of the directories where DECIPHER correction alignments will be written
+  if (talArrayCorrection) {
+    alignmentDNADir <- file.path(outputDir, "CorrectionAlignmentDNA")
+    dir.create(alignmentDNADir, showWarnings = F)
+    alignmentAADir <- file.path(outputDir, "CorrectionAlignmentAA")
+    dir.create(alignmentAADir, showWarnings = F)
+  }
   # annotale output directory
   annotaleMainDir <- file.path(outputDir, "annotale")# tempfile(pattern = "annotale_", tmpdir = outputDir)
   dir.create(annotaleMainDir)
-  
-  
   ## Tabular file reporting on individual TALE domain hits
   hitsReportFile <- file.path(outputDir, "hitsReport.tsv")
   domainsReportFile <- file.path(outputDir, "domainsReport.tsv")
@@ -206,6 +210,10 @@ tellTale <- function(
   arrayReportFile <- file.path(outputDir, "arrayReport.tsv")
   ## Gff file with all the identified domains and arrays and their associated data
   affRangesGffFile <- file.path(outputDir, "allRanges.gff")
+  # fasta of tals orfs that have rvds
+  putatieOrfOfTaleWithRvdFile <- file.path(outputDir, "putativeTalOrf.fasta")
+  # fasta of tals orfs that were not predicted to contain rvds
+  pseudoTalFile <- file.path(outputDir, "pseudoTalCds.fasta")
   ## A fasta file of the selected seq of RVDs without the - separator
   seqsOfRVDFile <- file.path(outputDir, "rvdSequences.fas")
   ## A fasta file with array ORFs DNA sequences
@@ -291,7 +299,7 @@ tellTale <- function(
   )
   nhmmerTabularOutput <- droplevels(nhmmerTabularOutput)
   if(nrow(nhmmerTabularOutput) == 0L) {
-    warning("No record remains ffter filtering NhmmerSearch hits based on score. Exitting...")
+    logger::log_warn("No record remains after filtering NhmmerSearch hits based on score. Exitting...")
     return(invisible(outputDir))
   }
   ## Add a hitID column
@@ -446,8 +454,6 @@ tellTale <- function(
                                                 width = GenomicRanges::width(completeArraysGR) + extendedLength,
                                                 fix = "start", ignore.strand = FALSE) %>%
     GenomicRanges::trim(use.names = TRUE)
-  # GenomicRanges::resize(., width = GenomicRanges::width(.) + 3,
-  #                       fix="end", ignore.strand=FALSE)
   extdCompleteArraysSeqs <- BSgenome::getSeq(subjectDNASequences, extdCompleteArraysGR)
   
   
@@ -461,10 +467,12 @@ tellTale <- function(
     TalOrfForAnnoTALE <- fullTalOrf
   } else { 
     #### Correct Tal arrays frame shifts if requested  ####
+    # An alternative approach: https://github.com/Jstacs/Jstacs/tree/master/projects/talecorrect
     ####   Run CorrectFrameshifts   ####
     logger::log_info("Correcting putative TALE coding sequences. Be patient, this may take a LONG time...")
     AAref <- Biostrings::readAAStringSet(refForTalArrayCorrection, seek.first.rec = TRUE, use.names = TRUE)
     rawArraySeq <- extdCompleteArraysSeqs
+    ## TO SPEEDUP CORRECTION could correct only predicted ORFs that cover less than X% of the rawArraySeq
     ArrayCorrection <- DECIPHER::CorrectFrameshifts(rawArraySeq,
                                                     AAref, type = "both",
                                                     maxComparisons = length(AAref),
@@ -473,12 +481,12 @@ tellTale <- function(
     corrExtdCompleteArraysSeqs <- ArrayCorrection$sequences
     
     ####   Correction stats   ####
-    deletions_count <- correction_tible(ArrayCorrection$indels) %>%
+    deletions_count <- correction_tibble(ArrayCorrection$indels) %>%
       dplyr::group_by(Seq) %>%
       dplyr::count(variable, name = "predicted_dels_count") %>%
       dplyr::filter(variable == "deletions") %>%
       dplyr::select(-variable)
-    insertions_count <- correction_tible(ArrayCorrection$indels) %>%
+    insertions_count <- correction_tibble(ArrayCorrection$indels) %>%
       dplyr::group_by(Seq) %>%
       dplyr::count(variable, name = "predicted_ins_count") %>%
       dplyr::filter(variable == "insertions") %>%
@@ -494,7 +502,8 @@ tellTale <- function(
     #### Multiple alignenment of orginal vs corrected vs corrected+N/C subtituted sequences  ####
     
     for (n in names(corrExtdCompleteArraysSeqs)[vcountPattern("N", corrExtdCompleteArraysSeqs) > 0]) {
-      warning(glue::glue("Sequence {n} contains 'N's and will be substituted by 'C's in order to run AnnoTALE analyze for RVDs prediction."))
+      logger::log_warn("After correction, {n} sequence contains 'N's which will be substituted by 'C's in order",
+                       "to run AnnoTALE analyze for RVDs prediction.")
     }
     substCorrExtdCompleteArraysSeqs <- Biostrings::chartr("N", "C", corrExtdCompleteArraysSeqs)
     
@@ -508,13 +517,13 @@ tellTale <- function(
       substitutedSeq <- substCorrExtdCompleteArraysSeqs[n]
       names(substitutedSeq) <- paste0("forAnnoTALE", n)
       seqToAlign <- c(rawSeq, correctedSeq, substitutedSeq)
-      alignedSeqs <- DECIPHER::AlignSeqs(seqToAlign)
+      alignedSeqs <- DECIPHER::AlignSeqs(seqToAlign, verbose = FALSE)
       DECIPHER::BrowseSeqs(alignedSeqs,
                            htmlFile = file.path(alignmentDNADir, glue::glue("CorrectionAlignmentDNA_{n}.html")),
                            openURL = F, colWidth = 120)
       
       seqToAlignTranslated <- Biostrings::translate(seqToAlign, no.init.codon = T, if.fuzzy.codon = "solve")
-      alignedSeqsTranslated <- DECIPHER::AlignSeqs(seqToAlignTranslated)
+      alignedSeqsTranslated <- DECIPHER::AlignSeqs(seqToAlignTranslated, verbose = FALSE)
       DECIPHER::BrowseSeqs(alignedSeqsTranslated,
                            htmlFile = file.path(alignmentAADir, glue::glue("CorrectionAlignmentAA_{n}.html")),
                            openURL = F, colWidth = 120)
@@ -542,8 +551,7 @@ tellTale <- function(
     #   insPositionAfCorr <- insPosition[[i]][BiocGenerics::start(insPosition[[i]]) < width(fullTalOrf[i])]
     #   fullTalOrf[i] <- replaceAt(fullTalOrf[i], insPositionAfCorr, value = "N")
     # }
-    
-    
+
   }
   
   
@@ -558,7 +566,7 @@ tellTale <- function(
   AnnoTALEanalyze <- function(inputFastaFile,
                               outputDir = getwd(),
                               prefix = NULL,
-                              annoTALE = system.file("tools", "AnnoTALEcli-1.4.1.jar",
+                              annoTALE = system.file("tools", "AnnoTALEcli-1.5.jar",
                                                      package = "tantale", mustWork = T)
                               ) {
     # Define output dirs for the various stages of annoTALE
@@ -577,7 +585,8 @@ tellTale <- function(
       " t=", inputFastaFile,
       " outdir=", outputDir
     )
-    cat("##  Now running annoTALE analyze for", prefix, "using the following command:\n##  ",  comAnalyze, "\n")
+    logger::log_info("Now running annoTALE analyze for {prefix}")
+    logger::log_debug("Using the following command: {comAnalyze}")
     exitAnalyze <- system(comAnalyze, ignore.stdout = TRUE, ignore.stderr = TRUE)
     return(invisible(exitAnalyze))
   }
@@ -623,7 +632,7 @@ tellTale <- function(
     )) {
       annoTaleMessages <<- c(annoTaleMessages,
                             (m <- glue::glue("Annotale failed to parse TALE domains for {talOrfID}.")))
-      logger::log_info(m)
+      logger::log_warn(m)
       return(annout(Biostrings::AAStringSet(), domainsReport = data.frame()))
     }
     names(seqOfRVDs) <- talOrfID
@@ -651,7 +660,6 @@ tellTale <- function(
   Biostrings::writeXStringSet(fullTalOrf[names(fullTalOrf) %in% names(seqsOfRVDs)], putatieOrfOfTaleWithRvdFile)
   
   # save tals that DO NOT have rvds
-  pseudoTalFile <- file.path(outputDir, "pseudoTalCds.fasta")
   Biostrings::writeXStringSet(extdCompleteArraysSeqs[!names(extdCompleteArraysSeqs) %in% names(seqsOfRVDs)], pseudoTalFile)
   
   aberrantRepeat <- sapply(seqsOfRVDs, function(s) {
@@ -661,15 +669,16 @@ tellTale <- function(
   seqsOfRVDs <- gsub("\\-", rvdSep, seqsOfRVDs) %>% Biostrings::AAStringSet()
   
   if (appendExtremityCodes) {
+    # This is necessary for other tantale utilities that can operate on 'full' domains sequences, ie downstream of distal, for TALE  domains sequences alignments.
     for (s in names(seqsOfRVDs)) {
       hitsByArray <- hitsByArraysLst[[s]]
       seqsOfRVDs[s] <- paste(ifelse(TALE_NtermDNAHMMName %in% as.character(hitsByArray$query_name),
-                                    taleArrayStartAnchorCode, "XXXXX"), 
+                                    taleArrayStartAnchorCode, taleArrayAtypicalExtremityCode), 
                              seqsOfRVDs[s], 
                              sep = rvdSep)
       seqsOfRVDs[s] <- paste(seqsOfRVDs[s], 
                              ifelse(TALE_CtermDNAHMMName %in% as.character(hitsByArray$query_name),
-                                    taleArrayEndAnchorCode, "XXXXX"), 
+                                    taleArrayEndAnchorCode, taleArrayAtypicalExtremityCode), 
                              sep = rvdSep)
     }
   }
@@ -695,7 +704,7 @@ tellTale <- function(
     }, simplify = "array", USE.NAMES = F) %>%
       Biostrings::DNAStringSetList() %>%
       unlist()
-    dnaAlignment <- DECIPHER::AlignSeqs(allpart)
+    dnaAlignment <- DECIPHER::AlignSeqs(allpart, verbose = FALSE)
     DECIPHER::BrowseSeqs(dnaAlignment,
                          htmlFile = file.path(outputDir, glue::glue("{part}DNAAlignment.html")),
                          openURL = F, colWidth = 120)
@@ -712,7 +721,7 @@ tellTale <- function(
     }, simplify = "array", USE.NAMES = F) %>%
       Biostrings::AAStringSetList() %>%
       unlist()
-    dnaAlignment <- DECIPHER::AlignSeqs(allpart)
+    dnaAlignment <- DECIPHER::AlignSeqs(allpart, verbose = FALSE)
     DECIPHER::BrowseSeqs(dnaAlignment,
                          htmlFile = file.path(outputDir, glue::glue("{part}AAAlignment.html")),
                          openURL = F, colWidth = 120)
@@ -774,7 +783,6 @@ tellTale <- function(
   ) %>% dplyr::bind_rows(.id = "arrayID")
   readr::write_tsv(x = hitsReport, file = hitsReportFile)
   hitsReportToGFF(hitsReportFile) # saving to gff format
-  
   readr::write_tsv(x = domainsReport, file = domainsReportFile)
   
   ##   Report with info on arrays, including the seq of RVD
@@ -838,10 +846,7 @@ tellTale <- function(
     paste(Quote(TALE_CtermDNAHitMinScore),":", TALE_CtermDNAHitMinScore, sep = "\t"),
     paste(Quote(minDomainHitsPerSubjSeq),":", minDomainHitsPerSubjSeq, sep = "\t"),
     paste(Quote(mergeHits),":", mergeHits, sep = "\t"),
-    # paste(Quote(repMsaMethod),":", repMsaMethod, sep = "\t"),
     paste(Quote(minGapWidth),":", minGapWidth, sep = "\t"),
-    paste(Quote(taleArrayStartAnchorCode),":", taleArrayStartAnchorCode, sep = "\t"),
-    paste(Quote(taleArrayEndAnchorCode),":", taleArrayEndAnchorCode, sep = "\t"),
     paste(Quote(extendedLength),":", extendedLength, sep = "\t"),
     paste(Quote(talArrayCorrection),":", talArrayCorrection, sep = "\t"),
     paste(Quote(refForTalArrayCorrection),":", refForTalArrayCorrection, sep = "\t"),

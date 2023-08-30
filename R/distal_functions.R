@@ -4,19 +4,33 @@
 
 
 #'
-#' Load the content of fasta file containing TALE sequences
+#' Split strings of TALE sequences (`sep`-separated rvd or distal repeat IDs)
 #'
-#' @description Load the content of fasta file containing TALE sequences (either RVD or Distal repeat code) and return a list of vectors each one composed of the individual elements of the sequence.
+#' @description Load the content of fasta file containing TALE sequences (either RVD or Distal repeat code)
+#' and return a list of vectors each one composed of the individual elements of the sequence.
 #'
-#' @param fasta.file Path to a fasta file
+#' @param atomicStrings Either, the path to a fasta file, an AAStringSet or "BStringSet"
+#' or or a list. In all cases, the content of these objects is composed of strings of
+#' tale sequences (`sep`-separated rvd or distal repeat IDs)
+#' @param sep Separator of the elements of the sequence
 #'
 #' @return A list of named vectors representing the 'splited' sequence.
 #'
 #' @export
-fa2liststr <- function(fasta.file) {
-  fasta.file <- fasta.file
-  seqs <- as.character(Biostrings::readBStringSet(fasta.file), use.names=TRUE)
-  seqsAsVectors <- stringr::str_split(seqs, pattern = "[- ]")
+toListOfSplitedStr <- function(atomicStrings, sep = "-") {
+  if (length(atomicStrings) > 1 && is.list(atomicStrings)) {
+    seqs <- atomicStrings
+  } else if (length(atomicStrings) == 1 && is.character(atomicStrings)) {
+    stopifnot(fs::file_exists(atomicStrings))
+    seqs <- as.character(Biostrings::readBStringSet(atomicStrings), use.names=TRUE)
+  } else if (class(atomicStrings) %in% c("AAStringSet", "BStringSet")) {
+    seqs <- as.character(atomicStrings, use.names=TRUE)
+  } else {
+    logger::log_error("Something is wrong with the value provided for atomicStrings.")
+    stop()
+  }
+
+  seqsAsVectors <- stringr::str_split(seqs, pattern = glue("[{sep}]"))
   seqsAsVectors <- lapply(seqsAsVectors, function(x) { # Remove last residue if it is empty string
     if ( x[length(x)] == "") {
       warning("## Last element in 'vectorized' sequence is empty. It was removed from output.")
@@ -195,7 +209,6 @@ clusterRep <- function(repeatSimMat, repeats.cluster.h.cut) {
 
 #### MAIN functions ####
 
-
 #' Run the Distal tool
 #' @description Run the Distal tool of the \href{https://doi.org/10.3389/fpls.2015.00545}{QueTal} suite to classify and compare TAL effectors functionally and phylogenetically.
 #'
@@ -233,28 +246,28 @@ runDistal <- function(fasta.file, outdir = NULL, treetype = "p", repeats.cluster
     logger::log_info("The specified {outdir} already contains all DisTAL output files. ",
                      "The returned results object will be build from their content.")
   }
-
-
+  
+  
   # read repeatscode.txt
   repeatscode_File <- glue::glue("{outdir}/Output_Repeatscode.txt")
   repeatscode <- read.csv(repeatscode_File, sep = "\t", header = F)
   colnames(repeatscode) <- c("code", "AA Seq")
-
+  
   # read codedrepeats.fa
   codedRepeats_File <- glue::glue("{outdir}/Output_CodedRepeats.fa")
-  codedRepeats_str <- fa2liststr(codedRepeats_File)
-
+  codedRepeats_str <- toListOfSplitedStr(codedRepeats_File)
+  
   # read repeatmatrix.mat
   repeatmatrix_File <- glue::glue("{outdir}/Output_Repeatmatrix.mat")
   repeatSim <- formatDistalRepeatDistMat(repeatmatrix_File)
-
+  
   
   
   ## define 'col' based on clustering groups of repeats
   unmelt_repeatSim <-  as.matrix(reshape2::acast(repeatSim, RepU1 ~ RepU2, value.var="Sim"))
   dist_cut <-  clusterRep(repeatSimMat = unmelt_repeatSim,
-             repeats.cluster.h.cut = repeats.cluster.h.cut)
-
+                          repeats.cluster.h.cut = repeats.cluster.h.cut)
+  
   # read tal seqs distance matrix and make sim df
   talMatrix_File <- glue::glue("{outdir}/Output.mat")
   raw_talMatrix <- read.table(talMatrix_File,
@@ -271,16 +284,26 @@ runDistal <- function(fasta.file, outdir = NULL, treetype = "p", repeats.cluster
   raw_talMatrix <- 100 - as.matrix(raw_talMatrix) # Distance to similarity conversion
   # Checking if the matrix is square
   stopifnot(all.equal(ncol(raw_talMatrix), nrow(raw_talMatrix)))
-  if (setequal(colnames(raw_talMatrix), rownames(raw_talMatrix))) {warning("Sequences of Row and Col names do not match...")}
+  if (!setequal(colnames(raw_talMatrix), rownames(raw_talMatrix))) {
+    logger::log_warn("Sequences of Row and Col names in TALEs distance matrix do not match...")
+    logger::log_warn("Set dif Col vs Row names : {setdiff(colnames(raw_talMatrix), rownames(raw_talMatrix))}")
+    logger::log_warn("Set dif Row vs Col names : {setdiff(rownames(raw_talMatrix), colnames(raw_talMatrix))}")
+    
+    }
   talsim <- reshape2::melt(raw_talMatrix)
   colnames(talsim) <-c("TAL1", "TAL2", "Sim")
-
+  
   # read newick tree
   nw_tree_File <-  glue::glue("{outdir}/Output.tre")
   nw_tree <- ape::read.tree(nw_tree_File)
-
+  
   # Assemble return object
-  outputlist <- list("repeats.code" = repeatscode, "coded.repeats.str" = codedRepeats_str, "repeat.similarity" = repeatSim, "tal.similarity" = talsim, "tree" = nw_tree, "repeats.cluster" = dist_cut)
+  outputlist <- list("repeats.code" = repeatscode %>% tibble::as_tibble(),
+                     "coded.repeats.str" = codedRepeats_str,
+                     "repeat.similarity" = repeatSim %>% tibble::as_tibble(),
+                     "tal.similarity" = talsim %>% tibble::as_tibble(),
+                     "tree" = nw_tree,
+                     "repeats.cluster" = dist_cut %>% tibble::as_tibble())
   return(outputlist)
 }
 

@@ -4,12 +4,25 @@
 \alias{distalr}
 \title{Emulate DisTal in R}
 \usage{
-distalr(taleParts, repeats.cluster.h.cut = 10, ncores = ncores)
+distalr(
+  taleParts,
+  repeats.cluster.h.cut = 10,
+  ncores = 1,
+  pairwiseAlnMethod = "DECIPHER",
+  condaBinPath = "auto"
+)
 }
 \arguments{
 \item{taleParts}{a table of TALE parts as returned by the \code{\link[tantale:getTaleParts]{getTaleParts}} function.}
 
-\item{repeats.cluster.h.cut}{numeric value to cut the hierachycal clustering tree of the repeat.}
+\item{repeats.cluster.h.cut}{numeric value to cut the hierarchical clustering tree of the repeat.}
+
+\item{pairwiseAlnMethod}{Specify the underlying approach for computing pairwise similarities between
+TALE parts amino acid sequences. Must be "Biostrings", "mmseq2" or "DECIPHER"}
+
+\item{condaBinPath}{Path to your Conda binary file if you need to specify a
+path different from the one that is automatically searched by the
+reticulate package functions.}
 }
 \value{
 A list with DisTal output components: 
@@ -26,7 +39,7 @@ A list with DisTal output components:
 This is meant to approximate the results of DisTal in R and is very similar to
 \code{\link[tantale:runDistal]{runDistal}}.
 It still uses the Arlem binary just like DisTal but performs the rest of the operations
-with R support. Even with parallel computing it is slower than the original perl code...
-Computational bottleneck occurs probably at the stage where repeat amino acid sequences are
-systematically pairwise aligned.
+with R support and parallelization. Depending on the \code{pairwiseAlnMethod} parameter value it is 
+much faster than the orginial Perl code and returns similar results. Please take a look at the vignette for
+tips on how to use it properly.
 }

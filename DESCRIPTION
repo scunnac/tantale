@@ -1,7 +1,7 @@
 Package: tantale
 Type: Package
 Title: Transcription Activator-Like Effectors (TALEs) tools
-Version: 0.1.1
+Version: 0.1.7
 Author: c(
     person("Bao Tram", "Vi", email = "vbt576@gmail.com", role = "cre"),
     person("Sebastien", "Cunnac", email = "sebastien.cunnac@ird.fr", role = "cre"))
@@ -14,10 +14,10 @@ Depends: R (>= 3.6.3)
 Imports:
     magrittr, tidyverse, plyr, glue, reshape2, scales, XVector,
     RColorBrewer, dichromat,
-    IRanges, Biostrings, GenomicRanges, GenomicFeatures, BSgenome, plyranges,
+    IRanges, Biostrings, seqinr, GenomicRanges, GenomicFeatures, BSgenome, plyranges,
     Rsamtools, systemPipeR, msa, DECIPHER, ggmsa,
     ape, ggtree,
-    ggvis, ggbio, gplots, ggmsa,
+    gplots, ggmsa,
     reticulate, optparse, logger
 Suggests:
     knitr,

@@ -76,7 +76,7 @@ runHmmalign <- function(hmmerpath = NULL, hmmFile, seqsFile, alignOutFile) {
 }
 
 
-correction_tible <- function(indels) {
+correction_tibble <- function(indels) {
   indelsTble <- lapply(indels, function(lst) {
     info <- tibble::tibble()
     colnames(info) <- c("variable","value")
@@ -100,7 +100,7 @@ correction_tible <- function(indels) {
 #' @import Biostrings
 annout <- setClass(
   # Set the name for the class
-  "annout",
+  Class = "annout",
   
   # Define the slots
   slots = c(

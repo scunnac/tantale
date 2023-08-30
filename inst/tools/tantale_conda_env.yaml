@@ -1,0 +1,13 @@
+name: tantale
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - mmseqs2=14.7e284
+  - perl-statistics-r=0.34
+  - hmmer=3.3.2
+  - clustalo=1.2.4
+  - igvtools=2.16.2
+  - mafft=7.520
+

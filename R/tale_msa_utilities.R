@@ -22,7 +22,7 @@ pickRefName <- function(align, refTag = NULL) {
   }
   # If no refTag is provided, pick the longest seq(s) and if there are ties, pick the first one alphabetically
   if (is.null(refTag)) {
-    strippedAlignLengths <- apply(align, 1, function(seq) length(seq[! is.na(seq)]))
+    strippedAlignLengths <- apply(align, 1, function(seq) length(seq[!is.na(seq)]))
     longest <- rownames(align)[strippedAlignLengths == max(strippedAlignLengths)]
     ifelse(length(longest) == 1, refName <- longest, refName <- sort(longest)[1])
   }
@@ -228,19 +228,16 @@ groupTales <- function(taleSim, plotTree = FALSE, k = NULL, k_test = NULL, metho
     taleGroups <- data.frame(name = names(group), group = group, row.names = NULL)
   } else if (method == "hclust") {
     numGroups <- k
-    if (!is.null(k)) message("'k' will be ignored")
+    if (is.null(k)) message("WE SHOULD BE DOING SOMETHING")
     if (!is.numeric(numGroups) || length(numGroups) != 1) stop("'k' must be specified as a number!")
-    if (method == "euclidean") {
-      taleTree <- hclust(
-        d = dist(
-          distMat,
-          method = "euclidean"
-          ),
-        method = "ward.D"
-        )
-    } else if (method == "distal") {
-      taleTree <- hclust(as.dist(distMat), method = "ward.D")
-    }
+    # if (method == "euclidean") {
+    #   taleTree <- hclust(d = dist(distMat, method = "euclidean"), method = "ward.D")
+    # } else if (method == "distal") {
+    #   taleTree <- hclust(as.dist(distMat), method = "ward.D")
+    # }
+    
+    taleTree <- hclust(d = dist(distMat, method = "euclidean"), method = "ward.D")
+    
     hi <- max(taleTree$height)
     lo <- min(taleTree$height)
     repeat {
@@ -263,19 +260,22 @@ groupTales <- function(taleSim, plotTree = FALSE, k = NULL, k_test = NULL, metho
     clades <- sapply(g, function(n) tidytree::MRCA(p, n))
     p <- tidytree::groupClade(p, clades, group_name='subtree') + ggtree::aes(color=subtree)
     p <- p + ggtree::layout_dendrogram() +
-      #ggtree::geom_tippoint(size=5, shape=21) +
-      ggtree::geom_tiplab(ggtree::aes(label=label),
-                          angle= 90, hjust=1,
-                          offset = -0.4,
-                          align = TRUE, color='black') +
+      ggtree::geom_tiplab(ggtree::aes(label = label),
+                          hjust = 1,
+                          angle = 90,
+                          align = FALSE,
+                          color='black',
+                          offset = -2,
+                          
+      ) +
       # ggplot2::scale_color_brewer("Groups", palette="BrBG") + # allowed maximum for palette BrBG is 11
       viridis::scale_color_viridis(discrete = T, option = "C", breaks = 1:numGroups) +
       ggplot2::geom_vline(xintercept = -(cutOff/2), linetype = 2) +
       ggtree::geom_text(x = (cutOff/2 - max(taleTree$height)/50),
-                        y = 4, label = paste("half of 'cutOff' value: ", sprintf("%.2f", cutOff/2)),
+                        y = 8, label = paste("half of 'cutOff' value: ", sprintf("%.2f", cutOff/2)),
                         color = "darkgrey", fontface = "plain") +
       ggplot2::xlab("Height/2") +
-      ggtree::theme_dendrogram(plot.margin = ggplot2::margin(6,6,220,6))
+      ggtree::theme_dendrogram(plot.margin = ggplot2::margin(6,6,150,6))
     }
 
 
@@ -299,8 +299,9 @@ groupTales <- function(taleSim, plotTree = FALSE, k = NULL, k_test = NULL, metho
 #'
 #' By default, uses the simple scoring matrix defined in \href{https://mafft.cbrc.jp/alignment/software/textcomparison.html}{the text mode of MAFFT}. Users can optionally provide a custom scoring matrix.
 #'
-#' @param inputSeqs Either the path to a fasta file containing the TALE sequences to be aligned or a named list of vectors, each made up of the individual residues that will be aligned, as returned by the \code{\link[tantale:fa2liststr]{fa2liststr}} function or available in the \code{coded.repeats.str} slot of the object returned by the \code{\link[tantale:runDistal]{runDistal}} function.  Can also be the return value of the \code{\link[tantale:convertRepeat2RvdAlign]{convertRepeat2RvdAlign}} function if one wants to align RVD sequences.
+#' @param inputSeqs Either the path to a fasta file containing the TALE sequences to be aligned or a named list of vectors, each made up of the individual residues that will be aligned, as returned by the \code{\link[tantale:toListOfSplitedStr]{toListOfSplitedStr}} function or available in the \code{coded.repeats.str} slot of the object returned by the \code{\link[tantale:runDistal]{runDistal}} function.  Can also be the return value of the \code{\link[tantale:convertRepeat2RvdAlign]{convertRepeat2RvdAlign}} function if one wants to align RVD sequences.
 #'
+#' @param sep Passed to \code{toListOfSplitedStr()} to split the TALEs strings in input.
 #' @param distalRepeatSims A long, three columns data frame with pairwise similarity scores between repeats as available in the \code{repeat.similarity slot} of the object returned by the \code{\link[tantale:runDistal]{runDistal}} function.
 #' @param mafftOpts A character string containing additional options for the MAFFT command. This is notably useful to tweak the Gap opening and gap extension penalties.
 #' @param mafftPath Path to a MAFFT installation directory. By default uses the MAFFT version included in tantale.
@@ -308,7 +309,7 @@ groupTales <- function(taleSim, plotTree = FALSE, k = NULL, k_test = NULL, metho
 #'
 #' @return A character matrix representing the multiple alignment.
 #' @export
-buildRepeatMsa <- function(inputSeqs, distalRepeatSims = NULL,
+buildRepeatMsa <- function(inputSeqs, sep = " ", distalRepeatSims = NULL,
                            mafftOpts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5", # "--globalpair --weighti 1 --maxiterate 1000 --reorder --op 0 --ep 5 --thread 8"
                            mafftPath = system.file("tools", "mafft-linux64",package = "tantale", mustWork = TRUE),
                            gapSymbol = NA) {
@@ -329,37 +330,23 @@ buildRepeatMsa <- function(inputSeqs, distalRepeatSims = NULL,
   #Encoding(asciitableForMafft$printable) <- "bytes"
 
   # Load repeat/RVD sequences
-  if (length(inputSeqs) > 1 && is.list(inputSeqs)) {
-    seqsAsVectors <- inputSeqs
-    # WOULD BE BETTER to accept a Biostrings XStringSet object as imput rather than a list...
-    # Just need to write a toListOfStr function based on fa2liststr and that accept both fasta file or XStringSet
-  } else if (length(inputSeqs) == 1 && is.character(inputSeqs)) {
-    seqsAsVectors <- fa2liststr(inputSeqs)
-  } else {
-    stop("##  Something is wrong with the value provided for inputSeqs. It must be either\n",
-         "##  the path to a fasta file containing strings of tale sequences (space/dash-separated\n",
-         "##  rvd or distal repeat IDs) or a list of vectors of individual rvd or distal repeat IDs.")
-  }
+  seqsAsVectors <- suppressWarnings(toListOfSplitedStr(inputSeqs, sep = sep))
   residues <- unique(unlist(seqsAsVectors))
   # Determine the type of 'elements' (rvd or repeat) contained in the sequences
   frequentRvds <- c("NN", "NG", "HD", "NI", "N*", "NS")
   if(! any(residues %in% frequentRvds)) {
-    cat(glue::glue("## [{date()}] Will be assuming sequences contain repeat unit codes because
-                    ##    none of the RVDs obtained from input sequences matches
-                    ##    a list of 'frequent RVDs': {paste(frequentRvds, collapse = ' ')}"),
-        "\n"
-    )
+    logger::log_info("Will be assuming sequences contain repeat unit codes because ",
+                     "none of the RVDs obtained from input sequences matches ",
+                     "a list of 'frequent RVDs': {paste(frequentRvds, collapse = ' ')}")
     repeatType <- "repeatUnit"
   } else {
-    cat(glue::glue("[{date()}] Input sequences are detected as RVD sequences."),
-        "\n"
-    )
+    logger::log_info("Input sequences are detected as RVD sequences.")
     repeatType <- "rvds"
   }
   if( length(residues) > nrow(asciitableForMafft) ) {
-    stop(glue::glue("## [{date()}] Number of unique resisues (RVDs or repeat units) must be =< 248.
-                    ## Currently, your set of sequences contains {length(residues)} unique residues...")
-    )
+    logger::log_error("Number of unique resisues (RVDs or repeat units) must be =< 248.")
+    logger::log_error("Currently, your set of sequences contains {length(residues)} unique residues...")
+    stop()
   }
   # Coding residues in hexadecimal representations and concatenating them for mafft --text
   seqsOfHex <- sapply(seqsAsVectors, function(x) {
@@ -406,8 +393,9 @@ buildRepeatMsa <- function(inputSeqs, distalRepeatSims = NULL,
   mafftCmd <-  glue::glue("{mafftPath}/mafft.bat {maffMatOpt} --text {mafftOpts} {asciFile} > {mafftAsciiOutFile}")
   MsaConversionToHexCmd <- glue::glue("{mafftPath}/mafftdir/libexec/maffttext2hex {mafftAsciiOutFile} > {mafftHexOutFile}")
   system(command = paste(asciiConverstionCmd, mafftCmd, MsaConversionToHexCmd, sep = "; "),
-         ignore.stdout = FALSE, ignore.stderr = FALSE, intern = FALSE)
-
+         ignore.stdout = FALSE, ignore.stderr = TRUE, intern = FALSE)
+  
+  
   # Getting msa output and converting back to alignment of residues
   msaOfHex <- Biostrings::readBStringSet(mafftHexOutFile)
   #cat(as.character(msaOfHex), sep = "\n")
@@ -433,26 +421,65 @@ buildRepeatMsa <- function(inputSeqs, distalRepeatSims = NULL,
 ##### Tale domains msa plotting ####
 #' Plotting of multiple alinged Tal sequences
 #' @description Plot in frame of \code{\link[gplots:heatmap.2]{heatmap.2}} for Tals alignment.
-#' @param talsim a \emph{three columns Tals similarity table} as obtained with \code{\link[tantale:runDistal]{runDistal}} in the 'tal.similarity' slot of the returned object.
-#' @param repeatAlign a multiple Tal repeat sequences alignment in the form of a matrix as returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}} or as one of the elements of the \code{SeqOfRepsAlignments} slot in the return object of the \code{\link{buildDisTalGroups}} function.
-#' @param repeatSim A long, three columns data frame with pairwise similarity scores between repeats as available in the \code{repeat.similarity slot} of the object returned by the \code{\link[tantale:runDistal]{runDistal}} function. \strong{(CORRECT???!!!)}
-#' @param plot.type Either \code{"repeat.similarity"}, \code{"repeat.clusters"} , \code{"repeat.clusters.with.rvd"}. Defines the type of plot that will be produced by the function. See below for details.
-#' @param repeat.clust.h.cut height for tree cutting when plot type in "repeat.clusters".
-#' @param rvdAlign (optional) when the rvds need to be labeled in the plot (plot.type = "repeat.similarity" or "repeat.clusters.with.rvd", a multiple Tal repeat sequences alignment in the form of a matrix as returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}} or as one of the elements of the \code{SeqOfRepsAlignments} slot in the return object of the \code{\link{buildDisTalGroups}} function. 
-#' @param refgrep regular expression pattern that will be used to search Tal names to select the reference in the alignment.
-#' @param consensusSeq (logical) whether to display the consensus sequence when the plot type is "repeat.clusters.with.rvd".
-#' @param noteColSet In case rvdSim = NULL, vector of 2 colors for rvd alignment, the first color is for matched rvds, and the second color is for mismatched ones. In the other case, more colors should be supplied.
-#' @param save.path file path to save the plot. If save.path is NULL, the heatmap will be printed. If save.path is specified, the image file will be created with the format based on file extension.
-#' @param ... any other arguments of \code{\link[gplots:heatmap.2]{heatmap.2}}
+#' 
 #' @details
-#'  "repeat.similarity" plot shows RVD alignment of Tals, hierarchical relationship between them in the dendrogram, similarity between repeats alignment by the color of cells, and (if rvdSim is provided) similarity between RVDs alignment in the color of cellnotes.
-#'
-#'  "repeat.clusters" plot shows repeat alignment of Tals, hierarchical relationship between them in the dendrogram, and clustering groups of repeats by the color of cells.
+#'  "repeat.similarity" plot shows RVD alignment of Tals, hierarchical relationship
+#'   between them in the dendrogram, similarity between repeats alignment by the color
+#'    of cells, and (if rvdSim is provided) similarity between RVDs alignment in the 
+#'    color of cellnotes.#'
+#'    
+#'  "repeat.clusters" plot shows repeat alignment of Tals, hierarchical relationship
+#'   between them in the dendrogram, and clustering groups of repeats by the color of cells.
+#'   
 #'  "repeat.clusters.with.rvd" plots repeat alignment of Tals with rvd labeled.
-#'  If plotting from the outputs of \code{buildDistalGroups}, you supply repeatClustID/Similarity alignment to \code{forMatrix}, with \code{talsim}, \code{forCellNote} - repeat/rvd alignment, and refgrep optionally.
-#'  But if you don't have these alignments, you can provide \strong{repeat alignment} to \code{forMatrix} with \code{repeatSim}, the repeat similarity data frame, the function will convert it into repeatClustID/Similarity alignment depending on the plot type. In case of \emph{repeat.clusters}, you may want to adjust the param \code{repeat.clust.h.cut} to decrease/increase the number of repeat clusters.
+#'  If plotting from the outputs of \code{buildDistalGroups},
+#'  you supply repeatClustID/Similarity alignment to \code{forMatrix}, with
+#'  \code{talsim}, \code{forCellNote} - repeat/rvd alignment, and refgrep optionally.
 #'  
+#'  But if you don't have these alignments, you can provide \strong{repeat alignment}
+#'  to \code{forMatrix} with \code{repeatSim}, the repeat similarity data frame,
+#'  the function will convert it into repeatClustID/Similarity alignment depending
+#'  on the plot type. In case of \emph{repeat.clusters}, you may want to adjust
+#'  the param \code{repeat.clust.h.cut} to decrease/increase the number of repeat clusters.
+#' 
+#' 
+#' 
+#' 
+#' @param talsim a \emph{three columns Tals similarity table} as obtained
+#'  with \code{\link[tantale:runDistal]{runDistal}} in the 'tal.similarity' slot of the returned object.
+#' @param repeatAlign a multiple Tal repeat sequences alignment in the
+#'  form of a matrix as returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}}
+#'  or as one of the elements of the \code{SeqOfRepsAlignments} slot in the return object
+#'  of the \code{\link{buildDisTalGroups}} function.
+#' @param repeatSim A long, three columns data frame with pairwise similarity 
+#' scores between repeats as available in the \code{repeat.similarity slot}
+#' of the object returned by the \code{\link[tantale:runDistal]{runDistal}} function.
+#' \strong{(CORRECT???!!!)}
+#' @param plot.type Either \code{"repeat.similarity"}, \code{"repeat.clusters"} ,
+#'  \code{"repeat.clusters.with.rvd"}. Defines the type of plot that will be produced
+#'   by the function. See below for details.
+#' @param repeat.clust.h.cut height for tree cutting when plot type
+#'  in "repeat.clusters".
+#' @param rvdAlign (optional) when the rvds need to be labeled in the
+#'  plot (plot.type = "repeat.similarity" or "repeat.clusters.with.rvd",
+#'  a multiple Tal repeat sequences alignment in the form of a matrix as
+#'  returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}} or as one
+#'  of the elements of the \code{SeqOfRepsAlignments} slot in the return object
+#'  of the \code{\link{buildDisTalGroups}} function. 
+#' @param refgrep regular expression pattern that will be used to search Tal names
+#' to select the reference in the alignment.
+#' @param consensusSeq (logical) whether to display the consensus sequence when 
+#' the plot type is "repeat.clusters.with.rvd".
+#' @param noteColSet In case rvdSim = NULL, vector of 2 colors for rvd alignment,
+#' the first color is for matched rvds, and the second color is for mismatched ones.
+#' In the other case, more colors should be supplied.
+#' @param save.path file path to save the plot. If save.path is NULL, the heatmap 
+#' will be printed. If save.path is specified, the image file will be created with
+#' the format based on file extension.
+#' @param ... any other arguments of \code{\link[gplots:heatmap.2]{heatmap.2}}
+#' 
 #' @return the return value of \code{\link[gplots:heatmap.2]{heatmap.2}}
+#' 
 #' @export
 heatmap_msa <- function(talsim, repeatAlign, rvdAlign = NULL, repeatSim, repeat.clust.h.cut = 90, refgrep = NULL, consensusSeq = FALSE, noteColSet = NULL, plot.type, save.path, ...) {
   
@@ -609,7 +636,7 @@ heatmap_msa <- function(talsim, repeatAlign, rvdAlign = NULL, repeatSim, repeat.
     forNoteCol <- t(as.matrix(rvdcol))
     
     # define 'key'
-    forKeyxlab <- "AA identity"
+    forKeyxlab <- "AA similarity"
     forKey <-  TRUE
     forNoteCex <- 1.2
   }
