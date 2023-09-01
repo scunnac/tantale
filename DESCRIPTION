@@ -15,7 +15,7 @@ Imports:
     magrittr, tidyverse, plyr, glue, reshape2, scales, XVector,
     RColorBrewer, dichromat,
     IRanges, Biostrings, GenomicRanges, GenomicFeatures, BSgenome, plyranges,
-    Rsamtools, systemPipeR, msa, DECIPHER, ggmsa,
+    Rsamtools, systemPipeR, msa, DECIPHER,
     ape, ggtree,
     gplots, ggmsa,
     reticulate, optparse, logger
@@ -31,3 +31,4 @@ VignetteBuilder:
     knitr
 RoxygenNote: 7.2.3
 Config/testthat/edition: 3
+URL: https://vibaotram.github.io/tantale/, https://scunnac.github.io/tantale/
