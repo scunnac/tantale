@@ -453,7 +453,7 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
                       arlemRes)
   arlemScores <- strsplit(arlemScores, split = "\\|")
   arlemScores <- lapply(arlemScores, function(s) {t(as.matrix(as.numeric(s)))}) %>%
-    do.call(rbind, .) %>% tibble::as_tibble(name_repair = "minimal")
+    do.call(rbind, .) %>% tibble::as_tibble(.name_repair = "minimal")
   colnames(arlemScores) <- c("TAL1", "TAL2", "arlemScore")
   # Shaping into matrix to have scores in both directions
   arlemScoresMat <- reshape2::acast(arlemScores, formula = TAL1 ~ TAL2, value.var = "arlemScore")

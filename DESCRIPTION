@@ -3,10 +3,9 @@ Type: Package
 Title: Transcription Activator-Like Effectors (TALEs) tools
 Version: 0.1.7
 Author: c(
-    person("Bao Tram", "Vi", email = "vbt576@gmail.com", role = "cre"),
-    person("Sebastien", "Cunnac", email = "sebastien.cunnac@ird.fr", role = "cre"))
-Maintainer: The package maintainer <sebastien.cunnac@ird.fr>
-Description: An integrated collection of functions for TALE minning and analysis
+    person("Bao Tram", "Vi", email = "vbt576@gmail.com", role = c("aut", "cre")),
+    person("Sebastien", "Cunnac", email = "sebastien.cunnac@ird.fr", role = c("aut", "cre")))
+Description: An integrated collection of functions for TALE minning and analysis in R
 License: MIT
 Encoding: UTF-8
 LazyData: true
@@ -23,6 +22,7 @@ Suggests:
     knitr,
     biomartr,
     rmarkdown,
+    ggnewscale, ggcorrplot, corrr,
     testthat (>= 3.0.0)
 OS_type: unix
 biocViews:

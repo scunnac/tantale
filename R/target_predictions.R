@@ -264,7 +264,7 @@ computeRVDSeqEBESeqMatchQualityString <- function(RVDSeq, EBESeq, RVDNucAssocMat
 #'
 #' @param predResults A tibble of prediction results obtained with \code{\link[tantale:preditale]{preditale}} or \code{\link[tantale:talvez]{talvez}} or a custom table in this format.
 #' @param subjDnaSeqFile The fasta file of subject DNA sequences that was used to predict DNA binding elements.
-#' @param filterRange A length one genomic ranges in the form of a properly formated character string (eg. "chr2:56-125") or an atomic GenomicRanges object. This argument specify the DNA region that will be plotted together with predicted binding TALEs RVD sequences whose predicted EBE lies \strong{entirely whithin}.
+#' @param filterRange A length one genomic ranges in the form of a properly formatted character string (eg. "chr2:56-125") or an atomic GenomicRanges object. This argument specify the DNA region that will be plotted together with predicted binding TALEs RVD sequences whose predicted EBE lies \strong{entirely whithin}.
 #'
 #' @return Returns a ggplot object that can be further altered using ggplot2 package functions.
 #' @export

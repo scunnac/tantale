@@ -30,7 +30,7 @@ toListOfSplitedStr <- function(atomicStrings, sep = "-") {
     stop()
   }
 
-  seqsAsVectors <- stringr::str_split(seqs, pattern = glue("[{sep}]"))
+  seqsAsVectors <- stringr::str_split(seqs, pattern = glue::glue("[{sep}]"))
   seqsAsVectors <- lapply(seqsAsVectors, function(x) { # Remove last residue if it is empty string
     if ( x[length(x)] == "") {
       warning("## Last element in 'vectorized' sequence is empty. It was removed from output.")

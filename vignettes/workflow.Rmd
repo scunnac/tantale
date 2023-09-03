@@ -30,6 +30,8 @@ library(DT)
 library(gplots)
 library(ape)
 library(ggtree)
+library(corrr)
+library(ggcorrplot)
 ```
 
 This vignette will go through all steps in a talomes analysis pipeline from Xoo genome sequences using functions in package `tantale`.\
@@ -68,7 +70,7 @@ mclapply(c(mai1_fa, bai3_fa, pxo86), function(fastaFile) {
             appendExtremityCodes = TRUE,
             rvdSep = "-",
             talArrayCorrection = FALSE)
-}, mc.cores = 2) 
+}, mc.cores = 1) 
 ```
 
 ## run telltale2 correction
@@ -229,9 +231,9 @@ ggplot(domainsReport) +
 Firstly, the domain detection of AnnoTALE is different from HMMer at some amino acids.\
 Secondly, the truncated C-terminus of BAI3-1-1 (84 aa) has been corrected and has the same length as its counterparts.
 
-# classify TAL groups
+# Organise the various TALE sequences into groups of related sequences
 
-To classify Tal groups, we use function `runDistal()` to run the tool DisTal that outputs similarity between Tals and similarity between repeats, then the Tals similarity can be taken as input of `groupTales()` for clustering groups, and the repeats similarity can be used for plotting multiple alignment of Tals within group.
+To classify Tal groups, we use the function `runDistal()` to run the tool DisTal that outputs similarity between TALEs and similarity between repeats. The TALE similarity table can be taken as input of `groupTales()` for clustering groups, and the repeats similarity can be used for plotting multiple alignment of Tals within group.
 
 ## run DisTal
 
@@ -259,17 +261,20 @@ for (input in distal_telltale_input) {
 }
 
 # run DisTal
-distal_output <- runDistal(telltale2_cds, outdir = distal_telltale, overwrite = T)
+system.time({
+  distal_output <- runDistal(telltale2_cds, outdir = distal_telltale, overwrite = T)
+})
 
-# distal_output$tal.similarity %>%as_tibble() %>% filter(TAL1 == | TAL2 == )
 ```
 
 ## run the R implementation of DisTal
 
-```{r doing the same with distalr, fig.width = 10, fig.height=10}
-distalrOutDir <- file.path(outdir, "distalr")
-unlink(distalrOutDir, recursive = TRUE)
-dir.create(distalrOutDir, showWarnings = F)
+First we use the tellTale output directories for each genome and get the information about TALE parts (ie domains). The final output is a tibble with a single part per row.
+
+```{r get tale parts, fig.width = 10, fig.height=10}
+# distalrOutDir <- file.path(outdir, "distalr")
+# unlink(distalrOutDir, recursive = TRUE)
+# dir.create(distalrOutDir, showWarnings = F)
 
 
 taleParts <- lapply(list.dirs(telltale2_outdir, recursive = FALSE), function(ttGenomeDir) {
@@ -281,7 +286,15 @@ taleParts <- lapply(list.dirs(telltale2_outdir, recursive = FALSE), function(ttG
 }) %>%
   bind_rows()
 
+DT::datatable(head(taleParts), caption = "An example of the content of the taleParts tibble.")
 
+
+```
+
+With this kind of representation it is quite easy to make summary plots like this one for example:
+
+
+```{r Overview of TALE composition by genome, fig.width = 10, fig.height=10}
 partsForPlots <- taleParts %>%
   mutate(label = if_else(domainType == "repeat", rvd, ""),
          aaSeqLength = factor(nchar(aaSeq))
@@ -300,33 +313,45 @@ partsForPlots %>% ggplot(mapping = aes(fill = aaSeqLength,
   ggnewscale::new_scale_fill() +
   geom_text(size = 2.1, color = "white") + 
   facet_grid(seqnames~ ., scales = "free_y", space = "free") +
+  labs(title = "Overview of TALE composition by genome") +
   theme_light()
+```
+
+Now, with this object, we can also run the R implementation of the Distal Perl code.
 
 
-
+```{r doing the same with distalr, fig.width = 10, fig.height=10}
 partsForDistalr <- taleParts
+
 # distalr_mms_output <- distalr(taleParts = partsForDistalr,
 #                               repeats.cluster.h.cut = 10, ncores = 6,
 #                               pairwiseAlnMethod = "mmseq2",
 #                               condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")
-
-distalr_deci_output <- distalr(taleParts = partsForDistalr,
+system.time({distalr_deci_output <- distalr(taleParts = partsForDistalr,
                               repeats.cluster.h.cut = 10, ncores = 6,
-                              pairwiseAlnMethod = "DECIPHER")
+                              pairwiseAlnMethod = "DECIPHER")})
 
-distalr_bs_output <- distalr(taleParts = partsForDistalr,
+
+system.time({distalr_bs_output <- distalr(taleParts = partsForDistalr,
                              repeats.cluster.h.cut = 10, ncores = 6,
-                             pairwiseAlnMethod = "Biostrings")
+                             pairwiseAlnMethod = "Biostrings")})
+
 
 
 ```
 
+Clearly, the "DECIPHER" method for pairwise alignment of domains aa sequences is much faster than all the others.
+
+
 
 ## Contrast the output of the various distal functions
 
-```{r correlation of TALE distances from various distal implementations}
-library('corrr')
-library(ggcorrplot)
+
+Now, we can take a look at whether the results of the original Distal script are consistent with our R implementation of the program.
+
+
+```{r correlation of TALE distances from various distal implementations, fig.width = 4, fig.height=4}
+
 talSimOutAgregated <- list(distalALV = distal_output$tal.similarity,
      distalDECI = distalr_deci_output$tal.similarity,
      distalBIOS = distalr_bs_output$tal.similarity
@@ -355,11 +380,17 @@ talSimOutAgregated %>%
   geom_point() +
   geom_abline(intercept = 0, slope = 1)
 
+# pairs(talSimOutAgregated[3:5], pch = 19, lower.panel = NULL)
+
+
 ```
 
+The correlation of the TALE pairwise similarity scores output by the various distal flavors are remarkably high.
 
-```{r tale trees}
-k <- 26
+## Allocate TALEs to groups of related sequences
+
+```{r tale trees, fig.width = 6, fig.height=6}
+k <- 27
 groupsALV <- invisible(groupTales(taleSim = distal_output$tal.similarity,
                      plotTree = TRUE, k = k, k_test = 10:40,
                      method = "k-medoids"))
@@ -373,13 +404,14 @@ groupsBIOS <- invisible(groupTales(taleSim = distalr_bs_output$tal.similarity,
                      method = "k-medoids"))
 
 
-groupTales(taleSim = distal_output$tal.similarity,
+
+grp <- groupTales(taleSim = distal_output$tal.similarity,
                      plotTree = TRUE, k = k,
                      method = "hclust")
-groupTales(taleSim = distalr_deci_output$tal.similarity,
+grp <- groupTales(taleSim = distalr_deci_output$tal.similarity,
                      plotTree = TRUE, k = k,
                      method = "hclust")
-groupTales(taleSim = distalr_bs_output$tal.similarity,
+grp <- groupTales(taleSim = distalr_bs_output$tal.similarity,
                      plotTree = TRUE, k = k,
                      method = "hclust")
 
@@ -390,56 +422,59 @@ getTALEsTree <- function(taleSim) {
   hclust(dist(distMat, method = "euclidean"), method = "ward.D")
 }
 
-getTALEsTree(distal_output$tal.similarity) %>%
-  ggtree::ggtree() +
-  ggtree::layout_dendrogram() +
-  ggtree::geom_tiplab(ggtree::aes(label=label),
-                          angle= 90, hjust=0,
-                          offset = -3,
-                      
-                      , color='black')
-
-getTALEsTree(distalr_deci_output$tal.similarity) %>%
-  ggtree::ggtree() +
-  ggtree::layout_dendrogram() +
-  ggtree::geom_tiplab(ggtree::aes(label=label),
-                          angle= 90, hjust=0,
-                          offset = -3,
-                      
-                      , color='black')
-
-getTALEsTree(distalr_bs_output$tal.similarity) %>%
-  ggtree::ggtree() +
-  ggtree::layout_dendrogram() +
-  ggtree::geom_tiplab(ggtree::aes(label=label),
-                          angle= 90, hjust=0,
-                          offset = -3,
-                      
-                      , color='black')
+# getTALEsTree(distal_output$tal.similarity) %>%
+#   ggtree::ggtree() +
+#   ggtree::layout_dendrogram() +
+#   ggtree::geom_tiplab(ggtree::aes(label=label),
+#                           angle= 90, hjust=0,
+#                           offset = -3,
+#                       
+#                       , color='black')
+# 
+# getTALEsTree(distalr_deci_output$tal.similarity) %>%
+#   ggtree::ggtree() +
+#   ggtree::layout_dendrogram() +
+#   ggtree::geom_tiplab(ggtree::aes(label=label),
+#                           angle= 90, hjust=0,
+#                           offset = -3,
+#                       
+#                       , color='black')
+# 
+# getTALEsTree(distalr_bs_output$tal.similarity) %>%
+#   ggtree::ggtree() +
+#   ggtree::layout_dendrogram() +
+#   ggtree::geom_tiplab(ggtree::aes(label=label),
+#                           angle= 90, hjust=0,
+#                           offset = -3,
+#                       
+#                       , color='black')
 ```
 
+We can compare the hierarchical trees obtained with the original Distal tree (left) and distalr with DICEPHER (right). Because PXO86 is the only Asian strain and these TALEs are rather distantly related to African ones, the part of the trees with PXO86 TALEs are not really meaningfull in this context.
 
-```{r tale trees comparisons}
+
+```{r tale trees comparisons, fig.width = 8, fig.height=8}
+op <- par()
+suppressWarnings(par(cex = 0.5))
 ape::cophyloplot(getTALEsTree(distal_output$tal.similarity) %>% as.phylo(),
                  getTALEsTree(distalr_deci_output$tal.similarity) %>% as.phylo(),
                  assoc = matrix(rep(distal_output$tal.similarity$TAL1 %>% unique() %>% as.character(), 2),
                                 ncol = 2, byrow = FALSE),
-                 length.line = 0, space=200, gap=10,
+                 length.line = 0, space=200, gap = 10,
                  col = "red")
+suppressWarnings(par(op))
 ```
 
-
-## classify TAL groups
 
 ```{r test_tale_group, fig.width = 6, fig.height=4}
 taleGroups <- groupsBIOS
 ```
 
-Based on the silhouette values, `groupTales()` will take the value at the elbow of the curve. In this case it picked k = 9, and it makes sense as we already know that the each of the gold genomes have 9 Tals.
+Based on the silhouette values, `groupTales()` will take the value at the elbow of the curve. In this case we manually took k = `r k``.
 
-### msa with similarity
+### TALE domains multiple alignment with similarity
 
-We can make MSA of repeatID sequence or RVD sequence with the function `buildRepeatMsa()`, however it make more sense to align repeat than RVD. For mafft, the combo of gap opening score = 0 and gap extending score = 5 creates better alignment than default values.
+We can make MSA of repeatID sequence or RVD sequence with the function `buildRepeatMsa()`, however it make more sense to align repeat than RVD. For mafft (the underlying aligner), i our hands, the combo of gap opening score = 0 and gap extending score = 5 creates better alignment than default values.
 
 ```{r msa_with_sim, results=FALSE}
 repeatVectors <- distalr_deci_output$coded.repeats.str
@@ -499,7 +534,7 @@ tantale::heatmap_msa(talsim = distalr_deci_output$tal.similarity,
                      repeatSim = distalr_deci_output$repeat.similarity,
                      rvdAlign = rvdMSA,
                      plot.type = "repeat.similarity",
-                     main = "Repeat MSA with similarity - Group 3")
+                     main = "Repeat MSA with similarity - Group 2")
 ```
 
 #### msa of repeat cluster ID
@@ -509,7 +544,7 @@ tantale::heatmap_msa(talsim = distalr_deci_output$tal.similarity,
                      repeatAlign = repeatMSA,
                      repeatSim = distalr_deci_output$repeat.similarity,
                      plot.type = "repeat.clusters",
-                     main = "Repeat Cluster MSA - Group 3")
+                     main = "Repeat Cluster MSA - Group 2")
 ```
 
 #### msa of repeat ID with RVD labeled
@@ -523,7 +558,7 @@ tantale::heatmap_msa(talsim = distalr_deci_output$tal.similarity,
                      repeatSim = distalr_deci_output$repeat.similarity,
                      rvdAlign = rvdMSA,
                      plot.type = "repeat.clusters.with.rvd",
-                     main = "Repeat Cluster MSA with RVD - Group 3",
+                     main = "Repeat Cluster MSA with RVD - Group 2",
                      consensusSeq = TRUE)
 ```
 
@@ -531,7 +566,7 @@ tantale::heatmap_msa(talsim = distalr_deci_output$tal.similarity,
 
 With the Tal classification result and RVD sequences, we can represent RVD sequence variants of all the strains for each Tal group as an example below.
 
-```{r talomes_overview, fig.width = 8, fig.height = 6}
+```{r talomes_overview, fig.width = 10, fig.height = 6}
 tale_annotation <- merge(taleGroups, 
                          data.frame("name" = names(rvdVectors),
                                     "rvdseq" = sapply(rvdVectors,
@@ -581,7 +616,7 @@ datatable(talvezPreds, options = list(pageLength = 1))
 
 Here is an example of summarizing prediction result with `heatmap.2()` (scores are display by color scale, black refers no prediction):
 
-```{r talvez_predict, fig.width = 8, fig.height = 8}
+```{r talvez_predict, fig.width = 6, fig.height = 8}
 talvezPreds$strain <- gsub("\\_.+", "", talvezPreds$taleId)
 talvezPreds$group <- sapply(talvezPreds$taleId, function(id) {
   ifelse(id %in% taleGroups$name, taleGroups$group[taleGroups$name == id], NA)
@@ -611,10 +646,13 @@ heatmap.2(selectedPredsMat,
 
 To see how RVD sequences match a promoter region, we supply the prediction table and the promoter sequence with the genomic range to `plotTaleTargetPred()`:
 
-```{r SWEET13, fig.width = 12, fig.height = 4}
+```{r SWEET13, fig.width = 14, fig.height = 4}
 grFilter <- "SWEET14p_Nipponbare_Sense:340-450"
 plotTaleTargetPred(predResults = selectedPreds, subjDnaSeqFile = subjDnaSeqFile, filterRange = grFilter)
 ```
+
+
+
 
 ## preditale
 
@@ -625,7 +663,7 @@ preditalePreds <- preditale(rvdSeqs = rvdSeqsXstrings, subjDnaSeqFile = subjDnaS
 datatable(preditalePreds, options = list(pageLength = 1))
 ```
 
-```{r preditale_predict, fig.width = 8, fig.height = 8}
+```{r preditale_predict, fig.width = 6, fig.height = 6}
 talvezPreds$strain <- gsub("\\_.+", "", talvezPreds$taleId)
 talvezPreds$group <- sapply(talvezPreds$taleId, function(id) {
   ifelse(id %in% taleGroups$name, taleGroups$group[taleGroups$name == id], NA)
@@ -653,7 +691,7 @@ gplots::heatmap.2(selectedPredsMat,
                   )
 ```
 
-```{r SWEET14, fig.width = 12, fig.height = 4}
+```{r SWEET14, fig.width = 14, fig.height = 4}
 grFilter <- "SWEET14p_Nipponbare_Sense:340-450"
 plotTaleTargetPred(predResults = selectedPreds, subjDnaSeqFile = subjDnaSeqFile, filterRange = grFilter)
 ```

@@ -233,8 +233,8 @@ tellTale <- function(
   foolproofSeqlevels <- paste0("seq", 1:length(originalSeqlevels))
   names(originalSeqlevels) <- foolproofSeqlevels
   names(originalSeqs) <- foolproofSeqlevels
-  logger::log_info("Original seq names : {glue::glue_collapse(originalSeqlevels, sep = ' ; ')}.")
-  logger::log_info("Dummy seq names : {glue::glue_collapse(names(originalSeqlevels), sep = ' ; ')}.")
+  logger::log_info("Original seq names : {glue::glue_collapse(originalSeqlevels, sep = ' ; ')}")
+  logger::log_info("Dummy seq names : {glue::glue_collapse(names(originalSeqlevels), sep = ' ; ')}")
   subjectFile <- tempfile()
   Biostrings::writeXStringSet(originalSeqs, filepath = subjectFile)
   
@@ -585,7 +585,7 @@ tellTale <- function(
       " t=", inputFastaFile,
       " outdir=", outputDir
     )
-    logger::log_info("Now running annoTALE analyze for {prefix}")
+    logger::log_debug("Now running annoTALE analyze for {prefix}")
     logger::log_debug("Using the following command: {comAnalyze}")
     exitAnalyze <- system(comAnalyze, ignore.stdout = TRUE, ignore.stderr = TRUE)
     return(invisible(exitAnalyze))
@@ -602,6 +602,7 @@ tellTale <- function(
     correctedTalOrfFile <- file.path(AnnotaleDir, "putativeTalOrf.fasta")
     Biostrings::writeXStringSet(TalOrf, correctedTalOrfFile)
     # Run Annotale on corrected ORF
+    logger::log_info("Now running AnnoTALE analyze for {talOrfID}")
     checkAnnoTale <- try(AnnoTALEanalyze(correctedTalOrfFile, AnnotaleDir), silent = TRUE)
     # Get Annotale output with conditions handling
     dna_parts_files <- file.path(AnnotaleDir, "TALE_DNA_parts.fasta")

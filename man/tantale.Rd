@@ -33,8 +33,8 @@ CAUTIONARY NOTES:
 
 
  \itemize{
-   \item Wrapper around annotale
-   \item tellTale
+   \item Wrapper around annoTALE and correcTALE
+   \item tellTale, an R function similar to annoTALE
    \item Analysis tools for RVD inventory, repeat lenght}
 }
 
@@ -42,9 +42,9 @@ CAUTIONARY NOTES:
 
 
  \itemize{
-   \item Wrappers around distal, functal, annotal
+   \item Wrappers around distal, functal, annoTALE
    \item TALE groups inference
-   \item Multiple alignments plotting}
+   \item Easily build Multiple alignments and generate nice plots}
 }
 
 \section{- TALE targets mining}{
@@ -53,6 +53,6 @@ CAUTIONARY NOTES:
  \itemize{
    \item Wrappers around target predictors
    \item General parser for results aggregation
-   \item Connector with daTALbase}
+   \item Connector with daTALbase (to be done)}
 }
 
