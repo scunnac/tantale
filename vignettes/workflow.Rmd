@@ -19,6 +19,12 @@ knitr::opts_chunk$set(warning = FALSE)
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>>")
 ```
 
+```{r render, include=FALSE, eval = FALSE}
+rmarkdown::render(input = "/home/cunnac/Lab-Related/MyScripts/tantale/vignettes/workflow.Rmd")
+```
+
+
+
 ```{r package, warning=FALSE, message=FALSE}
 library(tantale)
 library(ggplot2)
@@ -35,7 +41,7 @@ library(ggcorrplot)
 ```
 
 This vignette will go through all steps in a talomes analysis pipeline from Xoo genome sequences using functions in package `tantale`.\
-Genomes used for this vignette are MAI1, BAI3, and BAI3-1-1 (an error-prone genome with TalC deleted).\
+Genomes used for this vignette are MAI1, BAI3, BAI3-1-1 (an error-prone genome with TalC deleted) and PXO86, a outgroup Asian strain.\
 
 Get the fasta files:
 
@@ -54,12 +60,14 @@ telltale2_outdir <- file.path(outdir, "telltale2")
 dir.create(telltale2_outdir, showWarnings = T)
 ```
 
-# find TALs
+# Finding TALEs loci on DNA sequences
 
-We will run `telltale2()` without correction for "gold" genomes, MAI1 and BAI3, and `telltale2()` with correction for "error-prone" genome BAI3-1-1.\
-By default, `telltale2()` adds NTERM and CTERM to RVD sequences as markers of the termini, that is important to map the repeat codes by DisTal with the RVDs.
+We will run `telltale()` without correction for "gold" genomes, MAI1, BAI3 and PXO86. For "error-prone" genome BAI3-1-1 `telltale()` will be run with correction mode on.\
+`telltale()` adds NTERM and CTERM to RVD sequences as markers of the termini, that is important to map the repeat codes by [DisTal](https://doi.org/10.3389/fpls.2015.00545) with the RVDs.
 
-## run telltale2 no correction
+
+
+## Run telltale2 no correction
 
 ```{r telltale_no_correction, eval=TRUE}
 mclapply(c(mai1_fa, bai3_fa, pxo86), function(fastaFile) {
@@ -73,7 +81,7 @@ mclapply(c(mai1_fa, bai3_fa, pxo86), function(fastaFile) {
 }, mc.cores = 1) 
 ```
 
-## run telltale2 correction
+## Run telltale2 correction
 
 ```{r telltale2_correction, eval=TRUE}
 tellTale(subjectFile = bai311_fa,
@@ -84,11 +92,11 @@ tellTale(subjectFile = bai311_fa,
          talArrayCorrection = TRUE)
 ```
 
-## overview of telltale2 results
+## Overview of telltale results
 
-Besides RVD sequences and Tal ORFs, other useful outputs of `telltale2()` are the reports, from which we can get information about the structure of Tal sequences, corrections have been made, and so on.
+Besides RVD sequences and TALE ORFs, `telltale()` outputs other useful files such as the reports, from which we can get information about the structure of TALE sequences, the corrections that have been made, and so on.
 
-The first we should take a look is "arrayReport.tsv".Wwe will take the files from 3 result folders, gather them, and see which information we can display from it.
+First, we should take a look is "arrayReport.tsv". We will take the files from 3 result folders, gather them, and see which information we can display from it.
 
 ```{r overview_arrayRport}
 # color set for ploting
@@ -108,8 +116,8 @@ for (f in arrayReport_files) {
 arrayRp <- as_tibble(arrayRp)
 ```
 
-This report takes result of HMMer for Tals motif detection, result of correction and AnnoTALE analyze.\
-What information it contains:
+This report takes result of HMMer for Tals DNA signatures detection, the results of the correction step and the AnnoTALE analyze step.\
+What information does it contain:
 
 ```{r content_arrayRport}
 colnames(arrayRp)
@@ -119,12 +127,12 @@ Some important points:
 
 | Column name            | Content                                                          |
 |-------------------|-----------------------------------------------------|
-| `AllDomains`           | TRUE/FALSE, whether all the 3 domains of Tal arrays are detected |
+| `AllDomains`           | TRUE/FALSE, whether all the 3 domains of TALE arrays are detected |
 | `aberrantRepeat`       | TRUE/FALSE, whether there is any aberrant repeat                 |
 | `predicted_ins_count`  | number of insertions corrected by `telltale2()`                  |
 | `predicted_dels_count` | number of deletions corrected by `telltale2()`                   |
 
-### count AllDomains and aberrantRepeat
+### Count AllDomains and aberrantRepeat
 
 ```{r AllDomains and aberrantRepeat, fig.width = 6, fig.height=4}
 ggplot(arrayRp) +
@@ -134,7 +142,7 @@ ggplot(arrayRp) +
   guides(color = guide_legend(override.aes = list(fill = sunset10[4])))
 ```
 
-### count corrections
+### Count corrections
 
 total correction count per genome (in this case, there is only 1 genome that has been corrected)
 
@@ -172,7 +180,7 @@ ggplot(na.omit(arrayRp_correction), aes(x = strain, y = count)) +
         panel.grid.minor.y = element_blank())
 ```
 
-### count domain codon
+### Count domain codon
 
 Another report that we can reveal is "hitsReport.tsv", which contains results of HMMer.
 
@@ -194,7 +202,7 @@ information in the hitsReport
 colnames(hitsReport)
 ```
 
-We could see the length distribution of each Tal protein domain (`query_name`) predicted by HMMer.
+We could see the length distribution of each TALE protein domain (`query_name`) predicted by HMMer.
 
 ```{r codon_count_annotale_3, fig.width = 10, fig.height=6}
 ggplot(hitsReport) +
@@ -204,9 +212,9 @@ ggplot(hitsReport) +
   scale_y_sqrt(breaks = c(0, 1, 5, 10, 15, 100, 200, 350))
 ```
 
-It seems that BAI3-1-1 has 1 Tal truncated at C-terminus caused by artifactual indels. But this is just the "raw" result of Tal motif detection.
+It seems that BAI3-1-1 has 1 TALE truncated at C-terminus caused by artifactual indels. But this is just the "raw" result of TALE motif detection.
 
-Now we have a look at "domainsReport.tsv", a similar report as "hitsReport.tsv" except that it contains the information of Tal domains predicted by AnnoTALE after correction, , so that we can make comparision and infer the impact of correction in the protein sequences.
+Now we have a look at "domainsReport.tsv", a similar report as "hitsReport.tsv" except that it contains the information of TALE domains predicted by AnnoTALE after correction, , so that we can make comparision and infer the impact of correction in the protein sequences.
 
 ```{r codon_count_hmm, fig.width = 10, fig.height=6}
 domainsReport_file <- dir(telltale2_outdir, "domainsReport.tsv", recursive = T, full.names = T)
@@ -231,13 +239,13 @@ ggplot(domainsReport) +
 Firstly, the domain detection of AnnoTALE is different from HMMer at some amino acids.\
 Secondly, the truncated C-terminus of BAI3-1-1 (84 aa) has been corrected and has the same length as its counterparts.
 
-# Organise the various TALE sequences into groups of related sequences
+# Classify the various TALE sequences into groups of related sequences
 
-To classify Tal groups, we use the function `runDistal()` to run the tool DisTal that outputs similarity between TALEs and similarity between repeats. The TALE similarity table can be taken as input of `groupTales()` for clustering groups, and the repeats similarity can be used for plotting multiple alignment of Tals within group.
+To classify TALE groups, we use the function `runDistal()` to run the tool DisTal that outputs similarity between TALEs and similarity between repeats. The TALE similarity table can be taken as input of `groupTales()` for clustering groups, and the repeats similarity can be used for plotting multiple alignment of Tals within group.
 
-## run DisTal
+## Run DisTal
 
-We run DisTal for all the putative TAL ORFs (from `telltale2` output).
+We run DisTal for all the putative TALE ORFs (from `telltale2` output).
 
 ```{r distal_io, warning=FALSE}
 distal_telltale <- file.path(outdir, "distal")
@@ -390,7 +398,7 @@ The correlation of the TALE pairwise similarity scores output by the various dis
 ## Allocate TALEs to groups of related sequences
 
 ```{r tale trees, fig.width = 6, fig.height=6}
-k <- 27
+k <- 22
 groupsALV <- invisible(groupTales(taleSim = distal_output$tal.similarity,
                      plotTree = TRUE, k = k, k_test = 10:40,
                      method = "k-medoids"))
@@ -472,9 +480,18 @@ taleGroups <- groupsBIOS
 
 Based on the silhouette values, `groupTales()` will take the value at the elbow of the curve. In this case we manually took k = `r k``.
 
-### TALE domains multiple alignment with similarity
+# A few words on the various objects in `tantale`
 
-We can make MSA of repeatID sequence or RVD sequence with the function `buildRepeatMsa()`, however it make more sense to align repeat than RVD. For mafft (the underlying aligner), i our hands, the combo of gap opening score = 0 and gap extending score = 5 creates better alignment than default values.
+
+# TALE domains multiple alignments with similarity
+
+If interested in performing TALEs multiple alignments (distal domains or RVDs) it makes sense to align TALEs that are related and that thus belong to the same group. This is what we are doing here but the `buildRepeatMsa()` function can take any arbitrary set of repeatID sequences or RVD sequences.
+
+
+## Performing MSA using repeat strings
+
+If possible it is more appropriate to align repeat/domains rather than RVD. For mafft (the underlying aligner), in our hands, the combo of gap opening score = 0 (`--op 0`) and gap extending score = 5 (`--ep 5`) (the current default values) yields better alignments.
+
 
 ```{r msa_with_sim, results=FALSE}
 repeatVectors <- distalr_deci_output$coded.repeats.str
@@ -496,7 +513,9 @@ repeatMsaByGroup_withSim <- lapply(sort(unique(taleGroups$group)), function(G) {
 )
 ```
 
-#### msa of repeat similarity
+
+
+## Plotting MSA with RVDs as text and  and coloring based on repeat similarity
 
 For this type of plot, we need to map repeatID to RVD with `getRepeat2RvdMapping()`, then convert repeat MSA to RVD MSA by `convertRepeat2RvdAlign`. We should use the converting function rather than using `buildRepeatMsa()` to creat MSA of RVD because there will be disagreement between them.
 
@@ -537,7 +556,9 @@ tantale::heatmap_msa(talsim = distalr_deci_output$tal.similarity,
                      main = "Repeat MSA with similarity - Group 2")
 ```
 
-#### msa of repeat cluster ID
+
+## Plotting MSA with repeat Ids as text and coloring based on repeat clustering
+
 
 ```{r repeat.clusters_plot, fig.width = 12, fig.height = 4}
 tantale::heatmap_msa(talsim = distalr_deci_output$tal.similarity,
@@ -547,7 +568,8 @@ tantale::heatmap_msa(talsim = distalr_deci_output$tal.similarity,
                      main = "Repeat Cluster MSA - Group 2")
 ```
 
-#### msa of repeat ID with RVD labeled
+
+## Plotting MSA with RVD as text and coloring based on repeat clustering
 
 For this plot, we also use the RVD MSA converted from repeat MSA.
 
@@ -562,9 +584,9 @@ tantale::heatmap_msa(talsim = distalr_deci_output$tal.similarity,
                      consensusSeq = TRUE)
 ```
 
-# overview of talomes
+# Generate an overview of talomes
 
-With the Tal classification result and RVD sequences, we can represent RVD sequence variants of all the strains for each Tal group as an example below.
+With the TALE classification result and RVD sequences, we can represent RVD sequence variants of all the strains for each TALE group as an example below.
 
 ```{r talomes_overview, fig.width = 10, fig.height = 6}
 tale_annotation <- merge(taleGroups, 
@@ -582,7 +604,7 @@ heatmap_talomes(tale_annotation,
                 mapcol = sunset10)
 ```
 
-# predict target
+# TALE Target prediction
 
 We wrap Talvez and Preditale tools in 2 functions, `talvez()` and `preditale()`, that take the same types of RVD sequences and promoter DNA sequences as inputs and output a data frame containing predictions.
 
@@ -699,6 +721,6 @@ plotTaleTargetPred(predResults = selectedPreds, subjDnaSeqFile = subjDnaSeqFile,
 # Session info
 
 ```{r session info}
-sessionInfo()
+sessioninfo::session_info()
 ```
 

@@ -33,7 +33,7 @@
 #' corrected sequences file.
 #' 
 #' @export
-corTales <- function(uncorrectedAssemblyPath ,
+correcTales <- function(uncorrectedAssemblyPath ,
                      correctedAssemblyPath = file.path(getwd(), "correctedTALEs.fa"),
                      pathToHMMs = system.file("tools", "talecorrect", "HMMs", "Xoo", package = "tantale", mustWork = T),
                      returnCorrectionsTble = FALSE,

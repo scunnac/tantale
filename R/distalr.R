@@ -180,7 +180,7 @@ diag(identSubMat) <- 1
   alnDbPath <- file.path(outdir, 'resultDB_aln')
   alnTabFile <- file.path(outdir, 'alnRes.tab')
   
-  df <- expand.grid(names(partAaStringSet), names(partAaStringSet), stringsAsFactors = FALSE) %>% tibble::as_tibble()
+  # df <- expand.grid(names(partAaStringSet), names(partAaStringSet), stringsAsFactors = FALSE) %>% tibble::as_tibble()
   colnames(df) <- c("query", "target")
   if(anyDuplicated(df) != 0) stop("The provided sequences must have unique names.")
   

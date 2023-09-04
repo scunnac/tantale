@@ -11,7 +11,7 @@ plotTaleTargetPred(predResults, subjDnaSeqFile, filterRange)
 
 \item{subjDnaSeqFile}{The fasta file of subject DNA sequences that was used to predict DNA binding elements.}
 
-\item{filterRange}{A length one genomic ranges in the form of a properly formated character string (eg. "chr2:56-125") or an atomic GenomicRanges object. This argument specify the DNA region that will be plotted together with predicted binding TALEs RVD sequences whose predicted EBE lies \strong{entirely whithin}.}
+\item{filterRange}{A length one genomic ranges in the form of a properly formatted character string (eg. "chr2:56-125") or an atomic GenomicRanges object. This argument specify the DNA region that will be plotted together with predicted binding TALEs RVD sequences whose predicted EBE lies \strong{entirely whithin}.}
 }
 \value{
 Returns a ggplot object that can be further altered using ggplot2 package functions.
