@@ -1,4 +1,23 @@
 url: https://scunnac.github.io/tantale
 template:
   bootstrap: 5
-  bootswatch: united
+  bootswatch: lumen
+home:
+  sidebar:
+    structure: [toc, authors, dev, custom]
+    components:
+      custom:
+        title: "With the support of:"
+        text:  <a href="https://en.ird.fr/">
+                 <img src="./man/figures/IRD_2016_BLOC_UK_COUL.png" align="center" alt="IRD" width="35%"/>
+              </a>
+#  theme: espresso
+#footer:
+#  structure: 
+#    left: txs
+#    right: ird
+#  components:
+#    ird: <a href="https://en.ird.fr/">
+#            <img src="./man/figures/IRD_2016_LONGUEUR_UK_COUL.png" alt="IRD" width="35%"/>
+#           </a>
+#    txs: "With the support of:"

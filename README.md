@@ -22,7 +22,7 @@ Here is a snapshot of the topics that are or will (hopefully) be covered in the 
 
 
 - TALEs classification, phylogeny:
-    - Wrappers around [DisTAL](https://doi.org/10.3389/fpls.2015.00545), [FuncTAL](https://doi.org/10.1038/srep21077), AnnoTALE
+    - Wrappers around [DisTAL](https://doi.org/10.3389/fpls.2015.00545), [FuncTAL](https://doi.org/10.3389/fpls.2015.00545), AnnoTALE
     - TALE groups inference
     - Easily build Multiple alignments and generate nice plots
 
