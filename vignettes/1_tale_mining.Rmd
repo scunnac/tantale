@@ -1,5 +1,5 @@
 ---
-title: "Mining TALE sequences in genomes with tantale"
+title: "1. Mining TALE sequences in genomes with tantale"
 output: 
   html_document:
     code_folding: show
@@ -37,9 +37,12 @@ library(magrittr)
 library(DT)
 ```
 
-This article covers all the steps in a TALE mining pipeline from "accurate" or "error-prone" Xoo genome sequences using functions in package `tantale`.\
-Genomes used for this vignette are MAI1, BAI3, BAI3-1-1 (an error-prone genome with TalC deleted) and PXO86, an outgroup Asian strain.\
-TALE classification is demonstrated in a separate article "Classifying TALE sequences from genomes with tantale".
+
+In the first four articles, we illustrate the various major approaches employed in a typical study of TALE diversity and function from a set of bacterial genome sequences.
+
+This first article covers all the steps in a TALE mining pipeline from "accurate" or "error-prone" Xoo genome sequences using functions in package `tantale`.\
+Genomes used for this vignette are MAI1, BAI3, BAI3-1-1 (an error-prone genome with *talC* deleted) and PXO86, an outgroup Asian strain.\
+
 
 
 Get the fasta files:
@@ -240,12 +243,5 @@ Secondly, the truncated C-terminus of BAI3-1-1 (84 aa) has been corrected and ha
 
 ```{r save session}
 save.image(file.path(outdir, "mining.RData"))
-```
-
-
-# Session info
-
-```{r session info}
-sessioninfo::session_info()
 ```
 
