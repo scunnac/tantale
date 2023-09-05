@@ -7,7 +7,7 @@ test_that("getTaleParts errors if AnnoTALE did not report on a TALE which is pre
           {expect_error(getTaleParts(test_path("data_for_tests", "tellTaleErrorOutputInconsistentArrayNumber")))}
 )
 
-test_that("getTaleParts errors if AnnoTALE prot and dna files have different number of components",
+test_that("getTaleParts errors if AnnoTALE prot and dna files have different number of sequence parts",
           {expect_error(getTaleParts(test_path("data_for_tests", "tellTaleErrorMissingAnnotaleDnaDomain")))}
 )
 

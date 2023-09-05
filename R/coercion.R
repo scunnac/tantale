@@ -16,13 +16,13 @@
 #'
 #' @export
 toListOfSplitedStr <- function(atomicStrings, sep = "-") {
-  if (length(atomicStrings) > 1 && is.list(atomicStrings)) {
+  if (length(atomicStrings) >= 1 && is.list(atomicStrings)) {
     seqs <- atomicStrings
   } else if (length(atomicStrings) == 1 && is.character(atomicStrings)) {
     stopifnot(fs::file_exists(atomicStrings))
-    seqs <- as.character(Biostrings::readBStringSet(atomicStrings), use.names=TRUE)
+    seqs <- as.character(Biostrings::readBStringSet(atomicStrings), use.names = TRUE)
   } else if (class(atomicStrings) %in% c("AAStringSet", "BStringSet")) {
-    seqs <- as.character(atomicStrings, use.names=TRUE)
+    seqs <- as.character(atomicStrings, use.names = TRUE)
   } else {
     logger::log_error("Something is wrong with the value provided for atomicStrings.")
     stop()
@@ -31,7 +31,7 @@ toListOfSplitedStr <- function(atomicStrings, sep = "-") {
   seqsAsVectors <- stringr::str_split(seqs, pattern = glue::glue("[{sep}]"))
   seqsAsVectors <- lapply(seqsAsVectors, function(x) { # Remove last residue if it is empty string
     if ( x[length(x)] == "") {
-      warning("## Last element in 'vectorized' sequence is empty. It was removed from output.")
+      warning("Last element in 'vectorized' sequence is empty. It was removed from output.")
       x[-length(x)]
     } else x
   }

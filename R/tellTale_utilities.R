@@ -12,7 +12,7 @@ checkHMMER <- function(hmmerpath) {
     stop("HMMER is not in PATH. Follow instructions at http://hmmer.org/documentation.html to install it.")
   } else {
     out <- system(command = cmd,intern = TRUE)
-    cat(out[2:3], sep = "\n")
+    out[2:3] %>% gsub("^#[ ]?", "", .) %>% logger::skip_formatter() %>% logger::log_info()
   }
 }
 

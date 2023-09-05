@@ -50,7 +50,7 @@ pickRefName <- function(align, refTag = NULL) {
 #' @return A character matrix representing the multiple alignment.
 #' @export
 buildRepeatMsa <- function(inputSeqs, sep = " ", distalRepeatSims = NULL,
-                           mafftOpts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5", # "--globalpair --weighti 1 --maxiterate 1000 --reorder --op 0 --ep 5 --thread 8"
+                           mafftOpts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1",
                            mafftPath = system.file("tools", "mafft-linux64",package = "tantale", mustWork = TRUE),
                            gapSymbol = NA) {
   # A bunch of tempfiles
@@ -68,10 +68,26 @@ buildRepeatMsa <- function(inputSeqs, sep = " ", distalRepeatSims = NULL,
   mafftExcludedHex <- as.raw(c(0x0, 0x3E, 0x3D, 0x3C, 0x2D, 0x20, 0x0d, 0x0a))
   asciitableForMafft <- asciitable[! asciitable$hex %in% mafftExcludedHex, ]
   #Encoding(asciitableForMafft$printable) <- "bytes"
-
+  
   # Load repeat/RVD sequences
   seqsAsVectors <- suppressWarnings(toListOfSplitedStr(inputSeqs, sep = sep))
   residues <- unique(unlist(seqsAsVectors))
+  
+  # Deals with cases where the nomber of sequences is < 2
+  if (length(seqsAsVectors) == 0L) {
+    logger::log_warn("The provided object in inputSeqs is empty. Returning an empty matrix")
+    warning()
+    return(matrix())
+  }
+  if (length(seqsAsVectors) == 1L) {
+    logger::log_info("The provided object in inputSeqs has only one sequence. Returning it as a matrix.")
+    msaOfResiduesAsMatrix <- as.matrix(as.data.frame(seqsAsVectors))
+    msaOfResiduesAsMatrix <- matrix(msaOfResiduesAsMatrix, nrow = 1)
+    rownames(msaOfResiduesAsMatrix) <- colnames(as.data.frame(seqsAsVectors))
+    colnames(msaOfResiduesAsMatrix) <- 1:length(msaOfResiduesAsMatrix)
+    return(msaOfResiduesAsMatrix)
+  }
+  
   # Determine the type of 'elements' (rvd or repeat) contained in the sequences
   frequentRvds <- c("NN", "NG", "HD", "NI", "N*", "NS")
   if(! any(residues %in% frequentRvds)) {
@@ -88,6 +104,9 @@ buildRepeatMsa <- function(inputSeqs, sep = " ", distalRepeatSims = NULL,
     logger::log_error("Currently, your set of sequences contains {length(residues)} unique residues...")
     stop()
   }
+  
+
+  
   # Coding residues in hexadecimal representations and concatenating them for mafft --text
   seqsOfHex <- sapply(seqsAsVectors, function(x) {
     idxs <- match(x, residues)
@@ -108,14 +127,15 @@ buildRepeatMsa <- function(inputSeqs, sep = " ", distalRepeatSims = NULL,
     if (length(distalRepeatSims) > 1 &&
         (is.data.frame(distalRepeatSims) | tibble::is_tibble(distalRepeatSims))
     ) {
-      repeatSims <- distalRepeatSims
+      repeatSims <- distalRepeatSims[,c("RepU1", "RepU2", "Sim")]
     } else if (length(distalRepeatSims) == 1 && is.character(distalRepeatSims)) {
       repeatSims <- formatDistalRepeatDistMat(distalRepeatSims)
     } else {
-      stop("##  Somthing is wrong with the value provided for distalRepeatSims. It must be either\n",
-           "##  the path to a '*_Repeatmatrix.mat' file produced by Distal or\n",
-           "##  a table like object with three columns, usually produced by the\n",
-           "##  formatDistalRepeatDistMat() function.")
+      logger::log_error("Somthing is wrong with the value provided for distalRepeatSims. It must be either")
+      logger::log_error("the path to a '*_Repeatmatrix.mat' file produced by Distal or")
+      logger::log_error("table like object with three columns, usually produced by the")
+      logger::log_error("formatDistalRepeatDistMat() function")
+      stop()
     }
 
     stopifnot(all(residues %in% unique(repeatSims$RepU1)))
@@ -131,14 +151,20 @@ buildRepeatMsa <- function(inputSeqs, sep = " ", distalRepeatSims = NULL,
   # Running mafft msa
   logger::log_info("Now running MAFFT (Copyright 2002-2007 Kazutaka Katoh) on TALE array sequences.")
   asciiConverstionCmd <- glue::glue("{mafftPath}/mafftdir/libexec/hex2maffttext {hexFile} > {asciFile}")
-  mafftCmd <-  glue::glue("{mafftPath}/mafft.bat {maffMatOpt} --quiet --text {mafftOpts} {asciFile} > {mafftAsciiOutFile}")
+  mafftCmd <-  glue::glue("{mafftPath}/mafft.bat {maffMatOpt} --text {mafftOpts} {asciFile} > {mafftAsciiOutFile}")
   MsaConversionToHexCmd <- glue::glue("{mafftPath}/mafftdir/libexec/maffttext2hex {mafftAsciiOutFile} > {mafftHexOutFile}")
-  system(command = paste(asciiConverstionCmd, mafftCmd, MsaConversionToHexCmd, sep = "; "),
-         ignore.stdout = FALSE, ignore.stderr = TRUE, intern = FALSE)
-  
-  
+  res <- system(command = paste(asciiConverstionCmd, mafftCmd, MsaConversionToHexCmd, sep = "; "),
+         ignore.stdout = FALSE, ignore.stderr = FALSE, intern = FALSE)
+
   # Getting msa output and converting back to alignment of residues
   msaOfHex <- Biostrings::readBStringSet(mafftHexOutFile)
+  if (length(msaOfHex) == 0L) {
+    logger::log_error("MAFFT failled to complete sucessfully...")
+    res %>% logger::skip_formatter() %>% logger::log_error()
+    stop()
+  } else {
+    logger::log_debug("MAFFT completed sucessfully!! Yeah!")
+  }
   #cat(as.character(msaOfHex), sep = "\n")
   msaAsHexVectors <- stringr::str_split(as.character(msaOfHex), pattern = " ")
   msaAsHexVectors <- lapply(msaAsHexVectors, function(x) x[-length(x)]) # Remove last "" element
@@ -158,6 +184,10 @@ buildRepeatMsa <- function(inputSeqs, sep = " ", distalRepeatSims = NULL,
   colnames(msaOfResiduesAsMatrix) <- 1:ncol(msaOfResiduesAsMatrix)
   return(msaOfResiduesAsMatrix)
 }
+
+
+
+
 
 ##### Tale domains msa plotting ####
 #' Plotting of multiple alinged Tal sequences
@@ -248,9 +278,12 @@ heatmap_msa <- function(talsim, repeatAlign, rvdAlign = NULL, repeatSim, repeat.
   
   
   # for 'Rowv' = dend
+  
+  ###!!! THIS FAILS IF repeatAlign has a single sequence
+  
   talsim <- talsim[talsim$TAL1 %in% rownames(forCellNote), ]
   talsim <- talsim[talsim$TAL2 %in% rownames(forCellNote), ]
-  talsim <- as.matrix(reshape2::acast(talsim, TAL1 ~ TAL2, value.var="Sim")) # melt then unmelt ...
+  talsim <- as.matrix(reshape2::acast(talsim, TAL1 ~ TAL2, value.var = "Sim")) # melt then unmelt ...
   taldist <- 100 -talsim
   taldist <- taldist[rownames(forCellNote), ]
   taldist <- taldist[, rownames(forCellNote)]
