@@ -1,7 +1,8 @@
 ---
-title: "Working with tantale"
+title: "Classifying TALE sequences from genomes with tantale"
 output: 
   html_document:
+    code_folding: show
     toc: true
     toc_float: true
     number_sections: true
@@ -14,13 +15,24 @@ editor_options:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(cache = TRUE)
+knitr::opts_chunk$set(cache = FALSE)
 knitr::opts_chunk$set(warning = FALSE)
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>>")
 ```
 
 ```{r render, include=FALSE, eval = FALSE}
-rmarkdown::render(input = "/home/cunnac/Lab-Related/MyScripts/tantale/vignettes/workflow.Rmd")
+rmarkdown::render(input = "/home/cunnac/Lab-Related/MyScripts/tantale/vignettes/2_tale_classification.Rmd")
+
+pkgdown::build_site(pkg = "/home/cunnac/Lab-Related/MyScripts/tantale",
+                    lazy = FALSE,
+                    )
+
+pkgdown::build_article(pkg = "/home/cunnac/Lab-Related/MyScripts/tantale",
+                    name = "2_tale_classification",
+                    quiet = FALSE
+                    )
+
+
 ```
 
 
@@ -40,204 +52,15 @@ library(corrr)
 library(ggcorrplot)
 ```
 
-This vignette will go through all steps in a talomes analysis pipeline from Xoo genome sequences using functions in package `tantale`.\
-Genomes used for this vignette are MAI1, BAI3, BAI3-1-1 (an error-prone genome with TalC deleted) and PXO86, a outgroup Asian strain.\
+Based on the results of the article "Mining TALE sequences in genomes with tantale", this article will cover steps downstream of tal loci prediction. It will illustrate TALE classification, TALE multiple alignments and TALE target predictions with functions in package `tantale`.\
+As a reminder, the genomes used for this article are MAI1, BAI3, BAI3-1-1 (an error-prone genome with TalC deleted) and PXO86, an outgroup Asian strain.\
 
-Get the fasta files:
 
-```{r fasta_files}
-mai1_fa <- system.file("extdata", "MAI1.fa", package = "tantale", mustWork = T)
-bai3_fa <- system.file("extdata", "BAI3.fa", package = "tantale", mustWork = T)
-bai311_fa <- system.file("extdata", "BAI3-1-1.fa", package = "tantale", mustWork = T)
-pxo86 <- system.file("extdata", "PXO86.fa", package = "tantale", mustWork = T)
-```
-
-Output dir to save all the results of this vignette:
-
-```{r outdir}
+```{r load previous session}
 outdir <- fs::dir_create("~/TEMP/test_tantale") # tempdir(check = TRUE)
-telltale2_outdir <- file.path(outdir, "telltale2")
-dir.create(telltale2_outdir, showWarnings = T)
+load(file.path(outdir, "mining.RData"))
 ```
 
-# Finding TALEs loci on DNA sequences
-
-We will run `telltale()` without correction for "gold" genomes, MAI1, BAI3 and PXO86. For "error-prone" genome BAI3-1-1 `telltale()` will be run with correction mode on.\
-`telltale()` adds NTERM and CTERM to RVD sequences as markers of the termini, that is important to map the repeat codes by [DisTal](https://doi.org/10.3389/fpls.2015.00545) with the RVDs.
-
-
-
-## Run telltale2 no correction
-
-```{r telltale_no_correction, eval=TRUE}
-mclapply(c(mai1_fa, bai3_fa, pxo86), function(fastaFile) {
-  outdirname <- gsub(".fa", "_nocorrection", basename(fastaFile))
-  outputDir <- file.path(telltale2_outdir, outdirname)
-  tellTale(subjectFile = fastaFile,
-            outputDir = outputDir,
-            appendExtremityCodes = TRUE,
-            rvdSep = "-",
-            talArrayCorrection = FALSE)
-}, mc.cores = 1) 
-```
-
-## Run telltale2 correction
-
-```{r telltale2_correction, eval=TRUE}
-tellTale(subjectFile = bai311_fa,
-         outputDir = file.path(telltale2_outdir, gsub(".fa", "_correction", basename(bai311_fa))),
-         TALE_CtermDNAHitMinScore = 300,
-         appendExtremityCodes = TRUE,
-         rvdSep = "-",
-         talArrayCorrection = TRUE)
-```
-
-## Overview of telltale results
-
-Besides RVD sequences and TALE ORFs, `telltale()` outputs other useful files such as the reports, from which we can get information about the structure of TALE sequences, the corrections that have been made, and so on.
-
-First, we should take a look is "arrayReport.tsv". We will take the files from 3 result folders, gather them, and see which information we can display from it.
-
-```{r overview_arrayRport}
-# color set for ploting
-sunset10 <- c("#ba6b57", "#87556f", "#848ccf", "#93b5e1", "#6f4a8e", "#a2738c", "#ab93c9", "#588da8", "#726a95", "#bc658d")
-
-arrayReport_files <- list.files(telltale2_outdir, "arrayReport.tsv", recursive = T, full.names = T)
-
-arrayRp <- tibble()
-for (f in arrayReport_files) {
-  a <- read_tsv(f)
-  if (!any(c("predicted_ins_count", "predicted_dels_count") %in% colnames(a)))
-    # 2 columns "predicted_ins_count" and "predicted_dels_count" are not displayed in the report in case of no correction
-    {a[c("predicted_ins_count", "predicted_dels_count")] <- NA} 
-  a$strain <- gsub("\\_.+", "", basename(dirname(f)))
-  arrayRp <- rbind(arrayRp, a)
-}
-arrayRp <- as_tibble(arrayRp)
-```
-
-This report takes result of HMMer for Tals DNA signatures detection, the results of the correction step and the AnnoTALE analyze step.\
-What information does it contain:
-
-```{r content_arrayRport}
-colnames(arrayRp)
-```
-
-Some important points:
-
-| Column name            | Content                                                          |
-|-------------------|-----------------------------------------------------|
-| `AllDomains`           | TRUE/FALSE, whether all the 3 domains of TALE arrays are detected |
-| `aberrantRepeat`       | TRUE/FALSE, whether there is any aberrant repeat                 |
-| `predicted_ins_count`  | number of insertions corrected by `telltale2()`                  |
-| `predicted_dels_count` | number of deletions corrected by `telltale2()`                   |
-
-### Count AllDomains and aberrantRepeat
-
-```{r AllDomains and aberrantRepeat, fig.width = 6, fig.height=4}
-ggplot(arrayRp) +
-  geom_bar(aes(x = strain, fill = AllDomains, color = aberrantRepeat), stat = "count") +
-  scale_fill_manual(values = c("grey", sunset10[4])) +
-  scale_color_manual(values = c("black", "red"), na.value = NA, labels = c("FALSE", "TRUE", "AnnoTALE_failed")) +
-  guides(color = guide_legend(override.aes = list(fill = sunset10[4])))
-```
-
-### Count corrections
-
-total correction count per genome (in this case, there is only 1 genome that has been corrected)
-
-```{r correction count per genome 2, fig.width = 6, fig.height=6}
-arrayRp_correction <- reshape2::melt(arrayRp[c("strain", "arrayID", "predicted_ins_count", "predicted_dels_count")], value.name = "count", variable.name = "type")
-arrayRp_correction %<>% dplyr::arrange(strain, arrayID)
-
-ggplot(arrayRp_correction) +
-  facet_wrap(vars(type), nrow = 2, scales = "fixed") +
-  geom_bar(aes(x = strain, fill = factor(count))) +
-  scale_fill_viridis_d() +
-  guides(fill = guide_legend(title = "correction count"))
-```
-
-correction count per array per genome
-
-```{r count per array per genome, fig.width = 6, fig.height=4}
-ggplot(na.omit(arrayRp_correction), aes(x = arrayID, y = count, color = type, shape = type)) +
-  facet_wrap(vars(strain), nrow = 2) +
-  scale_shape_manual(values = c(20, 2)) +
-  geom_point(size = 4) +
-  scale_color_manual(values = c(sunset10[4], "black"))+
-  theme(axis.text.x = element_text(angle = 90),
-        legend.direction = "horizontal", legend.position = "bottom")
-```
-
-correction distribution per genome
-
-```{r correction distribution, fig.width = 6, fig.height=4}
-ggplot(na.omit(arrayRp_correction), aes(x = strain, y = count)) +
-  geom_dotplot(aes(fill = type, color = type), binaxis = "y", stackdir = "center", position = "dodge", binwidth = 1/10) +
-  scale_fill_manual(values = c(sunset10[4], "black")) +
-  scale_color_manual(values = c(sunset10[4], "black")) +
-  theme(legend.direction = "horizontal", legend.position = "bottom",
-        panel.grid.minor.y = element_blank())
-```
-
-### Count domain codon
-
-Another report that we can reveal is "hitsReport.tsv", which contains results of HMMer.
-
-```{r codon_count_annotale_1}
-hitsReport_files <- dir(telltale2_outdir, "hitsReport.tsv", recursive = T, full.names = T)
-
-hitsReport <- data.frame()
-for (f in hitsReport_files) {
-  a <- read.table(f, sep = "\t", stringsAsFactors = F, header = T)
-  a$strain <- gsub("\\_.+", "", basename(dirname(f)))
-  hitsReport <- rbind(hitsReport, a)
-}
-hitsReport$query_name <- factor(hitsReport$query_name, levels = c("TALE_N-terminus_CDS_aligned_curated", "TALE_repeat_CDS_aligned_curated", "TALE_C-terminus_CDS_aligned_curated_long"), ordered = F)
-```
-
-information in the hitsReport
-
-```{r codon_count_annotale_2}
-colnames(hitsReport)
-```
-
-We could see the length distribution of each TALE protein domain (`query_name`) predicted by HMMer.
-
-```{r codon_count_annotale_3, fig.width = 10, fig.height=6}
-ggplot(hitsReport) +
-  facet_wrap(vars(query_name), scales = "free", nrow = 1) +
-  geom_bar(aes(x = factor(codon_count), fill = strain), stat = "count", position = position_dodge(preserve = "single")) +
-  scale_fill_manual(values = sunset10) +
-  scale_y_sqrt(breaks = c(0, 1, 5, 10, 15, 100, 200, 350))
-```
-
-It seems that BAI3-1-1 has 1 TALE truncated at C-terminus caused by artifactual indels. But this is just the "raw" result of TALE motif detection.
-
-Now we have a look at "domainsReport.tsv", a similar report as "hitsReport.tsv" except that it contains the information of TALE domains predicted by AnnoTALE after correction, , so that we can make comparision and infer the impact of correction in the protein sequences.
-
-```{r codon_count_hmm, fig.width = 10, fig.height=6}
-domainsReport_file <- dir(telltale2_outdir, "domainsReport.tsv", recursive = T, full.names = T)
-
-domainsReport <- data.frame()
-for (f in domainsReport_file) {
-  a <- read.table(f, sep = "\t", stringsAsFactors = F, header = T)
-  a$strain <- gsub("\\_.+", "", basename(dirname(f)))
-  domainsReport <- rbind(domainsReport, a)
-}
-
-domainsReport$query_name <- factor(domainsReport$query_name, levels = c("N-terminus", "repeat", "C-terminus"))
-domainsReport$codon_count <- as.factor(domainsReport$codon_count)
-
-ggplot(domainsReport) +
-  facet_wrap(vars(query_name), scales = "free", nrow = 1) +
-  geom_bar(aes(x = codon_count, fill = strain), stat = "count", position = position_dodge(preserve = "single")) +
-  scale_fill_manual(values = sunset10) +
-  scale_y_sqrt(breaks = c(0, 1, 5, 10, 15, 100, 200, 350))
-```
-
-Firstly, the domain detection of AnnoTALE is different from HMMer at some amino acids.\
-Secondly, the truncated C-terminus of BAI3-1-1 (84 aa) has been corrected and has the same length as its counterparts.
 
 # Classify the various TALE sequences into groups of related sequences
 
@@ -245,17 +68,17 @@ To classify TALE groups, we use the function `runDistal()` to run the tool DisTa
 
 ## Run DisTal
 
-We run DisTal for all the putative TALE ORFs (from `telltale2` output).
+We run DisTal for all the putative TALE ORFs (from `telltale` output).
 
 ```{r distal_io, warning=FALSE}
 distal_telltale <- file.path(outdir, "distal")
 unlink(distal_telltale, recursive = TRUE)
 dir.create(distal_telltale, showWarnings = F)
-telltale2_cds <- file.path(distal_telltale, "cds.fasta")
-unlink(telltale2_cds)
+telltale_cds <- file.path(distal_telltale, "cds.fasta")
+unlink(telltale_cds)
 
 
-distal_telltale_input <- list.files(telltale2_outdir,
+distal_telltale_input <- list.files(telltale_outdir,
                                     "putativeTalOrf.fasta",
                                     recursive = T, full.names = T)
 distal_telltale_input <- distal_telltale_input[!grepl("ROI", distal_telltale_input, fixed = T)]
@@ -265,12 +88,12 @@ for (input in distal_telltale_input) {
   names(seqs) <- paste0(ttRunId, "_", names(seqs))
   seqs <- seqs[width(seqs) != 0]
   #cat(names(seqs))
-  writeXStringSet(seqs, telltale2_cds, append = T)
+  writeXStringSet(seqs, telltale_cds, append = T)
 }
 
 # run DisTal
 system.time({
-  distal_output <- runDistal(telltale2_cds, outdir = distal_telltale, overwrite = T)
+  distal_output <- runDistal(telltale_cds, outdir = distal_telltale, overwrite = T)
 })
 
 ```
@@ -285,7 +108,7 @@ First we use the tellTale output directories for each genome and get the informa
 # dir.create(distalrOutDir, showWarnings = F)
 
 
-taleParts <- lapply(list.dirs(telltale2_outdir, recursive = FALSE), function(ttGenomeDir) {
+taleParts <- lapply(list.dirs(telltale_outdir, recursive = FALSE), function(ttGenomeDir) {
   genomeId <- gsub("_.*correction", "", basename(ttGenomeDir))
   logger::log_debug("Current genome: {genomeId}")
   taleParts <- getTaleParts(ttGenomeDir) %>%
@@ -358,8 +181,7 @@ Clearly, the "DECIPHER" method for pairwise alignment of domains aa sequences is
 Now, we can take a look at whether the results of the original Distal script are consistent with our R implementation of the program.
 
 
-```{r correlation of TALE distances from various distal implementations, fig.width = 4, fig.height=4}
-
+```{r correlation of TALE similarity from various distal implementations, fig.width = 4, fig.height=4}
 talSimOutAgregated <- list(distalALV = distal_output$tal.similarity,
      distalDECI = distalr_deci_output$tal.similarity,
      distalBIOS = distalr_bs_output$tal.similarity
@@ -381,17 +203,21 @@ ggcorrplot(corr_matrix)
 talSimOutAgregated <- reshape2::dcast(talSimOutAgregated %>% select(method, TAL1, TAL2, Sim),
                                           formula = TAL1 + TAL2 ~ method, value.var = "Sim"
                                             ) %>% as_tibble()
-talSimOutAgregated %>%
-  select(-distalBIOS) %>%
-  mutate(pointLab = paste(TAL1, TAL2, sep = "|")) %>%
-  ggplot(mapping = aes(x = distalALV, distalDECI)) +
-  geom_point() +
-  geom_abline(intercept = 0, slope = 1)
-
-# pairs(talSimOutAgregated[3:5], pch = 19, lower.panel = NULL)
-
-
 ```
+
+
+```{r pair plot of TALE similarity from various distal implementations, fig.width = 4, fig.height=4}
+# talSimOutAgregated %>%
+#   select(-distalBIOS) %>%
+#   mutate(pointLab = paste(TAL1, TAL2, sep = "|")) %>%
+#   ggplot(mapping = aes(x = distalALV, distalDECI)) +
+#   geom_point() +
+#   geom_abline(intercept = 0, slope = 1)
+
+pairs(talSimOutAgregated[3:5], pch = 20, cex = 0.5, lower.panel = NULL)
+```
+
+
 
 The correlation of the TALE pairwise similarity scores output by the various distal flavors are remarkably high.
 
@@ -430,32 +256,6 @@ getTALEsTree <- function(taleSim) {
   hclust(dist(distMat, method = "euclidean"), method = "ward.D")
 }
 
-# getTALEsTree(distal_output$tal.similarity) %>%
-#   ggtree::ggtree() +
-#   ggtree::layout_dendrogram() +
-#   ggtree::geom_tiplab(ggtree::aes(label=label),
-#                           angle= 90, hjust=0,
-#                           offset = -3,
-#                       
-#                       , color='black')
-# 
-# getTALEsTree(distalr_deci_output$tal.similarity) %>%
-#   ggtree::ggtree() +
-#   ggtree::layout_dendrogram() +
-#   ggtree::geom_tiplab(ggtree::aes(label=label),
-#                           angle= 90, hjust=0,
-#                           offset = -3,
-#                       
-#                       , color='black')
-# 
-# getTALEsTree(distalr_bs_output$tal.similarity) %>%
-#   ggtree::ggtree() +
-#   ggtree::layout_dendrogram() +
-#   ggtree::geom_tiplab(ggtree::aes(label=label),
-#                           angle= 90, hjust=0,
-#                           offset = -3,
-#                       
-#                       , color='black')
 ```
 
 We can compare the hierarchical trees obtained with the original Distal tree (left) and distalr with DICEPHER (right). Because PXO86 is the only Asian strain and these TALEs are rather distantly related to African ones, the part of the trees with PXO86 TALEs are not really meaningfull in this context.
@@ -475,17 +275,44 @@ suppressWarnings(par(op))
 
 
 ```{r test_tale_group, fig.width = 6, fig.height=4}
-taleGroups <- groupsBIOS
+taleGroups <- groupsDECI %>% as_tibble() %>% arrange(group, name)
+knitr::kable(head(taleGroups, n= 12))
 ```
 
 Based on the silhouette values, `groupTales()` will take the value at the elbow of the curve. In this case we manually took k = `r k``.
 
-# A few words on the various objects in `tantale`
-
 
 # TALE domains multiple alignments with similarity
 
-If interested in performing TALEs multiple alignments (distal domains or RVDs) it makes sense to align TALEs that are related and that thus belong to the same group. This is what we are doing here but the `buildRepeatMsa()` function can take any arbitrary set of repeatID sequences or RVD sequences.
+If interested in performing TALEs multiple alignments (distal domains or RVDs) it makes sense to align TALEs that are related and that thus belong to the same group. This is what we are doing here but keep in mind that the `buildRepeatMsa()` function can take any arbitrary set of repeatID sequences or RVD sequences.
+
+But right now what we need is a mapping between distal parts IDs and the cognate RVDs. This can be done in a number of ways but let's use the one below.
+
+```{r fetching the necessary info about rvds}
+
+rvdSeqs_fasta <- list.files(telltale_outdir, "rvdSequences.fas", recursive = T, full.names = T)
+telltale_rvd <- file.path(distal_telltale, "rvd.fasta")
+unlink(telltale_rvd)
+
+# rename of RVD sequences to distinguish sequences between different strains
+for (input in rvdSeqs_fasta) {
+  id <- gsub("\\_.+", "", basename(dirname(input)))
+  seqs <- readBStringSet(input, seek.first.rec = T)
+  names(seqs) <- paste0(id, "_", names(seqs))
+  names(seqs) <- stringr::str_trim(names(seqs))
+  seqs <- seqs[width(seqs) != 0]
+  writeXStringSet(seqs, telltale_rvd, append = T)
+}
+
+rvdVectors <- toListOfSplitedStr(telltale_rvd, sep = "-")
+repeatVectors <- toListOfSplitedStr(distalr_deci_output$coded.repeats.str, sep = " ")
+
+# map repeatID to RVD
+rep2rvd <- getRepeat2RvdMapping(talesRepeatVectors = repeatVectors, talesRvdVectors = rvdVectors)
+datatable(rep2rvd, options = list(pageLength = 5))
+```
+
+
 
 
 ## Performing MSA using repeat strings
@@ -493,23 +320,20 @@ If interested in performing TALEs multiple alignments (distal domains or RVDs) i
 If possible it is more appropriate to align repeat/domains rather than RVD. For mafft (the underlying aligner), in our hands, the combo of gap opening score = 0 (`--op 0`) and gap extending score = 5 (`--ep 5`) (the current default values) yields better alignments.
 
 
-```{r msa_with_sim, results=FALSE}
+```{r msa_with_sim, results = FALSE, eval= FALSE}
 repeatVectors <- distalr_deci_output$coded.repeats.str
-repeatSim <- distalr_deci_output$repeat.similarity %>% select(-Dissim) #distal_output$repeat.similarity
+repeatSim <- distalr_deci_output$repeat.similarity #distal_output$repeat.similarity
+
+
+lapply(sort(unique(taleGroups$group)), function(G) {repeatVectors[taleGroups$name[taleGroups$group == G]]})
+
 repeatMsaByGroup_withSim <- lapply(sort(unique(taleGroups$group)), function(G) {
-  repeatVectorsForGroup <- repeatVectors[taleGroups$name[taleGroups$group == G]]
-  if (length(repeatVectorsForGroup) < 2) {
-    msa <- as.matrix(as.data.frame(repeatVectorsForGroup))
-    msa <- matrix(msa, nrow = 1)
-    rownames(msa) <- colnames(as.data.frame(repeatVectorsForGroup))
-    colnames(msa) <- 1:length(msa)
-    return(msa)
-    next()
-  }
-  repeatMsa <- buildRepeatMsa(inputSeqs = repeatVectorsForGroup, sep = " ",
-                              distalRepeatSims = repeatSim,
-                              mafftOpts = "--globalpair --weighti 1 --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1")
-  }
+  try({buildRepeatMsa(inputSeqs = repeatVectors[taleGroups$name[taleGroups$group == G]],
+                      sep = " ",
+                      distalRepeatSims = repeatSim,
+                      mafftOpts = "--globalpair --weighti 1 --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1")
+  })
+}
 )
 ```
 
@@ -519,30 +343,7 @@ repeatMsaByGroup_withSim <- lapply(sort(unique(taleGroups$group)), function(G) {
 
 For this type of plot, we need to map repeatID to RVD with `getRepeat2RvdMapping()`, then convert repeat MSA to RVD MSA by `convertRepeat2RvdAlign`. We should use the converting function rather than using `buildRepeatMsa()` to creat MSA of RVD because there will be disagreement between them.
 
-```{r repeat.similarity_plot, fig.width = 12, fig.height = 4}
-rvdSeqs_fasta <- list.files(telltale2_outdir, "rvdSequences.fas", recursive = T, full.names = T)
-
-telltale2_rvd <- file.path(distal_telltale, "rvd.fasta")
-unlink(telltale2_rvd)
-
-# rename of RVD sequences to distinguish sequences between different strains
-for (input in rvdSeqs_fasta) {
-  id <- gsub("\\_.+", "", basename(dirname(input)))
-  seqs <- readBStringSet(input, seek.first.rec = T)
-  names(seqs) <- paste0(id, "_", names(seqs))
-  names(seqs) <- stringr::str_trim(names(seqs))
-  seqs <- seqs[width(seqs) != 0]
-  writeXStringSet(seqs, telltale2_rvd, append = T)
-}
-
-
-rvdVectors <- toListOfSplitedStr(telltale2_rvd, sep = "-")
-repeatVectors <- toListOfSplitedStr(distalr_deci_output$coded.repeats.str, sep = " ")
-
-# map repeatID to RVD
-rep2rvd <- getRepeat2RvdMapping(talesRepeatVectors = repeatVectors, talesRvdVectors = rvdVectors)
-datatable(rep2rvd, options = list(pageLength = 5))
-
+```{r repeat.similarity_plot, fig.width = 12, fig.height = 4, eval= FALSE}
 # convert repeat MSA to RVD MSA
 repeatMSA <- repeatMsaByGroup_withSim[[2]]
 rvdMSA <-  convertRepeat2RvdAlign(repeatAlign = repeatMSA, repeat2RvdMapping = rep2rvd)
@@ -560,7 +361,7 @@ tantale::heatmap_msa(talsim = distalr_deci_output$tal.similarity,
 ## Plotting MSA with repeat Ids as text and coloring based on repeat clustering
 
 
-```{r repeat.clusters_plot, fig.width = 12, fig.height = 4}
+```{r repeat.clusters_plot, fig.width = 12, fig.height = 4, eval= FALSE}
 tantale::heatmap_msa(talsim = distalr_deci_output$tal.similarity,
                      repeatAlign = repeatMSA,
                      repeatSim = distalr_deci_output$repeat.similarity,
@@ -573,8 +374,7 @@ tantale::heatmap_msa(talsim = distalr_deci_output$tal.similarity,
 
 For this plot, we also use the RVD MSA converted from repeat MSA.
 
-```{r repeat.clusters.with.rvd_plot, fig.width = 12, fig.height = 4}
-rvdMSA <-  convertRepeat2RvdAlign(repeatAlign = repeatMSA, repeat2RvdMapping = rep2rvd)
+```{r repeat.clusters.with.rvd_plot, fig.width = 12, fig.height = 4, eval= FALSE}
 tantale::heatmap_msa(talsim = distalr_deci_output$tal.similarity,
                      repeatAlign = repeatMSA,
                      repeatSim = distalr_deci_output$repeat.similarity,
@@ -608,11 +408,11 @@ heatmap_talomes(tale_annotation,
 
 We wrap Talvez and Preditale tools in 2 functions, `talvez()` and `preditale()`, that take the same types of RVD sequences and promoter DNA sequences as inputs and output a data frame containing predictions.
 
-We need to concatenate all RVD sequences from 3 `telltale2` outputs and remove NTERM and CTERM markers.
+We need to concatenate all RVD sequences from 3 `telltale` outputs and remove NTERM and CTERM markers.
 
 ```{r predict_input}
-## rvd sequences from telltale2 output
-rvdSeqs_tt <-  readBStringSet(telltale2_rvd)
+## rvd sequences from telltale output
+rvdSeqs_tt <-  readBStringSet(telltale_rvd)
 rvdSeqs_tt <- gsub("\\-{0,1}\\w{5}\\-{0,1}", "",rvdSeqs_tt) %>% BStringSet() # remove NTERM and CTERM
 predict_input <- file.path(outdir, "rvd_to_predict.fasta")
 writeXStringSet(rvdSeqs_tt, predict_input)

@@ -1,0 +1,90 @@
+---
+title: "TALEs domains sequences alignment with MAFFT"
+output: 
+  html_document:
+    code_folding: show
+    toc: true
+    toc_float: true
+    number_sections: true
+vignette: >
+  %\VignetteIndexEntry{workflow}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(cache = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>>")
+```
+
+```{r render, include=FALSE, eval = FALSE}
+rmarkdown::render(input = "/home/cunnac/Lab-Related/MyScripts/tantale/vignettes/multiple_alignments.Rmd")
+
+pkgdown::build_site(pkg = "/home/cunnac/Lab-Related/MyScripts/tantale",
+                    lazy = FALSE,
+                    quiet = FALSE
+                    )
+
+pkgdown::build_article(pkg = "/home/cunnac/Lab-Related/MyScripts/tantale",
+                    name = "4_multiple_alignments",
+                    quiet = FALSE
+                    )
+```
+
+
+
+```{r package, warning=FALSE, message=FALSE}
+library(tantale)
+```
+
+This demo will quickly illustrate how to use the `buildRepeatMsa` function to produce TALE sequence multiple algnments.\
+
+Here we start with RVD sequences of the African Xoo TALE TalA:
+
+```{r align rvd strings}
+aln <- buildRepeatMsa(inputSeqs = system.file("extdata", "TalA_RVDSeqs_AnnoTALE.fasta",
+                                              package = "tantale", mustWork = TRUE),
+                      sep = "-",
+                      distalRepeatSims = NULL,
+                      mafftOpts = "--localpair --maxiterate 1000 --quiet --reorder --op 0 --ep 5 --thread 1",
+                      gapSymbol = "-")
+```
+
+The output shown as a simple matrix :
+
+```{r kable rvd align}
+knitr::kable(aln)
+```
+
+Now, it is more evolutionarily relevant to look at Distal parts/domain/repeat (this is used somehow interchangeably with roughly the same meaning) code sequences. Needless to say that to obtain TALE parts code sequences, you need beforehand to run either the original Distal perl script with `runDistal` or our R implementation `distalr` with DNA sequences. In this cas we just use a toy example provided with tantale.
+
+
+```{r align parts strings}
+aln <- buildRepeatMsa(inputSeqs = system.file("extdata", "small_Out_CodedRepeats.fa",
+                                              package = "tantale", mustWork = TRUE),
+                      sep = " ",
+                      distalRepeatSims = NULL,
+                      mafftOpts = "--localpair --maxiterate 1000 --quiet --reorder --op 0 --ep 5 --thread 1",
+                      gapSymbol = "-")
+```
+
+**NOTE**, the difference in the `sep` parameter value.
+
+The output shown as a simple matrix :
+
+```{r kable parts align}
+knitr::kable(aln)
+```
+
+
+
+```{r display parts algn with heatmap_msa, include=FALSE, eval = FALSE}
+heatmap_msa(rvdAlign = aln)
+# Does not work, the function requires too many mandatory parameters
+```
+
+
+

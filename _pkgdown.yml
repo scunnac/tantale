@@ -1,4 +1,4 @@
-url: ~
+url: https://scunnac.github.io/tantale
 template:
   bootstrap: 5
-
+  bootswatch: united

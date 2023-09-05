@@ -22,7 +22,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
     
 
-    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light"><div class="container">
+    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary"><div class="container">
     
     <a class="navbar-brand me-2" href="index.html">tantale</a>
 
@@ -41,8 +41,11 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="articles/distalr.html">R Notebook</a>
-    <a class="dropdown-item" href="articles/workflow.html">Working with tantale</a>
+    <a class="dropdown-item" href="articles/1_tale_mining.html">Mining TALE sequences in genomes with tantale</a>
+    <a class="dropdown-item" href="articles/2_tale_classification.html">Classifying TALE sequences from genomes with tantale</a>
+    <a class="dropdown-item" href="articles/3_distalr.html">A comparison between `runDistal` and `distalr` implementations</a>
+    <a class="dropdown-item" href="articles/4_multiple_alignments.html">TALEs domains sequences alignment with MAFFT</a>
+    <a class="dropdown-item" href="articles/5_tantale_objects.html">An overview of the various objects related to TALEs in tantale</a>
   </div>
 </li>
       </ul>
@@ -64,47 +67,43 @@
   </div>
 </nav><div class="container template-home">
 <div class="row">
-  <main id="main" class="col-md-9"><p align="right">
-</p>
+  <main id="main" class="col-md-9"><p align="right"></p>
 <p><img src="./reference/figures/tantale_logo_small.gif"></p>
 <div class="section level2">
 <h2 id="an-integrated-collection-of-functions-for-tale-minning-and-analysis-with-the-r-language">An integrated collection of functions for <a href="https://en.wikipedia.org/wiki/Transcription_activator-like_effector" class="external-link">TALE</a> minning and analysis with the R language<a class="anchor" aria-label="anchor" href="#an-integrated-collection-of-functions-for-tale-minning-and-analysis-with-the-r-language"></a>
 </h2>
+<p>Because there are so many concurrent and complementary tools running on different platforms (java, perl), analyzing TALEs in (mostly Xanthomonas) genomes can turn into a nightmarish experience. Furthermore, making sense of the output is difficult because there is no easy way to graphically represent the various objects of the analysis.</p>
+<p>With <code>tantale</code>, we compiled and extended our previous code wrapping TALE analysis tools into an integrated R interface that further provides an extensive list of utilities for easy plotting. This enables a moderately proficient R programmer to perform entire analysis pipelines directly in R and access result objects for custom manipulations.</p>
+<p>Here is a snapshot of the topics that are or will (hopefully) be covered in the future:</p>
 <ul>
-<li>A TALE-oriented OOP framework:
-<ul>
-<li>A TALE class and associated methods (to be done)</li>
-</ul>
+<li>A TALE-oriented OOP framework:<ul><li>A TALE class and associated methods (to be done)</li></ul>
 </li>
-<li>TALE mining in bacterial sequences:
-<ul>
-<li>Wrapper around annoTALE and correcTALE</li>
-<li>tellTale, an R function similar to annoTALE</li>
+<li>TALE mining in bacterial sequences:<ul>
+<li>Wrapper around <a href="https://doi.org/10.1038/srep21077" class="external-link">AnnoTALE</a> and <a href="https://doi.org/10.1186/s12864-023-09228-1" class="external-link">correcTALE</a>
+</li>
+<li>tellTale, an R function similar to AnnoTALE</li>
 <li>Analysis tools for RVD inventory, repeat lenght</li>
 </ul>
 </li>
-<li>TALEs classification, phylogeny:
-<ul>
-<li>Wrappers around distal, functal, annoTALE</li>
+<li>TALEs classification, phylogeny:<ul>
+<li>Wrappers around <a href="https://doi.org/10.3389/fpls.2015.00545" class="external-link">DisTAL</a>, <a href="https://doi.org/10.1038/srep21077" class="external-link">FuncTAL</a>, AnnoTALE</li>
 <li>TALE groups inference</li>
 <li>Easily build Multiple alignments and generate nice plots</li>
 </ul>
 </li>
-<li>TALE targets mining:
-<ul>
-<li>Wrappers around target predictors</li>
+<li>TALE targets predictions:<ul>
+<li>Wrappers around target predictors (<a href="https://doi.org/10.1371/journal.pone.0068464" class="external-link">Talvez</a> and <a href="https://doi.org/10.1371/journal.pcbi.1007206" class="external-link">PrediTALE</a>)</li>
 <li>General parser for results aggregation</li>
-<li>Connector with daTALbase (to be done)</li>
+<li>Connector with <a href="https://doi.org/10.1094/MPMI-06-17-0153-FI" class="external-link">daTALbase</a> (to be done)</li>
 </ul>
 </li>
 </ul>
-<p align="center">
-<img src="./reference/figures/pipeline.svg"></p>
 <p><strong>NOTE</strong> :</p>
 <ul>
-<li>Install via the <code>remotes</code> package</li>
+<li><p>For further details, please, take a look at the package <a href="https://scunnac.github.io/tantale">page</a></p></li>
+<li><p>Install via the <code>remotes</code> package</p></li>
 </ul>
-<pre><code><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"vibaotram/tantale"</span>,</span>
+<pre><code><span><span class="fu">remotes</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"cunnac/tantale"</span>,</span>
 <span>                          type <span class="op">=</span> <span class="st">"source"</span>,</span>
 <span>                          dependencies <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                          upgrade <span class="op">=</span> <span class="st">"never"</span></span>
@@ -115,9 +114,10 @@
 <li>If you feel like contributing, that is great, please send me an email: <a href="mailto:sebastien.cunnac@ird.fr" class="email">sebastien.cunnac@ird.fr</a>
 </li>
 <li>tantale has been written with only Linux systems in mind and will very likely not work on other OS (eg Windows)</li>
-<li>Some of tantale wrappers use code written in other languages. For them to work, you must ideally have Java and Perl on the PATH in your system.</li>
-<li>Conda and Mamba muste be installed as well.</li>
-<li>Perl scripts (Talvez &amp; DisTAL) used in tantale require a number of perl libraries. Upon experimenting a bit we realized it was more convenient to include those libraries in tantale. The consequence is that those files cause tantale to occupy a quite some disk space…</li>
+<li>Some of tantale wrappers use code written in other languages. For them to work, you must ideally have <strong>Java and Perl on the PATH</strong> in your system.</li>
+<li>
+<strong>Conda and Mamba</strong> must be installed as well.</li>
+<li>Perl scripts (DisTAL et al.) used in tantale require a number of perl libraries. Upon experimenting a bit we realized it was more convenient to include those libraries in tantale. The consequence is that those files cause tantale to occupy a quite some disk space…</li>
 </ul>
 </div>
 

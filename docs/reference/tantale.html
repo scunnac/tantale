@@ -6,7 +6,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
     
 
-    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light"><div class="container">
+    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary"><div class="container">
     
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
@@ -24,8 +24,11 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/distalr.html">R Notebook</a>
-    <a class="dropdown-item" href="../articles/workflow.html">Working with tantale</a>
+    <a class="dropdown-item" href="../articles/1_tale_mining.html">Mining TALE sequences in genomes with tantale</a>
+    <a class="dropdown-item" href="../articles/2_tale_classification.html">Classifying TALE sequences from genomes with tantale</a>
+    <a class="dropdown-item" href="../articles/3_distalr.html">A comparison between `runDistal` and `distalr` implementations</a>
+    <a class="dropdown-item" href="../articles/4_multiple_alignments.html">TALEs domains sequences alignment with MAFFT</a>
+    <a class="dropdown-item" href="../articles/5_tantale_objects.html">An overview of the various objects related to TALEs in tantale</a>
   </div>
 </li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
@@ -61,13 +64,47 @@
     <div class="section level2">
     <h2 id="note">Note<a class="anchor" aria-label="anchor" href="#note"></a></h2>
     <p>CAUTIONARY NOTES:</p>
-<ul><li><p>tantale has been written with only Linux systems in mind and will very
-likely <strong>not work on other OS</strong> (eg Windows)</p></li>
+<p></p><ul><li><p>tantale has been written with only Linux systems in mind and will very
+    likely <strong>not work on other OS</strong> (eg Windows)</p></li>
 <li><p>Some of tantale wrappers use code written in other languages :
-<strong>Java and Perl must be on the PATH</strong> in your system.</p></li>
+    <strong>Java and Perl must be on the PATH</strong> in your system.</p></li>
 <li><p>Furthermore, Conda and Mamba must be installed.</p></li>
 <li><p>For direction on how to use Conda with R, consult the
-<a href="https://rstudio.github.io/reticulate/reference/install_miniconda.html" class="external-link">install_miniconda()</a> help page.</p></li>
+    <a href="https://rstudio.github.io/reticulate/reference/install_miniconda.html" class="external-link">install_miniconda()</a> help page.</p></li>
+</ul></div>
+    <div class="section level2">
+    <h2 id="-a-tale-oriented-oop-framework">- A TALE-oriented OOP framework<a class="anchor" aria-label="anchor" href="#-a-tale-oriented-oop-framework"></a></h2>
+    
+
+
+<p></p><ul><li><p>A TALE class and associated methods</p></li>
+</ul></div>
+    <div class="section level2">
+    <h2 id="-tale-mining-in-bacterial-sequences">- TALE mining in bacterial sequences<a class="anchor" aria-label="anchor" href="#-tale-mining-in-bacterial-sequences"></a></h2>
+    
+
+
+<p></p><ul><li><p>Wrapper around annoTALE and correcTALE</p></li>
+<li><p>tellTale, an R function similar to annoTALE</p></li>
+<li><p>Analysis tools for RVD inventory, repeat lenght</p></li>
+</ul></div>
+    <div class="section level2">
+    <h2 id="-tales-classification-phylogeny">- TALEs classification, phylogeny<a class="anchor" aria-label="anchor" href="#-tales-classification-phylogeny"></a></h2>
+    
+
+
+<p></p><ul><li><p>Wrappers around distal, functal, annoTALE</p></li>
+<li><p>TALE groups inference</p></li>
+<li><p>Easily build Multiple alignments and generate nice plots</p></li>
+</ul></div>
+    <div class="section level2">
+    <h2 id="-tale-targets-mining">- TALE targets mining<a class="anchor" aria-label="anchor" href="#-tale-targets-mining"></a></h2>
+    
+
+
+<p></p><ul><li><p>Wrappers around target predictors</p></li>
+<li><p>General parser for results aggregation</p></li>
+<li><p>Connector with daTALbase (to be done)</p></li>
 </ul></div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>

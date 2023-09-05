@@ -11,7 +11,7 @@ Authors@R: c(
 Maintainer: Sebastien Cunnac <sebastien.cunnac@ird.fr>
 Description: An integrated collection of functions for TALE minning and analysis in R.
 License: MIT
-URL: https://github.com/scunnac/tantale
+URL: https://scunnac.github.io/tantale, https://github.com/scunnac/tantale
 BugReports: https://github.com/scunnac/tantale/issues
 Depends: 
     R (>= 3.6.3)

@@ -6,7 +6,7 @@
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
     
 
-    <nav class="navbar fixed-top navbar-light navbar-expand-lg bg-light"><div class="container">
+    <nav class="navbar fixed-top navbar-dark navbar-expand-lg bg-primary"><div class="container">
     
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
@@ -24,8 +24,11 @@
 <li class="nav-item dropdown">
   <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown" role="button" aria-expanded="false" aria-haspopup="true" id="dropdown-articles">Articles</a>
   <div class="dropdown-menu" aria-labelledby="dropdown-articles">
-    <a class="dropdown-item" href="../articles/distalr.html">R Notebook</a>
-    <a class="dropdown-item" href="../articles/workflow.html">Working with tantale</a>
+    <a class="dropdown-item" href="../articles/1_tale_mining.html">Mining TALE sequences in genomes with tantale</a>
+    <a class="dropdown-item" href="../articles/2_tale_classification.html">Classifying TALE sequences from genomes with tantale</a>
+    <a class="dropdown-item" href="../articles/3_distalr.html">A comparison between `runDistal` and `distalr` implementations</a>
+    <a class="dropdown-item" href="../articles/4_multiple_alignments.html">TALEs domains sequences alignment with MAFFT</a>
+    <a class="dropdown-item" href="../articles/5_tantale_objects.html">An overview of the various objects related to TALEs in tantale</a>
   </div>
 </li>
       </ul><form class="form-inline my-2 my-lg-0" role="search">
@@ -45,7 +48,7 @@
 <div class="row">
   <main id="main" class="col-md-9"><div class="page-header">
       <img src="" class="logo" alt=""><h1>Plotting of multiple alinged Tal sequences</h1>
-      <small class="dont-index">Source: <a href="https://github.com/scunnac/tantale/blob/HEAD/R/tale_msa_utilities.R" class="external-link"><code>R/tale_msa_utilities.R</code></a></small>
+      <small class="dont-index">Source: <a href="https://github.com/scunnac/tantale/blob/HEAD/R/msa.R" class="external-link"><code>R/msa.R</code></a></small>
       <div class="d-none name"><code>heatmap_msa.Rd</code></div>
     </div>
 
@@ -94,7 +97,7 @@ of the <code><a href="buildDisTalGroups.html">buildDisTalGroups</a></code> funct
 
 
 <dt>repeatSim</dt>
-<dd><p>A long, three columns data frame with pairwise similarity
+<dd><p>A long, three columns data frame with pairwise similarity 
 scores between repeats as available in the <code>repeat.similarity slot</code>
 of the object returned by the <code><a href="runDistal.html">runDistal</a></code> function.
 <strong>(CORRECT???!!!)</strong></p></dd>
@@ -111,7 +114,7 @@ to select the reference in the alignment.</p></dd>
 
 
 <dt>consensusSeq</dt>
-<dd><p>(logical) whether to display the consensus sequence when
+<dd><p>(logical) whether to display the consensus sequence when 
 the plot type is "repeat.clusters.with.rvd".</p></dd>
 
 
@@ -124,11 +127,11 @@ In the other case, more colors should be supplied.</p></dd>
 <dt>plot.type</dt>
 <dd><p>Either <code>"repeat.similarity"</code>, <code>"repeat.clusters"</code> ,
 <code>"repeat.clusters.with.rvd"</code>. Defines the type of plot that will be produced
-by the function. See below for details.</p></dd>
+ by the function. See below for details.</p></dd>
 
 
 <dt>save.path</dt>
-<dd><p>file path to save the plot. If save.path is NULL, the heatmap
+<dd><p>file path to save the plot. If save.path is NULL, the heatmap 
 will be printed. If save.path is specified, the image file will be created with
 the format based on file extension.</p></dd>
 
@@ -148,20 +151,20 @@ the format based on file extension.</p></dd>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>"repeat.similarity" plot shows RVD alignment of Tals, hierarchical relationship
-between them in the dendrogram, similarity between repeats alignment by the color
-of cells, and (if rvdSim is provided) similarity between RVDs alignment in the
-color of cellnotes.#'</p>
+  between them in the dendrogram, similarity between repeats alignment by the color
+   of cells, and (if rvdSim is provided) similarity between RVDs alignment in the 
+   color of cellnotes.#'</p>   
 <p>"repeat.clusters" plot shows repeat alignment of Tals, hierarchical relationship
-between them in the dendrogram, and clustering groups of repeats by the color of cells.</p>
+  between them in the dendrogram, and clustering groups of repeats by the color of cells.</p>  
 <p>"repeat.clusters.with.rvd" plots repeat alignment of Tals with rvd labeled.
-If plotting from the outputs of <code>buildDistalGroups</code>,
-you supply repeatClustID/Similarity alignment to <code>forMatrix</code>, with
-<code>talsim</code>, <code>forCellNote</code> - repeat/rvd alignment, and refgrep optionally.</p>
+ If plotting from the outputs of <code>buildDistalGroups</code>,
+ you supply repeatClustID/Similarity alignment to <code>forMatrix</code>, with
+ <code>talsim</code>, <code>forCellNote</code> - repeat/rvd alignment, and refgrep optionally.</p> 
 <p>But if you don't have these alignments, you can provide <strong>repeat alignment</strong>
-to <code>forMatrix</code> with <code>repeatSim</code>, the repeat similarity data frame,
-the function will convert it into repeatClustID/Similarity alignment depending
-on the plot type. In case of <em>repeat.clusters</em>, you may want to adjust
-the param <code>repeat.clust.h.cut</code> to decrease/increase the number of repeat clusters.</p>
+ to <code>forMatrix</code> with <code>repeatSim</code>, the repeat similarity data frame,
+ the function will convert it into repeatClustID/Similarity alignment depending
+ on the plot type. In case of <em>repeat.clusters</em>, you may want to adjust
+ the param <code>repeat.clust.h.cut</code> to decrease/increase the number of repeat clusters.</p>
     </div>
 
   </main><aside class="col-md-3"><nav id="toc"><h2>On this page</h2>
