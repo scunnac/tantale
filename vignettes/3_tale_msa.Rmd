@@ -28,11 +28,8 @@ pkgdown::build_site(pkg = "/home/cunnac/Lab-Related/MyScripts/tantale",
                     )
 
 pkgdown::build_article(pkg = "/home/cunnac/Lab-Related/MyScripts/tantale",
-<<<<<<< HEAD
                     name = "3_tale_msa",
-=======
                     name = "2_tale_classification",
->>>>>>> e0025f25559373d39d6a24149dd6f7c48ddf17f6
                     quiet = FALSE
                     )
 
@@ -118,11 +115,7 @@ repeatMsaByGroup_withSim <- lapply(sort(unique(taleGroups$group)), function(G) {
   try({buildRepeatMsa(inputSeqs = repeatVectors[taleGroups$name[taleGroups$group == G]],
                       sep = " ",
                       distalRepeatSims = repeatSim,
-<<<<<<< HEAD
-                      mafftOpts = "--globalpair --weighti 1 --quiet --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1")
-=======
-                      mafftOpts = "--globalpair --weighti 1 --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1")
->>>>>>> e0025f25559373d39d6a24149dd6f7c48ddf17f6
+                      mafftOpts = "--globalpair --weighti 1 --maxiterate 1000 --quiet --reorder --op 0 --ep 5 --thread 1")
   })
 }
 )
@@ -165,11 +158,8 @@ tantale::heatmap_msa(talsim = distalr_deci_output$tal.similarity,
 
 For this plot, we also use the RVD MSA converted from repeat MSA.
 
-<<<<<<< HEAD
+
 ```{r repeat.clusters.with.rvd_plot, fig.width = 12, fig.height = 4, eval= TRUE}
-=======
-```{r repeat.clusters.with.rvd_plot, fig.width = 12, fig.height = 4, eval= FALSE}
->>>>>>> e0025f25559373d39d6a24149dd6f7c48ddf17f6
 tantale::heatmap_msa(talsim = distalr_deci_output$tal.similarity,
                      repeatAlign = repeatMSA,
                      repeatSim = distalr_deci_output$repeat.similarity,
