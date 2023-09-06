@@ -21,7 +21,7 @@ Imports:
     biovizBase, IRanges, Biostrings, GenomicRanges, GenomicFeatures, BSgenome, plyranges,
     Rsamtools, systemPipeR, msa, DECIPHER,
     ape, ggtree,
-    gplots, ggmsa,
+    gplots,
     reticulate, optparse, logger
 Suggests:
     knitr, sessioninfo,
