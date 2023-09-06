@@ -41,7 +41,7 @@ Here is a snapshot of the topics that are or will (hopefully) be covered in the 
 - Install via the `remotes` package
 
 ```
-remotes::install_github("cunnac/tantale",
+remotes::install_github("scunnac/tantale",
                           type = "source",
                           dependencies = TRUE,
                           upgrade = "never"
