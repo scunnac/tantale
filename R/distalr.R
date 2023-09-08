@@ -4,21 +4,47 @@
   if (grepl("TALE_DNA_parts.fasta", basename(fasta))) taleStrings <- Biostrings::readDNAStringSet(fasta)
   if (length(taleStrings) == 0L) {
     logger::log_warn("No part sequence found in: {fasta}. Returning an empty tibble.")
-    tibble::tibble(arrayIDs = character(), domainType = character(),
-                   "positionInArray" = character(), "positionInCrd" = character(),
-                   "string" = character(),
-                   "sourceDirectory" = character())
-  } else {
-    tibble::tibble(arrayID = gsub("(.*): .*", "\\1", names(taleStrings)),
-                   domainType = gsub(".*: (.*?)[ ]?[0-9]{0,}$", "\\1", names(taleStrings)),
-                   positionInArray = 1:length(taleStrings),
-                   positionInCrd = gsub(".*: repeat[ ]([0-9]{0,})$", "\\1", names(taleStrings)) %>%
-                     as.integer() %>% suppressWarnings(),
-                   string = as.character(taleStrings) %>% as.vector(),
-                   sourceDirectory = dirname(fasta)
-    )
+    tbl <- tibble::tibble(arrayIDs = character(),
+                   domainType = character(),
+                   positionInArray = character(),
+                   positionInCrd = character(),
+                   string = character(),
+                   sourceDirectory = character())
+    return(tbl)
+  } 
+  tbl <- tibble::tibble(arrayID = gsub("(.*): .*", "\\1", names(taleStrings)),
+                        domainType = gsub(".*: (.*?)[ ]?[0-9]{0,}$", "\\1", names(taleStrings)),
+                        positionInCrd = gsub(".*: repeat[ ]([0-9]{0,})$", "\\1", names(taleStrings)) %>%
+                          as.integer() %>%
+                          suppressWarnings(),
+                        string = as.character(taleStrings) %>% as.vector(),
+                        sourceDirectory = dirname(fasta)
+  )
+  missingTerm <- setdiff(c("N-terminus", "C-terminus"), unique(tbl$domainType))
+  if (length(missingTerm) != 0L) {
+    logger::log_warn("Array {unique(tbl$arrayID)} is missing a {missingTerm} domain in {fasta}")
+    warning()
+    missingTerm <- tibble::tibble(arrayID = unique(tbl$arrayID),
+                                  domainType = missingTerm,
+                                  positionInCrd = NA,
+                                  string = NA,
+                                  sourceDirectory = dirname(fasta))
+    tbl <- dplyr::bind_rows(tbl, missingTerm)
+    logger::skip_formatter(as.character(knitr::kable(missingTerm))) %>%
+      logger::log_debug()
   }
+  tbl %<>% 
+    dplyr::rowwise() %>%
+    dplyr::mutate(positionInArray = switch(domainType,
+                                                 `N-terminus` = 1,
+                                                 `repeat` = positionInCrd + 1,
+                                                 `C-terminus` = nrow(tbl)
+                                                 ))
+  return(tbl)
 }
+
+
+
 
 .getRvdsFromAnAnnotaleFile <- function(fasta) {
   if (!grepl("TALE_RVDs.fasta", basename(fasta))) {
@@ -62,15 +88,13 @@ getTaleParts <- function(tellTaleOutDir) {
   # !!!! arrayID are assumed to be unique !!!!
   protPartsFiles <- list.files(tellTaleOutDir, "TALE_Protein_parts.fasta", recursive = T, full.names = T)
   dnaPartsFiles <- list.files(tellTaleOutDir, "TALE_DNA_parts.fasta", recursive = T, full.names = T)
-  if (dirname(protPartsFiles) %>% dirname() %>% unique() %>% length() != 1L) {
+  if (tellTaleOutDir %>% dirname() %>% unique() %>% length() != 1L) {
     log_error("The provided path most likely does not correspond to a SINGLE tellTale output directory.")
   }
-  
-  
   # Fetch info from annotale/telltale files with .getTalePartsFromAFile
   taleProtString <- lapply(protPartsFiles, .getTalePartsFromAFile) %>% dplyr::bind_rows()
   taleDnaString <- lapply(dnaPartsFiles, .getTalePartsFromAFile) %>% dplyr::bind_rows()
-  stopifnot(nrow(taleProtString) == nrow(taleDnaString)) ### TESTME
+  stopifnot(nrow(taleProtString) == nrow(taleDnaString))
   # Join info in a table with one domain per row
   taleParts <- dplyr::full_join(taleDnaString %>% dplyr::rename(dnaSeq = string),
                                 taleProtString %>% dplyr::rename(aaSeq = string),
@@ -79,31 +103,34 @@ getTaleParts <- function(tellTaleOutDir) {
     dplyr::mutate(aaSeq = gsub("[*]", "", aaSeq))
 
   # Get RVDs
+  # NOTE: could be easier to get the RVDs directly from AnnoTALE output with
+  # .getRvdsFromAnAnnotaleFile() but I currently feel that it is good to
+  # be aware of disagreements between AnnoTALE diagnostic on terminal domains presence in AA seqs
+  # and nhmmer diagnostic on terminal domains CDS presence on DNA.
   rvds <- toListOfSplitedStr(list.files(tellTaleOutDir, "rvdSequences.fas", recursive = T, full.names = T)) %>%
     lapply(function(x) tibble::tibble(rvd = x, positionInArray = 1:length(x) )) %>%
     dplyr::bind_rows(.id = "arrayID")  
   anchorCodes <- c("NTERM", "CTERM", "XXXXX")
   
   
-  # Check that postions are not going to be shifted
-  # NOTE that if AnnoTALE did not report on a N-Term seq, because we are using the rvd seq file from telltale,
-  # this may shift the position of everything...
-  # if AnnoTALE did not report on a C-Term seq, the corresponding domain
-  # in the rvd seq file from telltale will be disregarded (left_join)
+  # Some checks on the consistency between parts and rvd sequences
+  # if nhmmer did not report on a C-Term CDS, the corresponding domain
+  # "CTERM" tag will not be written in the rvd slot of the table.
   arraysConsistency <- dplyr::full_join(taleParts %>% dplyr::count(arrayID, name = "AnnoTALELength"),
                                         rvds %>% dplyr::count(arrayID, name = "rvdFileLength"),
-                                        by = "arrayID") %>%
+                                        by = dplyr::join_by(arrayID)) %>%
     dplyr::mutate(sameLength = AnnoTALELength == rvdFileLength)
   
   if(any(is.na(arraysConsistency$sameLength))) {
     logger::log_error("There are mismatches in array IDs between rvd seq file and AnnoTALE parts files:")
-    cat(knitr::kable(arraysConsistency %>% dplyr::filter(is.na(arraysConsistency$sameLength)), sep = "\n"))
+    logger::skip_formatter(as.character(knitr::kable(arraysConsistency %>% dplyr::filter(is.na(sameLength))))) %>%
+      logger::log_error()
     stop()
   } else if (!all(arraysConsistency$sameLength)) {
-    logger::log_error("Array lengths are inconsistent between rvd",
+    logger::log_error("Array lengths are inconsistent between rvd ",
                       "seq file and AnnoTALE parts files:")
-    cat(knitr::kable(arraysConsistency %>% dplyr::filter(!arraysConsistency$sameLength), "simple"),
-        sep = "\n")
+    logger::skip_formatter(as.character(knitr::kable(arraysConsistency %>% dplyr::filter(!sameLength)))) %>%
+      logger::log_error()
     stop()
   }
   
@@ -121,8 +148,15 @@ getTaleParts <- function(tellTaleOutDir) {
     by = "arrayID", relationship = "many-to-one"
   )
   # Check talparts
-
-  
+  partsWithMissingSeq <- taleParts %>% dplyr::filter(is.na(aaSeq) | is.na(dnaSeq))
+  if (partsWithMissingSeq %>% nrow() != 0L) {
+    logger::log_warn("Be aware that the output taleParts tibble has records with missing sequences:")
+    partsWithMissingSeq %>%
+      dplyr::select(arrayID, domainType, positionInArray, sourceDirectory) %>%
+      knitr::kable() %>% as.character() %>%
+      logger::skip_formatter() %>% logger::log_warn()
+    warning()
+  }
   return(taleParts)
 }
 
@@ -288,6 +322,9 @@ diag(identSubMat) <- 1
 #'   reticulate package functions.
 #' @return A list with DisTal output components: 
 #' \itemize{
+#'   \item taleParts: the original input tibble with a 'domCode' column corresponding to the unique distal
+#'    'code' or label attached to a unique domain sequence. Thus all parts with this sequence will have the same
+#'    'domCode'.
 #'   \item repeats.code: a data frame of the unique repeat AA sequences and their numeric codes
 #'   \item coded.repeats.str: a list of repeat-coded TALE strings
 #'   \item repeat.similarity:  a long, three columns data frame with pairwise similarity scores between repeats
@@ -304,6 +341,9 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
   ## Make sure we are dealing only with parts that have defined protein sequences.
   if (any(is.na(taleParts$aaSeq) | taleParts$aaSeq == "")) {
     logger::log_error("It seems that some of the provided TALE parts miss an amino acid sequence. Cannot proceed!")
+    taleParts %>% dplyr::filter(is.na(aaSeq)) %>% 
+      knitr::kable() %>% as.character() %>%
+      logger::skip_formatter() %>% logger::log_error()
     stop()
   }
   if (any(is.na(taleParts$dnaSeq) | taleParts$dnaSeq == "")) {
@@ -499,7 +539,7 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
   
   
   #### return a list of results emulating the return value of tantale::runDistal ####
-  outputlist <- list(taleParts = taleAaParts,
+  outputlist <- list(taleParts = taleParts,
                      "repeats.code" = taleParts %>%
                        dplyr::group_by(domCode, aaSeq, rvd) %>%
                        dplyr::count() %>%
@@ -513,7 +553,7 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
                      "repeats.cluster" = clusterRep(
                        repeatSimMat = reshape2::acast(dissimLong, formula = subj ~ pattern, value.var = "Sim"),
                        repeats.cluster.h.cut = repeats.cluster.h.cut
-                       )
+                     )
   )
   logger::log_info("Finished! Returning a list with the results.")
   return(outputlist)

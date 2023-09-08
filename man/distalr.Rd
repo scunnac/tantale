@@ -27,6 +27,9 @@ reticulate package functions.}
 \value{
 A list with DisTal output components: 
 \itemize{
+  \item taleParts: the original input tibble with a 'domCode' column corresponding to the unique distal
+   'code' or label attached to a unique domain sequence. Thus all parts with this sequence will have the same
+   'domCode'.
   \item repeats.code: a data frame of the unique repeat AA sequences and their numeric codes
   \item coded.repeats.str: a list of repeat-coded TALE strings
   \item repeat.similarity:  a long, three columns data frame with pairwise similarity scores between repeats

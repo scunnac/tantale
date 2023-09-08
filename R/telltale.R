@@ -19,7 +19,7 @@
 # extendedLength = 300
 # ... = NULL
 
-# subjectFile = subjectFile
+# subjectFile = "/home/cunnac/TEMP/220928-8_talCor.fasta"
 # outputDir = file.path("/home/cunnac/TEMP", gsub("(\\.fasta)|(\\.fa)|(\\.fna)|(\\.fsa)", "", basename(subjectFile)))
 # hmmFilesDir = system.file("extdata", "hmmProfile", package = "tantale", mustWork = T)
 # hmmerpath = system.file("tools", "hmmer-3.3", "bin", package = "tantale", mustWork = T)
@@ -32,8 +32,6 @@
 # minDomainHitsPerSubjSeq = 4
 # mergeHits = TRUE
 # minGapWidth = 35
-# taleArrayStartAnchorCode = "NTERM"
-# taleArrayEndAnchorCode = "CTERM"
 # appendExtremityCodes = TRUE
 # rvdSep = "-"
 # extendedLength = 300
