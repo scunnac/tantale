@@ -107,7 +107,11 @@ getTaleParts <- function(tellTaleOutDir) {
   # .getRvdsFromAnAnnotaleFile() but I currently feel that it is good to
   # be aware of disagreements between AnnoTALE diagnostic on terminal domains presence in AA seqs
   # and nhmmer diagnostic on terminal domains CDS presence on DNA.
-  rvds <- toListOfSplitedStr(list.files(tellTaleOutDir, "rvdSequences.fas", recursive = T, full.names = T)) %>%
+  rvds <- toListOfSplitedStr(list.files(path = tellTaleOutDir,
+                                        pattern = "rvdSequences.fas",
+                                        recursive = F,
+                                        full.names = T)
+                             ) %>%
     lapply(function(x) tibble::tibble(rvd = x, positionInArray = 1:length(x) )) %>%
     dplyr::bind_rows(.id = "arrayID")  
   anchorCodes <- c("NTERM", "CTERM", "XXXXX")
@@ -218,7 +222,11 @@ diag(identSubMat) <- 1
   alnDbPath <- file.path(outdir, 'resultDB_aln')
   alnTabFile <- file.path(outdir, 'alnRes.tab')
   
-  # df <- expand.grid(names(partAaStringSet), names(partAaStringSet), stringsAsFactors = FALSE) %>% tibble::as_tibble()
+  df <- expand.grid(names(partAaStringSet),
+                    names(partAaStringSet),
+                    stringsAsFactors = FALSE
+                    ) %>%
+    tibble::as_tibble()
   colnames(df) <- c("query", "target")
   if(anyDuplicated(df) != 0) stop("The provided sequences must have unique names.")
   
@@ -304,9 +312,98 @@ diag(identSubMat) <- 1
   }
 }
 
+#' Report on potential 'pseudo TALEs' in a taleParts object
+#' @description
+#' NOT TESTED!!!!
+#' This displays a compact but information rich view of the TALEs stored in a
+#' taleParts object.
+#' 
+#' @param taleParts a table of TALE parts as returned by the
+#' \code{\link[tantale:getTaleParts]{getTaleParts}} function or
+#' \code{\link[tantale:distalr]{distalr}}
+#' @param sanitize If \code{FALSE}, will return all the arrays with at least one 
+#' part with a missing sequence. If \code{TRUE}, will return all the arrays that have
+#' no part with a missing sequence.
+#' 
+#'
+#' @return a taleParts object
+#' @export
+diagnozeTaleParts <- function(taleParts, sanitize = FALSE) {
+  # Check talparts
+  partsWithMissingAaSeq <- taleParts %>% dplyr::filter(is.na(aaSeq)) %>%
+    dplyr::select(arrayID, sourceDirectory) %>%
+    distinct()
+  partsWithMissingDnaSeq <- taleParts %>% dplyr::filter(is.na(dnaSeq)) %>%
+    dplyr::select(arrayID, sourceDirectory) %>%
+    distinct()
+  partsWithMissingRvdSeq <- taleParts %>% dplyr::filter(is.na(rvd)) %>%
+    dplyr::select(arrayID, sourceDirectory) %>%
+    distinct()
+  problems <- dplyr::bind_rows(partsWithMissingRvdSeq,
+                               partsWithMissingDnaSeq,
+                               partsWithMissingAaSeq
+                               ) %>%
+    distinct()
+  pseudoTales <- dplyr::left_join(problems, taleParts, relationship = "one-to-many") %>%
+    dplyr::arrange(sourceDirectory, arrayID, positionInArray)
+  if (nrow(problems) != 0L) {
+    logger::log_warn("Be aware that the output taleParts tibble has records with missing sequences")
+    warning()
+  }
+  if (!sanitize) {
+    pseudoTales %>% return()
+  } else {
+    logger::log_info("Returning TALE arrays with no empty sequence parts")
+    dplyr::setdiff(taleParts, pseudoTales) %>% return()
+  }
+}
 
 
 
+
+#' Visualize TALE content in a taleParts object
+#' @description
+#' NOT TESTED!!!!
+#' This displays a compact but information rich view of the TALEs stored in a
+#' taleParts object.
+#' 
+#' @param taleParts a table of TALE parts as returned by the
+#' \code{\link[tantale:getTaleParts]{getTaleParts}} function or
+#' \code{\link[tantale:distalr]{distalr}}
+#'
+#' @return The ggplot object
+#' @export
+plotTaleComposition <- function(taleParts) {
+  partsForPlots <- taleParts %>%
+    mutate(label = if_else(domainType == "repeat", rvd, ""),
+           aaSeqLength = factor(nchar(aaSeq))
+    )
+  p  <- partsForPlots %>% ggplot(mapping = aes(fill = aaSeqLength,
+                                               color = domainType,
+                                               label = label,
+                                               y = arrayID,
+                                               x = positionInArray),
+                                 color = isNaAaSeq) +
+    scale_color_viridis_d(option = "rocket") +
+    scale_fill_discrete() +
+    scale_x_continuous(breaks = 1:50, minor_breaks = NULL) +
+    geom_point(shape = 21, size = 5, stroke = 0.9) +
+    ggnewscale::new_scale_color() +
+    ggnewscale::new_scale_fill() +
+    geom_text(size = 2.1, color = "white") + 
+    facet_grid(seqnames~ ., scales = "free_y", space = "free") +
+    labs(title = "Overview of TALE composition by genome") +
+    theme_light()
+  print(p)
+  return(p)
+}
+
+
+# taleParts <- readRDS("/home/cunnac/TEMP/talePartsForDistalr.rds")
+# repeats.cluster.h.cut = 10
+# ncores = 1
+# pairwiseAlnMethod = "DECIPHER"
+# condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda"
 
 #' Emulate DisTal in R
 #' @description
@@ -333,7 +430,6 @@ diag(identSubMat) <- 1
 #'   \item coded.repeats.str: a list of repeat-coded TALE strings
 #'   \item repeat.similarity:  a long, three columns data frame with pairwise similarity scores between repeats
 #'   \item tal.similarity: a three columns Tals similarity table with pairwise similarity scores between TALEs
-#'   \item tree: Newick format neighbor-joining tree of TALs constructed based on TALEs similarity
 #'   \item repeats.cluster: a data frame containing repeat code and repeat clusters.
 #' }
 #' @export
@@ -486,8 +582,8 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
   arlemRawRes <- system(arlemCmd, intern = TRUE)
   logger::log_debug(logger::skip_formatter(arlemRawRes))
   arlemSelfRes <- grep("Processed Seq[.]:", arlemRawRes, value = TRUE) 
-  arlemSelfScores <- gsub("Processed Seq[.]: ([0-9]+) Score: ([0-9]+),", "\\1|\\2",
-                          substring(arlemSelfRes, 1, 30)) %>%
+  arlemSelfScores <- gsub("Processed Seq[.]: ([0-9]{1,}) Score: ([0-9]{1,}),.*", "\\1|\\2",
+                          substring(arlemSelfRes, 1, 35)) %>%
     strsplit(split = "\\|") %>%
     lapply(function(s) t(as.matrix(as.numeric(s)))) %>%
     do.call(rbind, .) %>% tibble::as_tibble(.name_repair = "minimal")
@@ -528,7 +624,6 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
     dplyr::ungroup()
   
   #### Check features of the Arlem results table
-  
   arraysCount <- codesSeqSet %>% length()
   if (nrow(normArlemScoresTble) != arraysCount^2) {
     allCombs <- expand.grid(names(codesSeqSet), names(codesSeqSet), stringsAsFactors = FALSE) %>% tibble::as_tibble()
@@ -563,39 +658,6 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
   return(outputlist)
 }
 
-
-
-#' Visualize TALE content in a taleParts object
-#' @description
-#' This displays a compact but information rich view of the TALEs stored in a
-#' taleParts object.
-#' 
-#' @param taleParts a table of TALE parts as returned by the
-#' \code{\link[tantale:getTaleParts]{getTaleParts}} function or
-#' \code{\link[tantale:distalr]{distalr}}
-#'
-#' @return The ggplot object
-#' @export
-plotTaleComposition <- function(taleParts) {
-  p <- taleParts %>% ggplot(mapping = aes(fill = aaSeqLength,
-                                         color = domainType,
-                                         label = label,
-                                         y = arrayID,
-                                         x = positionInArray),
-                           color = isNaAaSeq) +
-    scale_color_viridis_d(option = "rocket") +
-    scale_fill_discrete() +
-    scale_x_continuous(breaks = 1:50, minor_breaks = NULL) +
-    geom_point(shape = 21, size = 5, stroke = 0.9) +
-    ggnewscale::new_scale_color() +
-    ggnewscale::new_scale_fill() +
-    geom_text(size = 2.1, color = "white") + 
-    facet_grid(seqnames~ ., scales = "free_y", space = "free") +
-    labs(title = "Overview of TALE composition by genome") +
-    theme_light()
-  print(p)
-  return(p)
-}
 
 
 

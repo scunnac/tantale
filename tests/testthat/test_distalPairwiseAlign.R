@@ -9,10 +9,10 @@ test_that(".distalPairwiseAlign output a tibble with the expected dims", {
   expect_true(identical(dim(pairAlignScores), c(9216L,5L)))
 })
 
-# test_that(".distalPairwiseAlign2 output a tibble with the expected dims", {
-#   pairAlignScores <- .distalPairwiseAlign2(partAaStringSet, condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")
-#   expect_true(identical(dim(pairAlignScores), c(9216L,19L)))
-# })
+test_that(".distalPairwiseAlign2 output a tibble with the expected dims", {
+  pairAlignScores <- .distalPairwiseAlign2(partAaStringSet, condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")
+  expect_true(identical(dim(pairAlignScores), c(9216L,19L)))
+})
 
 test_that(".distalPairwiseAlign3 output a tibble with the expected dims", {
   pairAlignScores <- .distalPairwiseAlign3(partAaStringSet)

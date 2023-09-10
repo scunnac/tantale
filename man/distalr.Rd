@@ -34,7 +34,6 @@ A list with DisTal output components:
   \item coded.repeats.str: a list of repeat-coded TALE strings
   \item repeat.similarity:  a long, three columns data frame with pairwise similarity scores between repeats
   \item tal.similarity: a three columns Tals similarity table with pairwise similarity scores between TALEs
-  \item tree: Newick format neighbor-joining tree of TALs constructed based on TALEs similarity
   \item repeats.cluster: a data frame containing repeat code and repeat clusters.
 }
 }
