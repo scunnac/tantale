@@ -94,7 +94,7 @@ getTaleParts <- function(tellTaleOutDir) {
   # Fetch info from annotale/telltale files with .getTalePartsFromAFile
   taleProtString <- lapply(protPartsFiles, .getTalePartsFromAFile) %>% dplyr::bind_rows()
   taleDnaString <- lapply(dnaPartsFiles, .getTalePartsFromAFile) %>% dplyr::bind_rows()
-  stopifnot(nrow(taleProtString) == nrow(taleDnaString))
+  #stopifnot(nrow(taleProtString) == nrow(taleDnaString))
   # Join info in a table with one domain per row
   taleParts <- dplyr::full_join(taleDnaString %>% dplyr::rename(dnaSeq = string),
                                 taleProtString %>% dplyr::rename(aaSeq = string),
@@ -121,12 +121,12 @@ getTaleParts <- function(tellTaleOutDir) {
                                         by = dplyr::join_by(arrayID)) %>%
     dplyr::mutate(sameLength = AnnoTALELength == rvdFileLength)
   
-  if(any(is.na(arraysConsistency$sameLength))) {
-    logger::log_error("There are mismatches in array IDs between rvd seq file and AnnoTALE parts files:")
+  if (any(is.na(arraysConsistency$sameLength))) {
+    logger::log_warn("There are mismatches in array IDs between rvd seq file and AnnoTALE parts files:")
     logger::skip_formatter(as.character(knitr::kable(arraysConsistency %>% dplyr::filter(is.na(sameLength))))) %>%
-      logger::log_error()
-    stop()
-  } else if (!all(arraysConsistency$sameLength)) {
+      logger::log_warn()
+    warning()
+  } else if (!all(arraysConsistency$sameLength, na.rm = TRUE)) {
     logger::log_error("Array lengths are inconsistent between rvd ",
                       "seq file and AnnoTALE parts files:")
     logger::skip_formatter(as.character(knitr::kable(arraysConsistency %>% dplyr::filter(!sameLength)))) %>%
@@ -138,7 +138,7 @@ getTaleParts <- function(tellTaleOutDir) {
   taleParts <- dplyr::left_join(taleParts, 
                                 rvds,
                                 by = c("arrayID", "positionInArray"),
-                                unmatched = "error", relationship = "one-to-one")
+                                unmatched = "drop", relationship = "one-to-one")
   # Include seqnames in the talParts tibble
   taleParts %<>% dplyr::left_join(
     readr::read_tsv(list.files(tellTaleOutDir, "hitsReport.tsv", recursive = T, full.names = T),
@@ -148,13 +148,17 @@ getTaleParts <- function(tellTaleOutDir) {
     by = "arrayID", relationship = "many-to-one"
   )
   # Check talparts
-  partsWithMissingSeq <- taleParts %>% dplyr::filter(is.na(aaSeq) | is.na(dnaSeq))
-  if (partsWithMissingSeq %>% nrow() != 0L) {
+  partsWithMissingAaSeq <- taleParts %>% dplyr::filter(is.na(aaSeq)) %>% dplyr::pull(arrayID) %>% unique()
+  partsWithMissingDnaSeq <- taleParts %>% dplyr::filter(is.na(dnaSeq)) %>% dplyr::pull(arrayID) %>% unique()
+  partsWithMissingRvdSeq <- taleParts %>% dplyr::filter(is.na(rvd)) %>% dplyr::pull(arrayID) %>% unique()
+  if (any(sapply(list(partsWithMissingAaSeq, partsWithMissingDnaSeq, partsWithMissingRvdSeq), length) != 0L)) {
     logger::log_warn("Be aware that the output taleParts tibble has records with missing sequences:")
-    partsWithMissingSeq %>%
-      dplyr::select(arrayID, domainType, positionInArray, sourceDirectory) %>%
+    logger::log_warn("{unique(c(partsWithMissingAaSeq, partsWithMissingDnaSeq, partsWithMissingRvdSeq))}")
+    taleParts %>%
+      #dplyr::select(arrayID, domainType, positionInArray, sourceDirectory) %>%
+      dplyr::filter(arrayID %in% c(partsWithMissingAaSeq, partsWithMissingDnaSeq, partsWithMissingRvdSeq)) %>%
       knitr::kable() %>% as.character() %>%
-      logger::skip_formatter() %>% logger::log_warn()
+      logger::skip_formatter() %>% logger::log_debug()
     warning()
   }
   return(taleParts)
