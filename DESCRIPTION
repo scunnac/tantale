@@ -1,6 +1,6 @@
 Package: tantale
 Title: Transcription Activator-Like Effectors (TALEs) tools
-Version: 0.1.8000
+Version: 0.1.8001
 Authors@R: c(
     person(given = c("Bao", "Tram"), family ="Vi",
     email = "vbt576@gmail.com", role = c("aut")),

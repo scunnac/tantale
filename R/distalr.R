@@ -561,5 +561,37 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
 
 
 
+#' Visualize TALE content in a taleParts object
+#' @description
+#' This displays a compact but information rich view of the TALEs stored in a
+#' taleParts object.
+#' 
+#' @param taleParts a table of TALE parts as returned by the
+#' \code{\link[tantale:getTaleParts]{getTaleParts}} function or
+#' \code{\link[tantale:distalr]{distalr}}
+#'
+#' @return The ggplot object
+#' @export
+plotTaleComposition <- function(taleParts) {
+  p <- taleParts %>% ggplot(mapping = aes(fill = aaSeqLength,
+                                         color = domainType,
+                                         label = label,
+                                         y = arrayID,
+                                         x = positionInArray),
+                           color = isNaAaSeq) +
+    scale_color_viridis_d(option = "rocket") +
+    scale_fill_discrete() +
+    scale_x_continuous(breaks = 1:50, minor_breaks = NULL) +
+    geom_point(shape = 21, size = 5, stroke = 0.9) +
+    ggnewscale::new_scale_color() +
+    ggnewscale::new_scale_fill() +
+    geom_text(size = 2.1, color = "white") + 
+    facet_grid(seqnames~ ., scales = "free_y", space = "free") +
+    labs(title = "Overview of TALE composition by genome") +
+    theme_light()
+  print(p)
+  return(p)
+}
+
 
 
