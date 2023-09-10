@@ -328,7 +328,7 @@ diag(identSubMat) <- 1
 #'
 #' @return a taleParts object
 #' @export
-diagnozeTaleParts <- function(taleParts, sanitize = FALSE) {
+diagnoseTaleParts <- function(taleParts, sanitize = FALSE) {
   # Check talparts
   partsWithMissingAaSeq <- taleParts %>% dplyr::filter(is.na(aaSeq)) %>%
     dplyr::select(arrayID, sourceDirectory) %>%
