@@ -390,7 +390,7 @@ plotTaleTargetPred <- function(predResults, subjDnaSeqFile, filterRange) {
               show.legend = FALSE
     ) +
     ggplot2::scale_color_manual(name = NULL, values = ntColScale) +
-
+    
     ggplot2::geom_label(ggplot2::aes(label = rvd, fill = factor(rvd2ntMatchScore)), #<--------- RVDs
               size = 2.8,
               fontface = "bold",

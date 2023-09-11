@@ -55,7 +55,8 @@ clusterRep <- function(repeatSimMat, repeats.cluster.h.cut) {
 #' @export
 runDistal <- function(fasta.file, outdir = NULL, treetype = "p", repeats.cluster.h.cut = 10, overwrite = F) {
   if (is.null(outdir)) {
-    outdir <- tempdir(check = TRUE)
+    outdir <- tempfile(pattern = "runDistal")
+    dir.exists(outdir) || dir.create(outdir, recursive = TRUE)
   }
   # whether it's necessary to run distal perl script or not
   check_files <- list.files(outdir, "Output(.)*(.mat|.tre|.pdf|.fa|.txt)")

@@ -40,7 +40,8 @@ correcTales <- function(uncorrectedAssemblyPath ,
                      condaBinPath = "auto") {
   
   pathToTALECorrection = system.file("tools", "talecorrect", "TALEcorrection.jar", package = "tantale", mustWork = T)
-  outputFolder = tempdir(check = TRUE)
+  outputFolder = tempfile(pattern = "correcTales")
+  dir.exists(outputFolder) || dir.create(outputFolder, recursive = TRUE)
   domains <- c(N = "N-terminus.10bpRepeat1", C = "repeat", R = "C-terminus")
   invisible(fs::file_exists(uncorrectedAssemblyPath)) || logger::log_error("The provided input file does not exists") & stop()
   
@@ -81,12 +82,12 @@ correcTales <- function(uncorrectedAssemblyPath ,
   
   file.copy(file.path(outputFolder, "correctedTALEs.fa"), file.path(correctedAssemblyPath),
             overwrite = FALSE)
-  unlink(file.path(outputFolder), recursive = TRUE) 
+  unlink(outputFolder, recursive = TRUE) 
   
   if (returnCorrectionsTble) {
     return(correctionsTble)
   } else {
-    logger::log_debug("Here is the list of fixes made to the sequence provided:")
+    logger::log_debug("Here is the list of fixes made to the provided sequence:")
     logger::skip_formatter(as.character(knitr::kable(correctionsTble))) %>% logger::log_debug()
     return(file.path(correctedAssemblyPath))
   }

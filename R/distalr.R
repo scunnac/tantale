@@ -215,7 +215,8 @@ diag(identSubMat) <- 1
 
 
 .distalPairwiseAlign2 <- function(partAaStringSet, ncores = 1, condaBinPath = "auto") {
-  outdir <- tempdir(check = TRUE)
+  outdir <- tempfile(pattern = "distalPairwiseAlign2")
+  dir.exists(outdir) || dir.create(outdir, recursive = TRUE)
   partAaStringSetFile <- file.path(outdir, "taleAsParts.fsa")
   mmseq2DbPath <- file.path(outdir, 'mmseq2DB')
   prefDbPath <- file.path(outdir, 'resultDB_pref')
@@ -231,25 +232,42 @@ diag(identSubMat) <- 1
   if(anyDuplicated(df) != 0) stop("The provided sequences must have unique names.")
   
   Biostrings::writeXStringSet(partAaStringSet, filepath = partAaStringSetFile)
-  mmseq2Cmd <- glue::glue("mmseqs createdb {partAaStringSetFile} {mmseq2DbPath};",
-                          "mmseqs prefilter {mmseq2DbPath} {mmseq2DbPath} {prefDbPath}",
-                          "-v 3 --threads {max(floor(ncores/2), 1)} --max-seqs 1000 -s 7.5 --add-self-matches 1",
-                          "--cov-mode 0;",
-                          "mmseqs align {mmseq2DbPath} {mmseq2DbPath} {prefDbPath} {alnDbPath}",
-                          "-v 3 --threads {ncores} --add-self-matches 1 --min-seq-id 0",
-                          "--gap-extend aa:11 --cov-mode 0",
-                          "-a 1 --alignment-mode 3 --alignment-output-mode 0 --seq-id-mode 1;",
-                          "mmseqs convertalis {mmseq2DbPath} {mmseq2DbPath} {alnDbPath} {alnTabFile}",
-                          "--format-mode 4 -v 3",
-                          "--format-output query,target,evalue,raw,pident,nident,mismatch,gapopen,qstart,qend,qlen,tstart,tend,tlen,alnlen,bits,qcov,tcov",
-                          .sep = " ")
+  
+  mmseq2createdb <- glue::glue("mmseqs createdb {partAaStringSetFile} {mmseq2DbPath}")
 
+  mmseq2prefilter <- glue::glue("mmseqs prefilter {mmseq2DbPath} {mmseq2DbPath} {prefDbPath}",
+                               "-v 3 --threads {max(floor(ncores/2), 1)} --max-seqs 1000 -s 7.5 --add-self-matches 1",
+                               "--cov-mode 0", .sep = " ")
+  
+  mmseq2align <- glue::glue("mmseqs align {mmseq2DbPath} {mmseq2DbPath} {prefDbPath} {alnDbPath}",
+                               "-v 3 --threads {ncores} --add-self-matches 1 --min-seq-id 0",
+                               "--cov-mode 0 --gap-open aa:11,nucl:5 --gap-extend aa:1,nucl:2",
+                               "-a 1 --alignment-mode 3 --alignment-output-mode 0 --seq-id-mode 1",
+                               .sep = " ")
+  
+  mmseq2convertalis <- glue::glue("mmseqs convertalis {mmseq2DbPath} {mmseq2DbPath} {alnDbPath} {alnTabFile}",
+                               "--format-mode 4 -v 3",
+                               "--format-output query,target,evalue,raw,pident,nident,mismatch,gapopen,qstart,qend,qlen,tstart,tend,tlen,alnlen,bits,qcov,tcov",
+                               .sep = " ")
+  
   if (!as.logical(createTantaleEnv(condaBinPath = condaBinPath))) {
     logger::log_debug("Invoking mmseq2 using the following command:\n {stringr::str_wrap(mmseq2Cmd, 80)}")
     res <- systemInCondaEnv(envName = "tantale",
                             condaBinPath = condaBinPath,
-                            command = mmseq2Cmd,
-                            ignore.stdout = T)
+                            command = mmseq2createdb,
+                            ignore.stdout = F)
+    res <- systemInCondaEnv(envName = "tantale",
+                            condaBinPath = condaBinPath,
+                            command = mmseq2prefilter,
+                            ignore.stdout = F)
+    res <- systemInCondaEnv(envName = "tantale",
+                            condaBinPath = condaBinPath,
+                            command = mmseq2align,
+                            ignore.stdout = F)
+    res <- systemInCondaEnv(envName = "tantale",
+                            condaBinPath = condaBinPath,
+                            command = mmseq2convertalis,
+                            ignore.stdout = F)
   } else {
     stop("Could not create the tantale conda environment on your machine to run mmseq2...")
   }
@@ -268,6 +286,7 @@ diag(identSubMat) <- 1
 
   # Check the pairAlignScores tibble
   .checkPairAlignTble(pairAlignScores = pairAlignScores, partAaStringSet = partAaStringSet)
+  unlink(outdir, recursive = TRUE)
   return(pairAlignScores)
 }
 
