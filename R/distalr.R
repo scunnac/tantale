@@ -363,7 +363,10 @@ diagnoseTaleParts <- function(taleParts, sanitize = FALSE) {
                                partsWithMissingAaSeq
                                ) %>%
     distinct()
-  pseudoTales <- dplyr::left_join(problems, taleParts, relationship = "one-to-many") %>%
+  pseudoTales <- dplyr::left_join(problems, taleParts,
+                                  relationship = "one-to-many",
+                                  by = join_by(arrayID, sourceDirectory)
+                                  ) %>%
     dplyr::arrange(sourceDirectory, arrayID, positionInArray)
   if (nrow(problems) != 0L) {
     logger::log_warn("Be aware that the output taleParts tibble has records with missing sequences")
@@ -612,14 +615,14 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
                       arlemRes)
   arlemScores <- strsplit(arlemScores, split = "\\|")
   arlemScores <- lapply(arlemScores, function(s) {t(as.matrix(as.numeric(s)))}) %>%
-    do.call(rbind, .) %>% tibble::as_tibble(.name_repair = "minimal")
+    do.call(rbind, .) %>%
+    tibble::as_tibble(.name_repair = "minimal")
   colnames(arlemScores) <- c("TAL1", "TAL2", "arlemScore")
-  # Shaping into matrix to have scores in both directions
+  # Shaping into matrix to have scores in both directions (fill diag and triangle)
   arlemScoresMat <- reshape2::acast(arlemScores, formula = TAL1 ~ TAL2, value.var = "arlemScore")
   arlemScoresMat <- cbind("0" = NA, arlemScoresMat)
-  arlemScoresMat <- rbind(arlemScoresMat, "43" = NA)
-  # dim(arlemScoresMat)
-  # dimnames(arlemScoresMat)
+  arlemScoresMat <- rbind(arlemScoresMat, NA)
+  rownames(arlemScoresMat)[length(codesSeqSet)] <- length(codesSeqSet) - 1
   arlemScores <- stats::as.dist(t(arlemScoresMat), diag = TRUE, upper = TRUE) %>% as.matrix() %>%
     reshape2::melt(value.name = "arlemScore") %>%
     tibble::as_tibble()
@@ -665,7 +668,7 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
                        dplyr::mutate(code = as.integer(code)) %>%
                        dplyr::select(-n) %>%
                        dplyr::ungroup(),
-                     "coded.repeats.str" = toListOfSplitedStr(codesSeqsfile),
+                     "coded.repeats.str" = codesSeqSet,
                      "repeat.similarity" = dissimLong %>% dplyr::rename(RepU1 = subj, RepU2 = pattern),
                      "tal.similarity" = normArlemScoresTble,
                      "repeats.cluster" = clusterRep(
