@@ -8,21 +8,25 @@
 #' and return a list of vectors each one composed of the individual elements of the sequence.
 #'
 #' @param atomicStrings Either, the path to a fasta file, an AAStringSet or "BStringSet"
-#' or or a list. In all cases, the content of these objects is composed of strings of
-#' tale sequences (`sep`-separated rvd or distal repeat IDs)
+#' or a list. In all cases, each element of these objects is a string of a
+#' tale sequence (`sep`-separated rvd or distal repeat IDs)
 #' @param sep Separator of the elements of the sequence
 #'
 #' @return A list of named vectors representing the 'splited' sequence.
 #'
 #' @export
 toListOfSplitedStr <- function(atomicStrings, sep = "-") {
-  if (length(atomicStrings) >= 1 && is.list(atomicStrings)) {
-    seqs <- atomicStrings
+  if (is.list(atomicStrings) &&
+      any(sapply(atomicStrings, length) > 1)) {
+      logger::log_error("The value provided for atomicStrings seems already to be splitted.")
+      stop()
   } else if (length(atomicStrings) == 1 && is.character(atomicStrings)) {
     stopifnot(fs::file_exists(atomicStrings))
     seqs <- as.character(Biostrings::readBStringSet(atomicStrings), use.names = TRUE)
   } else if (class(atomicStrings) %in% c("AAStringSet", "BStringSet")) {
     seqs <- as.character(atomicStrings, use.names = TRUE)
+  } else if (length(atomicStrings) >= 1 && is.list(atomicStrings)) {
+    seqs <- atomicStrings
   } else {
     logger::log_error("Something is wrong with the value provided for atomicStrings.")
     stop()

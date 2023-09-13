@@ -14,7 +14,8 @@ buildRepeatMsa(
 )
 }
 \arguments{
-\item{inputSeqs}{Either the path to a fasta file containing the TALE sequences to be aligned or a named list of vectors, each made up of the individual residues that will be aligned, as returned by the \code{\link[tantale:toListOfSplitedStr]{toListOfSplitedStr}} function or available in the \code{coded.repeats.str} slot of the object returned by the \code{\link[tantale:runDistal]{runDistal}} function.  Can also be the return value of the \code{\link[tantale:convertRepeat2RvdAlign]{convertRepeat2RvdAlign}} function if one wants to align RVD sequences.}
+\item{inputSeqs}{Any object accepted as input by the
+\code{\link[tantale:toListOfSplitedStr]{toListOfSplitedStr}} function, such as the path to a fasta file containing the TALE sequences to be aligned or the \code{coded.repeats.str} slot of the object returned by the \code{\link[tantale:runDistal]{runDistal}} function. Can also be the return value of the \code{\link[tantale:taleParts2RvdStringSet]{taleParts2RvdStringSet}} function if one wants to align RVD sequences.}
 
 \item{sep}{Passed to \code{toListOfSplitedStr()} to split the TALEs strings in input.}
 

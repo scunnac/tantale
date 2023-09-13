@@ -39,7 +39,8 @@ pickRefName <- function(align, refTag = NULL) {
 #'
 #' By default, uses the simple scoring matrix defined in \href{https://mafft.cbrc.jp/alignment/software/textcomparison.html}{the text mode of MAFFT}. Users can optionally provide a custom scoring matrix.
 #'
-#' @param inputSeqs Either the path to a fasta file containing the TALE sequences to be aligned or a named list of vectors, each made up of the individual residues that will be aligned, as returned by the \code{\link[tantale:toListOfSplitedStr]{toListOfSplitedStr}} function or available in the \code{coded.repeats.str} slot of the object returned by the \code{\link[tantale:runDistal]{runDistal}} function.  Can also be the return value of the \code{\link[tantale:convertRepeat2RvdAlign]{convertRepeat2RvdAlign}} function if one wants to align RVD sequences.
+#' @param inputSeqs Any object accepted as input by the
+#'  \code{\link[tantale:toListOfSplitedStr]{toListOfSplitedStr}} function, such as the path to a fasta file containing the TALE sequences to be aligned or the \code{coded.repeats.str} slot of the object returned by the \code{\link[tantale:runDistal]{runDistal}} function. Can also be the return value of the \code{\link[tantale:taleParts2RvdStringSet]{taleParts2RvdStringSet}} function if one wants to align RVD sequences.
 #'
 #' @param sep Passed to \code{toListOfSplitedStr()} to split the TALEs strings in input.
 #' @param distalRepeatSims A long, three columns data frame with pairwise similarity scores between repeats as available in the \code{repeat.similarity slot} of the object returned by the \code{\link[tantale:runDistal]{runDistal}} function.

@@ -8,8 +8,8 @@ toListOfSplitedStr(atomicStrings, sep = "-")
 }
 \arguments{
 \item{atomicStrings}{Either, the path to a fasta file, an AAStringSet or "BStringSet"
-or or a list. In all cases, the content of these objects is composed of strings of
-tale sequences (`sep`-separated rvd or distal repeat IDs)}
+or a list. In all cases, each element of these objects is a string of a
+tale sequence (`sep`-separated rvd or distal repeat IDs)}
 
 \item{sep}{Separator of the elements of the sequence}
 }
