@@ -294,3 +294,65 @@ convertRepeat2ClusterIDAlign <- function(repeatSim, repeatAlign, h.cut = 10) {
   return(clustIDAlign)
 }
 
+#' Generate a mapping between Distal repeat IDs and their cognate RVD.
+#'
+#' Uses Distal repeat sequences and RVD sequences from a set of TALEs 
+#' analyzed with the \code{\link[tantale:distalr]{distalr}} function to return
+#' the association between repeat ID and RVD.
+#'
+#' @param distalrTaleParts The taleParts object in a \code{\link[tantale:distalr]{distalr}} output.
+#' @return A two columns repeatID - RVD data frame.
+#' @export
+getRepeat2RvdMappingFromDistalr <- function(distalrTaleParts) {
+  if (!any("domCode" %in% colnames(distalrTaleParts))) {
+    logger::log_error("The provided object does not contain a 'domCode' column. Are you using a taleParts object from distalr()")
+    stop()
+  }
+  if (nrow(diagnoseTaleParts(distalrTaleParts)) != 0L) {
+    logger::log_error("The provided object does not seem to be sanitized. Have you used a taleParts object with no empty sequences?")
+    stop()
+  }
+  distalrTaleParts %>% 
+    dplyr::select(domCode, rvd) %>%
+    dplyr::distinct() %>%
+    dplyr::rename(repeatID = domCode,  RVD = rvd) %>%
+    dplyr::arrange(repeatID)
+}
+
+#' Generates a RVD sequences set from a taleParts object
+#'
+#' Uses a taleParts object in a \code{\link[tantale:distalr]{distalr}} output
+#' to return a \code{\link[Biostrings::BStringSet]{BStringSet}} of RVD sequences.
+#' RVDs are separated by the character specified in the \code{sep} parameter.
+#' 
+#'
+#'
+#'
+#' Uses Distal repeat sequences and RVD sequences from a set of TALEs 
+#' analyzed with the \code{\link[tantale:distalr]{distalr}} function to return
+#' the association between repeat ID and RVD.
+#'
+#' @param distalrTaleParts The taleParts object in a \code{\link[tantale:distalr]{distalr}} output.
+#' @param sep Used as a RVD separatator
+#' @return A two columns repeatID - RVD data frame.
+#' @export
+taleParts2RvdStringSet <- function(taleParts, sep = "-") {
+  if (nrow(diagnoseTaleParts(taleParts)) != 0L) {
+    logger::log_error("The provided object does not seem to be sanitized. Have you used a taleParts object with no empty sequences?")
+    stop()
+  }
+  rvdStrings <- taleParts %>%
+    dplyr::group_by(arrayID) %>%
+    dplyr::arrange(positionInArray) %>%
+    dplyr::summarise(
+      rvdString = paste(rvd, collapse = "-"),
+      posString = paste(positionInArray, collapse = sep)
+    )
+  rvdStringsSet <- Biostrings::BStringSet(rvdStrings$rvdString)
+  names(rvdStringsSet) <- rvdStrings$arrayID
+  return(rvdStringsSet)
+}
+
+
+
+
