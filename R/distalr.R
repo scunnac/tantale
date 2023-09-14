@@ -351,21 +351,21 @@ diagnoseTaleParts <- function(taleParts, sanitize = FALSE) {
   # Check talparts
   partsWithMissingAaSeq <- taleParts %>% dplyr::filter(is.na(aaSeq)) %>%
     dplyr::select(arrayID, sourceDirectory) %>%
-    distinct()
+    dplyr::distinct()
   partsWithMissingDnaSeq <- taleParts %>% dplyr::filter(is.na(dnaSeq)) %>%
     dplyr::select(arrayID, sourceDirectory) %>%
-    distinct()
+    dplyr::distinct()
   partsWithMissingRvdSeq <- taleParts %>% dplyr::filter(is.na(rvd)) %>%
     dplyr::select(arrayID, sourceDirectory) %>%
-    distinct()
+    dplyr::distinct()
   problems <- dplyr::bind_rows(partsWithMissingRvdSeq,
                                partsWithMissingDnaSeq,
                                partsWithMissingAaSeq
                                ) %>%
-    distinct()
+    dplyr::distinct()
   pseudoTales <- dplyr::left_join(problems, taleParts,
                                   relationship = "one-to-many",
-                                  by = join_by(arrayID, sourceDirectory)
+                                  by = dplyr::join_by(arrayID, sourceDirectory)
                                   ) %>%
     dplyr::arrange(sourceDirectory, arrayID, positionInArray)
   if (nrow(problems) != 0L) {

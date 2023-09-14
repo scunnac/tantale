@@ -9,7 +9,7 @@ pickRefName <- function(align, refTag = NULL) {
   #     ordering their names in case of ties...
 
   # Find refTag in seq names if provided and output the corresponding unique match
-  if (! is.null(refTag)) {
+  if (!is.null(refTag)) {
     match <- grepl(refTag, rownames(align))
     if (sum(match) != 1) {
       warning("Cannot identify a single unambiguous sequence to define as a reference using the string in refTag.\n",
