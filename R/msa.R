@@ -195,13 +195,14 @@ buildRepeatMsa <- function(inputSeqs, sep = " ", distalRepeatSims = NULL,
 #' @description Plot in frame of \code{\link[gplots:heatmap.2]{heatmap.2}} for Tals alignment.
 #' 
 #' @details
-#'  "repeat.similarity" plot shows RVD alignment of Tals, hierarchical relationship
-#'   between them in the dendrogram, similarity between repeats alignment by the color
+#'  "repeat.similarity" plot shows RVD alignment of Tals, a hierarchical dendrogram
+#'  reflecting overall similarities between TALEs, similarity between repeats alignment by the color
 #'    of cells, and (if rvdSim is provided) similarity between RVDs alignment in the 
-#'    color of cellnotes.#'
+#'    color of the RVD labels.
 #'    
-#'  "repeat.clusters" plot shows repeat alignment of Tals, hierarchical relationship
-#'   between them in the dendrogram, and clustering groups of repeats by the color of cells.
+#'  "repeat.clusters" plot shows repeat alignment of Tals with cells filled with colors representing
+#'  the repeat clustering group and a hierarchical dendrogram reflecting overall similarities
+#'  between TALEs.
 #'   
 #'  "repeat.clusters.with.rvd" plots repeat alignment of Tals with rvd labeled.
 #'  If plotting from the outputs of \code{buildDistalGroups},

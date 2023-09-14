@@ -12,7 +12,7 @@ By default, uses the simple scoring matrix defined in the text mode of MAFFT. Us
     
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.7001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.9001</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -76,7 +76,8 @@ By default, uses the simple scoring matrix defined in the text mode of MAFFT. Us
     <div class="section level2">
     <h2 id="arguments">Arguments<a class="anchor" aria-label="anchor" href="#arguments"></a></h2>
     <dl><dt>inputSeqs</dt>
-<dd><p>Either the path to a fasta file containing the TALE sequences to be aligned or a named list of vectors, each made up of the individual residues that will be aligned, as returned by the <code><a href="toListOfSplitedStr.html">toListOfSplitedStr</a></code> function or available in the <code>coded.repeats.str</code> slot of the object returned by the <code><a href="runDistal.html">runDistal</a></code> function.  Can also be the return value of the <code><a href="convertRepeat2RvdAlign.html">convertRepeat2RvdAlign</a></code> function if one wants to align RVD sequences.</p></dd>
+<dd><p>Any object accepted as input by the
+<code><a href="toListOfSplitedStr.html">toListOfSplitedStr</a></code> function, such as the path to a fasta file containing the TALE sequences to be aligned or the <code>coded.repeats.str</code> slot of the object returned by the <code><a href="runDistal.html">runDistal</a></code> function. Can also be the return value of the <code><a href="taleParts2RvdStringSet.html">taleParts2RvdStringSet</a></code> function if one wants to align RVD sequences.</p></dd>
 
 
 <dt>sep</dt>

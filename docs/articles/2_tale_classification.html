@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.7001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.9001</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -138,10 +138,10 @@ As a reminder, the genomes used for this article are MAI1, BAI3, BAI3-1-1 (an er
 <span>  <span class="va">distal_output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/runDistal.html">runDistal</a></span><span class="op">(</span><span class="va">telltale_cds</span>, outdir <span class="op">=</span> <span class="va">distal_telltale</span>, overwrite <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
 <span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt;&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;&gt; 629.049   0.097 629.173</span></span></code></pre></div>
+<span><span class="co">#&gt;&gt; 644.216   0.092 644.345</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="run-the-r-implementation-of-distal">run the R implementation of DisTal<a class="anchor" aria-label="anchor" href="#run-the-r-implementation-of-distal"></a>
+<h3 id="run-the-r-implementation-of-distal">Run the R implementation of DisTal<a class="anchor" aria-label="anchor" href="#run-the-r-implementation-of-distal"></a>
 </h3>
 <p>First we use the tellTale output directories for each genome and get the information about TALE parts (ie domains). The final output is a tibble with a single part per row.</p>
 <div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
@@ -160,8 +160,8 @@ As a reminder, the genomes used for this article are MAI1, BAI3, BAI3-1-1 (an er
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span><span class="op">)</span></span>
 <span></span>
 <span><span class="fu">DT</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/DT/man/datatable.html" class="external-link">datatable</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">taleParts</span><span class="op">)</span>, caption <span class="op">=</span> <span class="st">"An example of the content of the taleParts tibble."</span><span class="op">)</span></span></code></pre></div>
-<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-698f4d7fd5dfcfc9e01e" style="width:100%;height:auto;"></div>
-<script type="application/json" data-for="htmlwidget-698f4d7fd5dfcfc9e01e">{"x":{"filter":"none","vertical":false,"caption":"<caption>An example of the content of the taleParts tibble.<\/caption>","data":[["1","2","3","4","5","6"],["BAI3_ROI_00001","BAI3_ROI_00001","BAI3_ROI_00001","BAI3_ROI_00001","BAI3_ROI_00001","BAI3_ROI_00001"],["N-terminus","repeat","repeat","repeat","repeat","repeat"],[1,2,3,4,5,6],[null,1,2,3,4,5],["ATGGATCCCATTCGTCCGCGCGCGCCAAGTCCTGCCCGCGAGGTTCTGCCCGGCCCCCAACCGGATAGGGTTCAGCCGACTGCAGATCGTGGGGTGTCTGCGCCTGCTGGCAGCCCTCTGGATGGCTTGCCCGCTCGGCGGACGATGTCCCGGACCCGGCTGCCATCTCCCCCTGCCCCCTTGCCTGCGTTCTCGGCGGGCAGCTTCAGCGATCTGCTCCGTCAGTTCGATCCGTCGCTTCTTGATACATCGCTTTTTGATTCGATGCCTGCCGTCGGCACGCCTCATACAGAGGCTGCCCCAGCAGAGGGGGATGAGGTGCAATCGGCTCTGCGTGCAGCCGATGACCCGCCACCCACCGTGCGTGTCGCTGTCACTGCCGCGCAGGTGGATCTACGCACGCTCGGCTACAGTCAGCAGCAAGAGAAGATCAAACCGAATGTTCGTTCGACAGTGGCGCAGCACCACGAGGCACTGGTGGGCCATGGGTTTACACACGCGCACATCGTTGCGCTCAGCCGACACCCGGCAGCGTTAGGGACCGTCGCTGTCAAGTATCAGGACATGATCGCGGCGTTACCAGAGGCGACACACGAAGACATCGTTGGGGTCGGCAAACAGTGTTCCGGCGCACGCGCCCTGGAGGCCTTGCTCACGGTGGCGGGAGAGTTGAGAGGTCCACCGTTACAGTTGGACACAGGCCAACTTGTCAAGATTGCAAAACGTGGCGGCGTGACCGCAGTGGAGGCAGTGCATGCATCGCGCAATGCACTGACGGGTGCCCCCCTGAAC","CTGACCCCGGCACAGGTGGTGGCCATCGCCAGCAATAGCGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCTGTTGCCGGTGCTGTGCCAGGCCCATGGC","CTGACCCCGGAGCAGGTGGTGGCCATCGCCAGCAATGGCGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCTGTTGCCGGTGCTGTGCCAGGCCCATGGC","CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCAATAGCGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCTGTTGCCGGTGCTGTGCCAGGCCCATGGC","CTGACCCCGGACCAGGTGGTGGCCATCGCCAGCCACGATGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGACTGTTGCCGGTGCTGTGCCAGGCCCATGGC","CTGACCCCGGAGCAGGTGGTGGCCATCGCCAGCAATATTGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCTGTTGCCGGTGCTGTGCCAGGCCCATGGC"],["/home/cunnac/TEMP/test_tantale/telltale/BAI3_nocorrection/annotale/ROI_00001","/home/cunnac/TEMP/test_tantale/telltale/BAI3_nocorrection/annotale/ROI_00001","/home/cunnac/TEMP/test_tantale/telltale/BAI3_nocorrection/annotale/ROI_00001","/home/cunnac/TEMP/test_tantale/telltale/BAI3_nocorrection/annotale/ROI_00001","/home/cunnac/TEMP/test_tantale/telltale/BAI3_nocorrection/annotale/ROI_00001","/home/cunnac/TEMP/test_tantale/telltale/BAI3_nocorrection/annotale/ROI_00001"],["MDPIRPRAPSPAREVLPGPQPDRVQPTADRGVSAPAGSPLDGLPARRTMSRTRLPSPPAPLPAFSAGSFSDLLRQFDPSLLDTSLFDSMPAVGTPHTEAAPAEGDEVQSALRAADDPPPTVRVAVTAAQVDLRTLGYSQQQEKIKPNVRSTVAQHHEALVGHGFTHAHIVALSRHPAALGTVAVKYQDMIAALPEATHEDIVGVGKQCSGARALEALLTVAGELRGPPLQLDTGQLVKIAKRGGVTAVEAVHASRNALTGAPLN","LTPAQVVAIASNSGGKQALETVQRLLPVLCQAHG","LTPEQVVAIASNGGGKQALETVQRLLPVLCQAHG","LTPAQVVAIASNSGGKQALETVQRLLPVLCQAHG","LTPDQVVAIASHDGGKQALETVQRLLPVLCQAHG","LTPEQVVAIASNIGGKQALETVQRLLPVLCQAHG"],["NTERM","NS","NG","NS","HD","NI"],["BAI3","BAI3","BAI3","BAI3","BAI3","BAI3"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>arrayID<\/th>\n      <th>domainType<\/th>\n      <th>positionInArray<\/th>\n      <th>positionInCrd<\/th>\n      <th>dnaSeq<\/th>\n      <th>sourceDirectory<\/th>\n      <th>aaSeq<\/th>\n      <th>rvd<\/th>\n      <th>seqnames<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[3,4]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script><p>With this kind of representation it is quite easy to make summary plots like this one for example:</p>
+<div class="datatables html-widget html-fill-item-overflow-hidden html-fill-item" id="htmlwidget-29d29edb66c10ed97587" style="width:100%;height:auto;"></div>
+<script type="application/json" data-for="htmlwidget-29d29edb66c10ed97587">{"x":{"filter":"none","vertical":false,"caption":"<caption>An example of the content of the taleParts tibble.<\/caption>","data":[["1","2","3","4","5","6"],["BAI3_ROI_00001","BAI3_ROI_00001","BAI3_ROI_00001","BAI3_ROI_00001","BAI3_ROI_00001","BAI3_ROI_00001"],["N-terminus","repeat","repeat","repeat","repeat","repeat"],[null,1,2,3,4,5],["ATGGATCCCATTCGTCCGCGCGCGCCAAGTCCTGCCCGCGAGGTTCTGCCCGGCCCCCAACCGGATAGGGTTCAGCCGACTGCAGATCGTGGGGTGTCTGCGCCTGCTGGCAGCCCTCTGGATGGCTTGCCCGCTCGGCGGACGATGTCCCGGACCCGGCTGCCATCTCCCCCTGCCCCCTTGCCTGCGTTCTCGGCGGGCAGCTTCAGCGATCTGCTCCGTCAGTTCGATCCGTCGCTTCTTGATACATCGCTTTTTGATTCGATGCCTGCCGTCGGCACGCCTCATACAGAGGCTGCCCCAGCAGAGGGGGATGAGGTGCAATCGGCTCTGCGTGCAGCCGATGACCCGCCACCCACCGTGCGTGTCGCTGTCACTGCCGCGCAGGTGGATCTACGCACGCTCGGCTACAGTCAGCAGCAAGAGAAGATCAAACCGAATGTTCGTTCGACAGTGGCGCAGCACCACGAGGCACTGGTGGGCCATGGGTTTACACACGCGCACATCGTTGCGCTCAGCCGACACCCGGCAGCGTTAGGGACCGTCGCTGTCAAGTATCAGGACATGATCGCGGCGTTACCAGAGGCGACACACGAAGACATCGTTGGGGTCGGCAAACAGTGTTCCGGCGCACGCGCCCTGGAGGCCTTGCTCACGGTGGCGGGAGAGTTGAGAGGTCCACCGTTACAGTTGGACACAGGCCAACTTGTCAAGATTGCAAAACGTGGCGGCGTGACCGCAGTGGAGGCAGTGCATGCATCGCGCAATGCACTGACGGGTGCCCCCCTGAAC","CTGACCCCGGCACAGGTGGTGGCCATCGCCAGCAATAGCGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCTGTTGCCGGTGCTGTGCCAGGCCCATGGC","CTGACCCCGGAGCAGGTGGTGGCCATCGCCAGCAATGGCGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCTGTTGCCGGTGCTGTGCCAGGCCCATGGC","CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCAATAGCGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCTGTTGCCGGTGCTGTGCCAGGCCCATGGC","CTGACCCCGGACCAGGTGGTGGCCATCGCCAGCCACGATGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGACTGTTGCCGGTGCTGTGCCAGGCCCATGGC","CTGACCCCGGAGCAGGTGGTGGCCATCGCCAGCAATATTGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCTGTTGCCGGTGCTGTGCCAGGCCCATGGC"],["/home/cunnac/TEMP/test_tantale/telltale/BAI3_nocorrection/annotale/ROI_00001","/home/cunnac/TEMP/test_tantale/telltale/BAI3_nocorrection/annotale/ROI_00001","/home/cunnac/TEMP/test_tantale/telltale/BAI3_nocorrection/annotale/ROI_00001","/home/cunnac/TEMP/test_tantale/telltale/BAI3_nocorrection/annotale/ROI_00001","/home/cunnac/TEMP/test_tantale/telltale/BAI3_nocorrection/annotale/ROI_00001","/home/cunnac/TEMP/test_tantale/telltale/BAI3_nocorrection/annotale/ROI_00001"],[1,2,3,4,5,6],["MDPIRPRAPSPAREVLPGPQPDRVQPTADRGVSAPAGSPLDGLPARRTMSRTRLPSPPAPLPAFSAGSFSDLLRQFDPSLLDTSLFDSMPAVGTPHTEAAPAEGDEVQSALRAADDPPPTVRVAVTAAQVDLRTLGYSQQQEKIKPNVRSTVAQHHEALVGHGFTHAHIVALSRHPAALGTVAVKYQDMIAALPEATHEDIVGVGKQCSGARALEALLTVAGELRGPPLQLDTGQLVKIAKRGGVTAVEAVHASRNALTGAPLN","LTPAQVVAIASNSGGKQALETVQRLLPVLCQAHG","LTPEQVVAIASNGGGKQALETVQRLLPVLCQAHG","LTPAQVVAIASNSGGKQALETVQRLLPVLCQAHG","LTPDQVVAIASHDGGKQALETVQRLLPVLCQAHG","LTPEQVVAIASNIGGKQALETVQRLLPVLCQAHG"],["NTERM","NS","NG","NS","HD","NI"],["BAI3","BAI3","BAI3","BAI3","BAI3","BAI3"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>arrayID<\/th>\n      <th>domainType<\/th>\n      <th>positionInCrd<\/th>\n      <th>dnaSeq<\/th>\n      <th>sourceDirectory<\/th>\n      <th>positionInArray<\/th>\n      <th>aaSeq<\/th>\n      <th>rvd<\/th>\n      <th>seqnames<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"columnDefs":[{"className":"dt-right","targets":[3,6]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script><p>With this kind of representation it is quite easy to make summary plots like this one for example:</p>
 <div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">partsForPlots</span> <span class="op">&lt;-</span> <span class="va">taleParts</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>label <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/if_else.html" class="external-link">if_else</a></span><span class="op">(</span><span class="va">domainType</span> <span class="op">==</span> <span class="st">"repeat"</span>, <span class="va">rvd</span>, <span class="st">""</span><span class="op">)</span>,</span>
@@ -188,22 +188,25 @@ As a reminder, the genomes used for this article are MAI1, BAI3, BAI3-1-1 (an er
 <div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">partsForDistalr</span> <span class="op">&lt;-</span> <span class="va">taleParts</span></span>
 <span></span>
-<span><span class="co"># distalr_mms_output &lt;- distalr(taleParts = partsForDistalr,</span></span>
-<span><span class="co">#                               repeats.cluster.h.cut = 10, ncores = 6,</span></span>
-<span><span class="co">#                               pairwiseAlnMethod = "mmseq2",</span></span>
-<span><span class="co">#                               condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")</span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="op">{</span><span class="va">distalr_deci_output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/distalr.html">distalr</a></span><span class="op">(</span>taleParts <span class="op">=</span> <span class="va">partsForDistalr</span>,</span>
-<span>                              repeats.cluster.h.cut <span class="op">=</span> <span class="fl">10</span>, ncores <span class="op">=</span> <span class="fl">6</span>,</span>
-<span>                              pairwiseAlnMethod <span class="op">=</span> <span class="st">"DECIPHER"</span><span class="op">)</span><span class="op">}</span><span class="op">)</span></span>
-<span><span class="co">#&gt;&gt;    user  system elapsed </span></span>
-<span><span class="co">#&gt;&gt;  15.581   0.154   4.953</span></span>
-<span></span>
-<span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="op">{</span><span class="va">distalr_bs_output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/distalr.html">distalr</a></span><span class="op">(</span>taleParts <span class="op">=</span> <span class="va">partsForDistalr</span>,</span>
 <span>                             repeats.cluster.h.cut <span class="op">=</span> <span class="fl">10</span>, ncores <span class="op">=</span> <span class="fl">6</span>,</span>
 <span>                             pairwiseAlnMethod <span class="op">=</span> <span class="st">"Biostrings"</span><span class="op">)</span><span class="op">}</span><span class="op">)</span></span>
 <span><span class="co">#&gt;&gt;     user   system  elapsed </span></span>
-<span><span class="co">#&gt;&gt; 1857.152    3.161  425.256</span></span></code></pre></div>
+<span><span class="co">#&gt;&gt; 1919.144    3.045  417.988</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="op">{</span><span class="va">distalr_deci_output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/distalr.html">distalr</a></span><span class="op">(</span>taleParts <span class="op">=</span> <span class="va">partsForDistalr</span>,</span>
+<span>                              repeats.cluster.h.cut <span class="op">=</span> <span class="fl">10</span>, ncores <span class="op">=</span> <span class="fl">6</span>,</span>
+<span>                              pairwiseAlnMethod <span class="op">=</span> <span class="st">"DECIPHER"</span><span class="op">)</span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="co">#&gt;&gt;    user  system elapsed </span></span>
+<span><span class="co">#&gt;&gt;  15.284   0.116   4.814</span></span>
+<span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/base/system.time.html" class="external-link">system.time</a></span><span class="op">(</span><span class="op">{</span><span class="va">distalr_mms_output</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/distalr.html">distalr</a></span><span class="op">(</span>taleParts <span class="op">=</span> <span class="va">partsForDistalr</span>,</span>
+<span>                              repeats.cluster.h.cut <span class="op">=</span> <span class="fl">10</span>, ncores <span class="op">=</span> <span class="fl">6</span>,</span>
+<span>                              pairwiseAlnMethod <span class="op">=</span> <span class="st">"mmseq2"</span>,</span>
+<span>                              condaBinPath <span class="op">=</span> <span class="st">"/home/cunnac/bin/miniconda3/condabin/conda"</span><span class="op">)</span><span class="op">}</span><span class="op">)</span></span>
+<span><span class="co">#&gt;&gt; Joining with `by = join_by(query, target)`</span></span>
+<span><span class="co">#&gt;&gt;    user  system elapsed </span></span>
+<span><span class="co">#&gt;&gt;  22.064   5.266  15.531</span></span></code></pre></div>
 <p>Clearly, the “DECIPHER” method for pairwise alignment of domains aa sequences is much faster than all the others.</p>
 </div>
 <div class="section level3">
@@ -213,7 +216,8 @@ As a reminder, the genomes used for this article are MAI1, BAI3, BAI3-1-1 (an er
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">talSimOutAgregated</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>distalALV <span class="op">=</span> <span class="va">distal_output</span><span class="op">$</span><span class="va">tal.similarity</span>,</span>
 <span>     distalDECI <span class="op">=</span> <span class="va">distalr_deci_output</span><span class="op">$</span><span class="va">tal.similarity</span>,</span>
-<span>     distalBIOS <span class="op">=</span> <span class="va">distalr_bs_output</span><span class="op">$</span><span class="va">tal.similarity</span></span>
+<span>     distalBIOS <span class="op">=</span> <span class="va">distalr_bs_output</span><span class="op">$</span><span class="va">tal.similarity</span>,</span>
+<span>     distalMMS <span class="op">=</span> <span class="va">distalr_mms_output</span><span class="op">$</span><span class="va">tal.similarity</span></span>
 <span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span>.id <span class="op">=</span> <span class="st">"method"</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">talSimOutAgregatedLong</span> <span class="op">&lt;-</span> <span class="fu">reshape2</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/cast.html" class="external-link">dcast</a></span><span class="op">(</span><span class="va">talSimOutAgregated</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">method</span>, <span class="va">TAL1</span>, <span class="va">TAL2</span>, <span class="va">Sim</span><span class="op">)</span>,</span>
@@ -232,6 +236,7 @@ As a reminder, the genomes used for this article are MAI1, BAI3, BAI3-1-1 (an er
 <th align="right">distalALV</th>
 <th align="right">distalBIOS</th>
 <th align="right">distalDECI</th>
+<th align="right">distalMMS</th>
 </tr></thead>
 <tbody>
 <tr class="odd">
@@ -239,17 +244,27 @@ As a reminder, the genomes used for this article are MAI1, BAI3, BAI3-1-1 (an er
 <td align="right">1.0000000</td>
 <td align="right">0.9533716</td>
 <td align="right">0.9547991</td>
+<td align="right">0.9501474</td>
 </tr>
 <tr class="even">
 <td align="left">distalBIOS</td>
 <td align="right">0.9533716</td>
 <td align="right">1.0000000</td>
 <td align="right">0.9961920</td>
+<td align="right">0.9649442</td>
 </tr>
 <tr class="odd">
 <td align="left">distalDECI</td>
 <td align="right">0.9547991</td>
 <td align="right">0.9961920</td>
+<td align="right">1.0000000</td>
+<td align="right">0.9732519</td>
+</tr>
+<tr class="even">
+<td align="left">distalMMS</td>
+<td align="right">0.9501474</td>
+<td align="right">0.9649442</td>
+<td align="right">0.9732519</td>
 <td align="right">1.0000000</td>
 </tr>
 </tbody>
@@ -271,8 +286,8 @@ As a reminder, the genomes used for this article are MAI1, BAI3, BAI3-1-1 (an er
 <span><span class="co">#   geom_point() +</span></span>
 <span><span class="co">#   geom_abline(intercept = 0, slope = 1)</span></span>
 <span></span>
-<span><span class="fu"><a href="https://rdrr.io/r/graphics/pairs.html" class="external-link">pairs</a></span><span class="op">(</span><span class="va">talSimOutAgregated</span><span class="op">[</span><span class="fl">3</span><span class="op">:</span><span class="fl">5</span><span class="op">]</span>, pch <span class="op">=</span> <span class="fl">20</span>, cex <span class="op">=</span> <span class="fl">0.5</span>, lower.panel <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
-<p><img src="2_tale_classification_files/figure-html/pair%20plot%20of%20TALE%20similarity%20from%20various%20distal%20implementations-1.png" width="384"></p>
+<span><span class="fu"><a href="https://rdrr.io/r/graphics/pairs.html" class="external-link">pairs</a></span><span class="op">(</span><span class="va">talSimOutAgregated</span><span class="op">[</span><span class="fl">3</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>, pch <span class="op">=</span> <span class="fl">20</span>, cex <span class="op">=</span> <span class="fl">0.5</span>, lower.panel <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></code></pre></div>
+<p><img src="2_tale_classification_files/figure-html/pair%20plot%20of%20TALE%20similarity%20from%20various%20distal%20implementations-1.png" width="576"></p>
 <p>The correlation of the TALE pairwise similarity scores output by the various distal flavors are remarkably high.</p>
 </div>
 <div class="section level3">
@@ -328,7 +343,7 @@ As a reminder, the genomes used for this article are MAI1, BAI3, BAI3-1-1 (an er
 <span>  <span class="va">distMat</span> <span class="op">&lt;-</span> <span class="fl">100</span> <span class="op">-</span> <span class="fu">reshape2</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/reshape2/man/cast.html" class="external-link">acast</a></span><span class="op">(</span><span class="va">taleSim</span>, formula <span class="op">=</span> <span class="va">TAL1</span> <span class="op">~</span> <span class="va">TAL2</span>, value.var <span class="op">=</span> <span class="st">"Sim"</span><span class="op">)</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/stats/hclust.html" class="external-link">hclust</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/stats/dist.html" class="external-link">dist</a></span><span class="op">(</span><span class="va">distMat</span>, method <span class="op">=</span> <span class="st">"euclidean"</span><span class="op">)</span>, method <span class="op">=</span> <span class="st">"ward.D"</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
-<p>We can compare the hierarchical trees obtained with the original Distal tree (left) and distalr with DICEPHER (right). Because PXO86 is the only Asian strain and these TALEs are rather distantly related to African ones, the part of the trees with PXO86 TALEs are not really meaningfull in this context.</p>
+<p>We can compare the hierarchical trees obtained with the original Distal tree (left) and distalr with DICEPHER (right). Because PXO86 is the only Asian strain and these TALEs are rather distantly related to African ones, the part of the trees with PXO86 TALEs are not really meaningful in this context.</p>
 <div class="sourceCode" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">op</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>cex <span class="op">=</span> <span class="fl">0.5</span><span class="op">)</span><span class="op">)</span></span>
@@ -400,7 +415,7 @@ As a reminder, the genomes used for this article are MAI1, BAI3, BAI3-1-1 (an er
 </tr>
 </tbody>
 </table>
-<p>Based on the silhouette values, <code><a href="../reference/groupTales.html">groupTales()</a></code> will take the value at the elbow of the curve. In this case we manually took k = 22`.</p>
+<p>Based on the silhouette values, <code><a href="../reference/groupTales.html">groupTales()</a></code> will take the value at the elbow of the curve. In this case we manually took k = 22.</p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/save.html" class="external-link">save.image</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">outdir</span>, <span class="st">"mining.RData"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </div>

@@ -154,20 +154,18 @@ Now, with this `tibble`, we can also run the R implementation of the Distal Perl
 ```{r doing the same with distalr, fig.width = 10, fig.height=10}
 partsForDistalr <- taleParts
 
-# distalr_mms_output <- distalr(taleParts = partsForDistalr,
-#                               repeats.cluster.h.cut = 10, ncores = 6,
-#                               pairwiseAlnMethod = "mmseq2",
-#                               condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")
-system.time({distalr_deci_output <- distalr(taleParts = partsForDistalr,
-                              repeats.cluster.h.cut = 10, ncores = 6,
-                              pairwiseAlnMethod = "DECIPHER")})
-
-
 system.time({distalr_bs_output <- distalr(taleParts = partsForDistalr,
                              repeats.cluster.h.cut = 10, ncores = 6,
                              pairwiseAlnMethod = "Biostrings")})
 
+system.time({distalr_deci_output <- distalr(taleParts = partsForDistalr,
+                              repeats.cluster.h.cut = 10, ncores = 6,
+                              pairwiseAlnMethod = "DECIPHER")})
 
+system.time({distalr_mms_output <- distalr(taleParts = partsForDistalr,
+                              repeats.cluster.h.cut = 10, ncores = 6,
+                              pairwiseAlnMethod = "mmseq2",
+                              condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")})
 
 ```
 
@@ -184,7 +182,8 @@ Now, we can take a look at whether the results of the original Distal script are
 ```{r correlation of TALE similarity from various distal implementations, fig.width = 4, fig.height=4}
 talSimOutAgregated <- list(distalALV = distal_output$tal.similarity,
      distalDECI = distalr_deci_output$tal.similarity,
-     distalBIOS = distalr_bs_output$tal.similarity
+     distalBIOS = distalr_bs_output$tal.similarity,
+     distalMMS = distalr_mms_output$tal.similarity
 ) %>% bind_rows(.id = "method")
 
 talSimOutAgregatedLong <- reshape2::dcast(talSimOutAgregated %>% select(method, TAL1, TAL2, Sim),
@@ -206,7 +205,7 @@ talSimOutAgregated <- reshape2::dcast(talSimOutAgregated %>% select(method, TAL1
 ```
 
 
-```{r pair plot of TALE similarity from various distal implementations, fig.width = 4, fig.height=4}
+```{r pair plot of TALE similarity from various distal implementations, fig.width = 6, fig.height= 6}
 # talSimOutAgregated %>%
 #   select(-distalBIOS) %>%
 #   mutate(pointLab = paste(TAL1, TAL2, sep = "|")) %>%
@@ -214,7 +213,7 @@ talSimOutAgregated <- reshape2::dcast(talSimOutAgregated %>% select(method, TAL1
 #   geom_point() +
 #   geom_abline(intercept = 0, slope = 1)
 
-pairs(talSimOutAgregated[3:5], pch = 20, cex = 0.5, lower.panel = NULL)
+pairs(talSimOutAgregated[3:6], pch = 20, cex = 0.5, lower.panel = NULL)
 ```
 
 
@@ -237,6 +236,9 @@ groupsBIOS <- invisible(groupTales(taleSim = distalr_bs_output$tal.similarity,
                      plotTree = TRUE, k = k, k_test = 10:40,
                      method = "k-medoids"))
 
+groupsMMS <- invisible(groupTales(taleSim = distalr_mms_output$tal.similarity,
+                     plotTree = TRUE, k = k, k_test = 10:40,
+                     method = "k-medoids"))
 
 
 grp <- groupTales(taleSim = distal_output$tal.similarity,
@@ -248,20 +250,21 @@ grp <- groupTales(taleSim = distalr_deci_output$tal.similarity,
 grp <- groupTales(taleSim = distalr_bs_output$tal.similarity,
                      plotTree = TRUE, k = k,
                      method = "hclust")
+grp <- groupTales(taleSim = distalr_mms_output$tal.similarity,
+                     plotTree = TRUE, k = k,
+                     method = "hclust")
+
+```
+
+We can compare the hierarchical trees obtained with the original Distal tree (left) and distalr with DICEPHER (right). Because PXO86 is the only Asian strain and these TALEs are rather distantly related to African ones, the part of the trees with PXO86 TALEs are not really meaningful in this context.
 
 
-
+```{r tale trees comparisons distal vs deci, fig.width = 8, fig.height=8}
 getTALEsTree <- function(taleSim) {
   distMat <- 100 - reshape2::acast(taleSim, formula = TAL1 ~ TAL2, value.var = "Sim")
   hclust(dist(distMat, method = "euclidean"), method = "ward.D")
 }
 
-```
-
-We can compare the hierarchical trees obtained with the original Distal tree (left) and distalr with DICEPHER (right). Because PXO86 is the only Asian strain and these TALEs are rather distantly related to African ones, the part of the trees with PXO86 TALEs are not really meaningfull in this context.
-
-
-```{r tale trees comparisons, fig.width = 8, fig.height=8}
 op <- par()
 suppressWarnings(par(cex = 0.5))
 ape::cophyloplot(getTALEsTree(distal_output$tal.similarity) %>% as.phylo(),
@@ -272,6 +275,20 @@ ape::cophyloplot(getTALEsTree(distal_output$tal.similarity) %>% as.phylo(),
                  col = "red")
 suppressWarnings(par(op))
 ```
+
+
+```{r tale trees comparisons distal vs mms, fig.width = 8, fig.height=8}
+op <- par()
+suppressWarnings(par(cex = 0.5))
+ape::cophyloplot(getTALEsTree(distal_output$tal.similarity) %>% as.phylo(),
+                 getTALEsTree(distalr_mms_output$tal.similarity) %>% as.phylo(),
+                 assoc = matrix(rep(distal_output$tal.similarity$TAL1 %>% unique() %>% as.character(), 2),
+                                ncol = 2, byrow = FALSE),
+                 length.line = 0, space=200, gap = 10,
+                 col = "red")
+suppressWarnings(par(op))
+```
+
 
 
 ```{r test_tale_group}

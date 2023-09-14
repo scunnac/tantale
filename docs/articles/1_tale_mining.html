@@ -26,7 +26,7 @@
     
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.7001</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="">0.1.9001</small>
 
     
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -92,7 +92,7 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://github.com/rstudio/DT" class="external-link">DT</a></span><span class="op">)</span></span></code></pre></div>
 <p>In the first four articles, we illustrate the various major approaches employed in a typical study of TALE diversity and function from a set of bacterial genome sequences.</p>
 <p>This first article covers all the steps in a TALE mining pipeline from “accurate” or “error-prone” Xoo genome sequences using functions in package <code>tantale</code>.<br>
-Genomes used for this vignette are MAI1, BAI3, BAI3-1-1 (an error-prone genome with TalC deleted) and PXO86, an outgroup Asian strain.<br></p>
+Genomes used for this vignette are MAI1, BAI3, BAI3-1-1 (an error-prone genome with <em>talC</em> deleted) and PXO86, an outgroup Asian strain.<br></p>
 <p>Get the fasta files:</p>
 <div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mai1_fa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"MAI1.fa"</span>, package <span class="op">=</span> <span class="st">"tantale"</span>, mustWork <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
@@ -143,19 +143,19 @@ Genomes used for this vignette are MAI1, BAI3, BAI3-1-1 (an error-prone genome w
 <span><span class="co">#&gt;&gt; Finding the closest reference amino acid sequences:</span></span>
 <span><span class="co">#&gt;&gt; ================================================================================</span></span>
 <span><span class="co">#&gt;&gt; </span></span>
-<span><span class="co">#&gt;&gt; Time difference of 0.45 secs</span></span>
+<span><span class="co">#&gt;&gt; Time difference of 1.05 secs</span></span>
 <span><span class="co">#&gt;&gt; Assessing frameshifts in nucleotide sequences:</span></span>
 <span><span class="co">#&gt;&gt; ================================================================================</span></span>
 <span><span class="co">#&gt;&gt; </span></span>
-<span><span class="co">#&gt;&gt; Time difference of 417.97 secs</span></span>
+<span><span class="co">#&gt;&gt; Time difference of 415.71 secs</span></span>
 <span><span class="co">#&gt;&gt; #****************************************</span></span>
 <span><span class="co">#&gt;&gt; #**   tellTale analysis done     **</span></span>
-<span><span class="co">#&gt;&gt; Current date:   Tue Sep  5 21:33:59 2023</span></span>
+<span><span class="co">#&gt;&gt; Current date:   Thu Sep 14 16:32:04 2023</span></span>
 <span><span class="co">#&gt;&gt; #_________Provided I/O parameters __________</span></span>
-<span><span class="co">#&gt;&gt; File of subject DNA sequences:  /tmp/Rtmpvop1Ed/file68c8a28e7fccc</span></span>
-<span><span class="co">#&gt;&gt; TALE N-term CDS region detection HMM file:  /tmp/RtmpgHcUxI/temp_libpath648536bc4a24a/tantale/extdata/hmmProfile/Xo_TALE_Nterm_CDS_profile.hmm</span></span>
-<span><span class="co">#&gt;&gt; TALE repeat unit CDS detection HMM file:    /tmp/RtmpgHcUxI/temp_libpath648536bc4a24a/tantale/extdata/hmmProfile/Xo_TALE_repeat_CDS_profile.hmm</span></span>
-<span><span class="co">#&gt;&gt; TALE C-term CDS region detection HMM file:  /tmp/RtmpgHcUxI/temp_libpath648536bc4a24a/tantale/extdata/hmmProfile/Xo_TALE_Cterm_CDS_profile.hmm</span></span>
+<span><span class="co">#&gt;&gt; File of subject DNA sequences:  /tmp/RtmpKsZes1/file298c35c6bd8b0</span></span>
+<span><span class="co">#&gt;&gt; TALE N-term CDS region detection HMM file:  /tmp/RtmpS9Gu6H/temp_libpath2942673fe879c/tantale/extdata/hmmProfile/Xo_TALE_Nterm_CDS_profile.hmm</span></span>
+<span><span class="co">#&gt;&gt; TALE repeat unit CDS detection HMM file:    /tmp/RtmpS9Gu6H/temp_libpath2942673fe879c/tantale/extdata/hmmProfile/Xo_TALE_repeat_CDS_profile.hmm</span></span>
+<span><span class="co">#&gt;&gt; TALE C-term CDS region detection HMM file:  /tmp/RtmpS9Gu6H/temp_libpath2942673fe879c/tantale/extdata/hmmProfile/Xo_TALE_Cterm_CDS_profile.hmm</span></span>
 <span><span class="co">#&gt;&gt; Output directory:   /home/cunnac/TEMP/test_tantale/telltale/BAI3-1-1_correction</span></span>
 <span><span class="co">#&gt;&gt; #____________Other parameters________________</span></span>
 <span><span class="co">#&gt;&gt; TALE_NtermDNAHitMinScore    :   300</span></span>
@@ -166,7 +166,7 @@ Genomes used for this vignette are MAI1, BAI3, BAI3-1-1 (an error-prone genome w
 <span><span class="co">#&gt;&gt; minGapWidth :   35</span></span>
 <span><span class="co">#&gt;&gt; extendedLength  :   300</span></span>
 <span><span class="co">#&gt;&gt; talArrayCorrection  :   TRUE</span></span>
-<span><span class="co">#&gt;&gt; refForTalArrayCorrection    :   /tmp/RtmpgHcUxI/temp_libpath648536bc4a24a/tantale/extdata/decipher_ref_tales_aa.fa.gz</span></span>
+<span><span class="co">#&gt;&gt; refForTalArrayCorrection    :   /tmp/RtmpS9Gu6H/temp_libpath2942673fe879c/tantale/extdata/decipher_ref_tales_aa.fa.gz</span></span>
 <span><span class="co">#&gt;&gt; frameShiftCorrection    :   -11</span></span>
 <span><span class="co">#&gt;&gt; #__________Summary measures of TALE search outcome__________</span></span>
 <span><span class="co">#&gt;&gt; Number of analysed subject sequences :  2</span></span>

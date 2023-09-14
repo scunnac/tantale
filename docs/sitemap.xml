@@ -64,10 +64,16 @@
     <loc>https://scunnac.github.io/tantale/reference/correcTales.html</loc>
   </url>
   <url>
+    <loc>https://scunnac.github.io/tantale/reference/diagnoseTaleParts.html</loc>
+  </url>
+  <url>
     <loc>https://scunnac.github.io/tantale/reference/distalr.html</loc>
   </url>
   <url>
     <loc>https://scunnac.github.io/tantale/reference/getRepeat2RvdMapping.html</loc>
+  </url>
+  <url>
+    <loc>https://scunnac.github.io/tantale/reference/getRepeat2RvdMappingFromDistalr.html</loc>
   </url>
   <url>
     <loc>https://scunnac.github.io/tantale/reference/getTaleParts.html</loc>
@@ -85,6 +91,9 @@
     <loc>https://scunnac.github.io/tantale/reference/index.html</loc>
   </url>
   <url>
+    <loc>https://scunnac.github.io/tantale/reference/plotTaleComposition.html</loc>
+  </url>
+  <url>
     <loc>https://scunnac.github.io/tantale/reference/plotTaleTargetPred.html</loc>
   </url>
   <url>
@@ -95,6 +104,9 @@
   </url>
   <url>
     <loc>https://scunnac.github.io/tantale/reference/runDistal.html</loc>
+  </url>
+  <url>
+    <loc>https://scunnac.github.io/tantale/reference/taleParts2RvdStringSet.html</loc>
   </url>
   <url>
     <loc>https://scunnac.github.io/tantale/reference/talvez.html</loc>
