@@ -1,6 +1,6 @@
 Package: tantale
 Title: Transcription Activator-Like Effectors (TALEs) tools
-Version: 0.1.9001
+Version: 0.1.9500
 Authors@R: c(
     person(given = c("Bao", "Tram"), family ="Vi",
     email = "vbt576@gmail.com", role = c("aut")),
@@ -20,7 +20,7 @@ Imports:
     RColorBrewer, dichromat,
     biovizBase, IRanges, Biostrings, GenomicRanges, GenomicFeatures, BSgenome, plyranges,
     Rsamtools, systemPipeR, msa, DECIPHER,
-    ape, ggtree,
+    ape, ggtree, aplot,
     gplots,
     reticulate, optparse, logger
 Suggests:

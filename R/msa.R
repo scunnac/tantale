@@ -191,7 +191,7 @@ buildRepeatMsa <- function(inputSeqs, sep = " ", distalRepeatSims = NULL,
 
 
 ##### Tale domains msa plotting ####
-#' Plotting of multiple alinged Tal sequences
+#' Plotting a multiple alignment of TALE sequences
 #' @description Plot in frame of \code{\link[gplots:heatmap.2]{heatmap.2}} for Tals alignment.
 #' 
 #' @details
@@ -535,6 +535,334 @@ heatmap_msa <- function(talsim, repeatAlign, rvdAlign = NULL, repeatSim, repeat.
     dev.off()
   }
   return(invisible(heatmap_plot))
+}
+
+
+
+#' 'Nice' plotting a multiple alignment of TALE sequences
+#' @description Plot TALEs msa in the ggplot2 framework.
+#' 
+#' @details
+#' This function as a similar purpose as \code{\link[tantale:heatmap_msa]{heatmap_msa}} but
+#' has been implemented with \code{\link[ggplot2:ggplot]{ggplot}}. It is more versatile
+#' (takes single row matrices of alignment) but a bit slower.
+#' 
+#' The type of plot that you will get will depend on the provided information in the
+#' form of arguments. See the tantale website for detailled usage cases.
+#' 
+#' Right now the only mandatory argument is \code{repeatAlign} but ultimately it will
+#' be either \code{repeatAlign} \strong{or} \code{rvdAlign}.
+#' 
+#' The plot is printed and returned for further modifications is necessary.
+#' 
+#' 
+#' @param talsim a \emph{three columns Tals similarity table} as obtained
+#'  with \code{\link[tantale:runDistal]{runDistal}} in the 'tal.similarity' slot of the returned object.
+#' @param repeatAlign a multiple Tal repeat sequences alignment in the
+#'  form of a matrix as returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}}
+#'  or as one of the elements of the \code{SeqOfRepsAlignments} slot in the return object
+#'  of the \code{\link{buildDisTalGroups}} function.
+#' @param repeatSim A long, three columns data frame with pairwise similarity 
+#' scores between repeats as available in the \code{repeat.similarity slot}
+#' of the object returned by the \code{\link[tantale:runDistal]{runDistal}} function.
+#' @param repeat.clust.h.cut height for tree cutting when defining domain/repeat clusters.
+#' @param rvdAlign a multiple Tal RVD sequences alignment in the form of a matrix as
+#'  returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}} or as one
+#'  of the elements of the \code{SeqOfRepsAlignments} slot in the return object
+#'  of the \code{\link{buildDisTalGroups}} function. 
+#' @param refgrep Regular expression pattern that will be used to search TALE names
+#' to select the reference in the alignment.
+#' @param consensusSeq (logical) Whether to display the consensus sequence
+#'  **NOT IMPLEMENTED YET**
+#' @param fillType Either "repeatClust" or "repeatSim". If both options are possible
+#' because all the necessary information is there, this argument will decide what type of
+#' 'box color filling' is employed and it is either based on the cluster where the repeat
+#' falls after clustering all the repeat in the alignment or it is based on the 
+#' amino acid similarity between a repeat at a position and the repeat of the 'reference'
+#' TALE at this position.
+#' @return An \code{\link[aplot:insert_left]{aplot}} object.
+#' 
+#' @export
+ggplotTalesMsa <- function(repeatAlign,
+                           talsim = NULL,
+                           rvdAlign = NULL,
+                           repeatSim = NULL,
+                           repeat.clust.h.cut = 90,
+                           refgrep = NULL,
+                           consensusSeq = FALSE,
+                           fillType = "repeatClust" #"repeatSim"
+) {
+  
+  #### TODO implement rvd align only plotting #### 
+  
+  countOfTales <- nrow(repeatAlign)
+  if (is.null(countOfTales)) {
+    logger::log_error("Check the provided input repeatAlign matrix.",
+                      "It may conain a single sequence that was coerced to vector rather than remaining a matrix...",
+                      .sep = " ")
+    stop()
+  }
+  if (!is.null(rvdAlign) & is.null(nrow(rvdAlign))) {
+    logger::log_error("Check the provided input rvdAlign matrix.",
+                      "It may conain a single sequence that was coerced to vector rather than remaining a matrix...",
+                      .sep = " ")
+    stop()
+  }
+  if (countOfTales < 1) {
+    logger::log_error("The provided input repeatAlign matrix has less than one sequence. Cannot proceed...")
+    stop()
+  }
+  # Getting repeat align
+  repeatAlignLong <- repeatAlign %>% reshape2::melt() %>%
+    dplyr::as_tibble()
+  colnames(repeatAlignLong) <- c("arrayID", "positionInArray", "domCode")
+  repeatAlignLong %<>% dplyr::mutate(arrayID = as.character(arrayID))
+  
+  consensusRepeat <- sapply(1:ncol(repeatAlign), function(x) {
+    allRepeats <- repeatAlign[,x]
+    freq <- sapply(unique(allRepeats), function(p) S4Vectors::countMatches(p, repeatAlign))
+    unique(allRepeats)[which.max(freq)]
+  })
+  repeatCol <- repeatAlign
+  for (k in 1:ncol(repeatCol)){
+    rept <- consensusRepeat[k]
+    if (is.na(rept)) {
+      repeatCol[,k] <- FALSE
+    } else {
+      repeatCol[,k] <- ifelse(toupper(repeatCol[,k]) == toupper(rept), TRUE, FALSE)
+    }
+  }
+  repeatMatchConsensusLong <- repeatCol %>% reshape2::melt() %>%
+    dplyr::as_tibble()
+  colnames(repeatMatchConsensusLong) <- c("arrayID", "positionInArray", "matchConsensusRepeat")
+  repeatAlignLong %<>% dplyr::left_join(repeatMatchConsensusLong,
+                                        by = dplyr::join_by(arrayID, positionInArray))
+  
+  
+  # Getting rvd align if available and joining
+  if (!is.null(rvdAlign)) {
+    rvdAlignLong <- rvdAlign %>% reshape2::melt() %>%
+      dplyr::as_tibble()
+    colnames(rvdAlignLong) <- c("arrayID", "positionInArray", "rvd")
+    # Join with main tible
+    repeatAlignLong %<>% dplyr::left_join(rvdAlignLong,
+                                          by = dplyr::join_by(arrayID, positionInArray))
+    repeatAlignLong %<>% dplyr::mutate(rvd = gsub("NTERM", "N-", rvd),
+                                       rvd = gsub("CTERM", "-C", rvd)
+    )
+    
+    # Tale rvd text color if possible
+    # consensus RVD sequence
+    # Coloring of RVDs in alignment depending on whether they match the consensus at
+    # the position
+    consensusRVD <- sapply(1:ncol(rvdAlign), function(x) {
+      allRVDs <- rvdAlign[,x]
+      freq <- sapply(unique(allRVDs), function(p) S4Vectors::countMatches(p, allRVDs))
+      unique(allRVDs)[which.max(freq)]
+    })
+    rvdConsensusSeqLong <- tibble::tibble(arrayID = "Consensus",
+                                          positionInArray = seq_along(consensusRVD),
+                                          rvd = consensusRVD,
+                                          matchConsensusRvd = TRUE,
+                                          domCode = NA,
+                                          repeatClusterId = NA,
+                                          repeatSimVsRef = NA
+    )
+    rvdcol <- rvdAlign
+    for (k in 1:ncol(rvdcol)) {
+      rvd <- consensusRVD[k]
+      if (is.na(rvd)) {
+        rvdcol[,k] <- FALSE
+      } else {
+        rvdcol[,k] <- ifelse(toupper(rvdcol[,k]) == toupper(rvd), TRUE, FALSE)
+      }
+    }
+    rvdMatchConsensusLong <- rvdcol %>% reshape2::melt() %>%
+      dplyr::as_tibble()
+    colnames(rvdMatchConsensusLong) <- c("arrayID", "positionInArray", "matchConsensusRvd")
+    # Join with main tible
+    repeatAlignLong %<>% dplyr::left_join(rvdMatchConsensusLong,
+                                          by = dplyr::join_by(arrayID, positionInArray))
+  }
+  
+  
+  
+  # joining repeat cluster if possible
+  # joining repeat similarity relative to ref
+  if (!is.null(repeatSim) & !is.null(repeatAlign)) {
+    repeatClusterAlignLong <- convertRepeat2ClusterIDAlign(repeatAlign = repeatAlign,
+                                                           repeatSim = repeatSim,
+                                                           h.cut = repeat.clust.h.cut) %>%
+      reshape2::melt() %>%
+      dplyr::as_tibble() %>%
+      dplyr::mutate(value = as.character(value))
+    colnames(repeatClusterAlignLong) <- c("arrayID", "positionInArray", "repeatClusterId")
+    
+    refTaleId <- pickRefName(align = repeatAlign, refTag = refgrep)
+    repeatSimAlignLong <- convertRepeat2SimAlign(repeatAlign = repeatAlign,
+                                                 repeatSim = repeatSim,
+                                                 refTag = refgrep) %>%
+      reshape2::melt() %>%
+      dplyr::as_tibble()
+    colnames(repeatSimAlignLong) <- c("arrayID", "positionInArray", "repeatSimVsRef")
+    # Join with main tible
+    repeatAlignLong %<>%
+      dplyr::left_join(repeatClusterAlignLong,
+                       by = dplyr::join_by(arrayID, positionInArray)) %>%
+      dplyr::left_join(repeatSimAlignLong,
+                       by = dplyr::join_by(arrayID, positionInArray))
+  }
+  # Building TALE tree
+  if (!is.null(talsim) & !is.null(repeatAlign) & countOfTales > 1) {
+    talsimForDendo <- talsim[talsim$TAL1 %in% rownames(repeatAlign), ]
+    talsimForDendo <- talsimForDendo[talsimForDendo$TAL2 %in% rownames(repeatAlign), ]
+    talsimForDendo <- as.matrix(reshape2::acast(talsimForDendo, TAL1 ~ TAL2, value.var = "Sim")) # melt then unmelt ...
+    taldist <- 100 - talsimForDendo
+    taldist <- taldist[rownames(repeatAlign), ]
+    taldist <- taldist[, rownames(repeatAlign)]
+    taleshclust <- stats::hclust(as.dist(taldist))
+  }
+  
+  
+  # Add a symbol to designate the reference
+  if (exists("refTaleId")) { # in the tibble
+    repeatAlignLong$arrayID[repeatAlignLong$arrayID == refTaleId] <-  paste0(
+      repeatAlignLong$arrayID[repeatAlignLong$arrayID == refTaleId],
+      "_#"
+    )
+  }
+  if (exists("refTaleId") & exists("taleshclust")) { # in the tree
+    taleshclust$labels[taleshclust$labels == refTaleId] <- paste0(
+      taleshclust$labels[taleshclust$labels == refTaleId],
+      "_#"
+    )
+  }
+  
+  #### TODO: Bind a 'consensus' tibbe if requested ####
+  
+  
+  # Create base plot
+  bp <- repeatAlignLong %>% ggplot2::ggplot(mapping = ggplot2::aes(
+    x = positionInArray, y = arrayID)
+  ) +
+    ggplot2::scale_x_discrete(
+      name = "Position in array",
+      limits = factor(1:max(repeatAlignLong$positionInArray))
+    ) +
+    ggplot2::scale_y_discrete(name = NULL) +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(legend.position = "top")
+  
+  # COLORS in plots
+  repeatClusterFillPaletteFunct <- colorRampPalette(c("#421727", "#6e2742", "#9a365c", "#b03e69", "#ffffff"))
+  repeatClusterFillScale <- ggplot2::scale_fill_manual(name = "Repeats cluster",
+                                                       drop = TRUE,
+                                                       na.translate = FALSE,
+                                                       palette = repeatClusterFillPaletteFunct,
+                                                       guide = NULL)
+  repeatSimFillScale <- ggplot2::scale_fill_gradient(name = "Similarity relative to reference",
+                                                     limits = c(70, 100),
+                                                     low = "red", high = "lightgrey")
+  labelConsensusColorScale <- ggplot2::scale_color_manual(name = "Match consensus?",
+                                                          values = c(`TRUE` = "black",
+                                                                     `FALSE` = "red")
+  )
+  # Add aesthetics as requested AND possible
+  
+  #### TODO: add the consensus in the plot ####
+  
+  if (!is.null(repeatSim) & !is.null(rvdAlign)) {
+    if (fillType == "repeatSim") {
+      p <- bp +
+        repeatSimFillScale +
+        labelConsensusColorScale +
+        ggplot2::geom_label(mapping = ggplot2::aes(fill = repeatSimVsRef,
+                                                   label = rvd,
+                                                   color = matchConsensusRvd),
+                            label.size = NA,
+                            family = "mono",
+                            size = 3, fontface = "bold",
+                            na.rm = TRUE
+        )
+    } else if (fillType == "repeatClust") {
+      p <- bp +
+        repeatClusterFillScale +
+        labelConsensusColorScale +
+        ggplot2::geom_label(mapping = ggplot2::aes(fill = repeatClusterId,
+                                                   label = rvd,
+                                                   color = matchConsensusRvd),
+                            label.size = NA,
+                            family = "mono",
+                            size = 3, fontface = "bold",
+                            na.rm = TRUE
+        )
+    } else {
+      logger::log_error("the fillType value must be either 'repeatSim' or 'repeatClust'")
+      stop()
+    }
+  } else if (!is.null(repeatSim) & is.null(rvdAlign)) {
+    if (fillType == "repeatSim") {
+      p <- bp +
+        repeatSimFillScale +
+        labelConsensusColorScale +
+        ggplot2::geom_label(mapping = ggplot2::aes(fill = repeatSimVsRef,
+                                                   label = domCode,
+                                                   color = matchConsensusRepeat),
+                            label.size = NA,
+                            family = "mono",
+                            size = 3, fontface = "bold",
+                            na.rm = TRUE
+        )
+    } else if (fillType == "repeatClust") {
+      p <- bp +
+        repeatClusterFillScale +
+        labelConsensusColorScale +
+        ggplot2::geom_label(mapping = ggplot2::aes(fill = repeatClusterId,
+                                                   label = domCode,
+                                                   color = matchConsensusRepeat),
+                            label.size = NA,
+                            family = "mono",
+                            size = 3, fontface = "bold",
+                            na.rm = TRUE
+        )
+    } else {
+      logger::log_error("the fillType value must be either 'repeatSim' or 'repeatClust'")
+      stop()
+    }
+  } else if (is.null(repeatSim) & !is.null(rvdAlign)) {
+    p <- bp + 
+      labelConsensusColorScale +
+      ggplot2::geom_label(mapping = ggplot2::aes(label = rvd,
+                                                 color = matchConsensusRvd),
+                          label.size = NA,
+                          family = "mono",
+                          size = 3, fontface = "bold",
+                          na.rm = TRUE
+      )
+  } else if (is.null(repeatSim) & is.null(rvdAlign)) {
+    p <- bp +
+      labelConsensusColorScale +
+      ggplot2::geom_label(mapping = ggplot2::aes(label = domCode,
+                                                 color = matchConsensusRepeat),
+                          fill = "white",
+                          label.size = NA,
+                          family = "mono",
+                          size = 3, fontface = "bold",
+                          na.rm = TRUE
+      )
+  } else {
+    logger::log_error("Cannot ouput a plot based on the suppplied combination of parameter values...")
+    stop()
+  }
+  # Merge tree and align
+  if (exists("taleshclust")) {
+    t <- ggtree::ggtree(ape::as.phylo(taleshclust))
+    finalPlot <- p %>% aplot::insert_left(t, width = .1)
+  } else {
+    finalPlot <- p
+  }
+  print(finalPlot)
+  return(finalPlot)
 }
 
 
