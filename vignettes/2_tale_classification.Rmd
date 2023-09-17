@@ -70,7 +70,7 @@ To classify TALE groups, we use the function `runDistal()` to run the tool DisTa
 
 We run DisTal for all the putative TALE ORFs (from `telltale` output).
 
-```{r distal_io, cache = TRUE, warning=FALSE}
+```{r distal_io, cache = FALSE, warning=FALSE}
 distal_telltale <- file.path(outdir, "distal")
 unlink(distal_telltale, recursive = TRUE)
 dir.create(distal_telltale, showWarnings = F)

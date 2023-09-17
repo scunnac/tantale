@@ -79,6 +79,9 @@
     <loc>https://scunnac.github.io/tantale/reference/getTaleParts.html</loc>
   </url>
   <url>
+    <loc>https://scunnac.github.io/tantale/reference/ggplotTalesMsa.html</loc>
+  </url>
+  <url>
     <loc>https://scunnac.github.io/tantale/reference/groupTales.html</loc>
   </url>
   <url>
@@ -89,6 +92,9 @@
   </url>
   <url>
     <loc>https://scunnac.github.io/tantale/reference/index.html</loc>
+  </url>
+  <url>
+    <loc>https://scunnac.github.io/tantale/reference/matchConsensus.html</loc>
   </url>
   <url>
     <loc>https://scunnac.github.io/tantale/reference/plotTaleComposition.html</loc>
@@ -104,6 +110,9 @@
   </url>
   <url>
     <loc>https://scunnac.github.io/tantale/reference/runDistal.html</loc>
+  </url>
+  <url>
+    <loc>https://scunnac.github.io/tantale/reference/taleAlignConsensus.html</loc>
   </url>
   <url>
     <loc>https://scunnac.github.io/tantale/reference/taleParts2RvdStringSet.html</loc>

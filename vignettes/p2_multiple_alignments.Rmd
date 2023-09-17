@@ -24,9 +24,7 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>>")
 rmarkdown::render(input = "/home/cunnac/Lab-Related/MyScripts/tantale/vignettes/multiple_alignments.Rmd")
 
 pkgdown::build_site(pkg = "/home/cunnac/Lab-Related/MyScripts/tantale",
-                    lazy = FALSE,
-                    quiet = FALSE
-                    )
+                    lazy = TRUE)
 
 pkgdown::build_article(pkg = "/home/cunnac/Lab-Related/MyScripts/tantale",
                     name = "4_multiple_alignments",
@@ -96,7 +94,7 @@ distalrOut <- readRDS(file = system.file("extdata", "sampleDistalrOutput.rds",
 repeatMsaByGroup <- readRDS(file = system.file("extdata", "sampleRepeatMsaByGroup.rds",
                                               package = "tantale", mustWork = TRUE))
 
-repeatAlign <- repeatMsaByGroup[[6]]
+repeatAlign <- repeatMsaByGroup[[4]]
 rvdAlign <- convertRepeat2RvdAlign(repeatAlign = repeatAlign,
                                    repeat2RvdMapping = getRepeat2RvdMappingFromDistalr(distalrOut$taleParts))
 ```
@@ -132,7 +130,7 @@ Now we can modify the color scales and replot to check this is what we want.
 
 ```{r The modified alignment part of the aplot, fig.width=12, fig.height=2.5}
 cat("modifying the original alignment as a ggplot")
-p2 <- p1$plotlist[[1]] + ggplot2::scale_fill_distiller() + ggplot2::scale_color_discrete()
+p2 <- p1$plotlist[[1]] + ggplot2::scale_fill_viridis_c() + ggplot2::scale_color_discrete()
 p2
 ```
 

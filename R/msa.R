@@ -785,7 +785,7 @@ ggplotTalesMsa <- function(repeatAlign,
     )
   }
   
-  #### TODO: Bind a 'consensus' tibbe if requested ####
+  #### TODO: Bind a 'consensus' tibbe or a consensus plot if requested ####
   
   
   # Create base plot
@@ -801,7 +801,7 @@ ggplotTalesMsa <- function(repeatAlign,
     ggplot2::theme(legend.position = "top")
   
   # COLORS in plots
-  repeatClusterFillPaletteFunct <- colorRampPalette(c("#421727", "#6e2742", "#9a365c", "#b03e69", "#ffffff"))
+  repeatClusterFillPaletteFunct <- colorRampPalette(c("#421727", "#6e2742", "#9a365c", "#b03e69", "azure2"))
   repeatClusterFillScale <- ggplot2::scale_fill_manual(name = "Repeats cluster",
                                                        drop = TRUE,
                                                        na.translate = FALSE,
@@ -810,14 +810,15 @@ ggplotTalesMsa <- function(repeatAlign,
   # repeatSimFillScale <- ggplot2::scale_fill_gradient(name = "Similarity relative to reference",
   #                                                    limits = c(70, 100),
   #                                                    low = "red", high = "lightgrey")
-  repeatSimFillScale <- ggplot2::scale_fill_viridis_c(name = "Similarity relative to reference")
+  repeatSimFillScale <- ggplot2::scale_fill_distiller(name = "Similarity relative to reference",
+                                                      direction = -1)
   # labelConsensusColorScale <- ggplot2::scale_color_manual(name = "Match consensus?",
   #                                                         values = c(`TRUE` = "black",
   #                                                                    `FALSE` = "red")
   # )
   labelConsensusColorScale <- ggplot2::scale_color_manual(name = "Match consensus?",
-                                                          values = c(`TRUE` = "cornsilk",
-                                                                     `FALSE` = "cyan")
+                                                          values = c(`FALSE` = "deeppink2",
+                                                                     `TRUE` = "cyan3")
   )
   # Add aesthetics as requested AND possible
   
@@ -886,7 +887,7 @@ ggplotTalesMsa <- function(repeatAlign,
       labelConsensusColorScale +
       ggplot2::geom_label(mapping = ggplot2::aes(label = rvd,
                                                  color = matchConsensusRvd),
-                          fill = "grey50",
+                          fill = "grey80",
                           label.size = NA,
                           family = "mono",
                           size = 3, fontface = "bold",
@@ -897,7 +898,7 @@ ggplotTalesMsa <- function(repeatAlign,
       labelConsensusColorScale +
       ggplot2::geom_label(mapping = ggplot2::aes(label = domCode,
                                                  color = matchConsensusRepeat),
-                          fill = "grey50",
+                          fill = "grey80",
                           label.size = NA,
                           family = "mono",
                           size = 3, fontface = "bold",
