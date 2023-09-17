@@ -689,7 +689,7 @@ ggplotTalesMsa <- function(repeatAlign,
   }
   
   
-  # Getting rvd align if available and joining
+  # Getting rvd align if available
   if (!is.null(rvdAlign)) {
     rvdAlignLong <- rvdAlign %>% reshape2::melt() %>%
       dplyr::as_tibble()
@@ -718,6 +718,7 @@ ggplotTalesMsa <- function(repeatAlign,
                                           by = dplyr::join_by(arrayID, positionInArray))
   }
   
+  # Assign main alignment object in long format
   if (!is.null(repeatAlign) & !is.null(rvdAlign)) {
     repeatAlignLong %<>% dplyr::inner_join(rvdAlignLong,
                                           by = dplyr::join_by(arrayID, positionInArray),
@@ -758,7 +759,7 @@ ggplotTalesMsa <- function(repeatAlign,
   }
   
   
-  # Building TALE tree
+  # Building TALE tree if possible
   if (!is.null(talsim) & countOfTales > 1) {
     talsimForDendo <- talsim[talsim$TAL1 %in% arrayNames, ]
     talsimForDendo <- talsimForDendo[talsimForDendo$TAL2 %in% arrayNames, ]
@@ -770,7 +771,7 @@ ggplotTalesMsa <- function(repeatAlign,
   }
   
   
-  # Add a symbol to designate the reference
+  # Add a symbol to designate the reference if necessary
   if (exists("refTaleId")) { # in the tibble
     repeatAlignLong$arrayID[repeatAlignLong$arrayID == refTaleId] <-  paste0(
       repeatAlignLong$arrayID[repeatAlignLong$arrayID == refTaleId],
@@ -806,12 +807,17 @@ ggplotTalesMsa <- function(repeatAlign,
                                                        na.translate = FALSE,
                                                        palette = repeatClusterFillPaletteFunct,
                                                        guide = NULL)
-  repeatSimFillScale <- ggplot2::scale_fill_gradient(name = "Similarity relative to reference",
-                                                     limits = c(70, 100),
-                                                     low = "red", high = "lightgrey")
+  # repeatSimFillScale <- ggplot2::scale_fill_gradient(name = "Similarity relative to reference",
+  #                                                    limits = c(70, 100),
+  #                                                    low = "red", high = "lightgrey")
+  repeatSimFillScale <- ggplot2::scale_fill_viridis_c(name = "Similarity relative to reference")
+  # labelConsensusColorScale <- ggplot2::scale_color_manual(name = "Match consensus?",
+  #                                                         values = c(`TRUE` = "black",
+  #                                                                    `FALSE` = "red")
+  # )
   labelConsensusColorScale <- ggplot2::scale_color_manual(name = "Match consensus?",
-                                                          values = c(`TRUE` = "black",
-                                                                     `FALSE` = "red")
+                                                          values = c(`TRUE` = "cornsilk",
+                                                                     `FALSE` = "cyan")
   )
   # Add aesthetics as requested AND possible
   
@@ -880,6 +886,7 @@ ggplotTalesMsa <- function(repeatAlign,
       labelConsensusColorScale +
       ggplot2::geom_label(mapping = ggplot2::aes(label = rvd,
                                                  color = matchConsensusRvd),
+                          fill = "grey50",
                           label.size = NA,
                           family = "mono",
                           size = 3, fontface = "bold",
@@ -890,7 +897,7 @@ ggplotTalesMsa <- function(repeatAlign,
       labelConsensusColorScale +
       ggplot2::geom_label(mapping = ggplot2::aes(label = domCode,
                                                  color = matchConsensusRepeat),
-                          fill = "white",
+                          fill = "grey50",
                           label.size = NA,
                           family = "mono",
                           size = 3, fontface = "bold",
