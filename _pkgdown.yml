@@ -11,6 +11,8 @@ home:
         text:  <a href="https://en.ird.fr/">
                  <img src="./man/figures/IRD_2016_BLOC_UK_COUL.png" align="center" alt="IRD" width="35%"/>
               </a>
+development:
+  mode: auto
 #  theme: espresso
 #footer:
 #  structure: 

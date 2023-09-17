@@ -281,7 +281,6 @@ diag(identSubMat) <- 1
     dplyr::rename(subj = target, pattern = query) %>%
     dplyr::rowwise() %>%
     dplyr::mutate(Dissim = ifelse(is.na(pident), 100, 100 - pident*min(qcov,tcov))) %>%
-    #dplyr::mutate(Dissim = ifelse(is.na(pident), 100, 100 - pident)) %>%
     dplyr::ungroup()
 
   # Check the pairAlignScores tibble

@@ -17,4 +17,4 @@ editor_options:
 TODO!!!
 
 
-![workflows network](/home/cunnac/Lab-Related/MyScripts/tantale/man/figures/pipeline.svg)
+![workflows network](/home/cunnac/Lab-Related/MyScripts/tantale/man/figures/pipeline.png)

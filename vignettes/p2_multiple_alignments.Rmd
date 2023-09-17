@@ -27,7 +27,7 @@ pkgdown::build_site(pkg = "/home/cunnac/Lab-Related/MyScripts/tantale",
                     lazy = TRUE)
 
 pkgdown::build_article(pkg = "/home/cunnac/Lab-Related/MyScripts/tantale",
-                    name = "4_multiple_alignments",
+                    name = "p3_tantale_objects",
                     quiet = FALSE
                     )
 ```
