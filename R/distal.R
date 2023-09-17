@@ -220,7 +220,12 @@ buildDisTalGroups <- function(path, num.groups, overwrite = F) {
   talgroups <- read.table(check_files$talgroups, header = T)
   # talgroups <- readr::read_delim(talgroupsFile," ", escape_double = FALSE, trim_ws = TRUE)
 
-  outputlist <- list("SeqOfRvdAlignments" = RVDgroups, "SeqOfDistancesAlignments" = sim_within_group, "repeatUnitsDistanceMatrix" = dist_between_rep, "SeqOfRepsAlignments" = RepCodegroups, "TALgroups" = talgroups)
+  outputlist <- list("SeqOfRvdAlignments" = RVDgroups,
+                     "SeqOfDistancesAlignments" = sim_within_group,
+                     "repeatUnitsDistanceMatrix" = dist_between_rep,
+                     "SeqOfRepsAlignments" = RepCodegroups,
+                     "TALgroups" = talgroups
+                     )
   return(outputlist)
   }
 

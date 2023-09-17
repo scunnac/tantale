@@ -5,6 +5,8 @@
 #'
 #'@description An integrated collection of functions for (IDEALLY):
 #'
+#'Please take a look at the package \href{https://scunnac.github.io/tantale}{website}
+#'for further details.
 #'
 #'@section   - A TALE-oriented OOP framework:
 #'

@@ -16,37 +16,42 @@ ggplotTalesMsa(
 )
 }
 \arguments{
-\item{repeatAlign}{a multiple Tal repeat sequences alignment in the
-form of a matrix as returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}}
-or as one of the elements of the \code{SeqOfRepsAlignments} slot in the return object
-of the \code{\link{buildDisTalGroups}} function.}
+\item{repeatAlign}{A multiple Tal repeat sequences alignment in the form of a
+matrix as returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}}
+or as one of the elements of the \code{SeqOfRepsAlignments} slot in the
+return object of the \code{\link{buildDisTalGroups}} function.}
 
-\item{talsim}{a \emph{three columns Tals similarity table} as obtained
-with \code{\link[tantale:runDistal]{runDistal}} in the 'tal.similarity' slot of the returned object.}
+\item{talsim}{a \emph{three columns Tals similarity table} as obtained with
+\code{\link[tantale:runDistal]{runDistal}} in the 'tal.similarity' slot of
+the returned object.}
 
-\item{rvdAlign}{a multiple Tal RVD sequences alignment in the form of a matrix as
-returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}} or as one
-of the elements of the \code{SeqOfRepsAlignments} slot in the return object
-of the \code{\link{buildDisTalGroups}} function.}
+\item{rvdAlign}{A multiple Tal RVD sequences alignment in the form of a
+matrix as returned by \code{\link[tantale:convertRepeat2RvdAlign]{convertRepeat2RvdAlign}}, 
+ \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}} 
+or as one of the elements of the \code{SeqOfRepsAlignments} slot in the
+return object of the \code{\link{buildDisTalGroups}} function.}
 
-\item{repeatSim}{A long, three columns data frame with pairwise similarity 
-scores between repeats as available in the \code{repeat.similarity slot}
-of the object returned by the \code{\link[tantale:runDistal]{runDistal}} function.}
+\item{repeatSim}{A long, three columns data frame with pairwise similarity
+scores between repeats as available in the \code{repeat.similarity slot} of
+the object returned by the \code{\link[tantale:runDistal]{runDistal}} or the 
+the \code{\link[tantale:distalr]{distalr}} functions.}
 
-\item{repeat.clust.h.cut}{height for tree cutting when defining domain/repeat clusters.}
+\item{repeat.clust.h.cut}{height for tree cutting when defining domain/repeat
+clusters.}
 
-\item{refgrep}{Regular expression pattern that will be used to search TALE names
-to select the reference in the alignment.}
+\item{refgrep}{Regular expression pattern that will be used to search TALE
+names to select the reference in the alignment.}
 
 \item{consensusSeq}{(logical) Whether to display the consensus sequence
 **NOT IMPLEMENTED YET**}
 
-\item{fillType}{Either "repeatClust" or "repeatSim". If both options are possible
-because all the necessary information is there, this argument will decide what type of
-'box color filling' is employed and it is either based on the cluster where the repeat
-falls after clustering all the repeat in the alignment or it is based on the 
-amino acid similarity between a repeat at a position and the repeat of the 'reference'
-TALE at this position.}
+\item{fillType}{Either "repeatClust" or "repeatSim". If both options are
+possible because the necessary information is there (at least a
+\code{repeatSim} value), this argument will decide what type of 'box color
+filling' is employed and it is either based on the cluster where the repeat
+falls after clustering all the repeat in the alignment or it is based on
+the amino acid similarity between a repeat at a position and the repeat of
+the 'reference' TALE at this position.}
 }
 \value{
 An \code{\link[aplot:insert_left]{aplot}} object.
@@ -55,15 +60,17 @@ An \code{\link[aplot:insert_left]{aplot}} object.
 Plot TALEs msa in the ggplot2 framework.
 }
 \details{
-This function as a similar purpose as \code{\link[tantale:heatmap_msa]{heatmap_msa}} but
-has been implemented with \code{\link[ggplot2:ggplot]{ggplot}}. It is more versatile
-(takes single row matrices of alignment) but a bit slower.
+This function as a similar purpose as
+\code{\link[tantale:heatmap_msa]{heatmap_msa}} but has been implemented with
+\code{\link[ggplot2:ggplot]{ggplot}}. It is more versatile (takes single row
+matrices of alignment) but a bit slower.
 
-The type of plot that you will get will depend on the provided information in the
-form of arguments. See the tantale website for detailled usage cases.
+The type of plot that you will get will depend on the provided information in
+the form of parameter values See the tantale website for detailed usage
+cases.
 
-Right now the only mandatory argument is \code{repeatAlign} but ultimately it will
-be either \code{repeatAlign} \strong{or} \code{rvdAlign}.
+The only mandatory argument is either \code{repeatAlign} \strong{or}
+\code{rvdAlign}.
 
 The plot is printed and returned for further modifications is necessary.
 }

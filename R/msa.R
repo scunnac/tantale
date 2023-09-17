@@ -28,6 +28,51 @@ pickRefName <- function(align, refTag = NULL) {
   return(refName)
 }
 
+#' Compute a consensus from a TALE msa
+#' @description Pick the most frequent element in each column of the alignment matrix.
+#'
+#' @param align A multiple Tal sequences alignment in the form of a
+#'   matrix.
+#' @return A vector of consensus elements in each column of \code{align}.
+#' 
+#' @export
+taleAlignConsensus <- function(align) {
+  sapply(1:ncol(align), function(x) {
+  allElements <- align[,x]
+  freq <- sapply(unique(allElements), function(p) S4Vectors::countMatches(p, allElements))
+  unique(allElements)[which.max(freq)]
+})
+}
+
+#' Do elements in a TALE msa match the consensus?
+#' @description Compute a logical matrix corresponding to the input \code{align}
+#' input with \code{TRUE} if an element match the consensus element at that position
+#' or \code{FALSE} otherwise.
+#'
+#' @param align A multiple Tal sequences alignment in the form of a
+#'   matrix.
+#' @return A multiple Tal sequences alignment in the form of a
+#'   matrix filled with logical values if \code{} is \code{FALSE} and
+#'   a long tibble representing the original alignment otherwise (default).
+#' 
+#' @export
+matchConsensus <- function(align, returnLong = TRUE) {
+  consensus <- taleAlignConsensus(align)
+  align <- align
+  for (k in 1:ncol(align)){
+    rept <- consensus[k]
+    if (is.na(rept)) {
+      align[,k] <- FALSE
+    } else {
+      align[,k] <- ifelse(toupper(align[,k]) == toupper(rept), TRUE, FALSE)
+    }
+  }
+  if (!returnLong) return(align)
+  matchConsensusLong <- align %>% reshape2::melt() %>%
+    dplyr::as_tibble()
+  colnames(matchConsensusLong) <- c("arrayID", "positionInArray", "matchConsensus")
+  return(matchConsensusLong)
+}
 
 
 ##### Tale domains sequences multiple alignment ####
@@ -541,45 +586,51 @@ heatmap_msa <- function(talsim, repeatAlign, rvdAlign = NULL, repeatSim, repeat.
 
 #' 'Nice' plotting a multiple alignment of TALE sequences
 #' @description Plot TALEs msa in the ggplot2 framework.
-#' 
-#' @details
-#' This function as a similar purpose as \code{\link[tantale:heatmap_msa]{heatmap_msa}} but
-#' has been implemented with \code{\link[ggplot2:ggplot]{ggplot}}. It is more versatile
-#' (takes single row matrices of alignment) but a bit slower.
-#' 
-#' The type of plot that you will get will depend on the provided information in the
-#' form of arguments. See the tantale website for detailled usage cases.
-#' 
-#' Right now the only mandatory argument is \code{repeatAlign} but ultimately it will
-#' be either \code{repeatAlign} \strong{or} \code{rvdAlign}.
-#' 
+#'
+#' @details This function as a similar purpose as
+#' \code{\link[tantale:heatmap_msa]{heatmap_msa}} but has been implemented with
+#' \code{\link[ggplot2:ggplot]{ggplot}}. It is more versatile (takes single row
+#' matrices of alignment) but a bit slower.
+#'
+#' The type of plot that you will get will depend on the provided information in
+#' the form of parameter values See the tantale website for detailed usage
+#' cases.
+#'
+#' The only mandatory argument is either \code{repeatAlign} \strong{or}
+#' \code{rvdAlign}.
+#'
 #' The plot is printed and returned for further modifications is necessary.
-#' 
-#' 
-#' @param talsim a \emph{three columns Tals similarity table} as obtained
-#'  with \code{\link[tantale:runDistal]{runDistal}} in the 'tal.similarity' slot of the returned object.
-#' @param repeatAlign a multiple Tal repeat sequences alignment in the
-#'  form of a matrix as returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}}
-#'  or as one of the elements of the \code{SeqOfRepsAlignments} slot in the return object
-#'  of the \code{\link{buildDisTalGroups}} function.
-#' @param repeatSim A long, three columns data frame with pairwise similarity 
-#' scores between repeats as available in the \code{repeat.similarity slot}
-#' of the object returned by the \code{\link[tantale:runDistal]{runDistal}} function.
-#' @param repeat.clust.h.cut height for tree cutting when defining domain/repeat clusters.
-#' @param rvdAlign a multiple Tal RVD sequences alignment in the form of a matrix as
-#'  returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}} or as one
-#'  of the elements of the \code{SeqOfRepsAlignments} slot in the return object
-#'  of the \code{\link{buildDisTalGroups}} function. 
-#' @param refgrep Regular expression pattern that will be used to search TALE names
-#' to select the reference in the alignment.
+#'
+#'
+#' @param talsim a \emph{three columns Tals similarity table} as obtained with
+#'   \code{\link[tantale:runDistal]{runDistal}} in the 'tal.similarity' slot of
+#'   the returned object.
+#' @param repeatAlign A multiple Tal repeat sequences alignment in the form of a
+#'   matrix as returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}}
+#'   or as one of the elements of the \code{SeqOfRepsAlignments} slot in the
+#'   return object of the \code{\link{buildDisTalGroups}} function.
+#' @param repeatSim A long, three columns data frame with pairwise similarity
+#'   scores between repeats as available in the \code{repeat.similarity slot} of
+#'   the object returned by the \code{\link[tantale:runDistal]{runDistal}} or the 
+#'   the \code{\link[tantale:distalr]{distalr}} functions.
+#' @param repeat.clust.h.cut height for tree cutting when defining domain/repeat
+#'   clusters.
+#' @param rvdAlign A multiple Tal RVD sequences alignment in the form of a
+#'   matrix as returned by \code{\link[tantale:convertRepeat2RvdAlign]{convertRepeat2RvdAlign}}, 
+#'    \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}} 
+#'   or as one of the elements of the \code{SeqOfRepsAlignments} slot in the
+#'   return object of the \code{\link{buildDisTalGroups}} function.
+#' @param refgrep Regular expression pattern that will be used to search TALE
+#'   names to select the reference in the alignment.
 #' @param consensusSeq (logical) Whether to display the consensus sequence
 #'  **NOT IMPLEMENTED YET**
-#' @param fillType Either "repeatClust" or "repeatSim". If both options are possible
-#' because all the necessary information is there, this argument will decide what type of
-#' 'box color filling' is employed and it is either based on the cluster where the repeat
-#' falls after clustering all the repeat in the alignment or it is based on the 
-#' amino acid similarity between a repeat at a position and the repeat of the 'reference'
-#' TALE at this position.
+#' @param fillType Either "repeatClust" or "repeatSim". If both options are
+#'   possible because the necessary information is there (at least a
+#'   \code{repeatSim} value), this argument will decide what type of 'box color
+#'   filling' is employed and it is either based on the cluster where the repeat
+#'   falls after clustering all the repeat in the alignment or it is based on
+#'   the amino acid similarity between a repeat at a position and the repeat of
+#'   the 'reference' TALE at this position.
 #' @return An \code{\link[aplot:insert_left]{aplot}} object.
 #' 
 #' @export
@@ -593,10 +644,20 @@ ggplotTalesMsa <- function(repeatAlign,
                            fillType = "repeatClust" #"repeatSim"
 ) {
   
-  #### TODO implement rvd align only plotting #### 
-  
-  countOfTales <- nrow(repeatAlign)
-  if (is.null(countOfTales)) {
+  # Arguments checking
+  if (is.null(rvdAlign) & is.null(repeatAlign)) {
+    logger::log_error("You must provide at least either a value for `repeatAlign` or for `rvdAlign`")
+    stop()
+  }
+  if (!is.null(rvdAlign)) {
+    countOfTales <- nrow(rvdAlign)
+    arrayNames <- rownames(rvdAlign)
+  }
+  if (!is.null(repeatAlign)) {
+    countOfTales <-  nrow(repeatAlign)
+    arrayNames <- rownames(repeatAlign)
+  }
+  if (!is.null(repeatAlign) & is.null(nrow(repeatAlign))) {
     logger::log_error("Check the provided input repeatAlign matrix.",
                       "It may conain a single sequence that was coerced to vector rather than remaining a matrix...",
                       .sep = " ")
@@ -612,31 +673,20 @@ ggplotTalesMsa <- function(repeatAlign,
     logger::log_error("The provided input repeatAlign matrix has less than one sequence. Cannot proceed...")
     stop()
   }
+  
+  
   # Getting repeat align
-  repeatAlignLong <- repeatAlign %>% reshape2::melt() %>%
+  if (!is.null(repeatAlign)) {
+    repeatAlignLong <- repeatAlign %>% reshape2::melt() %>%
     dplyr::as_tibble()
   colnames(repeatAlignLong) <- c("arrayID", "positionInArray", "domCode")
   repeatAlignLong %<>% dplyr::mutate(arrayID = as.character(arrayID))
-  
-  consensusRepeat <- sapply(1:ncol(repeatAlign), function(x) {
-    allRepeats <- repeatAlign[,x]
-    freq <- sapply(unique(allRepeats), function(p) S4Vectors::countMatches(p, repeatAlign))
-    unique(allRepeats)[which.max(freq)]
-  })
-  repeatCol <- repeatAlign
-  for (k in 1:ncol(repeatCol)){
-    rept <- consensusRepeat[k]
-    if (is.na(rept)) {
-      repeatCol[,k] <- FALSE
-    } else {
-      repeatCol[,k] <- ifelse(toupper(repeatCol[,k]) == toupper(rept), TRUE, FALSE)
-    }
-  }
-  repeatMatchConsensusLong <- repeatCol %>% reshape2::melt() %>%
-    dplyr::as_tibble()
+  #### TODO: pad domCode for it to be 4 characters long ####
+  repeatMatchConsensusLong <- matchConsensus(repeatAlign)
   colnames(repeatMatchConsensusLong) <- c("arrayID", "positionInArray", "matchConsensusRepeat")
   repeatAlignLong %<>% dplyr::left_join(repeatMatchConsensusLong,
                                         by = dplyr::join_by(arrayID, positionInArray))
+  }
   
   
   # Getting rvd align if available and joining
@@ -644,10 +694,7 @@ ggplotTalesMsa <- function(repeatAlign,
     rvdAlignLong <- rvdAlign %>% reshape2::melt() %>%
       dplyr::as_tibble()
     colnames(rvdAlignLong) <- c("arrayID", "positionInArray", "rvd")
-    # Join with main tible
-    repeatAlignLong %<>% dplyr::left_join(rvdAlignLong,
-                                          by = dplyr::join_by(arrayID, positionInArray))
-    repeatAlignLong %<>% dplyr::mutate(rvd = gsub("NTERM", "N-", rvd),
+    rvdAlignLong %<>% dplyr::mutate(rvd = gsub("NTERM", "N-", rvd),
                                        rvd = gsub("CTERM", "-C", rvd)
     )
     
@@ -655,11 +702,7 @@ ggplotTalesMsa <- function(repeatAlign,
     # consensus RVD sequence
     # Coloring of RVDs in alignment depending on whether they match the consensus at
     # the position
-    consensusRVD <- sapply(1:ncol(rvdAlign), function(x) {
-      allRVDs <- rvdAlign[,x]
-      freq <- sapply(unique(allRVDs), function(p) S4Vectors::countMatches(p, allRVDs))
-      unique(allRVDs)[which.max(freq)]
-    })
+    consensusRVD <- taleAlignConsensus(rvdAlign)
     rvdConsensusSeqLong <- tibble::tibble(arrayID = "Consensus",
                                           positionInArray = seq_along(consensusRVD),
                                           rvd = consensusRVD,
@@ -668,25 +711,26 @@ ggplotTalesMsa <- function(repeatAlign,
                                           repeatClusterId = NA,
                                           repeatSimVsRef = NA
     )
-    rvdcol <- rvdAlign
-    for (k in 1:ncol(rvdcol)) {
-      rvd <- consensusRVD[k]
-      if (is.na(rvd)) {
-        rvdcol[,k] <- FALSE
-      } else {
-        rvdcol[,k] <- ifelse(toupper(rvdcol[,k]) == toupper(rvd), TRUE, FALSE)
-      }
-    }
-    rvdMatchConsensusLong <- rvdcol %>% reshape2::melt() %>%
-      dplyr::as_tibble()
+    rvdMatchConsensusLong <- matchConsensus(rvdAlign)
     colnames(rvdMatchConsensusLong) <- c("arrayID", "positionInArray", "matchConsensusRvd")
-    # Join with main tible
-    repeatAlignLong %<>% dplyr::left_join(rvdMatchConsensusLong,
+    # Join with rvd tible
+    rvdAlignLong %<>% dplyr::left_join(rvdMatchConsensusLong,
                                           by = dplyr::join_by(arrayID, positionInArray))
   }
   
-  
-  
+  if (!is.null(repeatAlign) & !is.null(rvdAlign)) {
+    repeatAlignLong %<>% dplyr::inner_join(rvdAlignLong,
+                                          by = dplyr::join_by(arrayID, positionInArray),
+                                          unmatched = "error",
+                                          relationship = "one-to-one")
+  } else if (!is.null(repeatAlign) & is.null(rvdAlign)) {
+    repeatAlignLong <- repeatAlignLong
+  } else if (is.null(repeatAlign)) {
+    repeatAlignLong <- rvdAlignLong
+  } else {
+    stop("something wrong with parameters values")
+  }
+
   # joining repeat cluster if possible
   # joining repeat similarity relative to ref
   if (!is.null(repeatSim) & !is.null(repeatAlign)) {
@@ -712,14 +756,16 @@ ggplotTalesMsa <- function(repeatAlign,
       dplyr::left_join(repeatSimAlignLong,
                        by = dplyr::join_by(arrayID, positionInArray))
   }
+  
+  
   # Building TALE tree
-  if (!is.null(talsim) & !is.null(repeatAlign) & countOfTales > 1) {
-    talsimForDendo <- talsim[talsim$TAL1 %in% rownames(repeatAlign), ]
-    talsimForDendo <- talsimForDendo[talsimForDendo$TAL2 %in% rownames(repeatAlign), ]
-    talsimForDendo <- as.matrix(reshape2::acast(talsimForDendo, TAL1 ~ TAL2, value.var = "Sim")) # melt then unmelt ...
+  if (!is.null(talsim) & countOfTales > 1) {
+    talsimForDendo <- talsim[talsim$TAL1 %in% arrayNames, ]
+    talsimForDendo <- talsimForDendo[talsimForDendo$TAL2 %in% arrayNames, ]
+    talsimForDendo <- as.matrix(reshape2::acast(talsimForDendo, TAL1 ~ TAL2, value.var = "Sim"))
     taldist <- 100 - talsimForDendo
-    taldist <- taldist[rownames(repeatAlign), ]
-    taldist <- taldist[, rownames(repeatAlign)]
+    taldist <- taldist[arrayNames, ]
+    taldist <- taldist[, arrayNames]
     taleshclust <- stats::hclust(as.dist(taldist))
   }
   
@@ -857,7 +903,7 @@ ggplotTalesMsa <- function(repeatAlign,
   # Merge tree and align
   if (exists("taleshclust")) {
     t <- ggtree::ggtree(ape::as.phylo(taleshclust))
-    finalPlot <- p %>% aplot::insert_left(t, width = .1)
+    finalPlot <- p %>% aplot::insert_left(t, width = .08)
   } else {
     finalPlot <- p
   }

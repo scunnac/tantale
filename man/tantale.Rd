@@ -6,6 +6,9 @@
 \title{tantale: Transcription Activator-Like Effectors (TALEs) tools}
 \description{
 An integrated collection of functions for (IDEALLY):
+
+Please take a look at the package \href{https://scunnac.github.io/tantale}{website}
+for further details.
 }
 \details{
 \figure{tantale_logo.png}{options: width=100 alt="tantale_logo"}

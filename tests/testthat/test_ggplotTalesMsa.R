@@ -12,111 +12,23 @@ repeatMsaByGroup <- readRDS(file = testthat::test_path("data_for_tests", "repeat
 repeatAlign <- repeatMsaByGroup[[6]]
 rvdAlign <- convertRepeat2RvdAlign(repeatAlign = repeatAlign,
                                    repeat2RvdMapping = getRepeat2RvdMappingFromDistalr(distalrOut$taleParts))
-ggplotTalesMsa(repeatAlign = repeatAlign,
-               talsim = distalrOut$tal.similarity,
-               repeatSim = distalrOut$repeat.similarity,
-               rvdAlign = rvdAlign,
-               repeat.clust.h.cut = 90,
-               refgrep = NULL,
-               consensusSeq = FALSE,
-               fillType = "repeatSim" # "repeatClust"
-)
-
-ggplotTalesMsa(repeatAlign = repeatAlign,
-               talsim = distalrOut$tal.similarity,
-               repeatSim = distalrOut$repeat.similarity,
-               rvdAlign = rvdAlign,
-               repeat.clust.h.cut = 90,
-               refgrep = NULL,
-               consensusSeq = FALSE,
-               fillType = "repeatClust" # "repeatClust"
-)
-
-ggplotTalesMsa(repeatAlign = repeatAlign,
-               talsim = distalrOut$tal.similarity,
-               repeatSim = distalrOut$repeat.similarity,
-               rvdAlign = NULL,
-               repeat.clust.h.cut = 90,
-               refgrep = NULL,
-               consensusSeq = FALSE,
-               fillType = "repeatClust" # "repeatClust"
-)
-
-# fillType has no effect
-ggplotTalesMsa(repeatAlign = repeatAlign,
-               talsim = distalrOut$tal.similarity,
-               repeatSim = NULL,
-               rvdAlign = rvdAlign,
-               repeat.clust.h.cut = 90,
-               refgrep = NULL,
-               consensusSeq = FALSE,
-               fillType = "repeatSim" # "repeatClust"
-)
 
 
-ggplotTalesMsa(repeatAlign = repeatAlign,
-               talsim = distalrOut$tal.similarity,
-               repeatSim = NULL,
-               rvdAlign = NULL,
-               repeat.clust.h.cut = 90,
-               refgrep = NULL,
-               consensusSeq = FALSE,
-               fillType = "repeatSim" # "repeatClust"
-)
+taleAlignConsensus(repeatAlign)
+taleAlignConsensus(rvdAlign)
 
-ggplotTalesMsa(repeatAlign = repeatAlign,
-               talsim = NULL,
-               repeatSim = NULL,
-               rvdAlign = NULL,
-               repeat.clust.h.cut = 90,
-               refgrep = NULL,
-               consensusSeq = FALSE,
-               fillType = "repeatSim" # "repeatClust"
-)
+matchConsensus(repeatAlign, taleAlignConsensus(repeatAlign))
 
 
-# Single sequence align
-ggplotTalesMsa(repeatAlign = repeatAlign[3, , drop = FALSE],
-               talsim = distalrOut$tal.similarity,
-               repeatSim = distalrOut$repeat.similarity,
-               rvdAlign = rvdAlign[3, , drop = FALSE],
-               repeat.clust.h.cut = 90,
-               refgrep = NULL,
-               consensusSeq = FALSE,
-               fillType = "repeatSim" # "repeatClust"
-)
-
-ggplotTalesMsa(repeatAlign = repeatAlign[3, , drop = FALSE],
-               talsim = NULL,
-               repeatSim = distalrOut$repeat.similarity,
-               rvdAlign = rvdAlign[3, , drop = FALSE],
-               repeat.clust.h.cut = 90,
-               refgrep = NULL,
-               consensusSeq = FALSE,
-               fillType = "repeatClust" # "repeatClust"
-)
-
-
-ggplotTalesMsa(repeatAlign = repeatAlign[3, , drop = FALSE],
-               talsim = NULL,
-               repeatSim = distalrOut$repeat.similarity,
-               rvdAlign = NULL,
-               repeat.clust.h.cut = 90,
-               refgrep = NULL,
-               consensusSeq = FALSE,
-               fillType = "repeatSim" # "repeatClust"
-)
-
-ggplotTalesMsa(repeatAlign = repeatAlign[3, , drop = FALSE],
-               talsim = NULL,
-               repeatSim = NULL,
-               rvdAlign = NULL,
-               repeat.clust.h.cut = 90,
-               refgrep = NULL,
-               consensusSeq = FALSE,
-               fillType = "repeatSim" # "repeatClust"
-)
-
+try(ggplotTalesMsa(repeatAlign = NULL,
+                   talsim = NULL,
+                   repeatSim = NULL,
+                   rvdAlign = NULL,
+                   repeat.clust.h.cut = 90,
+                   refgrep = NULL,
+                   consensusSeq = FALSE,
+                   fillType = "repeatSim" # "repeatClust"
+))
 
 try(ggplotTalesMsa(repeatAlign = repeatAlign[3,],
                    talsim = NULL,
