@@ -680,8 +680,8 @@ ggplotTalesMsa <- function(repeatAlign,
     repeatAlignLong <- repeatAlign %>% reshape2::melt() %>%
     dplyr::as_tibble()
   colnames(repeatAlignLong) <- c("arrayID", "positionInArray", "domCode")
-  repeatAlignLong %<>% dplyr::mutate(arrayID = as.character(arrayID))
-  #### TODO: pad domCode for it to be 4 characters long ####
+  repeatAlignLong %<>% dplyr::mutate(arrayID = as.character(arrayID),
+                                     domCode = stringr::str_pad(domCode, 3, "left"))
   repeatMatchConsensusLong <- matchConsensus(repeatAlign)
   colnames(repeatMatchConsensusLong) <- c("arrayID", "positionInArray", "matchConsensusRepeat")
   repeatAlignLong %<>% dplyr::left_join(repeatMatchConsensusLong,
