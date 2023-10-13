@@ -1,3 +1,6 @@
+<!-- badges: start -->
+[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+<!-- badges: end -->
 <p align="right">
   <img src="./man/figures/tantale_logo_small.gif">
 
