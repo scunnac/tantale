@@ -24,7 +24,7 @@ Imports:
     gplots,
     reticulate, optparse, logger
 Suggests:
-    knitr, sessioninfo,
+    knitr, DT, sessioninfo,
     biomartr,
     rmarkdown,
     ggnewscale, ggcorrplot, corrr,
