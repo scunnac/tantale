@@ -182,18 +182,20 @@ diag(identSubMat) <- 1
     stop("Parts in the provided input have duplicated names. Cannot proceeed...")
   }
   
-  pairAlignScores <- BiocParallel::bplapply(1:length(partAaStringSet), function(i) {
-    singleSubAln <- Biostrings::pairwiseAlignment(pattern = partAaStringSet,
-                                                  subject = partAaStringSet[i],
-                                                  substitutionMatrix = identSubMat, #"BLOSUM62",
-                                                  gapOpening = 1, gapExtension = 0.5,
-                                                  type = "global", scoreOnly = FALSE)
-    tibble::tibble(subj = names(partAaStringSet[i]),
-                   pattern = names(alignedPattern(singleSubAln)),
-                   score = Biostrings::score(singleSubAln),
-                   nedit = Biostrings::nmismatch(singleSubAln)
-    )
-  }) %>%
+  pairAlignScores <- BiocParallel::bplapply(
+    X = 1:length(partAaStringSet),
+    FUN = function(i) {
+      singleSubAln <- Biostrings::pairwiseAlignment(pattern = partAaStringSet,
+                                                    subject = partAaStringSet[i],
+                                                    substitutionMatrix = identSubMat, #"BLOSUM62",
+                                                    gapOpening = 1, gapExtension = 0.5,
+                                                    type = "global", scoreOnly = FALSE)
+      tibble::tibble(subj = names(partAaStringSet[i]),
+                     pattern = names(alignedPattern(singleSubAln)),
+                     score = BiocGenerics::score(singleSubAln),
+                     nedit = Biostrings::nmismatch(singleSubAln))
+    },
+    BPPARAM = bpparam) %>%
     dplyr::bind_rows()
   
   pairAlignScores %<>%
@@ -254,20 +256,16 @@ diag(identSubMat) <- 1
     logger::log_debug("Invoking mmseq2 using the following command:\n {stringr::str_wrap(mmseq2Cmd, 80)}")
     res <- systemInCondaEnv(envName = "tantale",
                             condaBinPath = condaBinPath,
-                            command = mmseq2createdb,
-                            ignore.stdout = F)
+                            command = mmseq2createdb)
     res <- systemInCondaEnv(envName = "tantale",
                             condaBinPath = condaBinPath,
-                            command = mmseq2prefilter,
-                            ignore.stdout = F)
+                            command = mmseq2prefilter)
     res <- systemInCondaEnv(envName = "tantale",
                             condaBinPath = condaBinPath,
-                            command = mmseq2align,
-                            ignore.stdout = F)
+                            command = mmseq2align)
     res <- systemInCondaEnv(envName = "tantale",
                             condaBinPath = condaBinPath,
-                            command = mmseq2convertalis,
-                            ignore.stdout = F)
+                            command = mmseq2convertalis)
   } else {
     stop("Could not create the tantale conda environment on your machine to run mmseq2...")
   }

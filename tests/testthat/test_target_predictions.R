@@ -6,7 +6,7 @@ test_that("talvez output a tibble with the expected dims", {
                         subjDnaSeqFile = system.file("extdata", "cladeIII_sweet_promoters.fasta",
                                                      package = "tantale", mustWork = T),
                         optParam = "-t 0 -l 19",
-                        condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")
+                        condaBinPath = "auto")
   expect_true(identical(dim(talvezPreds), c(90L,9L)))
 })
 

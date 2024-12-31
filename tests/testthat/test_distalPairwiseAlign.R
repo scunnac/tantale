@@ -5,12 +5,12 @@ partAaStringSet <-  Biostrings::AAStringSet(taleParts$aaSeq)
 names(partAaStringSet) <- taleParts$partId
 
 test_that(".distalPairwiseAlign output a tibble with the expected dims", {
-  pairAlignScores <- .distalPairwiseAlign(partAaStringSet, ncores = 7)
+  pairAlignScores <- .distalPairwiseAlign(partAaStringSet, ncores = 4)
   expect_true(identical(dim(pairAlignScores), c(9216L,5L)))
 })
 
 test_that(".distalPairwiseAlign2 output a tibble with the expected dims", {
-  pairAlignScores <- .distalPairwiseAlign2(partAaStringSet, condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")
+  pairAlignScores <- .distalPairwiseAlign2(partAaStringSet, condaBinPath = "auto")
   expect_true(identical(dim(pairAlignScores), c(9216L,19L)))
 })
 

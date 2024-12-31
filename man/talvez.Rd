@@ -34,7 +34,7 @@ for the Talvez script (eg "-t 0 -l 19"). \strong{These may not include} the
 directory. If not supplied, output files will be temporary.}
 
 \item{talvezDir}{If you want to use another version of Talvez than the one
-supplied with tantale, specify the path of the directory containning the
+supplied with tantale, specify the path of the directory containing the
 necessary files here.}
 
 \item{condaBinPath}{Path to your Conda binary file if you need to specify

@@ -115,7 +115,7 @@ preditale <- function(rvdSeqs, subjDnaSeqFile, optParam = "", outDir = NULL,
 #' @param outDir Expects a character vector specifying the path to an output
 #'   directory. If not supplied, output files will be temporary.
 #' @param talvezDir If you want to use another version of Talvez than the one
-#'   supplied with tantale, specify the path of the directory containning the
+#'   supplied with tantale, specify the path of the directory containing the
 #'   necessary files here.
 #' @param condaBinPath Path to your Conda binary file if you need to specify
 #'   a path different from the one that is automatically searched by the
@@ -146,9 +146,9 @@ talvez <- function(rvdSeqs, subjDnaSeqFile, optParam = "-t 0 -l 19", outDir = NU
   tempOutDir <- tempfile(pattern = "talvez_")
   dir.create(tempOutDir, recursive = TRUE)
 
-  # Copying a reformated copy of subject DNA seq fasta file to tempOutDir
-  # This is necessary if only to make sure that fixed width formating of
-  # sequences is loozened otherwise talvez complains.
+  # Copying a reformatted copy of subject DNA seq fasta file to tempOutDir
+  # This is necessary if only to make sure that fixed width formatting of
+  # sequences is loosened otherwise talvez complains.
   Biostrings::writeXStringSet(x = Biostrings::readDNAStringSet(filepath = subjDnaSeqFile),
                               filepath = file.path(tempOutDir, basename(subjDnaSeqFile)),
                               format = "fasta", width = 20000L)
@@ -160,7 +160,7 @@ talvez <- function(rvdSeqs, subjDnaSeqFile, optParam = "-t 0 -l 19", outDir = NU
               to = tempOutDir, overwrite = TRUE, recursive = TRUE)
   )) stop("Unable to copy talvez scripts to temporary location...")
 
-  # Formating rvd sequences to fit the talvez format and write to tempfile
+  # Formatting rvd sequences to fit the talvez format and write to tempfile
   rvdSeqsFileForTv <- tempfile(pattern = "rvdSeqsTalvez_", tmpdir = tempOutDir, fileext = ".tsv")
   writeLines(text = paste(">", names(rvdSeqs), "\t", as.character(rvdSeqs), sep = ""),
              con = rvdSeqsFileForTv)
@@ -168,11 +168,12 @@ talvez <- function(rvdSeqs, subjDnaSeqFile, optParam = "-t 0 -l 19", outDir = NU
   # Assembling and running talvez command
   envReady <- !as.logical(createTantaleEnv(condaBinPath = condaBinPath))
   if (envReady) {
-    cmd <- glue::glue("cd {tempOutDir};",
+    cmd <- glue::glue(#"cd {tempOutDir};",
                       "perl TALVEZ_3.2.pl {optParam} -e mat1 -z mat2 {basename(rvdSeqsFileForTv)} {basename(subjDnaSeqFile)}")
     logger::log_info("Invoking Talvez using the following command:\n {stringr::str_wrap(cmd, 80)}")
     res <- systemInCondaEnv(envName = "tantale",
                             condaBinPath = condaBinPath,
+                            cwd = tempOutDir,
                             command = cmd)
   } else {
     stop("Could not create the tantale conda environment on your machine to run Talvez...")

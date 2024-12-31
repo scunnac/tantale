@@ -56,6 +56,12 @@
 #'@import fs
 #'@import magrittr
 #'@import logger
+#'@import cli
+
+g <- glue::glue
+m <- dplyr::mutate
+s <- dplyr::select
+gb <- dplyr::group_by
 NULL
 
 

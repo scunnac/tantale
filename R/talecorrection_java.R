@@ -39,8 +39,8 @@ correcTales <- function(uncorrectedAssemblyPath ,
                      returnCorrectionsTble = FALSE,
                      condaBinPath = "auto") {
   
-  pathToTALECorrection = system.file("tools", "talecorrect", "TALEcorrection.jar", package = "tantale", mustWork = T)
-  outputFolder = tempfile(pattern = "correcTales")
+  pathToTALECorrection <- system.file("tools", "talecorrect", "TALEcorrection.jar", package = "tantale", mustWork = T)
+  outputFolder <- tempfile(pattern = "correcTales")
   dir.exists(outputFolder) || dir.create(outputFolder, recursive = TRUE)
   domains <- c(N = "N-terminus.10bpRepeat1", C = "repeat", R = "C-terminus")
   invisible(fs::file_exists(uncorrectedAssemblyPath)) || logger::log_error("The provided input file does not exists") & stop()

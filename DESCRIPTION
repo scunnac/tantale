@@ -1,6 +1,6 @@
 Package: tantale
 Title: Transcription Activator-Like Effectors (TALEs) tools
-Version: 0.1.9551
+Version: 0.1.9552
 Authors@R: c(
     person(given = c("Bao", "Tram"), family ="Vi",
     email = "vbt576@gmail.com", role = c("aut")),
@@ -22,7 +22,7 @@ Imports:
     Rsamtools, systemPipeR, msa, DECIPHER,
     ape, ggtree, aplot,
     gplots,
-    reticulate, optparse, logger
+    reticulate, optparse, logger, cli
 Suggests:
     knitr, DT, sessioninfo,
     biomartr,
@@ -36,6 +36,6 @@ Config/Needs/website:
 Config/testthat/edition: 3
 Config/testthat/parallel: true
 Encoding: UTF-8
-RoxygenNote: 7.2.3
+RoxygenNote: 7.3.2
 OS_type: unix
 biocViews: Software

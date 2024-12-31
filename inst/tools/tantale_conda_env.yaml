@@ -2,7 +2,6 @@ name: tantale
 channels:
   - conda-forge
   - bioconda
-  - defaults
 dependencies:
   - mmseqs2=14.7e284
   - perl-statistics-r=0.34

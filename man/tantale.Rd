@@ -2,8 +2,25 @@
 % Please edit documentation in R/tantale.R
 \docType{package}
 \name{tantale}
+\alias{-package}
 \alias{tantale}
+\alias{g}
 \title{tantale: Transcription Activator-Like Effectors (TALEs) tools}
+\usage{
+g(
+  ...,
+  .sep = "",
+  .envir = parent.frame(),
+  .open = "{",
+  .close = "}",
+  .na = "NA",
+  .null = character(),
+  .comment = "#",
+  .literal = FALSE,
+  .transformer = identity_transformer,
+  .trim = TRUE
+)
+}
 \description{
 An integrated collection of functions for (IDEALLY):
 

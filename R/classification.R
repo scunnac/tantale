@@ -16,6 +16,11 @@
 #'
 #' @export
 groupTales <- function(taleSim, plotTree = FALSE, k = NULL, k_test = NULL, method = "k-medoids") {
+  
+  # For alternative methods for cluster definition:
+  # -  Expectation Maximization (EM): https://en.wikibooks.org/wiki/Data_Mining_Algorithms_In_R/Clustering/Expectation_Maximization_(EM)
+  # For other ideas : https://en.wikibooks.org/wiki/Data_Mining_Algorithms_In_R/Clustering
+  
   distMat <- 100 - reshape2::acast(taleSim, formula = TAL1 ~ TAL2, value.var = "Sim")
   
   if (method == "k-medoids") {
