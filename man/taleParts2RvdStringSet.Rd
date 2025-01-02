@@ -4,10 +4,12 @@
 \alias{taleParts2RvdStringSet}
 \title{Generates a RVD sequences set from a taleParts object}
 \usage{
-taleParts2RvdStringSet(taleParts, sep = "-")
+taleParts2RvdStringSet(taleParts, sep = "-", rvdsOnly = FALSE)
 }
 \arguments{
 \item{sep}{Used as a RVD separatator}
+
+\item{rvdsOnly}{Retrun only RVDs and ommit N- and C- terminal domains}
 
 \item{distalrTaleParts}{The taleParts object in a \code{\link[tantale:distalr]{distalr}} output.}
 }

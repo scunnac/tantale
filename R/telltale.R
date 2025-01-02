@@ -703,10 +703,14 @@ tellTale <- function(
     }, simplify = "array", USE.NAMES = F) %>%
       Biostrings::DNAStringSetList() %>%
       unlist()
-    dnaAlignment <- DECIPHER::AlignSeqs(allpart, verbose = FALSE)
-    DECIPHER::BrowseSeqs(dnaAlignment,
-                         htmlFile = file.path(outputDir, glue::glue("{part}DNAAlignment.html")),
-                         openURL = F, colWidth = 120)
+    if(length(allpart) > 1) {
+      dnaAlignment <- DECIPHER::AlignSeqs(allpart, verbose = FALSE)
+      DECIPHER::BrowseSeqs(dnaAlignment,
+                           htmlFile = file.path(outputDir, glue::glue("{part}DNAAlignment.html")),
+                           openURL = F, colWidth = 120)
+    } else {
+        logger::log_warn("Skipping {part} TALE DNA regions alignment because the input sequence has less than 2 putative TALEs.")
+      }
   }
   
   aaPartFiles <- list.files(annotaleMainDir, "TALE_Protein_parts.fasta", recursive = T, full.names = T)
@@ -720,10 +724,14 @@ tellTale <- function(
     }, simplify = "array", USE.NAMES = F) %>%
       Biostrings::AAStringSetList() %>%
       unlist()
-    dnaAlignment <- DECIPHER::AlignSeqs(allpart, verbose = FALSE)
-    DECIPHER::BrowseSeqs(dnaAlignment,
-                         htmlFile = file.path(outputDir, glue::glue("{part}AAAlignment.html")),
-                         openURL = F, colWidth = 120)
+    if(length(allpart) > 1) {
+      aaAlignment <- DECIPHER::AlignSeqs(allpart, verbose = FALSE)
+      DECIPHER::BrowseSeqs(aaAlignment,
+                           htmlFile = file.path(outputDir, glue::glue("{part}AAAlignment.html")),
+                           openURL = F, colWidth = 120)
+    } else {
+      logger::log_warn("Skipping {part} TALE protein regions alignment because the input sequence has less than 2 putative TALEs.")
+    }
     return(allpart)
   }, USE.NAMES = T)
   

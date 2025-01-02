@@ -350,13 +350,19 @@ convertRvd2MatchAlign <-  function(rvdAlign, rvdSims = tantale::rvdSimDf, refTag
 #'
 #' @param distalrTaleParts The taleParts object in a \code{\link[tantale:distalr]{distalr}} output.
 #' @param sep Used as a RVD separatator
+#' @param rvdsOnly Retrun only RVDs and ommit N- and C- terminal domains 
 #' @return A two columns repeatID - RVD data frame.
 #' @export
-taleParts2RvdStringSet <- function(taleParts, sep = "-") {
+taleParts2RvdStringSet <- function(taleParts, sep = "-", rvdsOnly = FALSE) {
   if (nrow(diagnoseTaleParts(taleParts)) != 0L) {
     logger::log_error("The provided object does not seem to be sanitized. Have you used a taleParts object with no empty sequences?")
     stop()
   }
+  
+  if(rvdsOnly) {
+    taleParts %<>% filter(!rvd %in% c("NTERM", "CTERM"))
+  }
+  
   rvdStrings <- taleParts %>%
     dplyr::group_by(arrayID) %>%
     dplyr::arrange(positionInArray) %>%
