@@ -9,16 +9,16 @@ Authors@R: c(
     comment = c(ORCID = "0000-0002-3695-491X"))
           )
 Maintainer: Sebastien Cunnac <sebastien.cunnac@ird.fr>
-Description: An integrated collection of functions for TALE minning and analysis in R.
-License: MIT
+Description: An integrated collection of functions for TALE mining and analysis in R.
+License: MIT + file LICENSE
 URL: https://scunnac.github.io/tantale, https://github.com/scunnac/tantale
 BugReports: https://github.com/scunnac/tantale/issues
-Depends: 
+Depends:
     R (>= 3.6.3)
 Imports:
-    magrittr, tidyverse, plyr, glue, reshape2, scales, XVector,
+    magrittr, fs, dplyr, ggplot2, tibble, stringr, readr, plyr, glue, reshape2, scales, XVector,
     RColorBrewer, dichromat,
-    biovizBase, IRanges, Biostrings, GenomicRanges, GenomicFeatures, BSgenome, plyranges,
+    biovizBase, IRanges, Biostrings, pwalign, GenomicRanges, GenomicFeatures, BSgenome, plyranges,
     Rsamtools, systemPipeR, msa, DECIPHER,
     ape, ggtree, aplot,
     gplots,
@@ -28,14 +28,14 @@ Suggests:
     biomartr,
     rmarkdown,
     ggnewscale, ggcorrplot, corrr,
-    reticulate,
     testthat (>= 3.0.0)
+VignetteBuilder: knitr
 Config/Needs/website:
     pkgdown,
     tidyverse/tidytemplate
 Config/testthat/edition: 3
-Config/testthat/parallel: true
+Config/testthat/parallel: false
 Encoding: UTF-8
-RoxygenNote: 7.3.2
 OS_type: unix
 biocViews: Software
+Config/roxygen2/version: 8.0.0
