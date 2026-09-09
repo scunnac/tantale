@@ -151,11 +151,22 @@ buildAnnoTALE <- function(TALESeqsFastaFile,
 
 
 
+#' Run FuncTAL from QueTAL to build a phylogenetic tree of TALE RVD sequences.
+#'
+#' A R wrapper around the \href{https://doi.org/10.3389/fpls.2015.00545}{QueTAL} 'FuncTAL' perl script.
+#'
+#' @param TALfile Path to a QueTAL-formatted file of TALE RVD sequences.
+#' @param treeFormat Tree layout passed to FuncTAL's `-n` option (default `"fan"`).
+#' @param outputPrefix Prefix used for FuncTAL's output file names.
+#' @param outputDir Directory where output will be copied (default: current working directory).
+#' @param FunctTAL Path to the FuncTAL perl script if you want to use another
+#'   version than the one provided with tantale.
+#' @return Returns invisibly the exit code of the shell call to FuncTAL (ie '0' if successful).
 #' @export
 FuncTAL <- function(TALfile,
                     treeFormat = "fan",
                     outputPrefix = "FuncTALE",
-                    outputDir = "/home/cunnac/Documents",
+                    outputDir = getwd(),
                     FunctTAL = system.file("tools", "QueTAL_v1.1", "FuncTAL", "FuncTAL_v.1.1.pl", package = "tantale", mustWork = T)) {
   # Running FuncTAL from QueTAL_v1.1
   # A few observations:

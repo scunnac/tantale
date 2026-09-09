@@ -49,20 +49,12 @@
 #'     \href{https://rstudio.github.io/reticulate/reference/install_miniconda.html}{install_miniconda()} help page.}
 #'
 #'
-#'@docType package
-#'@name tantale
-#'
 #'@importFrom IRanges IRanges
 #'@import fs
 #'@import magrittr
 #'@import logger
 #'@import cli
-
-g <- glue::glue
-m <- dplyr::mutate
-s <- dplyr::select
-gb <- dplyr::group_by
-NULL
+"_PACKAGE"
 
 
 
