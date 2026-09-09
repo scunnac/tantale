@@ -17,24 +17,19 @@ ggplotTalesMsa(
 }
 \arguments{
 \item{repeatAlign}{A multiple Tal repeat sequences alignment in the form of a
-matrix as returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}}
-or as one of the elements of the \code{SeqOfRepsAlignments} slot in the
-return object of the \code{\link{buildDisTalGroups}} function.}
+matrix as returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}}.}
 
 \item{talsim}{a \emph{three columns Tals similarity table} as obtained with
-\code{\link[tantale:runDistal]{runDistal}} in the 'tal.similarity' slot of
+\code{\link[tantale:distalr]{distalr}} in the 'tal.similarity' slot of
 the returned object.}
 
 \item{rvdAlign}{A multiple Tal RVD sequences alignment in the form of a
-matrix as returned by \code{\link[tantale:convertRepeat2RvdAlign]{convertRepeat2RvdAlign}}, 
- \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}} 
-or as one of the elements of the \code{SeqOfRepsAlignments} slot in the
-return object of the \code{\link{buildDisTalGroups}} function.}
+matrix as returned by \code{\link[tantale:convertRepeat2RvdAlign]{convertRepeat2RvdAlign}}
+or \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}}.}
 
 \item{repeatSim}{A long, three columns data frame with pairwise similarity
 scores between repeats as available in the \code{repeat.similarity slot} of
-the object returned by the \code{\link[tantale:runDistal]{runDistal}} or the 
-the \code{\link[tantale:distalr]{distalr}} functions.}
+the object returned by the \code{\link[tantale:distalr]{distalr}} function.}
 
 \item{repeat.clust.h.cut}{height for tree cutting when defining domain/repeat
 clusters.}

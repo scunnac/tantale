@@ -20,24 +20,19 @@ heatmap_msa(
 }
 \arguments{
 \item{talsim}{a \emph{three columns Tals similarity table} as obtained
-with \code{\link[tantale:runDistal]{runDistal}} in the 'tal.similarity' slot of the returned object.}
+with \code{\link[tantale:distalr]{distalr}} in the 'tal.similarity' slot of the returned object.}
 
 \item{repeatAlign}{a multiple Tal repeat sequences alignment in the
-form of a matrix as returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}}
-or as one of the elements of the \code{SeqOfRepsAlignments} slot in the return object
-of the \code{\link{buildDisTalGroups}} function.}
+form of a matrix as returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}}.}
 
 \item{rvdAlign}{(optional) when the rvds need to be labeled in the
 plot (plot.type = "repeat.similarity" or "repeat.clusters.with.rvd",
 a multiple Tal repeat sequences alignment in the form of a matrix as
-returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}} or as one
-of the elements of the \code{SeqOfRepsAlignments} slot in the return object
-of the \code{\link{buildDisTalGroups}} function.}
+returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}}.}
 
-\item{repeatSim}{A long, three columns data frame with pairwise similarity 
+\item{repeatSim}{A long, three columns data frame with pairwise similarity
 scores between repeats as available in the \code{repeat.similarity slot}
-of the object returned by the \code{\link[tantale:runDistal]{runDistal}} function.
-\strong{(CORRECT???!!!)}}
+of the object returned by the \code{\link[tantale:distalr]{distalr}} function.}
 
 \item{repeat.clust.h.cut}{height for tree cutting when plot type
 in "repeat.clusters".}

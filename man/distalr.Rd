@@ -2,7 +2,7 @@
 % Please edit documentation in R/distalr.R
 \name{distalr}
 \alias{distalr}
-\title{Emulate DisTal in R}
+\title{Compute TALE and repeat similarity from TALE parts}
 \usage{
 distalr(
   taleParts,
@@ -38,10 +38,9 @@ A list with DisTal output components:
 }
 }
 \description{
-This is meant to approximate the results of DisTal in R and is very similar to
-\code{\link[tantale:runDistal]{runDistal}}.
-It still uses the Arlem binary just like DisTal but performs the rest of the operations
-with R support and parallelization. Depending on the \code{pairwiseAlnMethod} parameter value it is 
-much faster than the orginial Perl code and returns similar results. Please take a look at the vignette for
-tips on how to use it properly.
+An R re-implementation of the original DisTal Perl program: it still uses
+the Arlem binary for the same repeat-array alignment step, but performs
+the rest of the operations with R support and parallelization, which
+makes it much faster (the exact speedup depends on the \code{pairwiseAlnMethod}
+chosen). Please take a look at the vignette for tips on how to use it properly.
 }

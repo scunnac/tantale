@@ -8,7 +8,7 @@
 #'   Classifying Tal groups by hierchical clustering or by k-medoids clustering based on their similarity.
 #'
 #' @param method one of two methods: "hclust" (see \code{\link[stats:cutree]{cutree}}) and "k-medoids" (see \code{\link[cluster:pam]{pam}}). 
-#' @param taleSim a \emph{three columns Tals similarity table} as obtained with \code{\link[tantale:runDistal]{runDistal}} in the 'tal.similarity' slot of the returned object.
+#' @param taleSim a \emph{three columns Tals similarity table} as obtained with \code{\link[tantale:distalr]{distalr}} in the 'tal.similarity' slot of the returned object.
 #' @param plotTree logical indicating whether to plot hclust tree or not. If the method is "k-medoids", no tree will be plotted (but instead, a plot of silhoutte value).
 #' @param k_test integer vector of 2 indicating the range of k to test, only available when method = "k-medoids". Note that the minimum value for k is 2.
 #' @param k integer indicating number of groups you want Tals to be classified. Or only in case that method is "k-medoids", k = "auto" to automatically pick the optimum k or k = NULL to interactively pick it. Do not always trust the automatic picking, it is better to choose k interactively or test with different values.

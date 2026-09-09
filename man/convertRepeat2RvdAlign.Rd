@@ -9,8 +9,7 @@ convertRepeat2RvdAlign(repeatAlign, repeat2RvdMapping)
 \arguments{
 \item{repeatAlign}{A multiple TALE repeat sequences alignment in the form of
 a matrix as returned by
-\code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}} or the 
-\code{SeqOfRepsAlignments} element in the return object of the \code{\link[tantale:buildDisTalGroups]{buildDisTalGroups}} function.}
+\code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}}.}
 
 \item{repeat2RvdMapping}{The return value of the
 \code{\link[tantale:getRepeat2RvdMapping]{getRepeat2RvdMapping}} function or the 

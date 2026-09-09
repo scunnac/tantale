@@ -206,8 +206,7 @@ getRepeat2RvdMappingFromDistalr <- function(distalrTaleParts) {
 #'
 #' @param repeatAlign A multiple TALE repeat sequences alignment in the form of
 #'   a matrix as returned by
-#'   \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}} or the 
-#'   \code{SeqOfRepsAlignments} element in the return object of the \code{\link[tantale:buildDisTalGroups]{buildDisTalGroups}} function.
+#'   \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}}.
 #' @param repeat2RvdMapping The return value of the
 #'   \code{\link[tantale:getRepeat2RvdMapping]{getRepeat2RvdMapping}} function or the 
 #'   \code{\link[tantale:getRepeat2RvdMappingFromDistalr]{getRepeat2RvdMappingFromDistalr}} function
@@ -262,8 +261,8 @@ convertRepeat2SimAlign <-  function(repeatAlign, repeatSim, refTag = NULL) {
 
 #' Convert repeat alignment to clusterID alignment
 #'
-#' @param repeatSim A long, three columns data frame with pairwise similarity scores between repeats as available in the \code{repeat.similarity slot} of the object returned by the \code{\link[tantale:runDistal]{runDistal}} function. \strong{(CORRECT???!!!)}
-#' @param repeatAlign a multiple Tal repeat sequences alignment in the form of a matrix as returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}} or as one of the elements of the \code{SeqOfRepsAlignments} slot in the return object of the \code{\link{buildDisTalGroups}} function.
+#' @param repeatSim A long, three columns data frame with pairwise similarity scores between repeats as available in the \code{repeat.similarity slot} of the object returned by the \code{\link[tantale:distalr]{distalr}} function.
+#' @param repeatAlign a multiple Tal repeat sequences alignment in the form of a matrix as returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}}.
 #' @param h.cut a numeric value indicating the position where to cut the hclust tree of repeats.
 #' @return a matrix with exactly the same dimension as the input \code{repeatSim} but containing clusterID instead of
 #' repeatID.

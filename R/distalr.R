@@ -1,4 +1,19 @@
 
+# Formerly defined in distal.R (removed with the Perl DisTAL wrapper); kept
+# here since distalr() also uses it to build its "repeats.cluster" output.
+clusterRep <- function(repeatSimMat, repeats.cluster.h.cut) {
+  dist_clust <- hclust(as.dist(repeatSimMat))
+  dist_cut <- as.data.frame(
+    cbind(RepID = dist_clust$labels,
+          Rep_clust = cutree(dist_clust, h = repeats.cluster.h.cut)
+    )
+  )
+  dist_cut$Rep_order <- order.dendrogram(as.dendrogram(dist_clust))
+  dist_cut <- dist_cut[order(dist_cut$Rep_order),] %>%
+    dplyr::as_tibble()
+  return(dist_cut)
+}
+
 .getTalePartsFromAFile <- function(fasta) {
   if (grepl("TALE_Protein_parts.fasta", basename(fasta))) taleStrings <- Biostrings::readAAStringSet(fasta)
   if (grepl("TALE_DNA_parts.fasta", basename(fasta))) taleStrings <- Biostrings::readDNAStringSet(fasta)
@@ -436,14 +451,13 @@ plotTaleComposition <- function(taleParts) {
 # pairwiseAlnMethod = "DECIPHER"
 # condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda"
 
-#' Emulate DisTal in R
+#' Compute TALE and repeat similarity from TALE parts
 #' @description
-#' This is meant to approximate the results of DisTal in R and is very similar to
-#' \code{\link[tantale:runDistal]{runDistal}}.
-#' It still uses the Arlem binary just like DisTal but performs the rest of the operations
-#' with R support and parallelization. Depending on the \code{pairwiseAlnMethod} parameter value it is 
-#' much faster than the orginial Perl code and returns similar results. Please take a look at the vignette for
-#' tips on how to use it properly.
+#' An R re-implementation of the original DisTal Perl program: it still uses
+#' the Arlem binary for the same repeat-array alignment step, but performs
+#' the rest of the operations with R support and parallelization, which
+#' makes it much faster (the exact speedup depends on the \code{pairwiseAlnMethod}
+#' chosen). Please take a look at the vignette for tips on how to use it properly.
 #' 
 #' @param taleParts a table of TALE parts as returned by the \code{\link[tantale:getTaleParts]{getTaleParts}} function.
 #' @param repeats.cluster.h.cut numeric value to cut the hierarchical clustering tree of the repeat.
@@ -605,7 +619,7 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
   writeLines(cfile, text = dissimMatLines)
   
   #### run arlem with a system call and parse std output ####
-  arlemPath <- system.file("tools", "DisTAL1.2_MultipleAlignment","arlem", package = "tantale", mustWork = T)
+  arlemPath <- system.file("tools", "arlem", "arlem", package = "tantale", mustWork = T)
   arlemCmd <- glue::glue("{arlemPath} -f {codesSeqsfile} -cfile {cfile} -align -insert -showalign")
   logger::log_info("Running ARLEM version 1.0 : ")
   logger::log_info("Copyright by Mohamed I. Abouelhoda")
@@ -668,7 +682,7 @@ distalr <- function(taleParts, repeats.cluster.h.cut = 10, ncores = 1,
   }
   
   
-  #### return a list of results emulating the return value of tantale::runDistal ####
+  #### assemble the results list ####
   outputlist <- list(taleParts = taleParts,
                      "repeats.code" = taleParts %>%
                        dplyr::group_by(domCode, aaSeq, rvd) %>%

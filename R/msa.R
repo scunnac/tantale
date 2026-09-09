@@ -85,10 +85,10 @@ matchConsensus <- function(align, returnLong = TRUE) {
 #' By default, uses the simple scoring matrix defined in \href{https://mafft.cbrc.jp/alignment/software/textcomparison.html}{the text mode of MAFFT}. Users can optionally provide a custom scoring matrix.
 #'
 #' @param inputSeqs Any object accepted as input by the
-#'  \code{\link[tantale:toListOfSplitedStr]{toListOfSplitedStr}} function, such as the path to a fasta file containing the TALE sequences to be aligned or the \code{coded.repeats.str} slot of the object returned by the \code{\link[tantale:runDistal]{runDistal}} function. Can also be the return value of the \code{\link[tantale:taleParts2RvdStringSet]{taleParts2RvdStringSet}} function if one wants to align RVD sequences.
+#'  \code{\link[tantale:toListOfSplitedStr]{toListOfSplitedStr}} function, such as the path to a fasta file containing the TALE sequences to be aligned or the \code{coded.repeats.str} slot of the object returned by the \code{\link[tantale:distalr]{distalr}} function. Can also be the return value of the \code{\link[tantale:taleParts2RvdStringSet]{taleParts2RvdStringSet}} function if one wants to align RVD sequences.
 #'
 #' @param sep Passed to \code{toListOfSplitedStr()} to split the TALEs strings in input.
-#' @param distalRepeatSims A long, three columns data frame with pairwise similarity scores between repeats as available in the \code{repeat.similarity slot} of the object returned by the \code{\link[tantale:runDistal]{runDistal}} function.
+#' @param distalRepeatSims A long, three columns data frame with pairwise similarity scores between repeats as available in the \code{repeat.similarity slot} of the object returned by the \code{\link[tantale:distalr]{distalr}} function.
 #' @param mafftOpts A character string containing additional options for the MAFFT command. This is notably useful to tweak the Gap opening and gap extension penalties.
 #' @param mafftPath Path to a MAFFT installation directory. By default uses the MAFFT version included in tantale.
 #' @param gapSymbol Specify a alternative symbol for gaps in the alignments.
@@ -264,15 +264,12 @@ buildRepeatMsa <- function(inputSeqs, sep = " ", distalRepeatSims = NULL,
 #' 
 #' 
 #' @param talsim a \emph{three columns Tals similarity table} as obtained
-#'  with \code{\link[tantale:runDistal]{runDistal}} in the 'tal.similarity' slot of the returned object.
+#'  with \code{\link[tantale:distalr]{distalr}} in the 'tal.similarity' slot of the returned object.
 #' @param repeatAlign a multiple Tal repeat sequences alignment in the
-#'  form of a matrix as returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}}
-#'  or as one of the elements of the \code{SeqOfRepsAlignments} slot in the return object
-#'  of the \code{\link{buildDisTalGroups}} function.
-#' @param repeatSim A long, three columns data frame with pairwise similarity 
+#'  form of a matrix as returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}}.
+#' @param repeatSim A long, three columns data frame with pairwise similarity
 #' scores between repeats as available in the \code{repeat.similarity slot}
-#' of the object returned by the \code{\link[tantale:runDistal]{runDistal}} function.
-#' \strong{(CORRECT???!!!)}
+#' of the object returned by the \code{\link[tantale:distalr]{distalr}} function.
 #' @param plot.type Either \code{"repeat.similarity"}, \code{"repeat.clusters"} ,
 #'  \code{"repeat.clusters.with.rvd"}. Defines the type of plot that will be produced
 #'   by the function. See below for details.
@@ -281,9 +278,7 @@ buildRepeatMsa <- function(inputSeqs, sep = " ", distalRepeatSims = NULL,
 #' @param rvdAlign (optional) when the rvds need to be labeled in the
 #'  plot (plot.type = "repeat.similarity" or "repeat.clusters.with.rvd",
 #'  a multiple Tal repeat sequences alignment in the form of a matrix as
-#'  returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}} or as one
-#'  of the elements of the \code{SeqOfRepsAlignments} slot in the return object
-#'  of the \code{\link{buildDisTalGroups}} function. 
+#'  returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}}.
 #' @param refgrep regular expression pattern that will be used to search Tal names
 #' to select the reference in the alignment.
 #' @param consensusSeq (logical) whether to display the consensus sequence when 
@@ -603,23 +598,18 @@ heatmap_msa <- function(talsim, repeatAlign, rvdAlign = NULL, repeatSim, repeat.
 #'
 #'
 #' @param talsim a \emph{three columns Tals similarity table} as obtained with
-#'   \code{\link[tantale:runDistal]{runDistal}} in the 'tal.similarity' slot of
+#'   \code{\link[tantale:distalr]{distalr}} in the 'tal.similarity' slot of
 #'   the returned object.
 #' @param repeatAlign A multiple Tal repeat sequences alignment in the form of a
-#'   matrix as returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}}
-#'   or as one of the elements of the \code{SeqOfRepsAlignments} slot in the
-#'   return object of the \code{\link{buildDisTalGroups}} function.
+#'   matrix as returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}}.
 #' @param repeatSim A long, three columns data frame with pairwise similarity
 #'   scores between repeats as available in the \code{repeat.similarity slot} of
-#'   the object returned by the \code{\link[tantale:runDistal]{runDistal}} or the 
-#'   the \code{\link[tantale:distalr]{distalr}} functions.
+#'   the object returned by the \code{\link[tantale:distalr]{distalr}} function.
 #' @param repeat.clust.h.cut height for tree cutting when defining domain/repeat
 #'   clusters.
 #' @param rvdAlign A multiple Tal RVD sequences alignment in the form of a
-#'   matrix as returned by \code{\link[tantale:convertRepeat2RvdAlign]{convertRepeat2RvdAlign}}, 
-#'    \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}} 
-#'   or as one of the elements of the \code{SeqOfRepsAlignments} slot in the
-#'   return object of the \code{\link{buildDisTalGroups}} function.
+#'   matrix as returned by \code{\link[tantale:convertRepeat2RvdAlign]{convertRepeat2RvdAlign}}
+#'   or \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}}.
 #' @param refgrep Regular expression pattern that will be used to search TALE
 #'   names to select the reference in the alignment.
 #' @param consensusSeq (logical) Whether to display the consensus sequence

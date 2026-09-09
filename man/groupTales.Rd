@@ -13,7 +13,7 @@ groupTales(
 )
 }
 \arguments{
-\item{taleSim}{a \emph{three columns Tals similarity table} as obtained with \code{\link[tantale:runDistal]{runDistal}} in the 'tal.similarity' slot of the returned object.}
+\item{taleSim}{a \emph{three columns Tals similarity table} as obtained with \code{\link[tantale:distalr]{distalr}} in the 'tal.similarity' slot of the returned object.}
 
 \item{plotTree}{logical indicating whether to plot hclust tree or not. If the method is "k-medoids", no tree will be plotted (but instead, a plot of silhoutte value).}
 

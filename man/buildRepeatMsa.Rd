@@ -15,11 +15,11 @@ buildRepeatMsa(
 }
 \arguments{
 \item{inputSeqs}{Any object accepted as input by the
-\code{\link[tantale:toListOfSplitedStr]{toListOfSplitedStr}} function, such as the path to a fasta file containing the TALE sequences to be aligned or the \code{coded.repeats.str} slot of the object returned by the \code{\link[tantale:runDistal]{runDistal}} function. Can also be the return value of the \code{\link[tantale:taleParts2RvdStringSet]{taleParts2RvdStringSet}} function if one wants to align RVD sequences.}
+\code{\link[tantale:toListOfSplitedStr]{toListOfSplitedStr}} function, such as the path to a fasta file containing the TALE sequences to be aligned or the \code{coded.repeats.str} slot of the object returned by the \code{\link[tantale:distalr]{distalr}} function. Can also be the return value of the \code{\link[tantale:taleParts2RvdStringSet]{taleParts2RvdStringSet}} function if one wants to align RVD sequences.}
 
 \item{sep}{Passed to \code{toListOfSplitedStr()} to split the TALEs strings in input.}
 
-\item{distalRepeatSims}{A long, three columns data frame with pairwise similarity scores between repeats as available in the \code{repeat.similarity slot} of the object returned by the \code{\link[tantale:runDistal]{runDistal}} function.}
+\item{distalRepeatSims}{A long, three columns data frame with pairwise similarity scores between repeats as available in the \code{repeat.similarity slot} of the object returned by the \code{\link[tantale:distalr]{distalr}} function.}
 
 \item{mafftOpts}{A character string containing additional options for the MAFFT command. This is notably useful to tweak the Gap opening and gap extension penalties.}
 
