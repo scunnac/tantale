@@ -7,7 +7,7 @@ output:
     toc_float: true
     number_sections: true
 vignette: >
-  %\VignetteIndexEntry{workflow}
+  %\VignetteIndexEntry{1. Mining TALE sequences in genomes with tantale}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 

@@ -7,7 +7,7 @@ editor_options:
   chunk_output_type: console
 ---
 
-e a small test set of tale cds sequences (5 = 2 groups of 2 + outlier)
+Here is a small test set of tale cds sequences (5 = 2 groups of 2 + outlier)
 
 ```{r}
 library(tantale)

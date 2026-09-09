@@ -7,7 +7,7 @@ output:
     toc_float: true
     number_sections: true
 vignette: >
-  %\VignetteIndexEntry{workflow}
+  %\VignetteIndexEntry{TALEs domains sequences alignment with MAFFT}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
