@@ -4,10 +4,9 @@
 # saveRDS(grp, file = testthat::test_path("data_for_tests", "sampleDistalrGroups.rds"))
 # saveRDS(repeatMsaByGroup_withSim, file = testthat::test_path("data_for_tests", "repeatMsaByGroup.rds"))
 
-load_all()
 distalrOut <- readRDS(file = testthat::test_path("data_for_tests", "sampleDistalrOutput.rds"))
 #taleGroups <- readRDS(file = testthat::test_path("data_for_tests", "sampleDistalrGroups.rds"))
-repeatMsaByGroup <- readRDS(file = testthat::test_path("data_for_tests", "repeatMsaByGroup.rds"))
+repeatMsaByGroup <- readRDS(file = testthat::test_path("data_for_tests", "sampleRepeatMsaByGroup.rds"))
 
 repeatAlign <- repeatMsaByGroup[[6]]
 rvdAlign <- convertRepeat2RvdAlign(repeatAlign = repeatAlign,
@@ -17,7 +16,7 @@ rvdAlign <- convertRepeat2RvdAlign(repeatAlign = repeatAlign,
 taleAlignConsensus(repeatAlign)
 taleAlignConsensus(rvdAlign)
 
-matchConsensus(repeatAlign, taleAlignConsensus(repeatAlign))
+matchConsensus(repeatAlign)
 
 
 try(ggplotTalesMsa(repeatAlign = NULL,
