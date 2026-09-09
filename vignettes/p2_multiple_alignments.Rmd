@@ -63,7 +63,7 @@ The output shown as a simple matrix :
 knitr::kable(aln)
 ```
 
-Now, it is more evolutionarily relevant to look at Distal parts/domain/repeat (this is used somehow interchangeably with roughly the same meaning) code sequences. Needless to say that to obtain TALE parts code sequences, you need beforehand to run either the original Distal perl script with `runDistal` or our R implementation `distalr` with DNA sequences. In this cas we just use a toy example provided with tantale.
+Now, it is more evolutionarily relevant to look at Distal parts/domain/repeat (this is used somehow interchangeably with roughly the same meaning) code sequences. Needless to say that to obtain TALE parts code sequences, you need beforehand to run `distalr()` with DNA sequences. In this cas we just use a toy example provided with tantale.
 
 
 ```{r align parts strings}

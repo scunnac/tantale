@@ -70,7 +70,7 @@ load(file.path(outdir, "mining.RData"))
 
 If interested in performing TALEs multiple alignments (distal domains or RVDs) it makes sense to align TALEs that are related and that thus belong to the same group. This is what we are doing here but keep in mind that the `buildRepeatMsa()` function can take any arbitrary set of repeatID sequences or RVD sequences.
 
-But right now what we need is a mapping between distal parts IDs and the cognate RVDs. This can be done in a number of ways but let's use the one below that rely on the `run``.
+But right now what we need is a mapping between distal parts IDs and the cognate RVDs. This can be done in a number of ways but let's use the one below that relies on `getRepeat2RvdMapping()`.
 
 ```{r fetching the necessary info about rvds}
 
@@ -106,7 +106,7 @@ If possible it is more appropriate to align repeat/domains rather than RVD. For 
 
 ```{r msa_with_sim, results = FALSE, eval= TRUE}
 repeatVectors <- distalr_deci_output$coded.repeats.str
-repeatSim <- distalr_deci_output$repeat.similarity #distal_output$repeat.similarity
+repeatSim <- distalr_deci_output$repeat.similarity
 
 
 lapply(sort(unique(taleGroups$group)), function(G) {repeatVectors[taleGroups$name[taleGroups$group == G]]})

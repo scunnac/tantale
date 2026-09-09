@@ -1,5 +1,5 @@
 ---
-title: "A comparison between `runDistal` and `distalr` implementations"
+title: "Comparing `distalr`'s pairwise-alignment backends"
 output:
   html_document:
     df_print: paged

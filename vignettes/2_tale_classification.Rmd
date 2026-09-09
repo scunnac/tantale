@@ -64,39 +64,9 @@ load(file.path(outdir, "mining.RData"))
 
 # Classify the various TALE sequences into groups of related sequences
 
-To classify TALE groups, we use the function `runDistal()` to run the tool DisTal that outputs similarity between TALEs and similarity between repeats. The TALE similarity table can be taken as input of `groupTales()` for clustering groups, and the repeats similarity can be used for plotting multiple alignment of Tals within group.
+To classify TALE groups, we use the function `distalr()`, an R implementation of the original DisTal Perl program (see below), which outputs similarity between TALEs and similarity between repeats. The TALE similarity table can be taken as input of `groupTales()` for clustering groups, and the repeats similarity can be used for plotting multiple alignment of Tals within group.
 
-## Run DisTal
-
-We run DisTal for all the putative TALE ORFs (from `telltale` output).
-
-```{r distal_io, cache = FALSE, warning=FALSE}
-distal_telltale <- file.path(outdir, "distal")
-unlink(distal_telltale, recursive = TRUE)
-dir.create(distal_telltale, showWarnings = F)
-telltale_cds <- file.path(distal_telltale, "cds.fasta")
-unlink(telltale_cds)
-
-
-distal_telltale_input <- list.files(telltale_outdir,
-                                    "putativeTalOrf.fasta",
-                                    recursive = T, full.names = T)
-distal_telltale_input <- distal_telltale_input[!grepl("ROI", distal_telltale_input, fixed = T)]
-for (input in distal_telltale_input) {
-  ttRunId <- gsub("\\_.+", "", basename(dirname(input)))
-  seqs <- readBStringSet(input, seek.first.rec = T)
-  names(seqs) <- paste0(ttRunId, "_", names(seqs))
-  seqs <- seqs[width(seqs) != 0]
-  #cat(names(seqs))
-  writeXStringSet(seqs, telltale_cds, append = T)
-}
-
-# run DisTal
-system.time({
-  distal_output <- runDistal(telltale_cds, outdir = distal_telltale, overwrite = T)
-})
-
-```
+> `distalr()` superseded the original Perl-based `runDistal()`/`buildDisTalGroups()` functions, which have been removed from the package (along with the ~90MB of bundled Perl modules they required). Before removal, their output was benchmarked against `distalr()`'s three pairwise-alignment backends and found to correlate highly (see the archived comparison in an earlier version of this vignette, or git history for `R/distal.R`).
 
 ## Run the R implementation of DisTal
 
@@ -180,8 +150,7 @@ Now, we can take a look at whether the results of the original Distal script are
 
 
 ```{r correlation of TALE similarity from various distal implementations, fig.width = 4, fig.height=4}
-talSimOutAgregated <- list(distalALV = distal_output$tal.similarity,
-     distalDECI = distalr_deci_output$tal.similarity,
+talSimOutAgregated <- list(distalDECI = distalr_deci_output$tal.similarity,
      distalBIOS = distalr_bs_output$tal.similarity,
      distalMMS = distalr_mms_output$tal.similarity
 ) %>% bind_rows(.id = "method")
@@ -206,28 +175,17 @@ talSimOutAgregated <- reshape2::dcast(talSimOutAgregated %>% select(method, TAL1
 
 
 ```{r pair plot of TALE similarity from various distal implementations, fig.width = 6, fig.height= 6}
-# talSimOutAgregated %>%
-#   select(-distalBIOS) %>%
-#   mutate(pointLab = paste(TAL1, TAL2, sep = "|")) %>%
-#   ggplot(mapping = aes(x = distalALV, distalDECI)) +
-#   geom_point() +
-#   geom_abline(intercept = 0, slope = 1)
-
-pairs(talSimOutAgregated[3:6], pch = 20, cex = 0.5, lower.panel = NULL)
+pairs(talSimOutAgregated[3:5], pch = 20, cex = 0.5, lower.panel = NULL)
 ```
 
 
 
-The correlation of the TALE pairwise similarity scores output by the various distal flavors are remarkably high.
+The correlation of the TALE pairwise similarity scores output by the various `distalr()` backends is remarkably high.
 
 ## Allocate TALEs to groups of related sequences
 
 ```{r tale trees, fig.width = 6, fig.height=6}
 k <- 22
-groupsALV <- invisible(groupTales(taleSim = distal_output$tal.similarity,
-                     plotTree = TRUE, k = k, k_test = 10:40,
-                     method = "k-medoids"))
-
 groupsDECI <- invisible(groupTales(taleSim = distalr_deci_output$tal.similarity,
                      plotTree = TRUE, k = k, k_test = 10:40,
                      method = "k-medoids"))
@@ -241,9 +199,6 @@ groupsMMS <- invisible(groupTales(taleSim = distalr_mms_output$tal.similarity,
                      method = "k-medoids"))
 
 
-grp <- groupTales(taleSim = distal_output$tal.similarity,
-                     plotTree = TRUE, k = k,
-                     method = "hclust")
 grp <- groupTales(taleSim = distalr_deci_output$tal.similarity,
                      plotTree = TRUE, k = k,
                      method = "hclust")
@@ -256,39 +211,7 @@ grp <- groupTales(taleSim = distalr_mms_output$tal.similarity,
 
 ```
 
-We can compare the hierarchical trees obtained with the original Distal tree (left) and distalr with DICEPHER (right). Because PXO86 is the only Asian strain and these TALEs are rather distantly related to African ones, the part of the trees with PXO86 TALEs are not really meaningful in this context.
-
-
-```{r tale trees comparisons distal vs deci, fig.width = 8, fig.height=8}
-getTALEsTree <- function(taleSim) {
-  distMat <- 100 - reshape2::acast(taleSim, formula = TAL1 ~ TAL2, value.var = "Sim")
-  hclust(dist(distMat, method = "euclidean"), method = "ward.D")
-}
-
-op <- par()
-suppressWarnings(par(cex = 0.5))
-ape::cophyloplot(getTALEsTree(distal_output$tal.similarity) %>% as.phylo(),
-                 getTALEsTree(distalr_deci_output$tal.similarity) %>% as.phylo(),
-                 assoc = matrix(rep(distal_output$tal.similarity$TAL1 %>% unique() %>% as.character(), 2),
-                                ncol = 2, byrow = FALSE),
-                 length.line = 0, space=200, gap = 10,
-                 col = "red")
-suppressWarnings(par(op))
-```
-
-
-```{r tale trees comparisons distal vs mms, fig.width = 8, fig.height=8}
-op <- par()
-suppressWarnings(par(cex = 0.5))
-ape::cophyloplot(getTALEsTree(distal_output$tal.similarity) %>% as.phylo(),
-                 getTALEsTree(distalr_mms_output$tal.similarity) %>% as.phylo(),
-                 assoc = matrix(rep(distal_output$tal.similarity$TAL1 %>% unique() %>% as.character(), 2),
-                                ncol = 2, byrow = FALSE),
-                 length.line = 0, space=200, gap = 10,
-                 col = "red")
-suppressWarnings(par(op))
-```
-
+Because PXO86 is the only Asian strain and these TALEs are rather distantly related to African ones, the part of the trees with PXO86 TALEs are not really meaningful in this context.
 
 
 ```{r test_tale_group}
