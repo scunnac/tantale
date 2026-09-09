@@ -206,7 +206,7 @@ buildRepeatMsa <- function(inputSeqs, sep = " ", distalRepeatSims = NULL,
   msaOfHex <- Biostrings::readBStringSet(mafftHexOutFile)
   if (length(msaOfHex) == 0L) {
     logger::log_error("MAFFT failled to complete sucessfully...")
-    res %>% logger::skip_formatter() %>% logger::log_error()
+    logger::log_error("MAFFT exit status: {res}")
     stop()
   } else {
     logger::log_debug("MAFFT completed sucessfully!! Yeah!")

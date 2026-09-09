@@ -185,13 +185,13 @@ diag(identSubMat) <- 1
   pairAlignScores <- BiocParallel::bplapply(
     X = 1:length(partAaStringSet),
     FUN = function(i) {
-      singleSubAln <- Biostrings::pairwiseAlignment(pattern = partAaStringSet,
+      singleSubAln <- pwalign::pairwiseAlignment(pattern = partAaStringSet,
                                                     subject = partAaStringSet[i],
                                                     substitutionMatrix = identSubMat, #"BLOSUM62",
                                                     gapOpening = 1, gapExtension = 0.5,
                                                     type = "global", scoreOnly = FALSE)
       tibble::tibble(subj = names(partAaStringSet[i]),
-                     pattern = names(alignedPattern(singleSubAln)),
+                     pattern = names(pwalign::alignedPattern(singleSubAln)),
                      score = BiocGenerics::score(singleSubAln),
                      nedit = Biostrings::nmismatch(singleSubAln))
     },
@@ -295,8 +295,20 @@ diag(identSubMat) <- 1
     stop("Parts in the provided input have duplicated names. Cannot proceeed...")
   }
   msa <- DECIPHER::AlignSeqs(myXStringSet = partAaStringSet, normPower = 0,
-                             processors = ncores, verbose = FALSE) %>%
-    DECIPHER::StaggerAlignment(fullLength = TRUE, processors = ncores, verbose = FALSE)
+                             processors = ncores, verbose = FALSE)
+  # When no guide tree is supplied, DECIPHER::StaggerAlignment() builds one
+  # internally using DistanceMatrix(..., correction = "TN93+F"), a nucleotide
+  # substitution model that errors out on an AAStringSet. Build the guide
+  # tree ourselves with a correction-free (protein-safe) distance matrix.
+  staggerTree <- if (length(msa) >= 3) {
+    distForTree <- DECIPHER::DistanceMatrix(msa, processors = ncores, verbose = FALSE)
+    suppressWarnings(DECIPHER::Treeline(myDistMatrix = distForTree, method = "NJ",
+                                        processors = ncores, verbose = FALSE))
+  } else {
+    NULL
+  }
+  msa <- DECIPHER::StaggerAlignment(msa, tree = staggerTree, fullLength = TRUE,
+                                    processors = ncores, verbose = FALSE)
   distMat <- DECIPHER::DistanceMatrix(msa, method = "longest",
                                       includeTerminalGaps = TRUE,
                                       processors = ncores, verbose = FALSE)

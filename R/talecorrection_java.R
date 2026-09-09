@@ -43,10 +43,13 @@ correcTales <- function(uncorrectedAssemblyPath ,
   outputFolder <- tempfile(pattern = "correcTales")
   dir.exists(outputFolder) || dir.create(outputFolder, recursive = TRUE)
   domains <- c(N = "N-terminus.10bpRepeat1", C = "repeat", R = "C-terminus")
-  invisible(fs::file_exists(uncorrectedAssemblyPath)) || logger::log_error("The provided input file does not exists") & stop()
+  if (!fs::file_exists(uncorrectedAssemblyPath)) {
+    logger::log_error("The provided input file does not exists")
+    stop()
+  }
   
   #### run nHMMER ####
-  nhmmerCmd <- paste(g("nhmmer {pathToHMMs}/{domains}.hmm {uncorrectedAssemblyPath} > {outputFolder}/out_nhmmer.{domains}.txt",
+  nhmmerCmd <- paste(glue::glue("nhmmer {pathToHMMs}/{domains}.hmm {uncorrectedAssemblyPath} > {outputFolder}/out_nhmmer.{domains}.txt",
                        .sep = "; "), collapse = "; ")
   envReady <- !as.logical(createTantaleEnv(condaBinPath = condaBinPath))
   if (envReady) {
@@ -67,7 +70,7 @@ correcTales <- function(uncorrectedAssemblyPath ,
   
   #### run TALEcorrection ####
   logger::log_info("Performing TALEs cds correction on provided sequences.")
-  talecorCmd <- g("java -jar {pathToTALECorrection} correct s={uncorrectedAssemblyPath}",
+  talecorCmd <- glue::glue("java -jar {pathToTALECorrection} correct s={uncorrectedAssemblyPath}",
                   "n={outputFolder}/out_nhmmer.{domains[\"N\"]}.txt r={outputFolder}/out_nhmmer.{domains[\"R\"]}.txt",
                   "c={outputFolder}/out_nhmmer.{domains[\"C\"]}.txt outdir={outputFolder}", .sep = " ")
   res <- try(system(command = talecorCmd, intern = TRUE))
