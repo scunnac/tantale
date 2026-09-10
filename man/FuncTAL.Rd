@@ -10,7 +10,8 @@ FuncTAL(
   outputPrefix = "FuncTALE",
   outputDir = getwd(),
   FunctTAL = system.file("tools", "QueTAL_v1.1", "FuncTAL", "FuncTAL_v.1.1.pl", package =
-    "tantale", mustWork = T)
+    "tantale", mustWork = T),
+  condaBinPath = "auto"
 )
 }
 \arguments{
@@ -24,6 +25,9 @@ FuncTAL(
 
 \item{FunctTAL}{Path to the FuncTAL perl script if you want to use another
 version than the one provided with tantale.}
+
+\item{condaBinPath}{Path to your Conda binary file if you need to specify a
+non-standard location, otherwise leave to "auto".}
 }
 \value{
 Returns invisibly the exit code of the shell call to FuncTAL (ie '0' if successful).

@@ -161,13 +161,16 @@ buildAnnoTALE <- function(TALESeqsFastaFile,
 #' @param outputDir Directory where output will be copied (default: current working directory).
 #' @param FunctTAL Path to the FuncTAL perl script if you want to use another
 #'   version than the one provided with tantale.
+#' @param condaBinPath Path to your Conda binary file if you need to specify a
+#'   non-standard location, otherwise leave to "auto".
 #' @return Returns invisibly the exit code of the shell call to FuncTAL (ie '0' if successful).
 #' @export
 FuncTAL <- function(TALfile,
                     treeFormat = "fan",
                     outputPrefix = "FuncTALE",
                     outputDir = getwd(),
-                    FunctTAL = system.file("tools", "QueTAL_v1.1", "FuncTAL", "FuncTAL_v.1.1.pl", package = "tantale", mustWork = T)) {
+                    FunctTAL = system.file("tools", "QueTAL_v1.1", "FuncTAL", "FuncTAL_v.1.1.pl", package = "tantale", mustWork = T),
+                    condaBinPath = "auto") {
   # Running FuncTAL from QueTAL_v1.1
   # A few observations:
   # Refuse to use another output directory than the "Ouputs" one in the program folder
@@ -178,18 +181,30 @@ FuncTAL <- function(TALfile,
   FunctTALDir <- dirname(FunctTAL)
 
   # Assembling the command to be run
-  goToFuncTALDir <- paste("cd", FunctTALDir)
-  runFuncTAL <- paste(FunctTAL,
+  # -I FunctTALDir is required for perl to find Statistics.pm, which ships
+  # alongside the script rather than as an installed module. List::MoreUtils
+  # and Bio::Perl come from the 'tantale' conda environment.
+  runFuncTAL <- paste("perl", "-I", FunctTALDir, FunctTAL,
                       "-n", treeFormat,
                       TALfile,
                       outputPrefix)
-  com <- paste(goToFuncTALDir, runFuncTAL, sep = ";")
 
-  # Run the command with system
+  # Run the command inside the tantale conda environment
   cat("Now running FunctTAL using the following command:\n",
-      com,
+      runFuncTAL,
       "\n\n")
-  exitCom <- system(com)
+  envReady <- !as.logical(createTantaleEnv(condaBinPath = condaBinPath))
+  if (envReady) {
+    exitCom <- systemInCondaEnv(envName = "tantale",
+                                condaBinPath = condaBinPath,
+                                command = runFuncTAL,
+                                cwd = FunctTALDir)
+  } else {
+    stop("Could not create the tantale conda environment on your machine to run FuncTAL...")
+  }
+  if (exitCom != 0) {
+    stop("FuncTAL failed (perl exit code ", exitCom, "). See console output above for details.")
+  }
 
   # Transferring the ouput to the output dir and deleting it in the FuncTAL "Outputs" directory
   FuncTALEOuputFiles <-
@@ -203,4 +218,5 @@ FuncTAL <- function(TALfile,
     copy.date = TRUE
   )
   unlink(FuncTALEOuputFiles, recursive = TRUE, force = FALSE)
+  return(invisible(exitCom))
 }
