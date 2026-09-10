@@ -20,8 +20,8 @@ Imports:
     RColorBrewer, dichromat,
     biovizBase, IRanges, Biostrings, pwalign, GenomicRanges, GenomicFeatures, BSgenome, plyranges,
     Rsamtools, systemPipeR, msa, DECIPHER,
-    ape, ggtree, aplot,
-    gplots,
+    ape, ggtree, tidytree, aplot,
+    gplots, cluster, viridis,
     reticulate, optparse, logger, cli
 Suggests:
     knitr, DT, sessioninfo,
