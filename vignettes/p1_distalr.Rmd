@@ -12,17 +12,17 @@ Here is a small test set of tale cds sequences (5 = 2 groups of 2 + outlier)
 ```{r}
 library(tantale)
 tellTaleSubjSeqsFile <- system.file("extdata", "bai3_sample_tal_genomic_regions.fasta", package = "tantale", mustWork = T)
-tellTaleOutDir <- system.file("extdata", "tellTaleExampleOutput", package = "tantale", mustWork = T)
+telltale_dir <- system.file("extdata", "tellTaleExampleOutput", package = "tantale", mustWork = T)
 # 
-# tantale::tellTale(subjectFile = tellTaleSubjSeqsFile,
-#                           outputDir = tellTaleOutDir
+# tantale::tell_tales(subject_file = tellTaleSubjSeqsFile,
+#                           output_dir = telltale_dir
 # )
 ```
 
-# Parse annotale output (rvd, aa, dna, domain type, array id) in a tellTale output dir
+# Parse annotale output (rvd, aa, dna, domain type, array id) in a tell_tales output dir
 
-```{r parse tale parts from tellTale output dir}
-taleParts <- getTaleParts(system.file("extdata", "tellTaleExampleOutput", package = "tantale", mustWork = T))
+```{r parse tale parts from tell_tales output dir}
+tale_parts <- tale_parts(system.file("extdata", "tellTaleExampleOutput", package = "tantale", mustWork = T))
 ```
 
 
@@ -31,14 +31,14 @@ taleParts <- getTaleParts(system.file("extdata", "tellTaleExampleOutput", packag
 ```{r use distalr}
 
 
-dres <- distalr(taleParts = taleParts, repeats.cluster.h.cut = 10, ncores = 6,
-                pairwiseAlnMethod = "Biostrings")
+dres <- distalr(tale_parts = tale_parts, h_cut = 10, ncores = 6,
+                aln_method = "Biostrings")
 
-# dres2 <- distalr(taleParts = taleParts, repeats.cluster.h.cut = 10, ncores = 6,
-#                 pairwiseAlnMethod = "mmseq2", condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")
+# dres2 <- distalr(tale_parts = tale_parts, h_cut = 10, ncores = 6,
+#                 aln_method = "mmseq2", conda_bin = "/home/cunnac/bin/miniconda3/condabin/conda")
 
-dres3 <- distalr(taleParts = taleParts, repeats.cluster.h.cut = 10, ncores = 6,
-                pairwiseAlnMethod = "DECIPHER")
+dres3 <- distalr(tale_parts = tale_parts, h_cut = 10, ncores = 6,
+                aln_method = "DECIPHER")
 
 ```
 

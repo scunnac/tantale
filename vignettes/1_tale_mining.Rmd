@@ -74,24 +74,24 @@ We will run `telltale()` without correction for "gold" genomes, MAI1, BAI3 and P
 ```{r telltale_no_correction, eval=TRUE}
 mclapply(c(mai1_fa, bai3_fa, pxo86), function(fastaFile) {
   outdirname <- gsub(".fa", "_nocorrection", basename(fastaFile))
-  outputDir <- file.path(telltale_outdir, outdirname)
-  tellTale(subjectFile = fastaFile,
-            outputDir = outputDir,
-            appendExtremityCodes = TRUE,
-            rvdSep = "-",
-            talArrayCorrection = FALSE)
+  output_dir <- file.path(telltale_outdir, outdirname)
+  tell_tales(subject_file = fastaFile,
+            output_dir = output_dir,
+            extremity_codes = TRUE,
+            rvd_sep = "-",
+            correct_array = FALSE)
 }, mc.cores = 3)
 ```
 
 ## Run telltale correction
 
 ```{r telltale_correction, eval=TRUE}
-tellTale(subjectFile = bai311_fa,
-         outputDir = file.path(telltale_outdir, gsub(".fa", "_correction", basename(bai311_fa))),
-         TALE_CtermDNAHitMinScore = 300,
-         appendExtremityCodes = TRUE,
-         rvdSep = "-",
-         talArrayCorrection = TRUE)
+tell_tales(subject_file = bai311_fa,
+         output_dir = file.path(telltale_outdir, gsub(".fa", "_correction", basename(bai311_fa))),
+         cterm_min_score = 300,
+         extremity_codes = TRUE,
+         rvd_sep = "-",
+         correct_array = TRUE)
 ```
 
 ## Overview of telltale results

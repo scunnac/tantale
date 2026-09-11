@@ -80,8 +80,8 @@ writeXStringSet(rvdSeqs_tt, predict_input)
 
 ## promoter sequences
 rvdSeqsXstrings <-  predict_input
-subjDnaSeqFile <-  system.file("extdata", "cladeIII_sweet_promoters.fasta", package = "tantale", mustWork = T)
-readBStringSet(subjDnaSeqFile) %>% names
+subj_file <-  system.file("extdata", "cladeIII_sweet_promoters.fasta", package = "tantale", mustWork = T)
+readBStringSet(subj_file) %>% names
 ```
 
 ## talvez
@@ -89,10 +89,10 @@ readBStringSet(subjDnaSeqFile) %>% names
 The output of `talvez()` contains the position, score and rank of each prediction.
 
 ```{r talvez, eval = TRUE}
-talvezPreds <- talvez(rvdSeqs = rvdSeqsXstrings,
-                      subjDnaSeqFile = subjDnaSeqFile,
-                      optParam = "-t 0 -l 19",
-                      condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")
+talvezPreds <- talvez(rvd_seqs = rvdSeqsXstrings,
+                      subj_file = subj_file,
+                      opt_param = "-t 0 -l 19",
+                      conda_bin = "/home/cunnac/bin/miniconda3/condabin/conda")
 datatable(talvezPreds, options = list(pageLength = 1))
 ```
 
@@ -126,11 +126,11 @@ heatmap.2(selectedPredsMat,
                   )
 ```
 
-To see how RVD sequences match a promoter region, we supply the prediction table and the promoter sequence with the genomic range to `plotTaleTargetPred()`:
+To see how RVD sequences match a promoter region, we supply the prediction table and the promoter sequence with the genomic range to `plot_target_preds()`:
 
 ```{r SWEET13, fig.width = 14, fig.height = 4}
 grFilter <- "SWEET14p_Nipponbare_Sense:340-450"
-plotTaleTargetPred(predResults = selectedPreds, subjDnaSeqFile = subjDnaSeqFile, filterRange = grFilter)
+plot_target_preds(preds = selectedPreds, subj_file = subj_file, filter_range = grFilter)
 ```
 
 
@@ -141,7 +141,7 @@ plotTaleTargetPred(predResults = selectedPreds, subjDnaSeqFile = subjDnaSeqFile,
 With Preditale, we get similar data frame output but with p value additionally. Preditale takes a little bit longer than Talvez and may give some different predictions.
 
 ```{r preditale, eval = TRUE}
-preditalePreds <- preditale(rvdSeqs = rvdSeqsXstrings, subjDnaSeqFile = subjDnaSeqFile, outDir = NULL)
+preditalePreds <- preditale(rvd_seqs = rvdSeqsXstrings, subj_file = subj_file, output_dir = NULL)
 datatable(preditalePreds, options = list(pageLength = 1))
 ```
 
@@ -175,7 +175,7 @@ gplots::heatmap.2(selectedPredsMat,
 
 ```{r SWEET14, fig.width = 14, fig.height = 4}
 grFilter <- "SWEET14p_Nipponbare_Sense:340-450"
-plotTaleTargetPred(predResults = selectedPreds, subjDnaSeqFile = subjDnaSeqFile, filterRange = grFilter)
+plot_target_preds(preds = selectedPreds, subj_file = subj_file, filter_range = grFilter)
 ```
 
 

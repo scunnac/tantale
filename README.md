@@ -20,12 +20,12 @@ Here is a snapshot of the topics that are or will (hopefully) be covered in the 
 
 - TALE mining in bacterial sequences:
     - Wrapper around [AnnoTALE](https://doi.org/10.1038/srep21077) and [correcTALE](https://doi.org/10.1186/s12864-023-09228-1)
-    - tellTale, an R function similar to AnnoTALE
+    - tell_tales, an R function similar to AnnoTALE
     - Analysis tools for RVD inventory, repeat lenght
 
 
 - TALEs classification, phylogeny:
-    - Wrappers around [DisTAL](https://doi.org/10.3389/fpls.2015.00545), [FuncTAL](https://doi.org/10.3389/fpls.2015.00545), AnnoTALE
+    - Wrappers around [DisTAL](https://doi.org/10.3389/fpls.2015.00545), [functal](https://doi.org/10.3389/fpls.2015.00545), AnnoTALE
     - TALE groups inference
     - Easily build Multiple alignments and generate nice plots
 

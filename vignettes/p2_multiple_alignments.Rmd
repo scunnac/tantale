@@ -40,7 +40,7 @@ library(tantale)
 
 ```
 
-This demo will illustrate how to use the `buildRepeatMsa` function to produce TALE sequence multiple algnments.\
+This demo will illustrate how to use the `build_repeat_msa` function to produce TALE sequence multiple algnments.\
 
 Additionally, using real life distalr output, it will details the various type of aesthetics that can be used to plot those TALEs msa.
 
@@ -49,12 +49,12 @@ Additionally, using real life distalr output, it will details the various type o
 Here we start with RVD sequences of the African Xoo TALE TalA:
 
 ```{r align rvd strings}
-aln <- buildRepeatMsa(inputSeqs = system.file("extdata", "TalA_RVDSeqs_AnnoTALE.fasta",
+aln <- build_repeat_msa(input_seqs = system.file("extdata", "TalA_RVDSeqs_AnnoTALE.fasta",
                                               package = "tantale", mustWork = TRUE),
                       sep = "-",
-                      distalRepeatSims = NULL,
-                      mafftOpts = "--localpair --maxiterate 1000 --quiet --reorder --op 0 --ep 5 --thread 1",
-                      gapSymbol = "-")
+                      repeat_sims = NULL,
+                      mafft_opts = "--localpair --maxiterate 1000 --quiet --reorder --op 0 --ep 5 --thread 1",
+                      gap_symbol = "-")
 ```
 
 The output shown as a simple matrix :
@@ -67,12 +67,12 @@ Now, it is more evolutionarily relevant to look at Distal parts/domain/repeat (t
 
 
 ```{r align parts strings}
-aln <- buildRepeatMsa(inputSeqs = system.file("extdata", "small_Out_CodedRepeats.fa",
+aln <- build_repeat_msa(input_seqs = system.file("extdata", "small_Out_CodedRepeats.fa",
                                               package = "tantale", mustWork = TRUE),
                       sep = " ",
-                      distalRepeatSims = NULL,
-                      mafftOpts = "--localpair --maxiterate 1000 --quiet --reorder --op 0 --ep 5 --thread 1",
-                      gapSymbol = "-")
+                      repeat_sims = NULL,
+                      mafft_opts = "--localpair --maxiterate 1000 --quiet --reorder --op 0 --ep 5 --thread 1",
+                      gap_symbol = "-")
 ```
 
 **NOTE**, the difference in the `sep` parameter value.
@@ -94,22 +94,22 @@ distalrOut <- readRDS(file = system.file("extdata", "sampleDistalrOutput.rds",
 repeatMsaByGroup <- readRDS(file = system.file("extdata", "sampleRepeatMsaByGroup.rds",
                                               package = "tantale", mustWork = TRUE))
 
-repeatAlign <- repeatMsaByGroup[[4]]
-rvdAlign <- convertRepeat2RvdAlign(repeatAlign = repeatAlign,
-                                   repeat2RvdMapping = getRepeat2RvdMappingFromDistalr(distalrOut$taleParts))
+repeat_align <- repeatMsaByGroup[[4]]
+rvd_align <- repeat_to_rvd_align(repeat_align = repeat_align,
+                                   rvd_map = repeat_to_rvd_map_distalr(distalrOut$tale_parts))
 ```
 
 This is what you get if you provide all the arguments:
 
-```{r detailled illustration of ggplotTalesMsa, fig.width=12, fig.height=2.5}
-p1 <- ggplotTalesMsa(repeatAlign = repeatAlign,
-               talsim = distalrOut$tal.similarity,
-               repeatSim = distalrOut$repeat.similarity,
-               rvdAlign = rvdAlign,
-               repeat.clust.h.cut = 90,
-               refgrep = NULL,
-               consensusSeq = FALSE,
-               fillType = "repeatSim" # "repeatClust"
+```{r detailled illustration of plot_tales_msa, fig.width=12, fig.height=2.5}
+p1 <- plot_tales_msa(repeat_align = repeat_align,
+               tal_sim = distalrOut$tal.similarity,
+               repeat_sim = distalrOut$repeat.similarity,
+               rvd_align = rvd_align,
+               h_cut = 90,
+               ref_pattern = NULL,
+               consensus = FALSE,
+               fill_type = "repeat_sim" # "repeatClust"
 )
 ```
 
@@ -150,146 +150,146 @@ p1
 
 
 Pay attention to the arguments provided to the plotting function.
-In the various calls to `ggplotTalesMsa`, arguments are gradually removed to exemplify the type of alignments that are thus displayed.
+In the various calls to `plot_tales_msa`, arguments are gradually removed to exemplify the type of alignments that are thus displayed.
 
-```{r detailled illustration of ggplotTalesMsa others, fig.width=12, fig.height=2.5}
-p <- ggplotTalesMsa(repeatAlign = repeatAlign,
-               talsim = distalrOut$tal.similarity,
-               repeatSim = distalrOut$repeat.similarity,
-               rvdAlign = rvdAlign,
-               repeat.clust.h.cut = 90,
-               refgrep = NULL,
-               consensusSeq = FALSE,
-               fillType = "repeatClust" # "repeatClust"
+```{r detailled illustration of plot_tales_msa others, fig.width=12, fig.height=2.5}
+p <- plot_tales_msa(repeat_align = repeat_align,
+               tal_sim = distalrOut$tal.similarity,
+               repeat_sim = distalrOut$repeat.similarity,
+               rvd_align = rvd_align,
+               h_cut = 90,
+               ref_pattern = NULL,
+               consensus = FALSE,
+               fill_type = "repeatClust" # "repeatClust"
 )
 
-p <- ggplotTalesMsa(repeatAlign = repeatAlign,
-               talsim = distalrOut$tal.similarity,
-               repeatSim = distalrOut$repeat.similarity,
-               rvdAlign = rvdAlign,
-               repeat.clust.h.cut = 90,
-               refgrep = NULL,
-               consensusSeq = FALSE,
-               fillType = "repeatSim" # "repeatClust"
+p <- plot_tales_msa(repeat_align = repeat_align,
+               tal_sim = distalrOut$tal.similarity,
+               repeat_sim = distalrOut$repeat.similarity,
+               rvd_align = rvd_align,
+               h_cut = 90,
+               ref_pattern = NULL,
+               consensus = FALSE,
+               fill_type = "repeat_sim" # "repeatClust"
 )
 
-p <- ggplotTalesMsa(repeatAlign = repeatAlign,
-               talsim = distalrOut$tal.similarity,
-               repeatSim = distalrOut$repeat.similarity,
-               rvdAlign = NULL,
-               repeat.clust.h.cut = 90,
-               refgrep = NULL,
-               consensusSeq = FALSE,
-               fillType = "repeatClust" # "repeatClust"
+p <- plot_tales_msa(repeat_align = repeat_align,
+               tal_sim = distalrOut$tal.similarity,
+               repeat_sim = distalrOut$repeat.similarity,
+               rvd_align = NULL,
+               h_cut = 90,
+               ref_pattern = NULL,
+               consensus = FALSE,
+               fill_type = "repeatClust" # "repeatClust"
 )
 
-# fillType has no effect
-p <- ggplotTalesMsa(repeatAlign = repeatAlign,
-               talsim = distalrOut$tal.similarity,
-               repeatSim = NULL,
-               rvdAlign = rvdAlign,
-               repeat.clust.h.cut = 90,
-               refgrep = NULL,
-               consensusSeq = FALSE,
-               fillType = "repeatSim" # "repeatClust"
-)
-
-
-p <- ggplotTalesMsa(repeatAlign = NULL,
-               talsim = distalrOut$tal.similarity,
-               repeatSim = NULL,
-               rvdAlign = rvdAlign,
-               repeat.clust.h.cut = 90,
-               refgrep = NULL,
-               consensusSeq = FALSE,
-               fillType = "repeatSim" # "repeatClust"
+# fill_type has no effect
+p <- plot_tales_msa(repeat_align = repeat_align,
+               tal_sim = distalrOut$tal.similarity,
+               repeat_sim = NULL,
+               rvd_align = rvd_align,
+               h_cut = 90,
+               ref_pattern = NULL,
+               consensus = FALSE,
+               fill_type = "repeat_sim" # "repeatClust"
 )
 
 
-p <- ggplotTalesMsa(repeatAlign = repeatAlign,
-               talsim = distalrOut$tal.similarity,
-               repeatSim = NULL,
-               rvdAlign = NULL,
-               repeat.clust.h.cut = 90,
-               refgrep = NULL,
-               consensusSeq = FALSE,
-               fillType = "repeatSim" # "repeatClust"
-)
-
-p <- ggplotTalesMsa(repeatAlign = NULL,
-               talsim = NULL,
-               repeatSim = NULL,
-               rvdAlign = rvdAlign,
-               repeat.clust.h.cut = 90,
-               refgrep = NULL,
-               consensusSeq = FALSE,
-               fillType = "repeatSim" # "repeatClust"
+p <- plot_tales_msa(repeat_align = NULL,
+               tal_sim = distalrOut$tal.similarity,
+               repeat_sim = NULL,
+               rvd_align = rvd_align,
+               h_cut = 90,
+               ref_pattern = NULL,
+               consensus = FALSE,
+               fill_type = "repeat_sim" # "repeatClust"
 )
 
 
-p <- ggplotTalesMsa(repeatAlign = repeatAlign,
-               talsim = NULL,
-               repeatSim = NULL,
-               rvdAlign = NULL,
-               repeat.clust.h.cut = 90,
-               refgrep = NULL,
-               consensusSeq = FALSE,
-               fillType = "repeatSim" # "repeatClust"
+p <- plot_tales_msa(repeat_align = repeat_align,
+               tal_sim = distalrOut$tal.similarity,
+               repeat_sim = NULL,
+               rvd_align = NULL,
+               h_cut = 90,
+               ref_pattern = NULL,
+               consensus = FALSE,
+               fill_type = "repeat_sim" # "repeatClust"
+)
+
+p <- plot_tales_msa(repeat_align = NULL,
+               tal_sim = NULL,
+               repeat_sim = NULL,
+               rvd_align = rvd_align,
+               h_cut = 90,
+               ref_pattern = NULL,
+               consensus = FALSE,
+               fill_type = "repeat_sim" # "repeatClust"
+)
+
+
+p <- plot_tales_msa(repeat_align = repeat_align,
+               tal_sim = NULL,
+               repeat_sim = NULL,
+               rvd_align = NULL,
+               h_cut = 90,
+               ref_pattern = NULL,
+               consensus = FALSE,
+               fill_type = "repeat_sim" # "repeatClust"
 )
 
 
 
 
 # Single sequence align
-p <- ggplotTalesMsa(repeatAlign = repeatAlign[3, , drop = FALSE],
-               talsim = distalrOut$tal.similarity,
-               repeatSim = distalrOut$repeat.similarity,
-               rvdAlign = rvdAlign[3, , drop = FALSE],
-               repeat.clust.h.cut = 90,
-               refgrep = NULL,
-               consensusSeq = FALSE,
-               fillType = "repeatSim" # "repeatClust"
+p <- plot_tales_msa(repeat_align = repeat_align[3, , drop = FALSE],
+               tal_sim = distalrOut$tal.similarity,
+               repeat_sim = distalrOut$repeat.similarity,
+               rvd_align = rvd_align[3, , drop = FALSE],
+               h_cut = 90,
+               ref_pattern = NULL,
+               consensus = FALSE,
+               fill_type = "repeat_sim" # "repeatClust"
 )
 
-p <- ggplotTalesMsa(repeatAlign = repeatAlign[3, , drop = FALSE],
-               talsim = NULL,
-               repeatSim = distalrOut$repeat.similarity,
-               rvdAlign = rvdAlign[3, , drop = FALSE],
-               repeat.clust.h.cut = 90,
-               refgrep = NULL,
-               consensusSeq = FALSE,
-               fillType = "repeatClust" # "repeatClust"
+p <- plot_tales_msa(repeat_align = repeat_align[3, , drop = FALSE],
+               tal_sim = NULL,
+               repeat_sim = distalrOut$repeat.similarity,
+               rvd_align = rvd_align[3, , drop = FALSE],
+               h_cut = 90,
+               ref_pattern = NULL,
+               consensus = FALSE,
+               fill_type = "repeatClust" # "repeatClust"
 )
 
 
-p <- ggplotTalesMsa(repeatAlign = repeatAlign[3, , drop = FALSE],
-               talsim = NULL,
-               repeatSim = distalrOut$repeat.similarity,
-               rvdAlign = NULL,
-               repeat.clust.h.cut = 90,
-               refgrep = NULL,
-               consensusSeq = FALSE,
-               fillType = "repeatSim" # "repeatClust"
+p <- plot_tales_msa(repeat_align = repeat_align[3, , drop = FALSE],
+               tal_sim = NULL,
+               repeat_sim = distalrOut$repeat.similarity,
+               rvd_align = NULL,
+               h_cut = 90,
+               ref_pattern = NULL,
+               consensus = FALSE,
+               fill_type = "repeat_sim" # "repeatClust"
 )
 
-p <- ggplotTalesMsa(repeatAlign = repeatAlign[3, , drop = FALSE],
-               talsim = NULL,
-               repeatSim = NULL,
-               rvdAlign = NULL,
-               repeat.clust.h.cut = 90,
-               refgrep = NULL,
-               consensusSeq = FALSE,
-               fillType = "repeatSim" # "repeatClust"
+p <- plot_tales_msa(repeat_align = repeat_align[3, , drop = FALSE],
+               tal_sim = NULL,
+               repeat_sim = NULL,
+               rvd_align = NULL,
+               h_cut = 90,
+               ref_pattern = NULL,
+               consensus = FALSE,
+               fill_type = "repeat_sim" # "repeatClust"
 )
 
-p <- ggplotTalesMsa(repeatAlign = NULL,
-               talsim = NULL,
-               repeatSim = NULL,
-               rvdAlign = rvdAlign[3, , drop = FALSE],
-               repeat.clust.h.cut = 90,
-               refgrep = NULL,
-               consensusSeq = FALSE,
-               fillType = "repeatSim" # "repeatClust"
+p <- plot_tales_msa(repeat_align = NULL,
+               tal_sim = NULL,
+               repeat_sim = NULL,
+               rvd_align = rvd_align[3, , drop = FALSE],
+               h_cut = 90,
+               ref_pattern = NULL,
+               consensus = FALSE,
+               fill_type = "repeat_sim" # "repeatClust"
 )
 ```
 
@@ -299,15 +299,15 @@ p <- ggplotTalesMsa(repeatAlign = NULL,
 Compute the consensus of the columns in a TALE alignment:
 
 ```{r get consensus}
-taleAlignConsensus(repeatAlign)
-taleAlignConsensus(rvdAlign)
+tales_consensus(repeat_align)
+tales_consensus(rvd_align)
 ```
 
 Figure out what elements in the TALE alignment corresponds to the consensus:
 
 ```{r match consensus}
-matchConsensus(repeatAlign)
-matchConsensus(repeatAlign, returnLong = FALSE)
+tales_consensus_match(repeat_align)
+tales_consensus_match(repeat_align, long = FALSE)
 ```
 
 

@@ -64,13 +64,13 @@ load(file.path(outdir, "mining.RData"))
 
 # Classify the various TALE sequences into groups of related sequences
 
-To classify TALE groups, we use the function `distalr()`, an R implementation of the original DisTal Perl program (see below), which outputs similarity between TALEs and similarity between repeats. The TALE similarity table can be taken as input of `groupTales()` for clustering groups, and the repeats similarity can be used for plotting multiple alignment of Tals within group.
+To classify TALE groups, we use the function `distalr()`, an R implementation of the original DisTal Perl program (see below), which outputs similarity between TALEs and similarity between repeats. The TALE similarity table can be taken as input of `group_tales()` for clustering groups, and the repeats similarity can be used for plotting multiple alignment of Tals within group.
 
 > `distalr()` superseded the original Perl-based `runDistal()`/`buildDisTalGroups()` functions, which have been removed from the package (along with the ~90MB of bundled Perl modules they required). Before removal, their output was benchmarked against `distalr()`'s three pairwise-alignment backends and found to correlate highly (see the archived comparison in an earlier version of this vignette, or git history for `R/distal.R`).
 
 ## Run the R implementation of DisTal
 
-First we use the tellTale output directories for each genome and get the information about TALE parts (ie domains). The final output is a tibble with a single part per row.
+First we use the tell_tales output directories for each genome and get the information about TALE parts (ie domains). The final output is a tibble with a single part per row.
 
 ```{r get tale parts, fig.width = 10, fig.height=10}
 # distalrOutDir <- file.path(outdir, "distalr")
@@ -78,16 +78,16 @@ First we use the tellTale output directories for each genome and get the informa
 # dir.create(distalrOutDir, showWarnings = F)
 
 
-taleParts <- lapply(list.dirs(telltale_outdir, recursive = FALSE), function(ttGenomeDir) {
+tale_parts <- lapply(list.dirs(telltale_outdir, recursive = FALSE), function(ttGenomeDir) {
   genomeId <- gsub("_.*correction", "", basename(ttGenomeDir))
   logger::log_debug("Current genome: {genomeId}")
-  taleParts <- getTaleParts(ttGenomeDir) %>%
+  tale_parts <- tale_parts(ttGenomeDir) %>%
     mutate(arrayID = paste0(genomeId, "_", arrayID))
-  return(taleParts)
+  return(tale_parts)
 }) %>%
   bind_rows()
 
-DT::datatable(head(taleParts), caption = "An example of the content of the taleParts tibble.")
+DT::datatable(head(tale_parts), caption = "An example of the content of the tale_parts tibble.")
 
 
 ```
@@ -96,7 +96,7 @@ With this kind of representation it is quite easy to make summary plots like thi
 
 
 ```{r Overview of TALE composition by genome, fig.width = 10, fig.height=10}
-partsForPlots <- taleParts %>%
+partsForPlots <- tale_parts %>%
   mutate(label = if_else(domainType == "repeat", rvd, ""),
          aaSeqLength = factor(nchar(aaSeq))
   )
@@ -122,20 +122,20 @@ Now, with this `tibble`, we can also run the R implementation of the Distal Perl
 
 
 ```{r doing the same with distalr, fig.width = 10, fig.height=10}
-partsForDistalr <- taleParts
+partsForDistalr <- tale_parts
 
-system.time({distalr_bs_output <- distalr(taleParts = partsForDistalr,
-                             repeats.cluster.h.cut = 10, ncores = 6,
-                             pairwiseAlnMethod = "Biostrings")})
+system.time({distalr_bs_output <- distalr(tale_parts = partsForDistalr,
+                             h_cut = 10, ncores = 6,
+                             aln_method = "Biostrings")})
 
-system.time({distalr_deci_output <- distalr(taleParts = partsForDistalr,
-                              repeats.cluster.h.cut = 10, ncores = 6,
-                              pairwiseAlnMethod = "DECIPHER")})
+system.time({distalr_deci_output <- distalr(tale_parts = partsForDistalr,
+                              h_cut = 10, ncores = 6,
+                              aln_method = "DECIPHER")})
 
-system.time({distalr_mms_output <- distalr(taleParts = partsForDistalr,
-                              repeats.cluster.h.cut = 10, ncores = 6,
-                              pairwiseAlnMethod = "mmseq2",
-                              condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")})
+system.time({distalr_mms_output <- distalr(tale_parts = partsForDistalr,
+                              h_cut = 10, ncores = 6,
+                              aln_method = "mmseq2",
+                              conda_bin = "/home/cunnac/bin/miniconda3/condabin/conda")})
 
 ```
 
@@ -186,27 +186,27 @@ The correlation of the TALE pairwise similarity scores output by the various `di
 
 ```{r tale trees, fig.width = 6, fig.height=6}
 k <- 22
-groupsDECI <- invisible(groupTales(taleSim = distalr_deci_output$tal.similarity,
-                     plotTree = TRUE, k = k, k_test = 10:40,
+groupsDECI <- invisible(group_tales(tal_sim = distalr_deci_output$tal.similarity,
+                     plot_tree = TRUE, k = k, k_range = 10:40,
                      method = "k-medoids"))
 
-groupsBIOS <- invisible(groupTales(taleSim = distalr_bs_output$tal.similarity,
-                     plotTree = TRUE, k = k, k_test = 10:40,
+groupsBIOS <- invisible(group_tales(tal_sim = distalr_bs_output$tal.similarity,
+                     plot_tree = TRUE, k = k, k_range = 10:40,
                      method = "k-medoids"))
 
-groupsMMS <- invisible(groupTales(taleSim = distalr_mms_output$tal.similarity,
-                     plotTree = TRUE, k = k, k_test = 10:40,
+groupsMMS <- invisible(group_tales(tal_sim = distalr_mms_output$tal.similarity,
+                     plot_tree = TRUE, k = k, k_range = 10:40,
                      method = "k-medoids"))
 
 
-grp <- groupTales(taleSim = distalr_deci_output$tal.similarity,
-                     plotTree = TRUE, k = k,
+grp <- group_tales(tal_sim = distalr_deci_output$tal.similarity,
+                     plot_tree = TRUE, k = k,
                      method = "hclust")
-grp <- groupTales(taleSim = distalr_bs_output$tal.similarity,
-                     plotTree = TRUE, k = k,
+grp <- group_tales(tal_sim = distalr_bs_output$tal.similarity,
+                     plot_tree = TRUE, k = k,
                      method = "hclust")
-grp <- groupTales(taleSim = distalr_mms_output$tal.similarity,
-                     plotTree = TRUE, k = k,
+grp <- group_tales(tal_sim = distalr_mms_output$tal.similarity,
+                     plot_tree = TRUE, k = k,
                      method = "hclust")
 
 ```
@@ -219,7 +219,7 @@ taleGroups <- groupsDECI %>% as_tibble() %>% arrange(group, name)
 knitr::kable(head(taleGroups, n= 12))
 ```
 
-Based on the silhouette values, `groupTales()` will take the value at the elbow of the curve. In this case we manually took k = `r k`.
+Based on the silhouette values, `group_tales()` will take the value at the elbow of the curve. In this case we manually took k = `r k`.
 
 
 
