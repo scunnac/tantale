@@ -1,5 +1,5 @@
 
-greet_startup_cli <- function() {
+.greet_startup_cli <- function() {
   cli_inform(c("v" = "Attaching the tantale package",
                ">" = "Email sebastien.cunnac@ird.fr for comments"),
              class = "packageStartupMessage")
@@ -7,6 +7,6 @@ greet_startup_cli <- function() {
 
 
 .onAttach <- function(...){
-  packageStartupMessage(greet_startup_cli(), appendLF = FALSE)
+  packageStartupMessage(.greet_startup_cli(), appendLF = FALSE)
 }
 

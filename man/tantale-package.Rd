@@ -37,8 +37,8 @@ CAUTIONARY NOTES:
 
 
  \itemize{
-   \item Wrapper around annoTALE and correcTALE
-   \item tellTale, an R function similar to annoTALE
+   \item Wrapper around annotale_jar and correcTALE
+   \item tell_tales, an R function similar to annotale_jar
    \item Analysis tools for RVD inventory, repeat lenght}
 }
 
@@ -46,7 +46,7 @@ CAUTIONARY NOTES:
 
 
  \itemize{
-   \item Wrappers around distal, functal, annoTALE
+   \item Wrappers around distal, functal, annotale_jar
    \item TALE groups inference
    \item Easily build Multiple alignments and generate nice plots}
 }

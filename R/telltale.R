@@ -1,40 +1,40 @@
 
-# subjectFile = system.file("extdata", "bai3_sample_tal_regions.fasta", package = "tantale", mustWork = T)
-# outputDir = tempdir(check = TRUE)
-# hmmFilesDir = system.file("extdata", "hmmProfile", package = "tantale", mustWork = T)
-# hmmerpath = system.file("tools", "hmmer-3.3", "bin", package = "tantale", mustWork = T)
-# talArrayCorrection = TRUE
-# refForTalArrayCorrection = system.file("extdata", "decipher_ref_tales_aa.fa.gz", package = "tantale", mustWork = T)
-# frameShiftCorrection = -11
-# TALE_NtermDNAHitMinScore = 300
-# repeatDNAHitMinScore = 20
-# TALE_CtermDNAHitMinScore = 200
-# minDomainHitsPerSubjSeq = 4
-# mergeHits = TRUE
-# minGapWidth = 35
+# subject_file = system.file("extdata", "bai3_sample_tal_regions.fasta", package = "tantale", mustWork = T)
+# output_dir = tempdir(check = TRUE)
+# hmm_dir = system.file("extdata", "hmmProfile", package = "tantale", mustWork = T)
+# hmmer_path = system.file("tools", "hmmer-3.3", "bin", package = "tantale", mustWork = T)
+# correct_array = TRUE
+# correction_ref = system.file("extdata", "decipher_ref_tales_aa.fa.gz", package = "tantale", mustWork = T)
+# frameshift = -11
+# nterm_min_score = 300
+# repeat_min_score = 20
+# cterm_min_score = 200
+# min_domain_hits = 4
+# merge_hits = TRUE
+# min_gap = 35
 # taleArrayStartAnchorCode = "NTERM"
 # taleArrayEndAnchorCode = "CTERM"
-# appendExtremityCodes = TRUE
-# rvdSep = "-"
-# extendedLength = 300
+# extremity_codes = TRUE
+# rvd_sep = "-"
+# extend_len = 300
 # ... = NULL
 
-# subjectFile = "/home/cunnac/TEMP/220928-8_talCor.fasta"
-# outputDir = file.path("/home/cunnac/TEMP", gsub("(\\.fasta)|(\\.fa)|(\\.fna)|(\\.fsa)", "", basename(subjectFile)))
-# hmmFilesDir = system.file("extdata", "hmmProfile", package = "tantale", mustWork = T)
-# hmmerpath = system.file("tools", "hmmer-3.3", "bin", package = "tantale", mustWork = T)
-# talArrayCorrection = FALSE
-# refForTalArrayCorrection = system.file("extdata", "decipher_ref_tales_aa.fa.gz", package = "tantale", mustWork = T)
-# frameShiftCorrection = -11
-# TALE_NtermDNAHitMinScore = 300
-# repeatDNAHitMinScore = 20
-# TALE_CtermDNAHitMinScore = 200
-# minDomainHitsPerSubjSeq = 4
-# mergeHits = TRUE
-# minGapWidth = 35
-# appendExtremityCodes = TRUE
-# rvdSep = "-"
-# extendedLength = 300
+# subject_file = "/home/cunnac/TEMP/220928-8_talCor.fasta"
+# output_dir = file.path("/home/cunnac/TEMP", gsub("(\\.fasta)|(\\.fa)|(\\.fna)|(\\.fsa)", "", basename(subject_file)))
+# hmm_dir = system.file("extdata", "hmmProfile", package = "tantale", mustWork = T)
+# hmmer_path = system.file("tools", "hmmer-3.3", "bin", package = "tantale", mustWork = T)
+# correct_array = FALSE
+# correction_ref = system.file("extdata", "decipher_ref_tales_aa.fa.gz", package = "tantale", mustWork = T)
+# frameshift = -11
+# nterm_min_score = 300
+# repeat_min_score = 20
+# cterm_min_score = 200
+# min_domain_hits = 4
+# merge_hits = TRUE
+# min_gap = 35
+# extremity_codes = TRUE
+# rvd_sep = "-"
+# extend_len = 300
 # ... = NULL
 
 
@@ -46,7 +46,7 @@
 #' Search and report on the features of TALE protein domains potentially encoded
 #' in subject DNA sequences
 #'
-#' \code{tellTale} has been primarily written to report on 'corrected' TALE RVD
+#' \code{tell_tales} has been primarily written to report on 'corrected' TALE RVD
 #' sequences in indels prone, noisy DNA sequences (suboptimally polished genomes
 #' assembly, raw reads of long read sequencing technologies [eg PacBio, ONT])
 #' that would otherwise be missed by conventional tools (eg AnnoTALE).
@@ -54,18 +54,18 @@
 #' The approach is first to use \href{http://hmmer.org/}{HMMER} to find and
 #' categorize regions in the input DNA sequence that are related to the coding
 #' sequence of canonical TALE protein domains (N-Term, repeats, C-term). Hits
-#' that are (nearly [see the minGapWidth parameter]) adjacent are grouped in
+#' that are (nearly [see the min_gap parameter]) adjacent are grouped in
 #' "taleArrays" which are considered as potential tal genes.
 #'
 #'
-#' If the \code{talArrayCorrection} parameter is turned off, the longest
-#' predicted open reading frame (+extendedLength) for each talArray is fed to
+#' If the \code{correct_array} parameter is turned off, the longest
+#' predicted open reading frame (+extend_len) for each talArray is fed to
 #' \href{http://www.jstacs.de/index.php/AnnoTALE}{AnnoTALE} to detect TALE
 #' domains in the predicted translation product. The Results should hence be
 #' very similar to what would be obtained with AnnoTALE, plus many additional
 #' informative output files such as tabular reports.
 #'
-#' If \code{talArrayCorrection} is turned on, these talearrays are passed to the
+#' If \code{correct_array} is turned on, these talearrays are passed to the
 #' \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}} function that
 #' attemps to 'correct' potential frameshifts in the taleArray sequences. This
 #' conveniently removes many artefactual indels but bear in mind that this may
@@ -76,41 +76,41 @@
 #' Note that occasionally, when a putative open reading frame does not encode a
 #' canonical TALE protein (early frame shift, incomplete ORF, etc...), the
 #' "analyze" module of AnnoTALE outputs DNA parts but no protein parts and/or
-#' RVD sequence. This should be detected and reported in the tellTale log.
+#' RVD sequence. This should be detected and reported in the tell_tales log.
 #'
 #'
-#' @param subjectFile Fasta file with DNA sequence(s) to be searched for the
+#' @param subject_file Fasta file with DNA sequence(s) to be searched for the
 #'   presence of TALE coding sequences (CDS).
-#' @param outputDir Path of the output directory. If not specified, results will
+#' @param output_dir Path of the output directory. If not specified, results will
 #'   be written to current working folder.
-#' @param hmmFilesDir Specify the path to a folder holding the hmmfiles if you
+#' @param hmm_dir Specify the path to a folder holding the hmmfiles if you
 #'   do not want to use the ones provided with tantale.
-#' @param TALE_NtermDNAHitMinScore Minimal nhmmer score cut_off value to
+#' @param nterm_min_score Minimal nhmmer score cut_off value to
 #'   consider the hit as genuine
-#' @param repeatDNAHitMinScore Minimal nhmmer score cut_off value to consider
+#' @param repeat_min_score Minimal nhmmer score cut_off value to consider
 #'   the hit as genuine
-#' @param TALE_CtermDNAHitMinScore Minimal nhmmer score cut_off value to
+#' @param cterm_min_score Minimal nhmmer score cut_off value to
 #'   consider the hit as genuine
-#' @param minDomainHitsPerSubjSeq Minimum number of nhmmer hits for a subject
+#' @param min_domain_hits Minimum number of nhmmer hits for a subject
 #'   sequence to be reported as having TALE diagnostic regions. This is a way to
 #'   simplify output a little by getting ride of uninformative sequences
-#' @param mergeHits Perform overlapping hits merging per domain type. Should not
+#' @param merge_hits Perform overlapping hits merging per domain type. Should not
 #'   be modified.
-#' @param minGapWidth Minimum gap in base pairs between two tale domain hits for
+#' @param min_gap Minimum gap in base pairs between two tale domain hits for
 #'   them to be considered distinct. If the length of the gap is below this
 #'   value, domains are considered "contiguous" and grouped in the same array.
-#' @param appendExtremityCodes Set this to \code{FALSE} if you do not want the
+#' @param extremity_codes Set this to \code{FALSE} if you do not want the
 #'   N- and C-TREM anchor codes in the output sequences of RVD
-#' @param rvdSep Symbol acting as a separator in RVD sequences
-#' @param hmmerpath Specify the path to a directory holding the HMMER executable
+#' @param rvd_sep Symbol acting as a separator in RVD sequences
+#' @param hmmer_path Specify the path to a directory holding the HMMER executable
 #'   if you do not want to use the ones provided with tantale.
-#' @param extendedLength number of nucleotides to extend in 3'-end at the tal
+#' @param extend_len number of nucleotides to extend in 3'-end at the tal
 #'   ORF prediction stage.
-#' @param talArrayCorrection True or False
-#' @param refForTalArrayCorrection Reference AA sequences for tal array
+#' @param correct_array True or False
+#' @param correction_ref Reference AA sequences for tal array
 #'   predicted ORF correction if you do not want to use the ones provided with
 #'   tantale.
-#' @param frameShiftCorrection This is an internal parameter of the
+#' @param frameshift This is an internal parameter of the
 #'   \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}} function. The
 #'   default is 11 and fiddle with this at your own risk...
 #' @param ... Additional parameters for the
@@ -134,8 +134,8 @@
 #'   \item putativeTalOrf.fasta: Tal putative ORFs
 #'   \item pseudoTalCds.fasta: pseudo Tal CDS, putative Tal array ORFs detected by HMMer for whch
 #'    AnnoTALE analyze failed to find RVD(s).
-#'   \item rvdSequences.fas: Sequence of RVDs (separated by rvdSep) predicted to be encoded in the Tal array
-#'    ORFs by AnnoTALE. Note that if appendExtremityCodes is \code{TRUE} (by default),
+#'   \item rvdSequences.fas: Sequence of RVDs (separated by rvd_sep) predicted to be encoded in the Tal array
+#'    ORFs by AnnoTALE. Note that if extremity_codes is \code{TRUE} (by default),
 #'    the N- and C-TREM anchor codes will be appended at the beginning and end of the sequences
 #'    if the corresponding domain coding sequence was wound by HMMer at the DNA level.
 #'    If no such HMMer hits were found, the "XXXXX" string will be appended
@@ -147,29 +147,29 @@
 #'   \item TALE_CDS_all_diagnostic_regions_hmmfile.out: HMMER profile used for tale cds search.
 #'   \item hmmerSearchOut.txt: ignore
 #'   \item nhmmerHumanReadableOutputOfLastRun.txt: primary HMMER output file.
-#'   \item tellTale.log: a log file
+#'   \item tell_tales.log: a log file
 #'   \item annotale folder: folder containing result of AnnoTALE analyze for all Tal arrays
-#'   \item CorrectionAlignmentAA folder: folder containing protein alignment of Tal array detected by HMMer and corrected Tal array if \code{talArrayCorrection} = TRUE
-#'   \item CorrectionAlignmentDNA folder: folder containing DNA alignment of Tal array detected by HMMer and corrected Tal array if \code{talArrayCorrection = TRUE}
+#'   \item CorrectionAlignmentAA folder: folder containing protein alignment of Tal array detected by HMMer and corrected Tal array if \code{correct_array} = TRUE
+#'   \item CorrectionAlignmentDNA folder: folder containing DNA alignment of Tal array detected by HMMer and corrected Tal array if \code{correct_array = TRUE}
 #'   }
 #' @export
-tellTale <- function(
-  subjectFile,
-  outputDir = getwd(),
-  hmmFilesDir = system.file("extdata", "hmmProfile", package = "tantale", mustWork = T),
-  TALE_NtermDNAHitMinScore = 300,
-  repeatDNAHitMinScore = 20,
-  TALE_CtermDNAHitMinScore = 200,
-  minDomainHitsPerSubjSeq = 4,
-  mergeHits = TRUE,
-  minGapWidth = 35,
-  appendExtremityCodes = TRUE,
-  rvdSep = "-",
-  hmmerpath = system.file("tools", "hmmer-3.3", "bin", package = "tantale", mustWork = T),
-  extendedLength = 300,
-  talArrayCorrection = FALSE,
-  refForTalArrayCorrection = system.file("extdata", "decipher_ref_tales_aa.fa.gz", package = "tantale", mustWork = T),
-  frameShiftCorrection = -11,
+tell_tales <- function(
+  subject_file,
+  output_dir = getwd(),
+  hmm_dir = system.file("extdata", "hmmProfile", package = "tantale", mustWork = T),
+  nterm_min_score = 300,
+  repeat_min_score = 20,
+  cterm_min_score = 200,
+  min_domain_hits = 4,
+  merge_hits = TRUE,
+  min_gap = 35,
+  extremity_codes = TRUE,
+  rvd_sep = "-",
+  hmmer_path = system.file("tools", "hmmer-3.3", "bin", package = "tantale", mustWork = T),
+  extend_len = 300,
+  correct_array = FALSE,
+  correction_ref = system.file("extdata", "decipher_ref_tales_aa.fa.gz", package = "tantale", mustWork = T),
+  frameshift = -11,
   ...
 ) {
 
@@ -190,64 +190,64 @@ tellTale <- function(
   
   
   ####   Paths of output files   ####
-  dir.create(outputDir, recursive = T, mode = "755", showWarnings = FALSE)
+  dir.create(output_dir, recursive = T, mode = "755", showWarnings = FALSE)
   ## Path of the directories where DECIPHER correction alignments will be written
-  if (talArrayCorrection) {
-    alignmentDNADir <- file.path(outputDir, "CorrectionAlignmentDNA")
+  if (correct_array) {
+    alignmentDNADir <- file.path(output_dir, "CorrectionAlignmentDNA")
     dir.create(alignmentDNADir, showWarnings = F)
-    alignmentAADir <- file.path(outputDir, "CorrectionAlignmentAA")
+    alignmentAADir <- file.path(output_dir, "CorrectionAlignmentAA")
     dir.create(alignmentAADir, showWarnings = F)
   }
   # annotale output directory
-  annotaleMainDir <- file.path(outputDir, "annotale")# tempfile(pattern = "annotale_", tmpdir = outputDir)
+  annotaleMainDir <- file.path(output_dir, "annotale")# tempfile(pattern = "annotale_", tmpdir = output_dir)
   dir.create(annotaleMainDir)
   ## Tabular file reporting on individual TALE domain hits
-  hitsReportFile <- file.path(outputDir, "hitsReport.tsv")
-  domainsReportFile <- file.path(outputDir, "domainsReport.tsv")
+  hitsReportFile <- file.path(output_dir, "hitsReport.tsv")
+  domainsReportFile <- file.path(output_dir, "domainsReport.tsv")
   ## Tabular file reporting on putative TALEs (contiguous arrays of domain hits)
-  arrayReportFile <- file.path(outputDir, "arrayReport.tsv")
+  arrayReportFile <- file.path(output_dir, "arrayReport.tsv")
   ## Gff file with all the identified domains and arrays and their associated data
-  affRangesGffFile <- file.path(outputDir, "allRanges.gff")
+  affRangesGffFile <- file.path(output_dir, "allRanges.gff")
   # fasta of tals orfs that have rvds
-  putatieOrfOfTaleWithRvdFile <- file.path(outputDir, "putativeTalOrf.fasta")
+  putatieOrfOfTaleWithRvdFile <- file.path(output_dir, "putativeTalOrf.fasta")
   # fasta of tals orfs that were not predicted to contain rvds
-  pseudoTalFile <- file.path(outputDir, "pseudoTalCds.fasta")
+  pseudoTalFile <- file.path(output_dir, "pseudoTalCds.fasta")
   ## A fasta file of the selected seq of RVDs without the - separator
-  seqsOfRVDFile <- file.path(outputDir, "rvdSequences.fas")
+  seqsOfRVDFile <- file.path(output_dir, "rvdSequences.fas")
   ## A fasta file with array ORFs DNA sequences
-  #arrayOrfsSeqFile <- file.path(outputDir, "arrayOrfs.fas")
+  #arrayOrfsSeqFile <- file.path(output_dir, "arrayOrfs.fas")
   ## A text file where logging info and some general analysis measures are written
-  analysisLogFile <- file.path(outputDir, "tellTale.log")
+  analysisLogFile <- file.path(output_dir, "tell_tales.log")
   
   
   ####   Checks for parameters and other things   ####
 
   ## Deal with spaces in sequence names because this messes up parsing of HMMER output
-  logger::log_info("HMMER is very picky about forbiden characters in sequence name. Renaming sequences in {subjectFile}.")
-  originalSeqs <- Biostrings::readDNAStringSet(filepath = subjectFile)
-  Rsamtools::indexFa(subjectFile)
-  originalSeqInfo <- Rsamtools::seqinfo(Rsamtools::FaFile(subjectFile))
+  logger::log_info("HMMER is very picky about forbiden characters in sequence name. Renaming sequences in {subject_file}.")
+  originalSeqs <- Biostrings::readDNAStringSet(filepath = subject_file)
+  Rsamtools::indexFa(subject_file)
+  originalSeqInfo <- Rsamtools::seqinfo(Rsamtools::FaFile(subject_file))
   originalSeqlevels <- names(originalSeqs)
   foolproofSeqlevels <- paste0("seq", 1:length(originalSeqlevels))
   names(originalSeqlevels) <- foolproofSeqlevels
   names(originalSeqs) <- foolproofSeqlevels
   logger::log_info("Original seq names : {glue::glue_collapse(originalSeqlevels, sep = ' ; ')}")
   logger::log_info("Dummy seq names : {glue::glue_collapse(names(originalSeqlevels), sep = ' ; ')}")
-  subjectFile <- tempfile()
-  Biostrings::writeXStringSet(originalSeqs, filepath = subjectFile)
+  subject_file <- tempfile()
+  Biostrings::writeXStringSet(originalSeqs, filepath = subject_file)
   
   ####   Full paths of input HMM files for TALE domains (DNA and AA)   ####
   
   ## TODO come up with a mechanism for the user to be able to provide the FULL PATH
-  ## to custom hmm !!! hmmFilesDir parameter is useless unless custom hmm are named
+  ## to custom hmm !!! hmm_dir parameter is useless unless custom hmm are named
   ## as specified below
-  TALE_NtermDNAHMMFile <- file.path(hmmFilesDir, "Xo_TALE_Nterm_CDS_profile.hmm")
-  repeatDNAHMMFile <- file.path(hmmFilesDir, "Xo_TALE_repeat_CDS_profile.hmm")
-  TALE_CtermDNAHMMFile <- file.path(hmmFilesDir, "Xo_TALE_Cterm_CDS_profile.hmm")
-  repeatAAHMMFile <- file.path(hmmFilesDir, "Xo_TALE_repeat_AA_profile.hmm")
+  TALE_NtermDNAHMMFile <- file.path(hmm_dir, "Xo_TALE_Nterm_CDS_profile.hmm")
+  repeatDNAHMMFile <- file.path(hmm_dir, "Xo_TALE_repeat_CDS_profile.hmm")
+  TALE_CtermDNAHMMFile <- file.path(hmm_dir, "Xo_TALE_Cterm_CDS_profile.hmm")
+  repeatAAHMMFile <- file.path(hmm_dir, "Xo_TALE_repeat_AA_profile.hmm")
   
   DNAHMMFiles <- c(TALE_NtermDNAHMMFile, repeatDNAHMMFile, TALE_CtermDNAHMMFile)
-  mergedDNAHMMFile <- file.path(outputDir, "TALE_CDS_all_diagnostic_regions_hmmfile.out")
+  mergedDNAHMMFile <- file.path(output_dir, "TALE_CDS_all_diagnostic_regions_hmmfile.out")
   
   
   
@@ -270,20 +270,20 @@ tellTale <- function(
   writeLines(text = unlist(hmmslines), con = mergedDNAHMMFile)
   
   ####   Perform TALE domain CDS search with HMMER  #####
-  searchOutFile <- file.path(outputDir, "hmmerSearchOut.txt")
+  searchOutFile <- file.path(output_dir, "hmmerSearchOut.txt")
   
-  runNhmmerSearch(hmmerpath = hmmerpath,
-                  subjectFile = subjectFile,
-                  hmmFile = mergedDNAHMMFile,
-                  searchTblOutFile = searchOutFile,
-                  humReadableOutFile = file.path(outputDir, "nhmmerHumanReadableOutputOfLastRun.txt"))
+  .run_nhmmer_search(hmmer_path = hmmer_path,
+                  subject_file = subject_file,
+                  hmm_file = mergedDNAHMMFile,
+                  search_out_file = searchOutFile,
+                  readable_out_file = file.path(output_dir, "nhmmerHumanReadableOutputOfLastRun.txt"))
   
   ####   Load, process, filter TALE domain CDS HMMER hit results    ####
   ## Loading search tabular output file
   nhmmerTabularOutput <- try(read.table(searchOutFile), silent = TRUE)
   if (class(nhmmerTabularOutput) == "try-error") {
-    warning("NhmmerSearch found no TALE cds hit in ", subjectFile , " Exitting...")
-    return(invisible(outputDir))
+    warning("NhmmerSearch found no TALE cds hit in ", subject_file , " Exitting...")
+    return(invisible(output_dir))
   }
 
   colnames(nhmmerTabularOutput) <- c("target_name", "accession", "query_name", "accession", "hmmfrom", "hmm_to", "alifrom",
@@ -291,14 +291,14 @@ tellTale <- function(
   
   ## filtering results differentially depending on the query HMM
   nhmmerTabularOutput <- subset(nhmmerTabularOutput,
-                                query_name == TALE_NtermDNAHMMName & score >= TALE_NtermDNAHitMinScore |
-                                  query_name == repeatDNAHMMName & score >= repeatDNAHitMinScore |
-                                  query_name == TALE_CtermDNAHMMName & score >= TALE_CtermDNAHitMinScore
+                                query_name == TALE_NtermDNAHMMName & score >= nterm_min_score |
+                                  query_name == repeatDNAHMMName & score >= repeat_min_score |
+                                  query_name == TALE_CtermDNAHMMName & score >= cterm_min_score
   )
   nhmmerTabularOutput <- droplevels(nhmmerTabularOutput)
   if(nrow(nhmmerTabularOutput) == 0L) {
     logger::log_warn("No record remains after filtering NhmmerSearch hits based on score. Exitting...")
-    return(invisible(outputDir))
+    return(invisible(output_dir))
   }
   ## Add a hitID column
   nhmmerTabularOutput$hitID <- paste("DOM", sprintf("%05.0f", 1:nrow(nhmmerTabularOutput)), sep="_")
@@ -315,7 +315,7 @@ tellTale <- function(
   ## from any further consideration the ARRAYS shorter than a certain value (say 5).
   ## WHAT DO WE DO ABOUT THAT?
   temp_df <- plyr::ddply(nhmmerTabularOutput[,-20], ~ target_name + sq_len, nrow) # I do not know why but it fails to work if I leave the RVD column (#20)
-  nhmmerTabularOutput <- subset(nhmmerTabularOutput, target_name %in% temp_df[temp_df$V1 > minDomainHitsPerSubjSeq, "target_name"])
+  nhmmerTabularOutput <- subset(nhmmerTabularOutput, target_name %in% temp_df[temp_df$V1 > min_domain_hits, "target_name"])
   nhmmerTabularOutput <- droplevels(nhmmerTabularOutput)
   
 
@@ -333,7 +333,7 @@ tellTale <- function(
   nhmmerOutputGRBeforeMerge <- nhmmerOutputGR
   
   #####   Domain-wise merge of overlapping hits  #####
-  if (mergeHits) {
+  if (merge_hits) {
     ## Split the ranges by domain type
     nhmrOutGrByDomain <- GenomicRanges::split(nhmmerOutputGR, f = nhmmerOutputGR$query_name)
     ## Perform merge
@@ -375,7 +375,7 @@ tellTale <- function(
   
   #####   Extract the DNA sequences of the hits and record in GRanges mcols   #####
   ## Load in R the DNA sequences that are queried for TALE CDS
-  subjectDNASequences <- Biostrings::readDNAStringSet(filepath = subjectFile)
+  subjectDNASequences <- Biostrings::readDNAStringSet(filepath = subject_file)
   names(subjectDNASequences) <- originalSeqlevels[match(names(subjectDNASequences), names(originalSeqlevels))]
   
   ## Extract the DNA sequences of the hits
@@ -396,10 +396,10 @@ tellTale <- function(
   
   ## Group "contiguous" hits (repeats or other regions) in a GRangesList
   ## Use reduce to obtain the list of regions (arrays of domains for the time being) that span "contiguous" hits
-  ## Here contiguous is defined as hits that are less than minGapWidth bp appart
+  ## Here contiguous is defined as hits that are less than min_gap bp appart
   arraysGR <- GenomicRanges::reduce(nhmmerOutputGR,
                                     drop.empty.ranges=FALSE,
-                                    min.gapwidth= minGapWidth,
+                                    min.gapwidth= min_gap,
                                     with.revmap=TRUE,
                                     ignore.strand=FALSE)
   revmap <- S4Vectors::mcols(arraysGR)$revmap  # an IntegerList
@@ -449,14 +449,14 @@ tellTale <- function(
   ## Extract the genomic sequence of arrays +-bp on the borders
   completeArraysGR <- arraysGR
   extdCompleteArraysGR <- GenomicRanges::resize(completeArraysGR,
-                                                width = GenomicRanges::width(completeArraysGR) + extendedLength,
+                                                width = GenomicRanges::width(completeArraysGR) + extend_len,
                                                 fix = "start", ignore.strand = FALSE) %>%
     GenomicRanges::trim(use.names = TRUE)
   extdCompleteArraysSeqs <- BSgenome::getSeq(subjectDNASequences, extdCompleteArraysGR)
   
   
 
-  if (!talArrayCorrection) {
+  if (!correct_array) {
     #### Get ORFs from uncorrected Tal arrays if frame shifts correction is OFF ####
     orfs <- systemPipeR::predORF(x = extdCompleteArraysSeqs,
                                  n = 1, type = "gr", mode = "ORF", strand = "sense")
@@ -468,23 +468,23 @@ tellTale <- function(
     # An alternative approach: https://github.com/Jstacs/Jstacs/tree/master/projects/talecorrect
     ####   Run CorrectFrameshifts   ####
     logger::log_info("Correcting putative TALE coding sequences. Be patient, this may take a LONG time...")
-    AAref <- Biostrings::readAAStringSet(refForTalArrayCorrection, seek.first.rec = TRUE, use.names = TRUE)
+    AAref <- Biostrings::readAAStringSet(correction_ref, seek.first.rec = TRUE, use.names = TRUE)
     rawArraySeq <- extdCompleteArraysSeqs
     ## TO SPEEDUP CORRECTION could correct only predicted ORFs that cover less than X% of the rawArraySeq
     ArrayCorrection <- DECIPHER::CorrectFrameshifts(rawArraySeq,
                                                     AAref, type = "both",
                                                     maxComparisons = length(AAref),
-                                                    frameShift = frameShiftCorrection, ...)
+                                                    frameShift = frameshift, ...)
     logger::log_info("Correction of putative TALE coding sequences is done!")
     corrExtdCompleteArraysSeqs <- ArrayCorrection$sequences
     
     ####   Correction stats   ####
-    deletions_count <- correction_tibble(ArrayCorrection$indels) %>%
+    deletions_count <- .correction_tibble(ArrayCorrection$indels) %>%
       dplyr::group_by(Seq) %>%
       dplyr::count(variable, name = "predicted_dels_count") %>%
       dplyr::filter(variable == "deletions") %>%
       dplyr::select(-variable)
-    insertions_count <- correction_tibble(ArrayCorrection$indels) %>%
+    insertions_count <- .correction_tibble(ArrayCorrection$indels) %>%
       dplyr::group_by(Seq) %>%
       dplyr::count(variable, name = "predicted_ins_count") %>%
       dplyr::filter(variable == "insertions") %>%
@@ -554,36 +554,36 @@ tellTale <- function(
   
   
   
-  #### annoTALE analyze on tal ORFs  ####
+  #### AnnoTALE analyze on tal ORFs  ####
   
   # Shall we also run the predict stage of annotale? May be it will do a better job at
   # finding orf and/or filtering out "pseudo tales" because some times analyse output a RVD from
   # a domain that does not look like a repeat....
   
   
-  AnnoTALEanalyze <- function(inputFastaFile,
-                              outputDir = getwd(),
+  AnnoTALEanalyze <- function(fasta_file,
+                              output_dir = getwd(),
                               prefix = NULL,
-                              annoTALE = system.file("tools", "AnnoTALEcli-1.5.jar",
+                              annotale_jar = system.file("tools", "AnnoTALEcli-1.5.jar",
                                                      package = "tantale", mustWork = T)
                               ) {
-    # Define output dirs for the various stages of annoTALE
-    stopifnot(dir.exists(outputDir) || dir.create(path = outputDir, showWarnings = TRUE,
+    # Define output dirs for the various stages of AnnoTALE
+    stopifnot(dir.exists(output_dir) || dir.create(path = output_dir, showWarnings = TRUE,
                                                   recursive = TRUE, mode = "775"))
     # Define a prefix for TALEs (assembly ID) derived from the genome file name.
     if (is.null(prefix)) {
       prefix <- gsub(pattern = "^(.*)\\.(fasta|fa|fas)$" ,
-                     replacement  = "\\1", basename(inputFastaFile),
+                     replacement  = "\\1", basename(fasta_file),
                      perl = TRUE)
     }
-    # Run the "analyze" stage of annoTALE
+    # Run the "analyze" stage of AnnoTALE
     comAnalyze <- paste0(
-      "java -jar ", annoTALE,
+      "java -jar ", annotale_jar,
       " analyze ",
-      " t=", inputFastaFile,
-      " outdir=", outputDir
+      " t=", fasta_file,
+      " outdir=", output_dir
     )
-    logger::log_debug("Now running annoTALE analyze for {prefix}")
+    logger::log_debug("Now running AnnoTALE analyze for {prefix}")
     logger::log_debug("Using the following command: {comAnalyze}")
     exitAnalyze <- system(comAnalyze, ignore.stdout = TRUE, ignore.stderr = TRUE)
     return(invisible(exitAnalyze))
@@ -665,20 +665,20 @@ tellTale <- function(
     ifelse(length(s) > 0, grepl("[a-z]", s), NA)
   })
   
-  seqsOfRVDs <- gsub("\\-", rvdSep, seqsOfRVDs) %>% Biostrings::AAStringSet()
+  seqsOfRVDs <- gsub("\\-", rvd_sep, seqsOfRVDs) %>% Biostrings::AAStringSet()
   
-  if (appendExtremityCodes) {
+  if (extremity_codes) {
     # This is necessary for other tantale utilities that can operate on 'full' domains sequences, ie downstream of distal, for TALE  domains sequences alignments.
     for (s in names(seqsOfRVDs)) {
       hitsByArray <- hitsByArraysLst[[s]]
       seqsOfRVDs[s] <- paste(ifelse(TALE_NtermDNAHMMName %in% as.character(hitsByArray$query_name),
                                     taleArrayStartAnchorCode, taleArrayAtypicalExtremityCode), 
                              seqsOfRVDs[s], 
-                             sep = rvdSep)
+                             sep = rvd_sep)
       seqsOfRVDs[s] <- paste(seqsOfRVDs[s], 
                              ifelse(TALE_CtermDNAHMMName %in% as.character(hitsByArray$query_name),
                                     taleArrayEndAnchorCode, taleArrayAtypicalExtremityCode), 
-                             sep = rvdSep)
+                             sep = rvd_sep)
     }
   }
   
@@ -706,7 +706,7 @@ tellTale <- function(
     if(length(allpart) > 1) {
       dnaAlignment <- DECIPHER::AlignSeqs(allpart, verbose = FALSE)
       DECIPHER::BrowseSeqs(dnaAlignment,
-                           htmlFile = file.path(outputDir, glue::glue("{part}DNAAlignment.html")),
+                           htmlFile = file.path(output_dir, glue::glue("{part}DNAAlignment.html")),
                            openURL = F, colWidth = 120)
     } else {
         logger::log_warn("Skipping {part} TALE DNA regions alignment because the input sequence has less than 2 putative TALEs.")
@@ -727,7 +727,7 @@ tellTale <- function(
     if(length(allpart) > 1) {
       aaAlignment <- DECIPHER::AlignSeqs(allpart, verbose = FALSE)
       DECIPHER::BrowseSeqs(aaAlignment,
-                           htmlFile = file.path(outputDir, glue::glue("{part}AAAlignment.html")),
+                           htmlFile = file.path(output_dir, glue::glue("{part}AAAlignment.html")),
                            openURL = F, colWidth = 120)
     } else {
       logger::log_warn("Skipping {part} TALE protein regions alignment because the input sequence has less than 2 putative TALEs.")
@@ -789,7 +789,7 @@ tellTale <- function(
                        }
   ) %>% dplyr::bind_rows(.id = "arrayID")
   readr::write_tsv(x = hitsReport, file = hitsReportFile)
-  hitsReportToGFF(hitsReportFile) # saving to gff format
+  .hits_report_to_gff(hitsReportFile) # saving to gff format
   readr::write_tsv(x = domainsReport, file = domainsReportFile)
   
   ##   Report with info on arrays, including the seq of RVD
@@ -837,27 +837,27 @@ tellTale <- function(
   ## might have been cleaner with a glue approach
   txt <- c(
     "#****************************************",
-    "#**   tellTale analysis done     **",
+    "#**   tell_tales analysis done     **",
     
     paste("Current date:", date(), sep = "\t"),
     "#_________Provided I/O parameters __________",
-    paste("File of subject DNA sequences:", subjectFile, sep = "\t"),
+    paste("File of subject DNA sequences:", subject_file, sep = "\t"),
     paste("TALE N-term CDS region detection HMM file:", TALE_NtermDNAHMMFile, sep = "\t"),
     paste("TALE repeat unit CDS detection HMM file:", repeatDNAHMMFile, sep = "\t"),
     paste("TALE C-term CDS region detection HMM file:", TALE_CtermDNAHMMFile, sep = "\t"),
-    paste("Output directory:", outputDir, sep = "\t"),
+    paste("Output directory:", output_dir, sep = "\t"),
     
     "#____________Other parameters________________",
-    paste(Quote(TALE_NtermDNAHitMinScore),":", TALE_NtermDNAHitMinScore, sep = "\t"),
-    paste(Quote(repeatDNAHitMinScore),":", repeatDNAHitMinScore, sep = "\t"),
-    paste(Quote(TALE_CtermDNAHitMinScore),":", TALE_CtermDNAHitMinScore, sep = "\t"),
-    paste(Quote(minDomainHitsPerSubjSeq),":", minDomainHitsPerSubjSeq, sep = "\t"),
-    paste(Quote(mergeHits),":", mergeHits, sep = "\t"),
-    paste(Quote(minGapWidth),":", minGapWidth, sep = "\t"),
-    paste(Quote(extendedLength),":", extendedLength, sep = "\t"),
-    paste(Quote(talArrayCorrection),":", talArrayCorrection, sep = "\t"),
-    paste(Quote(refForTalArrayCorrection),":", refForTalArrayCorrection, sep = "\t"),
-    paste(Quote(frameShiftCorrection),":", frameShiftCorrection, sep = "\t"),
+    paste(Quote(nterm_min_score),":", nterm_min_score, sep = "\t"),
+    paste(Quote(repeat_min_score),":", repeat_min_score, sep = "\t"),
+    paste(Quote(cterm_min_score),":", cterm_min_score, sep = "\t"),
+    paste(Quote(min_domain_hits),":", min_domain_hits, sep = "\t"),
+    paste(Quote(merge_hits),":", merge_hits, sep = "\t"),
+    paste(Quote(min_gap),":", min_gap, sep = "\t"),
+    paste(Quote(extend_len),":", extend_len, sep = "\t"),
+    paste(Quote(correct_array),":", correct_array, sep = "\t"),
+    paste(Quote(correction_ref),":", correction_ref, sep = "\t"),
+    paste(Quote(frameshift),":", frameshift, sep = "\t"),
     
     "#__________Summary measures of TALE search outcome__________",
     paste("Number of analysed subject sequences :", length(subjectDNASequences), sep = "\t"),
@@ -898,13 +898,7 @@ tellTale <- function(
   logf <- file(analysisLogFile, open = "w")
   writeLines(text = txt, con = logf)
   close(logf)
-  return(invisible(outputDir))
+  return(invisible(output_dir))
 }
-
-#' This function name is deprecated and will ultimately be removed.
-#' It corresponds to the \link{tellTale} which should be used instead.
-#'
-#' @export
-tellTale2 <- tellTale
 
 

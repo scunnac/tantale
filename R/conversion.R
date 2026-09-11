@@ -7,7 +7,7 @@
 #' @description Load the content of fasta file containing TALE sequences (either RVD or Distal repeat code)
 #' and return a list of vectors each one composed of the individual elements of the sequence.
 #'
-#' @param atomicStrings Either, the path to a fasta file, an AAStringSet or "BStringSet"
+#' @param strings Either, the path to a fasta file, an AAStringSet or "BStringSet"
 #' or a list. In all cases, each element of these objects is a string of a
 #' tale sequence (`sep`-separated rvd or distal repeat IDs)
 #' @param sep Separator of the elements of the sequence
@@ -15,20 +15,20 @@
 #' @return A list of named vectors representing the 'splited' sequence.
 #'
 #' @export
-toListOfSplitedStr <- function(atomicStrings, sep = "-") {
-  if (is.list(atomicStrings) &&
-      any(sapply(atomicStrings, length) > 1)) {
-      logger::log_error("The value provided for atomicStrings seems already to be splitted.")
+split_list <- function(strings, sep = "-") {
+  if (is.list(strings) &&
+      any(sapply(strings, length) > 1)) {
+      logger::log_error("The value provided for strings seems already to be splitted.")
       stop()
-  } else if (length(atomicStrings) == 1 && is.character(atomicStrings)) {
-    stopifnot(fs::file_exists(atomicStrings))
-    seqs <- as.character(Biostrings::readBStringSet(atomicStrings), use.names = TRUE)
-  } else if (class(atomicStrings) %in% c("AAStringSet", "BStringSet")) {
-    seqs <- as.character(atomicStrings, use.names = TRUE)
-  } else if (length(atomicStrings) >= 1 && is.list(atomicStrings)) {
-    seqs <- atomicStrings
+  } else if (length(strings) == 1 && is.character(strings)) {
+    stopifnot(fs::file_exists(strings))
+    seqs <- as.character(Biostrings::readBStringSet(strings), use.names = TRUE)
+  } else if (class(strings) %in% c("AAStringSet", "BStringSet")) {
+    seqs <- as.character(strings, use.names = TRUE)
+  } else if (length(strings) >= 1 && is.list(strings)) {
+    seqs <- strings
   } else {
-    logger::log_error("Something is wrong with the value provided for atomicStrings.")
+    logger::log_error("Something is wrong with the value provided for strings.")
     stop()
   }
   
@@ -47,7 +47,7 @@ toListOfSplitedStr <- function(atomicStrings, sep = "-") {
 
 
 
-formatDistalRepeatDistMat <- function(distalRepeatDistMatFile) {
+.format_repeat_dist_mat <- function(dist_mat_file) {
   # Distal-1.2 repeat distance matrix is 'almost' symetrical but does not contains the diagonal
   # Top triangle of a symetrical :   Symetrical :
   # 1234                              1234
@@ -61,7 +61,7 @@ formatDistalRepeatDistMat <- function(distalRepeatDistMatFile) {
   # So, we need to do a few transformations:
   # Loading file content as a matrix
   distalRepeatDist <- as.matrix(
-    read.table(distalRepeatDistMatFile,
+    read.table(dist_mat_file,
                sep = " ",
                fill = TRUE,
                blank.lines.skip = TRUE,
@@ -126,18 +126,18 @@ formatDistalRepeatDistMat <- function(distalRepeatDistMatFile) {
 #' In addition, the function tries hard to make sure that the two sets of sequences are identical in every ways but the individual 'values' they contain.
 #' It is therefore notably important to make sure that the sequences are consistent in whether they include N-term and C-term domains IDs/Tags or not.
 #'
-#' @param talesRepeatVectors Expects a list of Distal repeat IDs character
+#' @param repeat_vecs Expects a list of Distal repeat IDs character
 #'   vectors. Each \strong{named} element corresponding to a TALE.
-#' @param talesRepeatVectors Expects a list of Distal RVDs character
+#' @param repeat_vecs Expects a list of Distal RVDs character
 #'   vectors. Each \strong{named} element corresponding to a TALE.
 #' @return A two columns repeatID - RVD data frame.
 #' @export
-getRepeat2RvdMapping <- function(talesRepeatVectors, talesRvdVectors) {
+repeat_to_rvd_map <- function(repeat_vecs, rvd_vecs) {
   # Making sure, these objects are indentical in every ways but the actual values of the vectors
-  stopifnot(setequal(names(talesRepeatVectors), names(talesRvdVectors)))
-  lrep <- sapply(talesRepeatVectors, length)
+  stopifnot(setequal(names(repeat_vecs), names(rvd_vecs)))
+  lrep <- sapply(repeat_vecs, length)
   lrep <- lrep[order(names(lrep))]
-  lrvd <- sapply(talesRvdVectors, length)
+  lrvd <- sapply(rvd_vecs, length)
   lrvd <- lrvd[order(names(lrvd))]
   stopifnot(names(lrvd) == names(lrep))
   stopifnot(apply(cbind(lrep, lrvd), 1, function(x) x[1] == x[2]))
@@ -150,8 +150,8 @@ getRepeat2RvdMapping <- function(talesRepeatVectors, talesRvdVectors) {
     ),
     .id = "Name")
   }
-  talesRepeatDf <- .l2df(talesRepeatVectors)
-  talesRvdDf <- .l2df(talesRvdVectors)
+  talesRepeatDf <- .l2df(repeat_vecs)
+  talesRvdDf <- .l2df(rvd_vecs)
   stopifnot(nrow(talesRepeatDf) == nrow(talesRvdDf))
   # Merging to have the repeat ID vs RVDs
   repeat2rvd <- dplyr::full_join(talesRepeatDf, talesRvdDf, by = c("idx" = "idx", "Name" = "Name"))
@@ -177,19 +177,19 @@ getRepeat2RvdMapping <- function(talesRepeatVectors, talesRvdVectors) {
 #' analyzed with the \code{\link[tantale:distalr]{distalr}} function to return
 #' the association between repeat ID and RVD.
 #'
-#' @param distalrTaleParts The taleParts object in a \code{\link[tantale:distalr]{distalr}} output.
+#' @param tale_parts The tale_parts object in a \code{\link[tantale:distalr]{distalr}} output.
 #' @return A two columns repeatID - RVD data frame.
 #' @export
-getRepeat2RvdMappingFromDistalr <- function(distalrTaleParts) {
-  if (!any("domCode" %in% colnames(distalrTaleParts))) {
-    logger::log_error("The provided object does not contain a 'domCode' column. Are you using a taleParts object from distalr()")
+repeat_to_rvd_map_distalr <- function(tale_parts) {
+  if (!any("domCode" %in% colnames(tale_parts))) {
+    logger::log_error("The provided object does not contain a 'domCode' column. Are you using a tale_parts object from distalr()")
     stop()
   }
-  if (nrow(diagnoseTaleParts(distalrTaleParts)) != 0L) {
-    logger::log_error("The provided object does not seem to be sanitized. Have you used a taleParts object with no empty sequences?")
+  if (nrow(diagnose_tale_parts(tale_parts)) != 0L) {
+    logger::log_error("The provided object does not seem to be sanitized. Have you used a tale_parts object with no empty sequences?")
     stop()
   }
-  distalrTaleParts %>% 
+  tale_parts %>% 
     dplyr::select(domCode, rvd) %>%
     dplyr::distinct() %>%
     dplyr::rename(repeatID = domCode,  RVD = rvd) %>%
@@ -204,56 +204,56 @@ getRepeat2RvdMappingFromDistalr <- function(distalrTaleParts) {
 #' Substitute Distal repeat IDs for RVDs in a TALE alignment matrix.
 #'
 #'
-#' @param repeatAlign A multiple TALE repeat sequences alignment in the form of
+#' @param repeat_align A multiple TALE repeat sequences alignment in the form of
 #'   a matrix as returned by
-#'   \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}}.
-#' @param repeat2RvdMapping The return value of the
-#'   \code{\link[tantale:getRepeat2RvdMapping]{getRepeat2RvdMapping}} function or the 
-#'   \code{\link[tantale:getRepeat2RvdMappingFromDistalr]{getRepeat2RvdMappingFromDistalr}} function
+#'   \code{\link[tantale:build_repeat_msa]{build_repeat_msa}}.
+#' @param rvd_map The return value of the
+#'   \code{\link[tantale:repeat_to_rvd_map]{repeat_to_rvd_map}} function or the 
+#'   \code{\link[tantale:repeat_to_rvd_map_distalr]{repeat_to_rvd_map_distalr}} function
 #'   if you used the \code{\link[tantale:distalr]{distalr}} function.
 #'   
 #'
 #' @return A TALE alignment matrix made up of RVD sequences.
 #' @export
-convertRepeat2RvdAlign <-  function(repeatAlign , repeat2RvdMapping) {
-  states <- unique(as.vector(repeatAlign))
-  ##### TODO: check that all values in states are present in the repeat2RvdMapping df ####
+repeat_to_rvd_align <-  function(repeat_align , rvd_map) {
+  states <- unique(as.vector(repeat_align))
+  ##### TODO: check that all values in states are present in the rvd_map df ####
   # If not, error
-  rvdAlign <- t(
-    apply(repeatAlign, 1,
+  rvd_align <- t(
+    apply(repeat_align, 1,
           function(repeatSeq){
-            rvdSeq <- repeat2RvdMapping$RVD[match(repeatSeq, repeat2RvdMapping$repeatID)]
+            rvdSeq <- rvd_map$RVD[match(repeatSeq, rvd_map$repeatID)]
           }
     )
   )
-  rvdAlign <- matrix(rvdAlign, nrow = nrow(repeatAlign)) # in case of 1-row matrix
-  rownames(rvdAlign) <- rownames(repeatAlign)
-  colnames(rvdAlign) <- colnames(repeatAlign)
-  return(rvdAlign)
+  rvd_align <- matrix(rvd_align, nrow = nrow(repeat_align)) # in case of 1-row matrix
+  rownames(rvd_align) <- rownames(repeat_align)
+  colnames(rvd_align) <- colnames(repeat_align)
+  return(rvd_align)
 }
 
 
 
-convertRepeat2SimAlign <-  function(repeatAlign, repeatSim, refTag = NULL) {
+.repeat_to_sim_align <-  function(repeat_align, repeat_sim, ref_tag = NULL) {
   # A function that substitute the repeatIDs with the aa similarity relative to a
   # reference repeat for each column. The ref repeat is the one from a TALE that
   # is defined as a reference in the alignment. This function takes as input, the
-  # repeat alignment and the df output by `formatDistalRepeatDistMat()` This
+  # repeat alignment and the df output by `.format_repeat_dist_mat()` This
   # function outputs the modified alignment matrix
   
-  refRowIdx <- match(pickRefName(repeatAlign, refTag = refTag), rownames(repeatAlign))
-  simAlign <- apply(repeatAlign, 2,
+  refRowIdx <- match(.pick_ref_name(repeat_align, ref_tag = ref_tag), rownames(repeat_align))
+  simAlign <- apply(repeat_align, 2,
                     function(column) {
                       refState <- column[refRowIdx]
-                      relevantSims <- subset(repeatSim, subset = RepU1 == refState)
+                      relevantSims <- subset(repeat_sim, subset = RepU1 == refState)
                       sim <- relevantSims$Sim[match(column, relevantSims$RepU2, nomatch = NA)]
                       if (is.na(refState)) sim[!is.na(column)] <- 0 # if reference repeat is NA, set the aligned repeat sim = 0
                       return(sim)
                     }
   )
-  simAlign <- matrix(simAlign, nrow = nrow(repeatAlign)) # in case of 1-row matrix
-  rownames(simAlign) <- rownames(repeatAlign)
-  colnames(simAlign) <- colnames(repeatAlign)
+  simAlign <- matrix(simAlign, nrow = nrow(repeat_align)) # in case of 1-row matrix
+  rownames(simAlign) <- rownames(repeat_align)
+  colnames(simAlign) <- colnames(repeat_align)
   return(simAlign)
 }
 
@@ -261,23 +261,23 @@ convertRepeat2SimAlign <-  function(repeatAlign, repeatSim, refTag = NULL) {
 
 #' Convert repeat alignment to clusterID alignment
 #'
-#' @param repeatSim A long, three columns data frame with pairwise similarity scores between repeats as available in the \code{repeat.similarity slot} of the object returned by the \code{\link[tantale:distalr]{distalr}} function.
-#' @param repeatAlign a multiple Tal repeat sequences alignment in the form of a matrix as returned by \code{\link[tantale:buildRepeatMsa]{buildRepeatMsa}}.
+#' @param repeat_sim A long, three columns data frame with pairwise similarity scores between repeats as available in the \code{repeat.similarity slot} of the object returned by the \code{\link[tantale:distalr]{distalr}} function.
+#' @param repeat_align a multiple Tal repeat sequences alignment in the form of a matrix as returned by \code{\link[tantale:build_repeat_msa]{build_repeat_msa}}.
 #' @param h.cut a numeric value indicating the position where to cut the hclust tree of repeats.
-#' @return a matrix with exactly the same dimension as the input \code{repeatSim} but containing clusterID instead of
+#' @return a matrix with exactly the same dimension as the input \code{repeat_sim} but containing clusterID instead of
 #' repeatID.
 #' @noRd
-convertRepeat2ClusterIDAlign <- function(repeatSim, repeatAlign, h.cut = 10) {
-  repeatSim <-  as.matrix(reshape2::acast(repeatSim, RepU1 ~ RepU2, value.var="Sim"))
-  dist_clust <- hclust(as.dist(repeatSim))
+.repeat_to_cluster_align <- function(repeat_sim, repeat_align, h.cut = 10) {
+  repeat_sim <-  as.matrix(reshape2::acast(repeat_sim, RepU1 ~ RepU2, value.var="Sim"))
+  dist_clust <- hclust(as.dist(repeat_sim))
   dist_cut <- as.data.frame(cbind(RepID = dist_clust$labels, Rep_clust = cutree(dist_clust, h = h.cut)))
-  clustIDAlign <- apply(repeatAlign, 2,
+  clustIDAlign <- apply(repeat_align, 2,
                         function(column){
                           as.numeric(dist_cut$Rep_clust[match(column, dist_cut$RepID)])
                         })
-  clustIDAlign <- matrix(clustIDAlign, nrow = nrow(repeatAlign)) # in case of 1-row matrix
-  rownames(clustIDAlign) <- rownames(repeatAlign)
-  colnames(clustIDAlign) <- colnames(repeatAlign)
+  clustIDAlign <- matrix(clustIDAlign, nrow = nrow(repeat_align)) # in case of 1-row matrix
+  rownames(clustIDAlign) <- rownames(repeat_align)
+  colnames(clustIDAlign) <- colnames(repeat_align)
   return(clustIDAlign)
 }
 
@@ -285,10 +285,10 @@ convertRepeat2ClusterIDAlign <- function(repeatSim, repeatAlign, h.cut = 10) {
 
 
 
-convertRvd2RepeatAlign <- function(rvdMsaByGroup, repeatVectors) {
-  repSeqs <- lapply(rownames(rvdMsaByGroup), function(r) {
-    rvdSeq <- rvdMsaByGroup[r,]
-    repSeq <- repeatVectors[[r]]
+.rvd_to_repeat_align <- function(rvd_msa_by_group, repeat_vecs) {
+  repSeqs <- lapply(rownames(rvd_msa_by_group), function(r) {
+    rvdSeq <- rvd_msa_by_group[r,]
+    repSeq <- repeat_vecs[[r]]
     
     n = 1
     for (i in 1:length(rvdSeq)) {
@@ -303,40 +303,40 @@ convertRvd2RepeatAlign <- function(rvdMsaByGroup, repeatVectors) {
     return(rvdSeq)
   })
   repeatMsaByGroup <- do.call(rbind, repSeqs)
-  repeatMsaByGroup <- matrix(repeatMsaByGroup, nrow = nrow(rvdMsaByGroup))
-  rownames(repeatMsaByGroup) <- rownames(rvdMsaByGroup)
-  colnames(repeatMsaByGroup) <- colnames(rvdMsaByGroup)
+  repeatMsaByGroup <- matrix(repeatMsaByGroup, nrow = nrow(rvd_msa_by_group))
+  rownames(repeatMsaByGroup) <- rownames(rvd_msa_by_group)
+  colnames(repeatMsaByGroup) <- colnames(rvd_msa_by_group)
   return(repeatMsaByGroup)
 }
 
 
 
-convertRvd2MatchAlign <-  function(rvdAlign, rvdSims = tantale::rvdSimDf, refTag = NULL) {
+.rvd_to_match_align <-  function(rvd_align, rvd_sims = tantale::rvdSimDf, ref_tag = NULL) {
   # A function that substitute the RVDs with a 'RVD match score' relative to a
   # reference rvd for each column. The ref repeat is the one from a TALE that is
   # defined as a reference in the alignment. This function take as input, the
   # repeat alignment and the tantale::rvdSimDf This function output the modified
   # alignment matrix
-  refRowIdx <- match(pickRefName(rvdAlign, refTag = refTag), rownames(rvdAlign))
-  simAlign <- apply(rvdAlign, 2,
+  refRowIdx <- match(.pick_ref_name(rvd_align, ref_tag = ref_tag), rownames(rvd_align))
+  simAlign <- apply(rvd_align, 2,
                     function(column) {
                       refState <- column[refRowIdx]
-                      relevantSims <- subset(rvdSims, subset = rvd1 == refState)
+                      relevantSims <- subset(rvd_sims, subset = rvd1 == refState)
                       relevantSims$Cor[match(column, relevantSims$rvd2, nomatch = NA)]
                     }
   )
-  simAlign <- matrix(simAlign, nrow = nrow(rvdAlign)) # in case of 1-row matrix
-  rownames(simAlign) <- rownames(rvdAlign)
-  colnames(simAlign) <- colnames(rvdAlign)
+  simAlign <- matrix(simAlign, nrow = nrow(rvd_align)) # in case of 1-row matrix
+  rownames(simAlign) <- rownames(rvd_align)
+  colnames(simAlign) <- colnames(rvd_align)
   return(simAlign)
 }
 
 
 
 
-#' Generates a RVD sequences set from a taleParts object
+#' Generates a RVD sequences set from a tale_parts object
 #'
-#' Uses a taleParts object in a \code{\link[tantale:distalr]{distalr}} output
+#' Uses a tale_parts object in a \code{\link[tantale:distalr]{distalr}} output
 #' to return a \code{\link[Biostrings::BStringSet]{BStringSet}} of RVD sequences.
 #' RVDs are separated by the character specified in the \code{sep} parameter.
 #' 
@@ -347,22 +347,22 @@ convertRvd2MatchAlign <-  function(rvdAlign, rvdSims = tantale::rvdSimDf, refTag
 #' analyzed with the \code{\link[tantale:distalr]{distalr}} function to return
 #' the association between repeat ID and RVD.
 #'
-#' @param distalrTaleParts The taleParts object in a \code{\link[tantale:distalr]{distalr}} output.
+#' @param tale_parts The tale_parts object in a \code{\link[tantale:distalr]{distalr}} output.
 #' @param sep Used as a RVD separatator
-#' @param rvdsOnly Retrun only RVDs and ommit N- and C- terminal domains 
+#' @param rvd_only Retrun only RVDs and ommit N- and C- terminal domains 
 #' @return A two columns repeatID - RVD data frame.
 #' @export
-taleParts2RvdStringSet <- function(taleParts, sep = "-", rvdsOnly = FALSE) {
-  if (nrow(diagnoseTaleParts(taleParts)) != 0L) {
-    logger::log_error("The provided object does not seem to be sanitized. Have you used a taleParts object with no empty sequences?")
+tale_parts_to_rvd <- function(tale_parts, sep = "-", rvd_only = FALSE) {
+  if (nrow(diagnose_tale_parts(tale_parts)) != 0L) {
+    logger::log_error("The provided object does not seem to be sanitized. Have you used a tale_parts object with no empty sequences?")
     stop()
   }
   
-  if(rvdsOnly) {
-    taleParts %<>% filter(!rvd %in% c("NTERM", "CTERM"))
+  if(rvd_only) {
+    tale_parts %<>% filter(!rvd %in% c("NTERM", "CTERM"))
   }
   
-  rvdStrings <- taleParts %>%
+  rvdStrings <- tale_parts %>%
     dplyr::group_by(arrayID) %>%
     dplyr::arrange(positionInArray) %>%
     dplyr::summarise(

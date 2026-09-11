@@ -5,39 +5,39 @@
 \title{Run TALE target predictions on DNA sequence(s) using Talvez}
 \usage{
 talvez(
-  rvdSeqs,
-  subjDnaSeqFile,
-  optParam = "-t 0 -l 19",
-  outDir = NULL,
-  talvezDir = system.file("tools", "TALVEZ_3.2", package = "tantale", mustWork = T),
-  condaBinPath = "auto"
+  rvd_seqs,
+  subj_file,
+  opt_param = "-t 0 -l 19",
+  output_dir = NULL,
+  talvez_dir = system.file("tools", "TALVEZ_3.2", package = "tantale", mustWork = T),
+  conda_bin = "auto"
 )
 }
 \arguments{
-\item{rvdSeqs}{Tale RVD sequences are supplied as either a fasta file (atomic
+\item{rvd_seqs}{Tale RVD sequences are supplied as either a fasta file (atomic
 character vector) with Tale info (name) in title and sequences of RVD as a
 space or '-' separeted string or as a Biostrings XStringSet with sequences
 of RVD similarly formated.}
 
-\item{subjDnaSeqFile}{Expects a character vector specifying the path to the
+\item{subj_file}{Expects a character vector specifying the path to the
 fasta file holding subject DNA sequence(s). Talvez forbids to have
 sequences in the file wrapped at a fixed width. The function uses
 Biostrings to unwrap them but if you use subject sequences longer than
 20kb, this will fail and you are advised to unwrap your sequences before
 hand.}
 
-\item{optParam}{An atomic character vector specifying optionnal parameters
+\item{opt_param}{An atomic character vector specifying optionnal parameters
 for the Talvez script (eg "-t 0 -l 19"). \strong{These may not include} the
 '-e' and '-z' options specifying the matrix files.}
 
-\item{outDir}{Expects a character vector specifying the path to an output
+\item{output_dir}{Expects a character vector specifying the path to an output
 directory. If not supplied, output files will be temporary.}
 
-\item{talvezDir}{If you want to use another version of Talvez than the one
+\item{talvez_dir}{If you want to use another version of Talvez than the one
 supplied with tantale, specify the path of the directory containing the
 necessary files here.}
 
-\item{condaBinPath}{Path to your Conda binary file if you need to specify
+\item{conda_bin}{Path to your Conda binary file if you need to specify
 a path different from the one that is automatically searched by the
 reticulate package functions.}
 }

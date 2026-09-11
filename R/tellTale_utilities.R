@@ -1,13 +1,13 @@
 
 
-getHMMER <- function() {
+.get_hmmer <- function() {
   pathOfHmmerBinsDir <- system.file("tools", "hmmer-3.3", "bin", package = "tantale", mustWork = TRUE)
   return(pathOfHmmerBinsDir)
 }
 
 
-checkHMMER <- function(hmmerpath) {
-  cmd <- file.path(hmmerpath, "hmmsearch -h | grep \"^#\"")
+.check_hmmer <- function(hmmer_path) {
+  cmd <- file.path(hmmer_path, "hmmsearch -h | grep \"^#\"")
   if (system(command = cmd, intern = FALSE, ignore.stdout = TRUE, ignore.stderr = TRUE)) {
     stop("HMMER is not in PATH. Follow instructions at http://hmmer.org/documentation.html to install it.")
   } else {
@@ -17,66 +17,66 @@ checkHMMER <- function(hmmerpath) {
 }
 
 
-writeHMMFile <- function(hmmerpath = NULL, alignmentFile, HMMOutFile) {
-  if (is.null(hmmerpath)) hmmerpath <- getHMMER()
-  checkHMMER(hmmerpath)
-  buildCmd <- paste(file.path(hmmerpath,"hmmbuild"),
-                    HMMOutFile,
-                    alignmentFile,
+.write_hmm_file <- function(hmmer_path = NULL, alignment_file, hmm_out_file) {
+  if (is.null(hmmer_path)) hmmer_path <- .get_hmmer()
+  .check_hmmer(hmmer_path)
+  buildCmd <- paste(file.path(hmmer_path,"hmmbuild"),
+                    hmm_out_file,
+                    alignment_file,
                     sep = " ")
   commandOut <- system(command = buildCmd, ignore.stderr = FALSE, intern = TRUE)
   return(commandOut)
 }
 
 
-runHmmerSearch <- function(hmmerpath = NULL, subjectFile, hmmFile, searchTblOutFile, humReadableOutFile) {
-  if (is.null(hmmerpath)) hmmerpath <- getHMMER()
-  checkHMMER(hmmerpath)
-  searchCmd <- paste(file.path(hmmerpath, "hmmsearch"),
+.run_hmmer_search <- function(hmmer_path = NULL, subject_file, hmm_file, search_out_file, readable_out_file) {
+  if (is.null(hmmer_path)) hmmer_path <- .get_hmmer()
+  .check_hmmer(hmmer_path)
+  searchCmd <- paste(file.path(hmmer_path, "hmmsearch"),
                      "--tblout",
-                     searchTblOutFile,
-                     hmmFile,
-                     subjectFile,
+                     search_out_file,
+                     hmm_file,
+                     subject_file,
                      ">",
-                     humReadableOutFile,
+                     readable_out_file,
                      sep = " "
   )
   system(command = searchCmd, ignore.stderr = FALSE, intern = TRUE)
 }
 
 
-runNhmmerSearch <-  function(hmmerpath = NULL, subjectFile, hmmFile, searchTblOutFile, humReadableOutFile) {
-  if (is.null(hmmerpath)) hmmerpath <- getHMMER()
-  checkHMMER(hmmerpath)
-  searchCmd <- paste(file.path(hmmerpath, "nhmmer"),
+.run_nhmmer_search <-  function(hmmer_path = NULL, subject_file, hmm_file, search_out_file, readable_out_file) {
+  if (is.null(hmmer_path)) hmmer_path <- .get_hmmer()
+  .check_hmmer(hmmer_path)
+  searchCmd <- paste(file.path(hmmer_path, "nhmmer"),
                      "--tblout",
-                     searchTblOutFile,
-                     hmmFile,
-                     subjectFile,
+                     search_out_file,
+                     hmm_file,
+                     subject_file,
                      ">",
-                     humReadableOutFile,
+                     readable_out_file,
                      sep = " "
   )
   system(command = searchCmd, ignore.stderr = FALSE, intern = TRUE)
 }
 
 
-runHmmalign <- function(hmmerpath = NULL, hmmFile, seqsFile, alignOutFile) {
-  if (is.null(hmmerpath)) hmmerpath <- getHMMER()
-  checkHMMER(hmmerpath)
-  alignCmd <- paste(file.path(hmmerpath, "hmmalign"),
+.run_hmmalign <- function(hmmer_path = NULL, hmm_file, seqs_file, align_out_file) {
+  if (is.null(hmmer_path)) hmmer_path <- .get_hmmer()
+  .check_hmmer(hmmer_path)
+  alignCmd <- paste(file.path(hmmer_path, "hmmalign"),
                     "--outformat Phylip", #Stockholm, SELEX, Clustal, Phylip, Pfam, A2M, PSIBLAST.
                     "--trim",
-                    hmmFile,
-                    seqsFile,
-                    ">", alignOutFile,
+                    hmm_file,
+                    seqs_file,
+                    ">", align_out_file,
                     sep = " "
   )
   system(command = alignCmd, ignore.stderr = FALSE, intern = TRUE)
 }
 
 
-correction_tibble <- function(indels) {
+.correction_tibble <- function(indels) {
   indelsTble <- lapply(indels, function(lst) {
     info <- tibble::tibble()
     colnames(info) <- c("variable","value")
@@ -118,7 +118,7 @@ annout <- setClass(
 )
 
 
-hitsReportToGFF <- function(f = "hitsReport.csv") {
+.hits_report_to_gff <- function(f = "hitsReport.csv") {
   # Convert the info contained in a HitReport file into a GFF file for display by
   # a genome viewer.
   # The f parameter corresponds to the path to a hitsReport file.
@@ -134,7 +134,7 @@ hitsReportToGFF <- function(f = "hitsReport.csv") {
 }
 
 ## !! THIS SHOULD BE MADE OBSOLETE AND CODE USING IT SHOULD BE MODIFIED
-extractSeqsfromHits <- function(nhmmerTabularOutputSelect, DNAsequences){
+.extract_seqs_from_hits <- function(nhmmer_hits, DNAsequences){
   repeatSeqsSetList <- mapply(
     function(hitID, start, end, strand, subjectID, sequences) {
       seq <- XVector::subseq(sequences[subjectID], start, end)
@@ -142,11 +142,11 @@ extractSeqsfromHits <- function(nhmmerTabularOutputSelect, DNAsequences){
       names(seq) <- hitID
       return(seq)
     },
-    hitID = nhmmerTabularOutputSelect$hitID,
-    start = nhmmerTabularOutputSelect$start,
-    end = nhmmerTabularOutputSelect$end,
-    strand = nhmmerTabularOutputSelect$strand,
-    subjectID = nhmmerTabularOutputSelect$target_name,
+    hitID = nhmmer_hits$hitID,
+    start = nhmmer_hits$start,
+    end = nhmmer_hits$end,
+    strand = nhmmer_hits$strand,
+    subjectID = nhmmer_hits$target_name,
     MoreArgs = list(sequences = DNAsequences),
     USE.NAMES = FALSE)
   do.call(c, repeatSeqsSetList)

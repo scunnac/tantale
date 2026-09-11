@@ -5,29 +5,29 @@
 \title{Compute TALE and repeat similarity from TALE parts}
 \usage{
 distalr(
-  taleParts,
-  repeats.cluster.h.cut = 10,
+  tale_parts,
+  h_cut = 10,
   ncores = 1,
-  pairwiseAlnMethod = "DECIPHER",
-  condaBinPath = "auto"
+  aln_method = "DECIPHER",
+  conda_bin = "auto"
 )
 }
 \arguments{
-\item{taleParts}{a table of TALE parts as returned by the \code{\link[tantale:getTaleParts]{getTaleParts}} function.}
+\item{tale_parts}{a table of TALE parts as returned by the \code{\link[tantale:tale_parts]{tale_parts}} function.}
 
-\item{repeats.cluster.h.cut}{numeric value to cut the hierarchical clustering tree of the repeat.}
+\item{h_cut}{numeric value to cut the hierarchical clustering tree of the repeat.}
 
-\item{pairwiseAlnMethod}{Specify the underlying approach for computing pairwise similarities between
+\item{aln_method}{Specify the underlying approach for computing pairwise similarities between
 TALE parts amino acid sequences. Must be "Biostrings", "mmseq2" or "DECIPHER"}
 
-\item{condaBinPath}{Path to your Conda binary file if you need to specify a
+\item{conda_bin}{Path to your Conda binary file if you need to specify a
 path different from the one that is automatically searched by the
 reticulate package functions.}
 }
 \value{
 A list with DisTal output components: 
 \itemize{
-  \item taleParts: the original input tibble with a 'domCode' column corresponding to the unique distal
+  \item tale_parts: the original input tibble with a 'domCode' column corresponding to the unique distal
    'code' or label attached to a unique domain sequence. Thus all parts with this sequence will have the same
    'domCode'.
   \item repeats.code: a data frame of the unique repeat AA sequences and their numeric codes
@@ -41,6 +41,6 @@ A list with DisTal output components:
 An R re-implementation of the original DisTal Perl program: it still uses
 the Arlem binary for the same repeat-array alignment step, but performs
 the rest of the operations with R support and parallelization, which
-makes it much faster (the exact speedup depends on the \code{pairwiseAlnMethod}
+makes it much faster (the exact speedup depends on the \code{aln_method}
 chosen). Please take a look at the vignette for tips on how to use it properly.
 }

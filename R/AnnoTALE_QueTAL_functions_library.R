@@ -6,10 +6,10 @@
 
 
 
-reformatTALEsFromArrayReportFile <- function(f, namePrefix = NULL) {
+.reformat_array_report <- function(f, name_prefix = NULL) {
   # Trying to guess prefix if it is not provided
-  strain <- namePrefix
-  if(is.null(namePrefix)) {
+  strain <- name_prefix
+  if(is.null(name_prefix)) {
     #strain <- regmatches(dirname(f), regexpr("MAI[0-9]{1,2}", dirname(f)))
     strain <- sub("^.*Sebra/(.+)_[0-9].+$", "\\1", dirname(f))
   }
@@ -18,7 +18,7 @@ reformatTALEsFromArrayReportFile <- function(f, namePrefix = NULL) {
   # Fetch the content of an arrayReportFile
   TALEs <- subset(read.delim(f), selectedForAssembly)
 
-  # Reformating TALE arrays seq of RVDs to comply with FuncTAL requirements
+  # Reformating TALE arrays seq of RVDs to comply with functal requirements
   pattern <- "^(BBB-)*([^(ZZZ)]*)(-ZZZ)*$"
   isFullLength <- grepl(pattern, TALEs$SeqOfRVD)
   fullLengthTALEs <- TALEs[isFullLength, c("arrayID", "SeqOfRVD")] # Keeping only full length RVD arrays
@@ -30,15 +30,15 @@ reformatTALEsFromArrayReportFile <- function(f, namePrefix = NULL) {
 }
 
 
-AnnoTALE2QueTALRVD <- function(inputFile, outputFile = "RVDSeqs.QueTal.fasta") {
+.annotale_to_quetal_rvd <- function(inputFile, output_file = "RVDSeqs.QueTal.fasta") {
   # Need a AnnoTALE "TALE_RVDs.fasta" - like RVD file
   TALERVDSeqs <- Biostrings::readBStringSet(filepath = inputFile)
   TALERVDSeqs <- as.character(TALERVDSeqs)
-  writeLines(text = paste0(">", names(TALERVDSeqs), "\t", TALERVDSeqs), con = outputFile) # FuncTAL formatted TALEs writen in text file
+  writeLines(text = paste0(">", names(TALERVDSeqs), "\t", TALERVDSeqs), con = output_file) # functal formatted TALEs writen in text file
 }
 
 
-QueTALRVD2AnnoTALE <- function(inputFile, outputFile = "RVDSeqs.AnnoTALE.fasta") {
+.quetal_to_annotale_rvd <- function(inputFile, output_file = "RVDSeqs.AnnoTALE.fasta") {
   # Need a file with RVD sequences in the QueTal specific format (>TaleA\tNN-NH-N*)
   TALERVDSeqs <- read.table(inputFile, header = FALSE, sep = "\t", quote = "\"", stringsAsFactors = FALSE)
   # Construct an XStringSet
@@ -50,7 +50,7 @@ QueTALRVD2AnnoTALE <- function(inputFile, outputFile = "RVDSeqs.AnnoTALE.fasta")
   names(TALERVDSeqsBS) <- gsub(pattern = "(MAI\\d{1,3}).*TALE(\\d{1,3}).*$",
                                replacement = "Tal\\2-\\1", x = names(TALERVDSeqsBS), perl = TRUE)
   # Write the sequences to disc in fasta format
-  Biostrings::writeXStringSet(TALERVDSeqsBS, filepath = outputFile, format="fasta")
+  Biostrings::writeXStringSet(TALERVDSeqsBS, filepath = output_file, format="fasta")
 }
 
 
@@ -62,54 +62,54 @@ QueTALRVD2AnnoTALE <- function(inputFile, outputFile = "RVDSeqs.AnnoTALE.fasta")
 #' A R wrapper around the
 #' \href{https://www.ncbi.nlm.nih.gov/pubmed/26876161}{AnnoTALE} 'AnnoTALE.jar
 #' predict' and 'AnnoTALE.jar analyze' shell calls. The whole AnnoTALE workflow
-#' can be completed by a subsequent call to the \code{\link{buildAnnoTALE}}
+#' can be completed by a subsequent call to the \code{\link{run_annotale_build}}
 #' function.
 #'
-#' @param inputFastaFile Path to a fasta file containing DNA (?) sequences to be
+#' @param fasta_file Path to a fasta file containing DNA (?) sequences to be
 #'   analyzed for TALE content.
-#' @param outputDir Directory where output will be written (created if does not
+#' @param output_dir Directory where output will be written (created if does not
 #'   exist).
 #' @param prefix A scalar character vector containing a prefix that will be
 #'   appended to TALE names by AnnoTALE. If not supplied, the function will try
 #'   to guess the prefix from the input file name.
-#' @param annoTALE Path to the AnnoTALE jar file if you want to use another
+#' @param annotale_jar Path to the AnnoTALE jar file if you want to use another
 #'   version than the one provided with tantale.
 #' @return Returns invisibly the edit code of the shell call to the last
 #'   AnnoTALE step (ie '0' if successful).
 #' @export
-analyzeAnnoTALE <- function(inputFastaFile,
-                            outputDir = getwd(),
+run_annotale_predict <- function(fasta_file,
+                            output_dir = getwd(),
                             prefix = NULL,
-                            annoTALE = system.file("tools", "AnnoTALEcli-1.5.jar", package = "tantale", mustWork = T)
+                            annotale_jar = system.file("tools", "AnnoTALEcli-1.5.jar", package = "tantale", mustWork = T)
                             ) {
-  # Define output dirs for the various stages of annoTALE
-  stopifnot(dir.exists(outputDir) || dir.create(path = outputDir, showWarnings = TRUE, recursive = TRUE, mode = "775"))
-  annoTALEPredictDir <- file.path(outputDir, "Predict")
-  annoTALEAnalyzeDir <- file.path(outputDir, "Analyze")
+  # Define output dirs for the various stages of AnnoTALE
+  stopifnot(dir.exists(output_dir) || dir.create(path = output_dir, showWarnings = TRUE, recursive = TRUE, mode = "775"))
+  predict_dir <- file.path(output_dir, "Predict")
+  analyze_dir <- file.path(output_dir, "Analyze")
   # Define a prefix for TALEs (the strain or assembly ID) derived from the genome file name.
   if( is.null(prefix) ) {
-  prefix <- gsub(pattern = "^(.*)\\.(fasta|fa|fas)$" , replacement  = "\\1", basename(inputFastaFile), perl = TRUE)
+  prefix <- gsub(pattern = "^(.*)\\.(fasta|fa|fas)$" , replacement  = "\\1", basename(fasta_file), perl = TRUE)
   }
-  # Run the "predict" stage of annoTALE
+  # Run the "predict" stage of AnnoTALE
   comPredict <- paste0(
-    "java -jar ", annoTALE,
+    "java -jar ", annotale_jar,
     " predict",
-    " g=", inputFastaFile,
+    " g=", fasta_file,
     " s=", prefix,
-    " outdir=", annoTALEPredictDir
+    " outdir=", predict_dir
   )
-  cat("##  Now running annoTALE predict for", prefix, "using the following command:\n##  ",  comPredict, "\n")
+  cat("##  Now running AnnoTALE predict for", prefix, "using the following command:\n##  ",  comPredict, "\n")
   exitPredict <- system(comPredict)
-  !exitPredict || stop("##  annoTALE predict failed with an error. Aborting...")
+  !exitPredict || stop("##  AnnoTALE predict failed with an error. Aborting...")
 
-  # Run the "analyze" stage of annoTALE
+  # Run the "analyze" stage of AnnoTALE
   comAnalyze <- paste0(
-    "java -jar ", annoTALE,
+    "java -jar ", annotale_jar,
     " analyze ",
-    " t=", shQuote(list.files(annoTALEPredictDir, pattern = "^TALE_DNA_sequences_", full.names = TRUE)),
-    " outdir=", shQuote(annoTALEAnalyzeDir)
+    " t=", shQuote(list.files(predict_dir, pattern = "^TALE_DNA_sequences_", full.names = TRUE)),
+    " outdir=", shQuote(analyze_dir)
   )
-  cat("##  Now running annoTALE analyze for", prefix, "using the following command:\n##  ",  comAnalyze, "\n")
+  cat("##  Now running AnnoTALE analyze for", prefix, "using the following command:\n##  ",  comAnalyze, "\n")
   exitAnalyze <- system(comAnalyze)
   return(invisible(exitAnalyze))
 }
@@ -122,101 +122,101 @@ analyzeAnnoTALE <- function(inputFastaFile,
 #' Run the "build" stage of AnnoTALE.
 #'
 #' A R wrapper around the \href{https://www.ncbi.nlm.nih.gov/pubmed/26876161}{AnnoTALE} 'AnnoTALE.jar build' program.
-#' It usually takes is input from the file generated by the \code{\link{analyzeAnnoTALE}}
+#' It usually takes is input from the file generated by the \code{\link{run_annotale_predict}}
 #' function.
 #'
-#' @param TALESeqsFastaFile Path to a fasta file containing TALE sequences as
+#' @param fasta_file Path to a fasta file containing TALE sequences as
 #'   returned by AnnoTALE (?) to be classified into groups.
-#' @param outputDir Directory where output will be written (created if does not
+#' @param output_dir Directory where output will be written (created if does not
 #'   exist).
-#' @param annoTALE Path to the AnnoTALE jar file if you want to use another
+#' @param annotale_jar Path to the AnnoTALE jar file if you want to use another
 #'   version than the one provided with tantale.
 #' @return Returns invisibly the exit code of the shell call to Annotale (ie '0' if successful).
 #' @export
-buildAnnoTALE <- function(TALESeqsFastaFile,
-                          outputDir = getwd(),
-                          annoTALE = system.file("tools", "AnnoTALEcli-1.5.jar", package = "tantale", mustWork = T)
+run_annotale_build <- function(fasta_file,
+                          output_dir = getwd(),
+                          annotale_jar = system.file("tools", "AnnoTALEcli-1.5.jar", package = "tantale", mustWork = T)
                           ) {
-  if(! dir.exists(outputDir)) dir.create(path = outputDir, showWarnings = TRUE, recursive = TRUE, mode = "775")
+  if(! dir.exists(output_dir)) dir.create(path = output_dir, showWarnings = TRUE, recursive = TRUE, mode = "775")
   comBuild <- paste0(
-    "java -Xms512M -Xmx6G -jar ", annoTALE,
+    "java -Xms512M -Xmx6G -jar ", annotale_jar,
     " build ",
-    " t=", shQuote(TALESeqsFastaFile),
-    " outdir=", shQuote(outputDir)
+    " t=", shQuote(fasta_file),
+    " outdir=", shQuote(output_dir)
   )
-  cat("Now running annoTALE build using the following command:\n",  comBuild, "\n")
+  cat("Now running AnnoTALE build using the following command:\n",  comBuild, "\n")
   exitBuild <- system(comBuild)
   return(invisible(exitBuild))
 }
 
 
 
-#' Run FuncTAL from QueTAL to build a phylogenetic tree of TALE RVD sequences.
+#' Run functal from QueTAL to build a phylogenetic tree of TALE RVD sequences.
 #'
-#' A R wrapper around the \href{https://doi.org/10.3389/fpls.2015.00545}{QueTAL} 'FuncTAL' perl script.
+#' A R wrapper around the \href{https://doi.org/10.3389/fpls.2015.00545}{QueTAL} 'functal' perl script.
 #'
 #' @param TALfile Path to a QueTAL-formatted file of TALE RVD sequences.
-#' @param treeFormat Tree layout passed to FuncTAL's `-n` option (default `"fan"`).
-#' @param outputPrefix Prefix used for FuncTAL's output file names.
-#' @param outputDir Directory where output will be copied (default: current working directory).
-#' @param FunctTAL Path to the FuncTAL perl script if you want to use another
+#' @param tree_format Tree layout passed to functal's `-n` option (default `"fan"`).
+#' @param output_prefix Prefix used for functal's output file names.
+#' @param output_dir Directory where output will be copied (default: current working directory).
+#' @param functal_path Path to the functal perl script if you want to use another
 #'   version than the one provided with tantale.
-#' @param condaBinPath Path to your Conda binary file if you need to specify a
+#' @param conda_bin Path to your Conda binary file if you need to specify a
 #'   non-standard location, otherwise leave to "auto".
-#' @return Returns invisibly the exit code of the shell call to FuncTAL (ie '0' if successful).
+#' @return Returns invisibly the exit code of the shell call to functal (ie '0' if successful).
 #' @export
-FuncTAL <- function(TALfile,
-                    treeFormat = "fan",
-                    outputPrefix = "FuncTALE",
-                    outputDir = getwd(),
-                    FunctTAL = system.file("tools", "QueTAL_v1.1", "FuncTAL", "FuncTAL_v.1.1.pl", package = "tantale", mustWork = T),
-                    condaBinPath = "auto") {
-  # Running FuncTAL from QueTAL_v1.1
+functal <- function(TALfile,
+                    tree_format = "fan",
+                    output_prefix = "FuncTALE",
+                    output_dir = getwd(),
+                    functal_path = system.file("tools", "QueTAL_v1.1", "FuncTAL", "FuncTAL_v.1.1.pl", package = "tantale", mustWork = T),
+                    conda_bin = "auto") {
+  # Running functal from QueTAL_v1.1
   # A few observations:
   # Refuse to use another output directory than the "Ouputs" one in the program folder
   # Cannot invoke the program from another working directory than the one where the pl script is located
   # Crashes when provided the CDS of the TALES from Hinda's Malian strains
   # So here is a caller function to get around these issues:
 
-  FunctTALDir <- dirname(FunctTAL)
+  functal_dir <- dirname(functal_path)
 
   # Assembling the command to be run
-  # -I FunctTALDir is required for perl to find Statistics.pm, which ships
+  # -I functal_dir is required for perl to find Statistics.pm, which ships
   # alongside the script rather than as an installed module. List::MoreUtils
   # and Bio::Perl come from the 'tantale' conda environment.
-  runFuncTAL <- paste("perl", "-I", FunctTALDir, FunctTAL,
-                      "-n", treeFormat,
+  functal_cmd <- paste("perl", "-I", functal_dir, functal_path,
+                      "-n", tree_format,
                       TALfile,
-                      outputPrefix)
+                      output_prefix)
 
   # Run the command inside the tantale conda environment
-  cat("Now running FunctTAL using the following command:\n",
-      runFuncTAL,
+  cat("Now running functal using the following command:\n",
+      functal_cmd,
       "\n\n")
-  envReady <- !as.logical(createTantaleEnv(condaBinPath = condaBinPath))
+  envReady <- !as.logical(.create_tantale_env(conda_bin = conda_bin))
   if (envReady) {
-    exitCom <- systemInCondaEnv(envName = "tantale",
-                                condaBinPath = condaBinPath,
-                                command = runFuncTAL,
-                                cwd = FunctTALDir)
+    exitCom <- .run_in_conda(env_name = "tantale",
+                                conda_bin = conda_bin,
+                                command = functal_cmd,
+                                cwd = functal_dir)
   } else {
-    stop("Could not create the tantale conda environment on your machine to run FuncTAL...")
+    stop("Could not create the tantale conda environment on your machine to run functal...")
   }
   if (exitCom != 0) {
-    stop("FuncTAL failed (perl exit code ", exitCom, "). See console output above for details.")
+    stop("functal failed (perl exit code ", exitCom, "). See console output above for details.")
   }
 
-  # Transferring the ouput to the output dir and deleting it in the FuncTAL "Outputs" directory
-  FuncTALEOuputFiles <-
-    list.files(file.path(FunctTALDir, "Outputs"), full.names = TRUE)
+  # Transferring the ouput to the output dir and deleting it in the functal "Outputs" directory
+  functal_output_files <-
+    list.files(file.path(functal_dir, "Outputs"), full.names = TRUE)
   file.copy(
-    from = FuncTALEOuputFiles,
-    to = outputDir,
+    from = functal_output_files,
+    to = output_dir,
     overwrite = FALSE,
     recursive = FALSE,
     copy.mode = TRUE,
     copy.date = TRUE
   )
-  unlink(FuncTALEOuputFiles, recursive = TRUE, force = FALSE)
+  unlink(functal_output_files, recursive = TRUE, force = FALSE)
   return(invisible(exitCom))
 }

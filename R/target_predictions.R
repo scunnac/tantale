@@ -11,55 +11,55 @@
 #' preditale' module. Takes a list of TALE RVD sequences and a fasta file of DNA
 #' sequences and runs PrediTale.
 #'
-#' @param rvdSeqs Tale RVD sequences are supplied as either a fasta file (atomic
+#' @param rvd_seqs Tale RVD sequences are supplied as either a fasta file (atomic
 #'   character vector) with Tale info (name) in title and sequences of RVD as a
 #'   space or '-' separeted string or as a Biostrings XStringSet with sequences
 #'   of RVD similarly formated. See the
 #'   \href{https://www.jstacs.de/index.php/PrediTALE}{PrediTale} man page for
 #'   how to encode RVDs present on aberrant repeats.
-#' @param subjDnaSeqFile Expects a character vector specifying the path to the
+#' @param subj_file Expects a character vector specifying the path to the
 #'   fasta file holding subject DNA sequence(s).
-#' @param optParam An atomic character vector specifying optionnal parameters
+#' @param opt_param An atomic character vector specifying optionnal parameters
 #'   for PrediTALE.jar preditale (eg "Strand=\"forward strand\"").
-#' @param outDir Expects a character vector specifying the path to an output
+#' @param output_dir Expects a character vector specifying the path to an output
 #'   directory. If not supplied, output files will be temporary.
-#' @param predictorPath If you want to use another version of "PrediTALE.jar"
+#' @param predictor_path If you want to use another version of "PrediTALE.jar"
 #'   than the one supplied with tantale, specify its path here.
 #' @return A tibble with the EBE predictions. \strong{Note that column names
 #'   have been modified} relative to the column names found in the originale
 #'   programs's output in order to homogenize column names across TALE target
 #'   prediction programs in tantale
 #' @export
-preditale <- function(rvdSeqs, subjDnaSeqFile, optParam = "", outDir = NULL,
-                      predictorPath = system.file("tools", "PrediTALE.jar", package = "tantale", mustWork = T)) {
+preditale <- function(rvd_seqs, subj_file, opt_param = "", output_dir = NULL,
+                      predictor_path = system.file("tools", "PrediTALE.jar", package = "tantale", mustWork = T)) {
   # Checking input args
-  if (class(rvdSeqs) == "character") {
-    rvdSeqsTest <- Biostrings::readBStringSet(rvdSeqs)
-    rvdSeqsFile <- rvdSeqs
-  } else if (class(rvdSeqs) == "BStringSet") {
+  if (class(rvd_seqs) == "character") {
+    rvdSeqsTest <- Biostrings::readBStringSet(rvd_seqs)
+    rvdSeqsFile <- rvd_seqs
+  } else if (class(rvd_seqs) == "BStringSet") {
     rvdSeqsFile <- tempfile()
-    Biostrings::writeXStringSet(rvdSeqs, rvdSeqsFile)
+    Biostrings::writeXStringSet(rvd_seqs, rvdSeqsFile)
   } else {
-    stop("##  Something is wrong with the value provided for rvdSeqs. It must be either\n",
+    stop("##  Something is wrong with the value provided for rvd_seqs. It must be either\n",
          "##  the path to a fasta file containing strings of RVD sequences (space/dash-separated\n",
          "##  rvd) or a Biostrings XStringSet object.")
   }
-  if(!file.exists(subjDnaSeqFile)) stop("Unable to find the set of target DNA sequences (fasta file) at the specified location. Please verify the file exists")
-  if (is.null(outDir)) {
-    outDir <- tempfile(pattern = "preditale_")
-    dir.create(outDir, recursive = TRUE)
+  if(!file.exists(subj_file)) stop("Unable to find the set of target DNA sequences (fasta file) at the specified location. Please verify the file exists")
+  if (is.null(output_dir)) {
+    output_dir <- tempfile(pattern = "preditale_")
+    dir.create(output_dir, recursive = TRUE)
   }
-  if (length(f <- list.files(path = outDir, pattern = "^Predicted_binding.*tsv$", full.names = TRUE)) != 0) {
-    stop("The output directory '", outDir, "' already contains files that are possibly previous results of the preditale function. ",
+  if (length(f <- list.files(path = output_dir, pattern = "^Predicted_binding.*tsv$", full.names = TRUE)) != 0) {
+    stop("The output directory '", output_dir, "' already contains files that are possibly previous results of the preditale function. ",
     "Cannot proceed. Please remove the following files:\n", paste("-", f, sep = " ", collapse = "\n"))
   }
   # Assembling preditale command
-  cmd <- glue::glue("java -Xms512M -Xmx2G -jar {predictorPath} preditale {optParam} TALEs={rvdSeqsFile} s={subjDnaSeqFile} outdir={outDir}")
+  cmd <- glue::glue("java -Xms512M -Xmx2G -jar {predictor_path} preditale {opt_param} TALEs={rvdSeqsFile} s={subj_file} outdir={output_dir}")
   glue::glue("## Invoking Preditale using the following command:\n", stringr::str_wrap(cmd, 80), "\n")
   # Running Preditale
   system(command = cmd)
   # Parsing output
-  predFiles <- list.files(path = outDir, pattern = "^Predicted_binding.*tsv$", full.names = TRUE)
+  predFiles <- list.files(path = output_dir, pattern = "^Predicted_binding.*tsv$", full.names = TRUE)
   predictions <- lapply(predFiles, function(f) {
     suppressMessages(readr::read_tsv(f, show_col_types = FALSE))
     }) %>%
@@ -99,25 +99,25 @@ preditale <- function(rvdSeqs, subjDnaSeqFile, optParam = "", outDir = NULL,
 #' necessary dependencies. This environment will be created automatically if
 #' necessary.
 #'
-#' @param rvdSeqs Tale RVD sequences are supplied as either a fasta file (atomic
+#' @param rvd_seqs Tale RVD sequences are supplied as either a fasta file (atomic
 #'   character vector) with Tale info (name) in title and sequences of RVD as a
 #'   space or '-' separeted string or as a Biostrings XStringSet with sequences
 #'   of RVD similarly formated.
-#' @param subjDnaSeqFile Expects a character vector specifying the path to the
+#' @param subj_file Expects a character vector specifying the path to the
 #'   fasta file holding subject DNA sequence(s). Talvez forbids to have
 #'   sequences in the file wrapped at a fixed width. The function uses
 #'   Biostrings to unwrap them but if you use subject sequences longer than
 #'   20kb, this will fail and you are advised to unwrap your sequences before
 #'   hand.
-#' @param optParam An atomic character vector specifying optionnal parameters
+#' @param opt_param An atomic character vector specifying optionnal parameters
 #'   for the Talvez script (eg "-t 0 -l 19"). \strong{These may not include} the
 #'   '-e' and '-z' options specifying the matrix files.
-#' @param outDir Expects a character vector specifying the path to an output
+#' @param output_dir Expects a character vector specifying the path to an output
 #'   directory. If not supplied, output files will be temporary.
-#' @param talvezDir If you want to use another version of Talvez than the one
+#' @param talvez_dir If you want to use another version of Talvez than the one
 #'   supplied with tantale, specify the path of the directory containing the
 #'   necessary files here.
-#' @param condaBinPath Path to your Conda binary file if you need to specify
+#' @param conda_bin Path to your Conda binary file if you need to specify
 #'   a path different from the one that is automatically searched by the
 #'   reticulate package functions.
 #' @return A tibble with the EBE predictions. \strong{Note that column names
@@ -125,21 +125,21 @@ preditale <- function(rvdSeqs, subjDnaSeqFile, optParam = "", outDir = NULL,
 #'   programs's output in order to homogenize column names across TALE target
 #'   prediction programs in tantale.
 #' @export
-talvez <- function(rvdSeqs, subjDnaSeqFile, optParam = "-t 0 -l 19", outDir = NULL,
-                   talvezDir = system.file("tools", "TALVEZ_3.2", package = "tantale", mustWork = T),
-                   condaBinPath = "auto") {
+talvez <- function(rvd_seqs, subj_file, opt_param = "-t 0 -l 19", output_dir = NULL,
+                   talvez_dir = system.file("tools", "TALVEZ_3.2", package = "tantale", mustWork = T),
+                   conda_bin = "auto") {
 
   # Checking input args
-  if (class(rvdSeqs) == "character") {
-    rvdSeqs <- Biostrings::readBStringSet(rvdSeqs)
-  } else if (class(rvdSeqs) == "BStringSet") {
-    rvdSeqs <- rvdSeqs
+  if (class(rvd_seqs) == "character") {
+    rvd_seqs <- Biostrings::readBStringSet(rvd_seqs)
+  } else if (class(rvd_seqs) == "BStringSet") {
+    rvd_seqs <- rvd_seqs
   } else {
-    stop("##  Something is wrong with the value provided for rvdSeqs. It must be either\n",
+    stop("##  Something is wrong with the value provided for rvd_seqs. It must be either\n",
          "##  the path to a fasta file containing strings of RVD sequences (space/dash-separated\n",
          "##  rvd) or a Biostrings XStringSet object.")
   }
-  if (!file.exists(subjDnaSeqFile)) stop("Unable to find the set of target DNA sequences (fasta file)",
+  if (!file.exists(subj_file)) stop("Unable to find the set of target DNA sequences (fasta file)",
                                         " at the specified location. Please verify the file exists")
 
   # Creating a temporary output dir to run everything inside it
@@ -149,30 +149,30 @@ talvez <- function(rvdSeqs, subjDnaSeqFile, optParam = "-t 0 -l 19", outDir = NU
   # Copying a reformatted copy of subject DNA seq fasta file to tempOutDir
   # This is necessary if only to make sure that fixed width formatting of
   # sequences is loosened otherwise talvez complains.
-  Biostrings::writeXStringSet(x = Biostrings::readDNAStringSet(filepath = subjDnaSeqFile),
-                              filepath = file.path(tempOutDir, basename(subjDnaSeqFile)),
+  Biostrings::writeXStringSet(x = Biostrings::readDNAStringSet(filepath = subj_file),
+                              filepath = file.path(tempOutDir, basename(subj_file)),
                               format = "fasta", width = 20000L)
 
   # Copying the content of the talvez scripts dir in the temp tempOutDir
   # because it considerably facilitate interaction with talvez.
   if(!all(
-    file.copy(from = list.files(talvezDir, full.names = TRUE, include.dirs = TRUE),
+    file.copy(from = list.files(talvez_dir, full.names = TRUE, include.dirs = TRUE),
               to = tempOutDir, overwrite = TRUE, recursive = TRUE)
   )) stop("Unable to copy talvez scripts to temporary location...")
 
   # Formatting rvd sequences to fit the talvez format and write to tempfile
   rvdSeqsFileForTv <- tempfile(pattern = "rvdSeqsTalvez_", tmpdir = tempOutDir, fileext = ".tsv")
-  writeLines(text = paste(">", names(rvdSeqs), "\t", as.character(rvdSeqs), sep = ""),
+  writeLines(text = paste(">", names(rvd_seqs), "\t", as.character(rvd_seqs), sep = ""),
              con = rvdSeqsFileForTv)
   
   # Assembling and running talvez command
-  envReady <- !as.logical(createTantaleEnv(condaBinPath = condaBinPath))
+  envReady <- !as.logical(.create_tantale_env(conda_bin = conda_bin))
   if (envReady) {
     cmd <- glue::glue(#"cd {tempOutDir};",
-                      "perl TALVEZ_3.2.pl {optParam} -e mat1 -z mat2 {basename(rvdSeqsFileForTv)} {basename(subjDnaSeqFile)}")
+                      "perl TALVEZ_3.2.pl {opt_param} -e mat1 -z mat2 {basename(rvdSeqsFileForTv)} {basename(subj_file)}")
     logger::log_info("Invoking Talvez using the following command:\n {stringr::str_wrap(cmd, 80)}")
-    res <- systemInCondaEnv(envName = "tantale",
-                            condaBinPath = condaBinPath,
+    res <- .run_in_conda(env_name = "tantale",
+                            conda_bin = conda_bin,
                             cwd = tempOutDir,
                             command = cmd)
   } else {
@@ -199,10 +199,10 @@ talvez <- function(rvdSeqs, subjDnaSeqFile, optParam = "-t 0 -l 19", outDir = NU
       start = start + 1 # THIS SEEEMS TO BE NECESSARY TO EXTRACT EXACT EBE FROM SUBJ SEQ...
                   ) %>%
     dplyr::select(c(1,2,3,4,5,7,8,9, 10))
-  # copy output files to outDir if it is not null
-  if (!is.null(outDir)) {
+  # copy output files to output_dir if it is not null
+  if (!is.null(output_dir)) {
     list.files(tempOutDir, all.files = TRUE)
-    file.copy(from = file.path(tempOutDir, c("output_complete", "tmp")), to = outDir, overwrite = TRUE, recursive = TRUE)
+    file.copy(from = file.path(tempOutDir, c("output_complete", "tmp")), to = output_dir, overwrite = TRUE, recursive = TRUE)
     # list.files(tempOutDir, all.files = TRUE)
   }
   # returning
@@ -224,7 +224,7 @@ talvez <- function(rvdSeqs, subjDnaSeqFile, optParam = "-t 0 -l 19", outDir = NU
 ##### Displaying TALE RVD sequences - predicted target DNA sequences alignemnts #####
 
 
-computeRVDSeqEBESeqMatchQualityString <- function(RVDSeq, EBESeq, RVDNucAssocMat = rvdToNtAssocMat) {
+.compute_match_string <- function(RVDSeq, EBESeq, rvd_nuc_assoc_mat = rvdToNtAssocMat) {
   # Function that return a vector of numeric scores reflecting how good is the match between RVD and nucleotide at each successive position
   # Expects sequences as as a scalar string. They are split on "-" for RVD seqs and "" for EBE DNA sequences.
   # For each RVD
@@ -239,14 +239,14 @@ computeRVDSeqEBESeqMatchQualityString <- function(RVDSeq, EBESeq, RVDNucAssocMat
   if(length(RVDSeqVector) != length(EBESeqVector)) stop("Number of elements in RVD and DNA sequences are not equal.")
 
   mapply(FUN = function(RSV, ESV, m) {
-    RVDScores <- RVDNucAssocMat[rownames(RVDNucAssocMat) == RSV, ]
-    if (nrow(RVDScores) == 0) RVDScores <- RVDNucAssocMat[rownames(RVDNucAssocMat) == "XX", ] # in case the RVD under consideration has no dedicated row in the matrix
+    RVDScores <- rvd_nuc_assoc_mat[rownames(rvd_nuc_assoc_mat) == RSV, ]
+    if (nrow(RVDScores) == 0) RVDScores <- rvd_nuc_assoc_mat[rownames(rvd_nuc_assoc_mat) == "XX", ] # in case the RVD under consideration has no dedicated row in the matrix
     RVDScoresRanks <- rank(RVDScores, ties.method = "min") #
     RVDScoresRanksInverted <- max(RVDScoresRanks) + 1 - RVDScoresRanks
     if (RVDScoresRanksInverted[ESV] == min(RVDScoresRanks)) {3}
     else if (RVDScoresRanksInverted[ESV] == max(RVDScoresRanks)) {1}
     else 2
-  }, RSV = RVDSeqVector, ESV = EBESeqVector, MoreArgs = list(m = RVDNucAssocMat))
+  }, RSV = RVDSeqVector, ESV = EBESeqVector, MoreArgs = list(m = rvd_nuc_assoc_mat))
 
 }
 
@@ -263,25 +263,25 @@ computeRVDSeqEBESeqMatchQualityString <- function(RVDSeq, EBESeq, RVDNucAssocMat
 #'Numeric values inside the boxes located immediately to the right of the TALE labels reflect prediction scores.
 #'
 #'
-#' @param predResults A tibble of prediction results obtained with \code{\link[tantale:preditale]{preditale}} or \code{\link[tantale:talvez]{talvez}} or a custom table in this format.
-#' @param subjDnaSeqFile The fasta file of subject DNA sequences that was used to predict DNA binding elements.
-#' @param filterRange A length one genomic ranges in the form of a properly formatted character string (eg. "chr2:56-125") or an atomic GenomicRanges object. This argument specify the DNA region that will be plotted together with predicted binding TALEs RVD sequences whose predicted EBE lies \strong{entirely whithin}.
+#' @param preds A tibble of prediction results obtained with \code{\link[tantale:preditale]{preditale}} or \code{\link[tantale:talvez]{talvez}} or a custom table in this format.
+#' @param subj_file The fasta file of subject DNA sequences that was used to predict DNA binding elements.
+#' @param filter_range A length one genomic ranges in the form of a properly formatted character string (eg. "chr2:56-125") or an atomic GenomicRanges object. This argument specify the DNA region that will be plotted together with predicted binding TALEs RVD sequences whose predicted EBE lies \strong{entirely whithin}.
 #'
 #' @return Returns a ggplot object that can be further altered using ggplot2 package functions.
 #' @export
-plotTaleTargetPred <- function(predResults, subjDnaSeqFile, filterRange) {
+plot_target_preds <- function(preds, subj_file, filter_range) {
   ######### Check and parse arguments
-  subjDnaSeqs <- Biostrings::readDNAStringSet(subjDnaSeqFile)
-  predsGr <- predResults %>% #dplyr::filter(strand == "-") %>%
+  subjDnaSeqs <- Biostrings::readDNAStringSet(subj_file)
+  predsGr <- preds %>% #dplyr::filter(strand == "-") %>%
     GenomicRanges::makeGRangesFromDataFrame(seqnames.field = "subjSeqId", keep.extra.columns = TRUE)
   if (!all(as.character(BSgenome::getSeq(subjDnaSeqs, predsGr)) == predsGr$ebeSeq)) stop(
     "EBE sequences in the target predictions table did not match those extracted from the subjDnaSeqs!\n",
     "Verify that the content of the objects supplied as parameters are consistent.")
 
-  if (length(filterRange) != 1L) stop(
+  if (length(filter_range) != 1L) stop(
     "The range used for filtering the displayed region must be of lenght one."
   )
-  filterRange <- as(filterRange, "GRanges")
+  filter_range <- as(filter_range, "GRanges")
 
 
   ############ Prepare subjDnaSeqs for plotting
@@ -291,8 +291,8 @@ plotTaleTargetPred <- function(predResults, subjDnaSeqFile, filterRange) {
   tidySubjSeqs <- lapply(1:length(subjDnaSeqs),
                          function(i) {
                            oneSeq <- subjDnaSeqs[i]
-                           dplyr::bind_rows(`+` = tidy_biostrings_msa(oneSeq),
-                                            `-` = tidy_biostrings_msa(Biostrings::complement(oneSeq)),
+                           dplyr::bind_rows(`+` = .tidy_biostrings_msa(oneSeq),
+                                            `-` = .tidy_biostrings_msa(Biostrings::complement(oneSeq)),
                                             .id = "strand") %>%
                              dplyr::as_tibble() %>%
                              dplyr::mutate(yPos = dplyr::if_else(strand == "+",
@@ -311,15 +311,15 @@ plotTaleTargetPred <- function(predResults, subjDnaSeqFile, filterRange) {
                                             keep.extra.columns = TRUE)
 
   ######### FILTER WHAT WILL BE DISPLAYED
-  if (!is.null(filterRange)) {
-    filteredPreds <- IRanges::subsetByOverlaps(predsGr, filterRange, type = "within") %>%
+  if (!is.null(filter_range)) {
+    filteredPreds <- IRanges::subsetByOverlaps(predsGr, filter_range, type = "within") %>%
       as.data.frame(optional = TRUE, stringsAsFactors = FALSE) %>%
       dplyr::as_tibble(.name_repair = "minimal") %>%
       dplyr::rename(subjSeqId = seqnames) %>%
       dplyr::mutate(width = NULL) #%>% print(n = Inf)
 
     relevantTidySubjSeqs <- grSubjSeqs %>%
-      IRanges::subsetByOverlaps(filterRange, type = "within", ignore.strand = TRUE) %>%
+      IRanges::subsetByOverlaps(filter_range, type = "within", ignore.strand = TRUE) %>%
       as.data.frame(optional = TRUE, stringsAsFactors = FALSE) %>%
       dplyr::as_tibble(.name_repair = "minimal") %>%
       dplyr::rename(subjSeqId = seqnames, xPos = start) %>%
@@ -350,7 +350,7 @@ plotTaleTargetPred <- function(predResults, subjDnaSeqFile, filterRange) {
         rvd = if(.y$strand == "+") {unlist(stringr::str_split(.y$rvds, pattern = "-"))}
         else {sapply(unlist(stringr::str_split(.y$rvds, pattern = "-")), rev)},
         xPos = if(.y$strand == "+") .y$start:.y$end else .y$end:.y$start,
-        rvd2ntMatchScore = computeRVDSeqEBESeqMatchQualityString(RVDSeq = .y$rvds, EBESeq = .y$ebeSeq)
+        rvd2ntMatchScore = .compute_match_string(RVDSeq = .y$rvds, EBESeq = .y$ebeSeq)
       )
     }) %>%
     dplyr::mutate(rvd = sapply(stringr::str_split(string = rvd, pattern = ""), paste, collapse = "\n"))
@@ -458,7 +458,7 @@ plotTaleTargetPred <- function(predResults, subjDnaSeqFile, filterRange) {
 ##' @param end end position to extract subset of alignemnt
 ##' @author Modified from Guangchuang Yu
 ##' @noRd
-tidy_biostrings_msa <- function(msa, start = NULL, end = NULL) {
+.tidy_biostrings_msa <- function(msa, start = NULL, end = NULL) {
   aln <- msa
   alnmat <- lapply(seq_along(aln), function(i) {
     ##Preventing function collisions

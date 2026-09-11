@@ -1,27 +1,27 @@
 
-systemInCondaEnv <- function(envName, command,
-                             condaBinPath = "auto",
+.run_in_conda <- function(env_name, command,
+                             conda_bin = "auto",
                              cwd = getwd(),
                              ...) {
-  condaBinPath <- reticulate::conda_binary(condaBinPath)
-  # activateEnvCmd <- glue::glue("eval \"$({condaBinPath} shell hook -s posix)\"",
-  #                              "; micromamba activate {envName}")
+  conda_bin <- reticulate::conda_binary(conda_bin)
+  # activateEnvCmd <- glue::glue("eval \"$({conda_bin} shell hook -s posix)\"",
+  #                              "; micromamba activate {env_name}")
   # fullCommand <- glue::glue_collapse(c(activateEnvCmd, command), sep = "; ")
-  fullCommand <- glue::glue("eval \"$({condaBinPath} shell hook -s posix)\"",
-                            "{condaBinPath} run --cwd {cwd} -n {envName} {command}",
+  fullCommand <- glue::glue("eval \"$({conda_bin} shell hook -s posix)\"",
+                            "{conda_bin} run --cwd {cwd} -n {env_name} {command}",
                             .sep = "; ")
-  logger::log_debug("Starting the following command in the '{envName}' conda env :
+  logger::log_debug("Starting the following command in the '{env_name}' conda env :
                    {fullCommand}")
   system(command = fullCommand, ...)
 }
 
-# systemInCondaEnv <- function(envName, command,
-#                              condaBinPath = "auto",
+# .run_in_conda <- function(env_name, command,
+#                              conda_bin = "auto",
 #                              intern = FALSE) {
-#   logger::log_debug("Starting the following command in the '{envName}' conda env :
+#   logger::log_debug("Starting the following command in the '{env_name}' conda env :
 #                    {command}")
-#   reticulate::conda_run2( conda = condaBinPath,
-#                           envname = envName,
+#   reticulate::conda_run2( conda = conda_bin,
+#                           envname = env_name,
 #                           cmd_line = command,
 #                           intern = intern,
 #                           echo = FALSE)
@@ -31,12 +31,12 @@ systemInCondaEnv <- function(envName, command,
 
 
 
-createTantaleEnv <- function(condaBinPath = "auto") {
-  envName <- "tantale"
-  if (!envName %in% (reticulate::conda_list(conda = condaBinPath)["name"] %>% unlist())) {
+.create_tantale_env <- function(conda_bin = "auto") {
+  env_name <- "tantale"
+  if (!env_name %in% (reticulate::conda_list(conda = conda_bin)["name"] %>% unlist())) {
     logger::log_warn("A custom conda env will be installed on your system to run external dependencies...")
     condayml <- system.file("tools", "tantale_conda_env.yaml", package = "tantale", mustWork = T)
-    res <- reticulate::conda_create(envname = envName,
+    res <- reticulate::conda_create(envname = env_name,
                                     environment = condayml)
     if (!is.character(res)) {
       logger::log_warn("Installation of the conda environment failed.")
@@ -44,18 +44,18 @@ createTantaleEnv <- function(condaBinPath = "auto") {
     }
     return(invisible(0L))
   } else {
-    logger::log_info("A Conda environment with the name '{envName}' has been found on your system and can be used for analysis.")
+    logger::log_info("A Conda environment with the name '{env_name}' has been found on your system and can be used for analysis.")
     return(invisible(0L))
   }
 }
 
-# reticulate::condaenv_exists(envname = envName, conda = condaBinPath)
-# reticulate::conda_remove(envname = envName, conda = condaBinPath)
-# reticulate::conda_list(conda = condaBinPath)
+# reticulate::condaenv_exists(envname = env_name, conda = conda_bin)
+# reticulate::conda_remove(envname = env_name, conda = conda_bin)
+# reticulate::conda_list(conda = conda_bin)
 
 # reticulate::conda_binary()
 # reticulate::conda_list(conda = "/home/cunnac/bin/miniconda3/condabin/conda")["name"] %>% unlist()
-# createTantaleEnv(condaBinPath = "/home/cunnac/bin/miniconda3/condabin/conda")
+# .create_tantale_env(conda_bin = "/home/cunnac/bin/miniconda3/condabin/conda")
 # #perl-data-dumper
 
 # use warnings;

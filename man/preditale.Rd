@@ -5,32 +5,32 @@
 \title{Run TALE target predictions on DNA sequence(s) using PrediTale.}
 \usage{
 preditale(
-  rvdSeqs,
-  subjDnaSeqFile,
-  optParam = "",
-  outDir = NULL,
-  predictorPath = system.file("tools", "PrediTALE.jar", package = "tantale", mustWork =
+  rvd_seqs,
+  subj_file,
+  opt_param = "",
+  output_dir = NULL,
+  predictor_path = system.file("tools", "PrediTALE.jar", package = "tantale", mustWork =
     T)
 )
 }
 \arguments{
-\item{rvdSeqs}{Tale RVD sequences are supplied as either a fasta file (atomic
+\item{rvd_seqs}{Tale RVD sequences are supplied as either a fasta file (atomic
 character vector) with Tale info (name) in title and sequences of RVD as a
 space or '-' separeted string or as a Biostrings XStringSet with sequences
 of RVD similarly formated. See the
 \href{https://www.jstacs.de/index.php/PrediTALE}{PrediTale} man page for
 how to encode RVDs present on aberrant repeats.}
 
-\item{subjDnaSeqFile}{Expects a character vector specifying the path to the
+\item{subj_file}{Expects a character vector specifying the path to the
 fasta file holding subject DNA sequence(s).}
 
-\item{optParam}{An atomic character vector specifying optionnal parameters
+\item{opt_param}{An atomic character vector specifying optionnal parameters
 for PrediTALE.jar preditale (eg "Strand=\"forward strand\"").}
 
-\item{outDir}{Expects a character vector specifying the path to an output
+\item{output_dir}{Expects a character vector specifying the path to an output
 directory. If not supplied, output files will be temporary.}
 
-\item{predictorPath}{If you want to use another version of "PrediTALE.jar"
+\item{predictor_path}{If you want to use another version of "PrediTALE.jar"
 than the one supplied with tantale, specify its path here.}
 }
 \value{
