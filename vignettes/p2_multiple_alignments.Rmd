@@ -109,7 +109,7 @@ p1 <- plot_tales_msa(repeat_align = repeat_align,
                h_cut = 90,
                ref_pattern = NULL,
                consensus = FALSE,
-               fill_type = "repeat_sim" # "repeatClust"
+               fill_type = "repeat_sim" # "repeat_clust"
 )
 ```
 
@@ -160,7 +160,7 @@ p <- plot_tales_msa(repeat_align = repeat_align,
                h_cut = 90,
                ref_pattern = NULL,
                consensus = FALSE,
-               fill_type = "repeatClust" # "repeatClust"
+               fill_type = "repeat_clust" # "repeat_clust"
 )
 
 p <- plot_tales_msa(repeat_align = repeat_align,
@@ -170,7 +170,7 @@ p <- plot_tales_msa(repeat_align = repeat_align,
                h_cut = 90,
                ref_pattern = NULL,
                consensus = FALSE,
-               fill_type = "repeat_sim" # "repeatClust"
+               fill_type = "repeat_sim" # "repeat_clust"
 )
 
 p <- plot_tales_msa(repeat_align = repeat_align,
@@ -180,7 +180,7 @@ p <- plot_tales_msa(repeat_align = repeat_align,
                h_cut = 90,
                ref_pattern = NULL,
                consensus = FALSE,
-               fill_type = "repeatClust" # "repeatClust"
+               fill_type = "repeat_clust" # "repeat_clust"
 )
 
 # fill_type has no effect
@@ -191,7 +191,7 @@ p <- plot_tales_msa(repeat_align = repeat_align,
                h_cut = 90,
                ref_pattern = NULL,
                consensus = FALSE,
-               fill_type = "repeat_sim" # "repeatClust"
+               fill_type = "repeat_sim" # "repeat_clust"
 )
 
 
@@ -202,7 +202,7 @@ p <- plot_tales_msa(repeat_align = NULL,
                h_cut = 90,
                ref_pattern = NULL,
                consensus = FALSE,
-               fill_type = "repeat_sim" # "repeatClust"
+               fill_type = "repeat_sim" # "repeat_clust"
 )
 
 
@@ -213,7 +213,7 @@ p <- plot_tales_msa(repeat_align = repeat_align,
                h_cut = 90,
                ref_pattern = NULL,
                consensus = FALSE,
-               fill_type = "repeat_sim" # "repeatClust"
+               fill_type = "repeat_sim" # "repeat_clust"
 )
 
 p <- plot_tales_msa(repeat_align = NULL,
@@ -223,7 +223,7 @@ p <- plot_tales_msa(repeat_align = NULL,
                h_cut = 90,
                ref_pattern = NULL,
                consensus = FALSE,
-               fill_type = "repeat_sim" # "repeatClust"
+               fill_type = "repeat_sim" # "repeat_clust"
 )
 
 
@@ -234,7 +234,7 @@ p <- plot_tales_msa(repeat_align = repeat_align,
                h_cut = 90,
                ref_pattern = NULL,
                consensus = FALSE,
-               fill_type = "repeat_sim" # "repeatClust"
+               fill_type = "repeat_sim" # "repeat_clust"
 )
 
 
@@ -248,7 +248,7 @@ p <- plot_tales_msa(repeat_align = repeat_align[3, , drop = FALSE],
                h_cut = 90,
                ref_pattern = NULL,
                consensus = FALSE,
-               fill_type = "repeat_sim" # "repeatClust"
+               fill_type = "repeat_sim" # "repeat_clust"
 )
 
 p <- plot_tales_msa(repeat_align = repeat_align[3, , drop = FALSE],
@@ -258,7 +258,7 @@ p <- plot_tales_msa(repeat_align = repeat_align[3, , drop = FALSE],
                h_cut = 90,
                ref_pattern = NULL,
                consensus = FALSE,
-               fill_type = "repeatClust" # "repeatClust"
+               fill_type = "repeat_clust" # "repeat_clust"
 )
 
 
@@ -269,7 +269,7 @@ p <- plot_tales_msa(repeat_align = repeat_align[3, , drop = FALSE],
                h_cut = 90,
                ref_pattern = NULL,
                consensus = FALSE,
-               fill_type = "repeat_sim" # "repeatClust"
+               fill_type = "repeat_sim" # "repeat_clust"
 )
 
 p <- plot_tales_msa(repeat_align = repeat_align[3, , drop = FALSE],
@@ -279,7 +279,7 @@ p <- plot_tales_msa(repeat_align = repeat_align[3, , drop = FALSE],
                h_cut = 90,
                ref_pattern = NULL,
                consensus = FALSE,
-               fill_type = "repeat_sim" # "repeatClust"
+               fill_type = "repeat_sim" # "repeat_clust"
 )
 
 p <- plot_tales_msa(repeat_align = NULL,
@@ -289,7 +289,7 @@ p <- plot_tales_msa(repeat_align = NULL,
                h_cut = 90,
                ref_pattern = NULL,
                consensus = FALSE,
-               fill_type = "repeat_sim" # "repeatClust"
+               fill_type = "repeat_sim" # "repeat_clust"
 )
 ```
 

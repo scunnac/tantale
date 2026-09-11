@@ -614,7 +614,7 @@ msa_heatmap <- function(tal_sim, repeat_align, rvd_align = NULL, repeat_sim, h_c
 #'   names to select the reference in the alignment.
 #' @param consensus (logical) Whether to display the consensus sequence
 #'  **NOT IMPLEMENTED YET**
-#' @param fill_type Either "repeatClust" or "repeat_sim". If both options are
+#' @param fill_type Either "repeat_clust" or "repeat_sim". If both options are
 #'   possible because the necessary information is there (at least a
 #'   \code{repeat_sim} value), this argument will decide what type of 'box color
 #'   filling' is employed and it is either based on the cluster where the repeat
@@ -631,7 +631,7 @@ plot_tales_msa <- function(repeat_align,
                            h_cut = 90,
                            ref_pattern = NULL,
                            consensus = FALSE,
-                           fill_type = "repeatClust" #"repeat_sim"
+                           fill_type = "repeat_clust" #"repeat_sim"
 ) {
   
   # Arguments checking
@@ -827,7 +827,7 @@ plot_tales_msa <- function(repeat_align,
                             size = 3, fontface = "bold",
                             na.rm = TRUE
         )
-    } else if (fill_type == "repeatClust") {
+    } else if (fill_type == "repeat_clust") {
       p <- bp +
         repeatClusterFillScale +
         labelConsensusColorScale +
@@ -856,7 +856,7 @@ plot_tales_msa <- function(repeat_align,
                             size = 3, fontface = "bold",
                             na.rm = TRUE
         )
-    } else if (fill_type == "repeatClust") {
+    } else if (fill_type == "repeat_clust") {
       p <- bp +
         repeatClusterFillScale +
         labelConsensusColorScale +
