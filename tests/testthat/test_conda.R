@@ -5,7 +5,7 @@ require_tantale_conda_env <- function() {
   installHint <- paste(
     "The 'tantale' conda environment is required to run this test but was not found.",
     "To set it up, either run:",
-    "    tantale:::createTantaleEnv()",
+    "    tantale:::.create_tantale_env()",
     "(needs conda or mamba on your PATH), or create it manually with:",
     sprintf("    conda env create -n tantale -f %s", condaYaml),
     sep = "\n"
@@ -20,17 +20,17 @@ require_tantale_conda_env <- function() {
   }
 }
 
-test_that("systemInCondaEnv does not error with a test command",
+test_that(".run_in_conda does not error with a test command",
           {
             require_tantale_conda_env()
-            expect_true(0 == systemInCondaEnv(envName = "tantale", command = "mmseqs createdb --help", intern = FALSE))
+            expect_true(0 == .run_in_conda(env_name = "tantale", command = "mmseqs createdb --help", intern = FALSE))
           }
 )
 
-test_that("systemInCondaEnv returns a character string corresponding to stdoutput with a test command",
+test_that(".run_in_conda returns a character string corresponding to stdoutput with a test command",
           {
             require_tantale_conda_env()
-            expect_true(is.character(systemInCondaEnv(envName = "tantale", command = "mmseqs createdb --help", intern = TRUE)))
+            expect_true(is.character(.run_in_conda(env_name = "tantale", command = "mmseqs createdb --help", intern = TRUE)))
           }
 )
 

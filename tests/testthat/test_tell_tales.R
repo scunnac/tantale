@@ -5,14 +5,14 @@ test_that("send message if no hmmer hit", {
   fasta <- tempfile()
   Biostrings::DNAStringSet(x = paste(sample(Biostrings::DNA_BASES, size = 10000, replace = TRUE), collapse = "")) %>%
   Biostrings::writeXStringSet(filepath = fasta)
-  expect_warning(tellTale(subjectFile = fasta, outputDir = tempfile()),
+  expect_warning(tell_tales(subject_file = fasta, output_dir = tempfile()),
                  regexp = "NhmmerSearch found no TALE cds hit")
 })
 
 test_that("telltale no correction runs without error", {
-  expect_invisible(tellTale(subjectFile = system.file("extdata", "bai3_sample_tal_genomic_regions.fasta",
+  expect_invisible(tell_tales(subject_file = system.file("extdata", "bai3_sample_tal_genomic_regions.fasta",
                                                       package = "tantale", mustWork = T),
-                            outputDir = tempfile()
+                            output_dir = tempfile()
                             )
                    )
 })

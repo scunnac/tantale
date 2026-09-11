@@ -1,38 +1,38 @@
 
-taleParts <- getTaleParts(test_path("data_for_tests", "tellTaleExampleOutput")) %>%
+tale_parts <- tale_parts(test_path("data_for_tests", "tellTaleExampleOutput")) %>%
   dplyr::mutate(partId = paste(arrayID, positionInArray, sep = "_"))
-partAaStringSet <-  Biostrings::AAStringSet(taleParts$aaSeq)
-names(partAaStringSet) <- taleParts$partId
+part_aa_set <-  Biostrings::AAStringSet(tale_parts$aaSeq)
+names(part_aa_set) <- tale_parts$partId
 
-test_that(".distalPairwiseAlign output a tibble with the expected dims", {
-  pairAlignScores <- .distalPairwiseAlign(partAaStringSet, ncores = 4)
-  expect_true(identical(dim(pairAlignScores), c(9216L,5L)))
+test_that(".pairwise_align_biostrings output a tibble with the expected dims", {
+  pair_align_scores <- .pairwise_align_biostrings(part_aa_set, ncores = 4)
+  expect_true(identical(dim(pair_align_scores), c(9216L,5L)))
 })
 
-test_that(".distalPairwiseAlign2 output a tibble with the expected dims", {
-  pairAlignScores <- .distalPairwiseAlign2(partAaStringSet, condaBinPath = "auto")
-  expect_true(identical(dim(pairAlignScores), c(9216L,19L)))
+test_that(".pairwise_align_mmseq2 output a tibble with the expected dims", {
+  pair_align_scores <- .pairwise_align_mmseq2(part_aa_set, conda_bin = "auto")
+  expect_true(identical(dim(pair_align_scores), c(9216L,19L)))
 })
 
-test_that(".distalPairwiseAlign3 output a tibble with the expected dims", {
-  pairAlignScores <- .distalPairwiseAlign3(partAaStringSet)
-  expect_true(identical(dim(pairAlignScores), c(9216L,3L)))
+test_that(".pairwise_align_decipher output a tibble with the expected dims", {
+  pair_align_scores <- .pairwise_align_decipher(part_aa_set)
+  expect_true(identical(dim(pair_align_scores), c(9216L,3L)))
 })
 
 
 
 
 
-# pairAlignScores$raw %>%  hist(breaks = 100)
-# pairAlignScores$Dissim %>%  hist(breaks = 100)
-# pairAlignScores %>% dplyr::filter(Dissim < 1000, Dissim > 30)
-# pairAlignScores %>% dplyr::filter(Dissim < 10, Dissim >= 0)
-# pairAlignScores %>% dplyr::filter(Dissim < 20, Dissim > 10)
+# pair_align_scores$raw %>%  hist(breaks = 100)
+# pair_align_scores$Dissim %>%  hist(breaks = 100)
+# pair_align_scores %>% dplyr::filter(Dissim < 1000, Dissim > 30)
+# pair_align_scores %>% dplyr::filter(Dissim < 10, Dissim >= 0)
+# pair_align_scores %>% dplyr::filter(Dissim < 20, Dissim > 10)
 # 
-# pairAlignScores %<>% dplyr::mutate(Sim = 100/(1+exp(-1*-0.9*(Dissim-3))))
-# pairAlignScores$Sim %>%  hist(breaks = 100)
-# skimr::skim(pairAlignScores$Dissim)
-# ggplot2::ggplot(pairAlignScores, mapping = ggplot2::aes(x= Dissim, y= Sim)) +
+# pair_align_scores %<>% dplyr::mutate(Sim = 100/(1+exp(-1*-0.9*(Dissim-3))))
+# pair_align_scores$Sim %>%  hist(breaks = 100)
+# skimr::skim(pair_align_scores$Dissim)
+# ggplot2::ggplot(pair_align_scores, mapping = ggplot2::aes(x= Dissim, y= Sim)) +
 #   ggplot2::geom_point(alpha = 0.1)
 
 
