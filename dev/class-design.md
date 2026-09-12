@@ -367,6 +367,14 @@ Parent `pairwise_sim`; subclasses `tale_sim` and `repeat_sim` add nothing
 structural, only entity semantics for validation and printing, and a hook if
 methods ever need to diverge.
 
+> **Names provisional** — see ledger §9.6 **[P]**. Two open problems:
+> `repeat_sim` understates its content (**[V]** 28% of the ids in the real
+> table are *terminus* domains, not repeats, so `domain_sim` is the accurate
+> name), and the stored quantity may become dissimilarity rather than
+> similarity, which would invert the required column of §3.3. The structure
+> below is unaffected either way; only the names and which value column is
+> required would change.
+
 ### 3.2 Why a class at all **[V]**
 
 The same long→square-matrix operation is hand-written **four times**, differing

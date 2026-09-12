@@ -740,6 +740,52 @@ anyone filters by level.
 
 ---
 
+### 9.6 "similarity" and "repeat" are both wrong names **[P]**
+
+Two independent problems with the same family of names — the class
+`repeat_sim`, the slot `repeat.similarity`, the column `sim`, and the
+functions and arguments built on them. They want deciding together, because
+any fix touches class names, function names *and* column names at once.
+
+#### (a) "repeat" understates what the object covers **[V]**
+
+`repeat.similarity` compares **every domain type, not just repeats**. Measured
+on the fixture: of its 251 ids, **71 (28%) are terminus domains** and 180 are
+repeats — and the two sets are disjoint, so no id is both. Termini are
+`dom_code`-ed like any other part and participate in the alignment
+(`class-design.md` §4.5), so this is by design, not an accident.
+
+`domain` is the accurate word and is already the vocabulary elsewhere —
+`domain_type`, `dom_code`. So: `repeat_sim` → `domain_sim`,
+`repeat.similarity` → `domain_sim`, and the `repeat_*` arguments of §9.1
+follow. Note `build_repeat_msa()`/`tales_align()` are *also* misnamed on the
+same grounds, since they align termini too.
+
+#### (b) similarity may be the wrong quantity to store **[P]**
+
+The ARLEM analysis in §6 already established that `arlemScore` is a cost, that
+`tal.similarity$Sim` is crushed into 91.75–100, and that **all three consumers
+immediately convert it back to a distance** — "a round trip that costs
+interpretability and buys nothing".
+
+That argues for storing dissimilarity. But §6 also drew a distinction worth
+keeping: at the **array** level `Sim` is near-useless, while at the **domain**
+level `Sim = 100 - Dissim` is a genuine full-range similarity. So this is a
+strong case for `tale_sim` and a real choice for `domain_sim`, not one verdict.
+
+**Consequence for the class, if dissimilarity wins.** `pairwise_sim` currently
+requires `sim` and treats `dissim` as optional (`class-design.md` §3.3). That
+inversion is the substantive part of this change — the renames are mechanical,
+but which quantity is *required* is a contract decision. Whichever is chosen,
+only one should be stored: keeping both invites them drifting out of step.
+
+**Also to decide:** whether the class name should say the quantity at all.
+`domain_sim`/`tale_sim` presume similarity; `domain_dist`, or a neutral
+`domain_relatedness`, would not. A neutral name would survive changing the
+stored quantity later.
+
+---
+
 ## 10. Explicitly ruled out
 
 - Deleting dormant internals such as the unused HMMER wrappers
