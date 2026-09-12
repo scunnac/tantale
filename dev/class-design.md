@@ -315,49 +315,156 @@ id columns with raw hex bytes and then sets `colnames(...) <- NULL`,
 deliberately demolishing the tibble into a mafft input file. Silent degradation
 to a plain data frame is the right behaviour; a warning would be noise.
 
-### 3.5 Cross-object coherence **[P]**
+### 3.5 Cross-object coherence — the `dom_code` namespace **[A]**
 
-Ledger §5 **[V]**: because `dom_code` is a whole-set surrogate key, a `tales`
-and its companion similarity tables must be subset **coherently**. Open
-question: is that enforced (a bundling object, or a check in the methods that
-consume both), or documented and left to the user? Deciding this may be what
-reintroduces a container — which §5 currently rules out ("no top-level
-session/project object").
+**[V]** Three companion tables are keyed by `dom_code`, not one:
+`repeat.similarity`, `repeats.cluster` (`RepID`) and `repeats.code` (`code`);
+`tal.similarity` is keyed by `array_id`.
+
+**[V]** "Subset coherently" turned out to be the wrong framing — neither
+direction of subsetting fails silently:
+
+- Shrinking a `tales` is safe. `tales_align()` requires the similarity table to
+  *cover* the residues present, then narrows it itself
+  (`msa.R:187-189`): extra rows are fine.
+- Shrinking the similarity table fails **loudly**, at that same `stopifnot()`.
+
+The genuinely silent failure is **mixing objects from two different runs**.
+`dom_code` is `cur_group_id()`, so every run mints `1..N`; the ranges overlap,
+a cross-run join *succeeds*, and repeats are mapped to the wrong sequences with
+nothing to signal it. Recomputation is just the special case where a run is
+remade.
+
+**Decision — a namespace tag, not a container.** Each `tales_relatedness()`
+run is stamped with a `dom_code` namespace identifier: a content hash of the
+sorted unique `aa_seq` set at construction, carried as an attribute on the
+`tales` and on every `dom_code`-keyed companion. Methods consuming two of them
+compare tags and error on mismatch.
+
+Properties:
+
+- Enforces coherence without a container, so §5's "no top-level
+  session/project object" stands.
+- Exactly parallel to `dom_code` itself — **stamped once, carried, never
+  recomputed** — and therefore stable under subsetting, because it is stamped
+  rather than derived.
+- Content-hashed rather than random, so two runs over identical data are
+  correctly recognised as compatible instead of falsely flagged.
+- **[V]** Costs no machinery: custom attributes already survive `filter()`,
+  `mutate()`, `arrange()`, `[` and `select()` on a tibble, so the tag rides
+  along for free and `dplyr_reconstruct()` preserves it.
+
+Limits, on the record: the tag is only as good as the methods that check it,
+and stripping attributes defeats it. It catches accidents, not adversaries —
+the right target.
 
 ---
 
-## 4. Class `tales_msa` **[P]**
+## 4. Class `tales_msa`
 
-Not yet designed. Settled so far:
+Class vector: `c("tales_msa", "tales", "tbl_df", "tbl", "data.frame")`.
 
-- Subclass of `tales`, adding an `alignment_position` coordinate **[A]**.
-- **Termini participate in the alignment** **[A]** — current behaviour
-  (`coded.repeats.str` is built from all parts including termini,
-  `distalr.R:522-527`), so rectangularity holds over all rows rather than only
-  over repeats.
-- **Gaps** are rows with `alignment_position` present and the residue columns
-  plus `position_in_array`/`position_in_crd` set to `NA` — matching
-  `build_repeat_msa(gap_symbol = NA)`'s existing default, rather than inventing
-  a sentinel string. Deliberately *not* following the `"NTERM"`/`"XXXXX"`
-  sentinel precedent of §2.5.
-- `tales_align()` takes a `tales` and returns a `tales_msa` — **one input
-  type, one return type**. The mafft back-mapping is *positional*: the k-th
-  non-gap cell of an aligned row is the k-th part fed in
-  (`msa.R:217-231`), recoverable as `cumsum(!is.na(row))`. That is well-defined
-  only because `tales_align()` builds the mafft input from the `tales` itself.
-  A fasta is handled by composing `as_tales()` first, so it reaches
-  `tales_msa` too — no separate code path, no matrix-only return.
-- The matrix is a view: `as.matrix(x, value = "rvd")`. `plot()` reads whichever
-  layers it needs from the single object, collapsing
-  `plot_tales_msa(repeat_align, rvd_align, tal_sim, repeat_sim, …)` to roughly
-  `plot(x, fill = , label = )`. Requesting a layer the object lacks (e.g.
-  `dom_code` on a `tales_msa` built from an RVD fasta) is a method
-  precondition, not a structural difference.
+### 4.1 Identity **[A]**
 
-Open: **what is the key** — `array_id` × `alignment_position`, or does
-`array_id` × `position_in_array` remain the key with `alignment_position` as a
-third coordinate? Gap rows have no `position_in_array`, which pushes toward the
-former.
+> A `tales_msa` is a `tales` that additionally carries an **alignment
+> coordinate**: one row per aligned part, with gaps represented by the
+> *absence* of a row.
+
+### 4.2 Gaps are implicit **[A]**
+
+This supersedes an earlier decision that gaps would be explicit rows with
+`alignment_position` set and the residue columns / `position_in_array` /
+`position_in_crd` set to `NA`. That form is **incompatible with being a
+subclass**: `tales` invariant 2 forbids `NA` `position_in_array`, and an array
+has many gaps, so every gap row would carry the same `NA` and break invariant
+1's key uniqueness too. A `tales_msa` would not have been a valid `tales`, and
+every inherited method would have needed a special case.
+
+Rejected alternatives: making `tales_msa` a sibling class (honest, but
+duplicates the whole contract and inherits nothing), and relaxing `tales`'
+invariants to permit `NA` positions (dismantles the parent's key to
+accommodate the child).
+
+With gaps implicit, **every parent invariant holds unchanged** and the
+subclass relation is real. Both keys coexist: `array_id` × `position_in_array`
+(inherited) and `array_id` × `alignment_position` (new) are each unique.
+
+The `NA`-filled rectangular form does not disappear — it is what `as.matrix()`
+produces, and what `build_repeat_msa(gap_symbol = NA)` already returns. It
+simply stops being the canonical storage.
+
+### 4.3 Column contract **[A]**
+
+Everything in §2.3, plus:
+
+| tier | column | rule |
+|---|---|---|
+| required | `alignment_position` (int) | error if absent or wrong type |
+
+Attributes: the `dom_code` namespace tag (§3.5), inherited, plus the
+**alignment width** `L` (see 4.4).
+
+### 4.4 Invariants **[A]**
+
+All of §2.4, unchanged — that is the point of 4.2. Plus:
+
+11. `alignment_position` is a positive integer, never `NA`.
+12. `alignment_position` is unique within `array_id`.
+13. **Order agreement**: within an array, ranking rows by `alignment_position`
+    gives the same order as ranking by `position_in_array`. An alignment may
+    insert gaps but may never reorder parts. Nothing in the current code
+    checks this.
+14. `alignment_position` ⊆ `1:L`.
+
+`L` (alignment width) is stamped as an **attribute**, not derived. Deriving it
+as `max(alignment_position)` is correct only while some array still occupies
+the last column; subsetting arrays can silently shrink it. Carried like the
+namespace tag, for the same reason.
+
+**Preconditions, not invariants:**
+
+- **Grid completeness** — that the implied `arrays × 1:L` grid is fully
+  determined. Needed by `as.matrix()` and `plot()`; legitimately broken by
+  filtering arrays or positions.
+- **No all-gap column** — true of mafft output, but subsetting arrays can
+  empty a column. Honest under the implicit-gap representation: such a column
+  simply has no rows.
+
+### 4.5 Construction — `tales_align()` **[A]**
+
+Takes a `tales`, returns a `tales_msa`: **one input type, one return type**.
+
+The mafft back-mapping is **positional**: the k-th non-gap cell of an aligned
+row is the k-th part fed in (`msa.R:218-232`), recoverable as
+`cumsum(!is.na(row))`. That is well-defined only because `tales_align()`
+builds the mafft input from the `tales` itself rather than accepting a
+pre-made fasta — which is why the input type is not a union.
+
+- **Precondition**: array completeness (§2.4) — each array must hold all its
+  parts, contiguously from 1 — since that is what makes the k-th cell
+  correspond to the k-th part.
+- A residue-column argument selects what is aligned (`rvd` or `dom_code`),
+  replacing `build_repeat_msa()`'s inference from a hardcoded list of six
+  frequent RVDs (ledger §6).
+- **Termini participate** — current behaviour, since `coded.repeats.str` is
+  built from all parts including termini (`distalr.R:526`).
+- A fasta reaches `tales_msa` by composing `as_tales()` first; no separate code
+  path, and no matrix-only return.
+
+### 4.6 Views and methods **[A]**
+
+- `as.matrix(x, value = "rvd")` — materialises the grid; gaps become `NA` (or a
+  `gap_symbol`). This is the one place the rectangular form is built, replacing
+  the ad-hoc `melt`/`acast` sites of ledger §5.
+- `plot(x, fill = , label = )` — replaces
+  `plot_tales_msa(repeat_align, rvd_align, tal_sim, repeat_sim, …)`. The
+  four-argument signature exists only because a matrix holds one value layer;
+  a long `tales_msa` carries them all. Requesting a layer the object lacks
+  (e.g. `dom_code` on an msa built from an RVD fasta) is a method precondition,
+  not a structural difference.
+- `tales_consensus_match()` becomes a method returning a `tales_msa` with a
+  logical layer, collapsing its `long` flag — and removing the mislabelled
+  `positionInArray` column recorded in ledger §6.
 
 ---
 
@@ -367,6 +474,6 @@ former.
 |---|---|---|
 | 1 | `seqnames` → `seq_name`, or keep the Bioconductor spelling? | §1.1 |
 | 2 | Final names for the canonical similarity id columns (`id1`/`id2`?) | §3.3 |
-| 3 | Is cross-object `dom_code` coherence enforced or documented? | §3.5 |
-| 4 | `tales_msa` key | §4 |
+| ~~3~~ | ~~Is cross-object `dom_code` coherence enforced or documented?~~ **Resolved** — enforced by a namespace tag; no container needed | §3.5 |
+| ~~4~~ | ~~`tales_msa` key~~ **Resolved** — `array_id` × `alignment_position`; the inherited key remains valid too, since gaps are implicit | §4.2 |
 | 5 | `distalr()`'s new name; one `tales_predict_targets()` generic over both backends? | §1 |

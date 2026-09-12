@@ -244,10 +244,15 @@ mechanism behave identically in both.
   breaks the join to both similarity tables. It must be carried, never
   recomputed — a real invariant for a class to protect, and an argument that a
   `tale_parts` and its companion similarity tables must be subset coherently.
-  **Partly resolved** — "carried, never recomputed" is now invariant 4 of
-  `tales` (`class-design.md` §2.4). Whether cross-object coherence is
-  *enforced* or merely documented is still open (`class-design.md` §3.5), and
-  is the one question that could reintroduce a container object.
+  **Resolved** — "carried, never recomputed" is now invariant 4 of `tales`
+  (`class-design.md` §2.4), and cross-object coherence is *enforced* by a
+  `dom_code` namespace tag: a content hash stamped on the `tales` and on each
+  `dom_code`-keyed companion, compared by methods that consume two of them
+  (`class-design.md` §3.5). **No container object is needed** — the
+  "no top-level session/project object" decision above stands. **[V]** The real
+  hazard was never subsetting (which fails loudly, or not at all) but *mixing
+  runs*: `cur_group_id()` mints `1..N` every run, so a cross-run join succeeds
+  and silently maps repeats to the wrong sequences.
 
 Downstream consequence: a good part of the conversion functions can then be
 unexported.
