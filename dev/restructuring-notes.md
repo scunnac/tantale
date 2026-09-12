@@ -508,6 +508,63 @@ functions should stop being exported once `tale_parts` is central (see §2), and
 whether the S4 class `annout` should remain `exportClasses`-tagged given it
 never reaches the public pipeline.
 
+### 9.4 Use `@family` wherever justified **[A]**
+
+Current state: **0** `@family`, **0** `@seealso`, and exactly **two**
+`\code{\link{}}` cross-references in the entire package
+([AnnoTALE_QueTAL_functions_library.R:65](../R/AnnoTALE_QueTAL_functions_library.R#L65)
+and [:125](../R/AnnoTALE_QueTAL_functions_library.R#L125)) — a hand-maintained
+reciprocal pair between `run_annotale_predict()` and `run_annotale_build()`,
+which is precisely the case `@family` automates.
+
+`_pkgdown.yml` also has no `reference:` section, so the website emits one flat
+alphabetical list of all 24 exports. **There is currently no grouping of the
+API anywhere** — not in R help, not on the site.
+
+One `@family` tag does double duty (verified against roxygen2):
+
+```
+#' @family plotting functions
+```
+emits into every member's Rd both
+```
+\seealso{Other plotting functions: \code{\link[=beta2]{beta2()}}}
+\concept{plotting functions}
+```
+
+- the `\seealso{}` block is **bidirectional and auto-maintained** — adding a
+  member updates every sibling, which hand-written `@seealso` cannot do;
+- the `\concept{}` is what pkgdown's `has_concept("plotting functions")`
+  selector reads, so the same tag can drive a grouped `reference:` index on the
+  website instead of maintaining that list separately in `_pkgdown.yml`.
+
+Provisional families (to be confirmed — **do not apply before §5**, since
+functions that become methods on generics are documented differently and may
+not warrant their own topic at all):
+
+| family | members |
+|---|---|
+| TALE discovery | `tell_tales`, `correct_tales`, `tale_parts`, `diagnose_tale_parts` |
+| external TALE tools | `run_annotale_predict`, `run_annotale_build`, `functal` |
+| similarity and grouping | `distalr`, `group_tales` |
+| repeat alignment | `build_repeat_msa`, `tales_consensus`, `tales_consensus_match` |
+| format conversion | `repeat_to_rvd_align`, `repeat_to_rvd_map`, `repeat_to_rvd_map_distalr`, `tale_parts_to_rvd`, `split_list` |
+| TALE plots | `plot_tales_msa`, `plot_tale_composition`, `talomes_heatmap`, `msa_heatmap` |
+| target prediction | `talvez`, `preditale`, `plot_target_preds` |
+
+Points to settle when applying:
+
+- A function may carry **several** `@family` tags; `plot_target_preds()` is the
+  obvious dual member (plots *and* target prediction).
+- The family name is interpolated verbatim into "Other <name>:", so it must
+  read as a plural noun phrase — "TALE plots" works, "plotting" does not.
+- Interacts with 9.3: `@family` only has an effect on topics that generate an
+  Rd, so anything marked `@noRd` is out of scope, while `@keywords internal`
+  topics *can* carry a family.
+- §4 marks `msa_heatmap()` as superseded. Either leave it out of the family so
+  the grouping does not imply parity with `plot_tales_msa()`, or keep it in and
+  lean on an explicit deprecation note.
+
 ---
 
 ## 10. Explicitly ruled out
