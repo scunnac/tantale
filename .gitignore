@@ -1,5 +1,8 @@
-.R*
+.Rhistory
+.RData
+.Ruserdata
 tantale.Rproj
 .Rproj.user
 .Rprofile
 docs_temp
+README.html
