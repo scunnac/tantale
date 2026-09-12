@@ -90,15 +90,41 @@ tales_consensus_match <- function(align, long = TRUE) {
 #' @param input_seqs Any object accepted as input by the
 #'  \code{\link[tantale:split_list]{split_list}} function, such as the path to a fasta file containing the TALE sequences to be aligned or the \code{coded.repeats.str} slot of the object returned by the \code{\link[tantale:distalr]{distalr}} function. Can also be the return value of the \code{\link[tantale:tale_parts_to_rvd]{tale_parts_to_rvd}} function if one wants to align RVD sequences.
 #'
-#' @param sep Passed to \code{split_list()} to split the TALEs strings in input.
+#' @param sep Passed to \code{as_tales()} to split the TALEs strings in input.
 #' @param repeat_sims A long, three columns data frame with pairwise similarity scores between repeats as available in the \code{repeat.similarity slot} of the object returned by the \code{\link[tantale:distalr]{distalr}} function.
 #' @param mafft_opts A character string containing additional options for the MAFFT command. This is notably useful to tweak the Gap opening and gap extension penalties.
 #' @param mafft_path Path to a MAFFT installation directory. By default uses the MAFFT version included in tantale.
 #' @param gap_symbol Specify a alternative symbol for gaps in the alignments.
 #'
 #' @return A character matrix representing the multiple alignment.
+#'
+#' @section Deprecated:
+#' Superseded by \code{\link{tales_align}}, which takes and returns typed
+#' objects: a \code{\link{tales}} in, a \code{\link{tales_msa}} out. The
+#' alignment then carries every residue layer at once instead of one per
+#' matrix, and the layer to align on is given explicitly rather than guessed
+#' from a list of frequent RVDs. Use \code{as.matrix()} on the result to get
+#' this function's matrix back.
+#'
+#' @seealso \code{\link{tales_align}}
 #' @export
 build_repeat_msa <- function(input_seqs, sep = " ", repeat_sims = NULL,
+                             mafft_opts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1",
+                             mafft_path = system.file("tools", "mafft-linux64", package = "tantale", mustWork = TRUE),
+                             gap_symbol = NA) {
+  .Deprecated("tales_align")
+  .build_repeat_msa(input_seqs = input_seqs, sep = sep, repeat_sims = repeat_sims,
+                    mafft_opts = mafft_opts, mafft_path = mafft_path,
+                    gap_symbol = gap_symbol)
+}
+
+#' Align TALE sequences with MAFFT text mode
+#'
+#' Implementation behind \code{\link{tales_align}} and the deprecated
+#' \code{\link{build_repeat_msa}}. Internal so that package code can call it
+#' without tripping the deprecation warning.
+#' @noRd
+.build_repeat_msa <- function(input_seqs, sep = " ", repeat_sims = NULL,
                            mafft_opts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1",
                            mafft_path = system.file("tools", "mafft-linux64",package = "tantale", mustWork = TRUE),
                            gap_symbol = NA) {
@@ -119,7 +145,7 @@ build_repeat_msa <- function(input_seqs, sep = " ", repeat_sims = NULL,
   #Encoding(asciitableForMafft$printable) <- "bytes"
   
   # Load repeat/RVD sequences
-  seqsAsVectors <- suppressWarnings(split_list(input_seqs, sep = sep))
+  seqsAsVectors <- suppressWarnings(.split_list(input_seqs, sep = sep))
   residues <- unique(unlist(seqsAsVectors))
   
   # Deals with cases where the nomber of sequences is < 2

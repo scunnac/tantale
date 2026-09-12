@@ -99,6 +99,27 @@ tales_namespace <- function(x) {
   attr(x, "dom_code_namespace", exact = TRUE)
 }
 
+#' Compute the dom_code namespace identifier for a set of parts
+#'
+#' A content hash of the sorted unique amino acid sequences of a run.
+#'
+#' Hashing exactly that set is not arbitrary: \code{dom_code} is
+#' \code{cur_group_id()} over \code{aa_seq} (verified), so the code assignment is
+#' a deterministic function of the sorted unique sequences and nothing else. Two
+#' runs over identical parts therefore hash alike and are correctly treated as
+#' compatible, while any change to the part set yields a different namespace.
+#'
+#' \code{xxhash64} is used rather than a cryptographic digest: this is an
+#' identity tag guarding against accidental cross-run joins, not a security
+#' boundary, so a short fast hash is the right trade.
+#'
+#' Called once, where a run is defined; never recomputed on a subset — that is
+#' the whole point of the tag.
+#' @noRd
+.tales_dom_code_namespace <- function(aa_seq) {
+  digest::digest(sort(unique(as.character(aa_seq))), algo = "xxhash64")
+}
+
 
 #' Create a tales object
 #'
@@ -188,7 +209,7 @@ as_tales.data.frame <- function(x, ...) {
 #' @export
 as_tales.default <- function(x, sep = "-", residue_col = c("rvd", "dom_code"), ...) {
   residue_col <- match.arg(residue_col)
-  seqs <- split_list(x, sep = sep)
+  seqs <- .split_list(x, sep = sep)
 
   if (is.null(names(seqs)) || anyNA(names(seqs)) || !all(nzchar(names(seqs)))) {
     cli::cli_abort(
@@ -222,7 +243,7 @@ as_tales.default <- function(x, sep = "-", residue_col = c("rvd", "dom_code"), .
 #' @return A validated \code{tales} object.
 #' @export
 tales_from_telltale <- function(telltale_dir) {
-  tales(tale_parts(telltale_dir))
+  tales(.tale_parts(telltale_dir))
 }
 
 

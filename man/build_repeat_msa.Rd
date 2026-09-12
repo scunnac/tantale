@@ -18,7 +18,7 @@ build_repeat_msa(
 \item{input_seqs}{Any object accepted as input by the
 \code{\link[tantale:split_list]{split_list}} function, such as the path to a fasta file containing the TALE sequences to be aligned or the \code{coded.repeats.str} slot of the object returned by the \code{\link[tantale:distalr]{distalr}} function. Can also be the return value of the \code{\link[tantale:tale_parts_to_rvd]{tale_parts_to_rvd}} function if one wants to align RVD sequences.}
 
-\item{sep}{Passed to \code{split_list()} to split the TALEs strings in input.}
+\item{sep}{Passed to \code{as_tales()} to split the TALEs strings in input.}
 
 \item{repeat_sims}{A long, three columns data frame with pairwise similarity scores between repeats as available in the \code{repeat.similarity slot} of the object returned by the \code{\link[tantale:distalr]{distalr}} function.}
 
@@ -35,4 +35,17 @@ A character matrix representing the multiple alignment.
 Perform multiple alignment of TALE repeat or RVD sequences using the \code{--text} mode of the \href{https://mafft.cbrc.jp/alignment/software/}{MAFFT} Multiple alignment program.
 
 By default, uses the simple scoring matrix defined in \href{https://mafft.cbrc.jp/alignment/software/textcomparison.html}{the text mode of MAFFT}. Users can optionally provide a custom scoring matrix.
+}
+\section{Deprecated}{
+
+Superseded by \code{\link{tales_align}}, which takes and returns typed
+objects: a \code{\link{tales}} in, a \code{\link{tales_msa}} out. The
+alignment then carries every residue layer at once instead of one per
+matrix, and the layer to align on is given explicitly rather than guessed
+from a list of frequent RVDs. Use \code{as.matrix()} on the result to get
+this function's matrix back.
+}
+
+\seealso{
+\code{\link{tales_align}}
 }

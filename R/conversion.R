@@ -14,8 +14,25 @@
 #'
 #' @return A list of named vectors representing the 'splited' sequence.
 #'
+#' @section Deprecated:
+#' Superseded by \code{\link{as_tales}}, which returns a validated
+#' \code{\link{tales}} object instead of a bare list, so array identity and
+#' part order are carried by the data rather than by convention.
+#'
+#' @seealso \code{\link{as_tales}}
 #' @export
 split_list <- function(strings, sep = "-") {
+  .Deprecated("as_tales")
+  .split_list(strings, sep = sep)
+}
+
+#' Split TALE sequence strings into vectors
+#'
+#' Implementation behind \code{\link{as_tales}} and the deprecated
+#' \code{\link{split_list}}. Internal so that package code can call it without
+#' tripping the deprecation warning.
+#' @noRd
+.split_list <- function(strings, sep = "-") {
   if (is.list(strings) &&
       any(sapply(strings, length) > 1)) {
       logger::log_error("The value provided for strings seems already to be splitted.")

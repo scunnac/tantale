@@ -66,7 +66,7 @@
     logger::log_error("The provided file does not seem to be an AnnoTALE RVDs file: {fasta}")
     stop()
   } else {
-    rvdTble <- split_list(fasta) %>%
+    rvdTble <- .split_list(fasta) %>%
       lapply(function(x) tibble::tibble(string = x,
                                         positionInCrd = 1:length(x))
              ) %>%
@@ -97,8 +97,25 @@
 #' @param telltale_dir Path to a \code{\link[tantale:tell_tales]{tell_tales}} run
 #'   output directory
 #' @return A tibble.
+#'
+#' @section Deprecated:
+#' Superseded by \code{\link{tales_from_telltale}}, which returns the same
+#' table as a validated \code{\link{tales}} object.
+#'
+#' @seealso \code{\link{tales_from_telltale}}
 #' @export
 tale_parts <- function(telltale_dir) {
+  .Deprecated("tales_from_telltale")
+  .tale_parts(telltale_dir)
+}
+
+#' Read TALE parts from a tell_tales output directory
+#'
+#' Implementation behind \code{\link{tales_from_telltale}} and the deprecated
+#' \code{\link{tale_parts}}. Internal so that package code can call it without
+#' tripping the deprecation warning.
+#' @noRd
+.tale_parts <- function(telltale_dir) {
   # Get info from telltale output dir
   # !!!! arrayID are assumed to be unique !!!!
   protPartsFiles <- list.files(telltale_dir, "TALE_Protein_parts.fasta", recursive = T, full.names = T)
@@ -122,7 +139,7 @@ tale_parts <- function(telltale_dir) {
   # .rvds_from_annotale_file() but I currently feel that it is good to
   # be aware of disagreements between AnnoTALE diagnostic on terminal domains presence in AA seqs
   # and nhmmer diagnostic on terminal domains CDS presence on DNA.
-  rvds <- split_list(list.files(path = telltale_dir,
+  rvds <- .split_list(list.files(path = telltale_dir,
                                         pattern = "rvdSequences.fas",
                                         recursive = F,
                                         full.names = T)

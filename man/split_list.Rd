@@ -20,3 +20,13 @@ A list of named vectors representing the 'splited' sequence.
 Load the content of fasta file containing TALE sequences (either RVD or Distal repeat code)
 and return a list of vectors each one composed of the individual elements of the sequence.
 }
+\section{Deprecated}{
+
+Superseded by \code{\link{as_tales}}, which returns a validated
+\code{\link{tales}} object instead of a bare list, so array identity and
+part order are carried by the data rather than by convention.
+}
+
+\seealso{
+\code{\link{as_tales}}
+}

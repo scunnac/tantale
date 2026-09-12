@@ -1,7 +1,7 @@
 
 
 test_that("build_repeat_msa result with RVDs is of expected dims",
-          {aln <- build_repeat_msa(input_seqs = system.file("extdata", "TalA_RVDSeqs_AnnoTALE.fasta",package = "tantale", mustWork = TRUE),
+          {aln <- .build_repeat_msa(input_seqs = system.file("extdata", "TalA_RVDSeqs_AnnoTALE.fasta",package = "tantale", mustWork = TRUE),
                                  sep = "-", repeat_sims = NULL,
                                  mafft_opts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1",
                                  mafft_path = system.file("tools", "mafft-linux64",package = "tantale", mustWork = TRUE),
@@ -11,7 +11,7 @@ test_that("build_repeat_msa result with RVDs is of expected dims",
 
 
 test_that("build_repeat_msa result with coded parts is of expected dims",
-          {aln <- build_repeat_msa(input_seqs = system.file("extdata", "small_Out_CodedRepeats.fa",package = "tantale", mustWork = TRUE),
+          {aln <- .build_repeat_msa(input_seqs = system.file("extdata", "small_Out_CodedRepeats.fa",package = "tantale", mustWork = TRUE),
                                  sep = " ", repeat_sims = NULL,
                                  mafft_opts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1",
                                  mafft_path = system.file("tools", "mafft-linux64",package = "tantale", mustWork = TRUE),
@@ -22,7 +22,7 @@ test_that("build_repeat_msa result with coded parts is of expected dims",
 
 test_that("build_repeat_msa throughts a warning and return a NA matrix if provided with empty sequences",
           {seqs <- Biostrings::BStringSet()
-          expect_warning(aln <- build_repeat_msa(input_seqs = seqs,
+          expect_warning(aln <- .build_repeat_msa(input_seqs = seqs,
                                                sep = " ", repeat_sims = NULL,
                                                mafft_opts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1",
                                                mafft_path = system.file("tools", "mafft-linux64",package = "tantale", mustWork = TRUE),
@@ -32,7 +32,7 @@ test_that("build_repeat_msa throughts a warning and return a NA matrix if provid
 
 test_that("build_repeat_msa deals properly with single sequence inputs",
           {seqs <- Biostrings::readBStringSet(system.file("extdata", "small_Out_CodedRepeats.fa",package = "tantale", mustWork = TRUE))
-          aln <- build_repeat_msa(input_seqs = seqs[1],
+          aln <- .build_repeat_msa(input_seqs = seqs[1],
                                 sep = " ", repeat_sims = NULL,
                                 mafft_opts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1",
                                 mafft_path = system.file("tools", "mafft-linux64",package = "tantale", mustWork = TRUE),

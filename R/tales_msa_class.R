@@ -249,7 +249,7 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
   seqs <- split(as.character(ord[[residue_col]]), ord$array_id)
   seqs <- lapply(seqs, paste, collapse = " ")
 
-  m <- build_repeat_msa(input_seqs = seqs, sep = " ", repeat_sims = repeat_sims,
+  m <- .build_repeat_msa(input_seqs = seqs, sep = " ", repeat_sims = repeat_sims,
                         gap_symbol = NA, ...)
 
   if (!setequal(rownames(m), unique(x$array_id))) {

@@ -26,3 +26,12 @@ amino acid sequences if relevant.
 
 **IMPORTANT**: telltale MUST have been run with the extremity_codes = TRUE
 }
+\section{Deprecated}{
+
+Superseded by \code{\link{tales_from_telltale}}, which returns the same
+table as a validated \code{\link{tales}} object.
+}
+
+\seealso{
+\code{\link{tales_from_telltale}}
+}
