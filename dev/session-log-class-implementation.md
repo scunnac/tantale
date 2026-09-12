@@ -136,15 +136,65 @@ declares `R (>= 3.6.3)`, so relying on base would break the stated minimum.
 
 ---
 
-## 5. Questions for you
+## 5. Questions — all answered
 
-1. **Hashing dependency.** §3.5's namespace tag is specified as a content hash
-   of the sorted unique `aa_seq` set. Base R has no general hash function;
-   `rlang::hash()` or `digest::digest()` would each be a new `Imports` entry
-   (both are already installed transitively). Which, or something else?
-2. **`as_tales()` default `residue_col = "rvd"`** — right default?
-3. **Deprecation timing.** `tale_parts()`, `split_list()` and `build_repeat_msa()`
-   are now each wrapped by a newer function but remain exported and undeprecated.
-   Deprecate now, or once the whole class layer is in place?
-4. Whether the `dom_code` ASCII-budget limit in §4 deserves a ledger §6 entry
-   (I did not add one unprompted).
+1. **Hashing dependency** → `digest`, "more focused, more hashing and crypto
+   functionality". Done, see §6.
+2. **`as_tales()` default `residue_col = "rvd"`** → fine, kept.
+3. **Deprecation timing** → start deprecating. Done, see §6.
+4. **Ledger entry for the ASCII-budget limit** → no. It stays recorded in §4 of
+   this log only.
+
+---
+
+## 6. Follow-up work (commit `309cdb8`)
+
+**6.1 `dom_code` namespace hash** — `digest` added to `Imports`;
+`.tales_dom_code_namespace()` hashes the sorted unique `aa_seq` set with
+`xxhash64`.
+
+**[V]** Verified the premise the design rests on: `dom_code` is *exactly*
+`cur_group_id()` over `aa_seq` on the real fixture, so the code assignment is a
+deterministic function of that sorted unique set and nothing else — which is
+why hashing it is the correct namespace. Also verified the hash is
+order-independent, duplicate-independent, content-sensitive, and **stable
+across separate R sessions**.
+
+`xxhash64` rather than a cryptographic digest **[D]**: this is an identity tag
+guarding against accidental cross-run joins, not a security boundary.
+
+Still not *stamped* anywhere — that belongs to `tales_relatedness()`, which
+does not exist yet.
+
+**6.2 Deprecations** — `tale_parts()` → `tales_from_telltale()`,
+`split_list()` → `as_tales()`, `build_repeat_msa()` → `tales_align()`.
+
+Each keeps its exported name and behaviour, gains a `@section Deprecated:`
+explaining what supersedes it and why, and now calls an internal
+implementation (`.tale_parts()`, `.split_list()`, `.build_repeat_msa()`). The
+split was necessary, not cosmetic: all three are called from inside the
+package, so without it the package would warn at itself.
+
+**[D]** Used base `.Deprecated()` rather than `cli` or `lifecycle`. It is the
+purpose-built signal, produces a classed `deprecatedWarning` with a real
+message, and is what `R CMD check` expects. §9.5's complaint is about the ad
+hoc four-idiom mess, not about base's deprecation mechanism; no new dependency
+either.
+
+**6.3 A test-integrity problem the deprecation created, and fixed**
+
+Three existing tests asserted behaviour with bare `expect_warning()` — e.g.
+`expect_warning(tale_parts(<dir missing an N-term>))`. Once `tale_parts()`
+always warns, **those tests pass on the deprecation warning alone**, and would
+keep passing if the behaviour they check disappeared. They cannot be tightened
+with `regexp=` either, because the intended warnings are the empty-message ones
+recorded in ledger §9.5.
+
+Fixed by pointing `test_tale_parts.R`, `test_split_list.R` and
+`test_build_repeat_msa.R` at the internal implementations, so their assertions
+again depend only on real behaviour, and adding `test_deprecations.R` to check
+the warnings themselves (by class, `deprecatedWarning`) plus that the wrappers
+still return what they always did.
+
+Full suite after this work: **161 passing, 0 failures, 0 errors** across all 14
+test files.
