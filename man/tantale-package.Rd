@@ -12,7 +12,7 @@ Please take a look at the package \href{https://scunnac.github.io/tantale}{websi
 for further details.
 }
 \details{
-\figure{tantale_logo.png}{options: width=100 alt="tantale_logo"}
+\figure{tantale_logo_small.gif}{options: width=100 alt="tantale_logo"}
 }
 \note{
 CAUTIONARY NOTES:

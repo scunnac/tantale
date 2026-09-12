@@ -1,6 +1,6 @@
 #'tantale: Transcription Activator-Like Effectors (TALEs) tools
 #'
-#'\figure{tantale_logo.png}{options: width=100 alt="tantale_logo"}
+#'\figure{tantale_logo_small.gif}{options: width=100 alt="tantale_logo"}
 #'
 #'
 #'@description An integrated collection of functions for (IDEALLY):

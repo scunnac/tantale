@@ -12,7 +12,7 @@ plot_tales_msa(
   h_cut = 90,
   ref_pattern = NULL,
   consensus = FALSE,
-  fill_type = "repeatClust"
+  fill_type = "repeat_clust"
 )
 }
 \arguments{
@@ -40,7 +40,7 @@ names to select the reference in the alignment.}
 \item{consensus}{(logical) Whether to display the consensus sequence
 **NOT IMPLEMENTED YET**}
 
-\item{fill_type}{Either "repeatClust" or "repeat_sim". If both options are
+\item{fill_type}{Either "repeat_clust" or "repeat_sim". If both options are
 possible because the necessary information is there (at least a
 \code{repeat_sim} value), this argument will decide what type of 'box color
 filling' is employed and it is either based on the cluster where the repeat
