@@ -565,6 +565,115 @@ Points to settle when applying:
   the grouping does not imply parity with `plot_tales_msa()`, or keep it in and
   lean on an explicit deprecation note.
 
+### 9.5 Unify the user-messaging system **[A]**
+
+Current state — four idioms coexisting, ~190 call sites:
+
+| idiom | count | channel |
+|---|---|---|
+| `logger::log_*()` | 86 (info 24, debug 12, warn 16, error 34) | logger appender |
+| `stop()` | 57 | condition |
+| `stopifnot()` | 16 | condition |
+| `warning()` | 10 | condition |
+| `cat()` | 10 | **stdout** |
+| `message()` | 7 | stderr |
+| `print()` | 6 | **stdout** |
+| `cli_*()` | 1 | condition |
+
+`logger` is the *dominant* idiom, not a minority — concentrated in
+[distalr.R](../R/distalr.R) (30) and [msa.R](../R/msa.R) (22). `cli` is
+already in `Imports` but used in exactly one place,
+[startup.R:3](../R/startup.R#L3).
+
+#### Correctness problems, not just style **[V]**
+
+These need fixing regardless of which system wins:
+
+1. **22 bare `stop()` and 1 bare `warning()`** produce a condition whose
+   message is the **empty string** (verified). The diagnostic text was sent to
+   the logger on the preceding line, so the R condition itself carries nothing.
+   Consequences: `tryCatch`/`conditionMessage` see nothing, `expect_error(regexp=)`
+   cannot assert on them, and if the user's logger threshold or appender sends
+   ERROR elsewhere the failure is **completely silent with a blank message**.
+   The `log_error(...)` + `stop()` pairing at
+   [distalr.R:66](../R/distalr.R#L66), [:149](../R/distalr.R#L149) and the
+   `log_warn(...)` + `warning()` at [:144](../R/distalr.R#L144) are the pattern
+   to look for.
+
+2. **[distalr.R:563](../R/distalr.R#L563)** —
+   `logger::log_errors() && stop("'aln_method' parameter must be either ...")`.
+   `log_errors()` (plural) is not a predicate; it installs a global error
+   handler via `globalCallingHandlers()`. The `&&` short-circuits on its return
+   value, so **the intended message is unreachable** — the user passing a bad
+   `aln_method` gets `should not be called with handlers on the stack`
+   (verified). Also a hidden global side effect fired from inside a function.
+
+3. **`logger` is never configured by the package** — no `log_threshold()`,
+   `log_appender()`, `log_layout()`, and crucially no **namespace**. tantale
+   therefore reads and writes the *user's global* logger settings: someone who
+   sets `log_threshold(WARN)` for their own code silently loses tantale's
+   progress output, and tantale cannot adjust verbosity without stomping their
+   configuration. The `namespace =` argument exists for exactly this and is
+   unused.
+
+4. **`cat()`/`print()` write to stdout**, so they cannot be silenced with
+   `suppressMessages()` and they contaminate captured output. In a package,
+   user-facing narration belongs on stderr.
+
+5. **`import(cli)` and `import(logger)`** in NAMESPACE are whole-package
+   imports (~200 symbols from cli alone). Call sites are also inconsistently
+   qualified — `logger::log_error()` at [distalr.R:66](../R/distalr.R#L66)
+   versus bare `log_error()` at [:107](../R/distalr.R#L107). Should be
+   `importFrom` or fully qualified.
+
+6. [startup.R:9](../R/startup.R#L9) wraps `cli_inform(class = "packageStartupMessage")`
+   inside `packageStartupMessage()`. `cli_inform()` already signals the
+   condition and returns `NULL`, so the outer call re-emits an empty message.
+
+#### The framing to apply
+
+"logger vs cli" is not quite the right axis — they solve different problems:
+
+- **logger** is a *logging framework*: severity thresholds, appenders
+  (destinations, incl. files), namespaces, layouts. For diagnostics that are
+  filtered by level and may persist.
+- **cli** is *console UI + condition signalling*: semantic bullets, glue
+  interpolation, pluralisation, progress bars, and `cli_abort()` / `cli_warn()`
+  / `cli_inform()`, which are classed-condition wrappers.
+
+So split the ~190 calls by **what they are**, not by which package is fashionable:
+
+| kind | count | target |
+|---|---|---|
+| conditions the caller might catch | 57 `stop` + 10 `warning` + 16 `stopifnot` | `cli::cli_abort()` / `cli::cli_warn()` |
+| narration of what is happening | `cat`, `print`, `message`, most `log_info` | `cli::cli_inform()` / `cli_alert_*()` |
+| long-running external tool progress | parts of distalr/telltale | `cli::cli_progress_bar()` |
+| level-filtered developer diagnostics | `log_debug`, table dumps via `skip_formatter(kable(...))` | the open question below |
+
+Converting the condition-signalling third is unambiguous and carries the most
+value: it makes the 23 empty messages impossible by construction, and classed
+conditions make errors assertable in the test suite (§8) via
+`expect_error(class = )` instead of brittle regex matching.
+
+#### The one real decision
+
+Whether to keep `logger` at all, for the level-filtered debug channel.
+
+- **Drop it** — one system, one mental model; removes a dependency; `cli` covers
+  narration and progress better. Cost: lose threshold filtering and the
+  `skip_formatter(kable(...))` table dumps, which have no direct cli
+  equivalent (`cli_verbatim()` is the closest).
+- **Keep it, namespaced** — `logger::log_threshold(..., namespace = "tantale")`
+  and debug-level only, with **every** user-facing message and every condition
+  moved to cli. Justified if a persistent log file of a long pipeline run is
+  genuinely wanted.
+
+Either is defensible; what is not defensible is the current state, where the
+two overlap with no boundary. Recommendation: **cli for everything
+user-facing, and drop logger unless the log-file use case is real** — the
+package's own usage is dominated by narration and errors, not by diagnostics
+anyone filters by level.
+
 ---
 
 ## 10. Explicitly ruled out
