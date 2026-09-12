@@ -264,7 +264,18 @@ nothing.
    absolute claims, so both survive row subsetting.
 6. `position_in_crd` is `NA` exactly on non-repeat rows **[V]**, and unique
    within `array_id` where non-`NA`.
-7. The `position_in_crd` ↔ `position_in_array` offset relation of §2.2 **[V]**.
+7. **Order agreement** between the two coordinate systems: among the repeats of
+   an array, ranking by `position_in_crd` gives the same order as ranking by
+   `position_in_array`.
+
+   *Corrected during implementation.* This invariant originally stated the
+   **exact offset relation** of §2.2. That is wrong: the relation is not closed
+   under subsetting. After `filter(domain_type == "repeat")` the N-terminus is
+   gone, so "non-repeat parts before it" is 0 on the subset while
+   `position_in_crd` still carries the offset from the complete array — the
+   relation fails on an object we agreed is valid. Order agreement is the part
+   that survives, and the exact relation moves to a precondition
+   (`tales_assert_complete()`). Caught by a test, not by inspection.
 8. `aa_seq` ↔ `dom_code` is **bijective** — same `aa_seq` ⟺ same `dom_code`
    **[V]**. This is what makes `repeat_to_rvd_map_distalr()` well-defined
    instead of a guess.
@@ -277,18 +288,22 @@ nothing.
 
 **Explicitly not invariants (preconditions instead):**
 
-- **Completeness** — "array holds all its parts, numbered from 1". Required by
+- **Completeness** — "array holds all its parts, numbered from 1", *and* the
+  exact `position_in_crd` offset relation of §2.2. Required by
   `tales_align()`, since it is what makes the mafft back-mapping
   well-defined. Broken legitimately by `filter(domain_type == "repeat")`.
+  Implemented as `tales_assert_complete()`.
 - **Non-empty `aa_seq`** — required by `tales_relatedness()`, which errors
   today (`distalr.R:487-493`). A `tales` built from RVD strings has no
   `aa_seq` at all.
 - Uniform array length — arrays legitimately differ in repeat count.
 
 **Closure property [V]:** with completeness demoted, every invariant above is
-closed under row subsetting — checked individually for uniqueness,
-integrality, at-most-one-terminus, the bijection, constant `seq_name` and the
-offset relation. This is what makes the dplyr policy in §2.6 cheap.
+closed under row subsetting — now *tested*, not just reasoned about, for
+uniqueness, integrality, at-most-one-terminus, the bijection, constant
+`seqnames` and order agreement. This is what makes the dplyr policy in §2.6
+cheap. The one property that failed this test is recorded in invariant 7
+above.
 
 ### 2.5 The anchor sentinels **[V]**
 
@@ -308,6 +323,13 @@ ordinary alignable symbol.
 - `dplyr_reconstruct()` — checks **only the column contract** (§2.3). Keeps the
   class if it holds, degrades silently to tibble otherwise. Never re-checks
   rows: by the closure property, it doesn't need to.
+- `[.tales` — the same contract check. **[V]** Necessary, and not redundant
+  with the above: dplyr's `dplyr_col_select()` calls `dplyr_reconstruct()`
+  *only* for plain `data.frame`/`data.table` (verified, dplyr 1.2.1); for a
+  tibble subclass it relies entirely on the class's own `[`. Without
+  `[.tales`, `select(x, -array_id)` silently keeps the class on an object that
+  no longer satisfies the contract. Pinned by a test, since it depends on
+  dplyr internals.
 - `dplyr_col_modify()` — additionally checks key uniqueness, one
   `anyDuplicated()`. `mutate()` overwrites values in place and *can* collide
   the key (`mutate(array_id = seq_name)` merges arrays from one contig); row
