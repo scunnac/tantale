@@ -3,3 +3,8 @@
 ^dev$
 ^data-raw$
 ^extra$
+^docs$
+^docs_temp$
+^_pkgdown\.yml$
+^pkgdown$
+^README\.html$
