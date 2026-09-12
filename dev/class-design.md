@@ -57,14 +57,78 @@ first:
 | `split_list()` | `as_tales()` | ingests fasta / `XStringSet` / list |
 | `tale_parts(dir)` | `tales_from_telltale(dir)` | may be called inside `tell_tales()` |
 | `tell_tales()` | `tell_tales()` | unchanged |
-| `distalr()` | `tales_relatedness()` | name **[P]** |
+| `distalr()` | `tales_relatedness()` | see 1.2 |
 | `group_tales()` | `tales_group()` | |
 | `build_repeat_msa()` | `tales_align()` | |
 | `plot_tales_msa()` | `plot.tales_msa()` | becomes a method, not a function |
-| `talvez()`, `preditale()` | `tales_predict_targets()` | one generic, backend argument **[P]** |
+| `talvez()`, `preditale()` | `tales_predict_targets()` | generic; both survive as backends, see 1.3 |
 
 Base generics stay verb-first by necessity: `print()`, `format()`, `plot()`,
 `as.matrix()`, `[`.
+
+### 1.2 `distalr()` → `tales_relatedness()` **[A]**
+
+**[V]** The current name refers to a tool the function no longer runs. Its one
+external call is to ARLEM (`distalr.R:627`); repeat dissimilarities now come
+from DECIPHER / mmseq2 / Biostrings via `aln_method`. DISTAL survives only as
+an *input format* — `.format_repeat_dist_mat()` reads a `*_Repeatmatrix.mat`
+file produced by Distal-1.2, used by `build_repeat_msa()` (`msa.R:178`). That
+compatibility is kept; the name is not.
+
+`tales_relatedness()` over `tales_similarity()` deliberately: the latter would
+collide confusingly with the `pairwise_sim` class it *returns*.
+
+**Documentation requirement.** The rename must not obscure the provenance —
+the function is largely an R rewrite of the DisTAL Perl code. The existing
+description already states this well (`distalr.R:455-459`: "An R
+re-implementation of the original DisTal Perl program: it still uses the Arlem
+binary for the same repeat-array alignment step…"); what it lacks is a
+**citation**. Add the QueTAL suite paper, already used elsewhere in the
+package for exactly this tool — <https://doi.org/10.3389/fpls.2015.00545>
+(`README.md:28`, `AnnoTALE_QueTAL_functions_library.R:156`).
+
+**[P]** ARLEM itself has **no citation anywhere in the package** — only the
+bundled binary at `inst/tools/arlem/arlem`. Worth adding one in the same pass
+if the reference is known; not invented here.
+
+### 1.3 `talvez()` / `preditale()` → `tales_predict_targets()` **[A]**
+
+**[V]** The two outputs are *already* deliberately unified. Both roxygen blocks
+carry the same sentence — "column names have been modified … **in order to
+homogenize column names across TALE target prediction programs in tantale**" —
+and both rename into the same vocabulary (`subjSeqId`, `score`, `ebeSeq`,
+`taleId`, `start`, `end`, `strand`; `target_predictions.R:67`, `:186`). The
+package already treats these as one operation with interchangeable backends;
+the API just never said so.
+
+```r
+tales_predict_targets(x, subject, method = c("talvez", "preditale"), ...)
+```
+
+Tool-specific arguments (`talvez_dir`/`conda_bin` vs `predictor_path`, and the
+differing `opt_param` defaults `"-t 0 -l 19"` vs `""`) pass through `...`, and
+**must be documented per backend** rather than left to `...`'s usual vagueness.
+
+**`talvez()` and `preditale()` remain exported, with their own help pages.**
+This is deliberate, not a transitional courtesy: their documentation carries
+the citations to the original tools — Talvez
+<https://doi.org/10.1371/journal.pone.0068464> (`target_predictions.R:92`) and
+PrediTALE <https://www.jstacs.de/index.php/PrediTALE>
+(`target_predictions.R:10`) — and folding them into one page would orphan
+those attributions. They are also the natural place to document each backend's
+own options. Naming them after the tools they wrap is a legitimate exception to
+`object_verb` (rule 1): they are proper nouns.
+
+**[P]** PrediTALE's reference is a tool page, not a paper; Talvez's is a DOI.
+Worth levelling up if PrediTALE has a citable publication.
+
+### 1.4 Provenance is a design constraint **[A]**
+
+Generalising from 1.2 and 1.3: `tantale` is largely a wrapper and
+reimplementation layer over published tools, so **no rename or merge may
+orphan a tool citation**. Any function that disappears into a generic must
+leave its references somewhere a user can still find them — normally by
+surviving as a documented backend.
 
 ### 1.1 Column names **[A]**
 
@@ -83,7 +147,7 @@ prerequisite for the similarity-table unification. The target schema for
 | `domCode` | `dom_code` |
 | `sourceDirectory` | `source_directory` |
 | `rvd` | `rvd` |
-| `seqnames` | **[P]** — `seq_name`, or kept as `seqnames` for Bioconductor familiarity |
+| `seqnames` | `seqnames` — **kept**, deliberately, for Bioconductor familiarity (`GenomicRanges`/`Biostrings` spell it this way). The one sanctioned exception to snake_case in this schema. |
 
 The rest of this document uses the target names.
 
@@ -275,8 +339,8 @@ Current state **[V]**:
 | `repeat.similarity` | `RepU2`, `RepU1` (that order) | `Dissim`, `Sim` |
 | `tal.similarity` | `TAL1`, `TAL2` | `arlemScore`, `maxLength`, `normArlemScore`, `Sim` |
 
-Decision: **canonical id columns** (`id1`, `id2` **[P]** — names not final),
-with entity type carried by the subclass, not by column naming. Rejected the
+Decision: **canonical id columns** `id1` and `id2` **[A]**, with entity type
+carried by the subclass, not by column naming. Rejected the
 alternative of keeping `TAL1`/`RepU1` and recording the names in an attribute:
 an attribute naming columns goes stale the moment one is renamed, and would
 have to be policed in `dplyr_col_modify()`. Canonical names also fix the
@@ -470,10 +534,16 @@ pre-made fasta — which is why the input type is not a union.
 
 ## 5. Open questions
 
+All structural questions are closed. What remains is a small documentation
+debt, carried from §1.2 and §1.3.
+
 | # | question | ref |
 |---|---|---|
-| 1 | `seqnames` → `seq_name`, or keep the Bioconductor spelling? | §1.1 |
-| 2 | Final names for the canonical similarity id columns (`id1`/`id2`?) | §3.3 |
+| ~~1~~ | ~~`seqnames` → `seq_name`?~~ **Resolved** — kept as `seqnames` | §1.1 |
+| ~~2~~ | ~~Canonical similarity id column names~~ **Resolved** — `id1`/`id2` | §3.3 |
 | ~~3~~ | ~~Is cross-object `dom_code` coherence enforced or documented?~~ **Resolved** — enforced by a namespace tag; no container needed | §3.5 |
 | ~~4~~ | ~~`tales_msa` key~~ **Resolved** — `array_id` × `alignment_position`; the inherited key remains valid too, since gaps are implicit | §4.2 |
-| 5 | `distalr()`'s new name; one `tales_predict_targets()` generic over both backends? | §1 |
+| ~~5a~~ | ~~`distalr()`'s new name~~ **Resolved** — `tales_relatedness()`, with the DisTAL provenance cited | §1.2 |
+| ~~5b~~ | ~~One generic over both prediction backends?~~ **Resolved** — yes; `talvez()`/`preditale()` stay exported and documented | §1.3 |
+| 6 | **[P]** ARLEM has no citation anywhere in the package — add one if the reference is known | §1.2 |
+| 7 | **[P]** PrediTALE is cited by tool page, not paper — level up if a publication exists | §1.3 |
