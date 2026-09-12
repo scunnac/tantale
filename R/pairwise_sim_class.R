@@ -1,0 +1,317 @@
+##### The 'pairwise_sim' class #####
+# The long form of a square pairwise similarity over one entity set: one row per
+# ordered pair. Subclasses 'tale_sim' and 'repeat_sim' add no structure, only
+# entity semantics. See dev/class-design.md §3.
+#
+# Squareness, a diagonal of 100 and symmetry are *preconditions*, not
+# invariants: the package legitimately filters these tables asymmetrically
+# (conversion.R, inside a loop over alignment columns) and in two steps
+# (msa.R), passing through non-square intermediates on purpose.
+
+
+#### Column schema ####
+
+PAIRWISE_SIM_ID_COLS <- c("id1", "id2")
+PAIRWISE_SIM_VALUE_COL <- "sim"
+
+PAIRWISE_SIM_OPTIONAL_COLS <- c(
+  "dissim", "arlem_score", "max_length", "norm_arlem_score"
+)
+
+# Legacy spellings -> canonical. Both entity vocabularies collapse onto the
+# same id columns; renaming by name also fixes repeat.similarity listing its
+# ids in the order RepU2, RepU1.
+PAIRWISE_SIM_LEGACY_NAMES <- c(
+  TAL1           = "id1",
+  TAL2           = "id2",
+  RepU1          = "id1",
+  RepU2          = "id2",
+  Sim            = "sim",
+  Dissim         = "dissim",
+  arlemScore     = "arlem_score",
+  maxLength      = "max_length",
+  normArlemScore = "norm_arlem_score"
+)
+
+
+#### Constructors ####
+
+#' Low-level constructor for a pairwise_sim object
+#'
+#' @param x A tibble.
+#' @param subclass Optional entity subclass, \code{"tale_sim"} or
+#'   \code{"repeat_sim"}.
+#' @param dom_code_namespace Optional scalar string, see
+#'   \code{\link{tales_namespace}}.
+#' @return A \code{pairwise_sim} object.
+#' @keywords internal
+new_pairwise_sim <- function(x, subclass = NULL, dom_code_namespace = NULL) {
+  stopifnot(is.data.frame(x))
+  x <- tibble::as_tibble(x)
+  if (!is.null(dom_code_namespace)) {
+    attr(x, "dom_code_namespace") <- dom_code_namespace
+  }
+  class(x) <- unique(c(subclass, "pairwise_sim", class(x)))
+  x
+}
+
+#' Is this a pairwise similarity table?
+#' @param x An object.
+#' @return A logical scalar.
+#' @export
+is_pairwise_sim <- function(x) inherits(x, "pairwise_sim")
+
+#' Create a pairwise similarity table
+#'
+#' The long form of a square pairwise similarity over one entity set: one row
+#' per ordered pair of entities, with a \code{sim} score.
+#'
+#' \code{tale_sim()} and \code{repeat_sim()} are the entity-specific flavours:
+#' similarity between whole TALE arrays, and between individual repeat units.
+#' They add no structure, only semantics — every method is written once on the
+#' parent.
+#'
+#' Legacy column spellings (\code{TAL1}/\code{TAL2}, \code{RepU1}/\code{RepU2},
+#' \code{Sim}, \code{Dissim}, \code{arlemScore}, ...) are renamed on the way in.
+#'
+#' @param x A data frame with \code{id1}, \code{id2} and \code{sim} columns.
+#'   Further columns (\code{dissim}, \code{arlem_score}, \code{max_length},
+#'   \code{norm_arlem_score}, or anything else) are preserved untouched.
+#' @param dom_code_namespace Optional scalar string identifying the run whose
+#'   \code{dom_code} values this table is keyed by, see
+#'   \code{\link{tales_namespace}}. Relevant for \code{repeat_sim()}, whose ids
+#'   *are* \code{dom_code}s.
+#' @return A validated \code{pairwise_sim} object.
+#' @export
+pairwise_sim <- function(x, dom_code_namespace = NULL) {
+  .new_validated_sim(x, subclass = NULL, dom_code_namespace = dom_code_namespace)
+}
+
+#' @rdname pairwise_sim
+#' @export
+tale_sim <- function(x, dom_code_namespace = NULL) {
+  .new_validated_sim(x, subclass = "tale_sim", dom_code_namespace = dom_code_namespace)
+}
+
+#' @rdname pairwise_sim
+#' @export
+repeat_sim <- function(x, dom_code_namespace = NULL) {
+  .new_validated_sim(x, subclass = "repeat_sim", dom_code_namespace = dom_code_namespace)
+}
+
+#' @noRd
+.new_validated_sim <- function(x, subclass, dom_code_namespace) {
+  if (!is.data.frame(x)) {
+    cli::cli_abort(
+      "{.arg x} must be a data frame, not {.obj_type_friendly {x}}.",
+      class = c("tantale_error_sim_type", "tantale_error")
+    )
+  }
+  x <- .pairwise_sim_rename_legacy(x)
+  for (nm in intersect(PAIRWISE_SIM_ID_COLS, names(x))) {
+    x[[nm]] <- as.character(x[[nm]])
+  }
+  validate_pairwise_sim(
+    new_pairwise_sim(x, subclass = subclass, dom_code_namespace = dom_code_namespace)
+  )
+}
+
+#' @noRd
+.pairwise_sim_rename_legacy <- function(x) {
+  hit <- intersect(names(x), names(PAIRWISE_SIM_LEGACY_NAMES))
+  if (length(hit) == 0L) return(x)
+  target <- unname(PAIRWISE_SIM_LEGACY_NAMES[hit])
+  clash <- intersect(target, names(x))
+  if (length(clash) > 0L) {
+    cli::cli_abort(
+      c("Cannot rename legacy columns: the target name{?s} {.field {clash}} {?is/are} already present.",
+        "i" = "Drop or rename the duplicate{?s} first."),
+      class = c("tantale_error_sim_name_clash", "tantale_error")
+    )
+  }
+  names(x)[match(hit, names(x))] <- target
+  x
+}
+
+
+#### Validator ####
+
+#' Validate a pairwise similarity table
+#'
+#' Checks the column contract, and nothing else. Squareness, the diagonal and
+#' symmetry are deliberately *not* checked here: the package filters these
+#' tables asymmetrically on purpose, so those properties are preconditions of
+#' the methods that need them — see \code{\link{sim_assert_square}}.
+#'
+#' @param x A \code{pairwise_sim} object.
+#' @return \code{x}, invisibly, if valid; otherwise an error.
+#' @export
+validate_pairwise_sim <- function(x) {
+  needed <- c(PAIRWISE_SIM_ID_COLS, PAIRWISE_SIM_VALUE_COL)
+  missing <- setdiff(needed, names(x))
+  if (length(missing) > 0L) {
+    cli::cli_abort(
+      "A {.cls pairwise_sim} object requires the column{?s} {.field {missing}}.",
+      class = c("tantale_error_sim_missing_column", "tantale_error")
+    )
+  }
+  for (nm in PAIRWISE_SIM_ID_COLS) {
+    if (!is.character(x[[nm]])) {
+      cli::cli_abort(
+        "{.field {nm}} must be a character vector, not {.obj_type_friendly {x[[nm]]}}.",
+        class = c("tantale_error_sim_type", "tantale_error")
+      )
+    }
+  }
+  if (!is.numeric(x[[PAIRWISE_SIM_VALUE_COL]])) {
+    cli::cli_abort(
+      "{.field {PAIRWISE_SIM_VALUE_COL}} must be numeric, not {.obj_type_friendly {x[[PAIRWISE_SIM_VALUE_COL]]}}.",
+      class = c("tantale_error_sim_type", "tantale_error")
+    )
+  }
+  if (nrow(x) == 0L) return(invisible(x))
+  if (anyNA(x$id1) || anyNA(x$id2)) {
+    cli::cli_abort("{.field id1} and {.field id2} must not contain {.val NA}.",
+                   class = c("tantale_error_sim_na", "tantale_error"))
+  }
+  invisible(x)
+}
+
+
+#### Preconditions ####
+
+#' Assert that a similarity table is complete and square
+#'
+#' Checks that the table holds every ordered pair of the ids it contains —
+#' \code{n^2} rows for \code{n} ids. Phrased over the ids *present*, so that a
+#' symmetric subset stays square: filtering both id columns to the same set of
+#' entities preserves this, while filtering one of them does not.
+#'
+#' A **precondition**, not an invariant. \code{conversion.R} filters on
+#' \code{id1} alone inside a loop over alignment columns, and \code{msa.R}
+#' filters the two id columns in succession, passing through a non-square
+#' intermediate. Both are correct; enforcing squareness everywhere would
+#' outlaw them.
+#'
+#' @param x A \code{pairwise_sim} object.
+#' @param arg Name of the argument being checked, for the error message.
+#' @return \code{x}, invisibly.
+#' @export
+sim_assert_square <- function(x, arg = "x") {
+  if (!is_pairwise_sim(x)) {
+    cli::cli_abort("{.arg {arg}} must be a {.cls pairwise_sim} object.",
+                   class = c("tantale_error_sim_type", "tantale_error"))
+  }
+  ids <- union(x$id1, x$id2)
+  n <- length(ids)
+  if (nrow(x) != n^2) {
+    missing1 <- setdiff(ids, x$id1)
+    missing2 <- setdiff(ids, x$id2)
+    cli::cli_abort(
+      c("{.arg {arg}} must hold every pair of the {n} id{?s} it contains ({n^2} row{?s}), but has {nrow(x)}.",
+        if (length(missing1)) c("x" = "Absent from {.field id1}: {.val {utils::head(missing1, 5)}}"),
+        if (length(missing2)) c("x" = "Absent from {.field id2}: {.val {utils::head(missing2, 5)}}"),
+        "i" = "Filtering both id columns to the same entities keeps a table square; filtering one does not."),
+      class = c("tantale_error_sim_not_square", "tantale_error")
+    )
+  }
+  invisible(x)
+}
+
+
+#### Views ####
+
+#' Render a similarity table as a square matrix
+#'
+#' Materialises the wide form, with ids as both row and column names, sorted.
+#' This replaces the hand-written \code{acast(x, id1 ~ id2, value.var = "sim")}
+#' that appears at four call sites in the package.
+#'
+#' @param x A \code{pairwise_sim} object.
+#' @param value Name of the column to fill cells with. Defaults to \code{sim}.
+#' @param ... Ignored.
+#' @return A numeric matrix, square, with sorted ids as dimnames.
+#' @method as.matrix pairwise_sim
+#' @export
+as.matrix.pairwise_sim <- function(x, value = PAIRWISE_SIM_VALUE_COL, ...) {
+  if (!value %in% names(x)) {
+    cli::cli_abort(
+      c("This table has no {.field {value}} column.",
+        "i" = "Available: {.field {setdiff(names(x), PAIRWISE_SIM_ID_COLS)}}"),
+      class = c("tantale_error_sim_layer", "tantale_error")
+    )
+  }
+  sim_assert_square(x)
+  ids <- sort(union(x$id1, x$id2))
+  m <- matrix(NA_real_, nrow = length(ids), ncol = length(ids),
+              dimnames = list(ids, ids))
+  m[cbind(match(x$id1, ids), match(x$id2, ids))] <- as.numeric(x[[value]])
+  m
+}
+
+#' Restrict a similarity table to a set of entities
+#'
+#' Filters **both** id columns, which is what keeps the result square. The
+#' package currently does this by hand at three call sites, in two steps.
+#'
+#' @param x A \code{pairwise_sim} object.
+#' @param ids A character vector of entity ids to keep.
+#' @return A \code{pairwise_sim} over \code{ids} only.
+#' @export
+sim_restrict <- function(x, ids) {
+  if (!is_pairwise_sim(x)) {
+    cli::cli_abort("{.arg x} must be a {.cls pairwise_sim} object.",
+                   class = c("tantale_error_sim_type", "tantale_error"))
+  }
+  ids <- as.character(ids)
+  absent <- setdiff(ids, union(x$id1, x$id2))
+  if (length(absent) > 0L) {
+    cli::cli_abort(
+      c("{length(absent)} requested id{?s} {?is/are} absent from the table.",
+        "x" = "{.val {utils::head(absent, 5)}}"),
+      class = c("tantale_error_sim_unknown_id", "tantale_error")
+    )
+  }
+  x[x$id1 %in% ids & x$id2 %in% ids, , drop = FALSE]
+}
+
+
+#### dplyr integration ####
+# Same policy as 'tales': the column contract is re-checked cheaply on every
+# verb, nothing else is. Squareness is not re-checked, by design.
+
+#' @exportS3Method dplyr::dplyr_reconstruct
+dplyr_reconstruct.pairwise_sim <- function(data, template) {
+  if (!.pairwise_sim_contract_holds(data)) {
+    return(.pairwise_sim_declass(data))
+  }
+  out <- NextMethod()
+  attr(out, "dom_code_namespace") <- tales_namespace(template)
+  out
+}
+
+# As for 'tales', dplyr's dplyr_col_select() does not call dplyr_reconstruct()
+# for a tibble subclass, so column-dropping is caught here.
+#' @export
+`[.pairwise_sim` <- function(x, ...) {
+  ns <- tales_namespace(x)
+  out <- NextMethod()
+  if (!is.data.frame(out)) return(out)
+  if (!.pairwise_sim_contract_holds(out)) return(.pairwise_sim_declass(out))
+  attr(out, "dom_code_namespace") <- ns
+  out
+}
+
+#' @noRd
+.pairwise_sim_contract_holds <- function(x) {
+  all(c(PAIRWISE_SIM_ID_COLS, PAIRWISE_SIM_VALUE_COL) %in% names(x)) &&
+    is.character(x$id1) && is.character(x$id2) &&
+    is.numeric(x[[PAIRWISE_SIM_VALUE_COL]])
+}
+
+#' @noRd
+.pairwise_sim_declass <- function(x) {
+  class(x) <- setdiff(class(x), c("tale_sim", "repeat_sim", "pairwise_sim"))
+  attr(x, "dom_code_namespace") <- NULL
+  tibble::as_tibble(x)
+}

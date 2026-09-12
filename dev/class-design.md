@@ -396,11 +396,19 @@ Column contract — **minimal**:
 
 | tier | columns |
 |---|---|
-| required | `id1`, `id2`, `Sim` |
-| optional | `Dissim`, `arlemScore`, `maxLength`, `normArlemScore` |
+| required | `id1`, `id2`, `sim` |
+| optional | `dissim`, `arlem_score`, `max_length`, `norm_arlem_score` |
 
 Minimal on purpose: `msa.R:176` legitimately selects down to three columns,
-dropping `Dissim`. Requiring `Dissim` would make correct existing code invalid.
+dropping `dissim`. Requiring it would make correct existing code invalid.
+
+*Corrected before implementation.* This table originally read `Sim`,
+`Dissim`, `arlemScore`, `maxLength`, `normArlemScore` — the existing spellings,
+carried over unchanged because only the *id* columns were being canonicalised
+at the time. That contradicted §1.1 and ledger §9.2, which settled snake_case
+for every table column. The value columns are renamed on the same terms as the
+ids; legacy spellings are accepted on input and normalised, exactly as for
+`tales`.
 
 ### 3.4 Invariants and preconditions **[A]**
 
