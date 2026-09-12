@@ -74,7 +74,7 @@
 #'   to guess the prefix from the input file name.
 #' @param annotale_jar Path to the AnnoTALE jar file if you want to use another
 #'   version than the one provided with tantale.
-#' @return Returns invisibly the edit code of the shell call to the last
+#' @return Returns invisibly the exit code of the shell call to the last
 #'   AnnoTALE step (ie '0' if successful).
 #' @export
 run_annotale_predict <- function(fasta_file,

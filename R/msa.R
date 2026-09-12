@@ -294,7 +294,10 @@ build_repeat_msa <- function(input_seqs, sep = " ", repeat_sims = NULL,
 #' @return the return value of \code{\link[gplots:heatmap.2]{heatmap.2}}
 #' 
 #' @export
-msa_heatmap <- function(tal_sim, repeat_align, rvd_align = NULL, repeat_sim, h_cut = 90, ref_pattern = NULL, consensus = FALSE, note_colors = NULL, plot_type, save_path, ...) {
+msa_heatmap <- function(tal_sim, repeat_align, rvd_align = NULL,
+                        repeat_sim, h_cut = 90, ref_pattern = NULL,
+                        consensus = FALSE, note_colors = NULL,
+                        plot_type, save_path, ...) {
   
   
   if (startsWith(plot_type, "repeat.clusters")) {
