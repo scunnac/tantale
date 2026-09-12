@@ -190,6 +190,10 @@ mechanism behave identically in both.
 
 ## 5. OOP restructuring
 
+> Detailed class definitions — identity, invariants, constructors, method
+> policy — now live in **`dev/class-design.md`**. This section stays the
+> ledger: what is settled, what is open, and why.
+
 **[A]** Settled so far:
 
 - Additive S3 — classes tag the native type (tibble/matrix stays a
@@ -219,19 +223,31 @@ mechanism behave identically in both.
   its column order, the package would silently mislabel data rather than error.
   This argues the classes need canonical representations and conversion
   *methods*, with validation as the second benefit rather than the first.
-- Whether `repeat_align`/`rvd_align` become parent + subclass (shared methods
+- ~~Whether `repeat_align`/`rvd_align` become parent + subclass (shared methods
   written once, since both are character matrices with `arrayID` rownames
-  differing only in cell meaning) rather than two peers.
-- Whether `tal.similarity` and `repeat.similarity` unify into one class. Their
-  current divergence looks accidental: different ID column names
-  (`TAL1`/`TAL2` vs `RepU1`/`RepU2`), different column *order* (`RepU2` precedes
-  `RepU1`), different extras (`arlemScore`/`maxLength`/`normArlemScore` vs
-  `Dissim`) — yet downstream code treats them interchangeably.
+  differing only in cell meaning) rather than two peers.~~ **Resolved — neither.**
+  They are two *value layers over one alignment geometry*, which a long
+  `tales_msa` carries simultaneously; the matrices become `as.matrix()` views.
+  See `class-design.md` §4. This is why `plot_tales_msa()` currently needs both
+  `repeat_align` and `rvd_align` as separate arguments — a matrix can only hold
+  one layer.
+- ~~Whether `tal.similarity` and `repeat.similarity` unify into one class.~~
+  **Resolved — yes**, parent `pairwise_sim` with `tale_sim`/`repeat_sim`
+  subclasses carrying entity semantics only, and canonical id columns. See
+  `class-design.md` §3. Their divergence was indeed accidental: different ID
+  column names (`TAL1`/`TAL2` vs `RepU1`/`RepU2`), different column *order*
+  (`RepU2` precedes `RepU1`), different extras
+  (`arlemScore`/`maxLength`/`normArlemScore` vs `Dissim`) — yet downstream code
+  treats them interchangeably.
 - **[V]** `domCode` is a whole-set-dependent surrogate key (`cur_group_id()`
   over `aaSeq`). Recomputing it on a subset renumbers everything and silently
   breaks the join to both similarity tables. It must be carried, never
   recomputed — a real invariant for a class to protect, and an argument that a
   `tale_parts` and its companion similarity tables must be subset coherently.
+  **Partly resolved** — "carried, never recomputed" is now invariant 4 of
+  `tales` (`class-design.md` §2.4). Whether cross-object coherence is
+  *enforced* or merely documented is still open (`class-design.md` §3.5), and
+  is the one question that could reintroduce a container object.
 
 Downstream consequence: a good part of the conversion functions can then be
 unexported.
@@ -261,6 +277,21 @@ Deferred to a dedicated pass on "computations that may not match intent":
 - `functal()` is blocked on uninstalled Perl deps (`List::MoreUtils`,
   `Bio::Perl` — the latter absent from the conda BioPerl package). Currently
   documented by its test.
+- **[V]** `tales_consensus_match(long = TRUE)` mislabels the alignment
+  coordinate as `positionInArray`
+  ([msa.R:74-76](../R/msa.R#L74-L76)). It melts an MSA matrix whose columns are
+  *alignment* positions — `build_repeat_msa()` sets
+  `colnames(...) <- 1:ncol(...)` on the **gapped** matrix
+  ([msa.R:233](../R/msa.R#L233)) — then asserts the name positionally. The two
+  coordinates diverge as soon as a gap is inserted: in
+  `sampleRepeatMsaByGroup.rds`, array `BAI3-1-1_ROI_00006` has 14 parts spread
+  over 18 columns, agreeing up to part 12 and then jumping — part 13 sits at
+  alignment position 17, part 14 at 18. Nothing errors, because the name is
+  asserted rather than derived. Another instance of the 16 positional
+  `colnames(x) <- c(...)` assignments noted in §5. **Expected to resolve
+  itself** when the alignment gains a real `alignment_position` coordinate
+  distinct from `position_in_array` (`class-design.md` §4) — listed here so it
+  is not lost if that design changes, not as separate work.
 
 ### ARLEM score semantics
 

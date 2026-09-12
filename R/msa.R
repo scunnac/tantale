@@ -51,8 +51,11 @@ tales_consensus <- function(align) {
 #'
 #' @param align A multiple Tal sequences alignment in the form of a
 #'   matrix.
+#' @param long Set to \code{TRUE} (default) to return a long tibble, or
+#'   \code{FALSE} to return a logical matrix with the same shape as
+#'   \code{align}.
 #' @return A multiple Tal sequences alignment in the form of a
-#'   matrix filled with logical values if \code{} is \code{FALSE} and
+#'   matrix filled with logical values if \code{long} is \code{FALSE} and
 #'   a long tibble representing the original alignment otherwise (default).
 #' 
 #' @export

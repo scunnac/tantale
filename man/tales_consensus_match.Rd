@@ -9,10 +9,14 @@ tales_consensus_match(align, long = TRUE)
 \arguments{
 \item{align}{A multiple Tal sequences alignment in the form of a
 matrix.}
+
+\item{long}{Set to \code{TRUE} (default) to return a long tibble, or
+\code{FALSE} to return a logical matrix with the same shape as
+\code{align}.}
 }
 \value{
 A multiple Tal sequences alignment in the form of a
-  matrix filled with logical values if \code{} is \code{FALSE} and
+  matrix filled with logical values if \code{long} is \code{FALSE} and
   a long tibble representing the original alignment otherwise (default).
 }
 \description{
