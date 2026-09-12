@@ -529,13 +529,22 @@ All of §2.4, unchanged — that is the point of 4.2. Plus:
 `L` (alignment width) is stamped as an **attribute**, not derived. Deriving it
 as `max(alignment_position)` is correct only while some array still occupies
 the last column; subsetting arrays can silently shrink it. Carried like the
-namespace tag, for the same reason.
+namespace tag, for the same reason. Read with `tales_width()`.
+
+**Degradation is graded** **[A]**, a refinement found while implementing:
+dropping `alignment_position` while keeping the `tales` contract demotes the
+object to a plain `tales` rather than all the way to a tibble. Both `[` and
+`dplyr_reconstruct()` go through one shared regrade step, so `tales_msa`
+needs no `[` method of its own — it inherits `[.tales`.
 
 **Preconditions, not invariants:**
 
-- **Grid completeness** — that the implied `arrays × 1:L` grid is fully
-  determined. Needed by `as.matrix()` and `plot()`; legitimately broken by
-  filtering arrays or positions.
+- ~~**Grid completeness**~~ — **struck during implementation.** With gaps
+  implicit, `as.matrix()` needs no completeness precondition at all: a missing
+  row *is* a gap, so the grid is always well defined, and the method simply
+  fills `arrays × 1:L` and places the rows it has. This is an unlooked-for
+  benefit of §4.2 — the implicit-gap representation removed a precondition
+  rather than adding one.
 - **No all-gap column** — true of mafft output, but subsetting arrays can
   empty a column. Honest under the implicit-gap representation: such a column
   simply has no rows.

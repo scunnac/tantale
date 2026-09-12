@@ -528,8 +528,7 @@ dplyr_reconstruct.tales <- function(data, template) {
     return(.tales_declass(data))
   }
   out <- NextMethod()
-  attr(out, "dom_code_namespace") <- tales_namespace(template)
-  out
+  .tales_regrade(out, template)
 }
 
 #' @exportS3Method dplyr::dplyr_col_modify
@@ -545,12 +544,11 @@ dplyr_col_modify.tales <- function(data, cols) {
 # dplyr_reconstruct() -- this is what makes select(x, -array_id) degrade.
 #' @export
 `[.tales` <- function(x, ...) {
-  ns <- tales_namespace(x)
+  template <- x
   out <- NextMethod()
   if (!is.data.frame(out)) return(out)
   if (!.tales_contract_holds(out)) return(.tales_declass(out))
-  attr(out, "dom_code_namespace") <- ns
-  out
+  .tales_regrade(out, template)
 }
 
 #' Drop the tales classes, leaving a plain tibble
@@ -560,7 +558,27 @@ dplyr_col_modify.tales <- function(data, cols) {
 .tales_declass <- function(x) {
   class(x) <- setdiff(class(x), c("tales_msa", "tales"))
   attr(x, "dom_code_namespace") <- NULL
+  attr(x, "alignment_width") <- NULL
   tibble::as_tibble(x)
+}
+
+#' Restore class and attributes after an operation, demoting if needed
+#'
+#' Degradation is graded: an object that loses \code{alignment_position} but
+#' keeps the \code{tales} contract becomes a plain \code{tales} rather than
+#' dropping all the way to a tibble.
+#' @noRd
+.tales_regrade <- function(out, template) {
+  attr(out, "dom_code_namespace") <- tales_namespace(template)
+  if (inherits(out, "tales_msa")) {
+    if (.tales_msa_contract_holds(out)) {
+      attr(out, "alignment_width") <- attr(template, "alignment_width", exact = TRUE)
+    } else {
+      class(out) <- setdiff(class(out), "tales_msa")
+      attr(out, "alignment_width") <- NULL
+    }
+  }
+  out
 }
 
 #' @keywords internal
