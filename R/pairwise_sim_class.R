@@ -111,6 +111,11 @@ repeat_sim <- function(x, dom_code_namespace = NULL) {
   for (nm in intersect(PAIRWISE_SIM_ID_COLS, names(x))) {
     x[[nm]] <- as.character(x[[nm]])
   }
+  # Canonical column order, not just canonical names: repeat.similarity lists
+  # its ids as RepU2, RepU1, so renaming alone would leave the two tables
+  # ordered differently -- the rule-5 wart this class exists partly to fix.
+  lead <- intersect(c(PAIRWISE_SIM_ID_COLS, PAIRWISE_SIM_VALUE_COL), names(x))
+  x <- x[c(lead, setdiff(names(x), lead))]
   validate_pairwise_sim(
     new_pairwise_sim(x, subclass = subclass, dom_code_namespace = dom_code_namespace)
   )

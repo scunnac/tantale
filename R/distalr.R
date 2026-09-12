@@ -497,6 +497,150 @@ plot_tale_composition <- function(tale_parts) {
 #' @export
 distalr <- function(tale_parts, h_cut = 10, ncores = 1,
                     aln_method = "DECIPHER", conda_bin = "auto") {
+  .Deprecated("tales_relatedness")
+  core <- .tales_relatedness_core(tale_parts = tale_parts, ncores = ncores,
+                                  aln_method = aln_method, conda_bin = conda_bin)
+  tale_parts <- core$tale_parts
+  dissimLong <- core$dissim_long
+
+  list(
+    tale_parts = tale_parts,
+    "repeats.code" = tale_parts %>%
+      dplyr::group_by(domCode, aaSeq, rvd) %>%
+      dplyr::count() %>%
+      dplyr::rename(code = domCode, "AA Seq" = aaSeq) %>%
+      dplyr::mutate(code = as.integer(code)) %>%
+      dplyr::select(-n) %>%
+      dplyr::ungroup(),
+    "coded.repeats.str" = core$coded_seq_set,
+    "repeat.similarity" = dissimLong %>% dplyr::rename(RepU1 = subj, RepU2 = pattern),
+    "tal.similarity" = core$tal_sim,
+    "repeats.cluster" = .cluster_repeats(
+      repeat_sim_mat = reshape2::acast(dissimLong, formula = subj ~ pattern, value.var = "Sim"),
+      h_cut = h_cut
+    )
+  )
+}
+
+
+#' Compute TALE and repeat relatedness
+#'
+#' Quantifies how TALE arrays, and the individual repeat units they are built
+#' from, relate to one another. An R re-implementation of the original DisTAL
+#' Perl program: it still uses the ARLEM binary for the repeat-array alignment
+#' step, but performs the rest with R support and parallelization, which makes
+#' it much faster (the exact speedup depends on \code{aln_method}).
+#'
+#' Two products are irreducible and expensive — the pairwise protein alignment
+#' between repeat units, and ARLEM on the coded arrays. Everything else the
+#' former \code{distalr()} returned was a projection of its inputs, so this
+#' function returns only what cannot be recomputed cheaply.
+#'
+#' This is where \code{dom_code} is minted, over the whole set of parts
+#' supplied, and where the resulting objects are stamped with a namespace
+#' identifying that set — see \code{\link{tales_namespace}}. Passing a subset
+#' later is safe; re-running on a different part set mints different codes,
+#' and the differing namespace is what stops the two being joined by mistake.
+#'
+#' @param x A \code{\link{tales}} object whose parts carry amino acid
+#'   sequences.
+#' @param ncores Number of cores for the pairwise alignment step.
+#' @param aln_method Approach for pairwise similarities between part amino acid
+#'   sequences: \code{"DECIPHER"} (default), \code{"Biostrings"} or
+#'   \code{"mmseq2"}.
+#' @param conda_bin Path to a Conda binary, if \code{reticulate} cannot find it.
+#'
+#' @return A list of three objects, all describing the same run:
+#' \itemize{
+#'   \item \code{tales}: the input, with a \code{dom_code} column added.
+#'   \item \code{repeat_sim}: a \code{\link{repeat_sim}} between repeat units,
+#'     keyed by \code{dom_code}.
+#'   \item \code{tale_sim}: a \code{\link{tale_sim}} between whole arrays,
+#'     keyed by \code{array_id}.
+#' }
+#'
+#' @references
+#' Pérez-Quintero A.L. et al. (2015). QueTAL: a suite of tools to classify and
+#' compare TAL effectors functionally and phylogenetically.
+#' \emph{Frontiers in Plant Science} \strong{6}, 545.
+#' \doi{10.3389/fpls.2015.00545}
+#'
+#' Abouelhoda M.I., Giegerich R., Behzadi B., Steyaert J.-M. (2009). Alignment
+#' of minisatellite maps based on run-length encoding scheme.
+#' \emph{Journal of Bioinformatics and Computational Biology} \strong{7}(2),
+#' 287--308. \doi{10.1142/S0219720009004060}
+#'
+#' @seealso \code{\link{tales_group}} to cluster arrays from the returned
+#'   \code{tale_sim}.
+#' @export
+tales_relatedness <- function(x, ncores = 1, aln_method = "DECIPHER",
+                              conda_bin = "auto") {
+  if (!is_tales(x)) {
+    cli::cli_abort("{.arg x} must be a {.cls tales} object.",
+                   class = c("tantale_error_tales_type", "tantale_error"))
+  }
+  if (!"aa_seq" %in% names(x)) {
+    cli::cli_abort(
+      c("{.arg x} must carry an {.field aa_seq} column.",
+        "i" = "Repeat similarity is computed from part amino acid sequences."),
+      class = c("tantale_error_relatedness_no_aa", "tantale_error")
+    )
+  }
+  if ("dom_code" %in% names(x)) {
+    cli::cli_warn(
+      c("{.arg x} already carries a {.field dom_code} column; it will be re-minted.",
+        "i" = "Similarity tables from the earlier run are keyed by the old codes and must not be reused with this result.",
+        "i" = "Their differing {.fn tales_namespace} is what will catch such a mix-up."),
+      class = c("tantale_warning_relatedness_remint", "tantale_warning")
+    )
+    x <- x[setdiff(names(x), "dom_code")]
+  }
+
+  namespace <- .tales_dom_code_namespace(x$aa_seq)
+
+  # The core still speaks the legacy column vocabulary; translate either side.
+  legacy <- .tales_to_legacy(x)
+  core <- .tales_relatedness_core(tale_parts = legacy, ncores = ncores,
+                                  aln_method = aln_method, conda_bin = conda_bin)
+
+  list(
+    tales = tales(core$tale_parts, dom_code_namespace = namespace),
+    repeat_sim = repeat_sim(
+      core$dissim_long %>% dplyr::rename(RepU1 = subj, RepU2 = pattern),
+      dom_code_namespace = namespace
+    ),
+    # Keyed by array_id, not dom_code, so deliberately unstamped: array ids are
+    # meaningful names that do not silently collide across runs the way
+    # cur_group_id() codes do (class-design.md §3.5).
+    tale_sim = tale_sim(core$tal_sim)
+  )
+}
+
+#' Rename a tales object's columns back to the legacy vocabulary
+#'
+#' Temporary bridge, the mirror of \code{.tales_rename_legacy()}. Removable once
+#' the column sweep of restructuring-notes.md §9.2 lands.
+#' @noRd
+.tales_to_legacy <- function(x) {
+  x <- tibble::as_tibble(x)
+  hit <- intersect(names(x), unname(TALES_LEGACY_NAMES))
+  if (length(hit) == 0L) return(x)
+  back <- stats::setNames(names(TALES_LEGACY_NAMES), unname(TALES_LEGACY_NAMES))
+  names(x)[match(hit, names(x))] <- unname(back[hit])
+  x
+}
+
+
+#' The expensive part of the relatedness computation
+#'
+#' Shared by \code{\link{tales_relatedness}} and the deprecated
+#' \code{\link{distalr}}. Speaks the legacy column vocabulary and returns raw
+#' pieces; classing, stamping and assembly happen in the callers. Deliberately
+#' does no clustering: that was a stored field with no consumers, recomputed by
+#' its only would-be user at a different cut height (restructuring-notes.md §1).
+#' @noRd
+.tales_relatedness_core <- function(tale_parts, ncores = 1,
+                                    aln_method = "DECIPHER", conda_bin = "auto") {
   
   #### Reality checks ####
   
@@ -699,25 +843,14 @@ distalr <- function(tale_parts, h_cut = 10, ncores = 1,
   }
   
   
-  #### assemble the results list ####
-  outputlist <- list(tale_parts = tale_parts,
-                     "repeats.code" = tale_parts %>%
-                       dplyr::group_by(domCode, aaSeq, rvd) %>%
-                       dplyr::count() %>%
-                       dplyr::rename(code = domCode, "AA Seq"  = aaSeq) %>%
-                       dplyr::mutate(code = as.integer(code)) %>%
-                       dplyr::select(-n) %>%
-                       dplyr::ungroup(),
-                     "coded.repeats.str" = codesSeqSet,
-                     "repeat.similarity" = dissimLong %>% dplyr::rename(RepU1 = subj, RepU2 = pattern),
-                     "tal.similarity" = normArlemScoresTble,
-                     "repeats.cluster" = .cluster_repeats(
-                       repeat_sim_mat = reshape2::acast(dissimLong, formula = subj ~ pattern, value.var = "Sim"),
-                       h_cut = h_cut
-                     )
+  #### return the raw pieces; callers class and assemble them ####
+  logger::log_info("Finished computing TALE and repeat relatedness.")
+  list(
+    tale_parts = tale_parts,
+    dissim_long = dissimLong,
+    tal_sim = normArlemScoresTble,
+    coded_seq_set = codesSeqSet
   )
-  logger::log_info("Finished! Returning a list with the results.")
-  return(outputlist)
 }
 
 
