@@ -150,6 +150,82 @@ tales <- function(x, dom_code_namespace = NULL) {
 }
 
 
+#### Construction from external sources ####
+
+#' Coerce sequences of TALE parts to a tales object
+#'
+#' Turns \code{sep}-separated TALE sequences — RVD strings, or repeat-code
+#' strings — into a \code{\link{tales}} object, taking sequence order as
+#' \code{position_in_array} and sequence names as \code{array_id}.
+#'
+#' The result is deliberately column-poor: a bare sequence file carries no
+#' domain types, amino acid sequences or source contigs, so only
+#' \code{array_id}, \code{position_in_array} and the chosen residue column are
+#' produced. That is a valid \code{tales} — see \code{dev/class-design.md}
+#' §2.3 for why \code{seqnames} and the rest are optional.
+#'
+#' @param x A path to a fasta file, a \code{BStringSet}/\code{AAStringSet}, a
+#'   list of strings, or a data frame (which is passed to \code{\link{tales}}).
+#' @param sep Separator between elements of a sequence. Use \code{"-"} for RVD
+#'   sequences and \code{" "} for repeat-code strings.
+#' @param residue_col Which residue column the parsed elements become:
+#'   \code{"rvd"} (default) or \code{"dom_code"}. Given explicitly rather than
+#'   guessed from the values.
+#' @param ... Passed to methods.
+#' @return A validated \code{tales} object.
+#' @export
+as_tales <- function(x, ...) {
+  UseMethod("as_tales")
+}
+
+#' @rdname as_tales
+#' @export
+as_tales.data.frame <- function(x, ...) {
+  tales(x, ...)
+}
+
+#' @rdname as_tales
+#' @export
+as_tales.default <- function(x, sep = "-", residue_col = c("rvd", "dom_code"), ...) {
+  residue_col <- match.arg(residue_col)
+  seqs <- split_list(x, sep = sep)
+
+  if (is.null(names(seqs)) || anyNA(names(seqs)) || !all(nzchar(names(seqs)))) {
+    cli::cli_abort(
+      c("Every sequence must be named; the names become {.field array_id}.",
+        "i" = "A fasta file supplies these from its headers."),
+      class = c("tantale_error_tales_unnamed", "tantale_error")
+    )
+  }
+
+  out <- tibble::tibble(
+    array_id = rep(names(seqs), lengths(seqs)),
+    position_in_array = unlist(lapply(lengths(seqs), seq_len), use.names = FALSE),
+    residue = unlist(seqs, use.names = FALSE)
+  )
+  names(out)[names(out) == "residue"] <- residue_col
+  tales(out)
+}
+
+
+#' Build a tales object from a tell_tales run directory
+#'
+#' Reads the AnnoTALE/telltale part files of a single
+#' \code{\link[tantale:tell_tales]{tell_tales}} output directory and returns a
+#' validated \code{\link{tales}} object.
+#'
+#' The result carries no \code{dom_code}: that surrogate key is minted later,
+#' by the relatedness computation, over the whole set of parts being analysed.
+#'
+#' @param telltale_dir Path to a single \code{\link[tantale:tell_tales]{tell_tales}}
+#'   output directory.
+#' @return A validated \code{tales} object.
+#' @export
+tales_from_telltale <- function(telltale_dir) {
+  tales(tale_parts(telltale_dir))
+}
+
+
 #### Validator ####
 
 #' Validate a tales object

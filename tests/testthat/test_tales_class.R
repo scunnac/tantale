@@ -259,6 +259,77 @@ test_that("tales_anchor_codes() covers all three terminus sentinels", {
 })
 
 
+#### as_tales() ####
+
+test_that("as_tales() builds a tales from an RVD fasta", {
+  x <- as_tales(test_path("data_for_tests", "tellTaleExampleOutput", "rvdSequences.fas"),
+                sep = "-")
+  expect_s3_class(x, "tales")
+  expect_setequal(names(x), c("array_id", "position_in_array", "rvd"))
+  # one row per element of each sequence
+  expect_setequal(as.integer(table(x$array_id)), c(28L, 16L, 28L, 24L))
+})
+
+test_that("as_tales() numbers position_in_array from sequence order", {
+  x <- as_tales(test_path("data_for_tests", "tellTaleExampleOutput", "rvdSequences.fas"),
+                sep = "-")
+  first <- dplyr::filter(x, array_id == x$array_id[1])
+  expect_identical(first$position_in_array, seq_len(nrow(first)))
+})
+
+test_that("as_tales() accepts a BStringSet and a list, matching the file path result", {
+  p <- test_path("data_for_tests", "tellTaleExampleOutput", "rvdSequences.fas")
+  from_path <- as_tales(p, sep = "-")
+  from_set <- as_tales(Biostrings::readBStringSet(p), sep = "-")
+  from_list <- as_tales(as.list(as.character(Biostrings::readBStringSet(p))), sep = "-")
+  expect_equal(from_set, from_path)
+  expect_equal(from_list, from_path)
+})
+
+test_that("as_tales() puts repeat codes in dom_code when asked", {
+  x <- suppressWarnings(
+    as_tales(test_path("data_for_tests", "Out_CodedRepeats.fa"),
+             sep = " ", residue_col = "dom_code")
+  )
+  expect_s3_class(x, "tales")
+  expect_true("dom_code" %in% names(x))
+  expect_false("rvd" %in% names(x))
+})
+
+test_that("as_tales() errors on unnamed sequences", {
+  expect_error(
+    as_tales(list("NI-HD-NG"), sep = "-"),
+    class = "tantale_error_tales_unnamed"
+  )
+})
+
+test_that("as_tales() on a data frame is tales()", {
+  df <- minimal_tales_df()
+  expect_equal(as_tales(df), tales(df))
+})
+
+
+#### tales_from_telltale() ####
+
+test_that("tales_from_telltale() returns a validated tales", {
+  x <- suppressWarnings(
+    tales_from_telltale(test_path("data_for_tests", "tellTaleExampleOutput"))
+  )
+  expect_s3_class(x, "tales")
+  expect_true(all(c("array_id", "position_in_array", "rvd", "domain_type",
+                    "position_in_crd", "aa_seq", "seqnames") %in% names(x)))
+  # dom_code is minted later, by the relatedness computation
+  expect_false("dom_code" %in% names(x))
+})
+
+test_that("tales_from_telltale() output holds complete arrays", {
+  x <- suppressWarnings(
+    tales_from_telltale(test_path("data_for_tests", "tellTaleExampleOutput"))
+  )
+  expect_silent(tales_assert_complete(x))
+})
+
+
 #### Against real pipeline output ####
 
 test_that("a real distalr tale_parts table validates as tales", {
