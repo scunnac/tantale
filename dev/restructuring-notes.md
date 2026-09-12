@@ -493,6 +493,34 @@ is the complete list):
 `msa_heatmap()` and `plot_tales_msa()`, but `h.cut` in the internal that
 actually performs the clustering.
 
+#### Second category: inconsistent vocabulary, not casing **[P]**
+
+These are all *already* snake_case, so the list above does not catch them, but
+they violate rule 5 (consistent argument naming across functions taking similar
+inputs) — and since `tale_sim` and `repeat_sim` are now **class names**
+(`class-design.md` §3), the arguments and the classes disagree:
+
+| name | where | exported? |
+|---|---|---|
+| `repeat_sim` | `msa_heatmap()`, `plot_tales_msa()` | yes — collides exactly with the `repeat_sim()` constructor |
+| `repeat_sim` | `.repeat_to_sim_align()`, `.repeat_to_cluster_align()` | internal |
+| `repeat_sims` | `build_repeat_msa()`, `tales_align()` | yes — singular/plural split for the same thing |
+| `tal_sim` | `group_tales()`, `msa_heatmap()`, `plot_tales_msa()` | yes — one letter from the `tale_sim` class, same meaning |
+
+**[V]** No correctness risk, verified: a parameter bound to a data frame does
+not shadow a same-named function, because R skips non-function bindings when
+resolving a symbol used in call position. This is a readability problem.
+
+**[D]** `tales_align()`'s `repeat_sims` is *new* code that inherited the plural
+from `build_repeat_msa()`, rather than inherited debt. Deliberately left
+unrenamed so the whole vocabulary is settled in one pass here, per this
+section's own warning that the argument and column sweeps should agree rather
+than be done piecemeal. It has no users yet, so it is free to change.
+
+The classes give the sweep a fixed point to converge on: whatever the arguments
+become, they should agree with `tale_sim` / `repeat_sim` / `tales_msa` rather
+than each other.
+
 ### 9.2 Column names — adopt snake_case across all tables
 
 Currently **no** column in `distalr()`'s output is snake_case. Present state:
