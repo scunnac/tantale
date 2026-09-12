@@ -87,9 +87,33 @@ binary for the same repeat-array alignment step…"); what it lacks is a
 package for exactly this tool — <https://doi.org/10.3389/fpls.2015.00545>
 (`README.md:28`, `AnnoTALE_QueTAL_functions_library.R:156`).
 
-**[P]** ARLEM itself has **no citation anywhere in the package** — only the
-bundled binary at `inst/tools/arlem/arlem`. Worth adding one in the same pass
-if the reference is known; not invented here.
+**ARLEM's attribution exists but is in the wrong place** **[V]**. It is emitted
+as three `logger::log_info()` lines immediately before the system call
+(`distalr.R:624-626`), relaying ARLEM's own console banner:
+
+```
+Running ARLEM version 1.0 :
+Copyright by Mohamed I. Abouelhoda
+Plz. cite Abouelhoda, Giegerich, Behzadi, and Steyaert
+```
+
+A runtime log line is not a citation: it is invisible to anyone reading
+`?tales_relatedness`, and only appears at all if the logger threshold admits
+INFO. Move it into `@references` (keeping the log line is fine — it faithfully
+relays the tool's own banner).
+
+**[V]** The publication, confirmed against the Crossref registry from that
+author list:
+
+> Abouelhoda M.I., Giegerich R., Behzadi B., Steyaert J.-M. (2009). *Alignment
+> of minisatellite maps based on run-length encoding scheme.* Journal of
+> Bioinformatics and Computational Biology **7**(2), 287–308.
+> <https://doi.org/10.1142/S0219720009004060>
+
+(An earlier version of the same work by the same four authors appeared at APBC
+2007, doi:10.1142/9781848161092_0028.) The fit is not incidental: ARLEM aligns
+*minisatellite maps* — tandem repeat arrays — which is structurally what a TALE
+central repeat domain is, and presumably why DisTAL reached for it.
 
 ### 1.3 `talvez()` / `preditale()` → `tales_predict_targets()` **[A]**
 
@@ -545,5 +569,5 @@ debt, carried from §1.2 and §1.3.
 | ~~4~~ | ~~`tales_msa` key~~ **Resolved** — `array_id` × `alignment_position`; the inherited key remains valid too, since gaps are implicit | §4.2 |
 | ~~5a~~ | ~~`distalr()`'s new name~~ **Resolved** — `tales_relatedness()`, with the DisTAL provenance cited | §1.2 |
 | ~~5b~~ | ~~One generic over both prediction backends?~~ **Resolved** — yes; `talvez()`/`preditale()` stay exported and documented | §1.3 |
-| 6 | **[P]** ARLEM has no citation anywhere in the package — add one if the reference is known | §1.2 |
+| ~~6~~ | ~~ARLEM has no citation anywhere in the package~~ **Resolved** — it was in runtime log lines, not the docs; publication identified and verified, move to `@references` | §1.2 |
 | 7 | **[P]** PrediTALE is cited by tool page, not paper — level up if a publication exists | §1.3 |
