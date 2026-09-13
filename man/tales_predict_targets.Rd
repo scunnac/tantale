@@ -40,4 +40,10 @@ are where each tool's own options and citation live.
 }
 \seealso{
 \code{\link{talvez}}, \code{\link{preditale}}
+
+Other target prediction:
+\code{\link[=plot_target_preds]{plot_target_preds()}},
+\code{\link[=preditale]{preditale()}},
+\code{\link[=talvez]{talvez()}}
 }
+\concept{target prediction}

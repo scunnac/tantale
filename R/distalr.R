@@ -4,7 +4,7 @@
   if (grepl("TALE_Protein_parts.fasta", basename(fasta))) taleStrings <- Biostrings::readAAStringSet(fasta)
   if (grepl("TALE_DNA_parts.fasta", basename(fasta))) taleStrings <- Biostrings::readDNAStringSet(fasta)
   if (length(taleStrings) == 0L) {
-    logger::log_warn("No part sequence found in: {fasta}. Returning an empty tibble.")
+    cli::cli_warn("No part sequence found in: {fasta}. Returning an empty tibble.")
     tbl <- tibble::tibble(arrayIDs = character(),
                    domainType = character(),
                    positionInArray = character(),
@@ -23,16 +23,13 @@
   )
   missingTerm <- setdiff(c("N-terminus", "C-terminus"), unique(tbl$domainType))
   if (length(missingTerm) != 0L) {
-    logger::log_warn("Array {unique(tbl$arrayID)} is missing a {missingTerm} domain in {fasta}")
-    warning()
+    cli::cli_warn("Array {unique(tbl$arrayID)} is missing a {missingTerm} domain in {fasta}")
     missingTerm <- tibble::tibble(arrayID = unique(tbl$arrayID),
                                   domainType = missingTerm,
                                   positionInCrd = NA,
                                   string = NA,
                                   sourceDirectory = dirname(fasta))
     tbl <- dplyr::bind_rows(tbl, missingTerm)
-    logger::skip_formatter(as.character(knitr::kable(missingTerm))) %>%
-      logger::log_debug()
   }
   tbl %<>% 
     dplyr::rowwise() %>%
@@ -49,8 +46,7 @@
 
 .rvds_from_annotale_file <- function(fasta) {
   if (!grepl("TALE_RVDs.fasta", basename(fasta))) {
-    logger::log_error("The provided file does not seem to be an AnnoTALE RVDs file: {fasta}")
-    stop()
+    cli::cli_abort("The provided file does not seem to be an AnnoTALE RVDs file: {fasta}", class = c("tantale_error"))
   } else {
     rvdTble <- .split_list(fasta) %>%
       lapply(function(x) tibble::tibble(string = x,
@@ -77,7 +73,7 @@
   protPartsFiles <- list.files(telltale_dir, "TALE_Protein_parts.fasta", recursive = T, full.names = T)
   dnaPartsFiles <- list.files(telltale_dir, "TALE_DNA_parts.fasta", recursive = T, full.names = T)
   if (telltale_dir %>% dirname() %>% unique() %>% length() != 1L) {
-    log_error("The provided path most likely does not correspond to a SINGLE tell_tales output directory.")
+    cli::cli_warn("The provided path most likely does not correspond to a SINGLE tell_tales output directory.")
   }
   # Fetch info from annotale/telltale files with .tale_parts_from_file
   taleProtString <- lapply(protPartsFiles, .tale_parts_from_file) %>% dplyr::bind_rows()
@@ -114,16 +110,13 @@
     dplyr::mutate(sameLength = AnnoTALELength == rvdFileLength)
   
   if (any(is.na(arraysConsistency$sameLength))) {
-    logger::log_warn("There are mismatches in array IDs between rvd seq file and AnnoTALE parts files:")
-    logger::skip_formatter(as.character(knitr::kable(arraysConsistency %>% dplyr::filter(is.na(sameLength))))) %>%
-      logger::log_warn()
-    warning()
+    cli::cli_warn("There are mismatches in array IDs between rvd seq file and AnnoTALE parts files:")
+    cli::cli_warn("There are mismatches in array IDs between rvd seq file and AnnoTALE parts files.")
   } else if (!all(arraysConsistency$sameLength, na.rm = TRUE)) {
-    logger::log_error("Array lengths are inconsistent between rvd ",
-                      "seq file and AnnoTALE parts files:")
-    logger::skip_formatter(as.character(knitr::kable(arraysConsistency %>% dplyr::filter(!sameLength)))) %>%
-      logger::log_error()
-    stop()
+    cli::cli_abort(
+      c("Array lengths are inconsistent between the rvd seq file and the AnnoTALE parts files.",
+        "i" = "Affected arrays: {.val {arraysConsistency$arrayID[!arraysConsistency$sameLength]}}"),
+      class = c("tantale_error_parts_inconsistent", "tantale_error"))
   }
   
   # Include RVDs in the talParts tibble
@@ -144,14 +137,8 @@
   partsWithMissingDnaSeq <- tale_parts %>% dplyr::filter(is.na(dnaSeq)) %>% dplyr::pull(arrayID) %>% unique()
   partsWithMissingRvdSeq <- tale_parts %>% dplyr::filter(is.na(rvd)) %>% dplyr::pull(arrayID) %>% unique()
   if (any(sapply(list(partsWithMissingAaSeq, partsWithMissingDnaSeq, partsWithMissingRvdSeq), length) != 0L)) {
-    logger::log_warn("Be aware that the output tale_parts tibble has records with missing sequences:")
-    logger::log_warn("{unique(c(partsWithMissingAaSeq, partsWithMissingDnaSeq, partsWithMissingRvdSeq))}")
-    tale_parts %>%
-      #dplyr::select(arrayID, domainType, positionInArray, sourceDirectory) %>%
-      dplyr::filter(arrayID %in% c(partsWithMissingAaSeq, partsWithMissingDnaSeq, partsWithMissingRvdSeq)) %>%
-      knitr::kable() %>% as.character() %>%
-      logger::skip_formatter() %>% logger::log_debug()
-    warning()
+    cli::cli_warn(c("The returned tale_parts has records with missing sequences.",
+                    "i" = "Affected array{?s}: {.val {unique(c(partsWithMissingAaSeq, partsWithMissingDnaSeq, partsWithMissingRvdSeq))}}"))
   }
   return(tale_parts)
 }
@@ -241,7 +228,6 @@ diag(identSubMat) <- 1
                                .sep = " ")
   
   if (!as.logical(.create_tantale_env(conda_bin = conda_bin))) {
-    logger::log_debug("Invoking mmseq2 using the following command:\n {stringr::str_wrap(mmseq2Cmd, 80)}")
     res <- .run_in_conda(env_name = "tantale",
                             conda_bin = conda_bin,
                             command = mmseq2createdb)
@@ -344,6 +330,7 @@ diag(identSubMat) <- 1
 #'
 #' @return a tale_parts object
 #' @export
+#' @family TALE discovery
 diagnose_tale_parts <- function(tale_parts, sanitize = FALSE) {
   # Check talparts
   partsWithMissingAaSeq <- tale_parts %>% dplyr::filter(is.na(aaSeq)) %>%
@@ -366,13 +353,12 @@ diagnose_tale_parts <- function(tale_parts, sanitize = FALSE) {
                                   ) %>%
     dplyr::arrange(sourceDirectory, arrayID, positionInArray)
   if (nrow(problems) != 0L) {
-    logger::log_warn("Be aware that the output tale_parts tibble has records with missing sequences")
-    warning()
+    cli::cli_warn("Be aware that the output tale_parts tibble has records with missing sequences")
   }
   if (!sanitize) {
     pseudoTales %>% return()
   } else {
-    logger::log_info("Returning TALE arrays with no empty sequence parts")
+    cli::cli_inform("Returning TALE arrays with no empty sequence parts")
     dplyr::setdiff(tale_parts, pseudoTales) %>% return()
   }
 }
@@ -392,6 +378,7 @@ diagnose_tale_parts <- function(tale_parts, sanitize = FALSE) {
 #'
 #' @return The ggplot object
 #' @export
+#' @family TALE plots
 plot_tale_composition <- function(tale_parts) {
   partsForPlots <- tale_parts %>%
     mutate(label = if_else(domainType == "repeat", rvd, ""),
@@ -549,14 +536,14 @@ tales_compare <- function(x, ncores = 1, aln_method = "DECIPHER",
   
   ## Make sure we are dealing only with parts that have defined protein sequences.
   if (any(is.na(tale_parts$aaSeq) | tale_parts$aaSeq == "")) {
-    logger::log_error("It seems that some of the provided TALE parts miss an amino acid sequence. Cannot proceed!")
-    tale_parts %>% dplyr::filter(is.na(aaSeq)) %>% 
-      knitr::kable() %>% as.character() %>%
-      logger::skip_formatter() %>% logger::log_error()
-    stop()
+    badArrays <- unique(tale_parts$arrayID[is.na(tale_parts$aaSeq)])
+    cli::cli_abort(
+      c("Some of the provided TALE parts have no amino acid sequence.",
+        "i" = "Affected array{?s}: {.val {badArrays}}"),
+      class = c("tantale_error_parts_no_aa", "tantale_error"))
   }
   if (any(is.na(tale_parts$dnaSeq) | tale_parts$dnaSeq == "")) {
-    logger::log_warn("It seems that some of the provided TALE parts miss the DNA sequence!")
+    cli::cli_warn("It seems that some of the provided TALE parts miss the DNA sequence!")
   } 
   
   ## Make sure that arrayID - position combinations are unique
@@ -567,10 +554,9 @@ tales_compare <- function(x, ncores = 1, aln_method = "DECIPHER",
     dplyr::count() %>%
     dplyr::pull(n)
   if (!all(arayPosCombinCounts == 1L)) {
-    logger::log_error("Your tale arrays identifers are probably not unique.",
+    cli::cli_abort(paste0("Your tale arrays identifers are probably not unique.",
          "\n",
-         "Make sure that there is only one part per position per arrayID.")
-    stop()
+         "Make sure that there is only one part per position per arrayID."), class = c("tantale_error"))
   }
   
   # Assign domain codes
@@ -581,7 +567,7 @@ tales_compare <- function(x, ncores = 1, aln_method = "DECIPHER",
   
   
   #### Assemble repeat code strings and write in a file for arlem ####
-  logger::log_info("Assemble repeat code TALE strings and write in a file for ARLEM")
+  cli::cli_inform("Assemble repeat code TALE strings and write in a file for ARLEM")
   
   codesSeqsfile <- tempfile(fileext = ".fasta")
   repeatStrings <- tale_parts %>%
@@ -613,8 +599,8 @@ tales_compare <- function(x, ncores = 1, aln_method = "DECIPHER",
   stopifnot(!anyDuplicated(names(unique(taleAaParts))))
   
   # Get pairwise repeat aa sequence dissimilarity scores in a long tibble
-  logger::log_info("Computing a distance matrix between TALE parts amino acid sequences ",
-                   "using: {aln_method}")
+  cli::cli_inform(paste0("Computing a distance matrix between TALE parts amino acid sequences ",
+                   "using: {aln_method}"))
   if (aln_method == "mmseq2") {
     dissimLong <- .pairwise_align_mmseq2(part_aa_set = uniqueTaleAaParts, ncores = ncores,
                                         conda_bin = conda_bin)
@@ -624,7 +610,8 @@ tales_compare <- function(x, ncores = 1, aln_method = "DECIPHER",
   } else if (aln_method == "DECIPHER") {
     dissimLong <- .pairwise_align_decipher(part_aa_set = uniqueTaleAaParts, ncores = ncores)
   } else {
-    logger::log_errors() && stop("'aln_method' parameter must be either 'Biostrings', 'mmseq2' or 'DECIPHER'")
+    cli::cli_abort("{.arg aln_method} must be one of {.val Biostrings}, {.val mmseq2} or {.val DECIPHER}, not {.val {aln_method}}.",
+                   class = c("tantale_error_aln_method", "tantale_error"))
   }
   dissimLong %<>% dplyr::mutate(Sim = 100 - Dissim)
   # Convert Distance (dissimilarity) measures to Similarity with a four-parameter logistic function
@@ -641,8 +628,8 @@ tales_compare <- function(x, ncores = 1, aln_method = "DECIPHER",
   #### Generate an ARLEM cost matrix ####
   if (TRUE) {
     method <- "minkowski"
-    logger::log_info("Generate an ARLEM cost matrix which meets triangle inequality criteria by computing ",
-                     "the {method} distance between pairwise distance vectors.")
+    cli::cli_inform(paste0("Generate an ARLEM cost matrix which meets triangle inequality criteria by computing ",
+                     "the {method} distance between pairwise distance vectors."))
     dissimMat <- as.matrix(stats::dist(dissimMat, method = method, p = 3.5, diag = TRUE, upper = TRUE))
     dissimMat <- dissimMat/max(dissimMat) * 100
   }
@@ -685,11 +672,10 @@ tales_compare <- function(x, ncores = 1, aln_method = "DECIPHER",
   #### run arlem with a system call and parse std output ####
   arlemPath <- system.file("tools", "arlem", "arlem", package = "tantale", mustWork = T)
   arlemCmd <- glue::glue("{arlemPath} -f {codesSeqsfile} -cfile {cfile} -align -insert -showalign")
-  logger::log_info("Running ARLEM version 1.0 : ")
-  logger::log_info("Copyright by Mohamed I. Abouelhoda")
-  logger::log_info("Plz. cite Abouelhoda, Giegerich, Behzadi, and Steyaert")
+  cli::cli_inform("Running ARLEM version 1.0 : ")
+  cli::cli_inform("Copyright by Mohamed I. Abouelhoda")
+  cli::cli_inform(paste0("Plz. cite Abouelhoda, Giegerich, Behzadi, and Steyaert"))
   arlemRawRes <- system(arlemCmd, intern = TRUE)
-  logger::log_debug(logger::skip_formatter(arlemRawRes))
   arlemSelfRes <- grep("Processed Seq[.]:", arlemRawRes, value = TRUE) 
   arlemSelfScores <- gsub("Processed Seq[.]: ([0-9]{1,}) Score: ([0-9]{1,}),.*", "\\1|\\2",
                           substring(arlemSelfRes, 1, 35)) %>%
@@ -739,15 +725,16 @@ tales_compare <- function(x, ncores = 1, aln_method = "DECIPHER",
     colnames(allCombs) <- c("TAL1", "TAL2")
     absentCombs <- dplyr::left_join(allCombs, normArlemScoresTble) %>%
       dplyr::filter(is.na(Sim))
-    cat(knitr::kable(absentCombs), sep = "\n")
-    logger::log_error("The TALE similarity table does not have the expected number",
-    "of comparisons (number of missing comps: {nrow(absentCombs)})...")
-    stop()
+      cli::cli_abort(
+        c("The TALE similarity table does not have the expected number of comparisons.",
+          "x" = "Expected {arraysCount^2}, got {nrow(normArlemScoresTble)}; {nrow(absentCombs)} missing.",
+          "i" = "First missing pair{?s}: {.val {paste(utils::head(absentCombs$TAL1, 3), utils::head(absentCombs$TAL2, 3), sep = \"/\")}}"),
+        class = c("tantale_error_arlem_incomplete", "tantale_error"))
   }
   
   
   #### return the raw pieces; callers class and assemble them ####
-  logger::log_info("Finished computing TALE and repeat relatedness.")
+  cli::cli_inform("Finished computing TALE and repeat relatedness.")
   list(
     tale_parts = tale_parts,
     dissim_long = dissimLong,

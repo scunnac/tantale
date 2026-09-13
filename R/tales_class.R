@@ -51,6 +51,7 @@ TALES_LEGACY_NAMES <- c(
 #' @export
 #' @examples
 #' tales_anchor_codes()
+#' @family tales objects
 tales_anchor_codes <- function() {
   c("NTERM", "CTERM", "XXXXX")
 }
@@ -69,6 +70,7 @@ tales_anchor_codes <- function() {
 #'   \code{dev/class-design.md} §3.5). Carried, never recomputed.
 #' @return A \code{tales} object.
 #' @keywords internal
+#' @family tales objects
 new_tales <- function(x, dom_code_namespace = NULL) {
   stopifnot(is.data.frame(x))
   x <- tibble::as_tibble(x)
@@ -83,6 +85,7 @@ new_tales <- function(x, dom_code_namespace = NULL) {
 #' @param x An object.
 #' @return A logical scalar.
 #' @export
+#' @family tales objects
 is_tales <- function(x) inherits(x, "tales")
 
 #' The dom_code namespace of a tales object
@@ -95,6 +98,7 @@ is_tales <- function(x) inherits(x, "tales")
 #' @param x A \code{tales} object.
 #' @return A scalar string, or \code{NULL} if the object is not stamped.
 #' @export
+#' @family tales objects
 tales_namespace <- function(x) {
   attr(x, "dom_code_namespace", exact = TRUE)
 }
@@ -137,6 +141,7 @@ tales_namespace <- function(x) {
 #'   \code{\link{tales_namespace}}.
 #' @return A validated \code{tales} object.
 #' @export
+#' @family tales objects
 tales <- function(x, dom_code_namespace = NULL) {
   if (!is.data.frame(x)) {
     cli::cli_abort(
@@ -195,6 +200,7 @@ tales <- function(x, dom_code_namespace = NULL) {
 #' @param ... Passed to methods.
 #' @return A validated \code{tales} object.
 #' @export
+#' @family tales objects
 as_tales <- function(x, ...) {
   UseMethod("as_tales")
 }
@@ -242,6 +248,7 @@ as_tales.default <- function(x, sep = "-", residue_col = c("rvd", "dom_code"), .
 #'   output directory.
 #' @return A validated \code{tales} object.
 #' @export
+#' @family TALE discovery
 tales_from_telltale <- function(telltale_dir) {
   tales(.tale_parts(telltale_dir))
 }
@@ -260,6 +267,7 @@ tales_from_telltale <- function(telltale_dir) {
 #' @param x A \code{tales} object.
 #' @return \code{x}, invisibly, if valid; otherwise an error.
 #' @export
+#' @family tales objects
 validate_tales <- function(x) {
   cols <- names(x)
 
@@ -476,6 +484,7 @@ validate_tales <- function(x) {
 #' @param arg Name of the argument being checked, for the error message.
 #' @return \code{x}, invisibly.
 #' @export
+#' @family tales objects
 tales_assert_complete <- function(x, arg = "x") {
   if (!is_tales(x)) {
     cli::cli_abort("{.arg {arg}} must be a {.cls tales} object.",

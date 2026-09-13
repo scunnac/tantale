@@ -33,6 +33,7 @@
 #' corrected sequences file.
 #' 
 #' @export
+#' @family TALE discovery
 correct_tales <- function(uncorrected_path ,
                      corrected_path = file.path(getwd(), "correctedTALEs.fa"),
                      hmm_path = system.file("tools", "talecorrect", "HMMs", "Xoo", package = "tantale", mustWork = T),
@@ -44,8 +45,7 @@ correct_tales <- function(uncorrected_path ,
   dir.exists(outputFolder) || dir.create(outputFolder, recursive = TRUE)
   domains <- c(N = "N-terminus.10bpRepeat1", C = "repeat", R = "C-terminus")
   if (!fs::file_exists(uncorrected_path)) {
-    logger::log_error("The provided input file does not exists")
-    stop()
+    cli::cli_abort("The provided input file does not exists", class = c("tantale_error"))
   }
   
   #### run nHMMER ####
@@ -53,31 +53,28 @@ correct_tales <- function(uncorrected_path ,
                        .sep = "; "), collapse = "; ")
   envReady <- !as.logical(.create_tantale_env(conda_bin = conda_bin))
   if (envReady) {
-    logger::log_info("Running nHMMER")
-    logger::log_debug("Invoking nHMMER using the following command:\n {nhmmerCmd}")
+    cli::cli_inform("Running nHMMER")
     res <- .run_in_conda(env_name = "tantale",
                             conda_bin = conda_bin,
                             command = nhmmerCmd
     )
     if (res) {
-      logger::log_error("The following nHMMER commands failed:")
-      logger::log_error("{nhmmerCmd}")
-      stop()
+      cli::cli_warn("The following nHMMER commands failed:")
+      cli::cli_abort("{nhmmerCmd}", class = c("tantale_error"))
     }
   } else {
     stop("Could not create the tantale conda environment on your machine to run nHMMER...")
   }
   
   #### run TALEcorrection ####
-  logger::log_info("Performing TALEs cds correction on provided sequences.")
+  cli::cli_inform("Performing TALEs cds correction on provided sequences.")
   talecorCmd <- glue::glue("java -jar {pathToTALECorrection} correct s={uncorrected_path}",
                   "n={outputFolder}/out_nhmmer.{domains[\"N\"]}.txt r={outputFolder}/out_nhmmer.{domains[\"R\"]}.txt",
                   "c={outputFolder}/out_nhmmer.{domains[\"C\"]}.txt outdir={outputFolder}", .sep = " ")
   res <- try(system(command = talecorCmd, intern = TRUE))
   if (class(res) == "try-error") {
-    logger::log_error("The following TALEcorrection commands failed:")
-    logger::log_error("{talecorCmd}")
-    stop()
+    cli::cli_warn("The following TALEcorrection commands failed:")
+    cli::cli_abort("{talecorCmd}", class = c("tantale_error"))
   }
   correctionsTble <- readr::read_tsv(file = file.path(outputFolder, "substitionList.tsv"),
                                      show_col_types = FALSE) %>%
@@ -90,8 +87,6 @@ correct_tales <- function(uncorrected_path ,
   if (return_corrections) {
     return(correctionsTble)
   } else {
-    logger::log_debug("Here is the list of fixes made to the provided sequence:")
-    logger::skip_formatter(as.character(knitr::kable(correctionsTble))) %>% logger::log_debug()
     return(file.path(corrected_path))
   }
 }

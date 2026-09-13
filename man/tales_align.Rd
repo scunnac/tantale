@@ -32,3 +32,13 @@ of an aligned row is the k-th part fed in. That is well defined only because
 this function builds MAFFT's input from \code{x} itself, which is why
 \code{\link{tales_assert_complete}} is enforced first.
 }
+\seealso{
+Other TALE alignment:
+\code{\link[=is_tales_msa]{is_tales_msa()}},
+\code{\link[=tales_consensus]{tales_consensus()}},
+\code{\link[=tales_consensus_match]{tales_consensus_match()}},
+\code{\link[=tales_msa]{tales_msa()}},
+\code{\link[=tales_width]{tales_width()}},
+\code{\link[=validate_tales_msa]{validate_tales_msa()}}
+}
+\concept{TALE alignment}

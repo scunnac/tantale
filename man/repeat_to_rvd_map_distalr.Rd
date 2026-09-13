@@ -17,3 +17,12 @@ Uses Distal repeat sequences and RVD sequences from a set of TALEs
 analyzed with the \code{\link{tales_compare}} function to return
 the association between repeat ID and RVD.
 }
+\seealso{
+Other tales projections:
+\code{\link[=repeat_to_rvd_map]{repeat_to_rvd_map()}},
+\code{\link[=tale_parts_to_rvd]{tale_parts_to_rvd()}},
+\code{\link[=tales_coded_strings]{tales_coded_strings()}},
+\code{\link[=tales_domain_codes]{tales_domain_codes()}},
+\code{\link[=tales_rvd_strings]{tales_rvd_strings()}}
+}
+\concept{tales projections}

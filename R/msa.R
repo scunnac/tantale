@@ -36,6 +36,7 @@
 #' @return A vector of consensus elements in each column of \code{align}.
 #' 
 #' @export
+#' @family TALE alignment
 tales_consensus <- function(align) {
   sapply(1:ncol(align), function(x) {
   allElements <- align[,x]
@@ -59,6 +60,7 @@ tales_consensus <- function(align) {
 #'   a long tibble representing the original alignment otherwise (default).
 #' 
 #' @export
+#' @family TALE alignment
 tales_consensus_match <- function(align, long = TRUE) {
   consensus <- tales_consensus(align)
   align <- align
@@ -114,12 +116,11 @@ tales_consensus_match <- function(align, long = TRUE) {
   
   # Deals with cases where the nomber of sequences is < 2
   if (length(seqsAsVectors) == 0L) {
-    logger::log_warn("The provided object in input_seqs is empty. Returning an empty matrix")
-    warning()
+    cli::cli_warn("The provided object in input_seqs is empty. Returning an empty matrix")
     return(matrix())
   }
   if (length(seqsAsVectors) == 1L) {
-    logger::log_info("The provided object in input_seqs has only one sequence. Returning it as a matrix.")
+    cli::cli_inform("The provided object in input_seqs has only one sequence. Returning it as a matrix.")
     msaOfResiduesAsMatrix <- as.matrix(as.data.frame(seqsAsVectors))
     msaOfResiduesAsMatrix <- matrix(msaOfResiduesAsMatrix, nrow = 1)
     rownames(msaOfResiduesAsMatrix) <- colnames(as.data.frame(seqsAsVectors))
@@ -130,18 +131,17 @@ tales_consensus_match <- function(align, long = TRUE) {
   # Determine the type of 'elements' (rvd or repeat) contained in the sequences
   frequentRvds <- c("NN", "NG", "HD", "NI", "N*", "NS")
   if(! any(residues %in% frequentRvds)) {
-    logger::log_info("Will be assuming sequences contain repeat unit codes because ",
+    cli::cli_inform(paste0("Will be assuming sequences contain repeat unit codes because ",
                      "none of the RVDs obtained from input sequences matches ",
-                     "a list of 'frequent RVDs': {paste(frequentRvds, collapse = ' ')}")
+                     "a list of 'frequent RVDs': {paste(frequentRvds, collapse = ' ')}"))
     repeatType <- "repeatUnit"
   } else {
-    logger::log_info("Input sequences are detected as RVD sequences.")
+    cli::cli_inform("Input sequences are detected as RVD sequences.")
     repeatType <- "rvds"
   }
   if( length(residues) > nrow(asciitableForMafft) ) {
-    logger::log_error("Number of unique resisues (RVDs or repeat units) must be =< 248.")
-    logger::log_error("Currently, your set of sequences contains {length(residues)} unique residues...")
-    stop()
+    cli::cli_warn("Number of unique resisues (RVDs or repeat units) must be =< 248.")
+    cli::cli_abort(paste0("Currently, your set of sequences contains {length(residues)} unique residues..."), class = c("tantale_error"))
   }
   
 
@@ -162,7 +162,7 @@ tales_consensus_match <- function(align, long = TRUE) {
   if(is.null(repeat_sims) || repeatType == "rvds") {
     maffMatOpt <- ""
   } else if (!is.null(repeat_sims)) {
-    logger::log_info("The provided similarity matrix file will be used to compute msa.")
+    cli::cli_inform("The provided similarity matrix file will be used to compute msa.")
     if (length(repeat_sims) > 1 &&
         (is.data.frame(repeat_sims) | tibble::is_tibble(repeat_sims))
     ) {
@@ -170,11 +170,10 @@ tales_consensus_match <- function(align, long = TRUE) {
     } else if (length(repeat_sims) == 1 && is.character(repeat_sims)) {
       repeatSims <- .format_repeat_dist_mat(repeat_sims)
     } else {
-      logger::log_error("Somthing is wrong with the value provided for repeat_sims. It must be either")
-      logger::log_error("the path to a '*_Repeatmatrix.mat' file produced by Distal or")
-      logger::log_error("table like object with three columns, usually produced by the")
-      logger::log_error(".format_repeat_dist_mat() function")
-      stop()
+      cli::cli_warn("Somthing is wrong with the value provided for repeat_sims. It must be either")
+      cli::cli_warn("the path to a '*_Repeatmatrix.mat' file produced by Distal or")
+      cli::cli_warn(paste0("table like object with three columns, usually produced by the"))
+      cli::cli_abort(".format_repeat_dist_mat() function", class = c("tantale_error"))
     }
 
     stopifnot(all(residues %in% unique(repeatSims$RepU1)))
@@ -188,7 +187,7 @@ tales_consensus_match <- function(align, long = TRUE) {
   }
 
   # Running mafft msa
-  logger::log_info("Now running MAFFT (Copyright 2002-2007 Kazutaka Katoh) on TALE array sequences.")
+  cli::cli_inform("Now running MAFFT (Copyright 2002-2007 Kazutaka Katoh) on TALE array sequences.")
   asciiConverstionCmd <- glue::glue("{mafft_path}/mafftdir/libexec/hex2maffttext {hexFile} > {asciFile}")
   mafftCmd <-  glue::glue("{mafft_path}/mafft.bat {maffMatOpt} --text {mafft_opts} {asciFile} > {mafftAsciiOutFile}")
   MsaConversionToHexCmd <- glue::glue("{mafft_path}/mafftdir/libexec/maffttext2hex {mafftAsciiOutFile} > {mafftHexOutFile}")
@@ -198,11 +197,9 @@ tales_consensus_match <- function(align, long = TRUE) {
   # Getting msa output and converting back to alignment of residues
   msaOfHex <- Biostrings::readBStringSet(mafftHexOutFile)
   if (length(msaOfHex) == 0L) {
-    logger::log_error("MAFFT failled to complete sucessfully...")
-    logger::log_error("MAFFT exit status: {res}")
-    stop()
+    cli::cli_warn("MAFFT failled to complete sucessfully...")
+    cli::cli_abort("MAFFT exit status: {res}", class = c("tantale_error"))
   } else {
-    logger::log_debug("MAFFT completed sucessfully!! Yeah!")
   }
   #cat(as.character(msaOfHex), sep = "\n")
   msaAsHexVectors <- stringr::str_split(as.character(msaOfHex), pattern = " ")
@@ -287,6 +284,7 @@ tales_consensus_match <- function(align, long = TRUE) {
 #' @return the return value of \code{\link[gplots:heatmap.2]{heatmap.2}}
 #' 
 #' @export
+#' @family TALE plots
 msa_heatmap <- function(tal_sim, repeat_align, rvd_align = NULL,
                         repeat_sim, h_cut = 10, ref_pattern = NULL,
                         consensus = FALSE, note_colors = NULL,
@@ -462,25 +460,25 @@ msa_heatmap <- function(tal_sim, repeat_align, rvd_align = NULL,
   hei_bottom <- 0.125 * (nrow(forMatrix) + 1.5)
   
   # add "notecol" legend
-  extra.key <- function(x = NULL, check.plot_type = plot_type, hei = hei_top * 2.54, wid = wid_left * 2.54, colSet = note_colors) {
-    if (check.plot_type == "repeat.similarity" || endsWith(check.plot_type, "with.rvd")) {
+  extra.key <- function(x = NULL, check_plot_type = plot_type, hei = hei_top * 2.54, wid = wid_left * 2.54, col_set = note_colors) {
+    if (check_plot_type == "repeat.similarity" || endsWith(check_plot_type, "with.rvd")) {
       if (!is.null(x) && is.matrix(x) && is.numeric(x)) {
         par(mai = c(hei*.4, 0, hei*.2, wid*.1), mgp = c(2, 1, 0))
-        image(z = matrix(seq(-1, 1, by = .01), ncol = 1), col = colSet, yaxt = "n", xaxt = "n", xlab = "RVD similarity")
+        image(z = matrix(seq(-1, 1, by = .01), ncol = 1), col = col_set, yaxt = "n", xaxt = "n", xlab = "RVD similarity")
         axis(1, at = seq(0, 1, by = .25), labels = c("-1", NA, "0", NA, "1"))
       } else {
         par(mai = c(hei*.2, wid*.25, hei*.2,  wid*.25), mgp = c(2, 1, 0))
         image(z = matrix(c(0, 1), ncol = 2), col = "grey50", yaxt = "n", xaxt = "n")
         abline(h = 0.5, col = "grey", lwd = 1.5)
-        text(0, 1, labels = ifelse(check.plot_type == "repeat.similarity", "reference", "consensus"), col = colSet$matched, font = 2)
-        text(0, 0, labels = "other", col = colSet$mismatched, font = 2)
+        text(0, 1, labels = ifelse(check_plot_type == "repeat.similarity", "reference", "consensus"), col = col_set$matched, font = 2)
+        text(0, 0, labels = "other", col = col_set$mismatched, font = 2)
         mtext(side = 1, at = 0, text = "RVD alignment", cex = .75, col = "black", padj = 0.5)
-        if (check.plot_type == "repeat.clusters.with.rvd" && consensus) {
+        if (check_plot_type == "repeat.clusters.with.rvd" && consensus) {
           par(mar = c(0,0,0,0))
           image(z = matrix(1:length(consensusRVD), ncol = 1), col = "grey50", bg = "grey", yaxt = "n", xaxt = "n")
           for (i in 1:length(consensusRVD)) {
             abline(v = (i-.5)/(length(consensusRVD)-1), col = "grey")
-            text((i-1)/(length(consensusRVD)-1), 0, labels = consensusRVD[i], font = 2, col = colSet$matched, cex = 1.2)
+            text((i-1)/(length(consensusRVD)-1), 0, labels = consensusRVD[i], font = 2, col = col_set$matched, cex = 1.2)
           }
           par(xpd = NA)
           lab <- axis(side = 4, at = 0, labels = "", las = 2, line = -.5, tick = 0)
@@ -620,6 +618,7 @@ msa_heatmap <- function(tal_sim, repeat_align, rvd_align = NULL,
 #' @return An \code{\link[aplot:insert_left]{aplot}} object.
 #' 
 #' @export
+#' @family TALE plots
 plot_tales_msa <- function(repeat_align,
                            tal_sim = NULL,
                            rvd_align = NULL,
@@ -632,8 +631,7 @@ plot_tales_msa <- function(repeat_align,
   
   # Arguments checking
   if (is.null(rvd_align) & is.null(repeat_align)) {
-    logger::log_error("You must provide at least either a value for `repeat_align` or for `rvd_align`")
-    stop()
+    cli::cli_abort("You must provide at least either a value for `repeat_align` or for `rvd_align`", class = c("tantale_error"))
   }
   if (!is.null(rvd_align)) {
     countOfTales <- nrow(rvd_align)
@@ -644,20 +642,17 @@ plot_tales_msa <- function(repeat_align,
     arrayNames <- rownames(repeat_align)
   }
   if (!is.null(repeat_align) & is.null(nrow(repeat_align))) {
-    logger::log_error("Check the provided input repeat_align matrix.",
+    cli::cli_abort(paste0("Check the provided input repeat_align matrix.",
                       "It may conain a single sequence that was coerced to vector rather than remaining a matrix...",
-                      .sep = " ")
-    stop()
+                      .sep = " "), class = c("tantale_error"))
   }
   if (!is.null(rvd_align) & is.null(nrow(rvd_align))) {
-    logger::log_error("Check the provided input rvd_align matrix.",
+    cli::cli_abort(paste0("Check the provided input rvd_align matrix.",
                       "It may conain a single sequence that was coerced to vector rather than remaining a matrix...",
-                      .sep = " ")
-    stop()
+                      .sep = " "), class = c("tantale_error"))
   }
   if (countOfTales < 1) {
-    logger::log_error("The provided input repeat_align matrix has less than one sequence. Cannot proceed...")
-    stop()
+    cli::cli_abort("The provided input repeat_align matrix has less than one sequence. Cannot proceed...", class = c("tantale_error"))
   }
   
   
@@ -842,8 +837,7 @@ plot_tales_msa <- function(repeat_align,
                             na.rm = TRUE
         )
     } else {
-      logger::log_error("the fill_type value must be either 'repeat_sim' or 'repeatClust'")
-      stop()
+      cli::cli_abort("the fill_type value must be either 'repeat_sim' or 'repeatClust'", class = c("tantale_error"))
     }
   } else if (!is.null(repeat_sim) & is.null(rvd_align)) {
     if (fill_type == "repeat_sim") {
@@ -871,8 +865,7 @@ plot_tales_msa <- function(repeat_align,
                             na.rm = TRUE
         )
     } else {
-      logger::log_error("the fill_type value must be either 'repeat_sim' or 'repeatClust'")
-      stop()
+      cli::cli_abort("the fill_type value must be either 'repeat_sim' or 'repeatClust'", class = c("tantale_error"))
     }
   } else if (is.null(repeat_sim) & !is.null(rvd_align)) {
     p <- bp + 
@@ -897,8 +890,7 @@ plot_tales_msa <- function(repeat_align,
                           na.rm = TRUE
       )
   } else {
-    logger::log_error("Cannot ouput a plot based on the suppplied combination of parameter values...")
-    stop()
+    cli::cli_abort("Cannot ouput a plot based on the suppplied combination of parameter values...", class = c("tantale_error"))
   }
   # Merge tree and align
   if (exists("taleshclust")) {

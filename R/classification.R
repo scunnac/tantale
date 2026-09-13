@@ -160,6 +160,7 @@ tales_group <- function(tal_sim, plot_tree = FALSE, k = NULL, k_range = NULL, me
 #' @param inner_sep_color character of color for the separator between colors within 1 cell if there are more than 1.
 #' @param save_path (optional) file path to save the plot, format of the image depends on the file extension. If save_path is NULL, the heatmap will be printed. If save_path is specified, the image file will be created.
 #' @export
+#' @family TALE plots
 talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, trunc_tales_col = NULL, extra_col = NULL,
                             x_lab = "TALE Group", y_lab = "Strain", title = "RVD sequences variants",
                             plot_type = "all",

@@ -84,3 +84,11 @@ Plot in frame of \code{\link[gplots:heatmap.2]{heatmap.2}} for Tals alignment.
  on the plot type. In case of \emph{repeat.clusters}, you may want to adjust
  the param \code{h_cut} to decrease/increase the number of repeat clusters.
 }
+\seealso{
+Other TALE plots:
+\code{\link[=plot_tale_composition]{plot_tale_composition()}},
+\code{\link[=plot_tales_msa]{plot_tales_msa()}},
+\code{\link[=plot_target_preds]{plot_target_preds()}},
+\code{\link[=talomes_heatmap]{talomes_heatmap()}}
+}
+\concept{TALE plots}

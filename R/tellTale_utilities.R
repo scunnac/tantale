@@ -12,7 +12,7 @@
     stop("HMMER is not in PATH. Follow instructions at http://hmmer.org/documentation.html to install it.")
   } else {
     out <- system(command = cmd,intern = TRUE)
-    out[2:3] %>% gsub("^#[ ]?", "", .) %>% logger::skip_formatter() %>% logger::log_info()
+    cli::cli_inform(gsub("^#[ ]?", "", out[2:3]))
   }
 }
 
@@ -134,7 +134,7 @@ annout <- setClass(
 }
 
 ## !! THIS SHOULD BE MADE OBSOLETE AND CODE USING IT SHOULD BE MODIFIED
-.extract_seqs_from_hits <- function(nhmmer_hits, DNAsequences){
+.extract_seqs_from_hits <- function(nhmmer_hits, dna_seqs){
   repeatSeqsSetList <- mapply(
     function(hitID, start, end, strand, subjectID, sequences) {
       seq <- XVector::subseq(sequences[subjectID], start, end)
@@ -147,7 +147,7 @@ annout <- setClass(
     end = nhmmer_hits$end,
     strand = nhmmer_hits$strand,
     subjectID = nhmmer_hits$target_name,
-    MoreArgs = list(sequences = DNAsequences),
+    MoreArgs = list(sequences = dna_seqs),
     USE.NAMES = FALSE)
   do.call(c, repeatSeqsSetList)
 }

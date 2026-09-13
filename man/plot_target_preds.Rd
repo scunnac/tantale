@@ -26,3 +26,17 @@ Individual RVDs are printed inside colored boxes. The color of the boxes indicat
 
 Numeric values inside the boxes located immediately to the right of the TALE labels reflect prediction scores.
 }
+\seealso{
+Other target prediction:
+\code{\link[=preditale]{preditale()}},
+\code{\link[=tales_predict_targets]{tales_predict_targets()}},
+\code{\link[=talvez]{talvez()}}
+
+Other TALE plots:
+\code{\link[=msa_heatmap]{msa_heatmap()}},
+\code{\link[=plot_tale_composition]{plot_tale_composition()}},
+\code{\link[=plot_tales_msa]{plot_tales_msa()}},
+\code{\link[=talomes_heatmap]{talomes_heatmap()}}
+}
+\concept{TALE plots}
+\concept{target prediction}

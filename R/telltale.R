@@ -153,6 +153,7 @@
 #'   \item CorrectionAlignmentDNA folder: folder containing DNA alignment of Tal array detected by HMMer and corrected Tal array if \code{correct_array = TRUE}
 #'   }
 #' @export
+#' @family TALE discovery
 tell_tales <- function(
   subject_file,
   output_dir = getwd(),
@@ -223,7 +224,7 @@ tell_tales <- function(
   ####   Checks for parameters and other things   ####
 
   ## Deal with spaces in sequence names because this messes up parsing of HMMER output
-  logger::log_info("HMMER is very picky about forbiden characters in sequence name. Renaming sequences in {subject_file}.")
+  cli::cli_inform("HMMER is very picky about forbiden characters in sequence name. Renaming sequences in {subject_file}.")
   originalSeqs <- Biostrings::readDNAStringSet(filepath = subject_file)
   Rsamtools::indexFa(subject_file)
   originalSeqInfo <- Rsamtools::seqinfo(Rsamtools::FaFile(subject_file))
@@ -231,8 +232,8 @@ tell_tales <- function(
   foolproofSeqlevels <- paste0("seq", 1:length(originalSeqlevels))
   names(originalSeqlevels) <- foolproofSeqlevels
   names(originalSeqs) <- foolproofSeqlevels
-  logger::log_info("Original seq names : {glue::glue_collapse(originalSeqlevels, sep = ' ; ')}")
-  logger::log_info("Dummy seq names : {glue::glue_collapse(names(originalSeqlevels), sep = ' ; ')}")
+  cli::cli_inform(paste0("Original seq names : {glue::glue_collapse(originalSeqlevels, sep = ' ; ')}"))
+  cli::cli_inform(paste0("Dummy seq names : {glue::glue_collapse(names(originalSeqlevels), sep = ' ; ')}"))
   subject_file <- tempfile()
   Biostrings::writeXStringSet(originalSeqs, filepath = subject_file)
   
@@ -297,7 +298,7 @@ tell_tales <- function(
   )
   nhmmerTabularOutput <- droplevels(nhmmerTabularOutput)
   if(nrow(nhmmerTabularOutput) == 0L) {
-    logger::log_warn("No record remains after filtering NhmmerSearch hits based on score. Exitting...")
+    cli::cli_warn("No record remains after filtering NhmmerSearch hits based on score. Exitting...")
     return(invisible(output_dir))
   }
   ## Add a hitID column
@@ -467,7 +468,7 @@ tell_tales <- function(
     #### Correct Tal arrays frame shifts if requested  ####
     # An alternative approach: https://github.com/Jstacs/Jstacs/tree/master/projects/talecorrect
     ####   Run CorrectFrameshifts   ####
-    logger::log_info("Correcting putative TALE coding sequences. Be patient, this may take a LONG time...")
+    cli::cli_inform(paste0("Correcting putative TALE coding sequences. Be patient, this may take a LONG time..."))
     AAref <- Biostrings::readAAStringSet(correction_ref, seek.first.rec = TRUE, use.names = TRUE)
     rawArraySeq <- extdCompleteArraysSeqs
     ## TO SPEEDUP CORRECTION could correct only predicted ORFs that cover less than X% of the rawArraySeq
@@ -475,7 +476,7 @@ tell_tales <- function(
                                                     AAref, type = "both",
                                                     maxComparisons = length(AAref),
                                                     frameShift = frameshift, ...)
-    logger::log_info("Correction of putative TALE coding sequences is done!")
+    cli::cli_inform("Correction of putative TALE coding sequences is done!")
     corrExtdCompleteArraysSeqs <- ArrayCorrection$sequences
     
     ####   Correction stats   ####
@@ -500,8 +501,8 @@ tell_tales <- function(
     #### Multiple alignenment of orginal vs corrected vs corrected+N/C subtituted sequences  ####
     
     for (n in names(corrExtdCompleteArraysSeqs)[vcountPattern("N", corrExtdCompleteArraysSeqs) > 0]) {
-      logger::log_warn("After correction, {n} sequence contains 'N's which will be substituted by 'C's in order",
-                       "to run AnnoTALE analyze for RVDs prediction.")
+      cli::cli_warn(paste0("After correction, {n} sequence contains 'N's which will be substituted by 'C's in order",
+                       "to run AnnoTALE analyze for RVDs prediction."))
     }
     substCorrExtdCompleteArraysSeqs <- Biostrings::chartr("N", "C", corrExtdCompleteArraysSeqs)
     
@@ -583,8 +584,6 @@ tell_tales <- function(
       " t=", fasta_file,
       " outdir=", output_dir
     )
-    logger::log_debug("Now running AnnoTALE analyze for {prefix}")
-    logger::log_debug("Using the following command: {comAnalyze}")
     exitAnalyze <- system(comAnalyze, ignore.stdout = TRUE, ignore.stderr = TRUE)
     return(invisible(exitAnalyze))
   }
@@ -600,7 +599,7 @@ tell_tales <- function(
     correctedTalOrfFile <- file.path(AnnotaleDir, "putativeTalOrf.fasta")
     Biostrings::writeXStringSet(TalOrf, correctedTalOrfFile)
     # Run Annotale on corrected ORF
-    logger::log_info("Now running AnnoTALE analyze for {talOrfID}")
+    cli::cli_inform("Now running AnnoTALE analyze for {talOrfID}")
     checkAnnoTale <- try(AnnoTALEanalyze(correctedTalOrfFile, AnnotaleDir), silent = TRUE)
     # Get Annotale output with conditions handling
     dna_parts_files <- file.path(AnnotaleDir, "TALE_DNA_parts.fasta")
@@ -631,7 +630,7 @@ tell_tales <- function(
     )) {
       annoTaleMessages <<- c(annoTaleMessages,
                             (m <- glue::glue("Annotale failed to parse TALE domains for {talOrfID}.")))
-      logger::log_warn(m)
+      cli::cli_warn(m)
       return(annout(Biostrings::AAStringSet(), domainsReport = data.frame()))
     }
     names(seqOfRVDs) <- talOrfID
@@ -709,7 +708,7 @@ tell_tales <- function(
                            htmlFile = file.path(output_dir, glue::glue("{part}DNAAlignment.html")),
                            openURL = F, colWidth = 120)
     } else {
-        logger::log_warn("Skipping {part} TALE DNA regions alignment because the input sequence has less than 2 putative TALEs.")
+        cli::cli_warn("Skipping {part} TALE DNA regions alignment because the input sequence has less than 2 putative TALEs.")
       }
   }
   
@@ -730,7 +729,7 @@ tell_tales <- function(
                            htmlFile = file.path(output_dir, glue::glue("{part}AAAlignment.html")),
                            openURL = F, colWidth = 120)
     } else {
-      logger::log_warn("Skipping {part} TALE protein regions alignment because the input sequence has less than 2 putative TALEs.")
+      cli::cli_warn("Skipping {part} TALE protein regions alignment because the input sequence has less than 2 putative TALEs.")
     }
     return(allpart)
   }, USE.NAMES = T)

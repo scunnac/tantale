@@ -25,3 +25,14 @@ Builds a \code{tales} object from a data frame of TALE array parts: one row
 per (array, slot). Column names still using the legacy camelCase spelling
 (\code{arrayID}, \code{positionInArray}, ...) are renamed on the way in.
 }
+\seealso{
+Other tales objects:
+\code{\link[=as_tales]{as_tales()}},
+\code{\link[=is_tales]{is_tales()}},
+\code{\link[=new_tales]{new_tales()}},
+\code{\link[=tales_anchor_codes]{tales_anchor_codes()}},
+\code{\link[=tales_assert_complete]{tales_assert_complete()}},
+\code{\link[=tales_namespace]{tales_namespace()}},
+\code{\link[=validate_tales]{validate_tales()}}
+}
+\concept{tales objects}

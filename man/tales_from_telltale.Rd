@@ -22,3 +22,10 @@ validated \code{\link{tales}} object.
 The result carries no \code{dom_code}: that surrogate key is minted later,
 by the relatedness computation, over the whole set of parts being analysed.
 }
+\seealso{
+Other TALE discovery:
+\code{\link[=correct_tales]{correct_tales()}},
+\code{\link[=diagnose_tale_parts]{diagnose_tale_parts()}},
+\code{\link[=tell_tales]{tell_tales()}}
+}
+\concept{TALE discovery}

@@ -5,7 +5,7 @@ Detailed design for the S3 class overhaul. Companion to
 this document holds the class definitions themselves — identity, invariants,
 constructors and method policy.
 
-Branch: `dev`. Last updated: 2026-09-12.
+Branch: `dev`. Last updated: 2026-09-13.
 
 Status markers (same as the ledger):
 

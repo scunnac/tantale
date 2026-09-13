@@ -16,3 +16,13 @@ A vector of consensus elements in each column of \code{align}.
 \description{
 Pick the most frequent element in each column of the alignment matrix.
 }
+\seealso{
+Other TALE alignment:
+\code{\link[=is_tales_msa]{is_tales_msa()}},
+\code{\link[=tales_align]{tales_align()}},
+\code{\link[=tales_consensus_match]{tales_consensus_match()}},
+\code{\link[=tales_msa]{tales_msa()}},
+\code{\link[=tales_width]{tales_width()}},
+\code{\link[=validate_tales_msa]{validate_tales_msa()}}
+}
+\concept{TALE alignment}

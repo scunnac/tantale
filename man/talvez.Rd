@@ -60,3 +60,10 @@ Note also that the talvez script is run in a conda environment providing the
 necessary dependencies. This environment will be created automatically if
 necessary.
 }
+\seealso{
+Other target prediction:
+\code{\link[=plot_target_preds]{plot_target_preds()}},
+\code{\link[=preditale]{preditale()}},
+\code{\link[=tales_predict_targets]{tales_predict_targets()}}
+}
+\concept{target prediction}

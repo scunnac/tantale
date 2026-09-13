@@ -11,8 +11,7 @@
 .split_list <- function(strings, sep = "-") {
   if (is.list(strings) &&
       any(sapply(strings, length) > 1)) {
-      logger::log_error("The value provided for strings seems already to be splitted.")
-      stop()
+      cli::cli_abort("The value provided for strings seems already to be splitted.", class = c("tantale_error"))
   } else if (length(strings) == 1 && is.character(strings)) {
     stopifnot(fs::file_exists(strings))
     seqs <- as.character(Biostrings::readBStringSet(strings), use.names = TRUE)
@@ -21,8 +20,7 @@
   } else if (length(strings) >= 1 && is.list(strings)) {
     seqs <- strings
   } else {
-    logger::log_error("Something is wrong with the value provided for strings.")
-    stop()
+    cli::cli_abort("Something is wrong with the value provided for strings.", class = c("tantale_error"))
   }
   
   seqsAsVectors <- stringr::str_split(seqs, pattern = glue::glue("[{sep}]"))
@@ -125,6 +123,7 @@
 #'   vectors. Each \strong{named} element corresponding to a TALE.
 #' @return A two columns repeatID - RVD data frame.
 #' @export
+#' @family tales projections
 repeat_to_rvd_map <- function(repeat_vecs, rvd_vecs) {
   # Making sure, these objects are indentical in every ways but the actual values of the vectors
   stopifnot(setequal(names(repeat_vecs), names(rvd_vecs)))
@@ -173,14 +172,13 @@ repeat_to_rvd_map <- function(repeat_vecs, rvd_vecs) {
 #' @param tale_parts The tale_parts object in a \code{\link{tales_compare}} output.
 #' @return A two columns repeatID - RVD data frame.
 #' @export
+#' @family tales projections
 repeat_to_rvd_map_distalr <- function(tale_parts) {
   if (!any("domCode" %in% colnames(tale_parts))) {
-    logger::log_error("The provided object does not contain a 'domCode' column. Are you using a tale_parts object from distalr()")
-    stop()
+    cli::cli_abort("The provided object does not contain a 'domCode' column. Are you using a tale_parts object from distalr()", class = c("tantale_error"))
   }
   if (nrow(diagnose_tale_parts(tale_parts)) != 0L) {
-    logger::log_error("The provided object does not seem to be sanitized. Have you used a tale_parts object with no empty sequences?")
-    stop()
+    cli::cli_abort("The provided object does not seem to be sanitized. Have you used a tale_parts object with no empty sequences?", class = c("tantale_error"))
   }
   tale_parts %>% 
     dplyr::select(domCode, rvd) %>%
@@ -347,10 +345,10 @@ repeat_to_rvd_align <-  function(repeat_align , rvd_map) {
 #' @param rvd_only Retrun only RVDs and ommit N- and C- terminal domains 
 #' @return A two columns repeatID - RVD data frame.
 #' @export
+#' @family tales projections
 tale_parts_to_rvd <- function(tale_parts, sep = "-", rvd_only = FALSE) {
   if (nrow(diagnose_tale_parts(tale_parts)) != 0L) {
-    logger::log_error("The provided object does not seem to be sanitized. Have you used a tale_parts object with no empty sequences?")
-    stop()
+    cli::cli_abort("The provided object does not seem to be sanitized. Have you used a tale_parts object with no empty sequences?", class = c("tantale_error"))
   }
   
   if(rvd_only) {

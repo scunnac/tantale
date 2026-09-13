@@ -52,7 +52,6 @@
 #'@importFrom IRanges IRanges
 #'@import fs
 #'@import magrittr
-#'@import logger
 #'@import cli
 "_PACKAGE"
 

@@ -45,3 +45,10 @@ A R wrapper around the
 preditale' module. Takes a list of TALE RVD sequences and a fasta file of DNA
 sequences and runs PrediTale.
 }
+\seealso{
+Other target prediction:
+\code{\link[=plot_target_preds]{plot_target_preds()}},
+\code{\link[=tales_predict_targets]{tales_predict_targets()}},
+\code{\link[=talvez]{talvez()}}
+}
+\concept{target prediction}

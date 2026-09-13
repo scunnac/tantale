@@ -30,17 +30,17 @@
 }
 
 
-.annotale_to_quetal_rvd <- function(inputFile, output_file = "RVDSeqs.QueTal.fasta") {
+.annotale_to_quetal_rvd <- function(input_file, output_file = "RVDSeqs.QueTal.fasta") {
   # Need a AnnoTALE "TALE_RVDs.fasta" - like RVD file
-  TALERVDSeqs <- Biostrings::readBStringSet(filepath = inputFile)
+  TALERVDSeqs <- Biostrings::readBStringSet(filepath = input_file)
   TALERVDSeqs <- as.character(TALERVDSeqs)
   writeLines(text = paste0(">", names(TALERVDSeqs), "\t", TALERVDSeqs), con = output_file) # functal formatted TALEs writen in text file
 }
 
 
-.quetal_to_annotale_rvd <- function(inputFile, output_file = "RVDSeqs.AnnoTALE.fasta") {
+.quetal_to_annotale_rvd <- function(input_file, output_file = "RVDSeqs.AnnoTALE.fasta") {
   # Need a file with RVD sequences in the QueTal specific format (>TaleA\tNN-NH-N*)
-  TALERVDSeqs <- read.table(inputFile, header = FALSE, sep = "\t", quote = "\"", stringsAsFactors = FALSE)
+  TALERVDSeqs <- read.table(input_file, header = FALSE, sep = "\t", quote = "\"", stringsAsFactors = FALSE)
   # Construct an XStringSet
   TALERVDSeqsBS <- Biostrings::BStringSet(x=TALERVDSeqs[,2])
   names(TALERVDSeqsBS) <- TALERVDSeqs[,1]
@@ -77,6 +77,7 @@
 #' @return Returns invisibly the exit code of the shell call to the last
 #'   AnnoTALE step (ie '0' if successful).
 #' @export
+#' @family external TALE tools
 run_annotale_predict <- function(fasta_file,
                             output_dir = getwd(),
                             prefix = NULL,
@@ -98,7 +99,7 @@ run_annotale_predict <- function(fasta_file,
     " s=", prefix,
     " outdir=", predict_dir
   )
-  cat("##  Now running AnnoTALE predict for", prefix, "using the following command:\n##  ",  comPredict, "\n")
+  cli::cli_inform(c("Running AnnoTALE predict for {.val {prefix}}", " " = "{comPredict}"))
   exitPredict <- system(comPredict)
   !exitPredict || stop("##  AnnoTALE predict failed with an error. Aborting...")
 
@@ -109,7 +110,7 @@ run_annotale_predict <- function(fasta_file,
     " t=", shQuote(list.files(predict_dir, pattern = "^TALE_DNA_sequences_", full.names = TRUE)),
     " outdir=", shQuote(analyze_dir)
   )
-  cat("##  Now running AnnoTALE analyze for", prefix, "using the following command:\n##  ",  comAnalyze, "\n")
+  cli::cli_inform(c("Running AnnoTALE analyze for {.val {prefix}}", " " = "{comAnalyze}"))
   exitAnalyze <- system(comAnalyze)
   return(invisible(exitAnalyze))
 }
@@ -133,6 +134,7 @@ run_annotale_predict <- function(fasta_file,
 #'   version than the one provided with tantale.
 #' @return Returns invisibly the exit code of the shell call to Annotale (ie '0' if successful).
 #' @export
+#' @family external TALE tools
 run_annotale_build <- function(fasta_file,
                           output_dir = getwd(),
                           annotale_jar = system.file("tools", "AnnoTALEcli-1.5.jar", package = "tantale", mustWork = T)
@@ -144,7 +146,7 @@ run_annotale_build <- function(fasta_file,
     " t=", shQuote(fasta_file),
     " outdir=", shQuote(output_dir)
   )
-  cat("Now running AnnoTALE build using the following command:\n",  comBuild, "\n")
+  cli::cli_inform(c("Running AnnoTALE build", " " = "{comBuild}"))
   exitBuild <- system(comBuild)
   return(invisible(exitBuild))
 }
@@ -155,7 +157,7 @@ run_annotale_build <- function(fasta_file,
 #'
 #' A R wrapper around the \href{https://doi.org/10.3389/fpls.2015.00545}{QueTAL} 'functal' perl script.
 #'
-#' @param TALfile Path to a QueTAL-formatted file of TALE RVD sequences.
+#' @param tal_file Path to a QueTAL-formatted file of TALE RVD sequences.
 #' @param tree_format Tree layout passed to functal's `-n` option (default `"fan"`).
 #' @param output_prefix Prefix used for functal's output file names.
 #' @param output_dir Directory where output will be copied (default: current working directory).
@@ -165,7 +167,8 @@ run_annotale_build <- function(fasta_file,
 #'   non-standard location, otherwise leave to "auto".
 #' @return Returns invisibly the exit code of the shell call to functal (ie '0' if successful).
 #' @export
-functal <- function(TALfile,
+#' @family external TALE tools
+functal <- function(tal_file,
                     tree_format = "fan",
                     output_prefix = "FuncTALE",
                     output_dir = getwd(),
@@ -186,13 +189,11 @@ functal <- function(TALfile,
   # and Bio::Perl come from the 'tantale' conda environment.
   functal_cmd <- paste("perl", "-I", functal_dir, functal_path,
                       "-n", tree_format,
-                      TALfile,
+                      tal_file,
                       output_prefix)
 
   # Run the command inside the tantale conda environment
-  cat("Now running functal using the following command:\n",
-      functal_cmd,
-      "\n\n")
+  cli::cli_inform(c("Running functal", " " = "{functal_cmd}"))
   envReady <- !as.logical(.create_tantale_env(conda_bin = conda_bin))
   if (envReady) {
     exitCom <- .run_in_conda(env_name = "tantale",

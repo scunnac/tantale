@@ -17,6 +17,7 @@
 #' @return A \code{\link[Biostrings]{BStringSet}}, named by \code{array_id}.
 #' @seealso \code{\link{tales_domain_codes}} for the code-to-sequence lookup.
 #' @export
+#' @family tales projections
 tales_coded_strings <- function(x) {
   .tales_assert_dom_code(x, "tales_coded_strings")
   ord <- x[order(x$array_id, x$position_in_array), ]
@@ -37,6 +38,7 @@ tales_coded_strings <- function(x) {
 #'   and \code{rvd} columns, one row per code.
 #' @seealso \code{\link{tales_coded_strings}}
 #' @export
+#' @family tales projections
 tales_domain_codes <- function(x) {
   .tales_assert_dom_code(x, "tales_domain_codes")
   needed <- c("aa_seq", "rvd")
@@ -66,6 +68,7 @@ tales_domain_codes <- function(x) {
 #' @return A \code{\link[Biostrings]{BStringSet}}, named by \code{array_id}.
 #' @seealso \code{\link{tales_coded_strings}}
 #' @export
+#' @family tales projections
 tales_rvd_strings <- function(x, sep = "-", rvd_only = TRUE) {
   if (!is_tales(x)) {
     cli::cli_abort("{.arg x} must be a {.cls tales} object.",

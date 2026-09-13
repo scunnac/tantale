@@ -27,3 +27,14 @@ complete. Alignment requires completeness, because the mapping back from a
 MAFFT alignment is positional — the k-th aligned residue is the k-th part
 fed in.
 }
+\seealso{
+Other tales objects:
+\code{\link[=as_tales]{as_tales()}},
+\code{\link[=is_tales]{is_tales()}},
+\code{\link[=new_tales]{new_tales()}},
+\code{\link[=tales]{tales()}},
+\code{\link[=tales_anchor_codes]{tales_anchor_codes()}},
+\code{\link[=tales_namespace]{tales_namespace()}},
+\code{\link[=validate_tales]{validate_tales()}}
+}
+\concept{tales objects}

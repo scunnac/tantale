@@ -32,6 +32,7 @@ new_tales_msa <- function(x, alignment_width = NULL) {
 #' @param x An object.
 #' @return A logical scalar.
 #' @export
+#' @family TALE alignment
 is_tales_msa <- function(x) inherits(x, "tales_msa")
 
 #' Width of a TALE alignment
@@ -43,6 +44,7 @@ is_tales_msa <- function(x) inherits(x, "tales_msa")
 #' @param x A \code{tales_msa} object.
 #' @return An integer scalar, or \code{NULL} if unset.
 #' @export
+#' @family TALE alignment
 tales_width <- function(x) {
   attr(x, "alignment_width", exact = TRUE)
 }
@@ -63,6 +65,7 @@ tales_width <- function(x) {
 #'   \code{\link{tales_namespace}}.
 #' @return A validated \code{tales_msa} object.
 #' @export
+#' @family TALE alignment
 tales_msa <- function(x, alignment_width = NULL, dom_code_namespace = NULL) {
   x <- tales(x, dom_code_namespace = dom_code_namespace)
   if ("alignment_position" %in% names(x) && is.numeric(x$alignment_position)) {
@@ -88,6 +91,7 @@ tales_msa <- function(x, alignment_width = NULL, dom_code_namespace = NULL) {
 #' @param x A \code{tales_msa} object.
 #' @return \code{x}, invisibly, if valid; otherwise an error.
 #' @export
+#' @family TALE alignment
 validate_tales_msa <- function(x) {
   validate_tales(x)
 
@@ -223,6 +227,7 @@ as.matrix.tales_msa <- function(x, value = NULL, gap = NA, ...) {
 #' @param ... Passed to \code{\link{tales_align}} (e.g. \code{mafft_opts}).
 #' @return A \code{tales_msa} object.
 #' @export
+#' @family TALE alignment
 tales_align <- function(x, residue_col = c("rvd", "dom_code"),
                         repeat_sims = NULL, ...) {
   residue_col <- match.arg(residue_col)

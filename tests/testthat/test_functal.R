@@ -15,7 +15,7 @@ test_that("functal() errors when the bundled functal perl script cannot run", {
   output_dir <- tempfile("functal")
   dir.create(output_dir)
   expect_error(
-    functal(TALfile = test_path("data_for_tests", "sample_funcTAL_input.txt"),
+    functal(tal_file = test_path("data_for_tests", "sample_funcTAL_input.txt"),
            output_dir = output_dir),
     "functal failed"
   )

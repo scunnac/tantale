@@ -53,3 +53,11 @@ talomes_heatmap(
 \description{
 The function creates a graphical presentation from a tale annotation table. The output is like a heatmap that presents rvd sequence variants in Tal groups as column and respective strains as rows (or vice versa). It is different from a typical heatmap that it can display more than one value in a cell; for example, if one strain has 2 rvd sequence variants belong to 1 group, it will be displayed by 2 colors in 1 cell.
 }
+\seealso{
+Other TALE plots:
+\code{\link[=msa_heatmap]{msa_heatmap()}},
+\code{\link[=plot_tale_composition]{plot_tale_composition()}},
+\code{\link[=plot_tales_msa]{plot_tales_msa()}},
+\code{\link[=plot_target_preds]{plot_target_preds()}}
+}
+\concept{TALE plots}

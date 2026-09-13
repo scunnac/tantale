@@ -27,3 +27,11 @@ filters the two id columns in succession, passing through a non-square
 intermediate. Both are correct; enforcing squareness everywhere would
 outlaw them.
 }
+\seealso{
+Other pairwise distances:
+\code{\link[=distances_restrict]{distances_restrict()}},
+\code{\link[=is_pairwise_distances]{is_pairwise_distances()}},
+\code{\link[=pairwise_distances]{pairwise_distances()}},
+\code{\link[=validate_pairwise_distances]{validate_pairwise_distances()}}
+}
+\concept{pairwise distances}

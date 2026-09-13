@@ -30,6 +30,7 @@
 #'   programs's output in order to homogenize column names across TALE target
 #'   prediction programs in tantale
 #' @export
+#' @family target prediction
 preditale <- function(rvd_seqs, subj_file, opt_param = "", output_dir = NULL,
                       predictor_path = system.file("tools", "PrediTALE.jar", package = "tantale", mustWork = T)) {
   # Checking input args
@@ -125,6 +126,7 @@ preditale <- function(rvd_seqs, subj_file, opt_param = "", output_dir = NULL,
 #'   programs's output in order to homogenize column names across TALE target
 #'   prediction programs in tantale.
 #' @export
+#' @family target prediction
 talvez <- function(rvd_seqs, subj_file, opt_param = "-t 0 -l 19", output_dir = NULL,
                    talvez_dir = system.file("tools", "TALVEZ_3.2", package = "tantale", mustWork = T),
                    conda_bin = "auto") {
@@ -170,7 +172,7 @@ talvez <- function(rvd_seqs, subj_file, opt_param = "-t 0 -l 19", output_dir = N
   if (envReady) {
     cmd <- glue::glue(#"cd {tempOutDir};",
                       "perl TALVEZ_3.2.pl {opt_param} -e mat1 -z mat2 {basename(rvdSeqsFileForTv)} {basename(subj_file)}")
-    logger::log_info("Invoking Talvez using the following command:\n {stringr::str_wrap(cmd, 80)}")
+    cli::cli_inform(paste0("Invoking Talvez using the following command:\n {stringr::str_wrap(cmd, 80)}"))
     res <- .run_in_conda(env_name = "tantale",
                             conda_bin = conda_bin,
                             cwd = tempOutDir,
@@ -224,7 +226,7 @@ talvez <- function(rvd_seqs, subj_file, opt_param = "-t 0 -l 19", output_dir = N
 ##### Displaying TALE RVD sequences - predicted target DNA sequences alignemnts #####
 
 
-.compute_match_string <- function(RVDSeq, EBESeq, rvd_nuc_assoc_mat = rvdToNtAssocMat) {
+.compute_match_string <- function(rvd_seq, ebe_seq, rvd_nuc_assoc_mat = rvdToNtAssocMat) {
   # Function that return a vector of numeric scores reflecting how good is the match between RVD and nucleotide at each successive position
   # Expects sequences as as a scalar string. They are split on "-" for RVD seqs and "" for EBE DNA sequences.
   # For each RVD
@@ -234,8 +236,8 @@ talvez <- function(rvd_seqs, subj_file, opt_param = "-t 0 -l 19", output_dir = N
   # Come up with some kind of a scoring function for these comparaison (best = 3, worst = 1, intermediate = 2)
   # Attribute a score refecting how well the RVD match the nucleotide.
   # Return a vector of match quality scores of lenght equal to the number of RVDs - Nucleotide pairs in input sequences
-  RVDSeqVector <- unlist(stringr::str_split(RVDSeq, pattern = "-"))
-  EBESeqVector <- unlist(stringr::str_split(EBESeq, pattern = ""))
+  RVDSeqVector <- unlist(stringr::str_split(rvd_seq, pattern = "-"))
+  EBESeqVector <- unlist(stringr::str_split(ebe_seq, pattern = ""))
   if(length(RVDSeqVector) != length(EBESeqVector)) stop("Number of elements in RVD and DNA sequences are not equal.")
 
   mapply(FUN = function(RSV, ESV, m) {
@@ -269,6 +271,8 @@ talvez <- function(rvd_seqs, subj_file, opt_param = "-t 0 -l 19", output_dir = N
 #'
 #' @return Returns a ggplot object that can be further altered using ggplot2 package functions.
 #' @export
+#' @family target prediction
+#' @family TALE plots
 plot_target_preds <- function(preds, subj_file, filter_range) {
   ######### Check and parse arguments
   subjDnaSeqs <- Biostrings::readDNAStringSet(subj_file)
@@ -350,7 +354,7 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
         rvd = if(.y$strand == "+") {unlist(stringr::str_split(.y$rvds, pattern = "-"))}
         else {sapply(unlist(stringr::str_split(.y$rvds, pattern = "-")), rev)},
         xPos = if(.y$strand == "+") .y$start:.y$end else .y$end:.y$start,
-        rvd2ntMatchScore = .compute_match_string(RVDSeq = .y$rvds, EBESeq = .y$ebeSeq)
+        rvd2ntMatchScore = .compute_match_string(rvd_seq = .y$rvds, ebe_seq = .y$ebeSeq)
       )
     }) %>%
     dplyr::mutate(rvd = sapply(stringr::str_split(string = rvd, pattern = ""), paste, collapse = "\n"))
@@ -532,6 +536,7 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
 #'
 #' @seealso \code{\link{talvez}}, \code{\link{preditale}}
 #' @export
+#' @family target prediction
 tales_predict_targets <- function(x, subj_file, method = c("talvez", "preditale"), ...) {
   method <- match.arg(method)
   if (is_tales(x)) x <- tales_rvd_strings(x)

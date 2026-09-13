@@ -40,3 +40,14 @@ domain types, amino acid sequences or source contigs, so only
 produced. That is a valid \code{tales} — see \code{dev/class-design.md}
 §2.3 for why \code{seqnames} and the rest are optional.
 }
+\seealso{
+Other tales objects:
+\code{\link[=is_tales]{is_tales()}},
+\code{\link[=new_tales]{new_tales()}},
+\code{\link[=tales]{tales()}},
+\code{\link[=tales_anchor_codes]{tales_anchor_codes()}},
+\code{\link[=tales_assert_complete]{tales_assert_complete()}},
+\code{\link[=tales_namespace]{tales_namespace()}},
+\code{\link[=validate_tales]{validate_tales()}}
+}
+\concept{tales objects}

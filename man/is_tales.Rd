@@ -15,3 +15,14 @@ A logical scalar.
 \description{
 Is this a tales object?
 }
+\seealso{
+Other tales objects:
+\code{\link[=as_tales]{as_tales()}},
+\code{\link[=new_tales]{new_tales()}},
+\code{\link[=tales]{tales()}},
+\code{\link[=tales_anchor_codes]{tales_anchor_codes()}},
+\code{\link[=tales_assert_complete]{tales_assert_complete()}},
+\code{\link[=tales_namespace]{tales_namespace()}},
+\code{\link[=validate_tales]{validate_tales()}}
+}
+\concept{tales objects}

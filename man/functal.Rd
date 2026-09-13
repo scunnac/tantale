@@ -5,7 +5,7 @@
 \title{Run functal from QueTAL to build a phylogenetic tree of TALE RVD sequences.}
 \usage{
 functal(
-  TALfile,
+  tal_file,
   tree_format = "fan",
   output_prefix = "FuncTALE",
   output_dir = getwd(),
@@ -15,7 +15,7 @@ functal(
 )
 }
 \arguments{
-\item{TALfile}{Path to a QueTAL-formatted file of TALE RVD sequences.}
+\item{tal_file}{Path to a QueTAL-formatted file of TALE RVD sequences.}
 
 \item{tree_format}{Tree layout passed to functal's `-n` option (default `"fan"`).}
 
@@ -35,3 +35,9 @@ Returns invisibly the exit code of the shell call to functal (ie '0' if successf
 \description{
 A R wrapper around the \href{https://doi.org/10.3389/fpls.2015.00545}{QueTAL} 'functal' perl script.
 }
+\seealso{
+Other external TALE tools:
+\code{\link[=run_annotale_build]{run_annotale_build()}},
+\code{\link[=run_annotale_predict]{run_annotale_predict()}}
+}
+\concept{external TALE tools}

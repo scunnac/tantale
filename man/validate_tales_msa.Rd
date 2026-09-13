@@ -18,3 +18,13 @@ an alignment. As for \code{tales}, only properties closed under row
 subsetting are checked here; grid completeness is a precondition of the
 functions that need it.
 }
+\seealso{
+Other TALE alignment:
+\code{\link[=is_tales_msa]{is_tales_msa()}},
+\code{\link[=tales_align]{tales_align()}},
+\code{\link[=tales_consensus]{tales_consensus()}},
+\code{\link[=tales_consensus_match]{tales_consensus_match()}},
+\code{\link[=tales_msa]{tales_msa()}},
+\code{\link[=tales_width]{tales_width()}}
+}
+\concept{TALE alignment}

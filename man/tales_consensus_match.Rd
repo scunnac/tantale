@@ -24,3 +24,13 @@ Compute a logical matrix corresponding to the input \code{align}
 input with \code{TRUE} if an element match the consensus element at that position
 or \code{FALSE} otherwise.
 }
+\seealso{
+Other TALE alignment:
+\code{\link[=is_tales_msa]{is_tales_msa()}},
+\code{\link[=tales_align]{tales_align()}},
+\code{\link[=tales_consensus]{tales_consensus()}},
+\code{\link[=tales_msa]{tales_msa()}},
+\code{\link[=tales_width]{tales_width()}},
+\code{\link[=validate_tales_msa]{validate_tales_msa()}}
+}
+\concept{TALE alignment}

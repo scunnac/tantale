@@ -48,6 +48,25 @@ two partitions.
 `.cluster_repeats()` had the same defect but became unreachable when
 `distalr()` was removed, and has been deleted.
 
+### Messaging is now cli throughout
+
+The package mixed four messaging idioms: `logger`, `cat()`, base `message()`
+and base `stop()`/`warning()`. It now uses `cli` only, and `logger` has been
+dropped from `Imports`.
+
+This also fixes a class of bug rather than being cosmetic. Twenty-three call
+sites wrote their diagnostic to the logger and then raised a bare `stop()` or
+`warning()` -- conditions whose message was the empty string. `tryCatch()` saw
+nothing, tests could not assert on them, and if your logger threshold excluded
+ERROR the failure was silent. Errors now carry their message on the condition,
+with a `tantale_error` class.
+
+One guard was simply broken: `distalr()` tested `aln_method` with
+`logger::log_errors() && stop("...")`. `log_errors()` installs a global error
+handler rather than returning a predicate, so the helpful message was
+unreachable and an invalid `aln_method` produced an unrelated complaint about
+calling handlers.
+
 ### Similarity became distance
 
 `pairwise_distances` (formerly `pairwise_sim`) stores `dissim`, not `sim`, and

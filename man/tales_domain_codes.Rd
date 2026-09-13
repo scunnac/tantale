@@ -19,4 +19,12 @@ sequence it stands for, and the RVD carried by that domain.
 }
 \seealso{
 \code{\link{tales_coded_strings}}
+
+Other tales projections:
+\code{\link[=repeat_to_rvd_map]{repeat_to_rvd_map()}},
+\code{\link[=repeat_to_rvd_map_distalr]{repeat_to_rvd_map_distalr()}},
+\code{\link[=tale_parts_to_rvd]{tale_parts_to_rvd()}},
+\code{\link[=tales_coded_strings]{tales_coded_strings()}},
+\code{\link[=tales_rvd_strings]{tales_rvd_strings()}}
 }
+\concept{tales projections}

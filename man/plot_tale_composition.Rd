@@ -19,3 +19,11 @@ NOT TESTED!!!!
 This displays a compact but information rich view of the TALEs stored in a
 tale_parts object.
 }
+\seealso{
+Other TALE plots:
+\code{\link[=msa_heatmap]{msa_heatmap()}},
+\code{\link[=plot_tales_msa]{plot_tales_msa()}},
+\code{\link[=plot_target_preds]{plot_target_preds()}},
+\code{\link[=talomes_heatmap]{talomes_heatmap()}}
+}
+\concept{TALE plots}

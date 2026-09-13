@@ -18,3 +18,14 @@ from different runs must not be joined: \code{dom_code} is minted per run, so
 the codes collide across runs and a join would silently succeed against the
 wrong repeats.
 }
+\seealso{
+Other tales objects:
+\code{\link[=as_tales]{as_tales()}},
+\code{\link[=is_tales]{is_tales()}},
+\code{\link[=new_tales]{new_tales()}},
+\code{\link[=tales]{tales()}},
+\code{\link[=tales_anchor_codes]{tales_anchor_codes()}},
+\code{\link[=tales_assert_complete]{tales_assert_complete()}},
+\code{\link[=validate_tales]{validate_tales()}}
+}
+\concept{tales objects}

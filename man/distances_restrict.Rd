@@ -18,3 +18,11 @@ A \code{pairwise_distances} over \code{ids} only.
 Filters **both** id columns, which is what keeps the result square. The
 package currently does this by hand at three call sites, in two steps.
 }
+\seealso{
+Other pairwise distances:
+\code{\link[=distances_assert_square]{distances_assert_square()}},
+\code{\link[=is_pairwise_distances]{is_pairwise_distances()}},
+\code{\link[=pairwise_distances]{pairwise_distances()}},
+\code{\link[=validate_pairwise_distances]{validate_pairwise_distances()}}
+}
+\concept{pairwise distances}

@@ -27,3 +27,13 @@ are implicit: a gap is simply the absence of a row at that
 \details{
 Normally produced by \code{\link{tales_align}} rather than called directly.
 }
+\seealso{
+Other TALE alignment:
+\code{\link[=is_tales_msa]{is_tales_msa()}},
+\code{\link[=tales_align]{tales_align()}},
+\code{\link[=tales_consensus]{tales_consensus()}},
+\code{\link[=tales_consensus_match]{tales_consensus_match()}},
+\code{\link[=tales_width]{tales_width()}},
+\code{\link[=validate_tales_msa]{validate_tales_msa()}}
+}
+\concept{TALE alignment}

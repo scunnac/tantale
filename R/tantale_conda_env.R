@@ -10,8 +10,6 @@
   fullCommand <- glue::glue("eval \"$({conda_bin} shell hook -s posix)\"",
                             "{conda_bin} run --cwd {cwd} -n {env_name} {command}",
                             .sep = "; ")
-  logger::log_debug("Starting the following command in the '{env_name}' conda env :
-                   {fullCommand}")
   system(command = fullCommand, ...)
 }
 
@@ -34,17 +32,17 @@
 .create_tantale_env <- function(conda_bin = "auto") {
   env_name <- "tantale"
   if (!env_name %in% (reticulate::conda_list(conda = conda_bin)["name"] %>% unlist())) {
-    logger::log_warn("A custom conda env will be installed on your system to run external dependencies...")
+    cli::cli_inform("A custom conda env will be installed on your system to run external dependencies...")
     condayml <- system.file("tools", "tantale_conda_env.yaml", package = "tantale", mustWork = T)
     res <- reticulate::conda_create(envname = env_name,
                                     environment = condayml)
     if (!is.character(res)) {
-      logger::log_warn("Installation of the conda environment failed.")
+      cli::cli_warn("Installation of the conda environment failed.")
       return(invisible(res))
     }
     return(invisible(0L))
   } else {
-    logger::log_info("A Conda environment with the name '{env_name}' has been found on your system and can be used for analysis.")
+    cli::cli_inform("A Conda environment with the name {.val {env_name}} has been found on your system and can be used for analysis.")
     return(invisible(0L))
   }
 }

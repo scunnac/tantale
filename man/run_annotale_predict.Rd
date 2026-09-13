@@ -37,3 +37,9 @@ predict' and 'AnnoTALE.jar analyze' shell calls. The whole AnnoTALE workflow
 can be completed by a subsequent call to the \code{\link{run_annotale_build}}
 function.
 }
+\seealso{
+Other external TALE tools:
+\code{\link[=functal]{functal()}},
+\code{\link[=run_annotale_build]{run_annotale_build()}}
+}
+\concept{external TALE tools}

@@ -59,6 +59,7 @@ new_pairwise_distances <- function(x, subclass = NULL, dom_code_namespace = NULL
 #' @param x An object.
 #' @return A logical scalar.
 #' @export
+#' @family pairwise distances
 is_pairwise_distances <- function(x) inherits(x, "pairwise_distances")
 
 #' Create a pairwise similarity table
@@ -86,6 +87,7 @@ is_pairwise_distances <- function(x) inherits(x, "pairwise_distances")
 #'   *are* \code{dom_code}s.
 #' @return A validated \code{pairwise_distances} object.
 #' @export
+#' @family pairwise distances
 pairwise_distances <- function(x, dom_code_namespace = NULL) {
   .new_validated_distances(x, subclass = NULL, dom_code_namespace = dom_code_namespace)
 }
@@ -167,6 +169,7 @@ domain_distances <- function(x, dom_code_namespace = NULL) {
 #' @param x A \code{pairwise_distances} object.
 #' @return \code{x}, invisibly, if valid; otherwise an error.
 #' @export
+#' @family pairwise distances
 validate_pairwise_distances <- function(x) {
   needed <- c(PAIRWISE_DISTANCES_ID_COLS, PAIRWISE_DISTANCES_VALUE_COL)
   missing <- setdiff(needed, names(x))
@@ -218,6 +221,7 @@ validate_pairwise_distances <- function(x) {
 #' @param arg Name of the argument being checked, for the error message.
 #' @return \code{x}, invisibly.
 #' @export
+#' @family pairwise distances
 distances_assert_square <- function(x, arg = "x") {
   if (!is_pairwise_distances(x)) {
     cli::cli_abort("{.arg {arg}} must be a {.cls pairwise_distances} object.",
@@ -279,6 +283,7 @@ as.matrix.pairwise_distances <- function(x, value = PAIRWISE_DISTANCES_VALUE_COL
 #' @param ids A character vector of entity ids to keep.
 #' @return A \code{pairwise_distances} over \code{ids} only.
 #' @export
+#' @family pairwise distances
 distances_restrict <- function(x, ids) {
   if (!is_pairwise_distances(x)) {
     cli::cli_abort("{.arg x} must be a {.cls pairwise_distances} object.",

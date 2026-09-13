@@ -23,3 +23,10 @@ NOT TESTED!!!!
 This displays a compact but information rich view of the TALEs stored in a
 tale_parts object.
 }
+\seealso{
+Other TALE discovery:
+\code{\link[=correct_tales]{correct_tales()}},
+\code{\link[=tales_from_telltale]{tales_from_telltale()}},
+\code{\link[=tell_tales]{tell_tales()}}
+}
+\concept{TALE discovery}

@@ -22,3 +22,12 @@ Care must be taken that TALEs in the two sets of sequences have the same name.
 In addition, the function tries hard to make sure that the two sets of sequences are identical in every ways but the individual 'values' they contain.
 It is therefore notably important to make sure that the sequences are consistent in whether they include N-term and C-term domains IDs/Tags or not.
 }
+\seealso{
+Other tales projections:
+\code{\link[=repeat_to_rvd_map_distalr]{repeat_to_rvd_map_distalr()}},
+\code{\link[=tale_parts_to_rvd]{tale_parts_to_rvd()}},
+\code{\link[=tales_coded_strings]{tales_coded_strings()}},
+\code{\link[=tales_domain_codes]{tales_domain_codes()}},
+\code{\link[=tales_rvd_strings]{tales_rvd_strings()}}
+}
+\concept{tales projections}

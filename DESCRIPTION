@@ -22,7 +22,7 @@ Imports:
     Rsamtools, systemPipeR, msa, DECIPHER,
     ape, ggtree, tidytree, aplot,
     gplots, cluster, viridis,
-    reticulate, optparse, logger, cli, digest
+    reticulate, optparse, cli, digest
 Suggests:
     knitr, DT, sessioninfo,
     biomartr,

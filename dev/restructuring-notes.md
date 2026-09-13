@@ -3,7 +3,7 @@
 Working document for the pre-publication overhaul. Records findings, agreed
 actions and deferred questions so they don't live only in conversation.
 
-Branch: `dev`. Last updated: 2026-09-12.
+Branch: `dev`. Last updated: 2026-09-13.
 
 Status markers used below:
 
@@ -567,7 +567,19 @@ The five rules, each audited against the current `dev` state:
    agree, so that `repeat_align` the argument and `repeat_align` the column
    mean the same thing.
 
-### 9.1 Argument names — finish the snake_case conversion
+### 9.1 Argument names — DONE **[V]**
+
+Complete. Verified by `formals()` introspection over every function in the
+namespace: no argument anywhere in the package now contains a capital letter or
+a dot. The last six were `functal(TALfile)`, `.compute_match_string(RVDSeq,
+EBESeq)`, `.extract_seqs_from_hits(DNAsequences)`, the two
+`inputFile`s, and `.repeat_to_cluster_align(h.cut)` -- the one with real bite,
+since it was dot.case *and* disagreed with `h_cut` everywhere else. Fixed as
+part of the clustering bug fix.
+
+#### Original notes
+
+### 9.1-original Argument names — finish the snake_case conversion
 
 The rename pass converted the public API, but six functions still carry
 non-conforming argument names (verified by `formals()` introspection, so this
@@ -665,7 +677,37 @@ functions should stop being exported once `tale_parts` is central (see §2), and
 whether the S4 class `annout` should remain `exportClasses`-tagged given it
 never reaches the public pipeline.
 
-### 9.4 Use `@family` wherever justified **[A]**
+### 9.4 Use `@family` wherever justified -- DONE **[V]**
+
+42 `@family` tags added across eight families:
+
+| family | n |
+|---|---|
+| tales objects | 8 |
+| TALE alignment | 7 |
+| tales projections | 6 |
+| TALE plots | 5 |
+| pairwise distances | 5 |
+| target prediction | 4 |
+| TALE discovery | 4 |
+| external TALE tools | 3 |
+
+Two implementation notes:
+
+- Blocks carrying `@rdname` were deliberately skipped. They share a topic with
+  their parent, so a tag on each would emit duplicate `\concept{}` entries into
+  one Rd.
+- `plot_target_preds()` carries two tags (target prediction *and* TALE plots),
+  the dual membership anticipated when this item was written.
+
+Each tag emits both a bidirectional `\seealso{Other <family>: ...}` and a
+`\concept{<family>}`, so a grouped `reference:` section can now be added to
+`_pkgdown.yml` with `has_concept("<family>")` rather than maintaining the list
+separately. That pkgdown change is **not** done and is the natural follow-up.
+
+#### Original notes
+
+### 9.4-original Use `@family` wherever justified
 
 Current state: **0** `@family`, **0** `@seealso`, and exactly **two**
 `\code{\link{}}` cross-references in the entire package
@@ -722,7 +764,37 @@ Points to settle when applying:
   the grouping does not imply parity with `plot_tales_msa()`, or keep it in and
   lean on an explicit deprecation note.
 
-### 9.5 Unify the user-messaging system **[A]**
+### 9.5 Unify the user-messaging system -- DONE **[V]**
+
+Executed. `logger` is removed from `R/` and from `DESCRIPTION`; `cli` is the
+single messaging system.
+
+| before | after |
+|---|---|
+| 87 `logger::log_*()` | 0 |
+| 22 bare `stop()` + 1 bare `warning()` (empty messages) | 0 |
+| `log_errors() && stop(...)` (message unreachable) | `cli_abort()` naming the bad value |
+| `cat()` / `print()` narration on stdout | `cli_inform()` on stderr |
+
+Conversion rules applied:
+
+- `log_error(msg)` immediately followed by `stop()` -> `cli_abort(msg, class = "tantale_error")`.
+  This is what fixes the empty-message class of bug: the text was going to the
+  logger while the condition itself carried nothing.
+- `log_error(msg)` *not* followed by `stop()` -> `cli_warn()`, since it never aborted.
+- `log_warn(msg)` + `warning()` -> `cli_warn(msg)`.
+- `log_info()` -> `cli_inform()`.
+- `log_debug()` -> **deleted**. logger's default threshold is INFO, so these
+  were already invisible; removing them changes nothing a user could see. The
+  `skip_formatter(kable(...))` table dumps went with them, their information
+  folded into the neighbouring `cli_warn()` bullets where it mattered.
+
+Open follow-up: converted legacy sites carry the generic `tantale_error` class
+only. Giving them specific subclasses (as the class-system code already does,
+e.g. `tantale_error_tales_type`) would make them individually assertable in
+tests. Worth a pass, but each needs a judgement call about the right name.
+
+### 9.5-superseded Unify the user-messaging system **[A]**
 
 Current state — four idioms coexisting, ~190 call sites:
 
@@ -833,7 +905,30 @@ anyone filters by level.
 
 ---
 
-### 9.6 "similarity" and "repeat" are both wrong names **[P]**
+### 9.6 "similarity" and "repeat" are both wrong names -- DONE **[V]**
+
+Both halves resolved and implemented.
+
+**(a)** confirmed by measurement (71 of 251 ids, 28%, are terminus domains) and
+fixed by renaming to the `distances` vocabulary:
+`pairwise_sim`/`tale_sim`/`repeat_sim` -> `pairwise_distances`/`tale_distances`/`domain_distances`,
+`tales_relatedness()` -> `tales_compare()`, helpers `sim_*` -> `distances_*`.
+
+**(b)** resolved in favour of storing the distance. `dissim` is the required
+column; `sim` and `norm_arlem_score` are folded in on ingest and dropped, since
+all three were exact restatements of one quantity. Legacy tables are still
+accepted and converted.
+
+Naming decisions taken with the user, in order: the function keeps a verb
+(`tales_compare`), the slots mirror the class labels, the constructors mirror
+them too, and the entity word stays singular while the head noun is plural
+(`tale_distances`, not `tales_distances`) -- both because English puts the
+modifier in the singular and because `tales_*` already means "operates on a
+tales object" in this package.
+
+#### Original notes
+
+### 9.6-original "similarity" and "repeat" are both wrong names
 
 Two independent problems with the same family of names — the class
 `repeat_sim`, the slot `repeat.similarity`, the column `sim`, and the

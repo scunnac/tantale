@@ -154,3 +154,10 @@ canonical TALE protein (early frame shift, incomplete ORF, etc...), the
 "analyze" module of AnnoTALE outputs DNA parts but no protein parts and/or
 RVD sequence. This should be detected and reported in the tell_tales log.
 }
+\seealso{
+Other TALE discovery:
+\code{\link[=correct_tales]{correct_tales()}},
+\code{\link[=diagnose_tale_parts]{diagnose_tale_parts()}},
+\code{\link[=tales_from_telltale]{tales_from_telltale()}}
+}
+\concept{TALE discovery}
