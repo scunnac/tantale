@@ -98,7 +98,7 @@
                              ) %>%
     lapply(function(x) tibble::tibble(rvd = x, positionInArray = 1:length(x) )) %>%
     dplyr::bind_rows(.id = "arrayID")  
-  anchorCodes <- c("NTERM", "CTERM", "XXXXX")
+  anchorCodes <- tales_anchor_codes()
   
   
   # Some checks on the consistency between parts and rvd sequences

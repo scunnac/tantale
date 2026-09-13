@@ -53,8 +53,9 @@
 #'@import fs
 #'@import magrittr
 #'@import cli
-#'@import dplyr
-#'@import ggplot2
+#'@importFrom dplyr mutate if_else
+#'@importFrom ggplot2 ggplot aes labs geom_point geom_text facet_grid theme_light
+#'@importFrom ggplot2 scale_x_continuous scale_fill_discrete scale_color_viridis_d
 #'@importFrom tidyr gather
 #'@importFrom stats hclust cutree dist as.dist as.dendrogram order.dendrogram median quantile
 #'@importFrom utils read.table read.delim write.table

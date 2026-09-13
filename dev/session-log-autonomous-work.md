@@ -113,7 +113,17 @@ plus `@importFrom` for `tidyr`, `stats`, `utils`, `grDevices`, `graphics` and
 one that calls it as `tantale::plot_tale_composition()` so the regression
 cannot come back through the user's search path.
 
-**E. Five Bioconductor packages were used but never declared.**
+**E. `tale_parts_to_rvd(rvd_only = TRUE)` kept one of the three anchor codes.**
+Its filter hardcoded `c("NTERM", "CTERM")` and so retained `"XXXXX"` -- the
+sentinel meaning *terminus detected in the CDS but no HMMer hit, identity
+unknown*. Demonstrated on the reference fixture: one sequence carried `XXXXX`
+into a supposedly repeats-only RVD string.
+
+This is exactly what `class-design.md` §2.5 predicted when it said the anchor
+set "belongs in one exported constant -- `tales_anchor_codes()` -- rather than
+being retyped across four files". Both retyped sites now call the constant.
+
+**F. Five Bioconductor packages were used but never declared.**
 `BiocGenerics`, `BiocParallel`, `GenomeInfoDb`, `S4Vectors` and `rtracklayer`
 are called with `::` throughout `R/` and were absent from `Imports`. They are
 installed on this machine, so nothing ever failed here -- a clean install would

@@ -407,7 +407,10 @@ tale_parts_to_rvd <- function(tale_parts, sep = "-", rvd_only = FALSE) {
   }
   
   if(rvd_only) {
-    tale_parts %<>% filter(!rvd %in% c("NTERM", "CTERM"))
+    # tales_anchor_codes() rather than a retyped list: the set has THREE
+    # members, and the hardcoded pair here silently kept "XXXXX" -- a
+    # terminus detected but not identified -- in a repeats-only string.
+    tale_parts %<>% dplyr::filter(!rvd %in% tales_anchor_codes())
   }
   
   rvdStrings <- tale_parts %>%
