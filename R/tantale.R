@@ -61,7 +61,7 @@
 #'@importFrom utils read.table read.delim write.table
 #'@importFrom grDevices colorRampPalette dev.off
 #'@importFrom graphics abline axis box image layout mtext par strwidth text
-#'@importFrom methods as new hasArg
+#'@importFrom methods as new hasArg Quote
 "_PACKAGE"
 
 

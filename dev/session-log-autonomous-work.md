@@ -25,7 +25,8 @@ Status markers: **[V]** verified empirically · **[D]** a decision I took alone.
 | pkgdown reference index | **DONE** — grouped by concept; `check_pkgdown()` passes |
 | §3 legacy cemetery | **DONE** — three shims moved to `inst/legacy/` |
 | §4 `msa_heatmap()` | **ANALYSED** — one blocker identified, not fixed |
-| §8 error-condition tests | **DONE** — 18 assertions; found 2 live bugs |
+| §8 error-condition tests | **DONE** — found 2 live bugs |
+| §8 untested-export tests | **DONE** — found 1 more; coverage 35/45 -> 39/45 |
 | `R CMD check` | run; one real NOTE fixed (`methods` missing from Imports) |
 | 9.3 internal-doc policy | partial — see §5 |
 | 7.1 vignette reproducibility | **NEW FINDING** — recorded, not fixed |
@@ -192,6 +193,34 @@ This is the concrete reason I did not attempt **9.2** unattended. That sweep is
 the legacy plotting path has 4 tests guarding it, and a missed or mis-targeted
 substitution there yields *wrong plots*, not an exception. It wants a human
 watching, or a much better safety net first.
+
+---
+
+## 4c. Test coverage, before and after
+
+| | start | end |
+|---|---|---|
+| assertions passing | 266 | 307 |
+| exports with no test at all | 10 of 45 | 6 of 45 |
+| `tantale_error_*` classes with no test | 11 | 3 |
+
+The six exports still uncovered all need external machinery and are honest
+integration-test territory, not gaps to paper over: `run_annotale_build()` and
+`run_annotale_predict()` (the AnnoTALE jar), `preditale()` and
+`plot_target_preds()` (the PrediTALE predictor), `msa_heatmap()` and
+`talomes_heatmap()` (heatmap rendering against real annotation tables).
+
+The three remaining error classes need contrived inputs to reach:
+`tantale_error_arlem_incomplete`, `tantale_error_msa_backmap`,
+`tantale_error_parts_inconsistent`.
+
+**One retirement note worth keeping.** `repeat_to_rvd_map()` is on §2's
+retirement list, but §2 requires its assertion be migrated first -- it is the
+only place the package enforces that a repeat code maps to exactly one RVD.
+That requirement was a sentence in a document. It is now a test, so deleting
+the function fails the suite until the invariant has a new home. The `tales`
+validator's invariant 8 (the `aa_seq` <-> `dom_code` bijection) is the same
+shape of constraint one level down, and the natural place for it.
 
 ---
 
