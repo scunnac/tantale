@@ -9,7 +9,7 @@ plot_tales_msa(
   tal_sim = NULL,
   rvd_align = NULL,
   repeat_sim = NULL,
-  h_cut = 90,
+  h_cut = 10,
   ref_pattern = NULL,
   consensus = FALSE,
   fill_type = "repeat_clust"

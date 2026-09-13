@@ -1,18 +1,4 @@
 
-# Formerly defined in distal.R (removed with the Perl DisTAL wrapper); kept
-# here since distalr() also uses it to build its "repeats.cluster" output.
-.cluster_repeats <- function(repeat_sim_mat, h_cut) {
-  dist_clust <- hclust(as.dist(repeat_sim_mat))
-  dist_cut <- as.data.frame(
-    cbind(RepID = dist_clust$labels,
-          Rep_clust = cutree(dist_clust, h = h_cut)
-    )
-  )
-  dist_cut$Rep_order <- order.dendrogram(as.dendrogram(dist_clust))
-  dist_cut <- dist_cut[order(dist_cut$Rep_order),] %>%
-    dplyr::as_tibble()
-  return(dist_cut)
-}
 
 .tale_parts_from_file <- function(fasta) {
   if (grepl("TALE_Protein_parts.fasta", basename(fasta))) taleStrings <- Biostrings::readAAStringSet(fasta)

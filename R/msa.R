@@ -288,13 +288,13 @@ tales_consensus_match <- function(align, long = TRUE) {
 #' 
 #' @export
 msa_heatmap <- function(tal_sim, repeat_align, rvd_align = NULL,
-                        repeat_sim, h_cut = 90, ref_pattern = NULL,
+                        repeat_sim, h_cut = 10, ref_pattern = NULL,
                         consensus = FALSE, note_colors = NULL,
                         plot_type, save_path, ...) {
   
   
   if (startsWith(plot_type, "repeat.clusters")) {
-    forMatrix <- .repeat_to_cluster_align(repeat_align = repeat_align, repeat_sim = repeat_sim, h.cut = h_cut)
+    forMatrix <- .repeat_to_cluster_align(repeat_align = repeat_align, repeat_sim = repeat_sim, h_cut = h_cut)
   } else if (plot_type == "repeat.similarity") {
     forMatrix <- .repeat_to_sim_align(repeat_align = repeat_align, repeat_sim = repeat_sim, ref_tag = ref_pattern)
   } else if (!hasArg(plot_type) || is.null(plot_type) || is.na(plot_type)) {
@@ -624,7 +624,7 @@ plot_tales_msa <- function(repeat_align,
                            tal_sim = NULL,
                            rvd_align = NULL,
                            repeat_sim = NULL,
-                           h_cut = 90,
+                           h_cut = 10,
                            ref_pattern = NULL,
                            consensus = FALSE,
                            fill_type = "repeat_clust" #"repeat_sim"
@@ -723,7 +723,7 @@ plot_tales_msa <- function(repeat_align,
   if (!is.null(repeat_sim) & !is.null(repeat_align)) {
     repeatClusterAlignLong <- .repeat_to_cluster_align(repeat_align = repeat_align,
                                                            repeat_sim = repeat_sim,
-                                                           h.cut = h_cut) %>%
+                                                           h_cut = h_cut) %>%
       reshape2::melt() %>%
       dplyr::as_tibble() %>%
       dplyr::mutate(value = as.character(value))

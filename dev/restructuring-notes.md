@@ -345,6 +345,22 @@ Deferred to a dedicated pass on "computations that may not match intent":
   distinct from `position_in_array` (`class-design.md` §4) — listed here so it
   is not lost if that design changes, not as separate work.
 
+### RESOLVED: the as.dist() inversion bug **[V]**
+
+Closed. Of the sites that looked suspect, only one was a live bug:
+
+| site | verdict |
+|---|---|
+| `msa.R` (both dendrogram sites) | correct -- they compute `100 - tal_sim` first |
+| `classification.R` | correct -- its matrix is now a distance |
+| `conversion.R` `.repeat_to_cluster_align()` | **was the bug**; fixed |
+| `distalr.R` `.cluster_repeats()` | same defect, but unreachable after `distalr()` was removed; deleted |
+
+Measured effect of the fix on the reference output: 45 clusters instead of 59,
+93.8% pair-agreement. `h_cut` defaults moved 90 -> 10 in both plotting
+functions, since the height is now read on a distance scale, and the dot.case
+`h.cut` argument was renamed `h_cut` at the same time (part of 9.1).
+
 ### ARLEM score semantics
 
 **[V]** `arlemScore` is a **cost (a distance), not a similarity**. ARLEM takes

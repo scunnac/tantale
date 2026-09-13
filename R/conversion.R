@@ -256,14 +256,16 @@ repeat_to_rvd_align <-  function(repeat_align , rvd_map) {
 #'
 #' @param repeat_sim A long, three columns data frame with pairwise similarity scores between repeats as available in the \code{domain_distances} element of the object returned by the \code{\link{tales_compare}} function.
 #' @param repeat_align a multiple Tal repeat sequences alignment in the form of a matrix as returned by \code{\link{tales_align}}.
-#' @param h.cut a numeric value indicating the position where to cut the hclust tree of repeats.
+#' @param h_cut a numeric value indicating the height at which to cut the hclust tree of repeats. Interpreted on a distance scale (0 = identical).
 #' @return a matrix with exactly the same dimension as the input \code{repeat_sim} but containing clusterID instead of
 #' repeatID.
 #' @noRd
-.repeat_to_cluster_align <- function(repeat_sim, repeat_align, h.cut = 10) {
-  repeat_sim <-  as.matrix(reshape2::acast(repeat_sim, RepU1 ~ RepU2, value.var="Sim"))
-  dist_clust <- hclust(as.dist(repeat_sim))
-  dist_cut <- as.data.frame(cbind(RepID = dist_clust$labels, Rep_clust = cutree(dist_clust, h = h.cut)))
+.repeat_to_cluster_align <- function(repeat_sim, repeat_align, h_cut = 10) {
+  # as.dist() expects a DISTANCE. Feeding it the similarity built an inverted
+  # dendrogram, so the clusters were wrong (ledger 6). Invert first.
+  repeat_dissim <- 100 - as.matrix(reshape2::acast(repeat_sim, RepU1 ~ RepU2, value.var = "Sim"))
+  dist_clust <- hclust(as.dist(repeat_dissim))
+  dist_cut <- as.data.frame(cbind(RepID = dist_clust$labels, Rep_clust = cutree(dist_clust, h = h_cut)))
   clustIDAlign <- apply(repeat_align, 2,
                         function(column){
                           as.numeric(dist_cut$Rep_clust[match(column, dist_cut$RepID)])

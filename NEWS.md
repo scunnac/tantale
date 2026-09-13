@@ -30,6 +30,24 @@ pure projections of the parts table or to have no consumer at all, and are
 replaced by `tales_coded_strings()`, `tales_domain_codes()` and an explicit
 clustering call respectively.
 
+### Bug fix: repeat clustering was computed on an inverted matrix
+
+`.repeat_to_cluster_align()`, which colours the repeat-cluster fill in
+`plot_tales_msa()` and `msa_heatmap()`, passed a **similarity** matrix straight
+to `as.dist()`. `as.dist()` expects a distance, so the dendrogram was built
+upside down and the resulting clusters were wrong.
+
+Fixed by inverting to a distance first. Because the cut height is now read on a
+distance scale, the `h_cut` default changes from **90 to 10** in both plotting
+functions; if you pass `h_cut` explicitly, subtract it from 100.
+
+The clusters change: on the reference output, cutting the corrected tree yields
+45 clusters where the old code gave 59, with 93.8% pair-agreement between the
+two partitions.
+
+`.cluster_repeats()` had the same defect but became unreachable when
+`distalr()` was removed, and has been deleted.
+
 ### Similarity became distance
 
 `pairwise_distances` (formerly `pairwise_sim`) stores `dissim`, not `sim`, and

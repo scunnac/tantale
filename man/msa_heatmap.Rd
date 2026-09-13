@@ -9,7 +9,7 @@ msa_heatmap(
   repeat_align,
   rvd_align = NULL,
   repeat_sim,
-  h_cut = 90,
+  h_cut = 10,
   ref_pattern = NULL,
   consensus = FALSE,
   note_colors = NULL,
