@@ -197,3 +197,49 @@ test_that("tales_align() carries the dom_code namespace", {
   msa <- suppressWarnings(tales_align(x, residue_col = "rvd"))
   expect_identical(tales_namespace(msa), "run-xyz")
 })
+
+
+#### plot() method ####
+
+test_that("plot() on a tales_msa produces the same object as the direct call", {
+  # plot_tales_msa() itself has no assertions anywhere in the suite, so this
+  # also serves as the first executable check that the plotting path runs.
+  out <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
+  x <- tales(out$tale_parts)
+  msa <- suppressWarnings(suppressMessages(
+    tales_align(dplyr::filter(x, array_id %in% unique(x$array_id)[1:4]),
+                residue_col = "rvd")
+  ))
+
+  viaMethod <- suppressWarnings(suppressMessages(
+    plot(msa, fill = "rvd", label = NULL)
+  ))
+  direct <- suppressWarnings(suppressMessages(
+    plot_tales_msa(repeat_align = as.matrix(msa, value = "rvd"))
+  ))
+  expect_s3_class(viaMethod, class(direct)[1])
+})
+
+test_that("plot() errors on a layer the alignment lacks", {
+  x <- tales_msa(minimal_msa_df())
+  expect_error(plot(x, fill = "dom_code"), class = "tantale_error_msa_layer")
+})
+
+test_that("plot() accepts similarity tables in either vocabulary", {
+  out <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
+  x <- tales(out$tale_parts)
+  keep <- unique(x$array_id)[1:4]
+  msa <- suppressWarnings(suppressMessages(
+    tales_align(dplyr::filter(x, array_id %in% keep), residue_col = "rvd")
+  ))
+  legacy <- out$tal.similarity[out$tal.similarity$TAL1 %in% keep &
+                                 out$tal.similarity$TAL2 %in% keep, ]
+
+  fromLegacy <- suppressWarnings(suppressMessages(
+    plot(msa, fill = "rvd", label = NULL, tal_sim = legacy)
+  ))
+  fromTyped <- suppressWarnings(suppressMessages(
+    plot(msa, fill = "rvd", label = NULL, tal_sim = tale_sim(legacy))
+  ))
+  expect_s3_class(fromLegacy, class(fromTyped)[1])
+})

@@ -824,11 +824,17 @@ plot_tales_msa <- function(repeat_align,
   
   # COLORS in plots
   repeatClusterFillPaletteFunct <- colorRampPalette(c("#421727", "#6e2742", "#9a365c", "#b03e69", "azure2"))
-  repeatClusterFillScale <- ggplot2::scale_fill_manual(name = "Repeats cluster",
-                                                       drop = TRUE,
-                                                       na.translate = FALSE,
-                                                       palette = repeatClusterFillPaletteFunct,
-                                                       guide = NULL)
+  # scale_fill_manual() takes `values`, not `palette`: the name collided with
+  # the `palette` discrete_scale() supplies internally, so every call to this
+  # function aborted with "formal argument 'palette' matched by multiple actual
+  # arguments" regardless of fill_type. discrete_scale() is the scale that
+  # actually accepts a palette *function*, which is what is wanted here.
+  repeatClusterFillScale <- ggplot2::discrete_scale(aesthetics = "fill",
+                                                    name = "Repeats cluster",
+                                                    palette = repeatClusterFillPaletteFunct,
+                                                    drop = TRUE,
+                                                    na.translate = FALSE,
+                                                    guide = NULL)
   # repeatSimFillScale <- ggplot2::scale_fill_gradient(name = "Similarity relative to reference",
   #                                                    limits = c(70, 100),
   #                                                    low = "red", high = "lightgrey")

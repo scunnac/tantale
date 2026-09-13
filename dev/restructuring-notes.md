@@ -316,6 +316,19 @@ Deferred to a dedicated pass on "computations that may not match intent":
 - `functal()` is blocked on uninstalled Perl deps (`List::MoreUtils`,
   `Bio::Perl` — the latter absent from the conda BioPerl package). Currently
   documented by its test.
+- **[V] FIXED** — `plot_tales_msa()` aborted on **every** call under ggplot2
+  4.0.3: `msa.R:830` passed `palette =` to `ggplot2::scale_fill_manual()`,
+  which has no such argument (it takes `values`), so the name collided with the
+  `palette` that `discrete_scale()` supplies internally —
+  *"formal argument 'palette' matched by multiple actual arguments"*. The scale
+  was built before the `fill_type` branch, so both branches died; verified by
+  calling the function directly on the package's own fixture matrix. Replaced
+  with `discrete_scale()`, which is the scale that actually accepts a palette
+  *function*. This is ggplot2 API drift of the same kind as the Bioconductor
+  drift found in Phase 1. It also explains the assertion-free
+  `test_plot_tales_msa.R`: nothing there *could* have asserted, since every
+  call aborted — that file now has real assertions, including that the plot
+  renders to a file.
 - **[V]** `tales_consensus_match(long = TRUE)` mislabels the alignment
   coordinate as `positionInArray`
   ([msa.R:74-76](../R/msa.R#L74-L76)). It melts an MSA matrix whose columns are

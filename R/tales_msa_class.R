@@ -280,3 +280,69 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
   tales_msa(out, alignment_width = ncol(m),
             dom_code_namespace = tales_namespace(x))
 }
+
+
+#' Plot a TALE multiple alignment
+#'
+#' Draws the alignment as a heatmap: one row per array, one column per
+#' alignment position, cells coloured by one layer and optionally labelled with
+#' another.
+#'
+#' A \code{tales_msa} carries every layer at once, so the layers are named
+#' rather than passed as separate matrices — which is what
+#' \code{\link{plot_tales_msa}} required, a matrix being able to hold only one.
+#'
+#' @param x A \code{\link{tales_msa}} object.
+#' @param fill Layer whose values colour the cells. Defaults to
+#'   \code{"dom_code"} when present, otherwise \code{"rvd"}.
+#' @param label Layer whose values are written in the cells, or \code{NULL} for
+#'   none. Defaults to \code{"rvd"} when it is not already the \code{fill}.
+#' @param tal_sim Optional \code{\link{tale_sim}} (or legacy table) used to
+#'   order arrays by overall similarity.
+#' @param domain_sim Optional \code{\link{repeat_sim}} (or legacy table) of
+#'   similarities between domains, used to colour cells.
+#' @param ... Passed to \code{\link{plot_tales_msa}}: \code{h_cut},
+#'   \code{ref_pattern}, \code{consensus}, \code{fill_type}.
+#'
+#' @return The plot object returned by \code{\link{plot_tales_msa}}.
+#' @method plot tales_msa
+#' @export
+plot.tales_msa <- function(x, fill = NULL, label = NULL,
+                           tal_sim = NULL, domain_sim = NULL, ...) {
+  available <- intersect(TALES_RESIDUE_COLS, names(x))
+  if (is.null(fill)) fill <- if ("dom_code" %in% available) "dom_code" else available[1]
+  if (is.null(label) && "rvd" %in% available && !identical(fill, "rvd")) label <- "rvd"
+
+  for (layer in c(fill, label)) {
+    if (!is.null(layer) && !layer %in% names(x)) {
+      cli::cli_abort(
+        c("This alignment has no {.field {layer}} layer.",
+          "i" = "Available: {.field {available}}"),
+        class = c("tantale_error_msa_layer", "tantale_error")
+      )
+    }
+  }
+
+  plot_tales_msa(
+    repeat_align = as.matrix(x, value = fill),
+    rvd_align = if (!is.null(label)) as.matrix(x, value = label) else NULL,
+    tal_sim = .sim_to_legacy(tal_sim, c("TAL1", "TAL2")),
+    repeat_sim = .sim_to_legacy(domain_sim, c("RepU1", "RepU2")),
+    ...
+  )
+}
+
+#' Rename a pairwise_sim's columns back to the legacy vocabulary
+#'
+#' \code{plot_tales_msa()} still addresses its similarity tables by the old
+#' column names. Temporary bridge, the mirror of the ingest rename; removable
+#' once that function's internals move onto the class (its four
+#' \code{acast()} sites, restructuring-notes.md §5).
+#' @noRd
+.sim_to_legacy <- function(x, ids) {
+  if (is.null(x)) return(NULL)
+  x <- tibble::as_tibble(pairwise_sim(x))          # accepts legacy or canonical
+  names(x)[match(c("id1", "id2", "sim"), names(x))] <- c(ids, "Sim")
+  if ("dissim" %in% names(x)) names(x)[names(x) == "dissim"] <- "Dissim"
+  as.data.frame(x)
+}

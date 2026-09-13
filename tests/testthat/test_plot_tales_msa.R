@@ -63,3 +63,36 @@ try(plot_tales_msa(repeat_align = repeat_align[3,, drop = FALSE],
 
 
 
+
+
+# --- Assertions ------------------------------------------------------------
+# Everything above is exploratory script kept from development. Until the
+# ggplot2 4.x `palette` fix, plot_tales_msa() aborted on every call, so none of
+# it could have asserted anything; these are the first real checks.
+
+test_that("plot_tales_msa() returns a ggplot for both fill types", {
+  m <- repeatMsaByGroup[[which(sapply(repeatMsaByGroup,
+                                      function(z) is.matrix(z) && nrow(z) > 2))[1]]]
+  for (ft in c("repeat_clust", "repeat_sim")) {
+    p <- suppressWarnings(suppressMessages(plot_tales_msa(
+      repeat_align = m,
+      repeat_sim = distalrOut$repeat.similarity,
+      fill_type = ft
+    )))
+    expect_s3_class(p, "ggplot")
+  }
+})
+
+test_that("the returned plot actually renders", {
+  m <- repeatMsaByGroup[[which(sapply(repeatMsaByGroup,
+                                      function(z) is.matrix(z) && nrow(z) > 2))[1]]]
+  p <- suppressWarnings(suppressMessages(plot_tales_msa(
+    repeat_align = m, repeat_sim = distalrOut$repeat.similarity
+  )))
+  f <- withr::local_tempfile(fileext = ".png")
+  suppressWarnings(suppressMessages(
+    ggplot2::ggsave(f, p, width = 8, height = 3, dpi = 72)
+  ))
+  expect_true(file.exists(f))
+  expect_gt(file.size(f), 1000)
+})
