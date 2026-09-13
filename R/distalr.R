@@ -503,16 +503,18 @@ distalr <- function(tale_parts, h_cut = 10, ncores = 1,
   tale_parts <- core$tale_parts
   dissimLong <- core$dissim_long
 
+  # The projections come from the shared methods, then get bent back into this
+  # function's historical column vocabulary for its existing callers.
+  asTales <- tales(tale_parts)
+  legacyCodes <- tales_domain_codes(asTales) %>%
+    dplyr::mutate(code = as.integer(dom_code)) %>%
+    dplyr::select(code, "AA Seq" = aa_seq, rvd) %>%
+    dplyr::arrange(code)
+
   list(
     tale_parts = tale_parts,
-    "repeats.code" = tale_parts %>%
-      dplyr::group_by(domCode, aaSeq, rvd) %>%
-      dplyr::count() %>%
-      dplyr::rename(code = domCode, "AA Seq" = aaSeq) %>%
-      dplyr::mutate(code = as.integer(code)) %>%
-      dplyr::select(-n) %>%
-      dplyr::ungroup(),
-    "coded.repeats.str" = core$coded_seq_set,
+    "repeats.code" = legacyCodes,
+    "coded.repeats.str" = tales_coded_strings(asTales),
     "repeat.similarity" = dissimLong %>% dplyr::rename(RepU1 = subj, RepU2 = pattern),
     "tal.similarity" = core$tal_sim,
     "repeats.cluster" = .cluster_repeats(

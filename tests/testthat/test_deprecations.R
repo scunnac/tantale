@@ -48,3 +48,20 @@ test_that("the deprecated wrappers still return what they always did", {
   expect_type(seqs, "list")
   expect_setequal(lengths(seqs), c(28L, 16L, 28L, 24L))
 })
+
+test_that("group_tales() is deprecated in favour of tales_group()", {
+  sim <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))$tal.similarity
+  w <- NULL
+  suppressWarnings(suppressMessages(withCallingHandlers(
+    group_tales(tal_sim = sim, k = 3, method = "hclust"),
+    deprecatedWarning = function(c) w <<- conditionMessage(c)
+  )))
+  expect_match(w, "tales_group")
+})
+
+test_that("tales_group() accepts both a legacy table and a tale_sim object", {
+  sim <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))$tal.similarity
+  fromLegacy <- tales_group(tal_sim = sim, k = 3, method = "hclust")
+  fromTyped <- tales_group(tal_sim = tale_sim(sim), k = 3, method = "hclust")
+  expect_equal(fromLegacy, fromTyped)
+})

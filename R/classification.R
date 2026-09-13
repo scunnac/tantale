@@ -14,15 +14,41 @@
 #' @param k integer indicating number of groups you want Tals to be classified. Or only in case that method is "k-medoids", k = "auto" to automatically pick the optimum k or k = NULL to interactively pick it. Do not always trust the automatic picking, it is better to choose k interactively or test with different values.
 #' @return a data frame containing name of tals from tal_sim and their classified groups.
 #'
+#' @section Deprecated:
+#' Renamed to \code{\link{tales_group}}, for consistency with the rest of the
+#' \code{tales_*} API. Behaviour is unchanged.
+#'
+#' @seealso \code{\link{tales_group}}
 #' @export
 group_tales <- function(tal_sim, plot_tree = FALSE, k = NULL, k_range = NULL, method = "k-medoids") {
-  
+  .Deprecated("tales_group")
+  tales_group(tal_sim = tal_sim, plot_tree = plot_tree, k = k,
+              k_range = k_range, method = method)
+}
+
+#' Group TALEs by similarity
+#'
+#' Classifies TALE arrays into groups by hierarchical or k-medoids clustering
+#' of their pairwise similarity.
+#'
+#' @param tal_sim A \code{\link{tale_sim}} object, as returned by
+#'   \code{\link{tales_relatedness}}. A plain data frame using the legacy
+#'   \code{TAL1}/\code{TAL2}/\code{Sim} column names is also accepted and
+#'   coerced.
+#' @inheritParams group_tales
+#' @return A data frame of array names and their assigned groups.
+#' @seealso \code{\link{tales_relatedness}}, which produces the input.
+#' @export
+tales_group <- function(tal_sim, plot_tree = FALSE, k = NULL, k_range = NULL, method = "k-medoids") {
+
   # For alternative methods for cluster definition:
   # -  Expectation Maximization (EM): https://en.wikibooks.org/wiki/Data_Mining_Algorithms_In_R/Clustering/Expectation_Maximization_(EM)
   # For other ideas : https://en.wikibooks.org/wiki/Data_Mining_Algorithms_In_R/Clustering
-  
-  distMat <- 100 - reshape2::acast(tal_sim, formula = TAL1 ~ TAL2, value.var = "Sim")
-  
+
+  # Coercing accepts both a tale_sim and a legacy table; as.matrix() then
+  # replaces the hand-written acast() and asserts squareness on the way.
+  distMat <- 100 - as.matrix(tale_sim(tal_sim))
+
   if (method == "k-medoids") {
     if (is.null(k_range) || !is.numeric(k_range)) stop("invalid k values!")
     if (plot_tree) {
