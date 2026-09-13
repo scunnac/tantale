@@ -182,7 +182,53 @@ formats.
 
 ---
 
-## 4. Plotting: `msa_heatmap()` is superseded
+## 4. Plotting: `msa_heatmap()` is superseded — GAP IDENTIFIED **[V]**
+
+The ledger asked what `msa_heatmap()` provides that `plot_tales_msa()` does
+not. Answered.
+
+**Most of the apparent difference is not a difference.** `msa_heatmap()`'s six
+`plot_type` values are combinations of orthogonal features that
+`plot_tales_msa()` exposes as separate arguments -- which is the better design:
+
+| `plot_type` | `plot_tales_msa()` equivalent |
+|---|---|
+| `repeat.clusters` | `fill_type = "repeat_clust"` |
+| `repeat.similarity` | `fill_type = "repeat_sim"` |
+| `with.rvd` | pass `rvd_align` |
+| `repeat.clusters.with.rvd` | both of the above |
+| `reference` | pass `ref_pattern` |
+| `consensus` | `consensus = TRUE` -- **but see below** |
+
+**The one real blocker [V]: `consensus` does not work in `plot_tales_msa()`.**
+The argument is accepted and documented as *"NOT IMPLEMENTED YET"*; the body
+carries `#### TODO: Bind a 'consensus' tibble or a consensus plot if requested`.
+`msa_heatmap()` does render a consensus row.
+
+Note the groundwork is already there: `plot_tales_msa()` computes
+`tales_consensus(rvd_align)` and builds a tibble of it, using it to colour
+matches. What is missing is only *displaying* it as a row.
+
+**Smaller gaps**, all arguably out of scope for a ggplot function:
+
+- `save_path` -- writes the plot to a file. A ggplot is returned as an object,
+  so `ggsave()` covers this; not a real gap.
+- `note_colors` -- customises the matched/mismatched colours. A ggplot caller
+  adds a scale instead; the `p2` example in `p2_multiple_alignments.Rmd` shows
+  exactly that.
+- `...` passed to `gplots::heatmap.2`. Nothing equivalent, and nothing should be.
+
+**Conclusion.** `msa_heatmap()` cannot be retired until `consensus` display
+lands in `plot_tales_msa()`. That is the single prerequisite, and it is a
+contained piece of work. Everything else it offers is either already present or
+better served by returning a ggplot.
+
+I did not implement it unattended: it is a visual feature whose result needs a
+human eye, not a passing test.
+
+#### Original notes
+
+## 4-original Plotting: `msa_heatmap()` is superseded
 
 **[A]** Label `msa_heatmap()` obsolete. It was written first, in base graphics
 (`gplots::heatmap.2`), with a clumsy style and cryptic comments.
