@@ -78,7 +78,14 @@ site.
   fasta files as unrelated artifacts.
 - **[A] Migrate its assertion first.** It `stopifnot`s that each `repeatID` maps
   to exactly one RVD. That invariant is currently enforced *nowhere else* — move
-  it onto `tale_parts` validation rather than losing it.
+  it onto `tales` validation rather than losing it.
+  **[V]** The assertion is now pinned by a test
+  (`test_untested_exports.R`), which feeds it a repeat code carrying two
+  different RVDs and confirms it errors. So retiring the function can no longer
+  drop the check silently: the test will fail until the invariant has a new
+  home. Note the `tales` validator already has invariant 8, the `aa_seq` ↔
+  `dom_code` bijection, which is the same *shape* of constraint one level down —
+  that is the natural place for it.
 - **[A]** `repeat_to_rvd_map_distalr()` survives, but its name is misleading: it
   depends on `domCode` being present, not on `distalr()` having been run.
 

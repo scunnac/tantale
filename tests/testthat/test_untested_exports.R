@@ -54,3 +54,21 @@ test_that("validate_pairwise_distances() accepts a valid object and rejects a br
   broken$id1 <- NULL
   expect_error(validate_pairwise_distances(broken), class = "tantale_error")
 })
+
+test_that("repeat_to_rvd_map() builds the code -> RVD mapping", {
+  repeat_vecs <- list(a = c("r1", "r2"), b = c("r2", "r3"))
+  rvd_vecs    <- list(a = c("NI", "HD"), b = c("HD", "NG"))
+  m <- repeat_to_rvd_map(repeat_vecs, rvd_vecs)
+  expect_named(m, c("repeatID", "RVD"))
+  expect_identical(nrow(m), 3L)          # r1, r2, r3 -- r2 shared, counted once
+  expect_identical(anyDuplicated(m$repeatID), 0L)
+})
+
+test_that("repeat_to_rvd_map() rejects a repeat code with two different RVDs", {
+  # Ledger 2 keeps this function on the retirement list but insists its
+  # assertion be migrated first: it is the only place the package enforces
+  # that a repeat code maps to exactly one RVD.
+  repeat_vecs <- list(a = c("r1", "r2"), b = c("r2", "r3"))
+  ambiguous   <- list(a = c("NI", "HD"), b = c("NN", "NG"))  # r2 -> HD and NN
+  expect_error(repeat_to_rvd_map(repeat_vecs, ambiguous))
+})
