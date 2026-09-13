@@ -87,7 +87,30 @@ site.
 - **[V]** `.repeat_to_sim_align()`, `.repeat_to_cluster_align()` — genuinely
   plotting-only internals, correctly unexported.
 
-### Dormant but valuable — repair, then decide (NOT removal)
+### Dormant but valuable — REPAIRED **[V]**
+
+Both repairs are done; the "decide whether to wire them up" question stays open.
+
+**`.rvd_to_match_align()`** — the `tantale::rvdSimDf` default is fixed to
+`rvdSimDf`. **[V]** The bug was real and total: `rvdSimDf` lives in
+`R/sysdata.rda`, so `tantale::rvdSimDf` raises *"not an exported object from
+'namespace:tantale'"*. The function could never have run as written, in any
+version. It now executes (checked on a small hand-built matrix). Note that only
+*execution* is verified -- its semantics are still unexercised by any caller.
+
+**`.rvd_to_repeat_align()`** — the missing length guard is added. The
+back-mapping is positional (k-th non-gap cell = k-th repeat code), which is
+well defined only if the counts agree; a mismatch previously misregistered
+codes against positions silently. Two guards now fire, both tested: a row of
+the alignment with no entry in `repeat_vecs`, and a row whose non-gap count
+disagrees with its repeat-vector length.
+
+Both also gained roxygen with `@keywords internal`, so `R CMD check` validates
+their documentation rather than letting it rot.
+
+#### Original notes
+
+### Dormant but valuable — original notes
 
 An earlier pass recommended deleting these two on call-count alone. That was
 wrong; both implement capability available nowhere else in the package.
@@ -653,7 +676,42 @@ Note the interaction with 9.1: several *argument* names deliberately mirror
 *column* names (`tale_parts`, `rvd_map`), so the two sweeps should agree on a
 single vocabulary rather than be done independently.
 
-### 9.3 Decide `@internal` vs `@noRd` per function
+### 9.3 Decide `@internal` vs `@noRd` per function — PARTLY DONE **[V]**
+
+Current state over 55 non-exported functions: 21 `@noRd`, 12
+`@keywords internal`, and roughly two dozen with no roxygen at all.
+
+**A finding that changes what this item means [V].** `@keywords internal` on
+its own does *nothing*. roxygen generates no Rd for a block with no title, so
+of the pre-existing `@keywords internal` tags on dot-prefixed helpers
+(`.tales_check_key()` and its siblings), none produces a help page. They read
+as a policy decision but have no effect: those functions are documented exactly
+as if they carried `@noRd`.
+
+So the real distinction is not `@noRd` vs `@keywords internal` — it is
+**whether the block has a title at all**:
+
+| block | Rd generated? | checked by `R CMD check`? |
+|---|---|---|
+| `@noRd`, with or without title | no | no |
+| `@keywords internal`, **no title** | no | no |
+| `@keywords internal`, **with title** | yes, as `man/dot-<name>.Rd`, hidden from the index | yes |
+
+Only the third row buys anything. The two functions repaired in §2 use it
+deliberately and are the first in the package to generate `man/dot-*.Rd`.
+
+Note this does not conflict with the class-implementation session's §3.7
+decision to use `@noRd` for its new helpers: that decision explicitly said it
+did not pre-empt this item.
+
+**Remaining work**, and why I left it: deciding which of the two dozen
+undocumented internals deserve real, check-validated documentation is a
+per-function judgement. Bulk-adding a bare `@noRd` would only restate what
+already happens.
+
+#### Original notes
+
+### 9.3-original Decide `@internal` vs `@noRd` per function
 
 Currently near-absent as a policy: **2** `@noRd` tags in the whole package
 ([conversion.R:269](../R/conversion.R#L269),

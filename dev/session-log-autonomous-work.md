@@ -21,6 +21,8 @@ Status markers: **[V]** verified empirically · **[D]** a decision I took alone.
 | 9.1 argument names | **DONE** — no argument in the package has a capital or a dot |
 | 9.5 messaging | **DONE** — `logger` removed entirely; `cli` throughout |
 | 9.4 `@family` | **DONE** — 42 tags, eight families |
+| §2 dormant conversion fns | **DONE** — both repaired, guarded, documented |
+| 9.3 internal-doc policy | partial — see §5 |
 | 7.1 vignette reproducibility | **NEW FINDING** — recorded, not fixed |
 
 ---
@@ -98,3 +100,34 @@ were both re-knitted successfully.
 
 Full detail in ledger 7.1. Making each vignette standalone is the prerequisite
 for any pkgdown rebuild.
+
+
+---
+
+## 5. Where I stopped, and what is left
+
+**9.3 (`@noRd` vs `@keywords internal`) is only partly addressed**, but the
+investigation turned up something that changes the item. Over 55 non-exported
+functions: 21 `@noRd`, 12 `@keywords internal`, ~24 with no roxygen.
+
+**`@keywords internal` on its own does nothing.** roxygen generates no Rd for a
+block without a title, so every pre-existing `@keywords internal` tag in the
+package -- `.tales_check_key()` and its siblings -- produces no help page and is
+validated by nothing. They look like a policy decision but are inert.
+
+The real distinction is whether the block has a **title**, not which tag it
+carries. Only `@keywords internal` *with* a title yields a hidden,
+check-validated `man/dot-<name>.Rd`. The two functions I repaired in §2 are the
+first in the package to do so.
+
+I did not bulk-tag the rest: adding a bare `@noRd` to two dozen functions
+restates what already happens, and choosing which deserve real documentation is
+a per-function judgement.
+
+**9.2 (column names to snake_case) is untouched**, deliberately. It is the
+package-wide sweep and it interacts with the class column contract, so it wants
+reviewing live rather than landing as a large unattended diff.
+
+Also untouched: §3 (legacy cemetery), §4 (retiring `msa_heatmap()`), §5.1
+(`diagnose_tale_parts()`'s fate), and the pkgdown `reference:` section that
+9.4's `@family` tags now make possible.

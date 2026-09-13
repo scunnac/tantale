@@ -278,11 +278,46 @@ repeat_to_rvd_align <-  function(repeat_align , rvd_map) {
 
 
 
+#' View an RVD alignment in terms of repeat codes
+#'
+#' The inverse direction of \code{repeat_to_rvd_align()}: given an alignment
+#' computed on RVDs, substitute each non-gap cell with the corresponding repeat
+#' code. The two alphabets differ greatly -- a few dozen RVDs against hundreds
+#' of mostly-singleton repeat codes -- so aligning on one and viewing as the
+#' other is a genuinely different result from aligning on the other directly.
+#'
+#' The mapping is **positional**: the k-th non-gap cell of a row is taken to be
+#' the k-th element of that row's repeat vector. That is only well defined when
+#' the two agree in length, which is now checked.
+#'
+#' @param rvd_msa_by_group A character matrix of aligned RVDs, rows named by array.
+#' @param repeat_vecs A named list of repeat-code vectors, one per row of
+#'   \code{rvd_msa_by_group}.
+#' @return A character matrix with the dimensions and dimnames of \code{rvd_msa_by_group}.
+#' @keywords internal
 .rvd_to_repeat_align <- function(rvd_msa_by_group, repeat_vecs) {
+  missingRows <- setdiff(rownames(rvd_msa_by_group), names(repeat_vecs))
+  if (length(missingRows) > 0L) {
+    cli::cli_abort(
+      c("Every aligned row needs a matching entry in {.arg repeat_vecs}.",
+        "x" = "Missing: {.val {missingRows}}"),
+      class = c("tantale_error_rvd_repeat_missing", "tantale_error"))
+  }
+  nonGap <- rowSums(!is.na(rvd_msa_by_group))
+  lens <- lengths(repeat_vecs[rownames(rvd_msa_by_group)])
+  bad <- which(nonGap != lens)
+  if (length(bad) > 0L) {
+    cli::cli_abort(
+      c("The back-mapping is positional, so each row must have as many non-gap \\
+         cells as it has repeat codes.",
+        "x" = "Mismatched row{?s}: {.val {rownames(rvd_msa_by_group)[bad]}}",
+        "i" = "non-gap cells {nonGap[bad]} vs {lens[bad]} repeat codes"),
+      class = c("tantale_error_rvd_repeat_length", "tantale_error"))
+  }
   repSeqs <- lapply(rownames(rvd_msa_by_group), function(r) {
     rvdSeq <- rvd_msa_by_group[r,]
     repSeq <- repeat_vecs[[r]]
-    
+
     n = 1
     for (i in 1:length(rvdSeq)) {
       if (is.na(rvdSeq[i])) {
@@ -304,12 +339,29 @@ repeat_to_rvd_align <-  function(repeat_align , rvd_map) {
 
 
 
-.rvd_to_match_align <-  function(rvd_align, rvd_sims = tantale::rvdSimDf, ref_tag = NULL) {
-  # A function that substitute the RVDs with a 'RVD match score' relative to a
-  # reference rvd for each column. The ref repeat is the one from a TALE that is
-  # defined as a reference in the alignment. This function take as input, the
-  # repeat alignment and the tantale::rvdSimDf This function output the modified
-  # alignment matrix
+#' Recode an RVD alignment as similarity to a reference row
+#'
+#' Substitutes each RVD with a score expressing how similar its DNA-binding
+#' preference is to the RVD of a reference TALE, column by column. This is the
+#' RVD-level counterpart of \code{.repeat_to_sim_align()}, which works on
+#' protein sequence similarity instead: the two come apart, since repeats can be
+#' sequence-divergent yet share an RVD, or near-identical yet differ at
+#' positions 12-13.
+#'
+#' Currently unwired: no \code{fill_type} in either plotting function requests
+#' an RVD-level layer. It is the only consumer of the internal
+#' \code{rvdSimDf} dataset.
+#'
+#' @param rvd_align A character matrix of aligned RVDs.
+#' @param rvd_sims A data frame of pairwise RVD similarity with columns
+#'   \code{rvd1}, \code{rvd2} and \code{Cor}. Defaults to the package's
+#'   internal \code{rvdSimDf}.
+#' @param ref_tag Pattern selecting the reference row; see
+#'   \code{.pick_ref_name()}.
+#' @return A numeric matrix with the dimensions and dimnames of
+#'   \code{rvd_align}.
+#' @keywords internal
+.rvd_to_match_align <-  function(rvd_align, rvd_sims = rvdSimDf, ref_tag = NULL) {
   refRowIdx <- match(.pick_ref_name(rvd_align, ref_tag = ref_tag), rownames(rvd_align))
   simAlign <- apply(rvd_align, 2,
                     function(column) {
