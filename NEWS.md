@@ -48,6 +48,21 @@ two partitions.
 `.cluster_repeats()` had the same defect but became unreachable when
 `distalr()` was removed, and has been deleted.
 
+### `plot_tales_msa()` can draw the consensus
+
+`consensus = TRUE` now adds a consensus row above the alignment, where it
+previously did nothing and the argument was documented as "NOT IMPLEMENTED
+YET". The consensus is the most frequent element per column, taken from
+`rvd_align` when supplied and `repeat_align` otherwise, so it always matches
+what the cells are labelled with.
+
+It is drawn as its own panel above the alignment rather than as an extra row.
+That is not cosmetic: `aplot` reorders the alignment's y axis onto the tree's
+leaves, so a row the tree has no leaf for is silently dropped.
+
+This was the one feature `msa_heatmap()` still provided that
+`plot_tales_msa()` did not.
+
 ### Messaging is now cli throughout
 
 The package mixed four messaging idioms: `logger`, `cat()`, base `message()`

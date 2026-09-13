@@ -606,8 +606,13 @@ msa_heatmap <- function(tal_sim, repeat_align, rvd_align = NULL,
 #'   or \code{\link{tales_align}}.
 #' @param ref_pattern Regular expression pattern that will be used to search TALE
 #'   names to select the reference in the alignment.
-#' @param consensus (logical) Whether to display the consensus sequence
-#'  **NOT IMPLEMENTED YET**
+#' @param consensus (logical) Whether to add a consensus row above the
+#'   alignment. The consensus is the most frequent element in each column, taken
+#'   from \code{rvd_align} when supplied and from \code{repeat_align}
+#'   otherwise, so it always matches whatever the cells are labelled with. It is
+#'   drawn as its own panel rather than an extra alignment row, because
+#'   \code{aplot} reorders the alignment's y axis onto the tree's leaves and
+#'   would drop a row the tree has no leaf for.
 #' @param fill_type Either "repeat_clust" or "repeat_sim". If both options are
 #'   possible because the necessary information is there (at least a
 #'   \code{repeat_sim} value), this argument will decide what type of 'box color
@@ -619,6 +624,47 @@ msa_heatmap <- function(tal_sim, repeat_align, rvd_align = NULL,
 #' 
 #' @export
 #' @family TALE plots
+#' Build the one-row consensus panel used by plot_tales_msa()
+#'
+#' Returns a standalone ggplot holding a single "Consensus" row, styled to match
+#' the main alignment so the two read as one figure when composed with aplot.
+#'
+#' This has to be a separate panel rather than an extra row of the alignment:
+#' \code{aplot::insert_left()} reorders the main plot's y axis onto the tree's
+#' leaves, and a y level with no matching leaf is silently dropped -- the
+#' consensus row simply disappears.
+#'
+#' @param align The alignment matrix to take the consensus of.
+#' @param n_positions Width of the alignment, so the x scale matches the main plot.
+#' @param pad Whether to pad labels to three characters, as the main plot does
+#'   for \code{domCode}.
+#' @return A ggplot.
+#' @noRd
+.consensus_panel <- function(align, n_positions, pad = FALSE) {
+  cons <- tales_consensus(align)
+  cons <- gsub("NTERM", "N-", cons)
+  cons <- gsub("CTERM", "-C", cons)
+  if (isTRUE(pad)) cons <- stringr::str_pad(cons, 3, "left")
+  df <- tibble::tibble(positionInArray = seq_along(cons),
+                       arrayID = "Consensus",
+                       label = cons)
+  ggplot2::ggplot(df, mapping = ggplot2::aes(x = positionInArray, y = arrayID)) +
+    ggplot2::geom_label(mapping = ggplot2::aes(label = label),
+                        fill = "grey92", color = "grey15",
+                        label.size = NA, family = "mono",
+                        size = 3, fontface = "bold", na.rm = TRUE) +
+    ggplot2::scale_x_discrete(name = NULL, limits = factor(1:n_positions)) +
+    ggplot2::scale_y_discrete(name = NULL,
+                              expand = ggplot2::expansion(mult = c(0.15, 0.15))) +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+                   # keep the vertical rules so columns stay traceable between
+                   # this panel and the alignment below it
+                   panel.grid.major.y = ggplot2::element_blank(),
+                   panel.grid.minor = ggplot2::element_blank())
+}
+
+
 plot_tales_msa <- function(repeat_align,
                            tal_sim = NULL,
                            rvd_align = NULL,
@@ -766,9 +812,6 @@ plot_tales_msa <- function(repeat_align,
     )
   }
   
-  #### TODO: Bind a 'consensus' tibbe or a consensus plot if requested ####
-  
-  
   # Create base plot
   bp <- repeatAlignLong %>% ggplot2::ggplot(mapping = ggplot2::aes(
     x = positionInArray, y = arrayID)
@@ -808,8 +851,6 @@ plot_tales_msa <- function(repeat_align,
                                                                      `TRUE` = "cyan3")
   )
   # Add aesthetics as requested AND possible
-  
-  #### TODO: add the consensus in the plot ####
   
   if (!is.null(repeat_sim) & !is.null(rvd_align)) {
     if (fill_type == "repeat_sim") {
@@ -899,6 +940,24 @@ plot_tales_msa <- function(repeat_align,
   } else {
     finalPlot <- p
   }
+
+  # Consensus as its own panel on top. See .consensus_panel() for why it cannot
+  # simply be another row of the alignment.
+  if (isTRUE(consensus)) {
+    consensusAlign <- if (!is.null(rvd_align)) rvd_align else repeat_align
+    # aplot's height is a *ratio* of the main plot, so a fixed value would grow
+    # with the number of arrays -- several rows tall for a large group. Scale it
+    # so the consensus stays about one alignment row high whatever the count.
+    consensusHeight <- max(0.08, min(0.45, 1.0 / countOfTales))
+    finalPlot <- aplot::insert_top(
+      finalPlot,
+      .consensus_panel(consensusAlign,
+                       n_positions = max(repeatAlignLong$positionInArray),
+                       pad = is.null(rvd_align)),
+      height = consensusHeight
+    )
+  }
+
   print(finalPlot)
   return(finalPlot)
 }

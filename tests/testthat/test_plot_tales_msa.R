@@ -96,3 +96,48 @@ test_that("the returned plot actually renders", {
   expect_true(file.exists(f))
   expect_gt(file.size(f), 1000)
 })
+
+
+#### consensus row ####
+
+test_that("consensus = TRUE adds a panel and consensus = FALSE does not", {
+  skip_if_not(file.exists(test_path("data_for_tests", "sampleRepeatMsaByGroup.rds")))
+  m <- readRDS(test_path("data_for_tests", "sampleRepeatMsaByGroup.rds"))[[4]]
+  without <- suppressMessages(plot_tales_msa(repeat_align = m, consensus = FALSE))
+  with    <- suppressMessages(plot_tales_msa(repeat_align = m, consensus = TRUE))
+  # with a consensus the result is an aplot composition carrying an extra panel
+  expect_gt(length(with), length(without))
+})
+
+test_that("the consensus panel labels the same layer as the cells", {
+  skip_if_not(file.exists(test_path("data_for_tests", "sampleRepeatMsaByGroup.rds")))
+  skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
+  d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
+  m <- readRDS(test_path("data_for_tests", "sampleRepeatMsaByGroup.rds"))[[4]]
+  rvd <- repeat_to_rvd_align(repeat_align = m,
+                             rvd_map = repeat_to_rvd_map_distalr(d$tale_parts))
+  # rvd_align supplied -> consensus must be of the RVDs, not the repeat codes
+  panel <- tantale:::.consensus_panel(rvd, n_positions = ncol(rvd))
+  expect_s3_class(panel, "ggplot")
+  expect_identical(nrow(panel$data), ncol(rvd))
+  expect_identical(unique(panel$data$arrayID), "Consensus")
+})
+
+test_that(".consensus_panel() reproduces tales_consensus(), with terminus relabelling", {
+  skip_if_not(file.exists(test_path("data_for_tests", "sampleRepeatMsaByGroup.rds")))
+  m <- readRDS(test_path("data_for_tests", "sampleRepeatMsaByGroup.rds"))[[4]]
+  expected <- tales_consensus(m)
+  expected <- gsub("NTERM", "N-", expected)
+  expected <- gsub("CTERM", "-C", expected)
+  panel <- tantale:::.consensus_panel(m, n_positions = ncol(m))
+  expect_identical(panel$data$label, expected)
+})
+
+test_that("the consensus panel pads repeat codes exactly as the cells do", {
+  m <- matrix(c("1", "22", "333", "1", "22", "333"), nrow = 2, byrow = TRUE,
+              dimnames = list(c("a", "b"), NULL))
+  padded <- tantale:::.consensus_panel(m, n_positions = 3, pad = TRUE)
+  expect_identical(padded$data$label, stringr::str_pad(c("1", "22", "333"), 3, "left"))
+  bare <- tantale:::.consensus_panel(m, n_positions = 3, pad = FALSE)
+  expect_identical(bare$data$label, c("1", "22", "333"))
+})

@@ -243,13 +243,33 @@ matches. What is missing is only *displaying* it as a row.
   exactly that.
 - `...` passed to `gplots::heatmap.2`. Nothing equivalent, and nothing should be.
 
-**Conclusion.** `msa_heatmap()` cannot be retired until `consensus` display
-lands in `plot_tales_msa()`. That is the single prerequisite, and it is a
-contained piece of work. Everything else it offers is either already present or
-better served by returning a ggplot.
+**Conclusion — PREREQUISITE NOW MET [V].** `consensus` display is implemented
+in `plot_tales_msa()`, so nothing blocks retiring `msa_heatmap()` any more.
 
-I did not implement it unattended: it is a visual feature whose result needs a
-human eye, not a passing test.
+Implementation note worth keeping, because the obvious approach cannot work:
+the consensus is a **separate `aplot` panel**, not an extra row of the
+alignment. `aplot::insert_left()` reorders the main plot's y axis onto the
+tree's leaves, and a y level with no matching leaf is *silently dropped* --
+measured, the composed y levels came back `NA | 1 | 2 | 3 | NA` with the
+consensus row simply absent. There is no variant of "just add a row" that
+survives the tree.
+
+Two further details:
+
+- The consensus follows whatever the cells are labelled with: taken from
+  `rvd_align` when supplied, `repeat_align` otherwise, with the same 3-character
+  padding the cells use for `dom_code`.
+- `aplot`'s `height` is a *ratio* of the main plot, so a fixed value grows with
+  the array count -- several rows tall for a large group. It is
+  `1.0 / countOfTales`, clamped, which holds the consensus at about one row
+  whatever the count. Verified at 3 and 12 arrays.
+
+**[V]** `tales_consensus()` was cross-checked against an independent
+`table()`-based mode calculation over all 28 positions of the fixture: identical.
+
+What remains before `msa_heatmap()` can actually go is only the decision, plus
+`save_path`/`note_colors` having no ggplot equivalent -- and §4 already argues
+`ggsave()` and an added scale cover those.
 
 #### Original notes
 
