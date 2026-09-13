@@ -167,7 +167,7 @@ tales <- function(x, dom_code_namespace = NULL) {
   if (length(clash) > 0L) {
     cli::cli_abort(
       c("Cannot rename legacy columns: the target name{?s} {.field {clash}} {?is/are} already present.",
-        "i" = "Drop or rename the duplicate{?s} before calling {.fn tales}."),
+        "i" = "Drop or rename {cli::qty(clash)}the duplicate{?s} before calling {.fn tales}."),
       class = c("tantale_error_tales_name_clash", "tantale_error")
     )
   }

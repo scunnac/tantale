@@ -25,6 +25,8 @@ Status markers: **[V]** verified empirically · **[D]** a decision I took alone.
 | pkgdown reference index | **DONE** — grouped by concept; `check_pkgdown()` passes |
 | §3 legacy cemetery | **DONE** — three shims moved to `inst/legacy/` |
 | §4 `msa_heatmap()` | **ANALYSED** — one blocker identified, not fixed |
+| §8 error-condition tests | **DONE** — 18 assertions; found 2 live bugs |
+| `R CMD check` | run; one real NOTE fixed (`methods` missing from Imports) |
 | 9.3 internal-doc policy | partial — see §5 |
 | 7.1 vignette reproducibility | **NEW FINDING** — recorded, not fixed |
 

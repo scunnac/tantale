@@ -564,7 +564,31 @@ The fix is to make each vignette stand alone: read its inputs from
 
 ---
 
-## 8. Tests
+## 8. Tests — error conditions now covered **[V]**
+
+`tests/testthat/test_error_conditions.R` added (18 assertions). It exists
+because 11 of the package's `tantale_error_*` classes had **zero** test
+coverage, including six created during the cli conversion. A classed condition
+that nothing asserts on buys nothing.
+
+**It immediately earned its keep: it found a live bug in two error handlers.**
+
+`.pairwise_distances_rename_legacy()` and `.tales_rename_legacy()` both build a
+message whose `"i"` bullet carries a `{?s}` plural marker with no quantity to
+count. cli processes each bullet separately, so it raised
+*"Cannot pluralize without a quantity"* — as a plain `simpleError`. The
+intended `tantale_error_*_name_clash` class was never signalled, and the user
+saw a cli internals complaint instead of the real problem.
+
+Fixed with an explicit `{cli::qty(clash)}`. Both now raise their proper class.
+
+Worth remembering when writing cli messages: an inline style span such as
+`{.fn tales}` is **not** a quantity. A first scan for this bug missed the
+`tales_class.R` instance for exactly that reason.
+
+#### Original notes
+
+## 8-original Tests
 
 - **[V]** `test_plot_tales_msa.R` contains no `expect_*` calls — it registers as
   an empty/skipped test. It runs code inside `try()` but asserts nothing.
