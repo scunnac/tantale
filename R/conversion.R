@@ -1,35 +1,11 @@
 
 
 
-#'
-#' Split strings of TALE sequences (`sep`-separated rvd or distal repeat IDs)
-#'
-#' @description Load the content of fasta file containing TALE sequences (either RVD or Distal repeat code)
-#' and return a list of vectors each one composed of the individual elements of the sequence.
-#'
-#' @param strings Either, the path to a fasta file, an AAStringSet or "BStringSet"
-#' or a list. In all cases, each element of these objects is a string of a
-#' tale sequence (`sep`-separated rvd or distal repeat IDs)
-#' @param sep Separator of the elements of the sequence
-#'
-#' @return A list of named vectors representing the 'splited' sequence.
-#'
-#' @section Deprecated:
-#' Superseded by \code{\link{as_tales}}, which returns a validated
-#' \code{\link{tales}} object instead of a bare list, so array identity and
-#' part order are carried by the data rather than by convention.
-#'
-#' @seealso \code{\link{as_tales}}
-#' @export
-split_list <- function(strings, sep = "-") {
-  .Deprecated("as_tales")
-  .split_list(strings, sep = sep)
-}
 
 #' Split TALE sequence strings into vectors
 #'
 #' Implementation behind \code{\link{as_tales}} and the deprecated
-#' \code{\link{split_list}}. Internal so that package code can call it without
+#' \code{\link{as_tales}}. Internal so that package code can call it without
 #' tripping the deprecation warning.
 #' @noRd
 .split_list <- function(strings, sep = "-") {
@@ -191,10 +167,10 @@ repeat_to_rvd_map <- function(repeat_vecs, rvd_vecs) {
 #' Generate a mapping between Distal repeat IDs and their cognate RVD.
 #'
 #' Uses Distal repeat sequences and RVD sequences from a set of TALEs 
-#' analyzed with the \code{\link[tantale:distalr]{distalr}} function to return
+#' analyzed with the \code{\link{tales_compare}} function to return
 #' the association between repeat ID and RVD.
 #'
-#' @param tale_parts The tale_parts object in a \code{\link[tantale:distalr]{distalr}} output.
+#' @param tale_parts The tale_parts object in a \code{\link{tales_compare}} output.
 #' @return A two columns repeatID - RVD data frame.
 #' @export
 repeat_to_rvd_map_distalr <- function(tale_parts) {
@@ -223,11 +199,11 @@ repeat_to_rvd_map_distalr <- function(tale_parts) {
 #'
 #' @param repeat_align A multiple TALE repeat sequences alignment in the form of
 #'   a matrix as returned by
-#'   \code{\link[tantale:build_repeat_msa]{build_repeat_msa}}.
+#'   \code{\link{tales_align}}.
 #' @param rvd_map The return value of the
 #'   \code{\link[tantale:repeat_to_rvd_map]{repeat_to_rvd_map}} function or the 
 #'   \code{\link[tantale:repeat_to_rvd_map_distalr]{repeat_to_rvd_map_distalr}} function
-#'   if you used the \code{\link[tantale:distalr]{distalr}} function.
+#'   if you used the \code{\link{tales_compare}} function.
 #'   
 #'
 #' @return A TALE alignment matrix made up of RVD sequences.
@@ -278,8 +254,8 @@ repeat_to_rvd_align <-  function(repeat_align , rvd_map) {
 
 #' Convert repeat alignment to clusterID alignment
 #'
-#' @param repeat_sim A long, three columns data frame with pairwise similarity scores between repeats as available in the \code{repeat.similarity slot} of the object returned by the \code{\link[tantale:distalr]{distalr}} function.
-#' @param repeat_align a multiple Tal repeat sequences alignment in the form of a matrix as returned by \code{\link[tantale:build_repeat_msa]{build_repeat_msa}}.
+#' @param repeat_sim A long, three columns data frame with pairwise similarity scores between repeats as available in the \code{domain_distances} element of the object returned by the \code{\link{tales_compare}} function.
+#' @param repeat_align a multiple Tal repeat sequences alignment in the form of a matrix as returned by \code{\link{tales_align}}.
 #' @param h.cut a numeric value indicating the position where to cut the hclust tree of repeats.
 #' @return a matrix with exactly the same dimension as the input \code{repeat_sim} but containing clusterID instead of
 #' repeatID.
@@ -353,7 +329,7 @@ repeat_to_rvd_align <-  function(repeat_align , rvd_map) {
 
 #' Generates a RVD sequences set from a tale_parts object
 #'
-#' Uses a tale_parts object in a \code{\link[tantale:distalr]{distalr}} output
+#' Uses a tale_parts object in a \code{\link{tales_compare}} output
 #' to return a \code{\link[Biostrings::BStringSet]{BStringSet}} of RVD sequences.
 #' RVDs are separated by the character specified in the \code{sep} parameter.
 #' 
@@ -361,10 +337,10 @@ repeat_to_rvd_align <-  function(repeat_align , rvd_map) {
 #'
 #'
 #' Uses Distal repeat sequences and RVD sequences from a set of TALEs 
-#' analyzed with the \code{\link[tantale:distalr]{distalr}} function to return
+#' analyzed with the \code{\link{tales_compare}} function to return
 #' the association between repeat ID and RVD.
 #'
-#' @param tale_parts The tale_parts object in a \code{\link[tantale:distalr]{distalr}} output.
+#' @param tale_parts The tale_parts object in a \code{\link{tales_compare}} output.
 #' @param sep Used as a RVD separatator
 #' @param rvd_only Retrun only RVDs and ommit N- and C- terminal domains 
 #' @return A two columns repeatID - RVD data frame.

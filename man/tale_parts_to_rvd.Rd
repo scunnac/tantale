@@ -7,7 +7,7 @@
 tale_parts_to_rvd(tale_parts, sep = "-", rvd_only = FALSE)
 }
 \arguments{
-\item{tale_parts}{The tale_parts object in a \code{\link[tantale:distalr]{distalr}} output.}
+\item{tale_parts}{The tale_parts object in a \code{\link{tales_compare}} output.}
 
 \item{sep}{Used as a RVD separatator}
 
@@ -17,12 +17,12 @@ tale_parts_to_rvd(tale_parts, sep = "-", rvd_only = FALSE)
 A two columns repeatID - RVD data frame.
 }
 \description{
-Uses a tale_parts object in a \code{\link[tantale:distalr]{distalr}} output
+Uses a tale_parts object in a \code{\link{tales_compare}} output
 to return a \code{\link[Biostrings::BStringSet]{BStringSet}} of RVD sequences.
 RVDs are separated by the character specified in the \code{sep} parameter.
 }
 \details{
 Uses Distal repeat sequences and RVD sequences from a set of TALEs 
-analyzed with the \code{\link[tantale:distalr]{distalr}} function to return
+analyzed with the \code{\link{tales_compare}} function to return
 the association between repeat ID and RVD.
 }

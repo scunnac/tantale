@@ -124,22 +124,3 @@ test_that("re-minting over an existing dom_code warns", {
     class = "tantale_warning_relatedness_remint"
   )
 })
-
-
-#### The deprecated distalr() still behaves as before ####
-
-test_that("distalr() is deprecated but returns its original six slots", {
-  w <- NULL
-  out <- suppressWarnings(suppressMessages(withCallingHandlers(
-    distalr(suppressWarnings(
-      tantale:::.tale_parts(test_path("data_for_tests", "tellTaleExampleOutput"))
-    )),
-    deprecatedWarning = function(c) w <<- conditionMessage(c)
-  )))
-  expect_match(w, "tales_compare")
-  expect_named(out, c("tale_parts", "repeats.code", "coded.repeats.str",
-                      "repeat.similarity", "tal.similarity", "repeats.cluster"))
-  # legacy column vocabulary preserved for existing callers
-  expect_true("domCode" %in% names(out$tale_parts))
-  expect_setequal(names(out$repeat.similarity), c("RepU1", "RepU2", "Dissim", "Sim"))
-})

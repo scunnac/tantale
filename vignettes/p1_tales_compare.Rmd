@@ -1,0 +1,51 @@
+---
+title: "Comparing `tales_compare`'s pairwise-alignment backends"
+output:
+  html_document:
+    df_print: paged
+editor_options:
+  chunk_output_type: console
+---
+
+Here is a small test set of tale cds sequences (5 = 2 groups of 2 + outlier)
+
+```{r}
+library(tantale)
+tellTaleSubjSeqsFile <- system.file("extdata", "bai3_sample_tal_genomic_regions.fasta", package = "tantale", mustWork = T)
+telltale_dir <- system.file("extdata", "tellTaleExampleOutput", package = "tantale", mustWork = T)
+#
+# tantale::tell_tales(subject_file = tellTaleSubjSeqsFile,
+#                           output_dir = telltale_dir
+# )
+```
+
+# Parse annotale output (rvd, aa, dna, domain type, array id) in a tell_tales output dir
+
+```{r parse tale parts from tell_tales output dir}
+tales <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput", package = "tantale", mustWork = T))
+```
+
+
+## Run `tales_compare` to investigate TALE protein domains composition relatedness
+
+`tales_compare()` returns a list of three typed objects: the stamped `tales`,
+the `domain_distances` between domains, and the `tale_distances` between
+arrays. The distances are stored as distances -- self-comparison is 0.
+
+```{r use tales_compare}
+dres <- tales_compare(tales, ncores = 6, aln_method = "Biostrings")
+
+# dres2 <- tales_compare(tales, ncores = 6, aln_method = "mmseq2",
+#                        conda_bin = "/home/cunnac/bin/miniconda3/condabin/conda")
+
+dres3 <- tales_compare(tales, ncores = 6, aln_method = "DECIPHER")
+```
+
+```{r compare the backends}
+str(lapply(dres, class))
+
+# the two backends should broadly agree on which arrays are close
+biostringsD <- as.matrix(dres$tale_distances)
+decipherD   <- as.matrix(dres3$tale_distances)
+cor(as.vector(biostringsD), as.vector(decipherD[rownames(biostringsD), colnames(biostringsD)]))
+```

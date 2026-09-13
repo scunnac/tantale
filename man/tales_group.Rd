@@ -17,14 +17,6 @@ tales_group(
 \code{\link{tales_compare}}. A plain data frame using the legacy
 \code{TAL1}/\code{TAL2}/\code{Sim} column names is also accepted and
 coerced.}
-
-\item{plot_tree}{logical indicating whether to plot hclust tree or not. If the method is "k-medoids", no tree will be plotted (but instead, a plot of silhoutte value).}
-
-\item{k}{integer indicating number of groups you want Tals to be classified. Or only in case that method is "k-medoids", k = "auto" to automatically pick the optimum k or k = NULL to interactively pick it. Do not always trust the automatic picking, it is better to choose k interactively or test with different values.}
-
-\item{k_range}{integer vector of 2 indicating the range of k to test, only available when method = "k-medoids". Note that the minimum value for k is 2.}
-
-\item{method}{one of two methods: "hclust" (see \code{\link[stats:cutree]{cutree}}) and "k-medoids" (see \code{\link[cluster:pam]{pam}}).}
 }
 \value{
 A data frame of array names and their assigned groups.

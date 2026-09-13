@@ -81,47 +81,11 @@ tales_consensus_match <- function(align, long = TRUE) {
 ##### Tale domains sequences multiple alignment ####
 
 
-#' Perform multiple alignment of TALE repeat or RVD sequences
-#'
-#' @description Perform multiple alignment of TALE repeat or RVD sequences using the \code{--text} mode of the \href{https://mafft.cbrc.jp/alignment/software/}{MAFFT} Multiple alignment program.
-#'
-#' By default, uses the simple scoring matrix defined in \href{https://mafft.cbrc.jp/alignment/software/textcomparison.html}{the text mode of MAFFT}. Users can optionally provide a custom scoring matrix.
-#'
-#' @param input_seqs Any object accepted as input by the
-#'  \code{\link[tantale:split_list]{split_list}} function, such as the path to a fasta file containing the TALE sequences to be aligned or the \code{coded.repeats.str} slot of the object returned by the \code{\link[tantale:distalr]{distalr}} function. Can also be the return value of the \code{\link[tantale:tale_parts_to_rvd]{tale_parts_to_rvd}} function if one wants to align RVD sequences.
-#'
-#' @param sep Passed to \code{as_tales()} to split the TALEs strings in input.
-#' @param repeat_sims A long, three columns data frame with pairwise similarity scores between repeats as available in the \code{repeat.similarity slot} of the object returned by the \code{\link[tantale:distalr]{distalr}} function.
-#' @param mafft_opts A character string containing additional options for the MAFFT command. This is notably useful to tweak the Gap opening and gap extension penalties.
-#' @param mafft_path Path to a MAFFT installation directory. By default uses the MAFFT version included in tantale.
-#' @param gap_symbol Specify a alternative symbol for gaps in the alignments.
-#'
-#' @return A character matrix representing the multiple alignment.
-#'
-#' @section Deprecated:
-#' Superseded by \code{\link{tales_align}}, which takes and returns typed
-#' objects: a \code{\link{tales}} in, a \code{\link{tales_msa}} out. The
-#' alignment then carries every residue layer at once instead of one per
-#' matrix, and the layer to align on is given explicitly rather than guessed
-#' from a list of frequent RVDs. Use \code{as.matrix()} on the result to get
-#' this function's matrix back.
-#'
-#' @seealso \code{\link{tales_align}}
-#' @export
-build_repeat_msa <- function(input_seqs, sep = " ", repeat_sims = NULL,
-                             mafft_opts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1",
-                             mafft_path = system.file("tools", "mafft-linux64", package = "tantale", mustWork = TRUE),
-                             gap_symbol = NA) {
-  .Deprecated("tales_align")
-  .build_repeat_msa(input_seqs = input_seqs, sep = sep, repeat_sims = repeat_sims,
-                    mafft_opts = mafft_opts, mafft_path = mafft_path,
-                    gap_symbol = gap_symbol)
-}
 
 #' Align TALE sequences with MAFFT text mode
 #'
 #' Implementation behind \code{\link{tales_align}} and the deprecated
-#' \code{\link{build_repeat_msa}}. Internal so that package code can call it
+#' \code{\link{tales_align}}. Internal so that package code can call it
 #' without tripping the deprecation warning.
 #' @noRd
 .build_repeat_msa <- function(input_seqs, sep = " ", repeat_sims = NULL,
@@ -293,12 +257,12 @@ build_repeat_msa <- function(input_seqs, sep = " ", repeat_sims = NULL,
 #' 
 #' 
 #' @param tal_sim a \emph{three columns Tals similarity table} as obtained
-#'  with \code{\link[tantale:distalr]{distalr}} in the 'tal.similarity' slot of the returned object.
+#'  with \code{\link{tales_compare}} in the \code{tale_distances} element of the returned object.
 #' @param repeat_align a multiple Tal repeat sequences alignment in the
-#'  form of a matrix as returned by \code{\link[tantale:build_repeat_msa]{build_repeat_msa}}.
+#'  form of a matrix as returned by \code{\link{tales_align}}.
 #' @param repeat_sim A long, three columns data frame with pairwise similarity
-#' scores between repeats as available in the \code{repeat.similarity slot}
-#' of the object returned by the \code{\link[tantale:distalr]{distalr}} function.
+#' scores between repeats as available in the \code{domain_distances} element
+#' of the object returned by the \code{\link{tales_compare}} function.
 #' @param plot_type Either \code{"repeat.similarity"}, \code{"repeat.clusters"} ,
 #'  \code{"repeat.clusters.with.rvd"}. Defines the type of plot that will be produced
 #'   by the function. See below for details.
@@ -307,7 +271,7 @@ build_repeat_msa <- function(input_seqs, sep = " ", repeat_sims = NULL,
 #' @param rvd_align (optional) when the rvds need to be labeled in the
 #'  plot (plot_type = "repeat.similarity" or "repeat.clusters.with.rvd",
 #'  a multiple Tal repeat sequences alignment in the form of a matrix as
-#'  returned by \code{\link[tantale:build_repeat_msa]{build_repeat_msa}}.
+#'  returned by \code{\link{tales_align}}.
 #' @param ref_pattern regular expression pattern that will be used to search Tal names
 #' to select the reference in the alignment.
 #' @param consensus (logical) whether to display the consensus sequence when 
@@ -630,18 +594,18 @@ msa_heatmap <- function(tal_sim, repeat_align, rvd_align = NULL,
 #'
 #'
 #' @param tal_sim a \emph{three columns Tals similarity table} as obtained with
-#'   \code{\link[tantale:distalr]{distalr}} in the 'tal.similarity' slot of
+#'   \code{\link{tales_compare}} in the \code{tale_distances} element of
 #'   the returned object.
 #' @param repeat_align A multiple Tal repeat sequences alignment in the form of a
-#'   matrix as returned by \code{\link[tantale:build_repeat_msa]{build_repeat_msa}}.
+#'   matrix as returned by \code{\link{tales_align}}.
 #' @param repeat_sim A long, three columns data frame with pairwise similarity
-#'   scores between repeats as available in the \code{repeat.similarity slot} of
-#'   the object returned by the \code{\link[tantale:distalr]{distalr}} function.
+#'   scores between repeats as available in the \code{domain_distances} element of
+#'   the object returned by the \code{\link{tales_compare}} function.
 #' @param h_cut height for tree cutting when defining domain/repeat
 #'   clusters.
 #' @param rvd_align A multiple Tal RVD sequences alignment in the form of a
 #'   matrix as returned by \code{\link[tantale:repeat_to_rvd_align]{repeat_to_rvd_align}}
-#'   or \code{\link[tantale:build_repeat_msa]{build_repeat_msa}}.
+#'   or \code{\link{tales_align}}.
 #' @param ref_pattern Regular expression pattern that will be used to search TALE
 #'   names to select the reference in the alignment.
 #' @param consensus (logical) Whether to display the consensus sequence

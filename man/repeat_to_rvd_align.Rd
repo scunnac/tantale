@@ -9,12 +9,12 @@ repeat_to_rvd_align(repeat_align, rvd_map)
 \arguments{
 \item{repeat_align}{A multiple TALE repeat sequences alignment in the form of
 a matrix as returned by
-\code{\link[tantale:build_repeat_msa]{build_repeat_msa}}.}
+\code{\link{tales_align}}.}
 
 \item{rvd_map}{The return value of the
 \code{\link[tantale:repeat_to_rvd_map]{repeat_to_rvd_map}} function or the 
 \code{\link[tantale:repeat_to_rvd_map_distalr]{repeat_to_rvd_map_distalr}} function
-if you used the \code{\link[tantale:distalr]{distalr}} function.}
+if you used the \code{\link{tales_compare}} function.}
 }
 \value{
 A TALE alignment matrix made up of RVD sequences.

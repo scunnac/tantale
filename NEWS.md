@@ -1,5 +1,56 @@
 # tantale (development version)
 
+## Breaking change: the `tales` class system replaces the list-of-tables API
+
+The pipeline now passes typed objects rather than named lists of plain data
+frames. `tales_compare()` (formerly `distalr()`) returns three of them:
+
+| element | class |
+|---|---|
+| `tales` | `tales` — the parts table, stamped with a `dom_code` namespace |
+| `domain_distances` | `domain_distances` / `pairwise_distances` |
+| `tale_distances` | `tale_distances` / `pairwise_distances` |
+
+### Removed functions
+
+These were deprecated in an earlier development commit and are now gone. There
+is no alias; `master` still carries the old API if you need a reference.
+
+| removed | replacement |
+|---|---|
+| `distalr()` | `tales_compare()` |
+| `tale_parts()` | `tales_from_telltale()` |
+| `split_list()` | `as_tales()` |
+| `build_repeat_msa()` | `tales_align()` |
+| `group_tales()` | `tales_group()` |
+
+`distalr()`'s six-element list is reduced to the three typed elements above.
+`coded.repeats.str`, `repeats.code` and `repeats.cluster` were verified to be
+pure projections of the parts table or to have no consumer at all, and are
+replaced by `tales_coded_strings()`, `tales_domain_codes()` and an explicit
+clustering call respectively.
+
+### Similarity became distance
+
+`pairwise_distances` (formerly `pairwise_sim`) stores `dissim`, not `sim`, and
+`tale_sim`/`repeat_sim` are now `tale_distances`/`domain_distances`.
+
+Two reasons. First, `repeat_sim` understated its content: 71 of the 251 ids in
+the reference output (28%) are terminus domains rather than repeats, so
+`domain` is the accurate word. Second, the distance is the *native* quantity in
+both tables — the aligners emit a dissimilarity, and the TALE-level score is an
+ARLEM cost divided by array length — while `Sim` was a derived `100 - x` that
+every consumer immediately inverted back. Storing one quantity rather than two
+also removes the risk of the two drifting apart.
+
+Legacy tables are still accepted on input: a data frame carrying `Sim`,
+`TAL1`/`TAL2`, `RepU1`/`RepU2` or `normArlemScore` is converted to the
+canonical `id1`/`id2`/`dissim` form at construction.
+
+Note the changed reading of the numbers: what used to display as a TALE
+similarity of 91.75–100 is the same information shown as a distance of
+0–8.25.
+
 ## Breaking change: package-wide naming overhaul
 
 The package had accumulated two incompatible naming styles (camelCase, snake_case, and some dot.case) across its history, which made the API hard to predict and, in argument names, occasionally collided with R's own S3 dispatch conventions. Every exported function, and most internal ones, have been renamed to a single consistent `snake_case` style. There is no backward-compatible alias for any old name — this is a clean break, not a deprecation cycle. If you have scripts using the old API, use the `master` branch, which still has the old names, as a reference while you update.

@@ -40,21 +40,23 @@ library(tantale)
 
 ```
 
-This demo will illustrate how to use the `build_repeat_msa` function to produce TALE sequence multiple algnments.\
+This demo will illustrate how to use the `tales_align()` function to produce TALE sequence multiple algnments.\
 
-Additionally, using real life distalr output, it will details the various type of aesthetics that can be used to plot those TALEs msa.
+Additionally, using real life `tales_compare()` output, it will details the various type of aesthetics that can be used to plot those TALEs msa.
 
 # Producing simple TALE sequence multiple algnments
 
 Here we start with RVD sequences of the African Xoo TALE TalA:
 
 ```{r align rvd strings}
-aln <- build_repeat_msa(input_seqs = system.file("extdata", "TalA_RVDSeqs_AnnoTALE.fasta",
-                                              package = "tantale", mustWork = TRUE),
-                      sep = "-",
-                      repeat_sims = NULL,
-                      mafft_opts = "--localpair --maxiterate 1000 --quiet --reorder --op 0 --ep 5 --thread 1",
-                      gap_symbol = "-")
+# A fasta reaches an alignment by composing the two steps: as_tales() ingests
+# it, tales_align() aligns it. as.matrix() then materialises the grid.
+tales <- as_tales(system.file("extdata", "TalA_RVDSeqs_AnnoTALE.fasta",
+                              package = "tantale", mustWork = TRUE),
+                  sep = "-", residue_col = "rvd")
+msa <- tales_align(tales, residue_col = "rvd",
+                   mafft_opts = "--localpair --maxiterate 1000 --quiet --reorder --op 0 --ep 5 --thread 1")
+aln <- as.matrix(msa, gap = "-")
 ```
 
 The output shown as a simple matrix :
@@ -63,16 +65,16 @@ The output shown as a simple matrix :
 knitr::kable(aln)
 ```
 
-Now, it is more evolutionarily relevant to look at Distal parts/domain/repeat (this is used somehow interchangeably with roughly the same meaning) code sequences. Needless to say that to obtain TALE parts code sequences, you need beforehand to run `distalr()` with DNA sequences. In this cas we just use a toy example provided with tantale.
+Now, it is more evolutionarily relevant to look at Distal parts/domain/repeat (this is used somehow interchangeably with roughly the same meaning) code sequences. Needless to say that to obtain TALE parts code sequences, you need beforehand to run `tales_compare()` with DNA sequences. In this cas we just use a toy example provided with tantale.
 
 
 ```{r align parts strings}
-aln <- build_repeat_msa(input_seqs = system.file("extdata", "small_Out_CodedRepeats.fa",
-                                              package = "tantale", mustWork = TRUE),
-                      sep = " ",
-                      repeat_sims = NULL,
-                      mafft_opts = "--localpair --maxiterate 1000 --quiet --reorder --op 0 --ep 5 --thread 1",
-                      gap_symbol = "-")
+tales <- as_tales(system.file("extdata", "small_Out_CodedRepeats.fa",
+                              package = "tantale", mustWork = TRUE),
+                  sep = " ", residue_col = "dom_code")
+msa <- tales_align(tales, residue_col = "dom_code",
+                   mafft_opts = "--localpair --maxiterate 1000 --quiet --reorder --op 0 --ep 5 --thread 1")
+aln <- as.matrix(msa, gap = "-")
 ```
 
 **NOTE**, the difference in the `sep` parameter value.

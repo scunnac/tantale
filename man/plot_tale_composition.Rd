@@ -8,8 +8,8 @@ plot_tale_composition(tale_parts)
 }
 \arguments{
 \item{tale_parts}{a table of TALE parts as returned by the
-\code{\link[tantale:tale_parts]{tale_parts}} function or
-\code{\link[tantale:distalr]{distalr}}}
+\code{\link{tales_from_telltale}} function or
+\code{\link{tales_compare}}}
 }
 \value{
 The ggplot object

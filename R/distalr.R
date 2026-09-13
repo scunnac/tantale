@@ -78,41 +78,11 @@
 }
 
 
-#' Fetch Annotale parts from a tell_tales output directory.
-#'
-#' @description
-#'
-#' This function get sequences from tell_tales "rvdSequences.fas" and AnnoTALE
-#' "TALE_Protein_parts.fasta" and "TALE_DNA_parts.fasta" files from a SINGLE
-#' \code{\link[tantale:tell_tales]{tell_tales}} run output directory and returns a
-#' tibble. Each row describes a domain from a tale array and includes the
-#' 'arrayID', the id of the sequence where this array was found, the
-#' 'domainType' (type of domain, repeat, N-term or C-term), the position of the
-#' domain inside the array, the DNA of the corresponding domain and the RVD and
-#' amino acid sequences if relevant.
-#'
-#'
-#' **IMPORTANT**: telltale MUST have been run with the extremity_codes = TRUE
-#'
-#' @param telltale_dir Path to a \code{\link[tantale:tell_tales]{tell_tales}} run
-#'   output directory
-#' @return A tibble.
-#'
-#' @section Deprecated:
-#' Superseded by \code{\link{tales_from_telltale}}, which returns the same
-#' table as a validated \code{\link{tales}} object.
-#'
-#' @seealso \code{\link{tales_from_telltale}}
-#' @export
-tale_parts <- function(telltale_dir) {
-  .Deprecated("tales_from_telltale")
-  .tale_parts(telltale_dir)
-}
 
 #' Read TALE parts from a tell_tales output directory
 #'
 #' Implementation behind \code{\link{tales_from_telltale}} and the deprecated
-#' \code{\link{tale_parts}}. Internal so that package code can call it without
+#' \code{\link{tales_from_telltale}}. Internal so that package code can call it without
 #' tripping the deprecation warning.
 #' @noRd
 .tale_parts <- function(telltale_dir) {
@@ -379,8 +349,8 @@ diag(identSubMat) <- 1
 #' tale_parts object.
 #' 
 #' @param tale_parts a table of TALE parts as returned by the
-#' \code{\link[tantale:tale_parts]{tale_parts}} function or
-#' \code{\link[tantale:distalr]{distalr}}
+#' \code{\link{tales_from_telltale}} function or
+#' \code{\link{tales_compare}}
 #' @param sanitize If \code{FALSE}, will return all the arrays with at least one 
 #' part with a missing sequence. If \code{TRUE}, will return all the arrays that have
 #' no part with a missing sequence.
@@ -431,8 +401,8 @@ diagnose_tale_parts <- function(tale_parts, sanitize = FALSE) {
 #' tale_parts object.
 #' 
 #' @param tale_parts a table of TALE parts as returned by the
-#' \code{\link[tantale:tale_parts]{tale_parts}} function or
-#' \code{\link[tantale:distalr]{distalr}}
+#' \code{\link{tales_from_telltale}} function or
+#' \code{\link{tales_compare}}
 #'
 #' @return The ggplot object
 #' @export
@@ -468,61 +438,6 @@ plot_tale_composition <- function(tale_parts) {
 # aln_method = "DECIPHER"
 # conda_bin = "/home/cunnac/bin/miniconda3/condabin/conda"
 
-#' Compute TALE and repeat similarity from TALE parts
-#' @description
-#' An R re-implementation of the original DisTal Perl program: it still uses
-#' the Arlem binary for the same repeat-array alignment step, but performs
-#' the rest of the operations with R support and parallelization, which
-#' makes it much faster (the exact speedup depends on the \code{aln_method}
-#' chosen). Please take a look at the vignette for tips on how to use it properly.
-#' 
-#' @param tale_parts a table of TALE parts as returned by the \code{\link[tantale:tale_parts]{tale_parts}} function.
-#' @param h_cut numeric value to cut the hierarchical clustering tree of the repeat.
-#' @param aln_method Specify the underlying approach for computing pairwise similarities between
-#' TALE parts amino acid sequences. Must be "Biostrings", "mmseq2" or "DECIPHER"
-#' @param conda_bin Path to your Conda binary file if you need to specify a
-#'   path different from the one that is automatically searched by the
-#'   reticulate package functions.
-#' @return A list with DisTal output components: 
-#' \itemize{
-#'   \item tale_parts: the original input tibble with a 'domCode' column corresponding to the unique distal
-#'    'code' or label attached to a unique domain sequence. Thus all parts with this sequence will have the same
-#'    'domCode'.
-#'   \item repeats.code: a data frame of the unique repeat AA sequences and their numeric codes
-#'   \item coded.repeats.str: a list of repeat-coded TALE strings
-#'   \item repeat.similarity:  a long, three columns data frame with pairwise similarity scores between repeats
-#'   \item tal.similarity: a three columns Tals similarity table with pairwise similarity scores between TALEs
-#'   \item repeats.cluster: a data frame containing repeat code and repeat clusters.
-#' }
-#' @export
-distalr <- function(tale_parts, h_cut = 10, ncores = 1,
-                    aln_method = "DECIPHER", conda_bin = "auto") {
-  .Deprecated("tales_compare")
-  core <- .tales_compare_core(tale_parts = tale_parts, ncores = ncores,
-                                  aln_method = aln_method, conda_bin = conda_bin)
-  tale_parts <- core$tale_parts
-  dissimLong <- core$dissim_long
-
-  # The projections come from the shared methods, then get bent back into this
-  # function's historical column vocabulary for its existing callers.
-  asTales <- tales(tale_parts)
-  legacyCodes <- tales_domain_codes(asTales) %>%
-    dplyr::mutate(code = as.integer(dom_code)) %>%
-    dplyr::select(code, "AA Seq" = aa_seq, rvd) %>%
-    dplyr::arrange(code)
-
-  list(
-    tale_parts = tale_parts,
-    "repeats.code" = legacyCodes,
-    "coded.repeats.str" = tales_coded_strings(asTales),
-    "repeat.similarity" = dissimLong %>% dplyr::rename(RepU1 = subj, RepU2 = pattern),
-    "tal.similarity" = core$tal_sim,
-    "repeats.cluster" = .cluster_repeats(
-      repeat_sim_mat = reshape2::acast(dissimLong, formula = subj ~ pattern, value.var = "Sim"),
-      h_cut = h_cut
-    )
-  )
-}
 
 
 #' Compute TALE and repeat relatedness
@@ -535,7 +450,7 @@ distalr <- function(tale_parts, h_cut = 10, ncores = 1,
 #'
 #' Two products are irreducible and expensive — the pairwise protein alignment
 #' between repeat units, and ARLEM on the coded arrays. Everything else the
-#' former \code{distalr()} returned was a projection of its inputs, so this
+#' former \code{tales_compare()} returned was a projection of its inputs, so this
 #' function returns only what cannot be recomputed cheaply.
 #'
 #' This is where \code{dom_code} is minted, over the whole set of parts
@@ -636,7 +551,7 @@ tales_compare <- function(x, ncores = 1, aln_method = "DECIPHER",
 #' The expensive part of the relatedness computation
 #'
 #' Shared by \code{\link{tales_compare}} and the deprecated
-#' \code{\link{distalr}}. Speaks the legacy column vocabulary and returns raw
+#' \code{\link{tales_compare}}. Speaks the legacy column vocabulary and returns raw
 #' pieces; classing, stamping and assembly happen in the callers. Deliberately
 #' does no clustering: that was a stored field with no consumers, recomputed by
 #' its only would-be user at a different cut height (restructuring-notes.md §1).

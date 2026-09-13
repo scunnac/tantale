@@ -1,5 +1,5 @@
 
-tale_parts <- tale_parts(test_path("data_for_tests", "tellTaleExampleOutput")) %>%
+tale_parts <- tantale:::.tale_parts(test_path("data_for_tests", "tellTaleExampleOutput")) %>%
   dplyr::mutate(partId = paste(arrayID, positionInArray, sep = "_"))
 part_aa_set <-  Biostrings::AAStringSet(tale_parts$aaSeq)
 names(part_aa_set) <- tale_parts$partId

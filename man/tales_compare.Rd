@@ -38,7 +38,7 @@ it much faster (the exact speedup depends on \code{aln_method}).
 \details{
 Two products are irreducible and expensive — the pairwise protein alignment
 between repeat units, and ARLEM on the coded arrays. Everything else the
-former \code{distalr()} returned was a projection of its inputs, so this
+former \code{tales_compare()} returned was a projection of its inputs, so this
 function returns only what cannot be recomputed cheaply.
 
 This is where \code{dom_code} is minted, over the whole set of parts

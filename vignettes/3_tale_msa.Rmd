@@ -57,7 +57,7 @@ When investigating large sets of TALEs with groups composed of several members, 
 
 The TALE Class Assignment tool of AnnoTALE performs this task but one drawback is that it is unable to insert gaps in the alignements. New TALEs often evolve by DNA recombination creating large deletion and insertions in the Central Repeat Domain of the protein. It is therefore very powerful to be able to detect inDels because they may be the sign of common descent (see also the article on the [QueTal suite](https://doi.org/10.3389/fpls.2015.00545)).
 
-Under the hood, the `build_repeat_msa` function leverages the capacity of [MAFFT](https://mafft.cbrc.jp/alignment/software/) to align arbitrary characters in hexadecimal code to generate TALE parts sequences multiple alignments as illustrated here.
+Under the hood, the `tales_align()` function leverages the capacity of [MAFFT](https://mafft.cbrc.jp/alignment/software/) to align arbitrary characters in hexadecimal code to generate TALE parts sequences multiple alignments as illustrated here.
 
 
 ```{r load previous session}
@@ -68,7 +68,7 @@ load(file.path(outdir, "mining.RData"))
 
 # TALE domains multiple alignments with similarity
 
-If interested in performing TALEs multiple alignments (distal domains or RVDs) it makes sense to align TALEs that are related and that thus belong to the same group. This is what we are doing here but keep in mind that the `build_repeat_msa()` function can take any arbitrary set of repeatID sequences or RVD sequences.
+If interested in performing TALEs multiple alignments (distal domains or RVDs) it makes sense to align TALEs that are related and that thus belong to the same group. This is what we are doing here but keep in mind that the `tales_align()` function can take any arbitrary set of repeatID sequences or RVD sequences.
 
 But right now what we need is a mapping between distal parts IDs and the cognate RVDs. This can be done in a number of ways but let's use the one below that relies on `repeat_to_rvd_map()`.
 
@@ -88,8 +88,8 @@ for (input in rvdSeqs_fasta) {
   writeXStringSet(seqs, telltale_rvd, append = T)
 }
 
-rvdVectors <- split_list(telltale_rvd, sep = "-")
-repeat_vecs <- split_list(distalr_deci_output$coded.repeats.str, sep = " ")
+rvdVectors <- as_tales(telltale_rvd, sep = "-")
+repeat_vecs <- as_tales(distalr_deci_output$coded.repeats.str, sep = " ")
 
 # map repeatID to RVD
 rep2rvd <- repeat_to_rvd_map(repeat_vecs = repeat_vecs, rvd_vecs = rvdVectors)
@@ -106,13 +106,13 @@ If possible it is more appropriate to align repeat/domains rather than RVD. For 
 
 ```{r msa_with_sim, results = FALSE, eval= TRUE}
 repeat_vecs <- distalr_deci_output$coded.repeats.str
-repeat_sim <- distalr_deci_output$repeat.similarity
+repeat_sim <- distalr_deci_output\$domain_distances
 
 
 lapply(sort(unique(taleGroups$group)), function(G) {repeat_vecs[taleGroups$name[taleGroups$group == G]]})
 
 repeatMsaByGroup_withSim <- lapply(sort(unique(taleGroups$group)), function(G) {
-  try({build_repeat_msa(input_seqs = repeat_vecs[taleGroups$name[taleGroups$group == G]],
+  try({tales_align(input_seqs = repeat_vecs[taleGroups$name[taleGroups$group == G]],
                       sep = " ",
                       repeat_sims = repeat_sim,
                       mafft_opts = "--globalpair --weighti 1 --maxiterate 1000 --quiet --reorder --op 0 --ep 5 --thread 1")
@@ -125,7 +125,7 @@ repeatMsaByGroup_withSim <- lapply(sort(unique(taleGroups$group)), function(G) {
 
 ## Plotting MSA with RVDs as text and  coloring based on repeat similarity
 
-For this type of plot, we need to map repeatID to RVD with `repeat_to_rvd_map()`, then convert repeat MSA to RVD MSA by `repeat_to_rvd_align`. We should use the converting function rather than using `build_repeat_msa()` to creat MSA of RVD because there will be disagreement between them.
+For this type of plot, we need to map repeatID to RVD with `repeat_to_rvd_map()`, then convert repeat MSA to RVD MSA by `repeat_to_rvd_align`. We should use the converting function rather than using `tales_align()` to creat MSA of RVD because there will be disagreement between them.
 
 ```{r repeat.similarity_plot, fig.width = 12, fig.height = 4, eval= TRUE}
 # convert repeat MSA to RVD MSA
@@ -133,9 +133,9 @@ repeatMSA <- repeatMsaByGroup_withSim[[2]]
 rvdMSA <-  repeat_to_rvd_align(repeat_align = repeatMSA, rvd_map = rep2rvd)
 
 # plot MSA
-tantale::msa_heatmap(tal_sim = distalr_deci_output$tal.similarity,
+tantale::msa_heatmap(tal_sim = distalr_deci_output\$tale_distances,
                      repeat_align = repeatMSA,
-                     repeat_sim = distalr_deci_output$repeat.similarity,
+                     repeat_sim = distalr_deci_output\$domain_distances,
                      rvd_align = rvdMSA,
                      plot_type = "repeat.similarity",
                      main = "Repeat MSA with similarity - Group 2")
@@ -146,9 +146,9 @@ tantale::msa_heatmap(tal_sim = distalr_deci_output$tal.similarity,
 
 
 ```{r repeat.clusters_plot, fig.width = 12, fig.height = 4, eval= TRUE}
-tantale::msa_heatmap(tal_sim = distalr_deci_output$tal.similarity,
+tantale::msa_heatmap(tal_sim = distalr_deci_output\$tale_distances,
                      repeat_align = repeatMSA,
-                     repeat_sim = distalr_deci_output$repeat.similarity,
+                     repeat_sim = distalr_deci_output\$domain_distances,
                      plot_type = "repeat.clusters",
                      main = "Repeat Cluster MSA - Group 2")
 ```
@@ -160,9 +160,9 @@ For this plot, we also use the RVD MSA converted from repeat MSA.
 
 
 ```{r repeat.clusters.with.rvd_plot, fig.width = 12, fig.height = 4, eval= TRUE}
-tantale::msa_heatmap(tal_sim = distalr_deci_output$tal.similarity,
+tantale::msa_heatmap(tal_sim = distalr_deci_output\$tale_distances,
                      repeat_align = repeatMSA,
-                     repeat_sim = distalr_deci_output$repeat.similarity,
+                     repeat_sim = distalr_deci_output\$domain_distances,
                      rvd_align = rvdMSA,
                      plot_type = "repeat.clusters.with.rvd",
                      main = "Repeat Cluster MSA with RVD - Group 2",

@@ -1,30 +1,6 @@
 
 ##### Tale classification ####
 
-#' Grouping TALEs
-#'
-#' @description
-#'
-#'   Classifying Tal groups by hierchical clustering or by k-medoids clustering based on their similarity.
-#'
-#' @param method one of two methods: "hclust" (see \code{\link[stats:cutree]{cutree}}) and "k-medoids" (see \code{\link[cluster:pam]{pam}}). 
-#' @param tal_sim a \emph{three columns Tals similarity table} as obtained with \code{\link[tantale:distalr]{distalr}} in the 'tal.similarity' slot of the returned object.
-#' @param plot_tree logical indicating whether to plot hclust tree or not. If the method is "k-medoids", no tree will be plotted (but instead, a plot of silhoutte value).
-#' @param k_range integer vector of 2 indicating the range of k to test, only available when method = "k-medoids". Note that the minimum value for k is 2.
-#' @param k integer indicating number of groups you want Tals to be classified. Or only in case that method is "k-medoids", k = "auto" to automatically pick the optimum k or k = NULL to interactively pick it. Do not always trust the automatic picking, it is better to choose k interactively or test with different values.
-#' @return a data frame containing name of tals from tal_sim and their classified groups.
-#'
-#' @section Deprecated:
-#' Renamed to \code{\link{tales_group}}, for consistency with the rest of the
-#' \code{tales_*} API. Behaviour is unchanged.
-#'
-#' @seealso \code{\link{tales_group}}
-#' @export
-group_tales <- function(tal_sim, plot_tree = FALSE, k = NULL, k_range = NULL, method = "k-medoids") {
-  .Deprecated("tales_group")
-  tales_group(tal_sim = tal_sim, plot_tree = plot_tree, k = k,
-              k_range = k_range, method = method)
-}
 
 #' Group TALEs by similarity
 #'

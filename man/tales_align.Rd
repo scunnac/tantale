@@ -13,9 +13,9 @@ tales_align(x, residue_col = c("rvd", "dom_code"), repeat_sims = NULL, ...)
 \code{"dom_code"}. Given explicitly rather than guessed from the values.}
 
 \item{repeat_sims}{Optional similarity table passed to MAFFT as a scoring
-matrix, as accepted by \code{\link{build_repeat_msa}}.}
+matrix, as accepted by \code{\link{tales_align}}.}
 
-\item{...}{Passed to \code{\link{build_repeat_msa}} (e.g. \code{mafft_opts}).}
+\item{...}{Passed to \code{\link{tales_align}} (e.g. \code{mafft_opts}).}
 }
 \value{
 A \code{tales_msa} object.

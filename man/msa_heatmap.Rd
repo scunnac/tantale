@@ -20,19 +20,19 @@ msa_heatmap(
 }
 \arguments{
 \item{tal_sim}{a \emph{three columns Tals similarity table} as obtained
-with \code{\link[tantale:distalr]{distalr}} in the 'tal.similarity' slot of the returned object.}
+with \code{\link{tales_compare}} in the \code{tale_distances} element of the returned object.}
 
 \item{repeat_align}{a multiple Tal repeat sequences alignment in the
-form of a matrix as returned by \code{\link[tantale:build_repeat_msa]{build_repeat_msa}}.}
+form of a matrix as returned by \code{\link{tales_align}}.}
 
 \item{rvd_align}{(optional) when the rvds need to be labeled in the
 plot (plot_type = "repeat.similarity" or "repeat.clusters.with.rvd",
 a multiple Tal repeat sequences alignment in the form of a matrix as
-returned by \code{\link[tantale:build_repeat_msa]{build_repeat_msa}}.}
+returned by \code{\link{tales_align}}.}
 
 \item{repeat_sim}{A long, three columns data frame with pairwise similarity
-scores between repeats as available in the \code{repeat.similarity slot}
-of the object returned by the \code{\link[tantale:distalr]{distalr}} function.}
+scores between repeats as available in the \code{domain_distances} element
+of the object returned by the \code{\link{tales_compare}} function.}
 
 \item{h_cut}{height for tree cutting when plot type
 in "repeat.clusters".}

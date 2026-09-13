@@ -219,8 +219,8 @@ as.matrix.tales_msa <- function(x, value = NULL, gap = NA, ...) {
 #' @param residue_col Which layer to align on: \code{"rvd"} (default) or
 #'   \code{"dom_code"}. Given explicitly rather than guessed from the values.
 #' @param repeat_sims Optional similarity table passed to MAFFT as a scoring
-#'   matrix, as accepted by \code{\link{build_repeat_msa}}.
-#' @param ... Passed to \code{\link{build_repeat_msa}} (e.g. \code{mafft_opts}).
+#'   matrix, as accepted by \code{\link{tales_align}}.
+#' @param ... Passed to \code{\link{tales_align}} (e.g. \code{mafft_opts}).
 #' @return A \code{tales_msa} object.
 #' @export
 tales_align <- function(x, residue_col = c("rvd", "dom_code"),

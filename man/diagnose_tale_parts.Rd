@@ -8,8 +8,8 @@ diagnose_tale_parts(tale_parts, sanitize = FALSE)
 }
 \arguments{
 \item{tale_parts}{a table of TALE parts as returned by the
-\code{\link[tantale:tale_parts]{tale_parts}} function or
-\code{\link[tantale:distalr]{distalr}}}
+\code{\link{tales_from_telltale}} function or
+\code{\link{tales_compare}}}
 
 \item{sanitize}{If \code{FALSE}, will return all the arrays with at least one 
 part with a missing sequence. If \code{TRUE}, will return all the arrays that have

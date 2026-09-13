@@ -431,6 +431,36 @@ matrix"; `distalr()` feeds it the `Dissim` matrix as that cost file
 
 ---
 
+### 7.1 Vignettes 1-4 cannot be built **[V]**
+
+Found while removing the deprecated functions, and it predates that work.
+
+`R CMD build` (with vignettes) **fails today**, at `2_tale_classification.Rmd`.
+The cause is not an API problem: vignettes 1-4 are chained through session
+state written to a hardcoded user path.
+
+- `1_tale_mining.Rmd` ends with `save.image(file.path(outdir, "mining.RData"))`
+  where `outdir <- fs::dir_create("~/TEMP/test_tantale")`.
+- `2`, `3` and `4` each begin with `load(file.path(outdir, "mining.RData"))`.
+- That file is absent on a clean machine, so 2-4 error immediately.
+
+Consequences:
+- `R CMD build` must be run with `--no-build-vignettes` to succeed at all.
+- This, not anything about pkgdown itself, is the real blocker behind the
+  "pkgdown rebuild blocked on vignette reproducibility" note.
+- The four vignettes could not be verified after the API migration, since they
+  cannot execute. Their call sites were updated mechanically and are unchecked.
+
+By contrast `p1_tales_compare.Rmd` and `p2_multiple_alignments.Rmd` are
+self-contained -- they read fixtures from `inst/extdata` -- and both were
+re-knitted successfully after migration.
+
+The fix is to make each vignette stand alone: read its inputs from
+`inst/extdata` (or build them in a setup chunk) rather than inheriting a
+`save.image()` from the previous one. Worth doing before any pkgdown rebuild.
+
+---
+
 ## 8. Tests
 
 - **[V]** `test_plot_tales_msa.R` contains no `expect_*` calls — it registers as
