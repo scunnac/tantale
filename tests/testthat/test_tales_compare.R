@@ -92,14 +92,14 @@ test_that("tale_distances is keyed by array_id and is square", {
 
 test_that("both tables put their id columns first, in order", {
   res <- relatedness_once()
-  expect_identical(names(res$domain_distances)[1:3], c("id1", "id2", "sim"))
-  expect_identical(names(res$tale_distances)[1:3], c("id1", "id2", "sim"))
+  expect_identical(names(res$domain_distances)[1:3], c("id1", "id2", "dissim"))
+  expect_identical(names(res$tale_distances)[1:3], c("id1", "id2", "dissim"))
 })
 
-test_that("self-similarity is 100", {
+test_that("self-comparison is distance 0", {
   res <- relatedness_once()
-  selfRep <- res$domain_distances$sim[res$domain_distances$id1 == res$domain_distances$id2]
-  expect_true(all(selfRep == 100))
+  selfRep <- res$domain_distances$dissim[res$domain_distances$id1 == res$domain_distances$id2]
+  expect_true(all(selfRep == 0))
 })
 
 

@@ -342,7 +342,9 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
 .distances_to_legacy <- function(x, ids) {
   if (is.null(x)) return(NULL)
   x <- tibble::as_tibble(pairwise_distances(x))          # accepts legacy or canonical
-  names(x)[match(c("id1", "id2", "sim"), names(x))] <- c(ids, "Sim")
-  if ("dissim" %in% names(x)) names(x)[names(x) == "dissim"] <- "Dissim"
+  # The class stores only the distance now, but plot_tales_msa() and the other
+  # legacy consumers still read Sim, so re-derive it on the way back out.
+  x[["Sim"]] <- 100 - as.numeric(x[["dissim"]])
+  names(x)[match(c("id1", "id2", "dissim"), names(x))] <- c(ids, "Dissim")
   as.data.frame(x)
 }

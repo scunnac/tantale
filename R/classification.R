@@ -47,7 +47,7 @@ tales_group <- function(tal_sim, plot_tree = FALSE, k = NULL, k_range = NULL, me
 
   # Coercing accepts both a tale_distances and a legacy table; as.matrix() then
   # replaces the hand-written acast() and asserts squareness on the way.
-  distMat <- 100 - as.matrix(tale_distances(tal_sim))
+  distMat <- as.matrix(tale_distances(tal_sim))
 
   if (method == "k-medoids") {
     if (is.null(k_range) || !is.numeric(k_range)) stop("invalid k values!")

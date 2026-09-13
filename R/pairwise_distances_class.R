@@ -12,16 +12,16 @@
 #### Column schema ####
 
 PAIRWISE_DISTANCES_ID_COLS <- c("id1", "id2")
-PAIRWISE_DISTANCES_VALUE_COL <- "sim"
+PAIRWISE_DISTANCES_VALUE_COL <- "dissim"
 
 PAIRWISE_DISTANCES_OPTIONAL_COLS <- c(
-  "dissim", "arlem_score", "max_length", "norm_arlem_score"
+  "arlem_score", "max_length", "norm_arlem_score"
 )
 
 # Legacy spellings -> canonical. Both entity vocabularies collapse onto the
 # same id columns; renaming by name also fixes repeat.similarity listing its
 # ids in the order RepU2, RepU1.
-PAIRWISE_SIM_LEGACY_NAMES <- c(
+PAIRWISE_DISTANCES_LEGACY_NAMES <- c(
   TAL1           = "id1",
   TAL2           = "id2",
   RepU1          = "id1",
@@ -107,7 +107,13 @@ domain_distances <- function(x, dom_code_namespace = NULL) {
       class = c("tantale_error_distances_type", "tantale_error")
     )
   }
-  x <- .pairwise_sim_rename_legacy(x)
+  x <- .pairwise_distances_rename_legacy(x)
+  # Only the distance is stored. Keeping both quantities invites them drifting
+  # out of step (ledger 9.6); a legacy table carrying only Sim is converted here.
+  if (!"dissim" %in% names(x) && "sim" %in% names(x)) {
+    x[["dissim"]] <- 100 - as.numeric(x[["sim"]])
+  }
+  x <- x[setdiff(names(x), "sim")]
   for (nm in intersect(PAIRWISE_DISTANCES_ID_COLS, names(x))) {
     x[[nm]] <- as.character(x[[nm]])
   }
@@ -122,10 +128,10 @@ domain_distances <- function(x, dom_code_namespace = NULL) {
 }
 
 #' @noRd
-.pairwise_sim_rename_legacy <- function(x) {
-  hit <- intersect(names(x), names(PAIRWISE_SIM_LEGACY_NAMES))
+.pairwise_distances_rename_legacy <- function(x) {
+  hit <- intersect(names(x), names(PAIRWISE_DISTANCES_LEGACY_NAMES))
   if (length(hit) == 0L) return(x)
-  target <- unname(PAIRWISE_SIM_LEGACY_NAMES[hit])
+  target <- unname(PAIRWISE_DISTANCES_LEGACY_NAMES[hit])
   clash <- intersect(target, names(x))
   if (length(clash) > 0L) {
     cli::cli_abort(
