@@ -150,7 +150,25 @@ wrong; both implement capability available nowhere else in the package.
 
 ---
 
-## 3. Legacy cemetery (`inst/legacy/`)
+## 3. Legacy cemetery (`inst/legacy/`) — DONE **[V]**
+
+The three AnnoTALE<->QueTAL shims are moved to
+`inst/legacy/annotale_quetal_shims.R`, joining the existing
+`inst/legacy/tellTaleLegacy.R`.
+
+**[V]** Verified uncalled before moving: zero references to
+`.reformat_array_report()`, `.annotale_to_quetal_rvd()` or
+`.quetal_to_annotale_rvd()` anywhere in `R/`, `tests/` or `vignettes/` outside
+their own definitions.
+
+Moved rather than deleted. The file conventions they encode -- how AnnoTALE and
+QueTAL disagree about writing the same RVD content -- are not recorded anywhere
+else, and that is worth keeping even though nothing calls them. `inst/legacy/`
+ships with the package but is not sourced, so they cost nothing at load time.
+
+#### Original notes
+
+## 3-original Legacy cemetery
 
 **[A]** The AnnoTALE↔QueTAL format shims:
 `.annotale_to_quetal_rvd()`, `.quetal_to_annotale_rvd()`, `.reformat_array_report()`.

@@ -23,6 +23,8 @@ Status markers: **[V]** verified empirically · **[D]** a decision I took alone.
 | 9.4 `@family` | **DONE** — 42 tags, eight families |
 | §2 dormant conversion fns | **DONE** — both repaired, guarded, documented |
 | pkgdown reference index | **DONE** — grouped by concept; `check_pkgdown()` passes |
+| §3 legacy cemetery | **DONE** — three shims moved to `inst/legacy/` |
+| §4 `msa_heatmap()` | **ANALYSED** — one blocker identified, not fixed |
 | 9.3 internal-doc policy | partial — see §5 |
 | 7.1 vignette reproducibility | **NEW FINDING** — recorded, not fixed |
 
@@ -136,5 +138,13 @@ not match. I normalised the spacing across `R/` so the next regex sweep cannot
 be silently incomplete in the same way. Worth remembering for 9.2, which is
 exactly that kind of sweep.
 
-Also untouched: §3 (legacy cemetery), §4 (retiring `msa_heatmap()`) and §5.1
-(`diagnose_tale_parts()`'s fate).
+**§4 has a single, concrete blocker.** `msa_heatmap()`'s six `plot_type`
+values all map onto `plot_tales_msa()`'s orthogonal arguments *except*
+`consensus`, which `plot_tales_msa()` documents as "NOT IMPLEMENTED YET" and
+leaves as a TODO in its body. The groundwork exists -- it already computes
+`tales_consensus(rvd_align)` and uses it for match colouring -- so only the
+*display* of a consensus row is missing. I did not implement it: a visual
+feature needs your eye, not a passing test.
+
+Still untouched: §5.1 (`diagnose_tale_parts()`'s fate), which is a judgement
+call the ledger explicitly parks for you.
