@@ -15,7 +15,7 @@ PAIRWISE_DISTANCES_ID_COLS <- c("id1", "id2")
 PAIRWISE_DISTANCES_VALUE_COL <- "dissim"
 
 PAIRWISE_DISTANCES_OPTIONAL_COLS <- c(
-  "arlem_score", "max_length", "norm_arlem_score"
+  "arlem_score", "max_length"
 )
 
 # Legacy spellings -> canonical. Both entity vocabularies collapse onto the
@@ -74,9 +74,12 @@ is_pairwise_distances <- function(x) inherits(x, "pairwise_distances")
 #' Legacy column spellings (\code{TAL1}/\code{TAL2}, \code{RepU1}/\code{RepU2},
 #' \code{Sim}, \code{Dissim}, \code{arlemScore}, ...) are renamed on the way in.
 #'
-#' @param x A data frame with \code{id1}, \code{id2} and \code{sim} columns.
-#'   Further columns (\code{dissim}, \code{arlem_score}, \code{max_length},
-#'   \code{norm_arlem_score}, or anything else) are preserved untouched.
+#' @param x A data frame with \code{id1}, \code{id2} and \code{dissim} columns.
+#'   Legacy spellings and the similarity vocabulary are accepted and converted:
+#'   a table carrying \code{Sim} or \code{normArlemScore} instead of a distance
+#'   is folded into \code{dissim}, and those restatements are then dropped so
+#'   only one copy of the quantity is stored. Further columns
+#'   (\code{arlem_score}, \code{max_length}, or anything else) are preserved.
 #' @param dom_code_namespace Optional scalar string identifying the run whose
 #'   \code{dom_code} values this table is keyed by, see
 #'   \code{\link{tales_namespace}}. Relevant for \code{domain_distances()}, whose ids
@@ -108,12 +111,19 @@ domain_distances <- function(x, dom_code_namespace = NULL) {
     )
   }
   x <- .pairwise_distances_rename_legacy(x)
-  # Only the distance is stored. Keeping both quantities invites them drifting
-  # out of step (ledger 9.6); a legacy table carrying only Sim is converted here.
-  if (!"dissim" %in% names(x) && "sim" %in% names(x)) {
-    x[["dissim"]] <- 100 - as.numeric(x[["sim"]])
+  # Only the distance is stored. Keeping several copies of one quantity invites
+  # them drifting out of step (ledger 9.6), so sim and norm_arlem_score -- both
+  # exact restatements of the distance -- are folded in and dropped.
+  # norm_arlem_score is preferred as the source: it *is* the distance, whereas
+  # deriving from sim round-trips through 100 - x for no gain.
+  if (!"dissim" %in% names(x)) {
+    if ("norm_arlem_score" %in% names(x)) {
+      x[["dissim"]] <- as.numeric(x[["norm_arlem_score"]])
+    } else if ("sim" %in% names(x)) {
+      x[["dissim"]] <- 100 - as.numeric(x[["sim"]])
+    }
   }
-  x <- x[setdiff(names(x), "sim")]
+  x <- x[setdiff(names(x), c("sim", "norm_arlem_score"))]
   for (nm in intersect(PAIRWISE_DISTANCES_ID_COLS, names(x))) {
     x[[nm]] <- as.character(x[[nm]])
   }

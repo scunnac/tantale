@@ -13,9 +13,12 @@ tale_distances(x, dom_code_namespace = NULL)
 domain_distances(x, dom_code_namespace = NULL)
 }
 \arguments{
-\item{x}{A data frame with \code{id1}, \code{id2} and \code{sim} columns.
-Further columns (\code{dissim}, \code{arlem_score}, \code{max_length},
-\code{norm_arlem_score}, or anything else) are preserved untouched.}
+\item{x}{A data frame with \code{id1}, \code{id2} and \code{dissim} columns.
+Legacy spellings and the similarity vocabulary are accepted and converted:
+a table carrying \code{Sim} or \code{normArlemScore} instead of a distance
+is folded into \code{dissim}, and those restatements are then dropped so
+only one copy of the quantity is stored. Further columns
+(\code{arlem_score}, \code{max_length}, or anything else) are preserved.}
 
 \item{dom_code_namespace}{Optional scalar string identifying the run whose
 \code{dom_code} values this table is keyed by, see

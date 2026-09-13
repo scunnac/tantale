@@ -405,7 +405,7 @@ Column contract — **minimal**:
 | tier | columns |
 |---|---|
 | required | `id1`, `id2`, `sim` |
-| optional | `dissim`, `arlem_score`, `max_length`, `norm_arlem_score` |
+| optional | `arlem_score`, `max_length` |
 
 Minimal on purpose: `msa.R:176` legitimately selects down to three columns,
 dropping `dissim`. Requiring it would make correct existing code invalid.

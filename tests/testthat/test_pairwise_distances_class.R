@@ -100,7 +100,10 @@ test_that("the tal.similarity extras are renamed to snake_case", {
   df$maxLength <- 2
   df$normArlemScore <- 3
   x <- tale_distances(df)
-  expect_true(all(c("arlem_score", "max_length", "norm_arlem_score") %in% names(x)))
+  expect_true(all(c("arlem_score", "max_length") %in% names(x)))
+  # norm_arlem_score restates the distance, so it is folded in and dropped
+  expect_false("norm_arlem_score" %in% names(x))
+  expect_equal(x$dissim, rep(3, nrow(df)))
 })
 
 
@@ -197,7 +200,7 @@ test_that("the real distalr similarity tables validate", {
   expect_s3_class(rs, "domain_distances")
   expect_s3_class(ts, "tale_distances")
   expect_setequal(names(rs), c("id1", "id2", "dissim"))
-  expect_true(all(c("arlem_score", "max_length", "norm_arlem_score") %in% names(ts)))
+  expect_setequal(names(ts), c("id1", "id2", "dissim", "arlem_score", "max_length"))
 
   # both are complete squares, as recorded in the design doc
   expect_silent(distances_assert_square(rs))
