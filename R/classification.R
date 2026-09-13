@@ -31,13 +31,13 @@ group_tales <- function(tal_sim, plot_tree = FALSE, k = NULL, k_range = NULL, me
 #' Classifies TALE arrays into groups by hierarchical or k-medoids clustering
 #' of their pairwise similarity.
 #'
-#' @param tal_sim A \code{\link{tale_sim}} object, as returned by
-#'   \code{\link{tales_relatedness}}. A plain data frame using the legacy
+#' @param tal_sim A \code{\link{tale_distances}} object, as returned by
+#'   \code{\link{tales_compare}}. A plain data frame using the legacy
 #'   \code{TAL1}/\code{TAL2}/\code{Sim} column names is also accepted and
 #'   coerced.
 #' @inheritParams group_tales
 #' @return A data frame of array names and their assigned groups.
-#' @seealso \code{\link{tales_relatedness}}, which produces the input.
+#' @seealso \code{\link{tales_compare}}, which produces the input.
 #' @export
 tales_group <- function(tal_sim, plot_tree = FALSE, k = NULL, k_range = NULL, method = "k-medoids") {
 
@@ -45,9 +45,9 @@ tales_group <- function(tal_sim, plot_tree = FALSE, k = NULL, k_range = NULL, me
   # -  Expectation Maximization (EM): https://en.wikibooks.org/wiki/Data_Mining_Algorithms_In_R/Clustering/Expectation_Maximization_(EM)
   # For other ideas : https://en.wikibooks.org/wiki/Data_Mining_Algorithms_In_R/Clustering
 
-  # Coercing accepts both a tale_sim and a legacy table; as.matrix() then
+  # Coercing accepts both a tale_distances and a legacy table; as.matrix() then
   # replaces the hand-written acast() and asserts squareness on the way.
-  distMat <- 100 - as.matrix(tale_sim(tal_sim))
+  distMat <- 100 - as.matrix(tale_distances(tal_sim))
 
   if (method == "k-medoids") {
     if (is.null(k_range) || !is.numeric(k_range)) stop("invalid k values!")

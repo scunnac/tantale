@@ -59,9 +59,9 @@ test_that("group_tales() is deprecated in favour of tales_group()", {
   expect_match(w, "tales_group")
 })
 
-test_that("tales_group() accepts both a legacy table and a tale_sim object", {
+test_that("tales_group() accepts both a legacy table and a tale_distances object", {
   sim <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))$tal.similarity
   fromLegacy <- tales_group(tal_sim = sim, k = 3, method = "hclust")
-  fromTyped <- tales_group(tal_sim = tale_sim(sim), k = 3, method = "hclust")
+  fromTyped <- tales_group(tal_sim = tale_distances(sim), k = 3, method = "hclust")
   expect_equal(fromLegacy, fromTyped)
 })

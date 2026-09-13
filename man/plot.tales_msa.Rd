@@ -15,10 +15,10 @@
 \item{label}{Layer whose values are written in the cells, or \code{NULL} for
 none. Defaults to \code{"rvd"} when it is not already the \code{fill}.}
 
-\item{tal_sim}{Optional \code{\link{tale_sim}} (or legacy table) used to
+\item{tal_sim}{Optional \code{\link{tale_distances}} (or legacy table) used to
 order arrays by overall similarity.}
 
-\item{domain_sim}{Optional \code{\link{repeat_sim}} (or legacy table) of
+\item{domain_sim}{Optional \code{\link{domain_distances}} (or legacy table) of
 similarities between domains, used to colour cells.}
 
 \item{...}{Passed to \code{\link{plot_tales_msa}}: \code{h_cut},

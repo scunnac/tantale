@@ -13,8 +13,8 @@ tales_group(
 )
 }
 \arguments{
-\item{tal_sim}{A \code{\link{tale_sim}} object, as returned by
-\code{\link{tales_relatedness}}. A plain data frame using the legacy
+\item{tal_sim}{A \code{\link{tale_distances}} object, as returned by
+\code{\link{tales_compare}}. A plain data frame using the legacy
 \code{TAL1}/\code{TAL2}/\code{Sim} column names is also accepted and
 coerced.}
 
@@ -34,5 +34,5 @@ Classifies TALE arrays into groups by hierarchical or k-medoids clustering
 of their pairwise similarity.
 }
 \seealso{
-\code{\link{tales_relatedness}}, which produces the input.
+\code{\link{tales_compare}}, which produces the input.
 }

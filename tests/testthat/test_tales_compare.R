@@ -1,4 +1,4 @@
-# Tests for tales_relatedness(). See dev/class-design.md §1.2 and
+# Tests for tales_compare(). See dev/class-design.md §1.2 and
 # dev/restructuring-notes.md §1 (what the returned list shrank to, and why).
 #
 # These run the real pipeline (pairwise protein alignment + ARLEM), so they are
@@ -15,7 +15,7 @@ relatedness_once <- local({
   function() {
     if (is.null(cached)) {
       cached <<- suppressWarnings(suppressMessages(
-        tales_relatedness(example_tales())
+        tales_compare(example_tales())
       ))
     }
     cached
@@ -23,12 +23,12 @@ relatedness_once <- local({
 })
 
 
-test_that("tales_relatedness() returns exactly three typed objects", {
+test_that("tales_compare() returns exactly three typed objects", {
   res <- relatedness_once()
-  expect_named(res, c("tales", "repeat_sim", "tale_sim"))
+  expect_named(res, c("tales", "domain_distances", "tale_distances"))
   expect_s3_class(res$tales, "tales")
-  expect_s3_class(res$repeat_sim, "repeat_sim")
-  expect_s3_class(res$tale_sim, "tale_sim")
+  expect_s3_class(res$domain_distances, "domain_distances")
+  expect_s3_class(res$tale_distances, "tale_distances")
 })
 
 test_that("the three dropped slots are gone", {
@@ -56,15 +56,15 @@ test_that("dom_code is in one-to-one correspondence with aa_seq", {
 
 #### Namespace stamping ####
 
-test_that("the tales and repeat_sim carry the same namespace", {
+test_that("the tales and domain_distances carry the same namespace", {
   res <- relatedness_once()
   expect_type(tales_namespace(res$tales), "character")
-  expect_identical(tales_namespace(res$repeat_sim), tales_namespace(res$tales))
+  expect_identical(tales_namespace(res$domain_distances), tales_namespace(res$tales))
 })
 
-test_that("tale_sim is deliberately unstamped, being keyed by array_id", {
+test_that("tale_distances is deliberately unstamped, being keyed by array_id", {
   res <- relatedness_once()
-  expect_null(tales_namespace(res$tale_sim))
+  expect_null(tales_namespace(res$tale_distances))
 })
 
 test_that("the namespace is the hash of the part set, so a rerun matches", {
@@ -78,27 +78,27 @@ test_that("the namespace is the hash of the part set, so a rerun matches", {
 
 #### The similarity tables ####
 
-test_that("repeat_sim is keyed by dom_code and is square", {
+test_that("domain_distances is keyed by dom_code and is square", {
   res <- relatedness_once()
-  expect_setequal(unique(res$repeat_sim$id1), unique(res$tales$dom_code))
-  expect_silent(sim_assert_square(res$repeat_sim))
+  expect_setequal(unique(res$domain_distances$id1), unique(res$tales$dom_code))
+  expect_silent(distances_assert_square(res$domain_distances))
 })
 
-test_that("tale_sim is keyed by array_id and is square", {
+test_that("tale_distances is keyed by array_id and is square", {
   res <- relatedness_once()
-  expect_setequal(unique(res$tale_sim$id1), unique(res$tales$array_id))
-  expect_silent(sim_assert_square(res$tale_sim))
+  expect_setequal(unique(res$tale_distances$id1), unique(res$tales$array_id))
+  expect_silent(distances_assert_square(res$tale_distances))
 })
 
 test_that("both tables put their id columns first, in order", {
   res <- relatedness_once()
-  expect_identical(names(res$repeat_sim)[1:3], c("id1", "id2", "sim"))
-  expect_identical(names(res$tale_sim)[1:3], c("id1", "id2", "sim"))
+  expect_identical(names(res$domain_distances)[1:3], c("id1", "id2", "sim"))
+  expect_identical(names(res$tale_distances)[1:3], c("id1", "id2", "sim"))
 })
 
 test_that("self-similarity is 100", {
   res <- relatedness_once()
-  selfRep <- res$repeat_sim$sim[res$repeat_sim$id1 == res$repeat_sim$id2]
+  selfRep <- res$domain_distances$sim[res$domain_distances$id1 == res$domain_distances$id2]
   expect_true(all(selfRep == 100))
 })
 
@@ -106,21 +106,21 @@ test_that("self-similarity is 100", {
 #### Preconditions and guards ####
 
 test_that("a plain data frame is refused", {
-  expect_error(tales_relatedness(data.frame(a = 1)),
+  expect_error(tales_compare(data.frame(a = 1)),
                class = "tantale_error_tales_type")
 })
 
 test_that("a tales without aa_seq is refused", {
   x <- as_tales(test_path("data_for_tests", "tellTaleExampleOutput",
                           "rvdSequences.fas"), sep = "-")
-  expect_error(tales_relatedness(x),
-               class = "tantale_error_relatedness_no_aa")
+  expect_error(tales_compare(x),
+               class = "tantale_error_compare_no_aa")
 })
 
 test_that("re-minting over an existing dom_code warns", {
   res <- relatedness_once()
   expect_warning(
-    suppressMessages(tales_relatedness(res$tales)),
+    suppressMessages(tales_compare(res$tales)),
     class = "tantale_warning_relatedness_remint"
   )
 })
@@ -136,7 +136,7 @@ test_that("distalr() is deprecated but returns its original six slots", {
     )),
     deprecatedWarning = function(c) w <<- conditionMessage(c)
   )))
-  expect_match(w, "tales_relatedness")
+  expect_match(w, "tales_compare")
   expect_named(out, c("tale_parts", "repeats.code", "coded.repeats.str",
                       "repeat.similarity", "tal.similarity", "repeats.cluster"))
   # legacy column vocabulary preserved for existing callers

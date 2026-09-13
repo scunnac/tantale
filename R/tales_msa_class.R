@@ -297,9 +297,9 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
 #'   \code{"dom_code"} when present, otherwise \code{"rvd"}.
 #' @param label Layer whose values are written in the cells, or \code{NULL} for
 #'   none. Defaults to \code{"rvd"} when it is not already the \code{fill}.
-#' @param tal_sim Optional \code{\link{tale_sim}} (or legacy table) used to
+#' @param tal_sim Optional \code{\link{tale_distances}} (or legacy table) used to
 #'   order arrays by overall similarity.
-#' @param domain_sim Optional \code{\link{repeat_sim}} (or legacy table) of
+#' @param domain_sim Optional \code{\link{domain_distances}} (or legacy table) of
 #'   similarities between domains, used to colour cells.
 #' @param ... Passed to \code{\link{plot_tales_msa}}: \code{h_cut},
 #'   \code{ref_pattern}, \code{consensus}, \code{fill_type}.
@@ -326,22 +326,22 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
   plot_tales_msa(
     repeat_align = as.matrix(x, value = fill),
     rvd_align = if (!is.null(label)) as.matrix(x, value = label) else NULL,
-    tal_sim = .sim_to_legacy(tal_sim, c("TAL1", "TAL2")),
-    repeat_sim = .sim_to_legacy(domain_sim, c("RepU1", "RepU2")),
+    tal_sim = .distances_to_legacy(tal_sim, c("TAL1", "TAL2")),
+    repeat_sim = .distances_to_legacy(domain_sim, c("RepU1", "RepU2")),
     ...
   )
 }
 
-#' Rename a pairwise_sim's columns back to the legacy vocabulary
+#' Rename a pairwise_distances' columns back to the legacy vocabulary
 #'
 #' \code{plot_tales_msa()} still addresses its similarity tables by the old
 #' column names. Temporary bridge, the mirror of the ingest rename; removable
 #' once that function's internals move onto the class (its four
 #' \code{acast()} sites, restructuring-notes.md §5).
 #' @noRd
-.sim_to_legacy <- function(x, ids) {
+.distances_to_legacy <- function(x, ids) {
   if (is.null(x)) return(NULL)
-  x <- tibble::as_tibble(pairwise_sim(x))          # accepts legacy or canonical
+  x <- tibble::as_tibble(pairwise_distances(x))          # accepts legacy or canonical
   names(x)[match(c("id1", "id2", "sim"), names(x))] <- c(ids, "Sim")
   if ("dissim" %in% names(x)) names(x)[names(x) == "dissim"] <- "Dissim"
   as.data.frame(x)

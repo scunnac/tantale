@@ -239,7 +239,7 @@ test_that("plot() accepts similarity tables in either vocabulary", {
     plot(msa, fill = "rvd", label = NULL, tal_sim = legacy)
   ))
   fromTyped <- suppressWarnings(suppressMessages(
-    plot(msa, fill = "rvd", label = NULL, tal_sim = tale_sim(legacy))
+    plot(msa, fill = "rvd", label = NULL, tal_sim = tale_distances(legacy))
   ))
   expect_s3_class(fromLegacy, class(fromTyped)[1])
 })

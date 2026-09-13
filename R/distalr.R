@@ -497,8 +497,8 @@ plot_tale_composition <- function(tale_parts) {
 #' @export
 distalr <- function(tale_parts, h_cut = 10, ncores = 1,
                     aln_method = "DECIPHER", conda_bin = "auto") {
-  .Deprecated("tales_relatedness")
-  core <- .tales_relatedness_core(tale_parts = tale_parts, ncores = ncores,
+  .Deprecated("tales_compare")
+  core <- .tales_compare_core(tale_parts = tale_parts, ncores = ncores,
                                   aln_method = aln_method, conda_bin = conda_bin)
   tale_parts <- core$tale_parts
   dissimLong <- core$dissim_long
@@ -555,9 +555,9 @@ distalr <- function(tale_parts, h_cut = 10, ncores = 1,
 #' @return A list of three objects, all describing the same run:
 #' \itemize{
 #'   \item \code{tales}: the input, with a \code{dom_code} column added.
-#'   \item \code{repeat_sim}: a \code{\link{repeat_sim}} between repeat units,
+#'   \item \code{domain_distances}: a \code{\link{domain_distances}} between repeat units,
 #'     keyed by \code{dom_code}.
-#'   \item \code{tale_sim}: a \code{\link{tale_sim}} between whole arrays,
+#'   \item \code{tale_distances}: a \code{\link{tale_distances}} between whole arrays,
 #'     keyed by \code{array_id}.
 #' }
 #'
@@ -573,9 +573,9 @@ distalr <- function(tale_parts, h_cut = 10, ncores = 1,
 #' 287--308. \doi{10.1142/S0219720009004060}
 #'
 #' @seealso \code{\link{tales_group}} to cluster arrays from the returned
-#'   \code{tale_sim}.
+#'   \code{tale_distances}.
 #' @export
-tales_relatedness <- function(x, ncores = 1, aln_method = "DECIPHER",
+tales_compare <- function(x, ncores = 1, aln_method = "DECIPHER",
                               conda_bin = "auto") {
   if (!is_tales(x)) {
     cli::cli_abort("{.arg x} must be a {.cls tales} object.",
@@ -585,7 +585,7 @@ tales_relatedness <- function(x, ncores = 1, aln_method = "DECIPHER",
     cli::cli_abort(
       c("{.arg x} must carry an {.field aa_seq} column.",
         "i" = "Repeat similarity is computed from part amino acid sequences."),
-      class = c("tantale_error_relatedness_no_aa", "tantale_error")
+      class = c("tantale_error_compare_no_aa", "tantale_error")
     )
   }
   if ("dom_code" %in% names(x)) {
@@ -602,19 +602,19 @@ tales_relatedness <- function(x, ncores = 1, aln_method = "DECIPHER",
 
   # The core still speaks the legacy column vocabulary; translate either side.
   legacy <- .tales_to_legacy(x)
-  core <- .tales_relatedness_core(tale_parts = legacy, ncores = ncores,
+  core <- .tales_compare_core(tale_parts = legacy, ncores = ncores,
                                   aln_method = aln_method, conda_bin = conda_bin)
 
   list(
     tales = tales(core$tale_parts, dom_code_namespace = namespace),
-    repeat_sim = repeat_sim(
+    domain_distances = domain_distances(
       core$dissim_long %>% dplyr::rename(RepU1 = subj, RepU2 = pattern),
       dom_code_namespace = namespace
     ),
     # Keyed by array_id, not dom_code, so deliberately unstamped: array ids are
     # meaningful names that do not silently collide across runs the way
     # cur_group_id() codes do (class-design.md §3.5).
-    tale_sim = tale_sim(core$tal_sim)
+    tale_distances = tale_distances(core$tal_sim)
   )
 }
 
@@ -635,13 +635,13 @@ tales_relatedness <- function(x, ncores = 1, aln_method = "DECIPHER",
 
 #' The expensive part of the relatedness computation
 #'
-#' Shared by \code{\link{tales_relatedness}} and the deprecated
+#' Shared by \code{\link{tales_compare}} and the deprecated
 #' \code{\link{distalr}}. Speaks the legacy column vocabulary and returns raw
 #' pieces; classing, stamping and assembly happen in the callers. Deliberately
 #' does no clustering: that was a stored field with no consumers, recomputed by
 #' its only would-be user at a different cut height (restructuring-notes.md §1).
 #' @noRd
-.tales_relatedness_core <- function(tale_parts, ncores = 1,
+.tales_compare_core <- function(tale_parts, ncores = 1,
                                     aln_method = "DECIPHER", conda_bin = "auto") {
   
   #### Reality checks ####
