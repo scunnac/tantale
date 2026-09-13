@@ -78,3 +78,42 @@ test_that("the projections reproduce the stored slots of a real distalr run", {
   expect_true(all(joined$aa_seq == joined$`AA Seq`))
   expect_true(all(joined$rvd.x == joined$rvd.y))
 })
+
+
+#### RVD strings ####
+
+test_that("tales_rvd_strings() drops termini by default", {
+  x <- tales(tibble::tibble(
+    array_id = rep("a1", 4),
+    position_in_array = 1:4,
+    rvd = c("NTERM", "NI", "HD", "CTERM")
+  ))
+  expect_identical(as.character(tales_rvd_strings(x)[["a1"]]), "NI-HD")
+  expect_identical(as.character(tales_rvd_strings(x, rvd_only = FALSE)[["a1"]]),
+                   "NTERM-NI-HD-CTERM")
+})
+
+test_that("tales_rvd_strings() honours sep and part order", {
+  x <- tales(tibble::tibble(
+    array_id = rep("a1", 3),
+    position_in_array = 3:1,
+    rvd = c("NG", "HD", "NI")
+  ))
+  expect_identical(as.character(tales_rvd_strings(x, sep = " ")[["a1"]]), "NI HD NG")
+})
+
+test_that("tales_rvd_strings() matches the format of the shipped sample fasta", {
+  shipped <- Biostrings::readBStringSet(
+    system.file("extdata", "Sample_TALEs_RVDSeqs_AnnoTALE.fasta",
+                package = "tantale", mustWork = TRUE)
+  )
+  x <- suppressWarnings(
+    tales_from_telltale(test_path("data_for_tests", "tellTaleExampleOutput"))
+  )
+  built <- tales_rvd_strings(x)
+  # same shape: dash-separated RVDs, no anchor codes
+  expect_false(any(grepl(paste(tales_anchor_codes(), collapse = "|"),
+                         as.character(built))))
+  expect_true(all(grepl("^[A-Z*]+(-[A-Z*]+)+$", as.character(built))))
+  expect_true(all(grepl("^[A-Z*]+(-[A-Z*]+)+$", as.character(shipped))))
+})

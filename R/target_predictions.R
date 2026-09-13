@@ -499,3 +499,50 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
 
 
 
+
+
+##### Unified target prediction interface #####
+
+#' Predict TALE target boxes
+#'
+#' Runs a TALE target (EBE) prediction tool over a set of TALE RVD sequences
+#' and a set of DNA sequences, and returns the predictions as a tibble.
+#'
+#' \code{talvez} and \code{preditale} are independent programs, but the package
+#' already normalises their outputs to a shared set of column names, so they
+#' are interchangeable backends of one operation rather than two separate
+#' functions. This is that operation; \code{\link{talvez}} and
+#' \code{\link{preditale}} remain available and documented individually, and
+#' are where each tool's own options and citation live.
+#'
+#' @param x TALE RVD sequences: a \code{\link{tales}} object, the path to a
+#'   fasta file, or a \code{BStringSet}. A \code{tales} is rendered with
+#'   \code{\link{tales_rvd_strings}}, which drops the termini.
+#' @param subj_file Path to a fasta file of subject DNA sequence(s).
+#' @param method Which backend to use, \code{"talvez"} (default) or
+#'   \code{"preditale"}.
+#' @param ... Passed to the chosen backend. See \code{\link{talvez}}
+#'   (\code{opt_param}, \code{talvez_dir}, \code{conda_bin}) and
+#'   \code{\link{preditale}} (\code{opt_param}, \code{predictor_path}); both
+#'   accept \code{output_dir}. Note the two take different \code{opt_param}
+#'   defaults, since the options are the tools' own.
+#'
+#' @return A tibble of EBE predictions, with column names homogenised across
+#'   backends, plus a \code{method} column recording which tool produced them.
+#'
+#' @seealso \code{\link{talvez}}, \code{\link{preditale}}
+#' @export
+tales_predict_targets <- function(x, subj_file, method = c("talvez", "preditale"), ...) {
+  method <- match.arg(method)
+  if (is_tales(x)) x <- tales_rvd_strings(x)
+
+  predictions <- switch(
+    method,
+    talvez    = talvez(rvd_seqs = x, subj_file = subj_file, ...),
+    preditale = preditale(rvd_seqs = x, subj_file = subj_file, ...)
+  )
+  # Which tool produced a prediction is not recoverable from the homogenised
+  # columns, so record it rather than lose it.
+  predictions$method <- method
+  predictions
+}

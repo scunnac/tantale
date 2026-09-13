@@ -257,6 +257,40 @@ mechanism behave identically in both.
 Downstream consequence: a good part of the conversion functions can then be
 unexported.
 
+### 5.1 Does `diagnose_tale_parts()` survive the `tales` class? **[P]**
+
+**[V]** It checks three things — rows with `NA` in `aaSeq`, `dnaSeq` or `rvd` —
+and has two modes: report the offending arrays (default), or *remove* them
+(`sanitize = TRUE`).
+
+Against the `tales` contract (`class-design.md` §2.4):
+
+| check | status under the class |
+|---|---|
+| `rvd` is `NA` | **redundant** — hard invariant 3 errors on an `NA` residue column, so a valid `tales` cannot reach the check |
+| `aa_seq` is `NA` | **not covered** — deliberately a *precondition* of `tales_relatedness()`, not an invariant, since a `tales` built from RVD strings has no `aa_seq` at all |
+| `dna_seq` is `NA` | **partly** — soft invariant 10 warns, does not error |
+
+So it is not made redundant, but its remit has narrowed to two things no
+invariant provides:
+
+1. **Array-level triage.** Validation is per row; this reports the *whole
+   array* when any one of its parts lacks a sequence — which is the right
+   granularity, since a partial array cannot be aligned.
+2. **Repair.** `sanitize = TRUE` drops the bad arrays so the rest can proceed.
+   The class errors instead; it has no "carry on without the broken ones" mode.
+
+**To decide:** whether to keep it as an explicitly-named triage/repair tool
+(dropping the now-unreachable `rvd` branch, and renamed — it is not a
+validator, and sharing vocabulary with `validate_tales()` would mislead), or
+to fold the `sanitize` behaviour into a `tales` helper and retire the rest.
+Note both call sites use it as a *guard* (`conversion.R:205`, `:373`), which
+is a third use again — and that guard is stricter than the class, since it
+rejects the whole input if any array is affected.
+
+It also carries a bare `warning()` with an empty message, one of the §9.5
+cases.
+
 ---
 
 ## 6. Correctness review backlog **[P]**
