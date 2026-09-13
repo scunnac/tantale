@@ -650,6 +650,33 @@ alias it superseded did. Deleting the alias merely made the omission visible.
 
 ---
 
+### 7.3 A systemic habit: unqualified calls to non-imported packages **[V]**
+
+Three separate defects tonight had the identical shape, which makes it a habit
+rather than three accidents:
+
+| where | call | consequence |
+|---|---|---|
+| `plot_tale_composition()` | `mutate()`, `ggplot()` | **failed outright** unless the user had dplyr attached |
+| `telltale.R` (x10) | `Quote()` | `methods::Quote`, never imported |
+| `msa_heatmap()` (`msa.R:356`) | `countMatches()` | `S4Vectors::countMatches` -- and `msa.R:43` gets it *right*, 300 lines earlier |
+
+All three lived in code no test exercised. None was visible by reading -- the
+calls look perfectly ordinary; only the namespace resolution is wrong.
+
+**Root cause.** Listing a package in `Imports` makes it *installable*, not
+*visible*. Without an `@import` or `@importFrom`, a bare call to it resolves
+through the caller's search path, so the function works in an interactive
+session where the user has done `library(dplyr)` and fails everywhere else.
+
+**Review heuristic worth keeping: in this package, a bare call to anything
+outside base is suspect.** `R CMD check`'s "no visible global function
+definition" is the tool that finds them, and it is only readable once the NSE
+false positives are declared away (see 7.2) -- which is the real argument for
+`R/globals.R`.
+
+---
+
 ## 8. Tests — error conditions now covered **[V]**
 
 `tests/testthat/test_error_conditions.R` added (18 assertions). It exists

@@ -27,7 +27,7 @@ Status markers: **[V]** verified empirically · **[D]** a decision I took alone.
 | §4 `msa_heatmap()` | **ANALYSED** — one blocker identified, not fixed |
 | §8 error-condition tests | **DONE** — found 2 live bugs |
 | §8 untested-export tests | **DONE** — found 1 more; coverage 35/45 -> 39/45 |
-| `R CMD check` | run; one real NOTE fixed (`methods` missing from Imports) |
+| `R CMD check` | **7 WARNINGs / 2 NOTEs -> 4 / 1**; every code-quality finding resolved |
 | 9.3 internal-doc policy | partial — see §5 |
 | 7.1 vignette reproducibility | **NEW FINDING** — recorded, not fixed |
 | 7.2 `R CMD check` | **NEW** — first full run; 1 NOTE + 6 WARNINGs fixed |
@@ -204,6 +204,31 @@ This is the concrete reason I did not attempt **9.2** unattended. That sweep is
 the legacy plotting path has 4 tests guarding it, and a missed or mis-targeted
 substitution there yields *wrong plots*, not an exception. It wants a human
 watching, or a much better safety net first.
+
+---
+
+## 4bis. Closing `R CMD check` state
+
+| | start | end |
+|---|---|---|
+| WARNINGs | 7 | 4 |
+| NOTEs | 2 | 1 |
+
+**Every code-quality finding is resolved.** The `R code for possible problems`
+NOTE -- 238 lines at the start -- is gone completely.
+
+The five that remain are all pre-existing, none introduced tonight, and each is
+recorded:
+
+| finding | cause |
+|---|---|
+| `files in 'vignettes'` + `package vignettes` (2 WARNINGs) | §7.1: vignettes 1-4 cannot build, so there is no `inst/doc` |
+| `for executable files` (WARNING) | bundled tool binaries in `inst/tools` |
+| `for portable file names` (WARNING) | the 60 over-long test-fixture paths |
+| `package subdirectories` (NOTE) | `inst/` layout |
+
+None is a code defect. The first two dissolve once §7.1 is addressed; the
+others are about shipped artefacts rather than R code.
 
 ---
 
