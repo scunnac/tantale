@@ -21,3 +21,14 @@ Materialises the wide form, with ids as both row and column names, sorted.
 This replaces the hand-written \code{acast(x, id1 ~ id2, value.var = "sim")}
 that appears at four call sites in the package.
 }
+\seealso{
+Other pairwise distances:
+\code{\link[=distances_assert_square]{distances_assert_square()}},
+\code{\link[=distances_restrict]{distances_restrict()}},
+\code{\link[=is_pairwise_distances]{is_pairwise_distances()}},
+\code{\link[=pairwise_distances]{pairwise_distances()}},
+\code{\link[=tales_compare]{tales_compare()}},
+\code{\link[=tales_group]{tales_group()}},
+\code{\link[=validate_pairwise_distances]{validate_pairwise_distances()}}
+}
+\concept{pairwise distances}

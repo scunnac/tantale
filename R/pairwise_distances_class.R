@@ -258,6 +258,7 @@ distances_assert_square <- function(x, arg = "x") {
 #' @return A numeric matrix, square, with sorted ids as dimnames.
 #' @method as.matrix pairwise_distances
 #' @export
+#' @family pairwise distances
 as.matrix.pairwise_distances <- function(x, value = PAIRWISE_DISTANCES_VALUE_COL, ...) {
   if (!value %in% names(x)) {
     cli::cli_abort(

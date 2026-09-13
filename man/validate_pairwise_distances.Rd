@@ -20,9 +20,12 @@ the methods that need them — see \code{\link{distances_assert_square}}.
 }
 \seealso{
 Other pairwise distances:
+\code{\link[=as.matrix.pairwise_distances]{as.matrix.pairwise_distances()}},
 \code{\link[=distances_assert_square]{distances_assert_square()}},
 \code{\link[=distances_restrict]{distances_restrict()}},
 \code{\link[=is_pairwise_distances]{is_pairwise_distances()}},
-\code{\link[=pairwise_distances]{pairwise_distances()}}
+\code{\link[=pairwise_distances]{pairwise_distances()}},
+\code{\link[=tales_compare]{tales_compare()}},
+\code{\link[=tales_group]{tales_group()}}
 }
 \concept{pairwise distances}

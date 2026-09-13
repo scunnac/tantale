@@ -206,7 +206,8 @@ repeat_to_rvd_map_distalr <- function(tale_parts) {
 #'
 #' @return A TALE alignment matrix made up of RVD sequences.
 #' @export
-repeat_to_rvd_align <-  function(repeat_align , rvd_map) {
+#' @family tales projections
+repeat_to_rvd_align <- function(repeat_align , rvd_map) {
   states <- unique(as.vector(repeat_align))
   ##### TODO: check that all values in states are present in the rvd_map df ####
   # If not, error
@@ -225,7 +226,7 @@ repeat_to_rvd_align <-  function(repeat_align , rvd_map) {
 
 
 
-.repeat_to_sim_align <-  function(repeat_align, repeat_sim, ref_tag = NULL) {
+.repeat_to_sim_align <- function(repeat_align, repeat_sim, ref_tag = NULL) {
   # A function that substitute the repeatIDs with the aa similarity relative to a
   # reference repeat for each column. The ref repeat is the one from a TALE that
   # is defined as a reference in the alignment. This function takes as input, the
@@ -361,7 +362,7 @@ repeat_to_rvd_align <-  function(repeat_align , rvd_map) {
 #' @return A numeric matrix with the dimensions and dimnames of
 #'   \code{rvd_align}.
 #' @keywords internal
-.rvd_to_match_align <-  function(rvd_align, rvd_sims = rvdSimDf, ref_tag = NULL) {
+.rvd_to_match_align <- function(rvd_align, rvd_sims = rvdSimDf, ref_tag = NULL) {
   refRowIdx <- match(.pick_ref_name(rvd_align, ref_tag = ref_tag), rownames(rvd_align))
   simAlign <- apply(rvd_align, 2,
                     function(column) {

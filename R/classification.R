@@ -15,6 +15,7 @@
 #' @return A data frame of array names and their assigned groups.
 #' @seealso \code{\link{tales_compare}}, which produces the input.
 #' @export
+#' @family pairwise distances
 tales_group <- function(tal_sim, plot_tree = FALSE, k = NULL, k_range = NULL, method = "k-medoids") {
 
   # For alternative methods for cluster definition:

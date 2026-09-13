@@ -34,6 +34,7 @@ this function builds MAFFT's input from \code{x} itself, which is why
 }
 \seealso{
 Other TALE alignment:
+\code{\link[=as.matrix.tales_msa]{as.matrix.tales_msa()}},
 \code{\link[=is_tales_msa]{is_tales_msa()}},
 \code{\link[=tales_consensus]{tales_consensus()}},
 \code{\link[=tales_consensus_match]{tales_consensus_match()}},

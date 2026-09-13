@@ -180,6 +180,7 @@ validate_tales_msa <- function(x) {
 #'   columns.
 #' @method as.matrix tales_msa
 #' @export
+#' @family TALE alignment
 as.matrix.tales_msa <- function(x, value = NULL, gap = NA, ...) {
   if (is.null(value)) {
     value <- intersect(TALES_RESIDUE_COLS, names(x))[1]
@@ -312,6 +313,7 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
 #' @return The plot object returned by \code{\link{plot_tales_msa}}.
 #' @method plot tales_msa
 #' @export
+#' @family TALE plots
 plot.tales_msa <- function(x, fill = NULL, label = NULL,
                            tal_sim = NULL, domain_sim = NULL, ...) {
   available <- intersect(TALES_RESIDUE_COLS, names(x))

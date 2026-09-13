@@ -25,3 +25,14 @@ Materialises the rectangular form: one row per array, one column per
 alignment position, cells holding the requested layer. This is the only place
 the gapped matrix is built — the long object is the canonical storage.
 }
+\seealso{
+Other TALE alignment:
+\code{\link[=is_tales_msa]{is_tales_msa()}},
+\code{\link[=tales_align]{tales_align()}},
+\code{\link[=tales_consensus]{tales_consensus()}},
+\code{\link[=tales_consensus_match]{tales_consensus_match()}},
+\code{\link[=tales_msa]{tales_msa()}},
+\code{\link[=tales_width]{tales_width()}},
+\code{\link[=validate_tales_msa]{validate_tales_msa()}}
+}
+\concept{TALE alignment}

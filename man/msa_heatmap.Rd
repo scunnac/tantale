@@ -86,6 +86,7 @@ Plot in frame of \code{\link[gplots:heatmap.2]{heatmap.2}} for Tals alignment.
 }
 \seealso{
 Other TALE plots:
+\code{\link[=plot.tales_msa]{plot.tales_msa()}},
 \code{\link[=plot_tale_composition]{plot_tale_composition()}},
 \code{\link[=plot_tales_msa]{plot_tales_msa()}},
 \code{\link[=plot_target_preds]{plot_target_preds()}},

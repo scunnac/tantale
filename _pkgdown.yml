@@ -23,3 +23,34 @@ development:
 #            <img src="./man/figures/IRD_2016_LONGUEUR_UK_COUL.png" alt="IRD" width="35%"/>
 #           </a>
 #    txs: "With the support of:"
+
+reference:
+- title: TALE discovery
+  desc: Find TALE genes in genomic sequence and parse them into arrays of parts.
+  contents: has_concept("TALE discovery")
+- title: tales objects
+  desc: The central long table of TALE array parts, its constructor and validators.
+  contents: has_concept("tales objects")
+- title: Pairwise distances
+  desc: Comparing TALEs and their domains, and the typed tables that result.
+  contents: has_concept("pairwise distances")
+- title: Alignment
+  desc: Multiple alignment of TALE arrays and consensus over it.
+  contents: has_concept("TALE alignment")
+- title: Projections and conversions
+  desc: Views derived from a tales object, and format conversions between them.
+  contents: has_concept("tales projections")
+- title: Plots
+  desc: Visualising alignments, array composition and talome content.
+  contents: has_concept("TALE plots")
+- title: Target prediction
+  desc: Predicting EBEs in a promoter set, and plotting the result.
+  contents: has_concept("target prediction")
+- title: Package and legacy classes
+  desc: Package-level documentation and the S4 class used by the telltale path.
+  contents:
+  - tantale-package
+  - annout-class
+- title: External tool wrappers
+  desc: Wrappers around AnnoTALE and QueTAL.
+  contents: has_concept("external TALE tools")

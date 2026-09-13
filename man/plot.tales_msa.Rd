@@ -37,3 +37,12 @@ A \code{tales_msa} carries every layer at once, so the layers are named
 rather than passed as separate matrices — which is what
 \code{\link{plot_tales_msa}} required, a matrix being able to hold only one.
 }
+\seealso{
+Other TALE plots:
+\code{\link[=msa_heatmap]{msa_heatmap()}},
+\code{\link[=plot_tale_composition]{plot_tale_composition()}},
+\code{\link[=plot_tales_msa]{plot_tales_msa()}},
+\code{\link[=plot_target_preds]{plot_target_preds()}},
+\code{\link[=talomes_heatmap]{talomes_heatmap()}}
+}
+\concept{TALE plots}

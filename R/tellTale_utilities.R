@@ -45,7 +45,7 @@
 }
 
 
-.run_nhmmer_search <-  function(hmmer_path = NULL, subject_file, hmm_file, search_out_file, readable_out_file) {
+.run_nhmmer_search <- function(hmmer_path = NULL, subject_file, hmm_file, search_out_file, readable_out_file) {
   if (is.null(hmmer_path)) hmmer_path <- .get_hmmer()
   .check_hmmer(hmmer_path)
   searchCmd <- paste(file.path(hmmer_path, "nhmmer"),

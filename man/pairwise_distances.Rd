@@ -43,9 +43,12 @@ Legacy column spellings (\code{TAL1}/\code{TAL2}, \code{RepU1}/\code{RepU2},
 }
 \seealso{
 Other pairwise distances:
+\code{\link[=as.matrix.pairwise_distances]{as.matrix.pairwise_distances()}},
 \code{\link[=distances_assert_square]{distances_assert_square()}},
 \code{\link[=distances_restrict]{distances_restrict()}},
 \code{\link[=is_pairwise_distances]{is_pairwise_distances()}},
+\code{\link[=tales_compare]{tales_compare()}},
+\code{\link[=tales_group]{tales_group()}},
 \code{\link[=validate_pairwise_distances]{validate_pairwise_distances()}}
 }
 \concept{pairwise distances}

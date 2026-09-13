@@ -22,6 +22,7 @@ tale_parts object.
 \seealso{
 Other TALE plots:
 \code{\link[=msa_heatmap]{msa_heatmap()}},
+\code{\link[=plot.tales_msa]{plot.tales_msa()}},
 \code{\link[=plot_tales_msa]{plot_tales_msa()}},
 \code{\link[=plot_target_preds]{plot_target_preds()}},
 \code{\link[=talomes_heatmap]{talomes_heatmap()}}

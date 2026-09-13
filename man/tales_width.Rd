@@ -19,6 +19,7 @@ the last column, which would silently shrink \code{max(alignment_position)}.
 }
 \seealso{
 Other TALE alignment:
+\code{\link[=as.matrix.tales_msa]{as.matrix.tales_msa()}},
 \code{\link[=is_tales_msa]{is_tales_msa()}},
 \code{\link[=tales_align]{tales_align()}},
 \code{\link[=tales_consensus]{tales_consensus()}},

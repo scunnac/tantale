@@ -17,6 +17,7 @@ Is this a tales_msa object?
 }
 \seealso{
 Other TALE alignment:
+\code{\link[=as.matrix.tales_msa]{as.matrix.tales_msa()}},
 \code{\link[=tales_align]{tales_align()}},
 \code{\link[=tales_consensus]{tales_consensus()}},
 \code{\link[=tales_consensus_match]{tales_consensus_match()}},

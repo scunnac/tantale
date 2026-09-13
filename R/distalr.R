@@ -463,6 +463,7 @@ plot_tale_composition <- function(tale_parts) {
 #' @seealso \code{\link{tales_group}} to cluster arrays from the returned
 #'   \code{tale_distances}.
 #' @export
+#' @family pairwise distances
 tales_compare <- function(x, ncores = 1, aln_method = "DECIPHER",
                               conda_bin = "auto") {
   if (!is_tales(x)) {

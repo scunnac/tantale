@@ -22,6 +22,7 @@ Status markers: **[V]** verified empirically · **[D]** a decision I took alone.
 | 9.5 messaging | **DONE** — `logger` removed entirely; `cli` throughout |
 | 9.4 `@family` | **DONE** — 42 tags, eight families |
 | §2 dormant conversion fns | **DONE** — both repaired, guarded, documented |
+| pkgdown reference index | **DONE** — grouped by concept; `check_pkgdown()` passes |
 | 9.3 internal-doc policy | partial — see §5 |
 | 7.1 vignette reproducibility | **NEW FINDING** — recorded, not fixed |
 
@@ -128,6 +129,12 @@ a per-function judgement.
 package-wide sweep and it interacts with the class column contract, so it wants
 reviewing live rather than landing as a large unattended diff.
 
-Also untouched: §3 (legacy cemetery), §4 (retiring `msa_heatmap()`), §5.1
-(`diagnose_tale_parts()`'s fate), and the pkgdown `reference:` section that
-9.4's `@family` tags now make possible.
+**A latent trap worth knowing about.** Three exported functions were initially
+missed by the `@family` pass because their definitions are written
+`name <-  function` with *two* spaces, which my `^name <- function` pattern did
+not match. I normalised the spacing across `R/` so the next regex sweep cannot
+be silently incomplete in the same way. Worth remembering for 9.2, which is
+exactly that kind of sweep.
+
+Also untouched: §3 (legacy cemetery), §4 (retiring `msa_heatmap()`) and §5.1
+(`diagnose_tale_parts()`'s fate).
