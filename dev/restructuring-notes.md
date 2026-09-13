@@ -588,10 +588,23 @@ alias it superseded did. Deleting the alias merely made the omission visible.
 
 **Left open:**
 
-- *Imports declared but not imported from*: `GenomicFeatures`, `RColorBrewer`,
-  `dichromat`, `msa`, `optparse`, `scales`. Each needs checking individually --
-  some may be genuinely unused and removable, others may be used only inside
-  code paths the checker cannot see. Not safe to strip blind.
+- ~~*Imports declared but not imported from*~~ **RESOLVED [V]**. All six were
+  checked individually and all six were genuinely unused, so all six were
+  removed:
+
+  | package | evidence |
+  |---|---|
+  | `GenomicFeatures` | zero occurrences in `R/`, `inst/`, `vignettes/`, `tests/` |
+  | `RColorBrewer` | zero occurrences anywhere |
+  | `dichromat` | zero occurrences anywhere |
+  | `optparse` | zero occurrences anywhere |
+  | `scales` | one occurrence, inside a **commented-out** line (`msa.R:334`) |
+  | `msa` | 38 textual hits, but **all of them our own identifiers** -- `tales_msa`, `plot_tales_msa`, `rvd_msa_by_group`, `.tidy_biostrings_msa`. No `msa::`, no bare call to any of its functions. Alignment shells out to MAFFT, not to this package. |
+
+  Also confirmed for each: no `library()`/`require()`/`requireNamespace()` call,
+  and no `@import`/`@importFrom` roxygen tag. `msa` and `GenomicFeatures` are
+  substantial Bioconductor packages that users were being made to install for
+  nothing.
 - The vignette WARNINGs all trace to 7.1 (no `inst/doc`, because the vignettes
   cannot build).
 - WARNINGs on executable files and non-portable file names -- these are the

@@ -16,13 +16,12 @@ BugReports: https://github.com/scunnac/tantale/issues
 Depends:
     R (>= 3.6.3)
 Imports:
-    magrittr, fs, dplyr, ggplot2, tibble, stringr, readr, plyr, glue, reshape2, scales, XVector,
-    RColorBrewer, dichromat,
-    biovizBase, IRanges, Biostrings, pwalign, GenomicRanges, GenomicFeatures, BSgenome, plyranges,
-    Rsamtools, systemPipeR, msa, DECIPHER,
+    magrittr, fs, dplyr, ggplot2, tibble, stringr, readr, plyr, glue, reshape2, XVector,
+    biovizBase, IRanges, Biostrings, pwalign, GenomicRanges, BSgenome, plyranges,
+    Rsamtools, systemPipeR, DECIPHER,
     ape, ggtree, tidytree, aplot,
     gplots, cluster, viridis,
-    reticulate, optparse, cli, digest, methods,
+    reticulate, cli, digest, methods,
     BiocGenerics, BiocParallel, GenomeInfoDb, S4Vectors, rtracklayer
 Suggests:
     knitr, DT, sessioninfo,
