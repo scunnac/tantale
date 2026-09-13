@@ -32,9 +32,6 @@ test. Only used when \code{method = "k-medoids"}; the minimum is 2.}
 
 \item{method}{One of \code{"hclust"} (see \code{\link[stats:cutree]{cutree}})
 or \code{"k-medoids"} (see \code{\link[cluster:pam]{pam}}).}
-
-\item{plot_type}{Either \code{"all"} to draw every allele, or
-\code{"single"} to draw one representative allele per group.}
 }
 \value{
 A data frame of array names and their assigned groups.

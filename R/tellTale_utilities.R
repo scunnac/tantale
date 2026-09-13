@@ -98,6 +98,7 @@
 #' annotale output 
 #' @exportClass annout
 #' @import Biostrings
+#' @importFrom methods setClass
 annout <- setClass(
   # Set the name for the class
   Class = "annout",

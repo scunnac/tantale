@@ -29,6 +29,8 @@ Status markers: **[V]** verified empirically · **[D]** a decision I took alone.
 | `R CMD check` | run; one real NOTE fixed (`methods` missing from Imports) |
 | 9.3 internal-doc policy | partial — see §5 |
 | 7.1 vignette reproducibility | **NEW FINDING** — recorded, not fixed |
+| 7.2 `R CMD check` | **NEW** — first full run; 1 NOTE + 6 WARNINGs fixed |
+| dependency accuracy | **DONE** — 5 undeclared added, 7 unused removed |
 
 ---
 
@@ -68,6 +70,36 @@ rewritten, since it was a vignette named after a removed function.
 
 **2.7 Vignettes 1-4 were migrated blind.** Their call sites were updated
 mechanically but could not be executed — see §4.
+
+---
+
+## 2b. Bugs found that were nobody's plan
+
+Four, none of which I went looking for.
+
+**A. `.repeat_to_cluster_align()` clustered on an inverted matrix.** See §3.
+
+**B. Two cli error handlers could not format their own message.**
+`.pairwise_distances_rename_legacy()` and `.tales_rename_legacy()` each put a
+`{?s}` plural marker in a bullet with no quantity to count. cli formats bullets
+separately, so both raised *"Cannot pluralize without a quantity"* as a plain
+`simpleError` -- the `tantale_error_*_name_clash` class was never signalled and
+the caller saw cli internals instead of the real problem. Found by writing the
+tests, not by reading the code. Note that an inline style span like
+`{.fn tales}` is *not* a quantity: my first scan for this missed one of the two
+for exactly that reason.
+
+**C. The "no amino acid sequence" guard named no arrays.** It triggers on
+`is.na(aa_seq) | aa_seq == ""` but collected only the `NA` ones for its message,
+so a part with an empty string produced *"Affected arrays:"* followed by
+nothing.
+
+**D. Five Bioconductor packages were used but never declared.**
+`BiocGenerics`, `BiocParallel`, `GenomeInfoDb`, `S4Vectors` and `rtracklayer`
+are called with `::` throughout `R/` and were absent from `Imports`. They are
+installed on this machine, so nothing ever failed here -- a clean install would
+have broken. Conversely six declared packages were unused, including `msa` and
+`GenomicFeatures`, which users were being made to install for nothing.
 
 ---
 

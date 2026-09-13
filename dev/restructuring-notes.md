@@ -586,6 +586,18 @@ Note the `tales_group.Rd` gap was **pre-existing**, not caused by the removal:
 `tales_group()` never carried those `@param` tags, while the `group_tales()`
 alias it superseded did. Deleting the alias merely made the omission visible.
 
+**Second pass** brought it to 5 WARNINGs / 3 NOTEs, then fixed two more:
+
+- `@param plot_type` had been inserted into the wrong roxygen block. Both
+  `tales_group()` and `talomes_heatmap()` live in `classification.R`, and
+  `talomes_heatmap()`'s block has no `@return`, so an "insert before the nearest
+  preceding `@return`" heuristic landed it in `tales_group()`. Anchoring on
+  `@export` instead fixed it. Third time tonight that a positional heuristic
+  found a plausible-but-wrong target silently.
+- `methods` was declared (needed for `exportClasses`) but never imported from.
+  Added `@importFrom methods setClass` on the `annout` class definition, which
+  is the only `methods` machinery the package uses.
+
 **Left open:**
 
 - ~~*Imports declared but not imported from*~~ **RESOLVED [V]**. All six were
@@ -608,7 +620,12 @@ alias it superseded did. Deleting the alias merely made the omission visible.
 - The vignette WARNINGs all trace to 7.1 (no `inst/doc`, because the vignettes
   cannot build).
 - WARNINGs on executable files and non-portable file names -- these are the
-  long test-fixture paths and bundled tool binaries, both known.
+  long test-fixture paths and bundled tool binaries, both known. The path
+  lengths are the 60 over-long tar entries already recorded; fixing them means
+  renaming fixture directories such as
+  `tellTaleErrorMissingAnnotaleDnaDomain/`.
+- NOTE on `R code for possible problems` -- not yet triaged.
+- NOTE on `package subdirectories` -- relates to `inst/`.
 
 ---
 

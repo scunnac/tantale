@@ -38,6 +38,9 @@ talomes_heatmap(
 
 \item{x_lab, y_lab, title}{character for x axix, y axis names and title}
 
+\item{plot_type}{Either \code{"all"} to draw every allele, or
+\code{"single"} to draw one representative allele per group.}
+
 \item{colors}{character vector of colors for the cells.}
 
 \item{margins}{margin of the heatmap for row dendrogram, col dendrogram, rownames, colnames, respectively. (by default, c(5, 5, 3, 3)).}

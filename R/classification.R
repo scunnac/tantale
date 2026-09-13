@@ -23,8 +23,6 @@
 #'   test. Only used when \code{method = "k-medoids"}; the minimum is 2.
 #' @param method One of \code{"hclust"} (see \code{\link[stats:cutree]{cutree}})
 #'   or \code{"k-medoids"} (see \code{\link[cluster:pam]{pam}}).
-#' @param plot_type Either \code{"all"} to draw every allele, or
-#'   \code{"single"} to draw one representative allele per group.
 #' @return A data frame of array names and their assigned groups.
 #' @seealso \code{\link{tales_compare}}, which produces the input.
 #' @export
@@ -173,6 +171,8 @@ tales_group <- function(tal_sim, plot_tree = FALSE, k = NULL, k_range = NULL, me
 #' @param sep_color character of color for the separator between adjacent cells
 #' @param inner_sep_color character of color for the separator between colors within 1 cell if there are more than 1.
 #' @param save_path (optional) file path to save the plot, format of the image depends on the file extension. If save_path is NULL, the heatmap will be printed. If save_path is specified, the image file will be created.
+#' @param plot_type Either \code{"all"} to draw every allele, or
+#'   \code{"single"} to draw one representative allele per group.
 #' @export
 #' @family TALE plots
 talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, trunc_tales_col = NULL, extra_col = NULL,
