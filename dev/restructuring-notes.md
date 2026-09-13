@@ -631,7 +631,21 @@ alias it superseded did. Deleting the alias merely made the omission visible.
   lengths are the 60 over-long tar entries already recorded; fixing them means
   renaming fixture directories such as
   `tellTaleErrorMissingAnnotaleDnaDomain/`.
-- NOTE on `R code for possible problems` -- not yet triaged.
+- ~~NOTE on `R code for possible problems`~~ **TRIAGED AND LARGELY FIXED [V]**.
+  It had two halves and they were nothing alike:
+
+  | half | count | verdict |
+  |---|---|---|
+  | "no visible global function definition" | ~40 | **every one real.** Not a single false positive. |
+  | "no visible binding for global variable" | 126 | all NSE column names -- genuine false positives |
+
+  The first half is how `plot_tale_composition()`'s breakage was found. It also
+  turned up `methods::Quote`, used ten times in `telltale.R` and never
+  imported. All are fixed by declaring what the code calls.
+
+  The second half is now declared in `R/globals.R` (81 names). That is not
+  cosmetic: 126 lines of noise are exactly what let ~40 real unresolved calls
+  sit unread. A check output nobody can read is a check nobody runs.
 - NOTE on `package subdirectories` -- relates to `inst/`.
 
 ---

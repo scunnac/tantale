@@ -353,7 +353,7 @@ msa_heatmap <- function(tal_sim, repeat_align, rvd_align = NULL,
       
       consensusRVD <- sapply(1:ncol(forCellNote), function(x) {
         allRVDs <- forCellNote[,x]
-        freq <- sapply(unique(allRVDs), function(p) countMatches(p, allRVDs))
+        freq <- sapply(unique(allRVDs), function(p) S4Vectors::countMatches(p, allRVDs))
         unique(allRVDs)[which.max(freq)]
       })
       

@@ -124,7 +124,18 @@ This is exactly what `class-design.md` §2.5 predicted when it said the anchor
 set "belongs in one exported constant -- `tales_anchor_codes()` -- rather than
 being retyped across four files". Both retyped sites now call the constant.
 
-**F. Five Bioconductor packages were used but never declared.**
+**F. `msa_heatmap()` called `countMatches()` unqualified.** The *same file*
+gets it right 300 lines earlier -- `msa.R:43` writes
+`S4Vectors::countMatches(...)` while `msa.R:356` writes `countMatches(...)`.
+The bare form resolves to nothing in a bare session, so that branch of
+`msa_heatmap()` would fail unless the user had S4Vectors attached. Qualified,
+to match its own sibling.
+
+Worth noting the pattern: this is the third defect of the same shape
+(`plot_tale_composition`, `Quote`, this), all of them unqualified calls to
+packages not on the namespace's search path, and all in code nothing tested.
+
+**G. Five Bioconductor packages were used but never declared.**
 `BiocGenerics`, `BiocParallel`, `GenomeInfoDb`, `S4Vectors` and `rtracklayer`
 are called with `::` throughout `R/` and were absent from `Imports`. They are
 installed on this machine, so nothing ever failed here -- a clean install would
