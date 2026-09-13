@@ -94,7 +94,26 @@ for exactly that reason.
 so a part with an empty string produced *"Affected arrays:"* followed by
 nothing.
 
-**D. Five Bioconductor packages were used but never declared.**
+**D. `plot_tale_composition()` was broken.** It calls `mutate()` and `ggplot()`
+unqualified, and **neither dplyr nor ggplot2 was imported into the package
+namespace** -- only listed in `Imports`, which makes them installable but does
+not put them on the package's search path. So the function worked only if the
+*user* happened to have `library(dplyr)` attached, and failed with
+`could not find function "mutate"` otherwise. It had no test, so nothing caught
+it.
+
+This is what `R CMD check`'s *"no visible global function definition"* NOTE was
+actually pointing at. That NOTE is usually dismissed as the tidyverse NSE false
+positive, and 126 of its 238 lines were exactly that -- but ~40 were real
+unresolved calls, across 112 sites in 8 files.
+
+Fixed by declaring what the code calls: `@import dplyr`, `@import ggplot2`,
+plus `@importFrom` for `tidyr`, `stats`, `utils`, `grDevices`, `graphics` and
+`methods`. A test now covers `plot_tale_composition()` specifically, including
+one that calls it as `tantale::plot_tale_composition()` so the regression
+cannot come back through the user's search path.
+
+**E. Five Bioconductor packages were used but never declared.**
 `BiocGenerics`, `BiocParallel`, `GenomeInfoDb`, `S4Vectors` and `rtracklayer`
 are called with `::` throughout `R/` and were absent from `Imports`. They are
 installed on this machine, so nothing ever failed here -- a clean install would
@@ -138,6 +157,31 @@ were both re-knitted successfully.
 Full detail in ledger 7.1. Making each vignette standalone is the prerequisite
 for any pkgdown rebuild.
 
+
+---
+
+## 4b. A pattern worth carrying into the next session
+
+Four times tonight a regex or positional heuristic found a **plausible but
+wrong** target, and in every case it failed *silently* -- the sweep reported
+success:
+
+| heuristic | what it missed |
+|---|---|
+| `\bname\b` | `.tales_relatedness_core` -- the `_core` suffix blocks the word boundary |
+| `^name <- function` | three exports written `name <-  function` with two spaces |
+| "does this cli bullet interpolate a value?" | `{.fn tales}` is a style span, not a quantity |
+| "insert before the nearest preceding `@return`" | `talomes_heatmap()` has no `@return`, so it walked back into `tales_group()`'s block |
+
+Only the third and fourth were caught by a tool (the test suite and
+`R CMD check`); the first two I found by re-grepping afterwards. None produced
+an error at the time.
+
+This is the concrete reason I did not attempt **9.2** unattended. That sweep is
+~164 camelCase column occurrences across interlocking producers and consumers,
+the legacy plotting path has 4 tests guarding it, and a missed or mis-targeted
+substitution there yields *wrong plots*, not an exception. It wants a human
+watching, or a much better safety net first.
 
 ---
 
