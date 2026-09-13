@@ -30,9 +30,6 @@ operations on the sequence as a tibble.}
 \item{conda_bin}{Path to your Conda binary file if you need to specify a
 path different from the one that is automatically searched by the
 reticulate package functions.}
-
-\item{telltale_dir}{Path to a \code{\link[tantale:tell_tales]{tell_tales}} run
-output directory}
 }
 \value{
 A tibble if \code{return_corrections} is \code{TRUE} or the path to the

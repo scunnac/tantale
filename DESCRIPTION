@@ -22,7 +22,8 @@ Imports:
     Rsamtools, systemPipeR, msa, DECIPHER,
     ape, ggtree, tidytree, aplot,
     gplots, cluster, viridis,
-    reticulate, optparse, cli, digest, methods
+    reticulate, optparse, cli, digest, methods,
+    BiocGenerics, BiocParallel, GenomeInfoDb, S4Vectors, rtracklayer
 Suggests:
     knitr, DT, sessioninfo,
     biomartr,

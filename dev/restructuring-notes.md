@@ -564,6 +564,41 @@ The fix is to make each vignette stand alone: read its inputs from
 
 ---
 
+### 7.2 `R CMD check` results **[V]**
+
+First full check of the package (with `_R_CHECK_FORCE_SUGGESTS_=false`, since
+`ggcorrplot` and `corrr` are not installed here -- an environment gap, not a
+package defect).
+
+**Fixed tonight:**
+
+| finding | fix |
+|---|---|
+| NOTE: `exportClasses(annout)` requires `methods` | added `methods` to Imports |
+| WARNING: `::` imports not declared -- `BiocGenerics`, `BiocParallel`, `GenomeInfoDb`, `S4Vectors`, `rtracklayer` | all five added to Imports (all were already installed, so this was purely a declaration gap) |
+| WARNING: malformed cross-reference `\link[Biostrings::BStringSet]{BStringSet}` | corrected to `\link[Biostrings]{BStringSet}` |
+| WARNING: `correct_tales.Rd` documents `telltale_dir`, which is not an argument | stale `@param` removed |
+| WARNING: undocumented `rvd_vecs` in `repeat_to_rvd_map.Rd` | documented |
+| WARNING: undocumented `plot_tree`, `k`, `k_range`, `method` in `tales_group.Rd` | restored from the deleted `group_tales()`, which had them |
+| WARNING: undocumented `plot_type` in `talomes_heatmap.Rd` | documented |
+
+Note the `tales_group.Rd` gap was **pre-existing**, not caused by the removal:
+`tales_group()` never carried those `@param` tags, while the `group_tales()`
+alias it superseded did. Deleting the alias merely made the omission visible.
+
+**Left open:**
+
+- *Imports declared but not imported from*: `GenomicFeatures`, `RColorBrewer`,
+  `dichromat`, `msa`, `optparse`, `scales`. Each needs checking individually --
+  some may be genuinely unused and removable, others may be used only inside
+  code paths the checker cannot see. Not safe to strip blind.
+- The vignette WARNINGs all trace to 7.1 (no `inst/doc`, because the vignettes
+  cannot build).
+- WARNINGs on executable files and non-portable file names -- these are the
+  long test-fixture paths and bundled tool binaries, both known.
+
+---
+
 ## 8. Tests — error conditions now covered **[V]**
 
 `tests/testthat/test_error_conditions.R` added (18 assertions). It exists

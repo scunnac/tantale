@@ -17,6 +17,24 @@ tales_group(
 \code{\link{tales_compare}}. A plain data frame using the legacy
 \code{TAL1}/\code{TAL2}/\code{Sim} column names is also accepted and
 coerced.}
+
+\item{plot_tree}{Logical, whether to plot the hclust tree. With
+\code{method = "k-medoids"} no tree is drawn; a silhouette-value plot is
+produced instead.}
+
+\item{k}{Integer, the number of groups to classify arrays into. With
+\code{method = "k-medoids"}, \code{k = "auto"} picks the optimum
+automatically and \code{k = NULL} prompts for it interactively. The
+automatic pick is worth checking rather than trusting.}
+
+\item{k_range}{Integer vector of length 2 giving the range of \code{k} to
+test. Only used when \code{method = "k-medoids"}; the minimum is 2.}
+
+\item{method}{One of \code{"hclust"} (see \code{\link[stats:cutree]{cutree}})
+or \code{"k-medoids"} (see \code{\link[cluster:pam]{pam}}).}
+
+\item{plot_type}{Either \code{"all"} to draw every allele, or
+\code{"single"} to draw one representative allele per group.}
 }
 \value{
 A data frame of array names and their assigned groups.

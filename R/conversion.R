@@ -121,6 +121,8 @@
 #'   vectors. Each \strong{named} element corresponding to a TALE.
 #' @param repeat_vecs Expects a list of Distal RVDs character
 #'   vectors. Each \strong{named} element corresponding to a TALE.
+#' @param rvd_vecs A named list of RVD vectors, one per array, parallel to
+#'   \code{repeat_vecs}.
 #' @return A two columns repeatID - RVD data frame.
 #' @export
 #' @family tales projections
@@ -383,7 +385,7 @@ repeat_to_rvd_align <- function(repeat_align , rvd_map) {
 #' Generates a RVD sequences set from a tale_parts object
 #'
 #' Uses a tale_parts object in a \code{\link{tales_compare}} output
-#' to return a \code{\link[Biostrings::BStringSet]{BStringSet}} of RVD sequences.
+#' to return a \code{\link[Biostrings]{BStringSet}} of RVD sequences.
 #' RVDs are separated by the character specified in the \code{sep} parameter.
 #' 
 #'

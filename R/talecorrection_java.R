@@ -13,8 +13,6 @@
 #' \code{\link[tantale:tell_tales]{tell_tales}} can subsequently be run on the corrected
 #' sequences in no correction mode.
 #'
-#' @param telltale_dir Path to a \code{\link[tantale:tell_tales]{tell_tales}} run
-#'   output directory
 #' @param uncorrected_path Path to the input sequence file
 #' @param corrected_path Path of the ouput file
 #' @param hmm_path Path the folder containning the profile HMM files. The default

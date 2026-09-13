@@ -18,7 +18,7 @@ A two columns repeatID - RVD data frame.
 }
 \description{
 Uses a tale_parts object in a \code{\link{tales_compare}} output
-to return a \code{\link[Biostrings::BStringSet]{BStringSet}} of RVD sequences.
+to return a \code{\link[Biostrings]{BStringSet}} of RVD sequences.
 RVDs are separated by the character specified in the \code{sep} parameter.
 }
 \details{

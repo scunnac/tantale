@@ -101,3 +101,40 @@ test_that("the name-clash messages are formattable", {
                    rvd = "NI", stringsAsFactors = FALSE)
   expect_error(tales(d2), "already present")
 })
+
+
+#### Empty-input guards ####
+
+test_that("projecting a tales with nothing left to render errors", {
+  x <- fixture_tales()
+  # keep only the terminus sentinels, then ask for repeats only
+  anchors <- x[x$rvd %in% tales_anchor_codes(), ]
+  expect_error(tales_rvd_strings(anchors, rvd_only = TRUE),
+               class = "tantale_error_projection_empty")
+})
+
+test_that("aligning an empty tales errors", {
+  x <- fixture_tales()
+  expect_error(tales_align(x[0, ], residue_col = "rvd"),
+               class = "tantale_error_msa_empty")
+})
+
+test_that("a part with no amino acid sequence is reported with its array", {
+  x <- fixture_tales()
+  bad <- unique(x$array_id)[1]
+  x$aa_seq[x$array_id == bad][1] <- NA_character_
+  expect_error(suppressWarnings(tales_compare(x)),
+               class = "tantale_error_parts_no_aa")
+  # the offending array must be named, not just counted
+  expect_error(suppressWarnings(tales_compare(x)), bad, fixed = TRUE)
+})
+
+test_that("an empty-string aa_seq is reported too, not just NA", {
+  # The guard covers is.na() | == "", but the list of affected arrays used to
+  # collect only the NA ones, so an empty string produced a message naming
+  # nothing at all.
+  x <- fixture_tales()
+  bad <- unique(x$array_id)[1]
+  x$aa_seq[x$array_id == bad][1] <- ""
+  expect_error(suppressWarnings(tales_compare(x)), bad, fixed = TRUE)
+})

@@ -537,7 +537,8 @@ tales_compare <- function(x, ncores = 1, aln_method = "DECIPHER",
   
   ## Make sure we are dealing only with parts that have defined protein sequences.
   if (any(is.na(tale_parts$aaSeq) | tale_parts$aaSeq == "")) {
-    badArrays <- unique(tale_parts$arrayID[is.na(tale_parts$aaSeq)])
+    # must match the guard above, or an empty-string part lists nothing
+    badArrays <- unique(tale_parts$arrayID[is.na(tale_parts$aaSeq) | tale_parts$aaSeq == ""])
     cli::cli_abort(
       c("Some of the provided TALE parts have no amino acid sequence.",
         "i" = "Affected array{?s}: {.val {badArrays}}"),

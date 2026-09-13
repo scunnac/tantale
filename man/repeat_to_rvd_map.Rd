@@ -9,6 +9,9 @@ repeat_to_rvd_map(repeat_vecs, rvd_vecs)
 \arguments{
 \item{repeat_vecs}{Expects a list of Distal RVDs character
 vectors. Each \strong{named} element corresponding to a TALE.}
+
+\item{rvd_vecs}{A named list of RVD vectors, one per array, parallel to
+\code{repeat_vecs}.}
 }
 \value{
 A two columns repeatID - RVD data frame.

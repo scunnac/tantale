@@ -12,6 +12,19 @@
 #'   \code{TAL1}/\code{TAL2}/\code{Sim} column names is also accepted and
 #'   coerced.
 #' @inheritParams group_tales
+#' @param plot_tree Logical, whether to plot the hclust tree. With
+#'   \code{method = "k-medoids"} no tree is drawn; a silhouette-value plot is
+#'   produced instead.
+#' @param k Integer, the number of groups to classify arrays into. With
+#'   \code{method = "k-medoids"}, \code{k = "auto"} picks the optimum
+#'   automatically and \code{k = NULL} prompts for it interactively. The
+#'   automatic pick is worth checking rather than trusting.
+#' @param k_range Integer vector of length 2 giving the range of \code{k} to
+#'   test. Only used when \code{method = "k-medoids"}; the minimum is 2.
+#' @param method One of \code{"hclust"} (see \code{\link[stats:cutree]{cutree}})
+#'   or \code{"k-medoids"} (see \code{\link[cluster:pam]{pam}}).
+#' @param plot_type Either \code{"all"} to draw every allele, or
+#'   \code{"single"} to draw one representative allele per group.
 #' @return A data frame of array names and their assigned groups.
 #' @seealso \code{\link{tales_compare}}, which produces the input.
 #' @export
