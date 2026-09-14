@@ -95,9 +95,9 @@ part that can be unavailable:
   \code{"rvd_sim"} \tab how alike the RVD's DNA-binding preference is to the reference's, -1 to 1 \tab \code{rvd_align} \cr
 }
 
-With no \code{repeat_sim} and no \code{rvd_sim}, every block is flat grey:
-the text still carries the consensus comparison, but there is nothing to
-colour blocks by.
+With neither \code{repeat_sim} nor \code{rvd_align}, every block is flat
+grey: the text still carries the consensus comparison, but there is nothing
+to colour blocks by.
 
 A cell with no value for the chosen layer keeps its text and loses its
 colour. In \code{"rvd_sim"} that is the termini, which have no DNA-binding
@@ -116,11 +116,8 @@ adds a consensus panel on top. When either is present the return value is an
 alignment through its \code{plotlist} element rather than adding layers to
 the result directly.
 
-The only mandatory argument is either \code{repeat_align} \strong{or}
-\code{rvd_align}; what the figure shows depends on which of the optional
-inputs you supply, as described below.
-
-The plot is printed and returned for further modifications is necessary.
+Either \code{repeat_align} or \code{rvd_align} is required; everything else
+is optional and adds a layer to the figure.
 }
 \seealso{
 Other TALE plots:
