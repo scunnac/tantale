@@ -71,7 +71,7 @@ tales_anchor_codes <- function() {
 #' @return A \code{tales} object.
 #' @keywords internal
 #' @family tales objects
-new_tales <- function(x, dom_code_namespace = NULL) {
+new_tales <- function(x, dom_code_namespace = NULL, sanitize = FALSE) {
   stopifnot(is.data.frame(x))
   x <- tibble::as_tibble(x)
   if (!is.null(dom_code_namespace)) {
@@ -142,7 +142,7 @@ tales_namespace <- function(x) {
 #' @return A validated \code{tales} object.
 #' @export
 #' @family tales objects
-tales <- function(x, dom_code_namespace = NULL) {
+tales <- function(x, dom_code_namespace = NULL, sanitize = FALSE) {
   if (!is.data.frame(x)) {
     cli::cli_abort(
       "{.arg x} must be a data frame, not {.obj_type_friendly {x}}.",
@@ -153,7 +153,10 @@ tales <- function(x, dom_code_namespace = NULL) {
   if ("position_in_array" %in% names(x) && is.numeric(x$position_in_array)) {
     x$position_in_array <- as.integer(x$position_in_array)
   }
-  validate_tales(new_tales(x, dom_code_namespace = dom_code_namespace))
+  out <- validate_tales(new_tales(x, dom_code_namespace = dom_code_namespace))
+  # Structural problems have already aborted above. Biological anomalies are
+  # reported here, and removed if asked for.
+  .tales_report_anomalies(out, sanitize = sanitize)
 }
 
 #' Rename legacy camelCase columns to the target schema
@@ -249,8 +252,8 @@ as_tales.default <- function(x, sep = "-", residue_col = c("rvd", "dom_code"), .
 #' @return A validated \code{tales} object.
 #' @export
 #' @family TALE discovery
-tales_from_telltale <- function(telltale_dir) {
-  tales(.tale_parts(telltale_dir))
+tales_from_telltale <- function(telltale_dir, sanitize = FALSE) {
+  tales(.tale_parts(telltale_dir), sanitize = sanitize)
 }
 
 
@@ -310,26 +313,17 @@ validate_tales <- function(x) {
       class = c("tantale_error_tales_position", "tantale_error")
     )
   }
-  .tales_check_residue_na(x)
   .tales_check_key(x)
 
-  ## Conditional invariants ------------------------------------------------
-  if ("domain_type" %in% cols) .tales_check_domain_type(x)
-  if ("position_in_crd" %in% cols) .tales_check_crd(x)
+  ## Structural, conditional -------------------------------------------------
+  # dom_code is a surrogate key into both similarity tables, so a broken
+  # bijection makes those joins wrong rather than merely odd.
   if (all(c("aa_seq", "dom_code") %in% cols)) .tales_check_bijection(x)
-  if ("seqnames" %in% cols) .tales_check_constant_per_array(x, "seqnames")
-  if ("group" %in% cols) .tales_check_constant_per_array(x, "group")
+  if ("position_in_crd" %in% cols) .tales_check_crd_unique(x)
 
-  ## Soft ------------------------------------------------------------------
-  if ("dna_seq" %in% cols) {
-    bad <- is.na(x$dna_seq) | !nzchar(x$dna_seq)
-    if (any(bad)) {
-      cli::cli_warn(
-        "{sum(bad)} part{?s} {?has/have} no {.field dna_seq}.",
-        class = c("tantale_warning_tales_missing_dna", "tantale_warning")
-      )
-    }
-  }
+  # Everything else -- missing sequences, impossible terminus arrangements,
+  # coordinate disagreements, attributes varying within an array -- is a
+  # biological anomaly rather than a structural one. See .tales_anomalies().
 
   invisible(x)
 }
@@ -345,20 +339,153 @@ validate_tales <- function(x) {
   invisible(NULL)
 }
 
+
+#' Report the biological anomalies in a tales object
+#'
+#' @description
+#' Lists the arrays that are *odd* rather than *unreadable*: missing sequence
+#' data, impossible domain-type arrangements, coordinate disagreements, or an
+#' attribute that varies within an array when it should not.
+#'
+#' Such arrays are accepted by \code{\link{tales}} -- real TALE predictions are
+#' messy, and refusing to load them would force cleaning outside the package and
+#' destroy the diagnostic signal. Construction warns about them; this function
+#' tells you which and why; \code{tales(x, sanitize = TRUE)} removes them.
+#'
+#' @param x A \code{\link{tales}} object.
+#' @return A tibble of \code{array_id}, \code{check} and \code{detail}, one
+#'   row per anomaly. Zero rows if the object is clean.
+#' @export
+#' @family tales objects
+tales_anomalies <- function(x) {
+  .tales_anomalies(x)
+}
+
+
+#' Biological anomalies in a tales object
+#'
+#' Collects the array-level anomalies that make an object *odd* rather than
+#' *unreadable*: missing sequence data, impossible domain-type arrangements,
+#' coordinate disagreements, attributes that should be constant within an array
+#' but are not.
+#'
+#' These are deliberately **not** errors. Real TALE predictions are messy, and a
+#' class that refuses to load them forces cleaning outside the package and
+#' destroys exactly the diagnostic signal a user wants. They are reported as a
+#' warning on construction and can be removed with \code{sanitize = TRUE}.
+#'
+#' Structural violations -- a duplicated key, an \code{NA} \code{array_id}, a
+#' broken \code{aa_seq}/\code{dom_code} bijection -- are a different matter and
+#' remain hard errors: the table cannot be interpreted at all, and downstream
+#' code would silently compute wrong answers rather than merely odd ones.
+#'
+#' @param x A data frame with at least the tales key columns.
+#' @return A tibble with one row per (array, anomaly): \code{array_id},
+#'   \code{check} and \code{detail}. Zero rows if the object is clean.
 #' @keywords internal
-.tales_check_residue_na <- function(x) {
-  for (nm in intersect(TALES_RESIDUE_COLS, names(x))) {
-    if (anyNA(x[[nm]])) {
-      bad <- unique(x$array_id[is.na(x[[nm]])])
-      cli::cli_abort(
-        c("Residue column {.field {nm}} must not contain {.val NA}.",
-          "x" = "{length(bad)} array{?s} affected: {.val {utils::head(bad, 5)}}"),
-        class = c("tantale_error_tales_na", "tantale_error")
-      )
+.tales_anomalies <- function(x) {
+  cols <- names(x)
+  out <- list()
+  add <- function(ids, check, detail) {
+    ids <- unique(ids[!is.na(ids)])
+    if (length(ids)) out[[length(out) + 1L]] <<-
+      tibble::tibble(array_id = ids, check = check, detail = detail)
+  }
+  if (nrow(x) == 0L) {
+    return(tibble::tibble(array_id = character(), check = character(),
+                          detail = character()))
+  }
+
+  ## missing sequence data ---------------------------------------------------
+  for (nm in intersect(c(TALES_RESIDUE_COLS, "aa_seq", "dna_seq"), cols)) {
+    bad <- is.na(x[[nm]]) | !nzchar(x[[nm]])
+    add(x$array_id[bad], paste0("missing_", nm),
+        paste0("part(s) with no ", nm))
+  }
+
+  ## domain_type arrangement -------------------------------------------------
+  if ("domain_type" %in% cols) {
+    unknown <- !x$domain_type %in% TALES_DOMAIN_TYPES
+    add(x$array_id[unknown], "domain_type_unknown",
+        "domain_type outside the expected vocabulary")
+    for (type in c("N-terminus", "C-terminus")) {
+      n <- tapply(x$domain_type == type, x$array_id, sum)
+      add(names(n)[!is.na(n) & n > 1L], "terminus_duplicated",
+          paste0("more than one ", type))
+    }
+    nterm <- x$domain_type == "N-terminus" & x$position_in_array != 1L
+    add(x$array_id[nterm], "terminus_misplaced", "N-terminus not at position 1")
+    cterm <- x$domain_type == "C-terminus"
+    if (any(cterm)) {
+      maxpos <- tapply(x$position_in_array, x$array_id, max)
+      cpos <- tapply(x$position_in_array[cterm], x$array_id[cterm], max)
+      shared <- intersect(names(cpos), names(maxpos))
+      add(shared[cpos[shared] != maxpos[shared]], "terminus_misplaced",
+          "C-terminus not at the end of its array")
     }
   }
-  invisible(NULL)
+
+  ## coordinate agreement ----------------------------------------------------
+  if ("position_in_crd" %in% cols) {
+    if ("domain_type" %in% cols) {
+      wrong <- is.na(x$position_in_crd) != (x$domain_type != "repeat")
+      add(x$array_id[wrong], "crd_placement",
+          "position_in_crd is not NA on exactly the non-repeat parts")
+    }
+    keep <- !is.na(x$position_in_crd)
+    if (any(keep)) {
+      add(x$array_id[keep][x$position_in_crd[keep] < 1L], "crd_placement",
+          "position_in_crd is not positive")
+      o <- x[keep, c("array_id", "position_in_array", "position_in_crd")]
+      o <- o[order(o$array_id, o$position_in_array), ]
+      add(o$array_id[stats::ave(o$position_in_crd, o$array_id,
+                                FUN = function(z) c(0L, diff(z))) < 0L],
+          "crd_order", "position_in_crd does not increase with position_in_array")
+    }
+  }
+
+  ## attributes that should be constant within an array ----------------------
+  for (nm in intersect(c("seqnames", "group"), cols)) {
+    n <- tapply(x[[nm]], x$array_id, function(z) length(unique(z)))
+    add(names(n)[!is.na(n) & n > 1L], paste0(nm, "_inconsistent"),
+        paste0(nm, " varies within the array"))
+  }
+
+  if (!length(out)) {
+    return(tibble::tibble(array_id = character(), check = character(),
+                          detail = character()))
+  }
+  unique(do.call(rbind, out))
 }
+
+
+#' Warn about, or drop, the arrays flagged by .tales_anomalies()
+#' @keywords internal
+.tales_report_anomalies <- function(x, sanitize = FALSE, arg = "x") {
+  an <- .tales_anomalies(x)
+  if (nrow(an) == 0L) return(x)
+  ids <- unique(an$array_id)
+  reasons <- unique(an$check)
+  if (isTRUE(sanitize)) {
+    cli::cli_warn(
+      c("Dropped {length(ids)} array{?s} with biological anomalies.",
+        "x" = "Array{?s}: {.val {utils::head(ids, 8)}}",
+        "i" = "Reason{?s}: {.field {reasons}}"),
+      class = c("tantale_warning_tales_sanitized", "tantale_warning")
+    )
+    return(x[!x$array_id %in% ids, , drop = FALSE])
+  }
+  cli::cli_warn(
+    c("{length(ids)} array{?s} {?has/have} biological anomalies.",
+      "x" = "Array{?s}: {.val {utils::head(ids, 8)}}",
+      "i" = "Reason{?s}: {.field {reasons}}",
+      "i" = "Inspect with {.fn tales_anomalies}, or drop with {.code sanitize = TRUE}."),
+    class = c("tantale_warning_tales_anomalous", "tantale_warning")
+  )
+  x
+}
+
+
 
 #' @keywords internal
 .tales_check_key <- function(x) {
@@ -374,103 +501,23 @@ validate_tales <- function(x) {
   invisible(NULL)
 }
 
-#' @keywords internal
-.tales_check_domain_type <- function(x) {
-  bad <- setdiff(unique(x$domain_type), TALES_DOMAIN_TYPES)
-  if (length(bad) > 0L) {
-    cli::cli_abort(
-      c("{.field domain_type} must be one of {.val {TALES_DOMAIN_TYPES}}.",
-        "x" = "Unexpected value{?s}: {.val {bad}}"),
-      class = c("tantale_error_tales_domain_type", "tantale_error")
-    )
-  }
-  for (type in c("N-terminus", "C-terminus")) {
-    n <- tapply(x$domain_type == type, x$array_id, sum)
-    if (any(n > 1L)) {
-      cli::cli_abort(
-        "An array may hold at most one {.val {type}}; {.val {names(n)[n > 1L]}} {?has/have} more.",
-        class = c("tantale_error_tales_terminus", "tantale_error")
-      )
-    }
-  }
-  nterm <- x$domain_type == "N-terminus"
-  if (any(nterm) && any(x$position_in_array[nterm] != 1L)) {
-    cli::cli_abort(
-      "An {.val N-terminus} must be at {.field position_in_array} 1.",
-      class = c("tantale_error_tales_terminus", "tantale_error")
-    )
-  }
-  cterm <- x$domain_type == "C-terminus"
-  if (any(cterm)) {
-    maxpos <- tapply(x$position_in_array, x$array_id, max)
-    cpos <- tapply(x$position_in_array[cterm], x$array_id[cterm], max)
-    if (any(cpos != maxpos[names(cpos)])) {
-      cli::cli_abort(
-        "A {.val C-terminus} must have the largest {.field position_in_array} of its array.",
-        class = c("tantale_error_tales_terminus", "tantale_error")
-      )
-    }
-  }
-  invisible(NULL)
-}
 
+#' Structural part of the CRD contract: the coordinate must be a key
+#'
+#' Placement (NA on exactly the non-repeat parts) and order agreement are
+#' *biological* checks and live in \code{.tales_anomalies()}; only uniqueness
+#' is structural, since a repeated coordinate makes the array unindexable.
 #' @keywords internal
-.tales_check_crd <- function(x) {
-  if ("domain_type" %in% names(x)) {
-    should_be_na <- x$domain_type != "repeat"
-    if (!identical(is.na(x$position_in_crd), should_be_na)) {
-      cli::cli_abort(
-        c("{.field position_in_crd} must be {.val NA} on exactly the non-repeat parts.",
-          "i" = "It numbers the central repeat domain, so termini have no value."),
-        class = c("tantale_error_tales_crd", "tantale_error")
-      )
-    }
-  }
-  keep <- !is.na(x$position_in_crd)
-  if (any(keep)) {
-    if (any(x$position_in_crd[keep] < 1L)) {
-      cli::cli_abort("{.field position_in_crd} must be positive.",
-                     class = c("tantale_error_tales_crd", "tantale_error"))
-    }
-    if (any(duplicated(data.frame(a = x$array_id[keep], p = x$position_in_crd[keep])))) {
-      cli::cli_abort(
-        "{.field position_in_crd} must be unique within an array.",
-        class = c("tantale_error_tales_crd", "tantale_error")
-      )
-    }
-  }
-  .tales_check_crd_order(x)
-  invisible(NULL)
-}
-
-#' Check that the two coordinate systems agree on order
-#'
-#' Among the repeats of an array, ranking by \code{position_in_crd} must give
-#' the same order as ranking by \code{position_in_array}.
-#'
-#' This is the part of the coordinates' relationship that survives subsetting.
-#' The exact arithmetic relation — \code{position_in_crd == position_in_array -
-#' (non-repeat parts before it)} — holds only for a *complete* array, so it is a
-#' precondition rather than an invariant; see
-#' \code{\link{tales_assert_complete}}.
-#' @noRd
-.tales_check_crd_order <- function(x) {
+.tales_check_crd_unique <- function(x) {
   keep <- !is.na(x$position_in_crd)
   if (!any(keep)) return(invisible(NULL))
-  o <- x[keep, c("array_id", "position_in_array", "position_in_crd")]
-  o <- o[order(o$array_id, o$position_in_array), ]
-  bad <- unique(o$array_id[
-    stats::ave(o$position_in_crd, o$array_id, FUN = function(z) c(0L, diff(z))) < 0L
-  ])
-  if (length(bad) > 0L) {
-    cli::cli_abort(
-      c("{.field position_in_crd} must increase with {.field position_in_array}.",
-        "x" = "Affected array{?s}: {.val {utils::head(bad, 5)}}"),
-      class = c("tantale_error_tales_crd", "tantale_error")
-    )
+  if (any(duplicated(data.frame(a = x$array_id[keep], p = x$position_in_crd[keep])))) {
+    cli::cli_abort("{.field position_in_crd} must be unique within an array.",
+                   class = c("tantale_error_tales_crd", "tantale_error"))
   }
   invisible(NULL)
 }
+
 
 
 #### Preconditions ####
@@ -543,17 +590,6 @@ tales_assert_complete <- function(x, arg = "x") {
   invisible(NULL)
 }
 
-#' @keywords internal
-.tales_check_constant_per_array <- function(x, nm) {
-  n <- tapply(x[[nm]], x$array_id, function(z) length(unique(z)))
-  if (any(n > 1L)) {
-    cli::cli_abort(
-      "{.field {nm}} must be constant within an array; {.val {names(n)[n > 1L]}} {?has/have} several.",
-      class = c("tantale_error_tales_inconsistent", "tantale_error")
-    )
-  }
-  invisible(NULL)
-}
 
 
 #### dplyr integration ####

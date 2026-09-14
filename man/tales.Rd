@@ -4,7 +4,7 @@
 \alias{tales}
 \title{Create a tales object}
 \usage{
-tales(x, dom_code_namespace = NULL)
+tales(x, dom_code_namespace = NULL, sanitize = FALSE)
 }
 \arguments{
 \item{x}{A data frame with at least \code{array_id} and
@@ -31,6 +31,7 @@ Other tales objects:
 \code{\link[=is_tales]{is_tales()}},
 \code{\link[=new_tales]{new_tales()}},
 \code{\link[=tales_anchor_codes]{tales_anchor_codes()}},
+\code{\link[=tales_anomalies]{tales_anomalies()}},
 \code{\link[=tales_assert_complete]{tales_assert_complete()}},
 \code{\link[=tales_namespace]{tales_namespace()}},
 \code{\link[=validate_tales]{validate_tales()}}

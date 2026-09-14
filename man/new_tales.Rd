@@ -4,7 +4,7 @@
 \alias{new_tales}
 \title{Low-level constructor for a tales object}
 \usage{
-new_tales(x, dom_code_namespace = NULL)
+new_tales(x, dom_code_namespace = NULL, sanitize = FALSE)
 }
 \arguments{
 \item{x}{A tibble.}
@@ -26,6 +26,7 @@ Other tales objects:
 \code{\link[=is_tales]{is_tales()}},
 \code{\link[=tales]{tales()}},
 \code{\link[=tales_anchor_codes]{tales_anchor_codes()}},
+\code{\link[=tales_anomalies]{tales_anomalies()}},
 \code{\link[=tales_assert_complete]{tales_assert_complete()}},
 \code{\link[=tales_namespace]{tales_namespace()}},
 \code{\link[=validate_tales]{validate_tales()}}

@@ -107,26 +107,29 @@ test_that("NA or non-positive position_in_array is an error", {
   expect_error(tales(df2), class = "tantale_error_tales_position")
 })
 
-test_that("NA in a residue column is an error", {
+test_that("NA in a residue column is an anomaly, not an error", {
   df <- minimal_tales_df()
   df$rvd[1] <- NA_character_
-  expect_error(tales(df), class = "tantale_error_tales_na")
+  expect_warning(x <- tales(df), class = "tantale_warning_tales_anomalous")
+  expect_true("missing_rvd" %in% tales_anomalies(x)$check)
 })
 
 
 #### Conditional invariants ####
 
-test_that("an unknown domain_type is an error", {
+test_that("an unknown domain_type is an anomaly, not an error", {
   df <- minimal_tales_df()
   df$domain_type[2] <- "middle"
-  expect_error(tales(df), class = "tantale_error_tales_domain_type")
+  expect_warning(x <- tales(df), class = "tantale_warning_tales_anomalous")
+  expect_true("domain_type_unknown" %in% tales_anomalies(x)$check)
 })
 
-test_that("at most one terminus of each kind per array", {
+test_that("more than one terminus of a kind is an anomaly", {
   df <- minimal_tales_df()
   df$domain_type[3] <- "C-terminus"
   df$position_in_crd[3] <- NA_integer_
-  expect_error(tales(df), class = "tantale_error_tales_terminus")
+  expect_warning(x <- tales(df), class = "tantale_warning_tales_anomalous")
+  expect_true(any(grepl("terminus", tales_anomalies(x)$check)))
 })
 
 test_that("zero termini is allowed - a repeats-only subset stays valid", {
@@ -138,16 +141,28 @@ test_that("zero termini is allowed - a repeats-only subset stays valid", {
   expect_false(min(repeats_only$position_in_array) == 1L)
 })
 
-test_that("position_in_crd must be NA exactly on non-repeat parts", {
+test_that("position_in_crd misplacement is an anomaly", {
   df <- minimal_tales_df()
-  df$position_in_crd[1] <- 1L
-  expect_error(tales(df), class = "tantale_error_tales_crd")
+  # a value on a terminus, chosen not to collide with any repeat's coordinate
+  # (a collision would trip the structural uniqueness check first, correctly)
+  df$position_in_crd[1] <- 99L
+  expect_warning(x <- tales(df), class = "tantale_warning_tales_anomalous")
+  expect_true("crd_placement" %in% tales_anomalies(x)$check)
 })
 
-test_that("position_in_crd must agree with position_in_array on order", {
+test_that("position_in_crd disagreeing on order is an anomaly", {
   df <- minimal_tales_df()
   # swap the two repeats' crd positions: same set, wrong order
   df$position_in_crd[df$domain_type == "repeat"] <- c(2L, 1L, 2L, 1L)
+  expect_warning(x <- tales(df), class = "tantale_warning_tales_anomalous")
+  expect_true("crd_order" %in% tales_anomalies(x)$check)
+})
+
+test_that("a duplicated position_in_crd is still a structural error", {
+  # uniqueness is the part of the CRD contract that stays hard: a repeated
+  # coordinate makes the array unindexable, not merely odd
+  df <- minimal_tales_df()
+  df$position_in_crd[df$domain_type == "repeat"] <- c(1L, 1L, 1L, 2L)
   expect_error(tales(df), class = "tantale_error_tales_crd")
 })
 
@@ -175,17 +190,21 @@ test_that("the aa_seq <-> dom_code correspondence must be bijective", {
   expect_error(tales(df), class = "tantale_error_tales_dom_code")
 })
 
-test_that("seqnames must be constant within an array", {
+test_that("seqnames varying within an array is an anomaly", {
   df <- minimal_tales_df()
   df$seqnames[1] <- "other"
-  expect_error(tales(df), class = "tantale_error_tales_inconsistent")
+  expect_warning(x <- tales(df), class = "tantale_warning_tales_anomalous")
+  expect_true("seqnames_inconsistent" %in% tales_anomalies(x)$check)
+  # and sanitize removes the offending array
+  expect_false(unique(df$array_id)[1] %in% suppressWarnings(tales(df, sanitize = TRUE))$array_id)
 })
 
 test_that("an empty dna_seq warns but does not fail", {
   df <- minimal_tales_df()
   df$dna_seq <- c("ATG", rep("", 7))
-  expect_warning(x <- tales(df), class = "tantale_warning_tales_missing_dna")
+  expect_warning(x <- tales(df), class = "tantale_warning_tales_anomalous")
   expect_s3_class(x, "tales")
+  expect_true("missing_dna_seq" %in% tales_anomalies(x)$check)
 })
 
 
@@ -342,28 +361,18 @@ test_that("a real distalr tale_parts table validates as tales", {
 })
 
 
-test_that(".tales_check_residue_na() names the affected arrays", {
-  # Factored out of validate_tales()'s body so the validator delegates every
-  # check uniformly, and so a residue-completeness helper exists to reuse
-  # rather than being duplicated by callers.
-  df <- tibble::tibble(
-    array_id = c("a", "a", "b", "b"),
-    position_in_array = 1:4,
-    rvd = c("NI", NA, "HD", "NG")
-  )
-  expect_error(tantale:::.tales_check_residue_na(df),
-               class = "tantale_error_tales_na")
-  expect_error(tantale:::.tales_check_residue_na(df), "a", fixed = TRUE)
-  # and it is silent on a complete object
-  df$rvd <- c("NI", "NN", "HD", "NG")
-  expect_null(tantale:::.tales_check_residue_na(df))
-})
 
-test_that("the residue-NA check still fires through validate_tales()", {
-  df <- tibble::tibble(
-    array_id = c("a", "a"),
-    position_in_array = 1:2,
-    rvd = c("NI", NA)
-  )
-  expect_error(tales(df), class = "tantale_error_tales_na")
+
+
+test_that("a missing residue is now a biological anomaly, not a structural error", {
+  # .tales_check_residue_na() was absorbed into .tales_anomalies() when the
+  # class was relaxed: a part with no RVD is odd biology, not a corrupt table,
+  # so it loads with a warning rather than aborting.
+  df <- tibble::tibble(array_id = c("a", "a"), position_in_array = 1:2,
+                       rvd = c("NI", NA))
+  expect_warning(x <- tales(df), class = "tantale_warning_tales_anomalous")
+  expect_s3_class(x, "tales")
+  expect_identical(tales_anomalies(x)$array_id, "a")
+  expect_identical(tales_anomalies(x)$check, "missing_rvd")
+  expect_equal(nrow(suppressWarnings(tales(df, sanitize = TRUE))), 0L)
 })

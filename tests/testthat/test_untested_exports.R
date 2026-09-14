@@ -32,9 +32,11 @@ test_that("rvd_only = FALSE keeps the termini", {
   expect_true(any(grepl("NTERM", out, fixed = TRUE)))
 })
 
-test_that("diagnose_tale_parts() reports arrays with missing sequences", {
+test_that("tales_anomalies() reports arrays with missing sequences", {
+  # replaces diagnose_tale_parts(), which guarded on columns its callers never
+  # read and warned about an "output tibble" it was about to not produce
   d <- fixture()
-  expect_s3_class(diagnose_tale_parts(d$tale_parts), "data.frame")
+  expect_s3_class(tales_anomalies(tales(d$tale_parts)), "data.frame")
 })
 
 test_that("repeat_to_rvd_map_distalr() maps each repeat code to exactly one RVD", {

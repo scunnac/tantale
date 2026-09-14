@@ -314,54 +314,6 @@ diag(identSubMat) <- 1
   }
 }
 
-#' Report on potential 'pseudo TALEs' in a tale_parts object
-#' @description
-#' NOT TESTED!!!!
-#' This displays a compact but information rich view of the TALEs stored in a
-#' tale_parts object.
-#' 
-#' @param tale_parts a table of TALE parts as returned by the
-#' \code{\link{tales_from_telltale}} function or
-#' \code{\link{tales_compare}}
-#' @param sanitize If \code{FALSE}, will return all the arrays with at least one 
-#' part with a missing sequence. If \code{TRUE}, will return all the arrays that have
-#' no part with a missing sequence.
-#' 
-#'
-#' @return a tale_parts object
-#' @export
-#' @family TALE discovery
-diagnose_tale_parts <- function(tale_parts, sanitize = FALSE) {
-  # Check talparts
-  partsWithMissingAaSeq <- tale_parts %>% dplyr::filter(is.na(aaSeq)) %>%
-    dplyr::select(arrayID, sourceDirectory) %>%
-    dplyr::distinct()
-  partsWithMissingDnaSeq <- tale_parts %>% dplyr::filter(is.na(dnaSeq)) %>%
-    dplyr::select(arrayID, sourceDirectory) %>%
-    dplyr::distinct()
-  partsWithMissingRvdSeq <- tale_parts %>% dplyr::filter(is.na(rvd)) %>%
-    dplyr::select(arrayID, sourceDirectory) %>%
-    dplyr::distinct()
-  problems <- dplyr::bind_rows(partsWithMissingRvdSeq,
-                               partsWithMissingDnaSeq,
-                               partsWithMissingAaSeq
-                               ) %>%
-    dplyr::distinct()
-  pseudoTales <- dplyr::left_join(problems, tale_parts,
-                                  relationship = "one-to-many",
-                                  by = dplyr::join_by(arrayID, sourceDirectory)
-                                  ) %>%
-    dplyr::arrange(sourceDirectory, arrayID, positionInArray)
-  if (nrow(problems) != 0L) {
-    cli::cli_warn("Be aware that the output tale_parts tibble has records with missing sequences")
-  }
-  if (!sanitize) {
-    pseudoTales %>% return()
-  } else {
-    cli::cli_inform("Returning TALE arrays with no empty sequence parts")
-    dplyr::setdiff(tale_parts, pseudoTales) %>% return()
-  }
-}
 
 
 

@@ -47,7 +47,6 @@ sequences in no correction mode.
 }
 \seealso{
 Other TALE discovery:
-\code{\link[=diagnose_tale_parts]{diagnose_tale_parts()}},
 \code{\link[=tales_from_telltale]{tales_from_telltale()}},
 \code{\link[=tell_tales]{tell_tales()}}
 }

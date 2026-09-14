@@ -179,9 +179,6 @@ repeat_to_rvd_map_distalr <- function(tale_parts) {
   if (!any("domCode" %in% colnames(tale_parts))) {
     cli::cli_abort("The provided object does not contain a 'domCode' column. Are you using a tale_parts object from distalr()", class = c("tantale_error"))
   }
-  if (nrow(diagnose_tale_parts(tale_parts)) != 0L) {
-    cli::cli_abort("The provided object does not seem to be sanitized. Have you used a tale_parts object with no empty sequences?", class = c("tantale_error"))
-  }
   tale_parts %>% 
     dplyr::select(domCode, rvd) %>%
     dplyr::distinct() %>%
@@ -402,9 +399,6 @@ repeat_to_rvd_align <- function(repeat_align , rvd_map) {
 #' @export
 #' @family tales projections
 tale_parts_to_rvd <- function(tale_parts, sep = "-", rvd_only = FALSE) {
-  if (nrow(diagnose_tale_parts(tale_parts)) != 0L) {
-    cli::cli_abort("The provided object does not seem to be sanitized. Have you used a tale_parts object with no empty sequences?", class = c("tantale_error"))
-  }
   
   if(rvd_only) {
     # tales_anchor_codes() rather than a retyped list: the set has THREE

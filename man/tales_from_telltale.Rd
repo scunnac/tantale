@@ -4,7 +4,7 @@
 \alias{tales_from_telltale}
 \title{Build a tales object from a tell_tales run directory}
 \usage{
-tales_from_telltale(telltale_dir)
+tales_from_telltale(telltale_dir, sanitize = FALSE)
 }
 \arguments{
 \item{telltale_dir}{Path to a single \code{\link[tantale:tell_tales]{tell_tales}}
@@ -25,7 +25,6 @@ by the relatedness computation, over the whole set of parts being analysed.
 \seealso{
 Other TALE discovery:
 \code{\link[=correct_tales]{correct_tales()}},
-\code{\link[=diagnose_tale_parts]{diagnose_tale_parts()}},
 \code{\link[=tell_tales]{tell_tales()}}
 }
 \concept{TALE discovery}

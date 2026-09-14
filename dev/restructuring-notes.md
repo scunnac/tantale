@@ -466,6 +466,40 @@ needs, then make `tales_align()` group-aware. Not before.
 
 ---
 
+### 5.3 `tell_tales()` needs refactoring **[A]**
+
+**[V]** Measured, so the scale is on record rather than impressionistic:
+
+| | |
+|---|---|
+| lines in the one function | **745** |
+| lines in the whole of `R/telltale.R` | 903 |
+| arguments | **17** |
+| `if`/`else` branches | 18 |
+| `for` loops | 5 |
+| deepest indentation | **65 spaces** |
+
+So a single function is 82% of its file, and at 65 spaces of indent the tail of
+it is unreadable at normal width. It is the entry point of the whole pipeline
+and the least tractable code in the package.
+
+It leans on only four package internals -- `.run_nhmmer_search()`,
+`.hits_report_to_gff()`, `.correction_tibble()`, plus one `system()` call --
+which suggests the bulk is inline orchestration that could be named and lifted
+out rather than genuinely irreducible logic.
+
+Not attempted yet. Worth noting the ordering against other items: it produces
+the input to `tales_from_telltale()`, and §5.1's `sanitize` work exists
+precisely because its output is sometimes malformed. Straightening it might
+reduce how much sanitising is needed, but the two are independent -- sanitising
+guards against bad input whatever its provenance, so neither blocks the other.
+
+A sensible first pass would be purely mechanical: extract the named stages into
+internals, without changing behaviour, and get the indentation down. The 17
+arguments are a separate question and interact with 9.1.
+
+---
+
 ## 6. Correctness review backlog **[P]**
 
 Deferred to a dedicated pass on "computations that may not match intent":
@@ -753,6 +787,55 @@ outside base is suspect.** `R CMD check`'s "no visible global function
 definition" is the tool that finds them, and it is only readable once the NSE
 false positives are declared away (see 7.2) -- which is the real argument for
 `R/globals.R`.
+
+---
+
+### 7.4 Shrink the payload: get MAFFT and HMMER from conda **[A]**
+
+`inst/` is 163 MB, and `inst/tools` is 122 MB of it -- the bulk of what a user
+downloads.
+
+| | size | already in the conda env? |
+|---|---|---|
+| `mafft-linux64` | 34 MB | **yes** -- `mafft=7.520` |
+| `talecorrect` | 33 MB | no |
+| `hmmer-3.3` | 27 MB | **yes** -- `hmmer=3.3.2` |
+| `AnnoTALEcli-1.5.jar` | 16 MB | no |
+| `PrediTALE.jar` | 14 MB | no |
+| `arlem`, `TALVEZ_3.2`, `QueTAL_v1.1` | < 150 KB each | no |
+
+**[V] The duplication is already paid for.** `inst/tools/tantale_conda_env.yaml`
+declares `mafft=7.520` and `hmmer=3.3.2`, so any user who has run
+`.create_tantale_env()` has both installed -- and the package still ships its
+own copies and calls those instead:
+
+- `msa.R:95` -- `mafft_path = system.file("tools", "mafft-linux64", ...)`, with
+  `mustWork = TRUE`
+- `tellTale_utilities.R:4` -- `.get_hmmer()` returns
+  `system.file("tools", "hmmer-3.3", "bin", ...)`, also `mustWork = TRUE`
+
+So **61 MB of the 122 MB is redundant with a dependency the package already
+creates**. Dropping both would roughly halve `inst/tools`.
+
+Both are reached through a single indirection (`mafft_path`, `.get_hmmer()`),
+so the change is contained: resolve to the conda env first and fall back to a
+bundled copy only if present. The `mustWork = TRUE` has to go either way.
+
+**Caveats worth checking before doing it:**
+
+- MAFFT is used in `--text` mode via `mafft.bat` plus `hex2maffttext` and
+  `maffttext2hex` from `mafftdir/libexec`. Confirm the conda build ships those
+  helpers and the `.bat` wrapper -- the text mode is unusual and may not be in
+  every distribution.
+- Versions differ (bundled HMMER 3.3 vs conda 3.3.2; MAFFT unstated vs 7.520).
+  Worth confirming output is unchanged before switching.
+- This makes the conda env a hard requirement for alignment and TALE mining,
+  where today it is only needed for mmseq2 and the Perl tools. That is a real
+  change in the install story, not just a size saving.
+
+**The jar files are a separate question.** `AnnoTALEcli` and `PrediTALE` are
+30 MB together; bioconda has no package for either as far as I know, so they
+would have to stay, be downloaded on demand, or move to a data package.
 
 ---
 
