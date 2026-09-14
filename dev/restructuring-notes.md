@@ -94,7 +94,39 @@ site.
 - **[V]** `.repeat_to_sim_align()`, `.repeat_to_cluster_align()` — genuinely
   plotting-only internals, correctly unexported.
 
-### Dormant but valuable — REPAIRED **[V]**
+### Dormant but valuable — REPAIRED AND WIRED UP **[V]**
+
+Both are now reachable, and `rvdSimDf` has two independent consumers rather
+than none.
+
+**`.rvd_to_match_align()` is `fill_type = "rvd_sim"`.** It colours each cell by
+how alike that RVD's DNA-binding preference is to the reference TALE's RVD at
+the same position -- the RVD-level counterpart of `repeat_sim`, which scores
+protein sequence. The two genuinely differ: `HD` and `ND` are distinct repeats
+with identical specificity, while repeats differing only at 12-13 are
+near-identical proteins targeting different bases.
+
+**[V]** Working example on the fixture: at position 23 the reference carries
+`NG` (T-binder, 5/10/1/50) and MAI1 carries `NN` (A/G-binder, 30/10/30/1),
+scoring **-0.95**. A repeat-level fill renders that as merely "a different
+repeat"; the RVD fill shows the specificities are opposed.
+
+It needs `rvd_align` but **not** `repeat_sim`, so it works without having run
+`tales_compare()`. It gets a diverging scale centred on zero, since the score
+is signed on [-1, 1] -- the sequential 0-100 palette would flatten "opposite"
+and "somewhat different" together. `XX` cells render grey (`NA`), consistent
+with the alignment treatment.
+
+**`rvdSimDf` also scores RVD alignments** -- see 7.5. That use came out of
+noticing that RVD alignments had no scoring matrix at all.
+
+The earlier instinct to delete these on call-count alone was wrong in a
+specific way worth remembering: they were not dead, they were **unwired**, and
+the capability existed nowhere else.
+
+#### Original notes
+
+### Dormant but valuable — original notes
 
 Both repairs are done; the "decide whether to wire them up" question stays open.
 

@@ -384,7 +384,17 @@ tales_consensus_match <- function(align, long = TRUE) {
 #'   drawn as its own panel rather than an extra alignment row, because
 #'   \code{aplot} reorders the alignment's y axis onto the tree's leaves and
 #'   would drop a row the tree has no leaf for.
-#' @param fill_type Either "repeat_clust" or "repeat_sim". If both options are
+#' @param fill_type One of \code{"repeat_clust"}, \code{"repeat_sim"} or
+#'   \code{"rvd_sim"}. The first two colour cells by repeat cluster or by
+#'   protein-sequence similarity to the reference. \code{"rvd_sim"} colours
+#'   them instead by how alike each RVD's *DNA-binding preference* is to the
+#'   reference TALE's RVD at that position, on a diverging scale over
+#'   \code{[-1, 1]}; it needs \code{rvd_align} but not \code{repeat_sim}.
+#'   The repeat- and RVD-level views genuinely differ: \code{HD} and \code{ND}
+#'   are distinct repeats with identical specificity, while repeats differing
+#'   only at positions 12-13 are near-identical proteins targeting different
+#'   bases.
+#'   Legacy note: "repeat_clust" or "repeat_sim". If both options are
 #'   possible because the necessary information is there (at least a
 #'   \code{repeat_sim} value), this argument will decide what type of 'box color
 #'   filling' is employed and it is either based on the cluster where the repeat
@@ -556,6 +566,26 @@ plot_tales_msa <- function(repeat_align,
                        by = dplyr::join_by(arrayID, positionInArray))
   }
   
+
+  # joining RVD similarity relative to the reference
+  # This is the RVD-level counterpart of repeatSimVsRef: that one scores protein
+  # sequence similarity, this one scores how alike two RVDs' DNA-binding
+  # preferences are. They come apart -- HD and ND are different repeats with
+  # identical specificity, while repeats differing only at positions 12-13 are
+  # nearly identical proteins targeting different bases.
+  if (!is.null(rvd_align)) {
+    if (!exists("refTaleId")) {
+      refTaleId <- .pick_ref_name(align = rvd_align, ref_tag = ref_pattern)
+    }
+    rvdSimAlignLong <- .rvd_to_match_align(rvd_align = rvd_align,
+                                           ref_tag = ref_pattern) %>%
+      reshape2::melt() %>%
+      dplyr::as_tibble()
+    colnames(rvdSimAlignLong) <- c("arrayID", "positionInArray", "rvdSimVsRef")
+    rvdSimAlignLong %<>% dplyr::mutate(arrayID = as.character(arrayID))
+    repeatAlignLong %<>% dplyr::left_join(rvdSimAlignLong,
+                                          by = dplyr::join_by(arrayID, positionInArray))
+  }
   
   # Building TALE tree if possible
   if (!is.null(tal_sim) & countOfTales > 1) {
@@ -613,6 +643,12 @@ plot_tales_msa <- function(repeat_align,
   #                                                    low = "red", high = "lightgrey")
   repeatSimFillScale <- ggplot2::scale_fill_distiller(name = "Similarity relative to reference",
                                                       direction = -1)
+  # The RVD score is a correlation on [-1, 1], so it wants a diverging scale
+  # centred on zero rather than the sequential one used for repeat similarity.
+  rvdSimFillScale <- ggplot2::scale_fill_gradient2(
+    name = "RVD specificity vs reference",
+    limits = c(-1, 1), midpoint = 0,
+    low = "#B2182B", mid = "grey92", high = "#2166AC", na.value = "grey80")
   # labelConsensusColorScale <- ggplot2::scale_color_manual(name = "Match consensus?",
   #                                                         values = c(`TRUE` = "black",
   #                                                                    `FALSE` = "red")
@@ -623,7 +659,26 @@ plot_tales_msa <- function(repeat_align,
   )
   # Add aesthetics as requested AND possible
   
-  if (!is.null(repeat_sim) & !is.null(rvd_align)) {
+  if (identical(fill_type, "rvd_sim")) {
+    if (is.null(rvd_align)) {
+      cli::cli_abort(
+        c('{.code fill_type = "rvd_sim"} needs an {.arg rvd_align}.',
+          "i" = "It scores each RVD against the reference TALE's RVD at that position."),
+        class = c("tantale_error_msa_layer", "tantale_error")
+      )
+    }
+    p <- bp +
+      rvdSimFillScale +
+      labelConsensusColorScale +
+      ggplot2::geom_label(mapping = ggplot2::aes(fill = rvdSimVsRef,
+                                                 label = rvd,
+                                                 color = matchConsensusRvd),
+                          label.size = NA,
+                          family = "mono",
+                          size = 3, fontface = "bold",
+                          na.rm = TRUE
+      )
+  } else if (!is.null(repeat_sim) & !is.null(rvd_align)) {
     if (fill_type == "repeat_sim") {
       p <- bp +
         repeatSimFillScale +
@@ -649,7 +704,7 @@ plot_tales_msa <- function(repeat_align,
                             na.rm = TRUE
         )
     } else {
-      cli::cli_abort("the fill_type value must be either 'repeat_sim' or 'repeatClust'", class = c("tantale_error"))
+      cli::cli_abort("{.arg fill_type} must be {.val repeat_clust}, {.val repeat_sim} or {.val rvd_sim}.", class = c("tantale_error_msa_layer", "tantale_error"))
     }
   } else if (!is.null(repeat_sim) & is.null(rvd_align)) {
     if (fill_type == "repeat_sim") {
@@ -677,7 +732,7 @@ plot_tales_msa <- function(repeat_align,
                             na.rm = TRUE
         )
     } else {
-      cli::cli_abort("the fill_type value must be either 'repeat_sim' or 'repeatClust'", class = c("tantale_error"))
+      cli::cli_abort("{.arg fill_type} must be {.val repeat_clust}, {.val repeat_sim} or {.val rvd_sim}.", class = c("tantale_error_msa_layer", "tantale_error"))
     }
   } else if (is.null(repeat_sim) & !is.null(rvd_align)) {
     p <- bp + 
