@@ -1,4 +1,4 @@
-arrayID	seqnames	query_name	codon_count
+array_id	seqnames	query_name	codon_count
 ROI_00001	talRegion5	N-terminus	287
 ROI_00001	talRegion5	repeat	34
 ROI_00001	talRegion5	repeat	34

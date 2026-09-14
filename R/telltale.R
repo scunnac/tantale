@@ -427,7 +427,7 @@ tell_tales <- function(
   
   
   S4Vectors::mcols(hitsByArraysLst) <- S4Vectors::DataFrame(
-    arrayID = names(hitsByArraysLst),
+    array_id = names(hitsByArraysLst),
     OriginalSubjectName = sapply(hitsByArraysLst,
                                  function(x) unique(as.character(GenomicRanges::seqnames(x)))),
     Start = BiocGenerics::start(arraysGR),
@@ -494,7 +494,7 @@ tell_tales <- function(
     
     S4Vectors::mcols(hitsByArraysLst) <- merge(S4Vectors::mcols(hitsByArraysLst), 
                                                dplyr::full_join(insertions_count, deletions_count, by = "Seq"), 
-                                               by.x = "arrayID", by.y = "Seq", all.x = T) 
+                                               by.x = "array_id", by.y = "Seq", all.x = T) 
     
     S4Vectors::mcols(hitsByArraysLst)[c("predicted_dels_count", "predicted_ins_count")] %<>% apply(., 2, function(v) ifelse(is.na(v), 0, v))
     
@@ -637,8 +637,8 @@ tell_tales <- function(
     
     ## domains report
     stops <- Biostrings::vcountPattern("*", prot_parts)
-    domainsReport <- tibble::tibble("arrayID" = talOrfID,
-                                "seqnames" = S4Vectors::mcols(hitsByArraysLst)$OriginalSubjectName[S4Vectors::mcols(hitsByArraysLst)$arrayID == talOrfID],
+    domainsReport <- tibble::tibble("array_id" = talOrfID,
+                                "seqnames" = S4Vectors::mcols(hitsByArraysLst)$OriginalSubjectName[S4Vectors::mcols(hitsByArraysLst)$array_id == talOrfID],
                                 "query_name" = gsub("(.+\\: )|( \\d+)", "", names(prot_parts)),
                                 "codon_count" = width(prot_parts) - stops
                                 )
@@ -684,9 +684,9 @@ tell_tales <- function(
   S4Vectors::mcols(hitsByArraysLst) <- merge(S4Vectors::mcols(hitsByArraysLst),
                                              data.frame(SeqOfRVD = seqsOfRVDs,
                                                         aberrantRepeat = aberrantRepeat,
-                                                        arrayID = names(seqsOfRVDs)
+                                                        array_id = names(seqsOfRVDs)
                                                         ),
-                                             by = "arrayID", 
+                                             by = "array_id", 
                                              all.x = T)
   S4Vectors::mcols(hitsByArraysLst)$SeqOfRVD[is.na(S4Vectors::mcols(hitsByArraysLst)$SeqOfRVD)] <- ""
   
@@ -740,14 +740,14 @@ tell_tales <- function(
   endsAAlength <- lapply(names(endsAA), function(e) {
     stringset <- endsAA[e] %>% Biostrings::AAStringSetList(., use.names = F) %>% unlist()
     df <- data.frame(names(stringset), BiocGenerics::width(stringset))
-    colnames(df) <- c("arrayID", paste0(e, "AAlength"))
+    colnames(df) <- c("array_id", paste0(e, "AAlength"))
     return(df)
   })
   
   
   S4Vectors::mcols(hitsByArraysLst) <- merge(S4Vectors::mcols(hitsByArraysLst),
                                              do.call(merge, endsAAlength),
-                                             by = "arrayID", 
+                                             by = "array_id", 
                                              all.x = T)
   
   #### 
@@ -756,12 +756,12 @@ tell_tales <- function(
   ## Merge with arrays metadata in mcols(hitsByArraysLst)
   moreInfo <- merge(
     S4Vectors::mcols(hitsByArraysLst),
-    data.frame(arrayID = names(fullTalOrf),
+    data.frame(array_id = names(fullTalOrf),
                LongestOrfLength = Biostrings::nchar(fullTalOrf),
                OrfCovOverArrayLength = round(100 * Biostrings::nchar(fullTalOrf)/GenomicRanges::width(extdCompleteArraysSeqs[names(fullTalOrf)])),
                LongestORFSeq = fullTalOrf),
-    by = "arrayID", all.x = TRUE, sort = FALSE)
-  rownames(moreInfo) <- moreInfo$arrayID
+    by = "array_id", all.x = TRUE, sort = FALSE)
+  rownames(moreInfo) <- moreInfo$array_id
   S4Vectors::mcols(hitsByArraysLst) <- moreInfo[rownames(S4Vectors::mcols(hitsByArraysLst)),]
   #str(S4Vectors::mcols(hitsByArraysLst))
   
@@ -786,7 +786,7 @@ tell_tales <- function(
                        function(gr) {
                          tibble::as_tibble(as.data.frame(gr))
                        }
-  ) %>% dplyr::bind_rows(.id = "arrayID")
+  ) %>% dplyr::bind_rows(.id = "array_id")
   readr::write_tsv(x = hitsReport, file = hitsReportFile)
   .hits_report_to_gff(hitsReportFile) # saving to gff format
   readr::write_tsv(x = domainsReport, file = domainsReportFile)
@@ -817,7 +817,7 @@ tell_tales <- function(
   
   ## Write a fasta file of the seq of RVDs
   seqsOfRVDs <- Biostrings::BStringSet(S4Vectors::mcols(hitsByArraysLst)$SeqOfRVD)
-  names(seqsOfRVDs) <- S4Vectors::mcols(hitsByArraysLst)$arrayID
+  names(seqsOfRVDs) <- S4Vectors::mcols(hitsByArraysLst)$array_id
   seqsOfRVDs <- seqsOfRVDs[!width(seqsOfRVDs) == 0]
   Biostrings::writeXStringSet(x = seqsOfRVDs, seqsOfRVDFile)
   

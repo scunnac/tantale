@@ -1,7 +1,7 @@
 
 tale_parts <- tantale:::.tale_parts(test_path("data_for_tests", "tellTaleExampleOutput")) %>%
-  dplyr::mutate(partId = paste(arrayID, positionInArray, sep = "_"))
-part_aa_set <-  Biostrings::AAStringSet(tale_parts$aaSeq)
+  dplyr::mutate(partId = paste(array_id, position_in_array, sep = "_"))
+part_aa_set <-  Biostrings::AAStringSet(tale_parts$aa_seq)
 names(part_aa_set) <- tale_parts$partId
 
 test_that(".pairwise_align_biostrings output a tibble with the expected dims", {

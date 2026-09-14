@@ -5,37 +5,37 @@
   if (grepl("TALE_DNA_parts.fasta", basename(fasta))) taleStrings <- Biostrings::readDNAStringSet(fasta)
   if (length(taleStrings) == 0L) {
     cli::cli_warn("No part sequence found in: {fasta}. Returning an empty tibble.")
-    tbl <- tibble::tibble(arrayIDs = character(),
-                   domainType = character(),
-                   positionInArray = character(),
-                   positionInCrd = character(),
+    tbl <- tibble::tibble(array_id = character(),
+                   domain_type = character(),
+                   position_in_array = character(),
+                   position_in_crd = character(),
                    string = character(),
-                   sourceDirectory = character())
+                   source_directory = character())
     return(tbl)
   } 
-  tbl <- tibble::tibble(arrayID = gsub("(.*): .*", "\\1", names(taleStrings)),
-                        domainType = gsub(".*: (.*?)[ ]?[0-9]{0,}$", "\\1", names(taleStrings)),
-                        positionInCrd = gsub(".*: repeat[ ]([0-9]{0,})$", "\\1", names(taleStrings)) %>%
+  tbl <- tibble::tibble(array_id = gsub("(.*): .*", "\\1", names(taleStrings)),
+                        domain_type = gsub(".*: (.*?)[ ]?[0-9]{0,}$", "\\1", names(taleStrings)),
+                        position_in_crd = gsub(".*: repeat[ ]([0-9]{0,})$", "\\1", names(taleStrings)) %>%
                           as.integer() %>%
                           suppressWarnings(),
                         string = as.character(taleStrings) %>% as.vector(),
-                        sourceDirectory = dirname(fasta)
+                        source_directory = dirname(fasta)
   )
-  missingTerm <- setdiff(c("N-terminus", "C-terminus"), unique(tbl$domainType))
+  missingTerm <- setdiff(c("N-terminus", "C-terminus"), unique(tbl$domain_type))
   if (length(missingTerm) != 0L) {
-    cli::cli_warn("Array {unique(tbl$arrayID)} is missing a {missingTerm} domain in {fasta}")
-    missingTerm <- tibble::tibble(arrayID = unique(tbl$arrayID),
-                                  domainType = missingTerm,
-                                  positionInCrd = NA,
+    cli::cli_warn("Array {unique(tbl$array_id)} is missing a {missingTerm} domain in {fasta}")
+    missingTerm <- tibble::tibble(array_id = unique(tbl$array_id),
+                                  domain_type = missingTerm,
+                                  position_in_crd = NA,
                                   string = NA,
-                                  sourceDirectory = dirname(fasta))
+                                  source_directory = dirname(fasta))
     tbl <- dplyr::bind_rows(tbl, missingTerm)
   }
   tbl %<>% 
     dplyr::rowwise() %>%
-    dplyr::mutate(positionInArray = switch(domainType,
+    dplyr::mutate(position_in_array = switch(domain_type,
                                                  `N-terminus` = 1,
-                                                 `repeat` = positionInCrd + 1,
+                                                 `repeat` = position_in_crd + 1,
                                                  `C-terminus` = nrow(tbl)
                                                  ))
   return(tbl)
@@ -50,11 +50,11 @@
   } else {
     rvdTble <- .split_list(fasta) %>%
       lapply(function(x) tibble::tibble(string = x,
-                                        positionInCrd = 1:length(x))
+                                        position_in_crd = 1:length(x))
              ) %>%
-      dplyr::bind_rows(.id = "arrayID")
-    rvdTble <- rvdTble %>% dplyr::mutate(sourceDirectory = dirname(fasta),
-                                         domainType = "repeat")
+      dplyr::bind_rows(.id = "array_id")
+    rvdTble <- rvdTble %>% dplyr::mutate(source_directory = dirname(fasta),
+                                         domain_type = "repeat")
   }
   return(rvdTble)
 }
@@ -69,7 +69,7 @@
 #' @noRd
 .tale_parts <- function(telltale_dir) {
   # Get info from telltale output dir
-  # !!!! arrayID are assumed to be unique !!!!
+  # !!!! array_id are assumed to be unique !!!!
   protPartsFiles <- list.files(telltale_dir, "TALE_Protein_parts.fasta", recursive = T, full.names = T)
   dnaPartsFiles <- list.files(telltale_dir, "TALE_DNA_parts.fasta", recursive = T, full.names = T)
   if (telltale_dir %>% dirname() %>% unique() %>% length() != 1L) {
@@ -80,11 +80,11 @@
   taleDnaString <- lapply(dnaPartsFiles, .tale_parts_from_file) %>% dplyr::bind_rows()
   #stopifnot(nrow(taleProtString) == nrow(taleDnaString))
   # Join info in a table with one domain per row
-  tale_parts <- dplyr::full_join(taleDnaString %>% dplyr::rename(dnaSeq = string),
-                                taleProtString %>% dplyr::rename(aaSeq = string),
-                                by = c("arrayID", "domainType", "positionInArray", "positionInCrd", "sourceDirectory"),
+  tale_parts <- dplyr::full_join(taleDnaString %>% dplyr::rename(dna_seq = string),
+                                taleProtString %>% dplyr::rename(aa_seq = string),
+                                by = c("array_id", "domain_type", "position_in_array", "position_in_crd", "source_directory"),
                                 relationship = "one-to-one") %>%
-    dplyr::mutate(aaSeq = gsub("[*]", "", aaSeq))
+    dplyr::mutate(aa_seq = gsub("[*]", "", aa_seq))
 
   # Get RVDs
   # NOTE: could be easier to get the RVDs directly from AnnoTALE output with
@@ -96,17 +96,17 @@
                                         recursive = F,
                                         full.names = T)
                              ) %>%
-    lapply(function(x) tibble::tibble(rvd = x, positionInArray = 1:length(x) )) %>%
-    dplyr::bind_rows(.id = "arrayID")  
+    lapply(function(x) tibble::tibble(rvd = x, position_in_array = 1:length(x) )) %>%
+    dplyr::bind_rows(.id = "array_id")  
   anchorCodes <- tales_anchor_codes()
   
   
   # Some checks on the consistency between parts and rvd sequences
   # if nhmmer did not report on a C-Term CDS, the corresponding domain
   # "CTERM" tag will not be written in the rvd slot of the table.
-  arraysConsistency <- dplyr::full_join(tale_parts %>% dplyr::count(arrayID, name = "AnnoTALELength"),
-                                        rvds %>% dplyr::count(arrayID, name = "rvdFileLength"),
-                                        by = dplyr::join_by(arrayID)) %>%
+  arraysConsistency <- dplyr::full_join(tale_parts %>% dplyr::count(array_id, name = "AnnoTALELength"),
+                                        rvds %>% dplyr::count(array_id, name = "rvdFileLength"),
+                                        by = dplyr::join_by(array_id)) %>%
     dplyr::mutate(sameLength = AnnoTALELength == rvdFileLength)
   
   if (any(is.na(arraysConsistency$sameLength))) {
@@ -115,27 +115,27 @@
   } else if (!all(arraysConsistency$sameLength, na.rm = TRUE)) {
     cli::cli_abort(
       c("Array lengths are inconsistent between the rvd seq file and the AnnoTALE parts files.",
-        "i" = "Affected arrays: {.val {arraysConsistency$arrayID[!arraysConsistency$sameLength]}}"),
+        "i" = "Affected arrays: {.val {arraysConsistency$array_id[!arraysConsistency$sameLength]}}"),
       class = c("tantale_error_parts_inconsistent", "tantale_error"))
   }
   
   # Include RVDs in the talParts tibble
   tale_parts <- dplyr::left_join(tale_parts, 
                                 rvds,
-                                by = c("arrayID", "positionInArray"),
+                                by = c("array_id", "position_in_array"),
                                 unmatched = "drop", relationship = "one-to-one")
   # Include seqnames in the talParts tibble
   tale_parts %<>% dplyr::left_join(
     readr::read_tsv(list.files(telltale_dir, "hitsReport.tsv", recursive = T, full.names = T),
                     show_col_types = FALSE) %>%
-      dplyr::select(arrayID, seqnames) %>%
+      dplyr::select(array_id, seqnames) %>%
       dplyr::distinct(),
-    by = "arrayID", relationship = "many-to-one"
+    by = "array_id", relationship = "many-to-one"
   )
   # Check talparts
-  partsWithMissingAaSeq <- tale_parts %>% dplyr::filter(is.na(aaSeq)) %>% dplyr::pull(arrayID) %>% unique()
-  partsWithMissingDnaSeq <- tale_parts %>% dplyr::filter(is.na(dnaSeq)) %>% dplyr::pull(arrayID) %>% unique()
-  partsWithMissingRvdSeq <- tale_parts %>% dplyr::filter(is.na(rvd)) %>% dplyr::pull(arrayID) %>% unique()
+  partsWithMissingAaSeq <- tale_parts %>% dplyr::filter(is.na(aa_seq)) %>% dplyr::pull(array_id) %>% unique()
+  partsWithMissingDnaSeq <- tale_parts %>% dplyr::filter(is.na(dna_seq)) %>% dplyr::pull(array_id) %>% unique()
+  partsWithMissingRvdSeq <- tale_parts %>% dplyr::filter(is.na(rvd)) %>% dplyr::pull(array_id) %>% unique()
   if (any(sapply(list(partsWithMissingAaSeq, partsWithMissingDnaSeq, partsWithMissingRvdSeq), length) != 0L)) {
     cli::cli_warn(c("The returned tale_parts has records with missing sequences.",
                     "i" = "Affected array{?s}: {.val {unique(c(partsWithMissingAaSeq, partsWithMissingDnaSeq, partsWithMissingRvdSeq))}}"))
