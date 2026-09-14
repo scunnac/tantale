@@ -407,6 +407,65 @@ cases.
 
 ---
 
+### 5.2 Talome-wide MSA summary plot **[P]**
+
+The idea: show every group's alignment in one figure, faceted by group, using
+`plot_tales_composition(position = "alignment")`. That layout puts domain type
+and amino-acid length onto the alignment coordinate, which neither existing
+plot does -- aberrant repeats line up as a column instead of scattering.
+
+**Prerequisite, already done:** `group` is now a recognised `tales` column,
+validated as constant within an array (it is an array-level property, like
+`seqnames`). It was always usable as a free column; what is new is the
+invariant. The name matches what `tales_group()` already returns.
+
+#### The dilemma: what does the summary function take?
+
+**[V]** Each group aligns independently, so each alignment has its own width
+*and its own coordinate system*. Measured on the fixture: group 1 is 28 columns
+numbered 1-28, group 2 is 22 columns numbered 1-22.
+
+A single concatenated `tales_msa` is therefore **structurally valid but
+semantically incoherent**: `alignment_position = 5` means unrelated things in
+different groups, `alignment_width` is one scalar that cannot describe two
+alignments, and `as.matrix()` would build a single grid spanning both.
+
+Two honest shapes, undecided:
+
+| | shape | cost |
+|---|---|---|
+| **A** | a list of `tales_msa`, one per group | honest about there being N alignments; needs a `tales_msa_list` type or just a plain list |
+| **B** | concatenate to a plain `tales`, carrying `group` and `alignment_position` as ordinary columns, and facet with `scales = "free"` | closest to the original idea; the object stops claiming to be one alignment, which is the accurate claim |
+
+B is reachable today: demoting a `tales_msa` with `as_tales()` keeps
+`alignment_position`, and `position = "alignment"` consumes it. Note the facet
+currently uses `scales = "free_y", space = "free"`, which **shares** the x
+axis -- per-group alignments need `free_x` too, or the narrower group is padded
+out to the wider one's width.
+
+#### Connected: a group-aware `tales_align()`
+
+Rather than making the user loop, `tales_align()` could notice a `group` column
+and align each group separately, returning either a reassembled object or a
+list. That is the natural home for the loop.
+
+**Blocked on a prerequisite that does not exist yet:** there is no `c()` or
+`bind_rows()` method for `tales` or `tales_msa`. Reassembly needs one, and it
+is not trivial:
+
+- **[V]** `array_id` uniqueness is a hard invariant, so a bind must reject
+  colliding ids rather than silently fanning out.
+- The `dom_code` namespace attribute must agree across the parts being bound --
+  §3.5 exists precisely because mixing runs joins wrongly and silently.
+- For `tales_msa`, `alignment_width` cannot survive a bind of two alignments,
+  which is the same incoherence as above; a bind would have to demote to
+  `tales`, or be refused.
+
+So the ordering is: decide A vs B, then add the bind method the chosen shape
+needs, then make `tales_align()` group-aware. Not before.
+
+---
+
 ## 6. Correctness review backlog **[P]**
 
 Deferred to a dedicated pass on "computations that may not match intent":

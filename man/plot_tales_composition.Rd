@@ -4,13 +4,21 @@
 \alias{plot_tales_composition}
 \title{Visualise the domain composition of a set of TALE arrays}
 \usage{
-plot_tales_composition(x)
+plot_tales_composition(x, position = c("array", "alignment"))
 }
 \arguments{
 \item{x}{A \code{\link{tales}} object, as returned by
 \code{\link{tales_from_telltale}} or in the \code{tales} element of
 \code{\link{tales_compare}}'s output. A legacy \code{tale_parts} data
 frame is accepted and converted.}
+
+\item{position}{Which coordinate to lay the parts out on. \code{"array"}
+(default) uses \code{position_in_array}, so each array starts at 1 and runs
+contiguously. \code{"alignment"} uses \code{alignment_position}, which
+requires an aligned object (or one demoted from a \code{\link{tales_msa}},
+which keeps the column): gaps then appear as empty columns and shared
+features line up. Aberrant repeats, for instance, are visible as a column
+in the aligned layout and scattered in the unaligned one.}
 }
 \value{
 The ggplot object, invisibly printed as a side effect.

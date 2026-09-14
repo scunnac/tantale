@@ -66,3 +66,34 @@ test_that("a tales_msa still dispatches to plot.tales_msa, not plot.tales", {
   p <- suppressWarnings(suppressMessages(plot(msa)))
   expect_false(identical(p$labels$title, "Overview of TALE composition by genome"))
 })
+
+test_that("position = 'alignment' lays parts out on the alignment coordinate", {
+  skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
+  out <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
+  x <- tales(out$tale_parts)
+  sub <- x[x$array_id %in% unique(x$array_id)[1:6], ]
+  msa <- suppressWarnings(suppressMessages(tales_align(sub, residue_col = "rvd")))
+  back <- suppressWarnings(suppressMessages(as_tales(msa)))
+
+  arrayLayout <- plot_tales_composition(back, position = "array")
+  alignLayout <- plot_tales_composition(back, position = "alignment")
+  # the aligned layout spans the alignment width; the array one only the longest array
+  expect_equal(max(alignLayout$data$.x), tales_width(msa))
+  expect_equal(max(arrayLayout$data$.x), max(back$position_in_array))
+  expect_gt(max(alignLayout$data$.x), max(arrayLayout$data$.x))
+})
+
+test_that("position = 'alignment' needs an aligned object", {
+  skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
+  out <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
+  x <- tales(out$tale_parts)
+  expect_error(plot_tales_composition(x, position = "alignment"),
+               class = "tantale_error_projection_column")
+})
+
+test_that("the default layout is unchanged", {
+  skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
+  out <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
+  x <- tales(out$tale_parts)
+  expect_identical(plot_tales_composition(x)$data$.x, x$position_in_array)
+})

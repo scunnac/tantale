@@ -318,6 +318,7 @@ validate_tales <- function(x) {
   if ("position_in_crd" %in% cols) .tales_check_crd(x)
   if (all(c("aa_seq", "dom_code") %in% cols)) .tales_check_bijection(x)
   if ("seqnames" %in% cols) .tales_check_constant_per_array(x, "seqnames")
+  if ("group" %in% cols) .tales_check_constant_per_array(x, "group")
 
   ## Soft ------------------------------------------------------------------
   if ("dna_seq" %in% cols) {

@@ -373,6 +373,13 @@ diagnose_tale_parts <- function(tale_parts, sanitize = FALSE) {
 #' point per part, positioned by its place in the array, coloured by domain type
 #' and filled by amino-acid length, with the RVD printed on each repeat.
 #'
+#' @param position Which coordinate to lay the parts out on. \code{"array"}
+#'   (default) uses \code{position_in_array}, so each array starts at 1 and runs
+#'   contiguously. \code{"alignment"} uses \code{alignment_position}, which
+#'   requires an aligned object (or one demoted from a \code{\link{tales_msa}},
+#'   which keeps the column): gaps then appear as empty columns and shared
+#'   features line up. Aberrant repeats, for instance, are visible as a column
+#'   in the aligned layout and scattered in the unaligned one.
 #' @param x A \code{\link{tales}} object, as returned by
 #'   \code{\link{tales_from_telltale}} or in the \code{tales} element of
 #'   \code{\link{tales_compare}}'s output. A legacy \code{tale_parts} data
@@ -380,9 +387,11 @@ diagnose_tale_parts <- function(tale_parts, sanitize = FALSE) {
 #' @return The ggplot object, invisibly printed as a side effect.
 #' @export
 #' @family TALE plots
-plot_tales_composition <- function(x) {
+plot_tales_composition <- function(x, position = c("array", "alignment")) {
+  position <- match.arg(position)
   if (!is_tales(x)) x <- tales(x)
   needed <- c("rvd", "aa_seq", "domain_type")
+  if (identical(position, "alignment")) needed <- c(needed, "alignment_position")
   missing <- setdiff(needed, names(x))
   if (length(missing) > 0L) {
     cli::cli_abort(
@@ -392,17 +401,21 @@ plot_tales_composition <- function(x) {
   }
   partsForPlots <- x %>%
     dplyr::mutate(label = dplyr::if_else(domain_type == "repeat", rvd, ""),
-                  aa_length = factor(nchar(aa_seq)))
+                  aa_length = factor(nchar(aa_seq)),
+                  .x = if (identical(position, "alignment")) .data$alignment_position
+                       else .data$position_in_array)
 
   p <- partsForPlots %>%
     ggplot2::ggplot(mapping = ggplot2::aes(fill = aa_length,
                                            color = domain_type,
                                            label = label,
                                            y = array_id,
-                                           x = position_in_array)) +
+                                           x = .x)) +
     ggplot2::scale_color_viridis_d(option = "rocket") +
     ggplot2::scale_fill_discrete() +
-    ggplot2::scale_x_continuous(breaks = 1:50, minor_breaks = NULL) +
+    ggplot2::scale_x_continuous(
+      name = if (identical(position, "alignment")) "Position in alignment" else "Position in array",
+      breaks = 1:100, minor_breaks = NULL) +
     ggplot2::geom_point(shape = 21, size = 5, stroke = 0.9) +
     ggnewscale::new_scale_color() +
     ggnewscale::new_scale_fill() +
