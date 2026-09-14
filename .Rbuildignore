@@ -9,3 +9,5 @@
 ^pkgdown$
 ^README\.html$
 ^figure$
+^LICENSE\.md$
+^Rplots\.pdf$
