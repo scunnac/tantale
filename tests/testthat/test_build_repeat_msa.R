@@ -49,11 +49,11 @@ test_that(".as_mafft_score_table() accepts the canonical and legacy vocabularies
   # the distance, and must be inverted on the way in.
   canonical <- data.frame(id1 = c("a","b"), id2 = c("b","a"), dissim = c(0, 40))
   out <- tantale:::.as_mafft_score_table(canonical)
-  expect_named(out, c("RepU1", "RepU2", "Sim"))
-  expect_equal(out$Sim, c(100, 60))
+  expect_named(out, c("id1", "id2", "sim"))
+  expect_equal(out$sim, c(100, 60))
 
   legacy <- data.frame(RepU1 = c("a","b"), RepU2 = c("b","a"), Sim = c(100, 60))
-  expect_equal(tantale:::.as_mafft_score_table(legacy)$Sim, c(100, 60))
+  expect_equal(tantale:::.as_mafft_score_table(legacy)$sim, c(100, 60))
 })
 
 test_that(".as_mafft_score_table() refuses a table it cannot read", {
@@ -87,8 +87,8 @@ test_that("tales_align() accepts a domain_distances for repeat_sims", {
 test_that(".rvd_score_table() covers every pair and fills XX neutrally", {
   t <- tantale:::.rvd_score_table(c("NI", "NN", "HD", "XX"))
   expect_identical(nrow(t), 16L)
-  expect_false(anyNA(t$Sim))
-  g <- function(a, b) t$Sim[t$RepU1 == a & t$RepU2 == b]
+  expect_false(anyNA(t$sim))
+  g <- function(a, b) t$sim[t$id1 == a & t$id2 == b]
   # XX means "terminus detected, identity unknown": neutral against everything
   expect_identical(g("XX", "NI"), 0)
   expect_identical(g("XX", "HD"), 0)

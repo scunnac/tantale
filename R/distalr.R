@@ -165,8 +165,8 @@ diag(identSubMat) <- 1
                                                     substitutionMatrix = identSubMat, #"BLOSUM62",
                                                     gapOpening = 1, gapExtension = 0.5,
                                                     type = "global", scoreOnly = FALSE)
-      tibble::tibble(subj = names(part_aa_set[i]),
-                     pattern = names(pwalign::alignedPattern(singleSubAln)),
+      tibble::tibble(id1 = names(part_aa_set[i]),
+                     id2 = names(pwalign::alignedPattern(singleSubAln)),
                      score = BiocGenerics::score(singleSubAln),
                      nedit = Biostrings::nmismatch(singleSubAln))
     },
@@ -176,13 +176,13 @@ diag(identSubMat) <- 1
   pair_align_scores %<>%
     dplyr::rowwise() %>%
     dplyr::mutate(
-      maxLength = max(nchar(part_aa_set[subj]), nchar(part_aa_set[pattern])),
+      max_length = max(nchar(part_aa_set[id1]), nchar(part_aa_set[id2])),
       # This is an approximate equivalent of how Alvaro computed dissimilarity in distal
-      Dissim = 100 - 100 * (maxLength - score) / maxLength,
-      Dissim = ifelse(Dissim < 0, 100, 100 - Dissim),
+      dissim = 100 - 100 * (max_length - score) / max_length,
+      dissim = ifelse(dissim < 0, 100, 100 - dissim),
     ) %>%
     dplyr::ungroup() %>%
-    dplyr::select(-maxLength)
+    dplyr::select(-max_length)
   
   # Check the pair_align_scores tibble
   .check_pair_align_tbl(pair_align_scores = pair_align_scores, part_aa_set = part_aa_set)
@@ -250,9 +250,9 @@ diag(identSubMat) <- 1
     dplyr::group_by(target, query) %>%
     dplyr::slice_max(raw, n = 1, with_ties = FALSE)
   pair_align_scores <- dplyr::left_join(df, pair_align_scores) %>%
-    dplyr::rename(subj = target, pattern = query) %>%
+    dplyr::rename(id1 = target, id2 = query) %>%
     dplyr::rowwise() %>%
-    dplyr::mutate(Dissim = ifelse(is.na(pident), 100, 100 - pident*min(qcov,tcov))) %>%
+    dplyr::mutate(dissim = ifelse(is.na(pident), 100, 100 - pident*min(qcov,tcov))) %>%
     dplyr::ungroup()
 
   # Check the pair_align_scores tibble
@@ -287,9 +287,9 @@ diag(identSubMat) <- 1
                                       includeTerminalGaps = TRUE,
                                       processors = ncores, verbose = FALSE)
   pair_align_scores <- reshape2::melt(as.matrix(distMat)) %>% tibble::as_tibble()
-  colnames(pair_align_scores) <- c("pattern", "subj", "Dissim")
-  pair_align_scores %<>% dplyr::mutate(pattern = as.character(pattern), subj = as.character(subj))
-  pair_align_scores %<>% dplyr::mutate(Dissim = Dissim*100) %>%
+  colnames(pair_align_scores) <- c("id2", "id1", "dissim")
+  pair_align_scores %<>% dplyr::mutate(id2 = as.character(id2), id1 = as.character(id1))
+  pair_align_scores %<>% dplyr::mutate(dissim = dissim*100) %>%
     dplyr::ungroup()
   
   # Check the pair_align_scores tibble
@@ -303,8 +303,8 @@ diag(identSubMat) <- 1
 
 
 .check_pair_align_tbl <- function(pair_align_scores, part_aa_set) {
-  partCombinCounts <- pair_align_scores %>% dplyr::select(pattern, subj) %>%
-    dplyr::count(pattern, subj) %>%
+  partCombinCounts <- pair_align_scores %>% dplyr::select(id1, id2) %>%
+    dplyr::count(id1, id2) %>%
     dplyr::pull(n)
   if (!all(partCombinCounts == 1L)) {
     stop("Some alignment pairs have more than one record...",)
@@ -544,7 +544,7 @@ tales_compare <- function(x, ncores = 1, aln_method = "DECIPHER",
   list(
     tales = tales(core$tale_parts, dom_code_namespace = namespace),
     domain_distances = domain_distances(
-      core$dissim_long %>% dplyr::rename(RepU1 = subj, RepU2 = pattern),
+      core$dissim_long,
       dom_code_namespace = namespace
     ),
     # Keyed by array_id, not dom_code, so deliberately unstamped: array ids are
@@ -648,13 +648,13 @@ tales_compare <- function(x, ncores = 1, aln_method = "DECIPHER",
     cli::cli_abort("{.arg aln_method} must be one of {.val Biostrings}, {.val mmseq2} or {.val DECIPHER}, not {.val {aln_method}}.",
                    class = c("tantale_error_aln_method", "tantale_error"))
   }
-  dissimLong %<>% dplyr::mutate(Sim = 100 - Dissim)
+  dissimLong %<>% dplyr::mutate(sim = 100 - dissim)
   # Convert Distance (dissimilarity) measures to Similarity with a four-parameter logistic function
   # pair_align_scores %<>% dplyr::mutate(Sim = 100/(1+exp(-1*-0.9*(Dissim-3))))
   
   
   # Convert to square matrix
-  dissimMat <- reshape2::acast(dissimLong, formula = subj ~ pattern, value.var = "Dissim")
+  dissimMat <- reshape2::acast(dissimLong, formula = id1 ~ id2, value.var = "dissim")
   stopifnot(nrow(dissimMat) == ncol(dissimMat))
   # reorder row and colnames because I suspect arlem expect them in increasing order
   dissimMat <- dissimMat[rownames(dissimMat) %>% as.numeric() %>% order(),
@@ -725,31 +725,30 @@ tales_compare <- function(x, ncores = 1, aln_method = "DECIPHER",
   arlemScores <- lapply(arlemScores, function(s) {t(as.matrix(as.numeric(s)))}) %>%
     do.call(rbind, .) %>%
     tibble::as_tibble(.name_repair = "minimal")
-  colnames(arlemScores) <- c("TAL1", "TAL2", "arlemScore")
+  colnames(arlemScores) <- c("id1", "id2", "arlem_score")
   # Shaping into matrix to have scores in both directions (fill diag and triangle)
-  arlemScoresMat <- reshape2::acast(arlemScores, formula = TAL1 ~ TAL2, value.var = "arlemScore")
+  arlemScoresMat <- reshape2::acast(arlemScores, formula = id1 ~ id2, value.var = "arlem_score")
   arlemScoresMat <- cbind("0" = NA, arlemScoresMat)
   arlemScoresMat <- rbind(arlemScoresMat, NA)
   rownames(arlemScoresMat)[length(codesSeqSet)] <- length(codesSeqSet) - 1
   arlemScores <- stats::as.dist(t(arlemScoresMat), diag = TRUE, upper = TRUE) %>% as.matrix() %>%
-    reshape2::melt(value.name = "arlemScore") %>%
+    reshape2::melt(value.name = "arlem_score") %>%
     tibble::as_tibble()
-  colnames(arlemScores) <- c("TAL1", "TAL2", "arlemScore")
+  colnames(arlemScores) <- c("id1", "id2", "arlem_score")
   
   #### Compute normalized arlem scores and include array_ids rather than arlem index ####
   arrayLengths <- tale_parts %>% dplyr::group_by(array_id) %>% dplyr::count()
   
   normArlemScoresTble <- arlemScores %>%
     dplyr::mutate(
-      TAL1 = names(codesSeqSet)[TAL1 + 1],
-      TAL2 = names(codesSeqSet)[TAL2 + 1]
+      id1 = names(codesSeqSet)[id1 + 1],
+      id2 = names(codesSeqSet)[id2 + 1]
     ) %>%
     dplyr::rowwise() %>%
     dplyr::mutate(
-      maxLength = max(arrayLengths$n[arrayLengths$array_id == TAL1],
-                      arrayLengths$n[arrayLengths$array_id == TAL2]),
-      normArlemScore = arlemScore/maxLength,
-      Sim = 100 - normArlemScore
+      max_length = max(arrayLengths$n[arrayLengths$array_id == id1],
+                       arrayLengths$n[arrayLengths$array_id == id2]),
+      norm_arlem_score = arlem_score/max_length
     ) %>%
     dplyr::ungroup()
   
@@ -757,13 +756,13 @@ tales_compare <- function(x, ncores = 1, aln_method = "DECIPHER",
   arraysCount <- codesSeqSet %>% length()
   if (nrow(normArlemScoresTble) != arraysCount^2) {
     allCombs <- expand.grid(names(codesSeqSet), names(codesSeqSet), stringsAsFactors = FALSE) %>% tibble::as_tibble()
-    colnames(allCombs) <- c("TAL1", "TAL2")
+    colnames(allCombs) <- c("id1", "id2")
     absentCombs <- dplyr::left_join(allCombs, normArlemScoresTble) %>%
-      dplyr::filter(is.na(Sim))
+      dplyr::filter(is.na(norm_arlem_score))
       cli::cli_abort(
         c("The TALE similarity table does not have the expected number of comparisons.",
           "x" = "Expected {arraysCount^2}, got {nrow(normArlemScoresTble)}; {nrow(absentCombs)} missing.",
-          "i" = "First missing pair{?s}: {.val {paste(utils::head(absentCombs$TAL1, 3), utils::head(absentCombs$TAL2, 3), sep = \"/\")}}"),
+          "i" = "First missing pair{?s}: {.val {paste(utils::head(absentCombs$id1, 3), utils::head(absentCombs$id2, 3), sep = \"/\")}}"),
         class = c("tantale_error_arlem_incomplete", "tantale_error"))
   }
   

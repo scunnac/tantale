@@ -98,8 +98,8 @@
   # Output in 'long format'
   distalRepeatSimTable <- reshape2::melt(distalRepeatSim,
                                          as.is = TRUE,
-                                         varnames = c("RepU1", "RepU2"),
-                                         value.name = "Sim")
+                                         varnames = c("id1", "id2"),
+                                         value.name = "sim")
   # str(distalRepeatSimTable)
   return(distalRepeatSimTable)
 }
@@ -234,8 +234,8 @@ repeat_to_rvd_align <- function(repeat_align , rvd_map) {
   simAlign <- apply(repeat_align, 2,
                     function(column) {
                       refState <- column[refRowIdx]
-                      relevantSims <- subset(repeat_sim, subset = RepU1 == refState)
-                      sim <- relevantSims$Sim[match(column, relevantSims$RepU2, nomatch = NA)]
+                      relevantSims <- subset(repeat_sim, subset = id1 == refState)
+                      sim <- 100 - relevantSims$dissim[match(column, relevantSims$id2, nomatch = NA)]
                       if (is.na(refState)) sim[!is.na(column)] <- 0 # if reference repeat is NA, set the aligned repeat sim = 0
                       return(sim)
                     }
@@ -257,9 +257,8 @@ repeat_to_rvd_align <- function(repeat_align , rvd_map) {
 #' repeatID.
 #' @noRd
 .repeat_to_cluster_align <- function(repeat_sim, repeat_align, h_cut = 10) {
-  # as.dist() expects a DISTANCE. Feeding it the similarity built an inverted
-  # dendrogram, so the clusters were wrong (ledger 6). Invert first.
-  repeat_dissim <- 100 - as.matrix(reshape2::acast(repeat_sim, RepU1 ~ RepU2, value.var = "Sim"))
+  # as.dist() expects a DISTANCE, which is what the class stores.
+  repeat_dissim <- as.matrix(reshape2::acast(repeat_sim, id1 ~ id2, value.var = "dissim"))
   dist_clust <- hclust(as.dist(repeat_dissim))
   dist_cut <- as.data.frame(cbind(RepID = dist_clust$labels, Rep_clust = cutree(dist_clust, h = h_cut)))
   clustIDAlign <- apply(repeat_align, 2,

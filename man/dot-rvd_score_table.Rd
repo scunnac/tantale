@@ -10,7 +10,7 @@
 \item{residues}{Character vector of the RVDs present in the alignment.}
 }
 \value{
-A data frame of \code{RepU1}, \code{RepU2}, \code{Sim} covering
+A data frame of \code{id1}, \code{id2}, \code{sim} covering
   every ordered pair of \code{residues}.
 }
 \description{

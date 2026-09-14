@@ -196,3 +196,28 @@ test_that("an unknown fill_type is refused and names the valid ones", {
                                     fill_type = "nonsense")),
     class = "tantale_error_msa_layer")
 })
+
+test_that("the tree panel is built from either distance vocabulary", {
+  # plot_tales_msa() reads id1/id2/dissim; pairwise_distances() lets the older
+  # TAL1/TAL2/Sim spelling in at the door. Both must give the same figure.
+  skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
+  d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
+  m <- readRDS(test_path("data_for_tests", "sampleRepeatMsaByGroup.rds"))[[4]]
+
+  legacy <- suppressMessages(plot_tales_msa(repeat_align = m,
+                                            tal_sim = d$tal.similarity))
+  canonical <- suppressMessages(plot_tales_msa(repeat_align = m,
+                                               tal_sim = tale_distances(d$tal.similarity)))
+  expect_s3_class(legacy, "aplot")
+  # a tree panel was actually added, not silently skipped
+  expect_true(any(vapply(legacy$plotlist, function(p) inherits(p, "ggtree"), logical(1))))
+
+  tips <- function(p) {
+    tr <- p$plotlist[[which(vapply(p$plotlist, function(q) inherits(q, "ggtree"), logical(1)))]]
+    tr$data$label[tr$data$isTip][order(tr$data$y[tr$data$isTip])]
+  }
+  expect_identical(tips(legacy), tips(canonical))
+  # the tree must order on distance, not on its inverse: the two nearest TALEs
+  # are neighbouring leaves
+  expect_setequal(tips(legacy), rownames(m))
+})

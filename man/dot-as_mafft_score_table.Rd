@@ -10,7 +10,7 @@
 \item{x}{A data frame of pairwise scores.}
 }
 \value{
-A three-column data frame named \code{RepU1}, \code{RepU2}, \code{Sim}.
+A three-column data frame named \code{id1}, \code{id2}, \code{sim}.
 }
 \description{
 Implementation behind \code{\link{tales_align}} and the deprecated
@@ -22,12 +22,7 @@ Normalise a pairwise table to what MAFFT's --textmatrix wants
 MAFFT scores matches, so it wants a *similarity*: higher means more alike.
 Accepts either the canonical \code{\link{pairwise_distances}} vocabulary
 (\code{id1}, \code{id2}, \code{dissim}) or the legacy one
-(\code{RepU1}, \code{RepU2}, \code{Sim}), and returns the legacy column
-names the rest of the function is written against.
-
-The distance is inverted on the way in. Without this, handing
-\code{tales_align()} a \code{domain_distances} -- the documented path --
-failed with "Can't subset columns that don't exist", because the canonical
-vocabulary replaced the legacy one everywhere except here.
+(\code{RepU1}, \code{RepU2}, \code{Sim}), inverting the distance on the
+way in.
 }
 \keyword{internal}

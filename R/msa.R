@@ -94,25 +94,20 @@ tales_consensus_match <- function(align, long = TRUE) {
 #' MAFFT scores matches, so it wants a *similarity*: higher means more alike.
 #' Accepts either the canonical \code{\link{pairwise_distances}} vocabulary
 #' (\code{id1}, \code{id2}, \code{dissim}) or the legacy one
-#' (\code{RepU1}, \code{RepU2}, \code{Sim}), and returns the legacy column
-#' names the rest of the function is written against.
-#'
-#' The distance is inverted on the way in. Without this, handing
-#' \code{tales_align()} a \code{domain_distances} -- the documented path --
-#' failed with "Can't subset columns that don't exist", because the canonical
-#' vocabulary replaced the legacy one everywhere except here.
+#' (\code{RepU1}, \code{RepU2}, \code{Sim}), inverting the distance on the
+#' way in.
 #'
 #' @param x A data frame of pairwise scores.
-#' @return A three-column data frame named \code{RepU1}, \code{RepU2}, \code{Sim}.
+#' @return A three-column data frame named \code{id1}, \code{id2}, \code{sim}.
 #' @keywords internal
 .as_mafft_score_table <- function(x) {
   nms <- names(x)
   if (all(c("id1", "id2") %in% nms)) {
     if ("dissim" %in% nms) {
-      out <- data.frame(RepU1 = x$id1, RepU2 = x$id2, Sim = 100 - x$dissim,
+      out <- data.frame(id1 = x$id1, id2 = x$id2, sim = 100 - x$dissim,
                         stringsAsFactors = FALSE)
     } else if ("sim" %in% nms) {
-      out <- data.frame(RepU1 = x$id1, RepU2 = x$id2, Sim = x$sim,
+      out <- data.frame(id1 = x$id1, id2 = x$id2, sim = x$sim,
                         stringsAsFactors = FALSE)
     } else {
       cli::cli_abort(
@@ -124,7 +119,9 @@ tales_consensus_match <- function(align, long = TRUE) {
     return(out)
   }
   if (all(c("RepU1", "RepU2", "Sim") %in% nms)) {
-    return(as.data.frame(x[, c("RepU1", "RepU2", "Sim")]))
+    out <- as.data.frame(x[, c("RepU1", "RepU2", "Sim")])
+    names(out) <- c("id1", "id2", "sim")
+    return(out)
   }
   cli::cli_abort(
     c("Cannot read {.arg repeat_sims}.",
@@ -161,19 +158,19 @@ tales_consensus_match <- function(align, long = TRUE) {
 #' matters, so the correlations are used as they are.
 #'
 #' @param residues Character vector of the RVDs present in the alignment.
-#' @return A data frame of \code{RepU1}, \code{RepU2}, \code{Sim} covering
+#' @return A data frame of \code{id1}, \code{id2}, \code{sim} covering
 #'   every ordered pair of \code{residues}.
 #' @keywords internal
 .rvd_score_table <- function(residues) {
   residues <- unique(as.character(residues))
-  grid <- expand.grid(RepU1 = residues, RepU2 = residues,
+  grid <- expand.grid(id1 = residues, id2 = residues,
                       stringsAsFactors = FALSE, KEEP.OUT.ATTRS = FALSE)
   key <- paste(rvdSimDf$rvd1, rvdSimDf$rvd2)
-  grid$Sim <- rvdSimDf$Cor[match(paste(grid$RepU1, grid$RepU2), key)]
+  grid$sim <- rvdSimDf$Cor[match(paste(grid$id1, grid$id2), key)]
   # unknown pairings, and anything involving XX, are neutral
-  grid$Sim[is.na(grid$Sim)] <- 0
+  grid$sim[is.na(grid$sim)] <- 0
   # ... except a symbol against itself, which must stay high for MAFFT
-  grid$Sim[grid$RepU1 == grid$RepU2] <- 1
+  grid$sim[grid$id1 == grid$id2] <- 1
   grid
 }
 
@@ -265,8 +262,8 @@ tales_consensus_match <- function(align, long = TRUE) {
     }
     cli::cli_inform("Scoring the RVD alignment with the built-in RVD similarity matrix.")
     repeatSims <- .rvd_score_table(residues)
-    repeatSims$RepU1 <- asciitableForMafft$hex[match(repeatSims$RepU1, residues)]
-    repeatSims$RepU2 <- asciitableForMafft$hex[match(repeatSims$RepU2, residues)]
+    repeatSims$id1 <- asciitableForMafft$hex[match(repeatSims$id1, residues)]
+    repeatSims$id2 <- asciitableForMafft$hex[match(repeatSims$id2, residues)]
     colnames(repeatSims) <- NULL
     write.table(repeatSims, file = simMatHexFile, row.names = FALSE, fileEncoding = "ASCII")
     maffMatOpt <- glue::glue("--textmatrix {simMatHexFile}")
@@ -292,11 +289,11 @@ tales_consensus_match <- function(align, long = TRUE) {
       cli::cli_abort(".format_repeat_dist_mat() function", class = c("tantale_error"))
     }
 
-    stopifnot(all(residues %in% unique(repeatSims$RepU1)))
-    repeatSims <- subset(repeatSims, RepU1 %in% residues & RepU2 %in% residues)
+    stopifnot(all(residues %in% unique(repeatSims$id1)))
+    repeatSims <- subset(repeatSims, id1 %in% residues & id2 %in% residues)
     stopifnot(all.equal(nrow(repeatSims), length(residues)^2))
-    repeatSims$RepU1 <- asciitableForMafft$hex[match(repeatSims$RepU1, residues)]
-    repeatSims$RepU2 <- asciitableForMafft$hex[match(repeatSims$RepU2, residues)]
+    repeatSims$id1 <- asciitableForMafft$hex[match(repeatSims$id1, residues)]
+    repeatSims$id2 <- asciitableForMafft$hex[match(repeatSims$id2, residues)]
     colnames(repeatSims) <-  NULL
     write.table(repeatSims, file = simMatHexFile, row.names = FALSE, fileEncoding = "ASCII")
     maffMatOpt <- glue::glue("--textmatrix {simMatHexFile}")
@@ -445,14 +442,15 @@ tales_consensus_match <- function(align, long = TRUE) {
 #' The plot is printed and returned for further modifications is necessary.
 #'
 #'
-#' @param tal_sim a \emph{three columns Tals similarity table} as obtained with
-#'   \code{\link{tales_compare}} in the \code{tale_distances} element of
-#'   the returned object.
+#' @param tal_sim Pairwise distances between whole TALEs, as the
+#'   \code{tale_distances} element of a \code{\link{tales_compare}} result.
+#'   Used to build the tree panel that orders the alignment rows.
 #' @param repeat_align A multiple Tal repeat sequences alignment in the form of a
 #'   matrix as returned by \code{\link{tales_align}}.
-#' @param repeat_sim A long, three columns data frame with pairwise similarity
-#'   scores between repeats as available in the \code{domain_distances} element of
-#'   the object returned by the \code{\link{tales_compare}} function.
+#' @param repeat_sim Pairwise distances between repeat units, as the
+#'   \code{domain_distances} element of a \code{\link{tales_compare}} result.
+#'   Used to group repeats into clusters, and to score each repeat against the
+#'   reference TALE\'s repeat at the same alignment column.
 #' @param h_cut height for tree cutting when defining domain/repeat
 #'   clusters.
 #' @param rvd_align A multiple Tal RVD sequences alignment in the form of a
@@ -463,10 +461,8 @@ tales_consensus_match <- function(align, long = TRUE) {
 #' @param consensus (logical) Whether to add a consensus row above the
 #'   alignment. The consensus is the most frequent element in each column, taken
 #'   from \code{rvd_align} when supplied and from \code{repeat_align}
-#'   otherwise, so it always matches whatever the cells are labelled with. It is
-#'   drawn as its own panel rather than an extra alignment row, because
-#'   \code{aplot} reorders the alignment's y axis onto the tree's leaves and
-#'   would drop a row the tree has no leaf for.
+#'   otherwise, so it always matches whatever the cells are labelled with. It
+#'   is drawn as its own panel above the alignment.
 #' @param fill_type One of \code{"repeat_clust"}, \code{"repeat_sim"} or
 #'   \code{"rvd_sim"}. The first two colour cells by repeat cluster or by
 #'   protein-sequence similarity to the reference. \code{"rvd_sim"} colours
@@ -523,6 +519,11 @@ plot_tales_msa <- function(repeat_align,
   if (countOfTales < 1) {
     cli::cli_abort("The provided input repeat_align matrix has less than one sequence. Cannot proceed...", class = c("tantale_error"))
   }
+
+  # Both tables are addressed as id1/id2/dissim below. pairwise_distances()
+  # also accepts the older TAL1/RepU1/Sim spellings, so either is allowed in.
+  if (!is.null(tal_sim))    tal_sim    <- tibble::as_tibble(pairwise_distances(tal_sim))
+  if (!is.null(repeat_sim)) repeat_sim <- tibble::as_tibble(pairwise_distances(repeat_sim))
   
   
   # Getting repeat align
@@ -631,10 +632,9 @@ plot_tales_msa <- function(repeat_align,
   
   # Building TALE tree if possible
   if (!is.null(tal_sim) & countOfTales > 1) {
-    talsimForDendo <- tal_sim[tal_sim$TAL1 %in% arrayNames, ]
-    talsimForDendo <- talsimForDendo[talsimForDendo$TAL2 %in% arrayNames, ]
-    talsimForDendo <- as.matrix(reshape2::acast(talsimForDendo, TAL1 ~ TAL2, value.var = "Sim"))
-    taldist <- 100 - talsimForDendo
+    talsimForDendo <- tal_sim[tal_sim$id1 %in% arrayNames, ]
+    talsimForDendo <- talsimForDendo[talsimForDendo$id2 %in% arrayNames, ]
+    taldist <- as.matrix(reshape2::acast(talsimForDendo, id1 ~ id2, value.var = "dissim"))
     taldist <- taldist[arrayNames, ]
     taldist <- taldist[, arrayNames]
     taleshclust <- stats::hclust(as.dist(taldist))

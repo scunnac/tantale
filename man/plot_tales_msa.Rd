@@ -19,17 +19,18 @@ plot_tales_msa(
 \item{repeat_align}{A multiple Tal repeat sequences alignment in the form of a
 matrix as returned by \code{\link{tales_align}}.}
 
-\item{tal_sim}{a \emph{three columns Tals similarity table} as obtained with
-\code{\link{tales_compare}} in the \code{tale_distances} element of
-the returned object.}
+\item{tal_sim}{Pairwise distances between whole TALEs, as the
+\code{tale_distances} element of a \code{\link{tales_compare}} result.
+Used to build the tree panel that orders the alignment rows.}
 
 \item{rvd_align}{A multiple Tal RVD sequences alignment in the form of a
 matrix as returned by \code{\link[tantale:repeat_to_rvd_align]{repeat_to_rvd_align}}
 or \code{\link{tales_align}}.}
 
-\item{repeat_sim}{A long, three columns data frame with pairwise similarity
-scores between repeats as available in the \code{domain_distances} element of
-the object returned by the \code{\link{tales_compare}} function.}
+\item{repeat_sim}{Pairwise distances between repeat units, as the
+\code{domain_distances} element of a \code{\link{tales_compare}} result.
+Used to group repeats into clusters, and to score each repeat against the
+reference TALE\'s repeat at the same alignment column.}
 
 \item{h_cut}{height for tree cutting when defining domain/repeat
 clusters.}
@@ -40,10 +41,8 @@ names to select the reference in the alignment.}
 \item{consensus}{(logical) Whether to add a consensus row above the
 alignment. The consensus is the most frequent element in each column, taken
 from \code{rvd_align} when supplied and from \code{repeat_align}
-otherwise, so it always matches whatever the cells are labelled with. It is
-drawn as its own panel rather than an extra alignment row, because
-\code{aplot} reorders the alignment's y axis onto the tree's leaves and
-would drop a row the tree has no leaf for.}
+otherwise, so it always matches whatever the cells are labelled with. It
+is drawn as its own panel above the alignment.}
 
 \item{fill_type}{One of \code{"repeat_clust"}, \code{"repeat_sim"} or
 \code{"rvd_sim"}. The first two colour cells by repeat cluster or by

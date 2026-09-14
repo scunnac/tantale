@@ -336,25 +336,9 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
   plot_tales_msa(
     repeat_align = as.matrix(x, value = fill),
     rvd_align = if (!is.null(label)) as.matrix(x, value = label) else NULL,
-    tal_sim = .distances_to_legacy(tal_sim, c("TAL1", "TAL2")),
-    repeat_sim = .distances_to_legacy(domain_sim, c("RepU1", "RepU2")),
+    tal_sim = tal_sim,
+    repeat_sim = domain_sim,
     ...
   )
 }
 
-#' Rename a pairwise_distances' columns back to the legacy vocabulary
-#'
-#' \code{plot_tales_msa()} still addresses its similarity tables by the old
-#' column names. Temporary bridge, the mirror of the ingest rename; removable
-#' once that function's internals move onto the class (its four
-#' \code{acast()} sites, restructuring-notes.md §5).
-#' @noRd
-.distances_to_legacy <- function(x, ids) {
-  if (is.null(x)) return(NULL)
-  x <- tibble::as_tibble(pairwise_distances(x))          # accepts legacy or canonical
-  # The class stores only the distance now, but plot_tales_msa() and the other
-  # legacy consumers still read Sim, so re-derive it on the way back out.
-  x[["Sim"]] <- 100 - as.numeric(x[["dissim"]])
-  names(x)[match(c("id1", "id2", "dissim"), names(x))] <- c(ids, "Dissim")
-  as.data.frame(x)
-}

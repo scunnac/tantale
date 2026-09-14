@@ -1087,7 +1087,78 @@ The classes give the sweep a fixed point to converge on: whatever the arguments
 become, they should agree with `tale_sim` / `repeat_sim` / `tales_msa` rather
 than each other.
 
-### 9.2 Column names — adopt snake_case across all tables
+### 9.2 Column names — DONE **[V]**
+
+Complete. Every table the package produces now uses snake_case, and the two
+egress bridges that let legacy-named internals survive are deleted.
+
+**What the vocabulary is now**
+
+| table | columns |
+|---|---|
+| `tales` | `array_id`, `domain_type`, `position_in_crd`, `dna_seq`, `source_directory`, `position_in_array`, `aa_seq`, `rvd`, `seqnames`, `dom_code` |
+| `tales_domain_codes()` | `dom_code`, `aa_seq`, `rvd` |
+| `domain_distances` / `tale_distances` | `id1`, `id2`, `dissim` (+ `arlem_score`, `max_length`) |
+| `tales_group()` | `name`, `group` |
+
+The two distance tables now agree on their id columns, which was the stated
+prerequisite for unifying them into one class -- that unification landed in
+9.6, and this sweep removes the last places that still spoke the old
+vocabulary behind it.
+
+**Bridges: one kept, two deleted**
+
+- `.tales_rename_legacy()` — **kept**. Ingest only. A `tell_tales` output
+  directory written by an older version still has camelCase headers, so
+  `tales()` must keep accepting them. `.as_mafft_score_table()` and
+  `.pairwise_distances_rename_legacy()` are the same courtesy for the
+  distance tables.
+- `.tales_to_legacy()` — **deleted**. Existed only because
+  `.tales_compare_core()` was written against camelCase.
+- `.distances_to_legacy()` — **deleted**. Existed only because
+  `plot_tales_msa()` was written against `TAL1`/`RepU1`/`Sim`. That function
+  now normalises both of its similarity arguments through
+  `pairwise_distances()` at entry, so it accepts either spelling and its
+  internals speak one.
+
+**On-disk formats changed too.** `arrayReport.tsv`, `domainsReport.tsv` and
+`hitsReport.tsv` now write `array_id`, and the derived GFFs carry an
+`array_id` attribute. Authorised explicitly -- this release breaks things by
+design. The fixtures under `tests/testthat/data_for_tests/` and
+`inst/extdata/` were rewritten to match.
+
+**Defects this uncovered**
+
+1. `.tale_parts_from_file()` named the column `arrayIDs` in its empty-input
+   branch and `arrayID` in the populated one, so the two returns had
+   incompatible schemas.
+2. `repeat_to_rvd_map_distalr()` and `tale_parts_to_rvd()` are exported and
+   documented as taking a `tales_compare()` result, but read camelCase -- so
+   both had been broken against that result since the class work landed.
+   Neither had a test that would notice.
+3. Two test assertions went silently vacuous when the fixture moved:
+   `d$tale_parts$arrayID` returns `NULL`, and `expect_identical(NULL, NULL)`
+   passes. Both now index with `[[ ]]`, which errors on a missing column.
+   **This is the third distinct way `$` has hidden a defect in this project;
+   prefer `[[ ]]` in tests.**
+4. The tree panel of `plot_tales_msa()` had no test at all, so the dendrogram
+   rewrite was flying blind until one was added.
+
+**Not renamed, deliberately:** `repeatClusterId`, `repeatSimVsRef`,
+`rvdSimVsRef`, `matchConsensusRepeat`, `matchConsensusRvd`. These are columns
+of the intermediate plot-data tibble inside `plot_tales_msa()`, not of any
+table the package returns. They are reachable as `p$data`, so they are worth
+a later pass, but renaming them changes nothing a documented API promises.
+
+**Follow-up needed from the maintainer:** `man/figures/pipeline.svg` (and the
+PNG exported from it) label the `tale_parts` box with the old column names —
+`arrayID`, `domainType`, `positionInCrd`, `dnaSeq`, `aaSeq`,
+`positionInArray`, `domCode`, `sourceDirectory`. The figure needs re-exporting
+once the labels are updated. Not touched here.
+
+#### Original notes
+
+### 9.2-original Column names — adopt snake_case across all tables
 
 Currently **no** column in `distalr()`'s output is snake_case. Present state:
 

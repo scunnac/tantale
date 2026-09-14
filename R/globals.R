@@ -7,17 +7,16 @@
 # Regenerate after adding NSE columns; do not hand-edit casually.
 
 utils::globalVariables(c(
-  "# Seq-ID", ".", "aa_seq", "array_id", "domain_type", "position_in_array", "position_in_crd", "dna_seq", "dom_code", "source_directory", "rvdSimVsRef", ".x", "rvd1", "position in uncorrected sequences", "AnnoTALELength", "Approx. p-value", "Dissim",
-  "EBEstrand", "RANK", "RVD", "RVDs", "RepU1", "RepU2", "SCORE", "SEQ_ID",
-  "Score", "Seq", "Sequence", "Sim", "Strand", "TAL1", "TAL2", "TALBS_end",
-  "TALBS_sequence", "TALBS_start", "TALE", "TAL_ID", "TAL_SEQ",   "aa_length", "arlemScore",   "ebeSeq", "group", "label",
-  "matchConsensusRepeat", "matchConsensusRvd", "maxLength", "n", "name",
-  "normArlemScore", "pattern", "pident", "position",
+  "# Seq-ID", ".", "aa_seq", "array_id", "domain_type", "id1", "id2", "dissim", "sim",
+  "arlem_score", "max_length", "norm_arlem_score", "position_in_array", "position_in_crd", "dna_seq", "dom_code", "source_directory", "rvdSimVsRef", ".x", "rvd1", "position in uncorrected sequences", "AnnoTALELength", "Approx. p-value", "EBEstrand", "RANK", "RVD", "RVDs", "SCORE", "SEQ_ID",
+  "Score", "Seq", "Sequence", "Strand", "TALBS_end",
+  "TALBS_sequence", "TALBS_start", "TALE", "TAL_ID", "TAL_SEQ",   "aa_length", "ebeSeq", "group", "label",
+  "matchConsensusRepeat", "matchConsensusRvd", "n", "name",
+  "pident", "position",
   "position in
   uncorrected sequences",   "qcov", "query", "queryHits", "query_name",
   "repeatClusterId", "repeatID", "repeatSimVsRef", "rvd",
   "rvd2ntMatchScore", "rvdFileLength", "rvdfac", "rvds", "rvdseq", "score",
-  "seqnames", "strain", "strand", "string", "subj",
-  "subjSeqId", "subjectHits", "subtree", "taleId", "target", "target_name",
+  "seqnames", "strain", "strand", "string", "subjSeqId", "subjectHits", "subtree", "taleId", "target", "target_name",
   "tcov", "value", "variable", "xPos", "yPos", "yPosOnSeq"
 ))
