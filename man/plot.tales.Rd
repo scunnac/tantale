@@ -21,7 +21,6 @@ to \code{\link{plot.tales_msa}} instead, being the more specific class.
 }
 \seealso{
 Other TALE plots:
-\code{\link[=msa_heatmap]{msa_heatmap()}},
 \code{\link[=plot.tales_msa]{plot.tales_msa()}},
 \code{\link[=plot_tales_composition]{plot_tales_composition()}},
 \code{\link[=plot_target_preds]{plot_target_preds()}},

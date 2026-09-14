@@ -48,6 +48,25 @@ two partitions.
 `.cluster_repeats()` had the same defect but became unreachable when
 `distalr()` was removed, and has been deleted.
 
+### `msa_heatmap()` is retired
+
+Superseded by `plot_tales_msa()` and moved to `inst/legacy/`. Its six
+`plot_type` values were combinations of features that `plot_tales_msa()`
+exposes as orthogonal arguments; the one thing it did that `plot_tales_msa()
+could not -- draw the consensus row -- is now implemented there.
+
+| `msa_heatmap(plot_type =)` | `plot_tales_msa()` |
+|---|---|
+| `"repeat.similarity"` | `fill_type = "repeat_sim"` |
+| `"repeat.clusters"` | `fill_type = "repeat_clust"` |
+| `"with.rvd"` | pass `rvd_align` |
+| `"repeat.clusters.with.rvd"` | both of those |
+| `"reference"` | pass `ref_pattern` |
+| `"consensus"` | `consensus = TRUE` |
+
+`save_path` has no equivalent because none is needed: the returned ggplot is
+`ggsave()`-able. `note_colors` likewise -- add a scale to the returned plot.
+
 ### `plot_tales_msa()` can draw the consensus
 
 `consensus = TRUE` now adds a consensus row above the alignment, where it

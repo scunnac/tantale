@@ -27,6 +27,7 @@ Other tales objects:
 \code{\link[=tales_anchor_codes]{tales_anchor_codes()}},
 \code{\link[=tales_anomalies]{tales_anomalies()}},
 \code{\link[=tales_assert_complete]{tales_assert_complete()}},
+\code{\link[=tales_requirements]{tales_requirements()}},
 \code{\link[=validate_tales]{validate_tales()}}
 }
 \concept{tales objects}

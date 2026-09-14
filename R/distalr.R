@@ -342,12 +342,11 @@ diag(identSubMat) <- 1
 plot_tales_composition <- function(x, position = c("array", "alignment")) {
   position <- match.arg(position)
   if (!is_tales(x)) x <- tales(x)
-  needed <- c("rvd", "aa_seq", "domain_type")
-  if (identical(position, "alignment")) needed <- c(needed, "alignment_position")
-  missing <- setdiff(needed, names(x))
-  if (length(missing) > 0L) {
+  .tales_require(x, "plot_tales_composition")
+  if (identical(position, "alignment") && !"alignment_position" %in% names(x)) {
     cli::cli_abort(
-      "{.fn plot_tales_composition} needs the column{?s} {.field {missing}}.",
+      c("{.code position = \"alignment\"} needs the {.field alignment_position} column.",
+        "i" = "Align first with {.fn tales_align}, or use {.code position = \"array\"}."),
       class = c("tantale_error_projection_column", "tantale_error")
     )
   }
@@ -412,6 +411,45 @@ plot.tales <- function(x, ...) {
 
 
 
+#' Derive aa_seq from dna_seq by translation
+#'
+#' \code{tales_compare()} needs protein sequences, but an object may carry only
+#' the DNA. TALE part coding sequences are in frame, so translating them
+#' recovers \code{aa_seq} exactly.
+#'
+#' Two details are easy to get silently wrong. \code{no.init.codon = TRUE} is
+#' required: TALE repeats begin on \code{CTG}/\code{TTG}, which are alternative
+#' start codons, so the default forces the first residue to \code{M} -- that
+#' alone accounted for 865 of 955 mismatches on the reference fixture. And the
+#' C-terminal parts carry a trailing stop codon, which is stripped.
+#'
+#' With both handled, translation reproduces the stored \code{aa_seq} for all
+#' 955 parts of the reference fixture.
+#'
+#' @param dna A character vector of in-frame coding sequences.
+#' @return A character vector of amino-acid sequences.
+#' @keywords internal
+.translate_parts <- function(dna) {
+  bad <- is.na(dna) | !nzchar(dna)
+  out <- rep(NA_character_, length(dna))
+  if (all(bad)) return(out)
+  ok <- !bad
+  if (any(nchar(dna[ok]) %% 3 != 0)) {
+    cli::cli_abort(
+      c("Cannot translate {.field dna_seq}: some sequences are not a whole number of codons.",
+        "i" = "TALE part coding sequences are expected to be in frame."),
+      class = c("tantale_error_translate_frame", "tantale_error")
+    )
+  }
+  aa <- suppressWarnings(as.character(Biostrings::translate(
+    Biostrings::DNAStringSet(dna[ok]),
+    no.init.codon = TRUE, if.fuzzy.codon = "solve"
+  )))
+  out[ok] <- sub("[*]$", "", aa)
+  out
+}
+
+
 #' Compute TALE and repeat relatedness
 #'
 #' Quantifies how TALE arrays, and the individual repeat units they are built
@@ -469,10 +507,22 @@ tales_compare <- function(x, ncores = 1, aln_method = "DECIPHER",
     cli::cli_abort("{.arg x} must be a {.cls tales} object.",
                    class = c("tantale_error_tales_type", "tantale_error"))
   }
+  # aa_seq is what the comparison needs, but dna_seq satisfies it by
+  # translation -- the same "one of these two" shape the column contract
+  # already uses for rvd / dom_code.
+  if (!"aa_seq" %in% names(x) && "dna_seq" %in% names(x)) {
+    x$aa_seq <- .translate_parts(x$dna_seq)
+    cli::cli_warn(
+      c("Derived {.field aa_seq} by translating {.field dna_seq}.",
+        "i" = "The translated column is kept in the returned {.cls tales}."),
+      class = c("tantale_warning_translated_aa", "tantale_warning")
+    )
+  }
   if (!"aa_seq" %in% names(x)) {
     cli::cli_abort(
-      c("{.arg x} must carry an {.field aa_seq} column.",
-        "i" = "Repeat similarity is computed from part amino acid sequences."),
+      c("{.arg x} must carry an {.field aa_seq} or {.field dna_seq} column.",
+        "i" = "Repeat similarity is computed from part amino acid sequences,",
+        "i" = "which can be translated from {.field dna_seq} if needed."),
       class = c("tantale_error_compare_no_aa", "tantale_error")
     )
   }

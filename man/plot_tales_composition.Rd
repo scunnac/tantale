@@ -30,7 +30,6 @@ and filled by amino-acid length, with the RVD printed on each repeat.
 }
 \seealso{
 Other TALE plots:
-\code{\link[=msa_heatmap]{msa_heatmap()}},
 \code{\link[=plot.tales]{plot.tales()}},
 \code{\link[=plot.tales_msa]{plot.tales_msa()}},
 \code{\link[=plot_target_preds]{plot_target_preds()}},

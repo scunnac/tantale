@@ -41,15 +41,13 @@ tales_coded_strings <- function(x) {
 #' @family tales projections
 tales_domain_codes <- function(x) {
   .tales_assert_dom_code(x, "tales_domain_codes")
-  needed <- c("aa_seq", "rvd")
-  missing <- setdiff(needed, names(x))
-  if (length(missing) > 0L) {
-    cli::cli_abort(
-      "{.fn tales_domain_codes} needs the column{?s} {.field {missing}}.",
-      class = c("tantale_error_projection_column", "tantale_error")
-    )
-  }
-  out <- unique(tibble::as_tibble(x)[c("dom_code", "aa_seq", "rvd")])
+  .tales_require(x, "tales_domain_codes")
+  # rvd is included when present but not required: the dom_code <-> aa_seq
+  # correspondence is the substance here, and it is a hard invariant of the
+  # class. An object carrying dom_code and aa_seq but no rvd is perfectly
+  # valid, and blocking it bought nothing.
+  cols <- intersect(c("dom_code", "aa_seq", "rvd"), names(x))
+  out <- unique(tibble::as_tibble(x)[cols])
   out[order(out$dom_code), ]
 }
 

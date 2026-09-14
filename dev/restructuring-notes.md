@@ -207,7 +207,19 @@ formats.
 
 ---
 
-## 4. Plotting: `msa_heatmap()` is superseded — GAP IDENTIFIED **[V]**
+## 4. Plotting: `msa_heatmap()` — RETIRED **[V]**
+
+Done. Moved to `inst/legacy/msa_heatmap.R` (345 lines) once the consensus
+prerequisite was implemented in `plot_tales_msa()`. Vignette 3's three calls
+were migrated: `plot_type = "repeat.similarity"` -> `fill_type = "repeat_sim"`,
+`"repeat.clusters"` -> `fill_type = "repeat_clust"`, and
+`"repeat.clusters.with.rvd"` -> the same plus `rvd_align` and `consensus = TRUE`.
+
+The internals it used (`.repeat_to_sim_align()`, `.repeat_to_cluster_align()`,
+`.pick_ref_name()`) are shared with `plot_tales_msa()` and stay.
+
+#### The analysis that justified it
+
 
 The ledger asked what `msa_heatmap()` provides that `plot_tales_msa()` does
 not. Answered.

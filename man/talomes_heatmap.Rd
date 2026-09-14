@@ -58,7 +58,6 @@ The function creates a graphical presentation from a tale annotation table. The 
 }
 \seealso{
 Other TALE plots:
-\code{\link[=msa_heatmap]{msa_heatmap()}},
 \code{\link[=plot.tales]{plot.tales()}},
 \code{\link[=plot.tales_msa]{plot.tales_msa()}},
 \code{\link[=plot_tales_composition]{plot_tales_composition()}},

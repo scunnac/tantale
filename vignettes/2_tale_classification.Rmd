@@ -147,9 +147,9 @@ Now, we can take a look at whether the results of the original Distal script are
 
 
 ```{r correlation of TALE similarity from various distal implementations, fig.width = 4, fig.height=4}
-talSimOutAgregated <- list(distalDECI = distalr_deci_output\$tale_distances,
-     distalBIOS = distalr_bs_output\$tale_distances,
-     distalMMS = distalr_mms_output\$tale_distances
+talSimOutAgregated <- list(distalDECI = distalr_deci_output$tale_distances,
+     distalBIOS = distalr_bs_output$tale_distances,
+     distalMMS = distalr_mms_output$tale_distances
 ) %>% bind_rows(.id = "method")
 
 talSimOutAgregatedLong <- reshape2::dcast(talSimOutAgregated %>% select(method, TAL1, TAL2, Sim),
@@ -183,26 +183,26 @@ The correlation of the TALE pairwise similarity scores output by the various `ta
 
 ```{r tale trees, fig.width = 6, fig.height=6}
 k <- 22
-groupsDECI <- invisible(tales_group(tal_sim = distalr_deci_output\$tale_distances,
+groupsDECI <- invisible(tales_group(tal_sim = distalr_deci_output$tale_distances,
                      plot_tree = TRUE, k = k, k_range = 10:40,
                      method = "k-medoids"))
 
-groupsBIOS <- invisible(tales_group(tal_sim = distalr_bs_output\$tale_distances,
+groupsBIOS <- invisible(tales_group(tal_sim = distalr_bs_output$tale_distances,
                      plot_tree = TRUE, k = k, k_range = 10:40,
                      method = "k-medoids"))
 
-groupsMMS <- invisible(tales_group(tal_sim = distalr_mms_output\$tale_distances,
+groupsMMS <- invisible(tales_group(tal_sim = distalr_mms_output$tale_distances,
                      plot_tree = TRUE, k = k, k_range = 10:40,
                      method = "k-medoids"))
 
 
-grp <- tales_group(tal_sim = distalr_deci_output\$tale_distances,
+grp <- tales_group(tal_sim = distalr_deci_output$tale_distances,
                      plot_tree = TRUE, k = k,
                      method = "hclust")
-grp <- tales_group(tal_sim = distalr_bs_output\$tale_distances,
+grp <- tales_group(tal_sim = distalr_bs_output$tale_distances,
                      plot_tree = TRUE, k = k,
                      method = "hclust")
-grp <- tales_group(tal_sim = distalr_mms_output\$tale_distances,
+grp <- tales_group(tal_sim = distalr_mms_output$tale_distances,
                      plot_tree = TRUE, k = k,
                      method = "hclust")
 

@@ -124,3 +124,61 @@ test_that("re-minting over an existing dom_code warns", {
     class = "tantale_warning_relatedness_remint"
   )
 })
+
+
+#### aa_seq or dna_seq ####
+
+test_that(".translate_parts() reproduces the stored aa_seq exactly", {
+  skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
+  tp <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))$tale_parts
+  expect_identical(tantale:::.translate_parts(tp$dnaSeq), tp$aaSeq)
+})
+
+test_that("translation needs no.init.codon: repeats start on CTG/TTG", {
+  # The default forces the first codon to M. TALE repeats begin on alternative
+  # start codons, so without the flag every repeat gains a spurious leading M.
+  ctg <- "CTGACCCCGGAACAGGTG"          # L T P E Q V
+  expect_identical(tantale:::.translate_parts(ctg), "LTPEQV")
+  expect_false(identical(
+    as.character(Biostrings::translate(Biostrings::DNAStringSet(ctg))), "LTPEQV"))
+})
+
+test_that("a trailing stop codon is stripped", {
+  expect_identical(tantale:::.translate_parts("ATGGATTAA"), "MD")
+})
+
+test_that("an out-of-frame sequence is refused rather than silently truncated", {
+  expect_error(tantale:::.translate_parts("ATGGA"),
+               class = "tantale_error_translate_frame")
+})
+
+test_that("tales_compare() falls back to dna_seq and keeps the derived column", {
+  skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
+  d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
+  x <- tales(d$tale_parts)
+  noAa <- x[, setdiff(names(x), "aa_seq")]
+  expect_warning(res <- suppressMessages(tales_compare(noAa)),
+                 class = "tantale_warning_translated_aa")
+  expect_true("aa_seq" %in% names(res$tales))
+})
+
+test_that("the dna_seq path gives the same distances as the aa_seq path", {
+  skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
+  d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
+  x <- tales(d$tale_parts)
+  viaAa  <- suppressWarnings(suppressMessages(tales_compare(x)))
+  viaDna <- suppressWarnings(suppressMessages(
+    tales_compare(x[, setdiff(names(x), "aa_seq")])))
+  expect_equal(as.data.frame(viaDna$domain_distances),
+               as.data.frame(viaAa$domain_distances))
+  expect_equal(as.data.frame(viaDna$tale_distances),
+               as.data.frame(viaAa$tale_distances))
+})
+
+test_that("neither aa_seq nor dna_seq is still an error", {
+  skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
+  d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
+  x <- tales(d$tale_parts)
+  expect_error(tales_compare(x[, setdiff(names(x), c("aa_seq", "dna_seq"))]),
+               class = "tantale_error_compare_no_aa")
+})

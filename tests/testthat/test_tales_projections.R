@@ -117,3 +117,25 @@ test_that("tales_rvd_strings() matches the format of the shipped sample fasta", 
   expect_true(all(grepl("^[A-Z*]+(-[A-Z*]+)+$", as.character(built))))
   expect_true(all(grepl("^[A-Z*]+(-[A-Z*]+)+$", as.character(shipped))))
 })
+
+
+test_that("tales_domain_codes() includes rvd when present but does not require it", {
+  skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
+  d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
+  x <- tales(d$tale_parts)
+  withRvd <- tales_domain_codes(x)
+  expect_named(withRvd, c("dom_code", "aa_seq", "rvd"))
+  # a dom_code + aa_seq object is valid and must not be blocked: the
+  # correspondence between them is the substance, and rvd is decoration
+  noRvd <- tales_domain_codes(x[, setdiff(names(x), "rvd")])
+  expect_named(noRvd, c("dom_code", "aa_seq"))
+  expect_identical(nrow(noRvd), nrow(withRvd))
+})
+
+test_that("tales_domain_codes() still requires aa_seq", {
+  skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
+  d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
+  x <- tales(d$tale_parts)
+  expect_error(tales_domain_codes(x[, setdiff(names(x), "aa_seq")]),
+               class = "tantale_error_projection_column")
+})

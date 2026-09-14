@@ -28,9 +28,13 @@ test_that("an unknown aln_method is rejected by name", {
   expect_error(tales_compare(x, aln_method = "not_a_method"), "not_a_method")
 })
 
-test_that("tales_compare() refuses a tales with no aa_seq", {
+test_that("tales_compare() refuses a tales with neither aa_seq nor dna_seq", {
+  # dropping aa_seq alone is no longer an error: dna_seq is translated instead
   x <- fixture_tales()
   x$aa_seq <- NULL
+  expect_warning(suppressMessages(tales_compare(x)),
+                 class = "tantale_warning_translated_aa")
+  x$dna_seq <- NULL
   expect_error(tales_compare(x), class = "tantale_error_compare_no_aa")
 })
 
