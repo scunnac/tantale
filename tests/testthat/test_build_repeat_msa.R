@@ -80,3 +80,82 @@ test_that("tales_align() accepts a domain_distances for repeat_sims", {
   expect_s3_class(viaClass, "tales_msa")
   expect_equal(as.data.frame(viaClass), as.data.frame(viaLegacy))
 })
+
+
+#### RVD alignments get a scoring matrix ####
+
+test_that(".rvd_score_table() covers every pair and fills XX neutrally", {
+  t <- tantale:::.rvd_score_table(c("NI", "NN", "HD", "XX"))
+  expect_identical(nrow(t), 16L)
+  expect_false(anyNA(t$Sim))
+  g <- function(a, b) t$Sim[t$RepU1 == a & t$RepU2 == b]
+  # XX means "terminus detected, identity unknown": neutral against everything
+  expect_identical(g("XX", "NI"), 0)
+  expect_identical(g("XX", "HD"), 0)
+  # ...but maximal against itself. Not a claim about knowledge: MAFFT produces
+  # unusable output when the diagonal is not high, and a low value would assert
+  # that an XX must *not* align with an XX.
+  expect_identical(g("XX", "XX"), 1)
+  expect_identical(g("NI", "NI"), 1)
+  # and real RVD pairs keep their correlation
+  expect_equal(g("NI", "NN"), 0.63, tolerance = 0.01)
+})
+
+test_that("RVD alignment opts in to the built-in matrix with repeat_sims = \"rvd\"", {
+  skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
+  d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
+  x <- tales(d$tale_parts)
+  sub <- x[x$array_id %in% unique(x$array_id)[1:4], ]
+  withMat <- suppressWarnings(suppressMessages(
+    tales_align(sub, residue_col = "rvd", repeat_sims = "rvd")))
+  without <- suppressWarnings(suppressMessages(tales_align(sub, residue_col = "rvd")))
+  # the matrix must actually change the alignment, or it is not being used
+  expect_false(identical(as.data.frame(withMat), as.data.frame(without)))
+})
+
+test_that("a repeat-keyed table is refused for an RVD alignment", {
+  # it is keyed by dom_code, which has no meaning for RVDs; silently ignoring
+  # it was the old behaviour and hid the mistake
+  skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
+  d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
+  x <- tales(d$tale_parts)
+  sub <- x[x$array_id %in% unique(x$array_id)[1:4], ]
+  expect_error(
+    suppressMessages(tales_align(sub, residue_col = "rvd",
+                                 repeat_sims = domain_distances(d$repeat.similarity))),
+    class = "tantale_error_msa_sim_table")
+})
+
+test_that("NULL and FALSE both mean no matrix", {
+  skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
+  d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
+  x <- tales(d$tale_parts)
+  sub <- x[x$array_id %in% unique(x$array_id)[1:4], ]
+  a <- suppressWarnings(suppressMessages(tales_align(sub, residue_col = "dom_code")))
+  b <- suppressWarnings(suppressMessages(
+    tales_align(sub, residue_col = "dom_code", repeat_sims = FALSE)))
+  expect_equal(as.data.frame(a), as.data.frame(b))
+})
+
+
+test_that("repeat_sims = \"rvd\" is refused for a repeat-code alignment", {
+  skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
+  d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
+  x <- tales(d$tale_parts)
+  sub <- x[x$array_id %in% unique(x$array_id)[1:4], ]
+  expect_error(
+    suppressMessages(tales_align(sub, residue_col = "dom_code", repeat_sims = "rvd")),
+    class = "tantale_error_msa_sim_table")
+})
+
+test_that("the default RVD alignment is unchanged by this feature", {
+  # opt-in, so an existing call must give exactly what it gave before
+  skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
+  d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
+  x <- tales(d$tale_parts)
+  sub <- x[x$array_id %in% unique(x$array_id)[1:4], ]
+  a <- suppressWarnings(suppressMessages(tales_align(sub, residue_col = "rvd")))
+  b <- suppressWarnings(suppressMessages(
+    tales_align(sub, residue_col = "rvd", repeat_sims = FALSE)))
+  expect_equal(as.data.frame(a), as.data.frame(b))
+})

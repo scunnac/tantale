@@ -12,7 +12,10 @@ tales_align(x, residue_col = c("rvd", "dom_code"), repeat_sims = NULL, ...)
 \item{residue_col}{Which layer to align on: \code{"rvd"} (default) or
 \code{"dom_code"}. Given explicitly rather than guessed from the values.}
 
-\item{repeat_sims}{Optional similarity table passed to MAFFT as a scoring
+\item{repeat_sims}{Scoring matrix for the residues being aligned.
+\code{NULL} (default) means none. Pass \code{"rvd"} to opt in to the
+built-in RVD similarity matrix when aligning RVDs, or a
+\code{\link{domain_distances}} object when aligning repeat codes. Optional similarity table passed to MAFFT as a scoring
 matrix, as accepted by \code{\link{tales_align}}.}
 
 \item{...}{Passed to \code{\link{tales_align}} (e.g. \code{mafft_opts}).}

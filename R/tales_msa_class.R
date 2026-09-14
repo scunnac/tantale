@@ -223,7 +223,10 @@ as.matrix.tales_msa <- function(x, value = NULL, gap = NA, ...) {
 #' @param x A \code{\link{tales}} object holding complete arrays.
 #' @param residue_col Which layer to align on: \code{"rvd"} (default) or
 #'   \code{"dom_code"}. Given explicitly rather than guessed from the values.
-#' @param repeat_sims Optional similarity table passed to MAFFT as a scoring
+#' @param repeat_sims Scoring matrix for the residues being aligned.
+#'   \code{NULL} (default) means none. Pass \code{"rvd"} to opt in to the
+#'   built-in RVD similarity matrix when aligning RVDs, or a
+#'   \code{\link{domain_distances}} object when aligning repeat codes. Optional similarity table passed to MAFFT as a scoring
 #'   matrix, as accepted by \code{\link{tales_align}}.
 #' @param ... Passed to \code{\link{tales_align}} (e.g. \code{mafft_opts}).
 #' @return A \code{tales_msa} object.

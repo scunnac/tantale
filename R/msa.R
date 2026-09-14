@@ -135,6 +135,49 @@ tales_consensus_match <- function(align, long = TRUE) {
 }
 
 
+#' RVD similarity matrix for aligning RVD sequences
+#'
+#' @description
+#' The repeat-level similarity matrix is keyed by \code{dom_code}, which is
+#' meaningless for an RVD sequence, so RVD alignments have had no scoring matrix
+#' at all -- MAFFT treated \code{NI} and \code{NN} as no more alike than
+#' \code{NI} and \code{HD}. This supplies the missing one, from the Spearman
+#' correlation of each RVD's A/C/G/T preference profile
+#' (\code{rvdSimDf}, derived from TALVEZ's \code{mat1}).
+#'
+#' @details
+#' \code{XX} -- a terminus detected but not identified -- has a uniform base
+#' profile, so its correlation with everything is undefined. Those cells are
+#' filled as **neutral** (0): we know nothing about it, so it should neither
+#' attract nor repel.
+#'
+#' The one exception is \code{XX} against itself, which is set to the maximum.
+#' That is forced, not chosen: MAFFT produces unusable output when the diagonal
+#' is not high, and a low diagonal would anyway assert that an \code{XX} must
+#' *not* align with an \code{XX}, which is a stronger claim than ignorance.
+#'
+#' Scale is irrelevant -- MAFFT normalises the matrix, so a linear rescale or
+#' offset leaves the alignment unchanged (verified). Only relative structure
+#' matters, so the correlations are used as they are.
+#'
+#' @param residues Character vector of the RVDs present in the alignment.
+#' @return A data frame of \code{RepU1}, \code{RepU2}, \code{Sim} covering
+#'   every ordered pair of \code{residues}.
+#' @keywords internal
+.rvd_score_table <- function(residues) {
+  residues <- unique(as.character(residues))
+  grid <- expand.grid(RepU1 = residues, RepU2 = residues,
+                      stringsAsFactors = FALSE, KEEP.OUT.ATTRS = FALSE)
+  key <- paste(rvdSimDf$rvd1, rvdSimDf$rvd2)
+  grid$Sim <- rvdSimDf$Cor[match(paste(grid$RepU1, grid$RepU2), key)]
+  # unknown pairings, and anything involving XX, are neutral
+  grid$Sim[is.na(grid$Sim)] <- 0
+  # ... except a symbol against itself, which must stay high for MAFFT
+  grid$Sim[grid$RepU1 == grid$RepU2] <- 1
+  grid
+}
+
+
 #' @noRd
 .build_repeat_msa <- function(input_seqs, sep = " ", repeat_sims = NULL,
                            mafft_opts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1",
@@ -205,9 +248,36 @@ tales_consensus_match <- function(align, long = TRUE) {
 
 
   # If provided recode also the distance matrix
-  if(is.null(repeat_sims) || repeatType == "rvds") {
+  # "rvd" opts in to the built-in RVD matrix; NULL and FALSE mean no matrix.
+  # Opt-in rather than on-by-default: the matrix demonstrably makes alignments
+  # more compact (fewer gaps, narrower) but there is no evidence it makes them
+  # biologically better, and defaulting it on would silently change every
+  # existing RVD alignment.
+  if (is.null(repeat_sims) || isFALSE(repeat_sims)) {
     maffMatOpt <- ""
-  } else if (!is.null(repeat_sims)) {
+  } else if (identical(repeat_sims, "rvd")) {
+    if (repeatType != "rvds") {
+      cli::cli_abort(
+        c('{.code repeat_sims = "rvd"} only applies to an RVD alignment.',
+          "i" = "These sequences look like repeat unit codes."),
+        class = c("tantale_error_msa_sim_table", "tantale_error")
+      )
+    }
+    cli::cli_inform("Scoring the RVD alignment with the built-in RVD similarity matrix.")
+    repeatSims <- .rvd_score_table(residues)
+    repeatSims$RepU1 <- asciitableForMafft$hex[match(repeatSims$RepU1, residues)]
+    repeatSims$RepU2 <- asciitableForMafft$hex[match(repeatSims$RepU2, residues)]
+    colnames(repeatSims) <- NULL
+    write.table(repeatSims, file = simMatHexFile, row.names = FALSE, fileEncoding = "ASCII")
+    maffMatOpt <- glue::glue("--textmatrix {simMatHexFile}")
+  } else if (repeatType == "rvds") {
+    cli::cli_abort(
+      c("A repeat similarity table cannot score an RVD alignment.",
+        "i" = "It is keyed by {.field dom_code}, which has no meaning for RVDs.",
+        "i" = 'Use {.code repeat_sims = "rvd"} for the built-in RVD matrix, or leave it {.code NULL} for none.'),
+      class = c("tantale_error_msa_sim_table", "tantale_error")
+    )
+  } else {
     cli::cli_inform("The provided similarity matrix file will be used to compute msa.")
     if (length(repeat_sims) > 1 &&
         (is.data.frame(repeat_sims) | tibble::is_tibble(repeat_sims))
