@@ -700,7 +700,16 @@ matrix"; `distalr()` feeds it the `Dissim` matrix as that cost file
 
 ---
 
-### 7.1 Vignettes 1-4 cannot be built **[V]**
+### 7.1 Vignettes 1-4 cannot be built **[V]** — DEFERRED BY POLICY
+
+**Vignettes do not constrain the code.** They will be rebuilt from the
+finished functionality and the sharpened interface, not the other way round.
+A broken vignette is not a regression to chase, and no API decision should be
+made to keep one knitting. This section and 7.5 are downstream of everything
+else here.
+
+The diagnosis below stands, for whenever that rebuild happens.
+
 
 Found while removing the deprecated functions, and it predates that work.
 
