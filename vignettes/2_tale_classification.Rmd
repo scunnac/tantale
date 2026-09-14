@@ -82,7 +82,7 @@ tale_parts <- lapply(list.dirs(telltale_outdir, recursive = FALSE), function(ttG
   genomeId <- gsub("_.*correction", "", basename(ttGenomeDir))
   logger::log_debug("Current genome: {genomeId}")
   tale_parts <- tales_from_telltale(ttGenomeDir) %>%
-    mutate(arrayID = paste0(genomeId, "_", arrayID))
+    mutate(array_id = paste0(genomeId, "_", array_id))
   return(tale_parts)
 }) %>%
   bind_rows()
@@ -97,14 +97,14 @@ With this kind of representation it is quite easy to make summary plots like thi
 
 ```{r Overview of TALE composition by genome, fig.width = 10, fig.height=10}
 partsForPlots <- tale_parts %>%
-  mutate(label = if_else(domainType == "repeat", rvd, ""),
-         aaSeqLength = factor(nchar(aaSeq))
+  mutate(label = if_else(domain_type == "repeat", rvd, ""),
+         aa_seq_length = factor(nchar(aa_seq))
   )
-partsForPlots %>% ggplot(mapping = aes(fill = aaSeqLength,
-                                       color = domainType,
+partsForPlots %>% ggplot(mapping = aes(fill = aa_seq_length,
+                                       color = domain_type,
                                        label = label,
-                                       y = arrayID,
-                                       x = positionInArray),
+                                       y = array_id,
+                                       x = position_in_array),
                          color = isNaAaSeq) +
   scale_color_viridis_d(option = "rocket") +
   scale_fill_discrete() +

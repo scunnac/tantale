@@ -75,7 +75,7 @@ tales_consensus_match <- function(align, long = TRUE) {
   if (!long) return(align)
   matchConsensusLong <- align %>% reshape2::melt() %>%
     dplyr::as_tibble()
-  colnames(matchConsensusLong) <- c("arrayID", "positionInArray", "tales_consensus_match")
+  colnames(matchConsensusLong) <- c("array_id", "position_in_array", "tales_consensus_match")
   return(matchConsensusLong)
 }
 
@@ -359,7 +359,7 @@ tales_consensus_match <- function(align, long = TRUE) {
 #' @param align The alignment matrix to take the consensus of.
 #' @param n_positions Width of the alignment, so the x scale matches the main plot.
 #' @param pad Whether to pad labels to three characters, as the main plot does
-#'   for \code{domCode}.
+#'   for \code{dom_code}.
 #' @return A ggplot.
 #' @noRd
 .consensus_panel <- function(align, n_positions, pad = FALSE) {
@@ -367,10 +367,10 @@ tales_consensus_match <- function(align, long = TRUE) {
   cons <- gsub("NTERM", "N-", cons)
   cons <- gsub("CTERM", "-C", cons)
   if (isTRUE(pad)) cons <- stringr::str_pad(cons, 3, "left")
-  df <- tibble::tibble(positionInArray = seq_along(cons),
-                       arrayID = "Consensus",
+  df <- tibble::tibble(position_in_array = seq_along(cons),
+                       array_id = "Consensus",
                        label = cons)
-  ggplot2::ggplot(df, mapping = ggplot2::aes(x = positionInArray, y = arrayID)) +
+  ggplot2::ggplot(df, mapping = ggplot2::aes(x = position_in_array, y = array_id)) +
     ggplot2::geom_label(mapping = ggplot2::aes(label = label),
                         fill = "grey92", color = "grey15",
                         label.size = NA, family = "mono",
@@ -529,13 +529,13 @@ plot_tales_msa <- function(repeat_align,
   if (!is.null(repeat_align)) {
     repeatAlignLong <- repeat_align %>% reshape2::melt() %>%
     dplyr::as_tibble()
-  colnames(repeatAlignLong) <- c("arrayID", "positionInArray", "domCode")
-  repeatAlignLong %<>% dplyr::mutate(arrayID = as.character(arrayID),
-                                     domCode = stringr::str_pad(domCode, 3, "left"))
+  colnames(repeatAlignLong) <- c("array_id", "position_in_array", "dom_code")
+  repeatAlignLong %<>% dplyr::mutate(array_id = as.character(array_id),
+                                     dom_code = stringr::str_pad(dom_code, 3, "left"))
   repeatMatchConsensusLong <- tales_consensus_match(repeat_align)
-  colnames(repeatMatchConsensusLong) <- c("arrayID", "positionInArray", "matchConsensusRepeat")
+  colnames(repeatMatchConsensusLong) <- c("array_id", "position_in_array", "matchConsensusRepeat")
   repeatAlignLong %<>% dplyr::left_join(repeatMatchConsensusLong,
-                                        by = dplyr::join_by(arrayID, positionInArray))
+                                        by = dplyr::join_by(array_id, position_in_array))
   }
   
   
@@ -543,7 +543,7 @@ plot_tales_msa <- function(repeat_align,
   if (!is.null(rvd_align)) {
     rvdAlignLong <- rvd_align %>% reshape2::melt() %>%
       dplyr::as_tibble()
-    colnames(rvdAlignLong) <- c("arrayID", "positionInArray", "rvd")
+    colnames(rvdAlignLong) <- c("array_id", "position_in_array", "rvd")
     rvdAlignLong %<>% dplyr::mutate(rvd = gsub("NTERM", "N-", rvd),
                                        rvd = gsub("CTERM", "-C", rvd)
     )
@@ -553,25 +553,25 @@ plot_tales_msa <- function(repeat_align,
     # Coloring of RVDs in alignment depending on whether they match the consensus at
     # the position
     consensusRVD <- tales_consensus(rvd_align)
-    rvdConsensusSeqLong <- tibble::tibble(arrayID = "Consensus",
-                                          positionInArray = seq_along(consensusRVD),
+    rvdConsensusSeqLong <- tibble::tibble(array_id = "Consensus",
+                                          position_in_array = seq_along(consensusRVD),
                                           rvd = consensusRVD,
                                           matchConsensusRvd = TRUE,
-                                          domCode = NA,
+                                          dom_code = NA,
                                           repeatClusterId = NA,
                                           repeatSimVsRef = NA
     )
     rvdMatchConsensusLong <- tales_consensus_match(rvd_align)
-    colnames(rvdMatchConsensusLong) <- c("arrayID", "positionInArray", "matchConsensusRvd")
+    colnames(rvdMatchConsensusLong) <- c("array_id", "position_in_array", "matchConsensusRvd")
     # Join with rvd tible
     rvdAlignLong %<>% dplyr::left_join(rvdMatchConsensusLong,
-                                          by = dplyr::join_by(arrayID, positionInArray))
+                                          by = dplyr::join_by(array_id, position_in_array))
   }
   
   # Assign main alignment object in long format
   if (!is.null(repeat_align) & !is.null(rvd_align)) {
     repeatAlignLong %<>% dplyr::inner_join(rvdAlignLong,
-                                          by = dplyr::join_by(arrayID, positionInArray),
+                                          by = dplyr::join_by(array_id, position_in_array),
                                           unmatched = "error",
                                           relationship = "one-to-one")
   } else if (!is.null(repeat_align) & is.null(rvd_align)) {
@@ -591,7 +591,7 @@ plot_tales_msa <- function(repeat_align,
       reshape2::melt() %>%
       dplyr::as_tibble() %>%
       dplyr::mutate(value = as.character(value))
-    colnames(repeatClusterAlignLong) <- c("arrayID", "positionInArray", "repeatClusterId")
+    colnames(repeatClusterAlignLong) <- c("array_id", "position_in_array", "repeatClusterId")
     
     refTaleId <- .pick_ref_name(align = repeat_align, ref_tag = ref_pattern)
     repeatSimAlignLong <- .repeat_to_sim_align(repeat_align = repeat_align,
@@ -599,13 +599,13 @@ plot_tales_msa <- function(repeat_align,
                                                  ref_tag = ref_pattern) %>%
       reshape2::melt() %>%
       dplyr::as_tibble()
-    colnames(repeatSimAlignLong) <- c("arrayID", "positionInArray", "repeatSimVsRef")
+    colnames(repeatSimAlignLong) <- c("array_id", "position_in_array", "repeatSimVsRef")
     # Join with main tible
     repeatAlignLong %<>%
       dplyr::left_join(repeatClusterAlignLong,
-                       by = dplyr::join_by(arrayID, positionInArray)) %>%
+                       by = dplyr::join_by(array_id, position_in_array)) %>%
       dplyr::left_join(repeatSimAlignLong,
-                       by = dplyr::join_by(arrayID, positionInArray))
+                       by = dplyr::join_by(array_id, position_in_array))
   }
   
 
@@ -623,10 +623,10 @@ plot_tales_msa <- function(repeat_align,
                                            ref_tag = ref_pattern) %>%
       reshape2::melt() %>%
       dplyr::as_tibble()
-    colnames(rvdSimAlignLong) <- c("arrayID", "positionInArray", "rvdSimVsRef")
-    rvdSimAlignLong %<>% dplyr::mutate(arrayID = as.character(arrayID))
+    colnames(rvdSimAlignLong) <- c("array_id", "position_in_array", "rvdSimVsRef")
+    rvdSimAlignLong %<>% dplyr::mutate(array_id = as.character(array_id))
     repeatAlignLong %<>% dplyr::left_join(rvdSimAlignLong,
-                                          by = dplyr::join_by(arrayID, positionInArray))
+                                          by = dplyr::join_by(array_id, position_in_array))
   }
   
   # Building TALE tree if possible
@@ -643,8 +643,8 @@ plot_tales_msa <- function(repeat_align,
   
   # Add a symbol to designate the reference if necessary
   if (exists("refTaleId")) { # in the tibble
-    repeatAlignLong$arrayID[repeatAlignLong$arrayID == refTaleId] <-  paste0(
-      repeatAlignLong$arrayID[repeatAlignLong$arrayID == refTaleId],
+    repeatAlignLong$array_id[repeatAlignLong$array_id == refTaleId] <-  paste0(
+      repeatAlignLong$array_id[repeatAlignLong$array_id == refTaleId],
       "_#"
     )
   }
@@ -657,11 +657,11 @@ plot_tales_msa <- function(repeat_align,
   
   # Create base plot
   bp <- repeatAlignLong %>% ggplot2::ggplot(mapping = ggplot2::aes(
-    x = positionInArray, y = arrayID)
+    x = position_in_array, y = array_id)
   ) +
     ggplot2::scale_x_discrete(
       name = "Position in array",
-      limits = factor(1:max(repeatAlignLong$positionInArray))
+      limits = factor(1:max(repeatAlignLong$position_in_array))
     ) +
     ggplot2::scale_y_discrete(name = NULL) +
     ggplot2::theme_minimal() +
@@ -754,7 +754,7 @@ plot_tales_msa <- function(repeat_align,
         repeatSimFillScale +
         labelConsensusColorScale +
         ggplot2::geom_label(mapping = ggplot2::aes(fill = repeatSimVsRef,
-                                                   label = domCode,
+                                                   label = dom_code,
                                                    color = matchConsensusRepeat),
                             label.size = NA,
                             family = "mono",
@@ -766,7 +766,7 @@ plot_tales_msa <- function(repeat_align,
         repeatClusterFillScale +
         labelConsensusColorScale +
         ggplot2::geom_label(mapping = ggplot2::aes(fill = repeatClusterId,
-                                                   label = domCode,
+                                                   label = dom_code,
                                                    color = matchConsensusRepeat),
                             label.size = NA,
                             family = "mono",
@@ -790,7 +790,7 @@ plot_tales_msa <- function(repeat_align,
   } else if (is.null(repeat_sim) & is.null(rvd_align)) {
     p <- bp +
       labelConsensusColorScale +
-      ggplot2::geom_label(mapping = ggplot2::aes(label = domCode,
+      ggplot2::geom_label(mapping = ggplot2::aes(label = dom_code,
                                                  color = matchConsensusRepeat),
                           fill = "grey80",
                           label.size = NA,
@@ -820,7 +820,7 @@ plot_tales_msa <- function(repeat_align,
     finalPlot <- aplot::insert_top(
       finalPlot,
       .consensus_panel(consensusAlign,
-                       n_positions = max(repeatAlignLong$positionInArray),
+                       n_positions = max(repeatAlignLong$position_in_array),
                        pad = is.null(rvd_align)),
       height = consensusHeight
     )

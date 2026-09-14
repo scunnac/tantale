@@ -149,8 +149,8 @@ ggplot(arrayRp) +
 total correction count per genome (in this case, there is only 1 genome that has been corrected)
 
 ```{r correction count per genome 2, fig.width = 6, fig.height=6}
-arrayRp_correction <- reshape2::melt(arrayRp[c("strain", "arrayID", "predicted_ins_count", "predicted_dels_count")], value.name = "count", variable.name = "type")
-arrayRp_correction %<>% dplyr::arrange(strain, arrayID)
+arrayRp_correction <- reshape2::melt(arrayRp[c("strain", "array_id", "predicted_ins_count", "predicted_dels_count")], value.name = "count", variable.name = "type")
+arrayRp_correction %<>% dplyr::arrange(strain, array_id)
 
 ggplot(arrayRp_correction) +
   facet_wrap(vars(type), nrow = 2, scales = "fixed") +
@@ -162,7 +162,7 @@ ggplot(arrayRp_correction) +
 correction count per array per genome
 
 ```{r count per array per genome, fig.width = 6, fig.height=4}
-ggplot(na.omit(arrayRp_correction), aes(x = arrayID, y = count, color = type, shape = type)) +
+ggplot(na.omit(arrayRp_correction), aes(x = array_id, y = count, color = type, shape = type)) +
   facet_wrap(vars(strain), nrow = 2) +
   scale_shape_manual(values = c(20, 2)) +
   geom_point(size = 4) +

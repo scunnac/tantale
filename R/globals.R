@@ -10,17 +10,14 @@ utils::globalVariables(c(
   "# Seq-ID", ".", "aa_seq", "array_id", "domain_type", "position_in_array", "position_in_crd", "dna_seq", "dom_code", "source_directory", "rvdSimVsRef", ".x", "rvd1", "position in uncorrected sequences", "AnnoTALELength", "Approx. p-value", "Dissim",
   "EBEstrand", "RANK", "RVD", "RVDs", "RepU1", "RepU2", "SCORE", "SEQ_ID",
   "Score", "Seq", "Sequence", "Sim", "Strand", "TAL1", "TAL2", "TALBS_end",
-  "TALBS_sequence", "TALBS_start", "TALE", "TAL_ID", "TAL_SEQ", "aaSeq",
-  "aa_length", "arlemScore", "arrayID", "dnaSeq", "domCode",
-  "domainType", "ebeSeq", "group", "label",
+  "TALBS_sequence", "TALBS_start", "TALE", "TAL_ID", "TAL_SEQ",   "aa_length", "arlemScore",   "ebeSeq", "group", "label",
   "matchConsensusRepeat", "matchConsensusRvd", "maxLength", "n", "name",
   "normArlemScore", "pattern", "pident", "position",
   "position in
-  uncorrected sequences", "positionInArray",
-  "positionInCrd", "qcov", "query", "queryHits", "query_name",
+  uncorrected sequences",   "qcov", "query", "queryHits", "query_name",
   "repeatClusterId", "repeatID", "repeatSimVsRef", "rvd",
   "rvd2ntMatchScore", "rvdFileLength", "rvdfac", "rvds", "rvdseq", "score",
-  "seqnames", "sourceDirectory", "strain", "strand", "string", "subj",
+  "seqnames", "strain", "strand", "string", "subj",
   "subjSeqId", "subjectHits", "subtree", "taleId", "target", "target_name",
   "tcov", "value", "variable", "xPos", "yPos", "yPosOnSeq"
 ))

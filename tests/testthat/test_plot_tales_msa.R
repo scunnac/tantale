@@ -120,7 +120,7 @@ test_that("the consensus panel labels the same layer as the cells", {
   panel <- tantale:::.consensus_panel(rvd, n_positions = ncol(rvd))
   expect_s3_class(panel, "ggplot")
   expect_identical(nrow(panel$data), ncol(rvd))
-  expect_identical(unique(panel$data$arrayID), "Consensus")
+  expect_identical(unique(panel$data$array_id), "Consensus")
 })
 
 test_that(".consensus_panel() reproduces tales_consensus(), with terminus relabelling", {
