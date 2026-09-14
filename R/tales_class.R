@@ -310,13 +310,7 @@ validate_tales <- function(x) {
       class = c("tantale_error_tales_position", "tantale_error")
     )
   }
-  residue <- intersect(TALES_RESIDUE_COLS, cols)
-  for (nm in residue) {
-    if (anyNA(x[[nm]])) {
-      cli::cli_abort("Residue column {.field {nm}} must not contain {.val NA}.",
-                     class = c("tantale_error_tales_na", "tantale_error"))
-    }
-  }
+  .tales_check_residue_na(x)
   .tales_check_key(x)
 
   ## Conditional invariants ------------------------------------------------
@@ -346,6 +340,21 @@ validate_tales <- function(x) {
       "{.field {nm}} must be {expected}, not {.obj_type_friendly {x[[nm]]}}.",
       class = c("tantale_error_tales_type", "tantale_error")
     )
+  }
+  invisible(NULL)
+}
+
+#' @keywords internal
+.tales_check_residue_na <- function(x) {
+  for (nm in intersect(TALES_RESIDUE_COLS, names(x))) {
+    if (anyNA(x[[nm]])) {
+      bad <- unique(x$array_id[is.na(x[[nm]])])
+      cli::cli_abort(
+        c("Residue column {.field {nm}} must not contain {.val NA}.",
+          "x" = "{length(bad)} array{?s} affected: {.val {utils::head(bad, 5)}}"),
+        class = c("tantale_error_tales_na", "tantale_error")
+      )
+    }
   }
   invisible(NULL)
 }

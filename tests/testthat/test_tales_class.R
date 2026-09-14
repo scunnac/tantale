@@ -340,3 +340,30 @@ test_that("a real distalr tale_parts table validates as tales", {
   expect_equal(nrow(x), nrow(tp))
   expect_true(all(c("array_id", "position_in_array", "dom_code") %in% names(x)))
 })
+
+
+test_that(".tales_check_residue_na() names the affected arrays", {
+  # Factored out of validate_tales()'s body so the validator delegates every
+  # check uniformly, and so a residue-completeness helper exists to reuse
+  # rather than being duplicated by callers.
+  df <- tibble::tibble(
+    array_id = c("a", "a", "b", "b"),
+    position_in_array = 1:4,
+    rvd = c("NI", NA, "HD", "NG")
+  )
+  expect_error(tantale:::.tales_check_residue_na(df),
+               class = "tantale_error_tales_na")
+  expect_error(tantale:::.tales_check_residue_na(df), "a", fixed = TRUE)
+  # and it is silent on a complete object
+  df$rvd <- c("NI", "NN", "HD", "NG")
+  expect_null(tantale:::.tales_check_residue_na(df))
+})
+
+test_that("the residue-NA check still fires through validate_tales()", {
+  df <- tibble::tibble(
+    array_id = c("a", "a"),
+    position_in_array = 1:2,
+    rvd = c("NI", NA)
+  )
+  expect_error(tales(df), class = "tantale_error_tales_na")
+})
