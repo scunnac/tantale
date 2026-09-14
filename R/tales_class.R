@@ -71,7 +71,7 @@ tales_anchor_codes <- function() {
 #' @return A \code{tales} object.
 #' @keywords internal
 #' @family tales objects
-new_tales <- function(x, dom_code_namespace = NULL, sanitize = FALSE) {
+new_tales <- function(x, dom_code_namespace = NULL) {
   stopifnot(is.data.frame(x))
   x <- tibble::as_tibble(x)
   if (!is.null(dom_code_namespace)) {
@@ -139,6 +139,12 @@ tales_namespace <- function(x) {
 #'   preserved untouched.
 #' @param dom_code_namespace Optional scalar string, see
 #'   \code{\link{tales_namespace}}.
+#' @param sanitize If \code{TRUE}, arrays carrying biological anomalies --
+#'   missing sequences, impossible terminus arrangements, coordinate
+#'   disagreements -- are removed, with a warning naming them and why. If
+#'   \code{FALSE} (default) they are kept and merely warned about, so odd
+#'   predictions can still be loaded and inspected. Structural corruption is
+#'   an error either way. See \code{\link{tales_anomalies}}.
 #' @return A validated \code{tales} object.
 #' @export
 #' @family tales objects
@@ -247,6 +253,9 @@ as_tales.default <- function(x, sep = "-", residue_col = c("rvd", "dom_code"), .
 #' The result carries no \code{dom_code}: that surrogate key is minted later,
 #' by the relatedness computation, over the whole set of parts being analysed.
 #'
+#' @param sanitize If \code{TRUE}, arrays carrying biological anomalies are
+#'   removed with a warning naming them and why; if \code{FALSE} (default) they
+#'   are kept and merely warned about. See \code{\link{tales_anomalies}}.
 #' @param telltale_dir Path to a single \code{\link[tantale:tell_tales]{tell_tales}}
 #'   output directory.
 #' @return A validated \code{tales} object.

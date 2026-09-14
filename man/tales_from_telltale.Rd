@@ -9,6 +9,10 @@ tales_from_telltale(telltale_dir, sanitize = FALSE)
 \arguments{
 \item{telltale_dir}{Path to a single \code{\link[tantale:tell_tales]{tell_tales}}
 output directory.}
+
+\item{sanitize}{If \code{TRUE}, arrays carrying biological anomalies are
+removed with a warning naming them and why; if \code{FALSE} (default) they
+are kept and merely warned about. See \code{\link{tales_anomalies}}.}
 }
 \value{
 A validated \code{tales} object.

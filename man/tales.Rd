@@ -16,6 +16,13 @@ preserved untouched.}
 
 \item{dom_code_namespace}{Optional scalar string, see
 \code{\link{tales_namespace}}.}
+
+\item{sanitize}{If \code{TRUE}, arrays carrying biological anomalies --
+missing sequences, impossible terminus arrangements, coordinate
+disagreements -- are removed, with a warning naming them and why. If
+\code{FALSE} (default) they are kept and merely warned about, so odd
+predictions can still be loaded and inspected. Structural corruption is
+an error either way. See \code{\link{tales_anomalies}}.}
 }
 \value{
 A validated \code{tales} object.

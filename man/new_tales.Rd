@@ -4,7 +4,7 @@
 \alias{new_tales}
 \title{Low-level constructor for a tales object}
 \usage{
-new_tales(x, dom_code_namespace = NULL, sanitize = FALSE)
+new_tales(x, dom_code_namespace = NULL)
 }
 \arguments{
 \item{x}{A tibble.}
