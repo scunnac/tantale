@@ -33,7 +33,7 @@ is not high, and a low diagonal would anyway assert that an \code{XX} must
 *not* align with an \code{XX}, which is a stronger claim than ignorance.
 
 Scale is irrelevant -- MAFFT normalises the matrix, so a linear rescale or
-offset leaves the alignment unchanged (verified). Only relative structure
+offset leaves the alignment unchanged. Only relative structure
 matters, so the correlations are used as they are.
 }
 \keyword{internal}

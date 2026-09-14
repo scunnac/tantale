@@ -108,7 +108,7 @@ tales_namespace <- function(x) {
 #' A content hash of the sorted unique amino acid sequences of a run.
 #'
 #' Hashing exactly that set is not arbitrary: \code{dom_code} is
-#' \code{cur_group_id()} over \code{aa_seq} (verified), so the code assignment is
+#' \code{cur_group_id()} over \code{aa_seq}, so the code assignment is
 #' a deterministic function of the sorted unique sequences and nothing else. Two
 #' runs over identical parts therefore hash alike and are correctly treated as
 #' compatible, while any change to the part set yields a different namespace.

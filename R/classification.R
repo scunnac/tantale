@@ -11,7 +11,6 @@
 #'   \code{\link{tales_compare}}. A plain data frame using the legacy
 #'   \code{TAL1}/\code{TAL2}/\code{Sim} column names is also accepted and
 #'   coerced.
-#' @inheritParams group_tales
 #' @param plot_tree Logical, whether to plot the hclust tree. With
 #'   \code{method = "k-medoids"} no tree is drawn; a silhouette-value plot is
 #'   produced instead.

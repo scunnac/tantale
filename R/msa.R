@@ -157,7 +157,7 @@ tales_consensus_match <- function(align, long = TRUE) {
 #' *not* align with an \code{XX}, which is a stronger claim than ignorance.
 #'
 #' Scale is irrelevant -- MAFFT normalises the matrix, so a linear rescale or
-#' offset leaves the alignment unchanged (verified). Only relative structure
+#' offset leaves the alignment unchanged. Only relative structure
 #' matters, so the correlations are used as they are.
 #'
 #' @param residues Character vector of the RVDs present in the alignment.
@@ -344,20 +344,103 @@ tales_consensus_match <- function(align, long = TRUE) {
 
 
 
+
+
+#' Build the one-row consensus panel used by plot_tales_msa()
+#'
+#' Returns a standalone ggplot holding a single "Consensus" row, styled to match
+#' the main alignment so the two read as one figure when composed with aplot.
+#'
+#' This has to be a separate panel rather than an extra row of the alignment:
+#' \code{aplot::insert_left()} reorders the main plot's y axis onto the tree's
+#' leaves, and a y level with no matching leaf is silently dropped -- the
+#' consensus row simply disappears.
+#'
+#' @param align The alignment matrix to take the consensus of.
+#' @param n_positions Width of the alignment, so the x scale matches the main plot.
+#' @param pad Whether to pad labels to three characters, as the main plot does
+#'   for \code{domCode}.
+#' @return A ggplot.
+#' @noRd
+.consensus_panel <- function(align, n_positions, pad = FALSE) {
+  cons <- tales_consensus(align)
+  cons <- gsub("NTERM", "N-", cons)
+  cons <- gsub("CTERM", "-C", cons)
+  if (isTRUE(pad)) cons <- stringr::str_pad(cons, 3, "left")
+  df <- tibble::tibble(positionInArray = seq_along(cons),
+                       arrayID = "Consensus",
+                       label = cons)
+  ggplot2::ggplot(df, mapping = ggplot2::aes(x = positionInArray, y = arrayID)) +
+    ggplot2::geom_label(mapping = ggplot2::aes(label = label),
+                        fill = "grey92", color = "grey15",
+                        label.size = NA, family = "mono",
+                        size = 3, fontface = "bold", na.rm = TRUE) +
+    ggplot2::scale_x_discrete(name = NULL, limits = factor(1:n_positions)) +
+    ggplot2::scale_y_discrete(name = NULL,
+                              expand = ggplot2::expansion(mult = c(0.15, 0.15))) +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+                   # keep the vertical rules so columns stay traceable between
+                   # this panel and the alignment below it
+                   panel.grid.major.y = ggplot2::element_blank(),
+                   panel.grid.minor = ggplot2::element_blank())
+}
+
+
 #' 'Nice' plotting a multiple alignment of TALE sequences
 #' @description Plot TALEs msa in the ggplot2 framework.
 #'
-#' @details This function as a similar purpose as
-#' the retired \code{msa_heatmap()} (see \code{inst/legacy/}) but is implemented with
-#' \code{\link[ggplot2:ggplot]{ggplot}}. It is more versatile (takes single row
-#' matrices of alignment) but a bit slower.
+#' @details
+#' Three things are decided independently, and it helps to read the figure that
+#' way: what each cell *says*, what colour that text is, and what colour the
+#' block behind it is.
 #'
-#' The type of plot that you will get will depend on the provided information in
-#' the form of parameter values See the tantale website for detailed usage
-#' cases.
+#' \strong{Cell text} is the RVD when \code{rvd_align} is supplied, and the
+#' repeat code otherwise. Termini are relabelled \code{N-} and \code{-C}; an
+#' unidentified terminus keeps its \code{XXXXX} code, which is deliberately not
+#' mistakable for an RVD. Repeat codes are padded to three characters so columns
+#' line up.
+#'
+#' \strong{Text colour} always answers one question: does this element match
+#' the consensus of its column? Cyan for yes, pink for no. The consensus is the
+#' most frequent element in the column (\code{\link{tales_consensus}}), taken
+#' over RVDs when \code{rvd_align} is supplied and over repeat codes otherwise
+#' -- so the text colour and the text itself always describe the same layer.
+#'
+#' \strong{Block fill} is what \code{fill_type} selects, and it is the only
+#' part that can be unavailable:
+#'
+#' \tabular{lll}{
+#'   \strong{fill_type} \tab \strong{shows} \tab \strong{needs} \cr
+#'   \code{"repeat_clust"} \tab which cluster the repeat falls in, cut at \code{h_cut} \tab \code{repeat_sim} \cr
+#'   \code{"repeat_sim"} \tab protein-sequence similarity to the reference, 0-100 \tab \code{repeat_sim} \cr
+#'   \code{"rvd_sim"} \tab how alike the RVD's DNA-binding preference is to the reference's, -1 to 1 \tab \code{rvd_align} \cr
+#' }
+#'
+#' With no \code{repeat_sim} and no \code{rvd_sim}, every block is flat grey:
+#' the text still carries the consensus comparison, but there is nothing to
+#' colour blocks by.
+#'
+#' A cell with no value for the chosen layer keeps its text and loses its
+#' colour. In \code{"rvd_sim"} that is the termini, which have no DNA-binding
+#' preference and so no position on a specificity scale.
+#'
+#' \strong{The reference} matters for both similarity fills. \code{ref_pattern}
+#' is matched against the array names and must identify exactly one, otherwise
+#' the default is used with a warning; by default it is the array with the most
+#' non-gap parts, ties broken alphabetically. The reference row is marked with a
+#' trailing \code{_#}.
+#'
+#' \strong{Two panels may be attached.} Supplying \code{tal_sim} with more
+#' than one array adds a dendrogram panel on the left; \code{consensus = TRUE}
+#' adds a consensus panel on top. When either is present the return value is an
+#' \code{aplot} composition rather than a single ggplot, so modify the
+#' alignment through its \code{plotlist} element rather than adding layers to
+#' the result directly.
 #'
 #' The only mandatory argument is either \code{repeat_align} \strong{or}
-#' \code{rvd_align}.
+#' \code{rvd_align}; what the figure shows depends on which of the optional
+#' inputs you supply, as described below.
 #'
 #' The plot is printed and returned for further modifications is necessary.
 #'
@@ -405,47 +488,6 @@ tales_consensus_match <- function(align, long = TRUE) {
 #' 
 #' @export
 #' @family TALE plots
-#' Build the one-row consensus panel used by plot_tales_msa()
-#'
-#' Returns a standalone ggplot holding a single "Consensus" row, styled to match
-#' the main alignment so the two read as one figure when composed with aplot.
-#'
-#' This has to be a separate panel rather than an extra row of the alignment:
-#' \code{aplot::insert_left()} reorders the main plot's y axis onto the tree's
-#' leaves, and a y level with no matching leaf is silently dropped -- the
-#' consensus row simply disappears.
-#'
-#' @param align The alignment matrix to take the consensus of.
-#' @param n_positions Width of the alignment, so the x scale matches the main plot.
-#' @param pad Whether to pad labels to three characters, as the main plot does
-#'   for \code{domCode}.
-#' @return A ggplot.
-#' @noRd
-.consensus_panel <- function(align, n_positions, pad = FALSE) {
-  cons <- tales_consensus(align)
-  cons <- gsub("NTERM", "N-", cons)
-  cons <- gsub("CTERM", "-C", cons)
-  if (isTRUE(pad)) cons <- stringr::str_pad(cons, 3, "left")
-  df <- tibble::tibble(positionInArray = seq_along(cons),
-                       arrayID = "Consensus",
-                       label = cons)
-  ggplot2::ggplot(df, mapping = ggplot2::aes(x = positionInArray, y = arrayID)) +
-    ggplot2::geom_label(mapping = ggplot2::aes(label = label),
-                        fill = "grey92", color = "grey15",
-                        label.size = NA, family = "mono",
-                        size = 3, fontface = "bold", na.rm = TRUE) +
-    ggplot2::scale_x_discrete(name = NULL, limits = factor(1:n_positions)) +
-    ggplot2::scale_y_discrete(name = NULL,
-                              expand = ggplot2::expansion(mult = c(0.15, 0.15))) +
-    ggplot2::theme_minimal() +
-    ggplot2::theme(axis.text.x = ggplot2::element_blank(),
-                   # keep the vertical rules so columns stay traceable between
-                   # this panel and the alignment below it
-                   panel.grid.major.y = ggplot2::element_blank(),
-                   panel.grid.minor = ggplot2::element_blank())
-}
-
-
 plot_tales_msa <- function(repeat_align,
                            tal_sim = NULL,
                            rvd_align = NULL,

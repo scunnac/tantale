@@ -114,8 +114,10 @@ repeat"; the RVD fill shows the specificities are opposed.
 It needs `rvd_align` but **not** `repeat_sim`, so it works without having run
 `tales_compare()`. It gets a diverging scale centred on zero, since the score
 is signed on [-1, 1] -- the sequential 0-100 palette would flatten "opposite"
-and "somewhat different" together. `XX` cells render grey (`NA`), consistent
-with the alignment treatment.
+and "somewhat different" together. Cells with no score render grey. On the reference fixture those are the
+termini (`NTERM`/`CTERM`), which are not RVDs and so have no specificity to
+compare -- not `XX`, which is a genuine RVD with a uniform profile. The cell
+keeps its own label either way, so nothing reads as `NA`.
 
 **`rvdSimDf` also scores RVD alignments** -- see 7.5. That use came out of
 noticing that RVD alignments had no scoring matrix at all.
@@ -880,6 +882,35 @@ bundled copy only if present. The `mustWork = TRUE` has to go either way.
 **The jar files are a separate question.** `AnnoTALEcli` and `PrediTALE` are
 30 MB together; bioconda has no package for either as far as I know, so they
 would have to stay, be downloaded on demand, or move to a data package.
+
+---
+
+### 7.5 Worked examples: vignettes and `@examples` **[A]**
+
+`plot_tales_msa()` is the most capable function in the package and the hardest
+to use: three independent things determine the rendering (cell text, text
+colour, block fill), each with its own inputs. Its `@details` now explains the
+mechanism, but explanation is not the same as demonstration.
+
+Two gaps, both out of scope for now:
+
+**The pkgdown MSA section is obsolete.** It was written against
+`msa_heatmap()`, which is retired, and against the legacy slot names. Vignette
+3's calls were migrated mechanically but the surrounding prose still describes
+the old workflow, and none of it can be verified while 7.1 stands. It needs
+rewriting as a set of commented examples covering the combinations a user
+actually reaches for -- each `fill_type`, with and without a tree, with and
+without a consensus panel, RVD versus repeat-code labels.
+
+**No exported function has `@examples`.** Nothing in `man/` carries a runnable
+example, so `R CMD check` exercises none of the documented API and a reader has
+nothing to copy. This matters most for the plotting and class constructors,
+where the argument combinations are the hard part.
+
+Note the dependency: useful `@examples` need small, fast, self-contained
+fixtures. `inst/extdata` has some, but the plotting examples would want a tiny
+alignment that does not require running MAFFT. Worth building that fixture
+first; it would serve the vignettes too.
 
 ---
 

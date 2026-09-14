@@ -41,6 +41,7 @@ rather than passed as separate matrices — which is what
 Other TALE plots:
 \code{\link[=plot.tales]{plot.tales()}},
 \code{\link[=plot_tales_composition]{plot_tales_composition()}},
+\code{\link[=plot_tales_msa]{plot_tales_msa()}},
 \code{\link[=plot_target_preds]{plot_target_preds()}},
 \code{\link[=talomes_heatmap]{talomes_heatmap()}}
 }
