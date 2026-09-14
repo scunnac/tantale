@@ -89,6 +89,52 @@ tales_consensus_match <- function(align, long = TRUE) {
 #' Implementation behind \code{\link{tales_align}} and the deprecated
 #' \code{\link{tales_align}}. Internal so that package code can call it
 #' without tripping the deprecation warning.
+#' Normalise a pairwise table to what MAFFT's --textmatrix wants
+#'
+#' MAFFT scores matches, so it wants a *similarity*: higher means more alike.
+#' Accepts either the canonical \code{\link{pairwise_distances}} vocabulary
+#' (\code{id1}, \code{id2}, \code{dissim}) or the legacy one
+#' (\code{RepU1}, \code{RepU2}, \code{Sim}), and returns the legacy column
+#' names the rest of the function is written against.
+#'
+#' The distance is inverted on the way in. Without this, handing
+#' \code{tales_align()} a \code{domain_distances} -- the documented path --
+#' failed with "Can't subset columns that don't exist", because the canonical
+#' vocabulary replaced the legacy one everywhere except here.
+#'
+#' @param x A data frame of pairwise scores.
+#' @return A three-column data frame named \code{RepU1}, \code{RepU2}, \code{Sim}.
+#' @keywords internal
+.as_mafft_score_table <- function(x) {
+  nms <- names(x)
+  if (all(c("id1", "id2") %in% nms)) {
+    if ("dissim" %in% nms) {
+      out <- data.frame(RepU1 = x$id1, RepU2 = x$id2, Sim = 100 - x$dissim,
+                        stringsAsFactors = FALSE)
+    } else if ("sim" %in% nms) {
+      out <- data.frame(RepU1 = x$id1, RepU2 = x$id2, Sim = x$sim,
+                        stringsAsFactors = FALSE)
+    } else {
+      cli::cli_abort(
+        c("A pairwise table must carry {.field dissim} or {.field sim}.",
+          "i" = "Got: {.field {nms}}"),
+        class = c("tantale_error_msa_sim_table", "tantale_error")
+      )
+    }
+    return(out)
+  }
+  if (all(c("RepU1", "RepU2", "Sim") %in% nms)) {
+    return(as.data.frame(x[, c("RepU1", "RepU2", "Sim")]))
+  }
+  cli::cli_abort(
+    c("Cannot read {.arg repeat_sims}.",
+      "i" = "Expected {.field id1}/{.field id2}/{.field dissim}, or the legacy {.field RepU1}/{.field RepU2}/{.field Sim}.",
+      "x" = "Got: {.field {nms}}"),
+    class = c("tantale_error_msa_sim_table", "tantale_error")
+  )
+}
+
+
 #' @noRd
 .build_repeat_msa <- function(input_seqs, sep = " ", repeat_sims = NULL,
                            mafft_opts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1",
@@ -166,7 +212,7 @@ tales_consensus_match <- function(align, long = TRUE) {
     if (length(repeat_sims) > 1 &&
         (is.data.frame(repeat_sims) | tibble::is_tibble(repeat_sims))
     ) {
-      repeatSims <- repeat_sims[,c("RepU1", "RepU2", "Sim")]
+      repeatSims <- .as_mafft_score_table(repeat_sims)
     } else if (length(repeat_sims) == 1 && is.character(repeat_sims)) {
       repeatSims <- .format_repeat_dist_mat(repeat_sims)
     } else {
