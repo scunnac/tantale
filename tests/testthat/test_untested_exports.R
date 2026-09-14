@@ -11,7 +11,7 @@ test_that("tale_parts_to_rvd() renders one RVD string per array", {
   d <- fixture()
   out <- tale_parts_to_rvd(d$tale_parts)
   expect_s4_class(out, "BStringSet")
-  expect_length(out, length(unique(d$tale_parts$arrayID)))
+  expect_length(out, length(unique(d$tale_parts[["array_id"]])))
 })
 
 test_that("rvd_only = TRUE drops every anchor code, not just NTERM/CTERM", {
@@ -45,7 +45,7 @@ test_that("repeat_to_rvd_map_distalr() maps each repeat code to exactly one RVD"
   expect_named(m, c("repeatID", "RVD"))
   # the mapping must be a function: one RVD per repeat code, never two
   expect_identical(anyDuplicated(m$repeatID), 0L)
-  expect_identical(nrow(m), length(unique(d$tale_parts$domCode)))
+  expect_identical(nrow(m), length(unique(d$tale_parts[["dom_code"]])))
 })
 
 test_that("validate_pairwise_distances() accepts a valid object and rejects a broken one", {

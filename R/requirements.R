@@ -29,7 +29,8 @@ TALES_REQUIREMENTS <- list(
   plot_tales_composition = list(all_of = c("rvd", "aa_seq", "domain_type"),
                                 optional = c("seqnames", "alignment_position"),
                                 note = "seqnames adds a facet; alignment_position enables position = \"alignment\""),
-  tale_parts_to_rvd      = list(all_of = "rvd")
+  tale_parts_to_rvd      = list(all_of = "rvd"),
+  repeat_to_rvd_map_distalr = list(all_of = c("dom_code", "rvd"))
 )
 
 
@@ -83,6 +84,7 @@ TALES_REQUIREMENTS <- list(
 #'   \item{\code{tales_domain_codes()}}{\code{dom_code} and \code{aa_seq}; \code{rvd} included when present}
 #'   \item{\code{plot_tales_composition()}}{\code{rvd}, \code{aa_seq}, \code{domain_type}; \code{seqnames} adds a facet, \code{alignment_position} enables the aligned layout}
 #'   \item{\code{tale_parts_to_rvd()}}{\code{rvd}}
+#'   \item{\code{repeat_to_rvd_map_distalr()}}{\code{dom_code}, \code{rvd}}
 #' }
 #'
 #' @return A tibble of function, requirement kind, and columns.

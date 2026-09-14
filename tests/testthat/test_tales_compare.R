@@ -131,7 +131,7 @@ test_that("re-minting over an existing dom_code warns", {
 test_that(".translate_parts() reproduces the stored aa_seq exactly", {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   tp <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))$tale_parts
-  expect_identical(tantale:::.translate_parts(tp$dnaSeq), tp$aaSeq)
+  expect_identical(tantale:::.translate_parts(tp[["dna_seq"]]), tp[["aa_seq"]])
 })
 
 test_that("translation needs no.init.codon: repeats start on CTG/TTG", {

@@ -538,10 +538,8 @@ tales_compare <- function(x, ncores = 1, aln_method = "DECIPHER",
 
   namespace <- .tales_dom_code_namespace(x$aa_seq)
 
-  # The core still speaks the legacy column vocabulary; translate either side.
-  legacy <- .tales_to_legacy(x)
-  core <- .tales_compare_core(tale_parts = legacy, ncores = ncores,
-                                  aln_method = aln_method, conda_bin = conda_bin)
+  core <- .tales_compare_core(tale_parts = tibble::as_tibble(x), ncores = ncores,
+                              aln_method = aln_method, conda_bin = conda_bin)
 
   list(
     tales = tales(core$tale_parts, dom_code_namespace = namespace),
@@ -556,65 +554,51 @@ tales_compare <- function(x, ncores = 1, aln_method = "DECIPHER",
   )
 }
 
-#' Rename a tales object's columns back to the legacy vocabulary
-#'
-#' Temporary bridge, the mirror of \code{.tales_rename_legacy()}. Removable once
-#' the column sweep of restructuring-notes.md §9.2 lands.
-#' @noRd
-.tales_to_legacy <- function(x) {
-  x <- tibble::as_tibble(x)
-  hit <- intersect(names(x), unname(TALES_LEGACY_NAMES))
-  if (length(hit) == 0L) return(x)
-  back <- stats::setNames(names(TALES_LEGACY_NAMES), unname(TALES_LEGACY_NAMES))
-  names(x)[match(hit, names(x))] <- unname(back[hit])
-  x
-}
-
 
 #' The expensive part of the relatedness computation
 #'
-#' Shared by \code{\link{tales_compare}} and the deprecated
-#' \code{\link{tales_compare}}. Speaks the legacy column vocabulary and returns raw
-#' pieces; classing, stamping and assembly happen in the callers. Deliberately
+#' Called by \code{\link{tales_compare}}. Takes a plain tibble in the canonical
+#' column vocabulary and returns raw pieces; classing, stamping and assembly
+#' happen in the caller. Deliberately
 #' does no clustering: that was a stored field with no consumers, recomputed by
 #' its only would-be user at a different cut height (restructuring-notes.md §1).
 #' @noRd
 .tales_compare_core <- function(tale_parts, ncores = 1,
-                                    aln_method = "DECIPHER", conda_bin = "auto") {
+                                aln_method = "DECIPHER", conda_bin = "auto") {
   
   #### Reality checks ####
   
   ## Make sure we are dealing only with parts that have defined protein sequences.
-  if (any(is.na(tale_parts$aaSeq) | tale_parts$aaSeq == "")) {
+  if (any(is.na(tale_parts$aa_seq) | tale_parts$aa_seq == "")) {
     # must match the guard above, or an empty-string part lists nothing
-    badArrays <- unique(tale_parts$arrayID[is.na(tale_parts$aaSeq) | tale_parts$aaSeq == ""])
+    badArrays <- unique(tale_parts$array_id[is.na(tale_parts$aa_seq) | tale_parts$aa_seq == ""])
     cli::cli_abort(
       c("Some of the provided TALE parts have no amino acid sequence.",
         "i" = "Affected array{?s}: {.val {badArrays}}"),
       class = c("tantale_error_parts_no_aa", "tantale_error"))
   }
-  if (any(is.na(tale_parts$dnaSeq) | tale_parts$dnaSeq == "")) {
+  if (any(is.na(tale_parts$dna_seq) | tale_parts$dna_seq == "")) {
     cli::cli_warn("It seems that some of the provided TALE parts miss the DNA sequence!")
   } 
   
-  ## Make sure that arrayID - position combinations are unique
-  # in case someone would not have made arrayIDs unique before
+  ## Make sure that array_id - position combinations are unique
+  # in case someone would not have made array_ids unique before
   # mixing tale predictions from several genomes...
   arayPosCombinCounts <- tale_parts %>%
-    dplyr::group_by(arrayID, positionInArray) %>%
+    dplyr::group_by(array_id, position_in_array) %>%
     dplyr::count() %>%
     dplyr::pull(n)
   if (!all(arayPosCombinCounts == 1L)) {
     cli::cli_abort(paste0("Your tale arrays identifers are probably not unique.",
          "\n",
-         "Make sure that there is only one part per position per arrayID."), class = c("tantale_error"))
+         "Make sure that there is only one part per position per array_id."), class = c("tantale_error"))
   }
   
   # Assign domain codes
-  tale_parts %<>% dplyr::group_by(aaSeq) %>%
-    dplyr::mutate(domCode = dplyr::cur_group_id() %>% unlist() %>% as.character()) %>%
+  tale_parts %<>% dplyr::group_by(aa_seq) %>%
+    dplyr::mutate(dom_code = dplyr::cur_group_id() %>% unlist() %>% as.character()) %>%
     dplyr::ungroup() %>%
-    dplyr::mutate(domCode = dplyr::if_else(is.na(aaSeq), as.character(NA), domCode))
+    dplyr::mutate(dom_code = dplyr::if_else(is.na(aa_seq), as.character(NA), dom_code))
   
   
   #### Assemble repeat code strings and write in a file for arlem ####
@@ -622,16 +606,16 @@ tales_compare <- function(x, ncores = 1, aln_method = "DECIPHER",
   
   codesSeqsfile <- tempfile(fileext = ".fasta")
   repeatStrings <- tale_parts %>%
-    dplyr::group_by(arrayID) %>%
-    dplyr::arrange(positionInArray) %>%
-    dplyr::summarise(repeatString = paste(domCode, collapse = " "),
-                     posString = paste(positionInArray, collapse = " "))
+    dplyr::group_by(array_id) %>%
+    dplyr::arrange(position_in_array) %>%
+    dplyr::summarise(repeatString = paste(dom_code, collapse = " "),
+                     posString = paste(position_in_array, collapse = " "))
   codesSeqSet <- Biostrings::BStringSet(repeatStrings$repeatString)
-  names(codesSeqSet) <- repeatStrings$arrayID
+  names(codesSeqSet) <- repeatStrings$array_id
   
   # # Must use seqinr because Biostrings wraps sequences in fasta file which messes up Arlem...
   # codesSeqLst <- as.list(repeatStrings$repeatString)
-  # names(codesSeqLst) <- repeatStrings$arrayID
+  # names(codesSeqLst) <- repeatStrings$array_id
   # seqinr::write.fasta(codesSeqLst, names = names(codesSeqLst),
   #                     file.out = codesSeqsfile, as.string = TRUE, nbchar = 10000)
   
@@ -643,8 +627,8 @@ tales_compare <- function(x, ncores = 1, aln_method = "DECIPHER",
   
   #### Compute systematic pairwise dissimilarities (distances) between 'repeat' units. ####
   # Get unique domains sequences
-  taleAaParts <- Biostrings::AAStringSet(tale_parts$aaSeq)
-  names(taleAaParts) <- tale_parts$domCode
+  taleAaParts <- Biostrings::AAStringSet(tale_parts$aa_seq)
+  names(taleAaParts) <- tale_parts$dom_code
   uniqueTaleAaParts <- unique(taleAaParts)
   stopifnot(!anyDuplicated(names(uniqueTaleAaParts)))
   stopifnot(!anyDuplicated(names(unique(taleAaParts))))
@@ -752,8 +736,8 @@ tales_compare <- function(x, ncores = 1, aln_method = "DECIPHER",
     tibble::as_tibble()
   colnames(arlemScores) <- c("TAL1", "TAL2", "arlemScore")
   
-  #### Compute normalized arlem scores and include arrayIDs rather than arlem index ####
-  arrayLengths <- tale_parts %>% dplyr::group_by(arrayID) %>% dplyr::count()
+  #### Compute normalized arlem scores and include array_ids rather than arlem index ####
+  arrayLengths <- tale_parts %>% dplyr::group_by(array_id) %>% dplyr::count()
   
   normArlemScoresTble <- arlemScores %>%
     dplyr::mutate(
@@ -762,8 +746,8 @@ tales_compare <- function(x, ncores = 1, aln_method = "DECIPHER",
     ) %>%
     dplyr::rowwise() %>%
     dplyr::mutate(
-      maxLength = max(arrayLengths$n[arrayLengths$arrayID == TAL1],
-                      arrayLengths$n[arrayLengths$arrayID == TAL2]),
+      maxLength = max(arrayLengths$n[arrayLengths$array_id == TAL1],
+                      arrayLengths$n[arrayLengths$array_id == TAL2]),
       normArlemScore = arlemScore/maxLength,
       Sim = 100 - normArlemScore
     ) %>%

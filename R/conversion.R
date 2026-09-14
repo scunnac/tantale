@@ -176,13 +176,11 @@ repeat_to_rvd_map <- function(repeat_vecs, rvd_vecs) {
 #' @export
 #' @family tales projections
 repeat_to_rvd_map_distalr <- function(tale_parts) {
-  if (!any("domCode" %in% colnames(tale_parts))) {
-    cli::cli_abort("The provided object does not contain a 'domCode' column. Are you using a tale_parts object from distalr()", class = c("tantale_error"))
-  }
+  .tales_require(tale_parts, "repeat_to_rvd_map_distalr")
   tale_parts %>% 
-    dplyr::select(domCode, rvd) %>%
+    dplyr::select(dom_code, rvd) %>%
     dplyr::distinct() %>%
-    dplyr::rename(repeatID = domCode,  RVD = rvd) %>%
+    dplyr::rename(repeatID = dom_code,  RVD = rvd) %>%
     dplyr::arrange(repeatID)
 }
 
@@ -408,14 +406,14 @@ tale_parts_to_rvd <- function(tale_parts, sep = "-", rvd_only = FALSE) {
   }
   
   rvdStrings <- tale_parts %>%
-    dplyr::group_by(arrayID) %>%
-    dplyr::arrange(positionInArray) %>%
+    dplyr::group_by(array_id) %>%
+    dplyr::arrange(position_in_array) %>%
     dplyr::summarise(
       rvdString = paste(rvd, collapse = "-"),
-      posString = paste(positionInArray, collapse = sep)
+      posString = paste(position_in_array, collapse = sep)
     )
   rvdStringsSet <- Biostrings::BStringSet(rvdStrings$rvdString)
-  names(rvdStringsSet) <- rvdStrings$arrayID
+  names(rvdStringsSet) <- rvdStrings$array_id
   return(rvdStringsSet)
 }
 
