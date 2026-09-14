@@ -17,32 +17,8 @@
 }
 
 
-.write_hmm_file <- function(hmmer_path = NULL, alignment_file, hmm_out_file) {
-  if (is.null(hmmer_path)) hmmer_path <- .get_hmmer()
-  .check_hmmer(hmmer_path)
-  buildCmd <- paste(file.path(hmmer_path,"hmmbuild"),
-                    hmm_out_file,
-                    alignment_file,
-                    sep = " ")
-  commandOut <- system(command = buildCmd, ignore.stderr = FALSE, intern = TRUE)
-  return(commandOut)
-}
 
 
-.run_hmmer_search <- function(hmmer_path = NULL, subject_file, hmm_file, search_out_file, readable_out_file) {
-  if (is.null(hmmer_path)) hmmer_path <- .get_hmmer()
-  .check_hmmer(hmmer_path)
-  searchCmd <- paste(file.path(hmmer_path, "hmmsearch"),
-                     "--tblout",
-                     search_out_file,
-                     hmm_file,
-                     subject_file,
-                     ">",
-                     readable_out_file,
-                     sep = " "
-  )
-  system(command = searchCmd, ignore.stderr = FALSE, intern = TRUE)
-}
 
 
 .run_nhmmer_search <- function(hmmer_path = NULL, subject_file, hmm_file, search_out_file, readable_out_file) {
@@ -61,19 +37,6 @@
 }
 
 
-.run_hmmalign <- function(hmmer_path = NULL, hmm_file, seqs_file, align_out_file) {
-  if (is.null(hmmer_path)) hmmer_path <- .get_hmmer()
-  .check_hmmer(hmmer_path)
-  alignCmd <- paste(file.path(hmmer_path, "hmmalign"),
-                    "--outformat Phylip", #Stockholm, SELEX, Clustal, Phylip, Pfam, A2M, PSIBLAST.
-                    "--trim",
-                    hmm_file,
-                    seqs_file,
-                    ">", align_out_file,
-                    sep = " "
-  )
-  system(command = alignCmd, ignore.stderr = FALSE, intern = TRUE)
-}
 
 
 .correction_tibble <- function(indels) {
@@ -134,22 +97,4 @@ annout <- setClass(
   
 }
 
-## !! THIS SHOULD BE MADE OBSOLETE AND CODE USING IT SHOULD BE MODIFIED
-.extract_seqs_from_hits <- function(nhmmer_hits, dna_seqs){
-  repeatSeqsSetList <- mapply(
-    function(hitID, start, end, strand, subjectID, sequences) {
-      seq <- XVector::subseq(sequences[subjectID], start, end)
-      if (strand == "-") {seq <- Biostrings::reverseComplement(seq)}
-      names(seq) <- hitID
-      return(seq)
-    },
-    hitID = nhmmer_hits$hitID,
-    start = nhmmer_hits$start,
-    end = nhmmer_hits$end,
-    strand = nhmmer_hits$strand,
-    subjectID = nhmmer_hits$target_name,
-    MoreArgs = list(sequences = dna_seqs),
-    USE.NAMES = FALSE)
-  do.call(c, repeatSeqsSetList)
-}
 

@@ -275,64 +275,6 @@ repeat_to_rvd_align <- function(repeat_align , rvd_map) {
 
 
 
-#' View an RVD alignment in terms of repeat codes
-#'
-#' The inverse direction of \code{repeat_to_rvd_align()}: given an alignment
-#' computed on RVDs, substitute each non-gap cell with the corresponding repeat
-#' code. The two alphabets differ greatly -- a few dozen RVDs against hundreds
-#' of mostly-singleton repeat codes -- so aligning on one and viewing as the
-#' other is a genuinely different result from aligning on the other directly.
-#'
-#' The mapping is **positional**: the k-th non-gap cell of a row is taken to be
-#' the k-th element of that row's repeat vector. That is only well defined when
-#' the two agree in length, which is now checked.
-#'
-#' @param rvd_msa_by_group A character matrix of aligned RVDs, rows named by array.
-#' @param repeat_vecs A named list of repeat-code vectors, one per row of
-#'   \code{rvd_msa_by_group}.
-#' @return A character matrix with the dimensions and dimnames of \code{rvd_msa_by_group}.
-#' @keywords internal
-.rvd_to_repeat_align <- function(rvd_msa_by_group, repeat_vecs) {
-  missingRows <- setdiff(rownames(rvd_msa_by_group), names(repeat_vecs))
-  if (length(missingRows) > 0L) {
-    cli::cli_abort(
-      c("Every aligned row needs a matching entry in {.arg repeat_vecs}.",
-        "x" = "Missing: {.val {missingRows}}"),
-      class = c("tantale_error_rvd_repeat_missing", "tantale_error"))
-  }
-  nonGap <- rowSums(!is.na(rvd_msa_by_group))
-  lens <- lengths(repeat_vecs[rownames(rvd_msa_by_group)])
-  bad <- which(nonGap != lens)
-  if (length(bad) > 0L) {
-    cli::cli_abort(
-      c("The back-mapping is positional, so each row must have as many non-gap \\
-         cells as it has repeat codes.",
-        "x" = "Mismatched row{?s}: {.val {rownames(rvd_msa_by_group)[bad]}}",
-        "i" = "non-gap cells {nonGap[bad]} vs {lens[bad]} repeat codes"),
-      class = c("tantale_error_rvd_repeat_length", "tantale_error"))
-  }
-  repSeqs <- lapply(rownames(rvd_msa_by_group), function(r) {
-    rvdSeq <- rvd_msa_by_group[r,]
-    repSeq <- repeat_vecs[[r]]
-
-    n = 1
-    for (i in 1:length(rvdSeq)) {
-      if (is.na(rvdSeq[i])) {
-        next()
-      } else {
-        rvdSeq[i] <- repSeq[n]
-        n <- n + 1
-      }
-    }
-    rvdSeq <- matrix(rvdSeq, nrow = 1)
-    return(rvdSeq)
-  })
-  repeatMsaByGroup <- do.call(rbind, repSeqs)
-  repeatMsaByGroup <- matrix(repeatMsaByGroup, nrow = nrow(rvd_msa_by_group))
-  rownames(repeatMsaByGroup) <- rownames(rvd_msa_by_group)
-  colnames(repeatMsaByGroup) <- colnames(rvd_msa_by_group)
-  return(repeatMsaByGroup)
-}
 
 
 

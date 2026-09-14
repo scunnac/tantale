@@ -971,6 +971,58 @@ Worth remembering when writing cli messages: an inline style span such as
 
 ---
 
+## 8.5 Internals audit — function census **[V]**
+
+A census of every top-level definition in `R/` (111: 51 exported, 60
+internal), counting call sites within the package.
+
+**Single-caller internals: 27.** But 18 of those already sit in the same file
+as their caller, so the maintenance cost is concentrated in the 9 that do
+not:
+
+| internal | defined in | only caller |
+|---|---|---|
+| `.repeat_to_sim_align()` | `conversion.R` | `msa.R` |
+| `.repeat_to_cluster_align()` | `conversion.R` | `msa.R` |
+| `.rvd_to_match_align()` | `conversion.R` | `msa.R` |
+| `.tale_parts()` | `distalr.R` | `tales_class.R` |
+| `.build_repeat_msa()` | `msa.R` | `tales_msa_class.R` |
+| `.tales_dom_code_namespace()` | `tales_class.R` | `distalr.R` |
+| `.tales_msa_contract_holds()` | `tales_msa_class.R` | `tales_class.R` |
+| `.run_nhmmer_search()` | `tellTale_utilities.R` | `telltale.R` |
+| `.hits_report_to_gff()` | `tellTale_utilities.R` | `telltale.R` |
+
+**The test is not "how many callers".** Some single-caller helpers earn their
+name: `.pairwise_align_biostrings/mmseq2/decipher()` are three siblings behind
+a `switch` and their symmetry is the readable part; the `.tales_check_*()`
+validators surface in error provenance. The useful question is whether the
+helper has a name the reader needs. If it does, it should live *next to* its
+caller; if it does not, it is a paragraph of the caller that was given a name
+for no reason.
+
+**Callers with no caller: 5.** Moved to `R/unused_pending_review.R`, not
+deleted -- see the header of that file for what is known about each.
+
+### 8.6 Legacy preconditions leaking through class methods **[A]**
+
+`plot.tales_msa()` decomposes its object and hands the pieces to
+`plot_tales_msa()`, whose argument checks are written for a caller assembling
+matrices by hand. Measured against what the class guarantees:
+
+| check in `plot_tales_msa()` | reachable via the method? |
+|---|---|
+| neither `repeat_align` nor `rvd_align` given | no -- the method always builds `repeat_align` |
+| `repeat_align` was coerced to a vector | no -- `as.matrix.tales_msa()` uses `matrix()`; a one-array subset still returns a `1 x n` matrix |
+| `rvd_align` was coerced to a vector | no -- same |
+| fewer than one sequence | **yes** -- a zero-row `tales_msa` is valid |
+
+So three of four are unstateable, and the one that fires reports a problem
+with `repeat_align`, an argument a `plot(x)` caller never supplied and cannot
+inspect.
+
+Decided: `plot_tales_msa()` is folded into `plot.tales_msa()` and unexported.
+Expect the same shape at the other entry points.
+
 ## 9. Long-term systematic passes **[A]**
 
 Whole-codebase sweeps, to be done deliberately rather than opportunistically.
