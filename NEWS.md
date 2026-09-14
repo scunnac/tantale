@@ -122,6 +122,51 @@ Note the changed reading of the numbers: what used to display as a TALE
 similarity of 91.75–100 is the same information shown as a distance of
 0–8.25.
 
+## Breaking change: every column is now `snake_case`
+
+The tables `tantale` returns used four naming conventions at once, one of them
+with a literal space in a column name. They now use one.
+
+### The `tales` table
+
+`arrayID`, `domainType`, `positionInCrd`, `dnaSeq`, `sourceDirectory`,
+`positionInArray`, `aaSeq` and `domCode` become `array_id`, `domain_type`,
+`position_in_crd`, `dna_seq`, `source_directory`, `position_in_array`,
+`aa_seq` and `dom_code`.
+
+`tales()` still accepts the old spellings and renames them, so a `tell_tales()
+` output directory written by an earlier version still loads.
+
+### The distance tables
+
+`domain_distances` and `tale_distances` previously disagreed about how to name
+the pair being compared -- `RepU1`/`RepU2` in one, `TAL1`/`TAL2` in the other,
+and in opposite column orders. Both now use `id1`, `id2` and `dissim`, with
+`arlem_score` and `max_length` alongside for the TALE table.
+
+`pairwise_distances()` accepts `TAL1`/`RepU1`/`Sim`/`Dissim`/`arlemScore` and
+renames them, and `plot_tales_msa()` puts its `tal_sim` and `repeat_sim`
+arguments through it, so passing an old-format table still works.
+
+### On-disk output
+
+`tell_tales()` writes `array_id` instead of `arrayID` in `arrayReport.tsv`,
+`domainsReport.tsv` and `hitsReport.tsv`, and the GFFs derived from them carry
+an `array_id` attribute. **Scripts that read these files by column name need
+updating.**
+
+### Fixed along the way
+
+- `.tale_parts_from_file()` named its column `arrayIDs` when the input was
+  empty and `arrayID` otherwise, so the two returns had incompatible schemas.
+- `repeat_to_rvd_map_distalr()` and `tale_parts_to_rvd()` are documented as
+  taking a `tales_compare()` result but read the pre-class column names, so
+  both had been broken against that result.
+- `.repeat_to_cluster_align()` recovered a distance by computing `100 - Sim`
+  before clustering, which assumed the scale ran 0-100. It now reads the
+  stored distance.
+- Six `if (class(x) == "...")` comparisons became `inherits()`.
+
 ## Breaking change: package-wide naming overhaul
 
 The package had accumulated two incompatible naming styles (camelCase, snake_case, and some dot.case) across its history, which made the API hard to predict and, in argument names, occasionally collided with R's own S3 dispatch conventions. Every exported function, and most internal ones, have been renamed to a single consistent `snake_case` style. There is no backward-compatible alias for any old name — this is a clean break, not a deprecation cycle. If you have scripts using the old API, use the `master` branch, which still has the old names, as a reference while you update.

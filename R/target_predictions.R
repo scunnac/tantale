@@ -34,10 +34,10 @@
 preditale <- function(rvd_seqs, subj_file, opt_param = "", output_dir = NULL,
                       predictor_path = system.file("tools", "PrediTALE.jar", package = "tantale", mustWork = T)) {
   # Checking input args
-  if (class(rvd_seqs) == "character") {
+  if (inherits(rvd_seqs, "character")) {
     rvdSeqsTest <- Biostrings::readBStringSet(rvd_seqs)
     rvdSeqsFile <- rvd_seqs
-  } else if (class(rvd_seqs) == "BStringSet") {
+  } else if (inherits(rvd_seqs, "BStringSet")) {
     rvdSeqsFile <- tempfile()
     Biostrings::writeXStringSet(rvd_seqs, rvdSeqsFile)
   } else {
@@ -132,9 +132,9 @@ talvez <- function(rvd_seqs, subj_file, opt_param = "-t 0 -l 19", output_dir = N
                    conda_bin = "auto") {
 
   # Checking input args
-  if (class(rvd_seqs) == "character") {
+  if (inherits(rvd_seqs, "character")) {
     rvd_seqs <- Biostrings::readBStringSet(rvd_seqs)
-  } else if (class(rvd_seqs) == "BStringSet") {
+  } else if (inherits(rvd_seqs, "BStringSet")) {
     rvd_seqs <- rvd_seqs
   } else {
     stop("##  Something is wrong with the value provided for rvd_seqs. It must be either\n",

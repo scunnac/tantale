@@ -282,7 +282,7 @@ tell_tales <- function(
   ####   Load, process, filter TALE domain CDS HMMER hit results    ####
   ## Loading search tabular output file
   nhmmerTabularOutput <- try(read.table(searchOutFile), silent = TRUE)
-  if (class(nhmmerTabularOutput) == "try-error") {
+  if (inherits(nhmmerTabularOutput, "try-error")) {
     warning("NhmmerSearch found no TALE cds hit in ", subject_file , " Exitting...")
     return(invisible(output_dir))
   }

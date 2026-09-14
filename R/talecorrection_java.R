@@ -70,7 +70,7 @@ correct_tales <- function(uncorrected_path ,
                   "n={outputFolder}/out_nhmmer.{domains[\"N\"]}.txt r={outputFolder}/out_nhmmer.{domains[\"R\"]}.txt",
                   "c={outputFolder}/out_nhmmer.{domains[\"C\"]}.txt outdir={outputFolder}", .sep = " ")
   res <- try(system(command = talecorCmd, intern = TRUE))
-  if (class(res) == "try-error") {
+  if (inherits(res, "try-error")) {
     cli::cli_warn("The following TALEcorrection commands failed:")
     cli::cli_abort("{talecorCmd}", class = c("tantale_error"))
   }

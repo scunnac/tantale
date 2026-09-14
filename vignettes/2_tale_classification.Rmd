@@ -104,8 +104,7 @@ partsForPlots %>% ggplot(mapping = aes(fill = aa_seq_length,
                                        color = domain_type,
                                        label = label,
                                        y = array_id,
-                                       x = position_in_array),
-                         color = isNaAaSeq) +
+                                       x = position_in_array)) +
   scale_color_viridis_d(option = "rocket") +
   scale_fill_discrete() +
   scale_x_continuous(breaks = 1:50, minor_breaks = NULL) +

@@ -887,6 +887,15 @@ would have to stay, be downloaded on demand, or move to a data package.
 
 ### 7.5 Worked examples: vignettes and `@examples` **[A]**
 
+**Found during the 9.2 sweep:** the "Overview of TALE composition by genome"
+chunk in vignette 2 hand-rolls, in about fifteen lines of `ggplot()` calls,
+exactly the figure `plot_tales_composition()` now produces in one. It also
+passed `color = isNaAaSeq`, a variable defined nowhere in the vignette or the
+package -- dead since it was written, and invisible only because these
+vignettes do not build (7.1). The stray argument is removed; replacing the
+chunk with a `plot_tales_composition()` call belongs to this rewrite.
+
+
 `plot_tales_msa()` is the most capable function in the package and the hardest
 to use: three independent things determine the rendering (cell text, text
 colour, block fill), each with its own inputs. Its `@details` now explains the
