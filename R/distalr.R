@@ -366,42 +366,76 @@ diagnose_tale_parts <- function(tale_parts, sanitize = FALSE) {
 
 
 
-#' Visualize TALE content in a tale_parts object
-#' @description
-#' NOT TESTED!!!!
-#' This displays a compact but information rich view of the TALEs stored in a
-#' tale_parts object.
-#' 
-#' @param tale_parts a table of TALE parts as returned by the
-#' \code{\link{tales_from_telltale}} function or
-#' \code{\link{tales_compare}}
+#' Visualise the domain composition of a set of TALE arrays
 #'
-#' @return The ggplot object
+#' @description
+#' A compact, information-rich view of the arrays in a \code{tales} object: one
+#' point per part, positioned by its place in the array, coloured by domain type
+#' and filled by amino-acid length, with the RVD printed on each repeat.
+#'
+#' @param x A \code{\link{tales}} object, as returned by
+#'   \code{\link{tales_from_telltale}} or in the \code{tales} element of
+#'   \code{\link{tales_compare}}'s output. A legacy \code{tale_parts} data
+#'   frame is accepted and converted.
+#' @return The ggplot object, invisibly printed as a side effect.
 #' @export
 #' @family TALE plots
-plot_tale_composition <- function(tale_parts) {
-  partsForPlots <- tale_parts %>%
-    mutate(label = if_else(domainType == "repeat", rvd, ""),
-           aaSeqLength = factor(nchar(aaSeq))
+plot_tales_composition <- function(x) {
+  if (!is_tales(x)) x <- tales(x)
+  needed <- c("rvd", "aa_seq", "domain_type")
+  missing <- setdiff(needed, names(x))
+  if (length(missing) > 0L) {
+    cli::cli_abort(
+      "{.fn plot_tales_composition} needs the column{?s} {.field {missing}}.",
+      class = c("tantale_error_projection_column", "tantale_error")
     )
-  p  <- partsForPlots %>% ggplot(mapping = aes(fill = aaSeqLength,
-                                               color = domainType,
-                                               label = label,
-                                               y = arrayID,
-                                               x = positionInArray),
-                                 color = isNaAaSeq) +
-    scale_color_viridis_d(option = "rocket") +
-    scale_fill_discrete() +
-    scale_x_continuous(breaks = 1:50, minor_breaks = NULL) +
-    geom_point(shape = 21, size = 5, stroke = 0.9) +
+  }
+  partsForPlots <- x %>%
+    dplyr::mutate(label = dplyr::if_else(domain_type == "repeat", rvd, ""),
+                  aa_length = factor(nchar(aa_seq)))
+
+  p <- partsForPlots %>%
+    ggplot2::ggplot(mapping = ggplot2::aes(fill = aa_length,
+                                           color = domain_type,
+                                           label = label,
+                                           y = array_id,
+                                           x = position_in_array)) +
+    ggplot2::scale_color_viridis_d(option = "rocket") +
+    ggplot2::scale_fill_discrete() +
+    ggplot2::scale_x_continuous(breaks = 1:50, minor_breaks = NULL) +
+    ggplot2::geom_point(shape = 21, size = 5, stroke = 0.9) +
     ggnewscale::new_scale_color() +
     ggnewscale::new_scale_fill() +
-    geom_text(size = 2.1, color = "white") + 
-    facet_grid(seqnames~ ., scales = "free_y", space = "free") +
-    labs(title = "Overview of TALE composition by genome") +
-    theme_light()
+    ggplot2::geom_text(size = 2.1, color = "white") +
+    ggplot2::labs(title = "Overview of TALE composition by genome") +
+    ggplot2::theme_light()
+
+  # seqnames groups arrays by source contig. It is optional in a tales, so the
+  # facet is added only when it is there -- a fasta-derived object has none.
+  if ("seqnames" %in% names(x)) {
+    p <- p + ggplot2::facet_grid(seqnames ~ ., scales = "free_y", space = "free")
+  }
+
   print(p)
-  return(p)
+  invisible(p)
+}
+
+
+#' Plot the domain composition of a tales object
+#'
+#' @description
+#' The \code{\link[=plot]{plot}} method for \code{\link{tales}}, delegating to
+#' \code{\link{plot_tales_composition}}. A \code{\link{tales_msa}} dispatches
+#' to \code{\link{plot.tales_msa}} instead, being the more specific class.
+#'
+#' @param x A \code{\link{tales}} object.
+#' @param ... Passed to \code{\link{plot_tales_composition}}.
+#' @return The ggplot object, invisibly.
+#' @method plot tales
+#' @export
+#' @family TALE plots
+plot.tales <- function(x, ...) {
+  plot_tales_composition(x, ...)
 }
 
 

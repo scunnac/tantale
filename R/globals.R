@@ -2,7 +2,7 @@
 # R CMD check, which reports them as undefined globals. Declaring them here
 # keeps that NOTE quiet so a *real* unresolved symbol stands out -- which
 # matters: the same NOTE was burying ~40 genuinely broken calls, including
-# the ones that made plot_tale_composition() fail outright.
+# the ones that made plot_tales_composition() fail outright.
 #
 # Regenerate after adding NSE columns; do not hand-edit casually.
 
@@ -11,8 +11,8 @@ utils::globalVariables(c(
   "EBEstrand", "RANK", "RVD", "RVDs", "RepU1", "RepU2", "SCORE", "SEQ_ID",
   "Score", "Seq", "Sequence", "Sim", "Strand", "TAL1", "TAL2", "TALBS_end",
   "TALBS_sequence", "TALBS_start", "TALE", "TAL_ID", "TAL_SEQ", "aaSeq",
-  "aaSeqLength", "arlemScore", "arrayID", "dnaSeq", "domCode",
-  "domainType", "ebeSeq", "group", "isNaAaSeq", "label",
+  "aa_length", "arlemScore", "arrayID", "dnaSeq", "domCode",
+  "domainType", "ebeSeq", "group", "label",
   "matchConsensusRepeat", "matchConsensusRvd", "maxLength", "n", "name",
   "normArlemScore", "pattern", "pident", "position",
   "position in

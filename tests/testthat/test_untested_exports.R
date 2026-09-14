@@ -1,4 +1,4 @@
-# Coverage for exports that had no test at all. plot_tale_composition() turned
+# Coverage for exports that had no test at all. plot_tales_composition() turned
 # out to be outright broken when checked this way, so the others were worth
 # exercising too.
 
