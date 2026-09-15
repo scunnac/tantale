@@ -110,3 +110,70 @@ test_that("golden: the consensus of the reference alignment", {
   expect_golden(tales_consensus(as.matrix(msa, value = "rvd")))
   expect_golden(tales_consensus(as.matrix(msa, value = "dom_code")))
 })
+
+
+#### tell_tales(), the pipeline entry point ####
+
+# The refactor of restructuring-notes.md 5.3 is meant to change nothing about
+# what tell_tales() writes. This is what says so. Before it existed the
+# function had two tests, both of which only checked that it did not error --
+# no cover at all for 745 lines.
+#
+# Correction is left off here: it is 29x the rest of the pipeline and scales
+# with the 1057-sequence reference set, not with the subject (ledger 8.1). The
+# correction branch gets its own baseline once the toy fixture exists.
+
+test_that("golden: tell_tales() writes the same files with the same contents", {
+  out <- file.path(tempdir(), "golden_telltale")
+  unlink(out, recursive = TRUE)
+  on.exit(unlink(out, recursive = TRUE), add = TRUE)
+
+  res <- suppressWarnings(suppressMessages(tell_tales(
+    subject_file = system.file("extdata", "bai3_sample_tal_genomic_regions.fasta",
+                               package = "tantale", mustWork = TRUE),
+    output_dir = out)))
+  expect_identical(res, out)
+
+  expect_golden(telltale_fingerprint(out))
+})
+
+test_that("golden: the tables tell_tales() writes, column by column", {
+  # The digests above say "something changed"; these say which column, which
+  # is what saves the time when it does.
+  out <- file.path(tempdir(), "golden_telltale_tables")
+  unlink(out, recursive = TRUE)
+  on.exit(unlink(out, recursive = TRUE), add = TRUE)
+
+  suppressWarnings(suppressMessages(tell_tales(
+    subject_file = system.file("extdata", "bai3_sample_tal_genomic_regions.fasta",
+                               package = "tantale", mustWork = TRUE),
+    output_dir = out)))
+
+  for (f in c("hitsReport.tsv", "domainsReport.tsv", "arrayReport.tsv")) {
+    tbl <- readr::read_tsv(file.path(out, f), show_col_types = FALSE,
+                           progress = FALSE)
+    expect_golden(fingerprint(as.data.frame(tbl)))
+  }
+})
+
+test_that("golden: a tell_tales() run loads back as a tales object", {
+  # The end-to-end contract: what the entry point writes is what the class
+  # reads. A refactor that kept every file byte-identical but broke this would
+  # still have broken the pipeline.
+  out <- file.path(tempdir(), "golden_telltale_roundtrip")
+  unlink(out, recursive = TRUE)
+  on.exit(unlink(out, recursive = TRUE), add = TRUE)
+
+  suppressWarnings(suppressMessages(tell_tales(
+    subject_file = system.file("extdata", "bai3_sample_tal_genomic_regions.fasta",
+                               package = "tantale", mustWork = TRUE),
+    output_dir = out)))
+
+  x <- suppressWarnings(tales_from_telltale(out))
+  expect_s3_class(x, "tales")
+  # source_directory records where the run happened, so it holds this
+  # session's tempdir and changes every time. Keep the part that carries
+  # signal -- which ROI each part came from -- and drop the prefix.
+  x$source_directory <- basename(x$source_directory)
+  expect_golden(fingerprint(x))
+})

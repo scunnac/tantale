@@ -845,3 +845,263 @@
       "value": [null, "62", "48", "133", "127", "155", "73", "149", "157", "152", "51", "118", "95", "178", "94", "57", "64", "177", "115", "26", "26", "37", "50", "64", "94", "26", "49", null]
     }
 
+# golden: tell_tales() writes the same files with the same contents
+
+    {
+      "type": "list",
+      "attributes": {
+        "names": {
+          "type": "character",
+          "attributes": {},
+          "value": ["file", "kind", "value"]
+        },
+        "row.names": {
+          "type": "integer",
+          "attributes": {},
+          "value": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36]
+        },
+        "class": {
+          "type": "character",
+          "attributes": {},
+          "value": ["data.frame"]
+        }
+      },
+      "value": [
+        {
+          "type": "character",
+          "attributes": {},
+          "value": ["C-terminusAAAlignment.html", "C-terminusDNAAlignment.html", "N-terminusAAAlignment.html", "N-terminusDNAAlignment.html", "TALE_CDS_all_diagnostic_regions_hmmfile.out", "allRanges.gff", "annotale/ROI_00001/TALE_DNA_parts.fasta", "annotale/ROI_00001/TALE_Protein_parts.fasta", "annotale/ROI_00001/TALE_RVDs.fasta", "annotale/ROI_00001/protocol_analyze.txt", "annotale/ROI_00001/putativeTalOrf.fasta", "annotale/ROI_00002/TALE_DNA_parts.fasta", "annotale/ROI_00002/TALE_Protein_parts.fasta", "annotale/ROI_00002/TALE_RVDs.fasta", "annotale/ROI_00002/protocol_analyze.txt", "annotale/ROI_00002/putativeTalOrf.fasta", "annotale/ROI_00003/TALE_DNA_parts.fasta", "annotale/ROI_00003/TALE_Protein_parts.fasta", "annotale/ROI_00003/TALE_RVDs.fasta", "annotale/ROI_00003/protocol_analyze.txt", "annotale/ROI_00003/putativeTalOrf.fasta", "annotale/ROI_00004/TALE_DNA_parts.fasta", "annotale/ROI_00004/TALE_Protein_parts.fasta", "annotale/ROI_00004/TALE_RVDs.fasta", "annotale/ROI_00004/protocol_analyze.txt", "annotale/ROI_00004/putativeTalOrf.fasta", "arrayReport.tsv", "domainsReport.tsv", "hitsReport.gff", "hitsReport.tsv", "hmmerSearchOut.txt", "nhmmerHumanReadableOutputOfLastRun.txt", "pseudoTalCds.fasta", "putativeTalOrf.fasta", "rvdSequences.fas", "tell_tales.log"]
+        },
+        {
+          "type": "character",
+          "attributes": {},
+          "value": ["stable", "stable", "stable", "stable", "stable", "stable", "stable", "stable", "stable", "volatile", "stable", "stable", "stable", "stable", "volatile", "stable", "stable", "stable", "stable", "volatile", "stable", "stable", "stable", "stable", "volatile", "stable", "stable", "stable", "stable", "stable", "volatile", "volatile", "stable", "stable", "stable", "volatile"]
+        },
+        {
+          "type": "character",
+          "attributes": {},
+          "value": ["3a6ea7b0799a22a407d83292576dc702", "1e03893dba346ba22b200bbe4a528444", "31e630d42844a449dbe1ba16f8b87ab9", "70a5d38c28daa4997663cf2e1e164af5", "50a112fea7605d0311a3d19a03b8c47d", "09ad861f22d2f9df8a8872c228530bd2", "01023400366a145f6449e30d2dd1a0a1", "9a57a59db49f9e87f8d28758cb8dcbfe", "1be93fdd3eba94d2b587ba3d6076a2e0", "6", "f67b5d07473a1c28b1ae256b943c2e57", "2b3c077ffe37cd2bc74d03af2dcd5727", "265d63eb6569b334e6aff457d8e9b29f", "1e821d49e3d0358bd4845c7d015c4019", "6", "5635d755a5dc5650a3978304d41d74f4", "97cd7b6b3089aa177d2dcfaf22068765", "02ac192c50561316164ec2cc010d2d99", "fea39f0c647e02f3d42aa98fbdad579b", "6", "c2822710934920edb798a173c38c989c", "a999193e4d94c2193504952e31a6b423", "02668961774948e7a387ada5a9eb6afb", "0919279857ba783d05965ae74b4df49c", "6", "790de3881ca81405dc319b2f7b2646a6", "56a152d0d74b295e9e43beecfc60d455", "c8daa90fabd215845d43a2d541379f4a", "6bdc6d26716cfdc5cfc3d75872107cb8", "89037746c22a593709fae79690de32d1", "118", "2125", "d41d8cd98f00b204e9800998ecf8427e", "b17912eec646034b980d982b8de231f1", "c874f8e5137fe7a19e91841a22dff0f6", "34"]
+        }
+      ]
+    }
+
+# golden: the tables tell_tales() writes, column by column
+
+    {
+      "type": "list",
+      "attributes": {
+        "names": {
+          "type": "character",
+          "attributes": {},
+          "value": ["column", "type", "n", "n_distinct", "n_missing", "digest"]
+        },
+        "row.names": {
+          "type": "integer",
+          "attributes": {},
+          "value": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+        },
+        "class": {
+          "type": "character",
+          "attributes": {},
+          "value": ["data.frame"]
+        }
+      },
+      "value": [
+        {
+          "type": "character",
+          "attributes": {},
+          "value": ["array_id", "seqnames", "start", "end", "width", "strand", "nhmmerHitID", "query_name", "hitID", "seq", "codon_count", "frameshift_count"]
+        },
+        {
+          "type": "character",
+          "attributes": {},
+          "value": ["character", "character", "double", "double", "double", "character", "character", "character", "character", "character", "double", "double"]
+        },
+        {
+          "type": "integer",
+          "attributes": {},
+          "value": [96, 96, 96, 96, 96, 96, 96, 96, 96, 96, 96, 96]
+        },
+        {
+          "type": "integer",
+          "attributes": {},
+          "value": [4, 2, 95, 96, 7, 2, 96, 3, 96, 60, 7, 3]
+        },
+        {
+          "type": "integer",
+          "attributes": {},
+          "value": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        {
+          "type": "character",
+          "attributes": {},
+          "value": ["6f846cd98eba762d7fab43c14cd69e61", "02e2eaa3fd8832a516f049676ff5e7b7", "0bca32401d99360a8379f1b62f47fbf2", "272874c50573d35c85a10e19f33f366e", "c1c4650cacf683fdf5c3040070f186c3", "df802697ca41bdac37c0791962366f0c", "d417d37a19e1719a1e44dfb1340d746f", "22ad94001768b9a03fe8595ee7bfee54", "07200c470c5d94c6c624408280634fe9", "482966f124a93c41d100d22c02c569c7", "414b7407b0232bf91ffb82a3be4d1b4b", "4a4760498746c50e9492c76c1492eff6"]
+        }
+      ]
+    }
+
+---
+
+    {
+      "type": "list",
+      "attributes": {
+        "names": {
+          "type": "character",
+          "attributes": {},
+          "value": ["column", "type", "n", "n_distinct", "n_missing", "digest"]
+        },
+        "row.names": {
+          "type": "integer",
+          "attributes": {},
+          "value": [1, 2, 3, 4]
+        },
+        "class": {
+          "type": "character",
+          "attributes": {},
+          "value": ["data.frame"]
+        }
+      },
+      "value": [
+        {
+          "type": "character",
+          "attributes": {},
+          "value": ["array_id", "seqnames", "query_name", "codon_count"]
+        },
+        {
+          "type": "character",
+          "attributes": {},
+          "value": ["character", "character", "character", "double"]
+        },
+        {
+          "type": "integer",
+          "attributes": {},
+          "value": [96, 96, 96, 96]
+        },
+        {
+          "type": "integer",
+          "attributes": {},
+          "value": [4, 2, 3, 6]
+        },
+        {
+          "type": "integer",
+          "attributes": {},
+          "value": [0, 0, 0, 0]
+        },
+        {
+          "type": "character",
+          "attributes": {},
+          "value": ["6f846cd98eba762d7fab43c14cd69e61", "02e2eaa3fd8832a516f049676ff5e7b7", "33d76af3df451c56074a2284f6a5b465", "a0edcd8088b1447234c79b2959a00425"]
+        }
+      ]
+    }
+
+---
+
+    {
+      "type": "list",
+      "attributes": {
+        "names": {
+          "type": "character",
+          "attributes": {},
+          "value": ["column", "type", "n", "n_distinct", "n_missing", "digest"]
+        },
+        "row.names": {
+          "type": "integer",
+          "attributes": {},
+          "value": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
+        },
+        "class": {
+          "type": "character",
+          "attributes": {},
+          "value": ["data.frame"]
+        }
+      },
+      "value": [
+        {
+          "type": "character",
+          "attributes": {},
+          "value": ["array_id", "OriginalSubjectName", "Start", "End", "Strand", "NumberOfHits", "ArraySeq", "AllDomains", "SeqOfRVD", "aberrantRepeat", "N.terminusAAlength", "C.terminusAAlength", "LongestOrfLength", "OrfCovOverArrayLength", "LongestORFSeq"]
+        },
+        {
+          "type": "character",
+          "attributes": {},
+          "value": ["character", "character", "double", "double", "character", "double", "character", "logical", "character", "logical", "double", "double", "double", "double", "character"]
+        },
+        {
+          "type": "integer",
+          "attributes": {},
+          "value": [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+        },
+        {
+          "type": "integer",
+          "attributes": {},
+          "value": [4, 2, 3, 4, 2, 3, 4, 1, 4, 1, 2, 1, 4, 3, 4]
+        },
+        {
+          "type": "integer",
+          "attributes": {},
+          "value": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        },
+        {
+          "type": "character",
+          "attributes": {},
+          "value": ["7f814f99eeb07530461112190e314a50", "7e13e411b075546d9a826a45224c4114", "c2adf7b6f984b5df34a5530a6c6fc23c", "da18a7477bc142b5f22868878c5fefbf", "c5aef6f127e6362ab570a403991801bf", "bb50129abf7f05f3f1b44efa233a46a0", "2e9ad64b06795de5460120521f2a2a31", "f6691062ba8ebcf78d788eb2079ade6a", "72c257668cabc7ec8b6344e79933b4e8", "2cede2adaeedcffdd9d43aaa4de93aa3", "6092490e180aea1683bf8760fdd70ad7", "1cf32b612e28232434d2cab1af5d4f2c", "9d4d3fa19d30a48c6e54fa023c18627d", "6075a5c6d9b97778adefa958cb92ec8f", "5f3de1c7abe8505aa9e67271243db3c3"]
+        }
+      ]
+    }
+
+# golden: a tell_tales() run loads back as a tales object
+
+    {
+      "type": "list",
+      "attributes": {
+        "names": {
+          "type": "character",
+          "attributes": {},
+          "value": ["column", "type", "n", "n_distinct", "n_missing", "digest"]
+        },
+        "row.names": {
+          "type": "integer",
+          "attributes": {},
+          "value": [1, 2, 3, 4, 5, 6, 7, 8, 9]
+        },
+        "class": {
+          "type": "character",
+          "attributes": {},
+          "value": ["data.frame"]
+        }
+      },
+      "value": [
+        {
+          "type": "character",
+          "attributes": {},
+          "value": ["array_id", "domain_type", "position_in_crd", "dna_seq", "source_directory", "position_in_array", "aa_seq", "rvd", "seqnames"]
+        },
+        {
+          "type": "character",
+          "attributes": {},
+          "value": ["character", "character", "integer", "character", "character", "integer", "character", "character", "character"]
+        },
+        {
+          "type": "integer",
+          "attributes": {},
+          "value": [96, 96, 96, 96, 96, 96, 96, 96, 96]
+        },
+        {
+          "type": "integer",
+          "attributes": {},
+          "value": [4, 3, 27, 60, 4, 28, 47, 10, 2]
+        },
+        {
+          "type": "integer",
+          "attributes": {},
+          "value": [0, 0, 8, 0, 0, 0, 0, 0, 0]
+        },
+        {
+          "type": "character",
+          "attributes": {},
+          "value": ["6f846cd98eba762d7fab43c14cd69e61", "33d76af3df451c56074a2284f6a5b465", "72cbeb11d2c9db64d7b61965b9c8273b", "498e59c8411f24736f12acb1cbc3122e", "6f846cd98eba762d7fab43c14cd69e61", "a3dc0bb240729c82f0b567a37bb9498c", "b741b91defff763194ad61b55ca7eb44", "92696f2cbcfd0c5725d6ee0bfdbf00dc", "02e2eaa3fd8832a516f049676ff5e7b7"]
+        }
+      ]
+    }
+

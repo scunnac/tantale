@@ -1035,6 +1035,44 @@ restarted -- the reason it now lives in the repository.
 To accept an intended change: inspect the diff, then
 `testthat::snapshot_accept("golden")`.
 
+### 8.0 `tell_tales()` has an unguarded filter **[A]**
+
+Found while checking that the new baseline is actually sensitive.
+
+`min_domain_hits` filters at `telltale.R:319`:
+
+```r
+nhmmerTabularOutput <- subset(nhmmerTabularOutput,
+  target_name %in% temp_df[temp_df$V1 > min_domain_hits, "target_name"])
+```
+
+If it removes everything, the run does not stop. It carries on and dies
+several stages later inside Bioconductor:
+
+```
+Error: Rle of type 'NULL' is not supported
+  call: new_Rle(values, lengths)
+```
+
+A bare `simpleError`, no `tantale` class, nothing naming the argument that
+caused it. The two filters immediately before this one -- "no TALE cds hit"
+and "no record remains after filtering on score" -- are both guarded and warn
+properly, so the pattern to follow is already in the function a few lines up.
+
+Two further things worth noticing about this argument:
+
+- It filters on `target_name`, the **subject sequence**, not on the array. The
+  name reads as "minimum hits per TALE array"; it is actually "minimum hits per
+  contig". `min_domain_hits = 12` on a fixture with four TALEs changes nothing
+  at all, because the two contigs carry far more than twelve hits between them.
+  Worth asking whether the documented meaning and the implemented meaning are
+  the same thing.
+- The comparison is `>` where the name says "minimum", so `min_domain_hits = 4`
+  keeps sequences with **five** hits or more.
+
+Fix during 5.3 rather than before it: the guard belongs in whichever internal
+ends up owning that stage.
+
 ### 8.1 A purpose-built fixture for `tell_tales()` **[A]**
 
 `tell_tales()` is slow, and the slowness is not where it looks.
