@@ -43,6 +43,59 @@
 
 
 
+#' Every file and directory a tell_tales() run writes
+#'
+#' Computed once, up front, so that the rest of the function reads as a
+#' pipeline over data rather than over paths. These are the only values in
+#' \code{tell_tales()} that are written once and then carried, unchanged,
+#' through every stage to the end.
+#'
+#' The directories are created here too: a path this returns can be written
+#' to without checking.
+#'
+#' @param output_dir Directory the run writes into.
+#' @param correct_array Whether frameshift correction is on. The two
+#'   correction alignment directories exist only then, so the corresponding
+#'   entries are absent when it is \code{FALSE} rather than naming a
+#'   directory that was never created.
+#' @return A named list of absolute paths.
+#' @noRd
+.telltale_paths <- function(output_dir, correct_array) {
+  dir.create(output_dir, recursive = TRUE, mode = "755", showWarnings = FALSE)
+  p <- list(
+    output         = output_dir,
+    # one directory per region of interest is created under this one, later,
+    # by the AnnoTALE stage
+    annotale       = file.path(output_dir, "annotale"),
+    ## Tabular file reporting on individual TALE domain hits
+    hits_report    = file.path(output_dir, "hitsReport.tsv"),
+    domains_report = file.path(output_dir, "domainsReport.tsv"),
+    ## Tabular file reporting on putative TALEs (contiguous arrays of domain hits)
+    array_report   = file.path(output_dir, "arrayReport.tsv"),
+    ## Gff file with all the identified domains and arrays and their associated data
+    all_ranges_gff = file.path(output_dir, "allRanges.gff"),
+    ## fasta of tal orfs that have rvds, and of those predicted not to
+    tale_orf_fasta = file.path(output_dir, "putativeTalOrf.fasta"),
+    pseudo_tal     = file.path(output_dir, "pseudoTalCds.fasta"),
+    ## the selected seqs of RVDs, without the separator
+    rvd_sequences  = file.path(output_dir, "rvdSequences.fas"),
+    ## the three HMM profiles concatenated, which is what nhmmer is given
+    merged_hmm     = file.path(output_dir, "TALE_CDS_all_diagnostic_regions_hmmfile.out"),
+    hmmer_search   = file.path(output_dir, "hmmerSearchOut.txt"),
+    ## logging info and some general analysis measures
+    log            = file.path(output_dir, "tell_tales.log")
+  )
+  dir.create(p$annotale)
+  if (correct_array) {
+    p$correction_dna <- file.path(output_dir, "CorrectionAlignmentDNA")
+    p$correction_aa  <- file.path(output_dir, "CorrectionAlignmentAA")
+    dir.create(p$correction_dna, showWarnings = FALSE)
+    dir.create(p$correction_aa, showWarnings = FALSE)
+  }
+  p
+}
+
+
 #' Search and report on the features of TALE protein domains potentially encoded
 #' in subject DNA sequences
 #'
@@ -191,34 +244,7 @@ tell_tales <- function(
   
   
   ####   Paths of output files   ####
-  dir.create(output_dir, recursive = T, mode = "755", showWarnings = FALSE)
-  ## Path of the directories where DECIPHER correction alignments will be written
-  if (correct_array) {
-    alignmentDNADir <- file.path(output_dir, "CorrectionAlignmentDNA")
-    dir.create(alignmentDNADir, showWarnings = F)
-    alignmentAADir <- file.path(output_dir, "CorrectionAlignmentAA")
-    dir.create(alignmentAADir, showWarnings = F)
-  }
-  # annotale output directory
-  annotaleMainDir <- file.path(output_dir, "annotale")# tempfile(pattern = "annotale_", tmpdir = output_dir)
-  dir.create(annotaleMainDir)
-  ## Tabular file reporting on individual TALE domain hits
-  hitsReportFile <- file.path(output_dir, "hitsReport.tsv")
-  domainsReportFile <- file.path(output_dir, "domainsReport.tsv")
-  ## Tabular file reporting on putative TALEs (contiguous arrays of domain hits)
-  arrayReportFile <- file.path(output_dir, "arrayReport.tsv")
-  ## Gff file with all the identified domains and arrays and their associated data
-  affRangesGffFile <- file.path(output_dir, "allRanges.gff")
-  # fasta of tals orfs that have rvds
-  putatieOrfOfTaleWithRvdFile <- file.path(output_dir, "putativeTalOrf.fasta")
-  # fasta of tals orfs that were not predicted to contain rvds
-  pseudoTalFile <- file.path(output_dir, "pseudoTalCds.fasta")
-  ## A fasta file of the selected seq of RVDs without the - separator
-  seqsOfRVDFile <- file.path(output_dir, "rvdSequences.fas")
-  ## A fasta file with array ORFs DNA sequences
-  #arrayOrfsSeqFile <- file.path(output_dir, "arrayOrfs.fas")
-  ## A text file where logging info and some general analysis measures are written
-  analysisLogFile <- file.path(output_dir, "tell_tales.log")
+  paths <- .telltale_paths(output_dir, correct_array)
   
   
   ####   Checks for parameters and other things   ####
@@ -245,10 +271,8 @@ tell_tales <- function(
   TALE_NtermDNAHMMFile <- file.path(hmm_dir, "Xo_TALE_Nterm_CDS_profile.hmm")
   repeatDNAHMMFile <- file.path(hmm_dir, "Xo_TALE_repeat_CDS_profile.hmm")
   TALE_CtermDNAHMMFile <- file.path(hmm_dir, "Xo_TALE_Cterm_CDS_profile.hmm")
-  repeatAAHMMFile <- file.path(hmm_dir, "Xo_TALE_repeat_AA_profile.hmm")
   
   DNAHMMFiles <- c(TALE_NtermDNAHMMFile, repeatDNAHMMFile, TALE_CtermDNAHMMFile)
-  mergedDNAHMMFile <- file.path(output_dir, "TALE_CDS_all_diagnostic_regions_hmmfile.out")
   
   
   
@@ -263,25 +287,23 @@ tell_tales <- function(
     hmmName <- hmmName[2]
   }
   )
-  DNAHMMNames <- names(DNAHMMFiles)
   TALE_NtermDNAHMMName <- names(DNAHMMFiles)[1]
   repeatDNAHMMName <- names(DNAHMMFiles)[2]
   TALE_CtermDNAHMMName <- names(DNAHMMFiles)[3]
   
-  writeLines(text = unlist(hmmslines), con = mergedDNAHMMFile)
+  writeLines(text = unlist(hmmslines), con = paths$merged_hmm)
   
   ####   Perform TALE domain CDS search with HMMER  #####
-  searchOutFile <- file.path(output_dir, "hmmerSearchOut.txt")
   
   .run_nhmmer_search(hmmer_path = hmmer_path,
                   subject_file = subject_file,
-                  hmm_file = mergedDNAHMMFile,
-                  search_out_file = searchOutFile,
+                  hmm_file = paths$merged_hmm,
+                  search_out_file = paths$hmmer_search,
                   readable_out_file = file.path(output_dir, "nhmmerHumanReadableOutputOfLastRun.txt"))
   
   ####   Load, process, filter TALE domain CDS HMMER hit results    ####
   ## Loading search tabular output file
-  nhmmerTabularOutput <- try(read.table(searchOutFile), silent = TRUE)
+  nhmmerTabularOutput <- try(read.table(paths$hmmer_search), silent = TRUE)
   if (inherits(nhmmerTabularOutput, "try-error")) {
     warning("NhmmerSearch found no TALE cds hit in ", subject_file , " Exitting...")
     return(invisible(output_dir))
@@ -518,13 +540,13 @@ tell_tales <- function(
       seqToAlign <- c(rawSeq, correctedSeq, substitutedSeq)
       alignedSeqs <- DECIPHER::AlignSeqs(seqToAlign, verbose = FALSE)
       DECIPHER::BrowseSeqs(alignedSeqs,
-                           htmlFile = file.path(alignmentDNADir, glue::glue("CorrectionAlignmentDNA_{n}.html")),
+                           htmlFile = file.path(paths$correction_dna, glue::glue("CorrectionAlignmentDNA_{n}.html")),
                            openURL = F, colWidth = 120)
       
       seqToAlignTranslated <- Biostrings::translate(seqToAlign, no.init.codon = T, if.fuzzy.codon = "solve")
       alignedSeqsTranslated <- DECIPHER::AlignSeqs(seqToAlignTranslated, verbose = FALSE)
       DECIPHER::BrowseSeqs(alignedSeqsTranslated,
-                           htmlFile = file.path(alignmentAADir, glue::glue("CorrectionAlignmentAA_{n}.html")),
+                           htmlFile = file.path(paths$correction_aa, glue::glue("CorrectionAlignmentAA_{n}.html")),
                            openURL = F, colWidth = 120)
       
     }
@@ -593,7 +615,7 @@ tell_tales <- function(
   annoTaleMessages <- character()
   
   annoTaleOut <- lapply(names(TalOrfForAnnoTALE), function(talOrfID) {
-    AnnotaleDir <- file.path(annotaleMainDir, talOrfID)
+    AnnotaleDir <- file.path(paths$annotale, talOrfID)
     dir.create(AnnotaleDir)
     TalOrf <- TalOrfForAnnoTALE[talOrfID]
     correctedTalOrfFile <- file.path(AnnotaleDir, "putativeTalOrf.fasta")
@@ -658,10 +680,10 @@ tell_tales <- function(
   # The exact content of the files below needs to be reassesed and 
   # we need to determine if this is really what we want.
   # save tals orfs that have rvds
-  Biostrings::writeXStringSet(fullTalOrf[names(fullTalOrf) %in% names(seqsOfRVDs)], putatieOrfOfTaleWithRvdFile)
+  Biostrings::writeXStringSet(fullTalOrf[names(fullTalOrf) %in% names(seqsOfRVDs)], paths$tale_orf_fasta)
   
   # save tals that DO NOT have rvds
-  Biostrings::writeXStringSet(extdCompleteArraysSeqs[!names(extdCompleteArraysSeqs) %in% names(seqsOfRVDs)], pseudoTalFile)
+  Biostrings::writeXStringSet(extdCompleteArraysSeqs[!names(extdCompleteArraysSeqs) %in% names(seqsOfRVDs)], paths$pseudo_tal)
   
   aberrantRepeat <- sapply(seqsOfRVDs, function(s) {
     ifelse(length(s) > 0, grepl("[a-z]", s), NA)
@@ -694,7 +716,7 @@ tell_tales <- function(
   S4Vectors::mcols(hitsByArraysLst)$SeqOfRVD[is.na(S4Vectors::mcols(hitsByArraysLst)$SeqOfRVD)] <- ""
   
   #### Align N-term and C-term ####
-  dnaPartFiles <- list.files(annotaleMainDir, "TALE_DNA_parts.fasta", recursive = T, full.names = T)
+  dnaPartFiles <- list.files(paths$annotale, "TALE_DNA_parts.fasta", recursive = T, full.names = T)
   for (part in c("N-terminus", "C-terminus")) {
     allpart <- sapply(dnaPartFiles, function(p) {
       allpart <- Biostrings::readDNAStringSet(p, seek.first.rec = T)
@@ -715,7 +737,7 @@ tell_tales <- function(
       }
   }
   
-  aaPartFiles <- list.files(annotaleMainDir, "TALE_Protein_parts.fasta", recursive = T, full.names = T)
+  aaPartFiles <- list.files(paths$annotale, "TALE_Protein_parts.fasta", recursive = T, full.names = T)
   endsAA <- sapply(c("N-terminus", "C-terminus"), function(part) {
     allpart <- sapply(aaPartFiles, function(p) {
       allpart <- Biostrings::readAAStringSet(p, seek.first.rec = T)
@@ -790,9 +812,9 @@ tell_tales <- function(
                          tibble::as_tibble(as.data.frame(gr))
                        }
   ) %>% dplyr::bind_rows(.id = "array_id")
-  readr::write_tsv(x = hitsReport, file = hitsReportFile)
-  .hits_report_to_gff(hitsReportFile) # saving to gff format
-  readr::write_tsv(x = domainsReport, file = domainsReportFile)
+  readr::write_tsv(x = hitsReport, file = paths$hits_report)
+  .hits_report_to_gff(paths$hits_report) # saving to gff format
+  readr::write_tsv(x = domainsReport, file = paths$domains_report)
   
   ##   Report with info on arrays, including the seq of RVD
   arrayReport <- as.data.frame(
@@ -802,7 +824,7 @@ tell_tales <- function(
         S4Vectors::mcols(hitsByArraysLst)$NumberOfHits
       ),]
   )
-  readr::write_tsv(x = arrayReport, file = arrayReportFile)
+  readr::write_tsv(x = arrayReport, file = paths$array_report)
   
   
   ## Write a gff with all collated
@@ -813,7 +835,7 @@ tell_tales <- function(
                keep.extra.columns= TRUE),
              if (exists("reducedOlapGr")) nhmmerOutputGRBeforeMerge else NULL
   )
-  rtracklayer::export.gff3(allGR, affRangesGffFile)
+  rtracklayer::export.gff3(allGR, paths$all_ranges_gff)
   
   ####   Extract various DNA/AA sequences of interest and save to files   #####
   
@@ -822,7 +844,7 @@ tell_tales <- function(
   seqsOfRVDs <- Biostrings::BStringSet(S4Vectors::mcols(hitsByArraysLst)$SeqOfRVD)
   names(seqsOfRVDs) <- S4Vectors::mcols(hitsByArraysLst)$array_id
   seqsOfRVDs <- seqsOfRVDs[!Biostrings::width(seqsOfRVDs) == 0]
-  Biostrings::writeXStringSet(x = seqsOfRVDs, seqsOfRVDFile)
+  Biostrings::writeXStringSet(x = seqsOfRVDs, paths$rvd_sequences)
   
   ####   Generate info messages and log file about the analysis   #####
   
@@ -897,7 +919,7 @@ tell_tales <- function(
   )
   
   message(paste(txt, collapse = "\n"))
-  logf <- file(analysisLogFile, open = "w")
+  logf <- file(paths$log, open = "w")
   writeLines(text = txt, con = logf)
   close(logf)
   return(invisible(output_dir))

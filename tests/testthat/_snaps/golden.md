@@ -853,7 +853,7 @@
         "names": {
           "type": "character",
           "attributes": {},
-          "value": ["file", "kind", "value"]
+          "value": ["file", "n_lines", "n_dropped", "digest"]
         },
         "row.names": {
           "type": "integer",
@@ -873,14 +873,19 @@
           "value": ["C-terminusAAAlignment.html", "C-terminusDNAAlignment.html", "N-terminusAAAlignment.html", "N-terminusDNAAlignment.html", "TALE_CDS_all_diagnostic_regions_hmmfile.out", "allRanges.gff", "annotale/ROI_00001/TALE_DNA_parts.fasta", "annotale/ROI_00001/TALE_Protein_parts.fasta", "annotale/ROI_00001/TALE_RVDs.fasta", "annotale/ROI_00001/protocol_analyze.txt", "annotale/ROI_00001/putativeTalOrf.fasta", "annotale/ROI_00002/TALE_DNA_parts.fasta", "annotale/ROI_00002/TALE_Protein_parts.fasta", "annotale/ROI_00002/TALE_RVDs.fasta", "annotale/ROI_00002/protocol_analyze.txt", "annotale/ROI_00002/putativeTalOrf.fasta", "annotale/ROI_00003/TALE_DNA_parts.fasta", "annotale/ROI_00003/TALE_Protein_parts.fasta", "annotale/ROI_00003/TALE_RVDs.fasta", "annotale/ROI_00003/protocol_analyze.txt", "annotale/ROI_00003/putativeTalOrf.fasta", "annotale/ROI_00004/TALE_DNA_parts.fasta", "annotale/ROI_00004/TALE_Protein_parts.fasta", "annotale/ROI_00004/TALE_RVDs.fasta", "annotale/ROI_00004/protocol_analyze.txt", "annotale/ROI_00004/putativeTalOrf.fasta", "arrayReport.tsv", "domainsReport.tsv", "hitsReport.gff", "hitsReport.tsv", "hmmerSearchOut.txt", "nhmmerHumanReadableOutputOfLastRun.txt", "pseudoTalCds.fasta", "putativeTalOrf.fasta", "rvdSequences.fas", "tell_tales.log"]
         },
         {
-          "type": "character",
+          "type": "integer",
           "attributes": {},
-          "value": ["stable", "stable", "stable", "stable", "stable", "stable", "stable", "stable", "stable", "volatile", "stable", "stable", "stable", "stable", "volatile", "stable", "stable", "stable", "stable", "volatile", "stable", "stable", "stable", "stable", "volatile", "stable", "stable", "stable", "stable", "stable", "volatile", "volatile", "stable", "stable", "stable", "volatile"]
+          "value": [37, 77, 37, 87, 5550, 199, 57, 57, 3, 9, 55, 33, 33, 3, 9, 40, 57, 57, 3, 9, 55, 49, 49, 3, 9, 50, 5, 97, 99, 97, 122, 2421, 0, 200, 10, 37]
+        },
+        {
+          "type": "integer",
+          "attributes": {},
+          "value": [0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 1, 0, 4, 9, 0, 0, 0, 3]
         },
         {
           "type": "character",
           "attributes": {},
-          "value": ["3a6ea7b0799a22a407d83292576dc702", "1e03893dba346ba22b200bbe4a528444", "31e630d42844a449dbe1ba16f8b87ab9", "70a5d38c28daa4997663cf2e1e164af5", "50a112fea7605d0311a3d19a03b8c47d", "09ad861f22d2f9df8a8872c228530bd2", "01023400366a145f6449e30d2dd1a0a1", "9a57a59db49f9e87f8d28758cb8dcbfe", "1be93fdd3eba94d2b587ba3d6076a2e0", "6", "f67b5d07473a1c28b1ae256b943c2e57", "2b3c077ffe37cd2bc74d03af2dcd5727", "265d63eb6569b334e6aff457d8e9b29f", "1e821d49e3d0358bd4845c7d015c4019", "6", "5635d755a5dc5650a3978304d41d74f4", "97cd7b6b3089aa177d2dcfaf22068765", "02ac192c50561316164ec2cc010d2d99", "fea39f0c647e02f3d42aa98fbdad579b", "6", "c2822710934920edb798a173c38c989c", "a999193e4d94c2193504952e31a6b423", "02668961774948e7a387ada5a9eb6afb", "0919279857ba783d05965ae74b4df49c", "6", "790de3881ca81405dc319b2f7b2646a6", "56a152d0d74b295e9e43beecfc60d455", "c8daa90fabd215845d43a2d541379f4a", "6bdc6d26716cfdc5cfc3d75872107cb8", "89037746c22a593709fae79690de32d1", "118", "2125", "d41d8cd98f00b204e9800998ecf8427e", "b17912eec646034b980d982b8de231f1", "c874f8e5137fe7a19e91841a22dff0f6", "34"]
+          "value": ["343d79c2b341773b53af3e5990a29255", "1a8cadaaf472338a42e8dd131dea2e67", "2e4f6812b94f49dbf23378298136e7d9", "54a6879268017fdc8e3bdf51cfdc0929", "89fca75b113315c1f07021f041b8c506", "3518d2e7de6dafab268b793849421a7d", "9e72973f27d92d9414692db2ad6fc09c", "049a21a7c09f687cc81a7b15ab6bdeb6", "23afd6523c33ab2f7c0d969d31aa86cf", "69fc61a95869ec7b6fae45c866d596a9", "718f3deaacf42fbb208aed622ac60a98", "00c89a4a2f2071af75b5194b6909a86a", "97d7c2b0b3b92bbdda7902173fddb03d", "b3ab79d5d8f436a6a0ffa6345b501d1f", "b3e2c179e43132cf747ba65da1ca9ff9", "ac2e11824dead7c52fcb473c78c69f91", "67ef58d13c2ad5895e1f6fda32f1afc7", "185b8d320bb61f2a3c5aeec9efc5eb53", "c780528efec6d565f97dcdf2de07342b", "01cd2bcc87ba7db5ab25e517f49f119a", "d0fe14c43e7f56f0ccb2da78ef76015a", "eb022d9d6e2cdda5740911add74deba7", "c150a2539f239d7e586439c1af93442a", "31aada0cd7bfd31e9273c4e3b180e090", "580525511219a4028aab66d959e7ce1e", "f9cfb82adbd5a0835571721f96bc86be", "81b1638242935b071faf1a592b28b390", "2b1c8a7d0abe873f122ef42d5e516615", "a216fdff1ec1988d3aa7eb06fd7fd817", "0a871a1d393d2a597aed2e10fdec3ea4", "6b8f9508aa7de7f4c93d582b994c9af8", "1dec71a1c79fbd603e47e0449ba6e9a6", "5152ac13bdd09110d9ee9c169a3d9237", "8322432d7c86ddc9b826fe7740f4114e", "966d0eb34a6311b1250a2bbb417c9aac", "21e80ec13766b161910fc3b730385ef2"]
         }
       ]
     }
@@ -1113,7 +1118,7 @@
         "names": {
           "type": "character",
           "attributes": {},
-          "value": ["file", "kind", "value"]
+          "value": ["file", "n_lines", "n_dropped", "digest"]
         },
         "row.names": {
           "type": "integer",
@@ -1133,14 +1138,19 @@
           "value": ["C-terminusAAAlignment.html", "C-terminusDNAAlignment.html", "CorrectionAlignmentAA/CorrectionAlignmentAA_ROI_00001.html", "CorrectionAlignmentAA/CorrectionAlignmentAA_ROI_00002.html", "CorrectionAlignmentAA/CorrectionAlignmentAA_ROI_00003.html", "CorrectionAlignmentAA/CorrectionAlignmentAA_ROI_00004.html", "CorrectionAlignmentDNA/CorrectionAlignmentDNA_ROI_00001.html", "CorrectionAlignmentDNA/CorrectionAlignmentDNA_ROI_00002.html", "CorrectionAlignmentDNA/CorrectionAlignmentDNA_ROI_00003.html", "CorrectionAlignmentDNA/CorrectionAlignmentDNA_ROI_00004.html", "N-terminusAAAlignment.html", "N-terminusDNAAlignment.html", "TALE_CDS_all_diagnostic_regions_hmmfile.out", "allRanges.gff", "annotale/ROI_00001/TALE_DNA_parts.fasta", "annotale/ROI_00001/TALE_Protein_parts.fasta", "annotale/ROI_00001/TALE_RVDs.fasta", "annotale/ROI_00001/protocol_analyze.txt", "annotale/ROI_00001/putativeTalOrf.fasta", "annotale/ROI_00002/TALE_DNA_parts.fasta", "annotale/ROI_00002/TALE_Protein_parts.fasta", "annotale/ROI_00002/TALE_RVDs.fasta", "annotale/ROI_00002/protocol_analyze.txt", "annotale/ROI_00002/putativeTalOrf.fasta", "annotale/ROI_00003/TALE_DNA_parts.fasta", "annotale/ROI_00003/TALE_Protein_parts.fasta", "annotale/ROI_00003/TALE_RVDs.fasta", "annotale/ROI_00003/protocol_analyze.txt", "annotale/ROI_00003/putativeTalOrf.fasta", "annotale/ROI_00004/TALE_DNA_parts.fasta", "annotale/ROI_00004/TALE_Protein_parts.fasta", "annotale/ROI_00004/TALE_RVDs.fasta", "annotale/ROI_00004/protocol_analyze.txt", "annotale/ROI_00004/putativeTalOrf.fasta", "arrayReport.tsv", "domainsReport.tsv", "hitsReport.gff", "hitsReport.tsv", "hmmerSearchOut.txt", "nhmmerHumanReadableOutputOfLastRun.txt", "pseudoTalCds.fasta", "putativeTalOrf.fasta", "rvdSequences.fas", "tell_tales.log"]
         },
         {
-          "type": "character",
+          "type": "integer",
           "attributes": {},
-          "value": ["stable", "stable", "stable", "stable", "stable", "stable", "stable", "stable", "stable", "stable", "stable", "stable", "stable", "stable", "stable", "stable", "stable", "volatile", "stable", "stable", "stable", "stable", "volatile", "stable", "stable", "stable", "stable", "volatile", "stable", "stable", "stable", "stable", "volatile", "stable", "stable", "stable", "stable", "stable", "volatile", "volatile", "stable", "stable", "stable", "volatile"]
+          "value": [37, 77, 124, 97, 124, 124, 358, 268, 358, 331, 37, 87, 5550, 199, 57, 57, 3, 9, 55, 33, 33, 3, 9, 40, 57, 57, 3, 9, 55, 49, 49, 3, 9, 50, 5, 97, 99, 97, 122, 2421, 0, 200, 10, 37]
+        },
+        {
+          "type": "integer",
+          "attributes": {},
+          "value": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 0, 2, 0, 0, 0, 1, 0, 4, 9, 0, 0, 0, 3]
         },
         {
           "type": "character",
           "attributes": {},
-          "value": ["3a6ea7b0799a22a407d83292576dc702", "1e03893dba346ba22b200bbe4a528444", "da648aa174491c6e7507aee54e7106f9", "3fc1c6d11b1f53da9b5589b9f75e57dc", "fd58b3f23df4f6c3adcfaf6e5014768b", "c86b8f8b822554656479b9181d7b2847", "f9e4d6d02ba383e8a39d18ad4f67e520", "175fccff135050279e8aec6d6d009dcc", "3071da7222f5b73ac857e1a4cc7b270c", "a501378ea0a1f4291a29b1776bb958c3", "31e630d42844a449dbe1ba16f8b87ab9", "70a5d38c28daa4997663cf2e1e164af5", "50a112fea7605d0311a3d19a03b8c47d", "41f3669bf6f3ae99d07754ce0d1b69e5", "01023400366a145f6449e30d2dd1a0a1", "9a57a59db49f9e87f8d28758cb8dcbfe", "1be93fdd3eba94d2b587ba3d6076a2e0", "6", "f67b5d07473a1c28b1ae256b943c2e57", "2b3c077ffe37cd2bc74d03af2dcd5727", "265d63eb6569b334e6aff457d8e9b29f", "1e821d49e3d0358bd4845c7d015c4019", "6", "5635d755a5dc5650a3978304d41d74f4", "97cd7b6b3089aa177d2dcfaf22068765", "02ac192c50561316164ec2cc010d2d99", "fea39f0c647e02f3d42aa98fbdad579b", "6", "c2822710934920edb798a173c38c989c", "a999193e4d94c2193504952e31a6b423", "02668961774948e7a387ada5a9eb6afb", "0919279857ba783d05965ae74b4df49c", "6", "790de3881ca81405dc319b2f7b2646a6", "32d69186e84c0f2331db7f55621d3cf5", "c8daa90fabd215845d43a2d541379f4a", "6bdc6d26716cfdc5cfc3d75872107cb8", "89037746c22a593709fae79690de32d1", "118", "2125", "d41d8cd98f00b204e9800998ecf8427e", "b17912eec646034b980d982b8de231f1", "c874f8e5137fe7a19e91841a22dff0f6", "34"]
+          "value": ["343d79c2b341773b53af3e5990a29255", "1a8cadaaf472338a42e8dd131dea2e67", "192ee93266dae1ce775665e4217c8c46", "044518e3f7950feb628be40d193b53ae", "252e0ef1c4f31cf9f2d03f67cbb7ff6b", "292b7ce13365b5804c92a2db198896d2", "500241a675ae43db9565f2fe09f33bc0", "90d934b4b57504459b064f6d762e80db", "4766c58765b876892eedc1fb7f269e61", "30f2ca66d1adfda555da232185d29974", "2e4f6812b94f49dbf23378298136e7d9", "54a6879268017fdc8e3bdf51cfdc0929", "89fca75b113315c1f07021f041b8c506", "7d65de4fc1edc41a45a9c25dc4fd0675", "9e72973f27d92d9414692db2ad6fc09c", "049a21a7c09f687cc81a7b15ab6bdeb6", "23afd6523c33ab2f7c0d969d31aa86cf", "69fc61a95869ec7b6fae45c866d596a9", "718f3deaacf42fbb208aed622ac60a98", "00c89a4a2f2071af75b5194b6909a86a", "97d7c2b0b3b92bbdda7902173fddb03d", "b3ab79d5d8f436a6a0ffa6345b501d1f", "b3e2c179e43132cf747ba65da1ca9ff9", "ac2e11824dead7c52fcb473c78c69f91", "67ef58d13c2ad5895e1f6fda32f1afc7", "185b8d320bb61f2a3c5aeec9efc5eb53", "c780528efec6d565f97dcdf2de07342b", "01cd2bcc87ba7db5ab25e517f49f119a", "d0fe14c43e7f56f0ccb2da78ef76015a", "eb022d9d6e2cdda5740911add74deba7", "c150a2539f239d7e586439c1af93442a", "31aada0cd7bfd31e9273c4e3b180e090", "580525511219a4028aab66d959e7ce1e", "f9cfb82adbd5a0835571721f96bc86be", "7463c68d3834ce7b4b04d26955db740e", "2b1c8a7d0abe873f122ef42d5e516615", "a216fdff1ec1988d3aa7eb06fd7fd817", "0a871a1d393d2a597aed2e10fdec3ea4", "6b8f9508aa7de7f4c93d582b994c9af8", "1dec71a1c79fbd603e47e0449ba6e9a6", "5152ac13bdd09110d9ee9c169a3d9237", "8322432d7c86ddc9b826fe7740f4114e", "966d0eb34a6311b1250a2bbb417c9aac", "505fa7853ee2667c76bb982992d58dcb"]
         }
       ]
     }

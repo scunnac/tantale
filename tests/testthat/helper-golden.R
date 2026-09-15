@@ -61,40 +61,40 @@ expect_golden <- function(x) {
 # tell_tales() returns invisible(output_dir): its real output is the ~36 files
 # it writes, so that directory is what has to be pinned.
 #
-# Seven of them carry the run rather than the result -- AnnoTALE's
-# protocol_analyze.txt, HMMER's echoed command line, and the log all embed
-# temp paths and a timestamp. Verified by running twice: the other 29 are
-# byte-identical, and those seven differ in nothing else. They are compared by
-# line count after the volatile lines are dropped, which still catches a stage
-# that stops writing or starts writing more.
+# Some of them record the run rather than the result -- AnnoTALE's
+# protocol_analyze.txt and HMMER's echoed command line embed temp paths, the
+# log and both GFFs stamp the date. Rather than keep a list of which files are
+# affected, every file is digested with those lines removed. Keeping a list
+# was in fact wrong: the GFFs were not on it, and the omission only showed up
+# when a session ran past midnight.
 
-.TELLTALE_VOLATILE <- c("hmmerSearchOut.txt",
-                        "nhmmerHumanReadableOutputOfLastRun.txt",
-                        "tell_tales.log",
-                        "protocol_analyze.txt")
+# Lines that say where or when the run happened, rather than what it found.
+.RUN_SPECIFIC <- paste(
+  "^##date",            # rtracklayer's GFF header
+  "^# Date:",           # HMMER's own header
+  "Current date",       # tell_tales.log
+  "^# CPU time:",       # HMMER, genuinely varies run to run
+  "^# Mc/sec:",         # HMMER throughput, likewise
+  "/tmp/",              # any absolute temp path
+  "Rtmp",               # R's per-session temp directory
+  "file[0-9a-f]{10,}",  # tempfile() basenames
+  sep = "|"
+)
 
-.is_volatile <- function(path) {
-  any(vapply(.TELLTALE_VOLATILE, function(v) endsWith(path, v), logical(1)))
-}
-
-# Content digest for a file, ignoring anything that encodes where or when the
-# run happened.
 .telltale_file_digest <- function(path) {
-  if (.is_volatile(path)) {
-    txt <- readLines(path, warn = FALSE)
-    drop <- grepl("/tmp/|Rtmp|[0-9]{4}$|Current date|file[0-9a-f]{8,}", txt)
-    return(list(kind = "volatile", n_lines_kept = sum(!drop)))
-  }
-  list(kind = "stable", digest = digest::digest(file = path, algo = "md5"))
+  txt <- readLines(path, warn = FALSE)
+  keep <- txt[!grepl(.RUN_SPECIFIC, txt)]
+  list(n_lines = length(txt),
+       n_dropped = length(txt) - length(keep),
+       digest = digest::digest(keep, algo = "md5"))
 }
 
 telltale_fingerprint <- function(dir) {
   files <- sort(list.files(dir, recursive = TRUE))
   rows <- lapply(files, function(f) {
     d <- .telltale_file_digest(file.path(dir, f))
-    data.frame(file = f, kind = d$kind,
-               value = if (d$kind == "stable") d$digest else as.character(d$n_lines_kept),
-               stringsAsFactors = FALSE)
+    data.frame(file = f, n_lines = d$n_lines, n_dropped = d$n_dropped,
+               digest = d$digest, stringsAsFactors = FALSE)
   })
   out <- do.call(rbind, rows)
   rownames(out) <- NULL
