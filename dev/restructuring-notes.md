@@ -1003,6 +1003,25 @@ for no reason.
 **Callers with no caller: 5.** Moved to `R/unused_pending_review.R`, not
 deleted -- see the header of that file for what is known about each.
 
+### 8.6b Co-locating single-caller internals — PARTLY DONE **[V]**
+
+Done: the three fill-layer builders (`.repeat_to_sim_align()`,
+`.repeat_to_cluster_align()`, `.rvd_to_match_align()`) moved from
+`conversion.R` to `msa.R`, beside `plot.tales_msa()`, their only caller.
+`conversion.R` is down to five functions and is now about projecting a
+`tales` onto strings and maps, which is what its name suggests.
+
+The remaining six need a decision about which file owns what, so they are
+left alone. My reading of each:
+
+| internal | situation | suggestion |
+|---|---|---|
+| `.tale_parts()` + its two helpers `.tale_parts_from_file()`, `.rvds_from_annotale_file()` | a coherent trio in `distalr.R`, entered only from `tales_from_telltale()` in `tales_class.R` | move the trio out to a new `R/tales_ingest.R` with `tales_from_telltale()`. `distalr.R` would then be only about comparison, which is the bigger win |
+| `.build_repeat_msa()` | MAFFT plumbing in `msa.R`, called only by `tales_align()` in `tales_msa_class.R` | genuinely ambiguous — it is alignment machinery (so `msa.R`) but a private step of one method (so `tales_msa_class.R`). Leave unless the file split is revisited |
+| `.tales_dom_code_namespace()` | in `tales_class.R`, called from `distalr.R` | leave. It is a property of the class read by another module, which is normal |
+| `.tales_msa_contract_holds()` | in `tales_msa_class.R`, called from `tales_class.R` | leave, same reason |
+| `.run_nhmmer_search()`, `.hits_report_to_gff()` | in `tellTale_utilities.R`, called only from `telltale.R` | `tellTale_utilities.R` is down to five members after the parking. Either fold what is left into `telltale.R` and drop the file, or leave it |
+
 ### 8.6 Legacy preconditions leaking through class methods **[A]**
 
 `plot.tales_msa()` decomposes its object and hands the pieces to

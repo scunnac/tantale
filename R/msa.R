@@ -396,6 +396,97 @@ tales_consensus_match <- function(align, long = TRUE) {
 }
 
 
+#### Turning an alignment of repeat codes into an alignment of something else ####
+#
+# Each of these takes the matrix plot.tales_msa() is drawing and returns a
+# matrix of the same shape holding a different quantity: a cluster id, a
+# similarity to the reference, an RVD specificity score. They are the fill
+# layers, and plot.tales_msa() is their only caller, so they live beside it.
+
+.repeat_to_sim_align <- function(repeat_align, repeat_sim, ref_tag = NULL) {
+  # A function that substitute the repeatIDs with the aa similarity relative to a
+  # reference repeat for each column. The ref repeat is the one from a TALE that
+  # is defined as a reference in the alignment. This function takes as input, the
+  # repeat alignment and the df output by `.format_repeat_dist_mat()` This
+  # function outputs the modified alignment matrix
+  
+  refRowIdx <- match(.pick_ref_name(repeat_align, ref_tag = ref_tag), rownames(repeat_align))
+  simAlign <- apply(repeat_align, 2,
+                    function(column) {
+                      refState <- column[refRowIdx]
+                      relevantSims <- subset(repeat_sim, subset = id1 == refState)
+                      sim <- 100 - relevantSims$dissim[match(column, relevantSims$id2, nomatch = NA)]
+                      if (is.na(refState)) sim[!is.na(column)] <- 0 # if reference repeat is NA, set the aligned repeat sim = 0
+                      return(sim)
+                    }
+  )
+  simAlign <- matrix(simAlign, nrow = nrow(repeat_align)) # in case of 1-row matrix
+  rownames(simAlign) <- rownames(repeat_align)
+  colnames(simAlign) <- colnames(repeat_align)
+  return(simAlign)
+}
+
+#' Convert repeat alignment to clusterID alignment
+#'
+#' @param repeat_sim A long, three columns data frame with pairwise similarity scores between repeats as available in the \code{domain_distances} element of the object returned by the \code{\link{tales_compare}} function.
+#' @param repeat_align a multiple Tal repeat sequences alignment in the form of a matrix as returned by \code{\link{tales_align}}.
+#' @param h_cut a numeric value indicating the height at which to cut the hclust tree of repeats. Interpreted on a distance scale (0 = identical).
+#' @return a matrix with exactly the same dimension as the input \code{repeat_sim} but containing clusterID instead of
+#' repeatID.
+#' @noRd
+.repeat_to_cluster_align <- function(repeat_sim, repeat_align, h_cut = 10) {
+  # as.dist() expects a DISTANCE, which is what the class stores.
+  repeat_dissim <- as.matrix(reshape2::acast(repeat_sim, id1 ~ id2, value.var = "dissim"))
+  dist_clust <- hclust(as.dist(repeat_dissim))
+  dist_cut <- as.data.frame(cbind(RepID = dist_clust$labels, Rep_clust = cutree(dist_clust, h = h_cut)))
+  clustIDAlign <- apply(repeat_align, 2,
+                        function(column){
+                          as.numeric(dist_cut$Rep_clust[match(column, dist_cut$RepID)])
+                        })
+  clustIDAlign <- matrix(clustIDAlign, nrow = nrow(repeat_align)) # in case of 1-row matrix
+  rownames(clustIDAlign) <- rownames(repeat_align)
+  colnames(clustIDAlign) <- colnames(repeat_align)
+  return(clustIDAlign)
+}
+
+#' Recode an RVD alignment as similarity to a reference row
+#'
+#' Substitutes each RVD with a score expressing how similar its DNA-binding
+#' preference is to the RVD of a reference TALE, column by column. This is the
+#' RVD-level counterpart of \code{.repeat_to_sim_align()}, which works on
+#' protein sequence similarity instead: the two come apart, since repeats can be
+#' sequence-divergent yet share an RVD, or near-identical yet differ at
+#' positions 12-13.
+#'
+#' Currently unwired: no \code{fill_type} in either plotting function requests
+#' an RVD-level layer. It is the only consumer of the internal
+#' \code{rvdSimDf} dataset.
+#'
+#' @param rvd_align A character matrix of aligned RVDs.
+#' @param rvd_sims A data frame of pairwise RVD similarity with columns
+#'   \code{rvd1}, \code{rvd2} and \code{Cor}. Defaults to the package's
+#'   internal \code{rvdSimDf}.
+#' @param ref_tag Pattern selecting the reference row; see
+#'   \code{.pick_ref_name()}.
+#' @return A numeric matrix with the dimensions and dimnames of
+#'   \code{rvd_align}.
+#' @keywords internal
+.rvd_to_match_align <- function(rvd_align, rvd_sims = rvdSimDf, ref_tag = NULL) {
+  refRowIdx <- match(.pick_ref_name(rvd_align, ref_tag = ref_tag), rownames(rvd_align))
+  simAlign <- apply(rvd_align, 2,
+                    function(column) {
+                      refState <- column[refRowIdx]
+                      relevantSims <- subset(rvd_sims, subset = rvd1 == refState)
+                      relevantSims$Cor[match(column, relevantSims$rvd2, nomatch = NA)]
+                    }
+  )
+  simAlign <- matrix(simAlign, nrow = nrow(rvd_align)) # in case of 1-row matrix
+  rownames(simAlign) <- rownames(rvd_align)
+  colnames(simAlign) <- colnames(rvd_align)
+  return(simAlign)
+}
+
+
 #' Plot a multiple alignment of TALEs
 #'
 #' @description Draws the alignment as a heatmap: one row per array, one
