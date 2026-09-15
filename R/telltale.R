@@ -285,6 +285,105 @@
 }
 
 
+#' Write the run log
+#'
+#' Echoes the parameters the run was given and a handful of summary measures,
+#' to the console and to a file. Nothing downstream reads it; it exists so
+#' that a directory of results can be read months later and still say what
+#' produced it.
+#'
+#' @param params The user-facing arguments, echoed verbatim.
+#' @param log_file Where to write.
+#' @param hmm What \code{.telltale_hmm_profiles()} returned.
+#' @param subject_seqs The sequences that were searched.
+#' @param arrays,by_array What \code{.telltale_group_arrays()} returned.
+#' @param array_report The assembled array report.
+#' @param gaps_below_500,gap_quartiles Gap statistics between arrays.
+#' @param annotale_messages Whatever AnnoTALE complained about, if anything.
+#' @return \code{NULL}, invisibly. Called for its output.
+#' @noRd
+.telltale_log <- function(params, log_file, hmm, subject_seqs, arrays, by_array,
+                          array_report, gaps_below_500, gap_quartiles,
+                          annotale_messages) {
+  
+  ## counts of appearance of each RVD type (excluding N- and C- terms symbols) for the log file
+  #RVDtbl <- table(subset(unlist(by_array), query_name ==hmm$repeats, drop = TRUE)$RVD)
+  ## Total count of repeat CDS after filtering for uniformative subject seqs for the log file
+  numberOfRepeatHitsAfterFiltering <- length(subset(unlist(by_array), query_name == hmm$repeats))
+  ## Distribution of the number of hits per array
+  countsHitsByArrayDistri <- summary(S4Vectors::mcols(by_array)$NumberOfHits)
+  ## Number of domains in arrays that display all domain types
+  # completeArrayLengths <- subset(S4Vectors::mcols(by_array), AllDomains)$NumberOfHits
+  
+  
+  ## might have been cleaner with a glue approach
+  txt <- c(
+    "#****************************************",
+    "#**   tell_tales analysis done     **",
+    
+    paste("Current date:", date(), sep = "\t"),
+    "#_________Provided I/O parameters __________",
+    paste("File of subject DNA sequences:", params$subject_file, sep = "\t"),
+    paste("TALE N-term CDS region detection HMM file:", hmm$files[["nterm"]], sep = "\t"),
+    paste("TALE repeat unit CDS detection HMM file:", hmm$files[["repeats"]], sep = "\t"),
+    paste("TALE C-term CDS region detection HMM file:", hmm$files[["cterm"]], sep = "\t"),
+    paste("Output directory:", params$output_dir, sep = "\t"),
+    
+    "#____________Other parameters________________",
+    paste("nterm_min_score",":", params$nterm_min_score, sep = "\t"),
+    paste("repeat_min_score",":", params$repeat_min_score, sep = "\t"),
+    paste("cterm_min_score",":", params$cterm_min_score, sep = "\t"),
+    paste("min_domain_hits",":", params$min_domain_hits, sep = "\t"),
+    paste("merge_hits",":", params$merge_hits, sep = "\t"),
+    paste("min_gap",":", params$min_gap, sep = "\t"),
+    paste("extend_len",":", params$extend_len, sep = "\t"),
+    paste("correct_array",":", params$correct_array, sep = "\t"),
+    paste("correction_ref",":", params$correction_ref, sep = "\t"),
+    paste("frameshift",":", params$frameshift, sep = "\t"),
+    
+    "#__________Summary measures of TALE search outcome__________",
+    paste("Number of analysed subject sequences :", length(subject_seqs), sep = "\t"),
+    paste("Total number of TALE repeat DNA coding sequence motif hits found with the nhmmer approach:",
+          numberOfRepeatHitsAfterFiltering, sep = "\t"),
+    #paste("Total number of repeat HMM hits on the corresponding set of translated DNA hits:", sum(RVDtbl), sep = "\t"),
+    
+    paste("Total number of subject seqs with TALE motif hits after low hit number filtering:",
+          length(GenomeInfoDb::seqlevels(arrays)), sep = "\t"),
+    paste("Total number of distinct regions (repeat arrays) with adjacent TALE motifs :", nrow(array_report), sep = "\t"),
+    paste("Total number of 'complete' arrays (with both N- and C-term flanking motifs):",
+          sum(S4Vectors::mcols(by_array)$AllDomains),	sep = "\t"),
+    
+    #paste("Total number of distinct types of RVD:", nrow(RVDtbl), sep = "\t"),
+    
+    paste("Minimum array length (number of TALE domain hits):", min(array_report$NumberOfHits), sep = "\t"),
+    paste("Maximum array length:", max(array_report$NumberOfHits), sep = "\t"),
+    paste("Median array length:", median(array_report$NumberOfHits), sep = "\t"),
+    # paste("Length of the longest 'complete' array:", max(completeArrayLengths),	sep = "\t"),
+    # paste("Length of the shortest 'complete' array:", min(completeArrayLengths),	sep = "\t"),
+    
+    #message("Distribution of the number of TALE domain hits per array:\n")
+    #message(paste(names(countsHitsByArrayDistri), countsHitsByArrayDistri, sep = "\t", collapse = "\n"))
+    
+    paste("Number of gaps of size below 500nt between TALE motifs arrays:", length(gaps_below_500)/2, sep = "\t"),
+    
+    paste("First quartile of size of gaps (below 500nt) between TALE motifs arrays:", gap_quartiles[1], sep = "\t"),
+    paste("Median size of gaps (below 500nt) between TALE motifs arrays:", gap_quartiles[2], sep = "\t"),
+    paste("Upper quartile of size of gaps (below 500nt) between TALE motifs arrays:", gap_quartiles[3], sep = "\t"),
+    
+    "#__________Noteworthy AnnoTale issues__________",
+    paste("#", annotale_messages),
+    
+    "#*************************\n"
+  )
+  
+  message(paste(txt, collapse = "\n"))
+  logf <- file(log_file, open = "w")
+  writeLines(text = txt, con = logf)
+  close(logf)
+  invisible(NULL)
+}
+
+
 #' Every file and directory a tell_tales() run writes
 #'
 #' Computed once, up front, so that the rest of the function reads as a
@@ -952,81 +1051,21 @@ tell_tales <- function(
   Biostrings::writeXStringSet(x = seqsOfRVDs, paths$rvd_sequences)
   
   ####   Generate info messages and log file about the analysis   #####
-  
-  ## counts of appearance of each RVD type (excluding N- and C- terms symbols) for the log file
-  #RVDtbl <- table(subset(unlist(hitsByArraysLst), query_name ==hmm$repeats, drop = TRUE)$RVD)
-  ## Total count of repeat CDS after filtering for uniformative subject seqs for the log file
-  numberOfRepeatHitsAfterFiltering <- length(subset(unlist(hitsByArraysLst), query_name == hmm$repeats))
-  ## Distribution of the number of hits per array
-  countsHitsByArrayDistri <- summary(S4Vectors::mcols(hitsByArraysLst)$NumberOfHits)
-  ## Number of domains in arrays that display all domain types
-  # completeArrayLengths <- subset(S4Vectors::mcols(hitsByArraysLst), AllDomains)$NumberOfHits
-  
-  
-  ## might have been cleaner with a glue approach
-  txt <- c(
-    "#****************************************",
-    "#**   tell_tales analysis done     **",
-    
-    paste("Current date:", date(), sep = "\t"),
-    "#_________Provided I/O parameters __________",
-    paste("File of subject DNA sequences:", subject_file, sep = "\t"),
-    paste("TALE N-term CDS region detection HMM file:", hmm$files[["nterm"]], sep = "\t"),
-    paste("TALE repeat unit CDS detection HMM file:", hmm$files[["repeats"]], sep = "\t"),
-    paste("TALE C-term CDS region detection HMM file:", hmm$files[["cterm"]], sep = "\t"),
-    paste("Output directory:", output_dir, sep = "\t"),
-    
-    "#____________Other parameters________________",
-    paste(Quote(nterm_min_score),":", nterm_min_score, sep = "\t"),
-    paste(Quote(repeat_min_score),":", repeat_min_score, sep = "\t"),
-    paste(Quote(cterm_min_score),":", cterm_min_score, sep = "\t"),
-    paste(Quote(min_domain_hits),":", min_domain_hits, sep = "\t"),
-    paste(Quote(merge_hits),":", merge_hits, sep = "\t"),
-    paste(Quote(min_gap),":", min_gap, sep = "\t"),
-    paste(Quote(extend_len),":", extend_len, sep = "\t"),
-    paste(Quote(correct_array),":", correct_array, sep = "\t"),
-    paste(Quote(correction_ref),":", correction_ref, sep = "\t"),
-    paste(Quote(frameshift),":", frameshift, sep = "\t"),
-    
-    "#__________Summary measures of TALE search outcome__________",
-    paste("Number of analysed subject sequences :", length(subjectDNASequences), sep = "\t"),
-    paste("Total number of TALE repeat DNA coding sequence motif hits found with the nhmmer approach:",
-          numberOfRepeatHitsAfterFiltering, sep = "\t"),
-    #paste("Total number of repeat HMM hits on the corresponding set of translated DNA hits:", sum(RVDtbl), sep = "\t"),
-    
-    paste("Total number of subject seqs with TALE motif hits after low hit number filtering:",
-          length(GenomeInfoDb::seqlevels(arraysGR)), sep = "\t"),
-    paste("Total number of distinct regions (repeat arrays) with adjacent TALE motifs :", nrow(arrayReport), sep = "\t"),
-    paste("Total number of 'complete' arrays (with both N- and C-term flanking motifs):",
-          sum(S4Vectors::mcols(hitsByArraysLst)$AllDomains),	sep = "\t"),
-    
-    #paste("Total number of distinct types of RVD:", nrow(RVDtbl), sep = "\t"),
-    
-    paste("Minimum array length (number of TALE domain hits):", min(arrayReport$NumberOfHits), sep = "\t"),
-    paste("Maximum array length:", max(arrayReport$NumberOfHits), sep = "\t"),
-    paste("Median array length:", median(arrayReport$NumberOfHits), sep = "\t"),
-    # paste("Length of the longest 'complete' array:", max(completeArrayLengths),	sep = "\t"),
-    # paste("Length of the shortest 'complete' array:", min(completeArrayLengths),	sep = "\t"),
-    
-    #message("Distribution of the number of TALE domain hits per array:\n")
-    #message(paste(names(countsHitsByArrayDistri), countsHitsByArrayDistri, sep = "\t", collapse = "\n"))
-    
-    paste("Number of gaps of size below 500nt between TALE motifs arrays:", length(gaplengthBetweenHitDomainsbelow500)/2, sep = "\t"),
-    
-    paste("First quartile of size of gaps (below 500nt) between TALE motifs arrays:", quartilesGapLength[1], sep = "\t"),
-    paste("Median size of gaps (below 500nt) between TALE motifs arrays:", quartilesGapLength[2], sep = "\t"),
-    paste("Upper quartile of size of gaps (below 500nt) between TALE motifs arrays:", quartilesGapLength[3], sep = "\t"),
-    
-    "#__________Noteworthy AnnoTale issues__________",
-    paste("#", annoTaleMessages),
-    
-    "#*************************\n"
-  )
-  
-  message(paste(txt, collapse = "\n"))
-  logf <- file(paths$log, open = "w")
-  writeLines(text = txt, con = logf)
-  close(logf)
+  .telltale_log(
+    params = list(subject_file = subject_file, output_dir = output_dir,
+                  nterm_min_score = nterm_min_score,
+                  repeat_min_score = repeat_min_score,
+                  cterm_min_score = cterm_min_score,
+                  min_domain_hits = min_domain_hits, merge_hits = merge_hits,
+                  min_gap = min_gap, extend_len = extend_len,
+                  correct_array = correct_array, correction_ref = correction_ref,
+                  frameshift = frameshift),
+    log_file = paths$log, hmm = hmm, subject_seqs = subjectDNASequences,
+    arrays = arraysGR, by_array = hitsByArraysLst, array_report = arrayReport,
+    gaps_below_500 = gaplengthBetweenHitDomainsbelow500,
+    gap_quartiles = quartilesGapLength,
+    annotale_messages = annoTaleMessages)
+
   return(invisible(output_dir))
 }
 
