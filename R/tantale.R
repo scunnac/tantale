@@ -53,6 +53,14 @@
 #'@import fs
 #'@import magrittr
 #'@import cli
+# Biostrings is imported wholesale rather than by name. Several calls in the
+# package rely on its S4 methods for base-looking generics -- nchar() on an
+# XStringSet is the trap, since it reads as base R and only differs for S4
+# arguments. This import used to arrive as a side effect of an S4 class
+# definition in telltale.R; it is declared deliberately here instead.
+# Narrowing it to importFrom() is ledger 7.3, and wants the call sites
+# qualified first.
+#'@import Biostrings
 #'@importFrom dplyr mutate if_else
 #'@importFrom ggplot2 ggplot aes labs geom_point geom_text facet_grid theme_light
 #'@importFrom ggplot2 scale_x_continuous scale_fill_discrete scale_color_viridis_d

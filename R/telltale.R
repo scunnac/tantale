@@ -500,7 +500,7 @@ tell_tales <- function(
     
     #### Multiple alignenment of orginal vs corrected vs corrected+N/C subtituted sequences  ####
     
-    for (n in names(corrExtdCompleteArraysSeqs)[vcountPattern("N", corrExtdCompleteArraysSeqs) > 0]) {
+    for (n in names(corrExtdCompleteArraysSeqs)[Biostrings::vcountPattern("N", corrExtdCompleteArraysSeqs) > 0]) {
       cli::cli_warn(paste0("After correction, {n} sequence contains 'N's which will be substituted by 'C's in order",
                        "to run AnnoTALE analyze for RVDs prediction."))
     }
@@ -592,7 +592,7 @@ tell_tales <- function(
   
   annoTaleMessages <- character()
   
-  annoTaleOut <- sapply(names(TalOrfForAnnoTALE), function(talOrfID) {
+  annoTaleOut <- lapply(names(TalOrfForAnnoTALE), function(talOrfID) {
     AnnotaleDir <- file.path(annotaleMainDir, talOrfID)
     dir.create(AnnotaleDir)
     TalOrf <- TalOrfForAnnoTALE[talOrfID]
@@ -631,7 +631,7 @@ tell_tales <- function(
       annoTaleMessages <<- c(annoTaleMessages,
                             (m <- glue::glue("Annotale failed to parse TALE domains for {talOrfID}.")))
       cli::cli_warn(m)
-      return(annout(Biostrings::AAStringSet(), domainsReport = data.frame()))
+      return(list(rvds = Biostrings::AAStringSet(), domains = data.frame()))
     }
     names(seqOfRVDs) <- talOrfID
     
@@ -640,15 +640,18 @@ tell_tales <- function(
     domainsReport <- tibble::tibble("array_id" = talOrfID,
                                 "seqnames" = S4Vectors::mcols(hitsByArraysLst)$OriginalSubjectName[S4Vectors::mcols(hitsByArraysLst)$array_id == talOrfID],
                                 "query_name" = gsub("(.+\\: )|( \\d+)", "", names(prot_parts)),
-                                "codon_count" = width(prot_parts) - stops
+                                "codon_count" = Biostrings::width(prot_parts) - stops
                                 )
     
-    annotale_output <- annout(seqOfRVDs, domainsReport = domainsReport)
-    return(annotale_output)
-  }, simplify = T, USE.NAMES = F)
-  
-  seqsOfRVDs <- unlist(Biostrings::AAStringSetList(annoTaleOut))
-  domainsReport <- do.call(rbind, lapply(annoTaleOut, function(x) x@domainsReport))
+    list(rvds = seqOfRVDs, domains = domainsReport)
+  })
+
+  # Each element carries an AAStringSet and a data frame. That pairing used to
+  # be an exported S4 class whose only purpose was to let sapply() return both
+  # at once; a list does it without putting an implementation detail in the
+  # package's API.
+  seqsOfRVDs <- unlist(Biostrings::AAStringSetList(lapply(annoTaleOut, `[[`, "rvds")))
+  domainsReport <- do.call(rbind, lapply(annoTaleOut, `[[`, "domains"))
   
   
   #### TODO  #####
@@ -818,7 +821,7 @@ tell_tales <- function(
   ## Write a fasta file of the seq of RVDs
   seqsOfRVDs <- Biostrings::BStringSet(S4Vectors::mcols(hitsByArraysLst)$SeqOfRVD)
   names(seqsOfRVDs) <- S4Vectors::mcols(hitsByArraysLst)$array_id
-  seqsOfRVDs <- seqsOfRVDs[!width(seqsOfRVDs) == 0]
+  seqsOfRVDs <- seqsOfRVDs[!Biostrings::width(seqsOfRVDs) == 0]
   Biostrings::writeXStringSet(x = seqsOfRVDs, seqsOfRVDFile)
   
   ####   Generate info messages and log file about the analysis   #####
@@ -964,28 +967,6 @@ tell_tales <- function(
 } 
 
 
-#' annotale output 
-#' @exportClass annout
-#' @import Biostrings
-#' @importFrom methods setClass
-annout <- setClass(
-  # Set the name for the class
-  Class = "annout",
-  
-  # Define the slots
-  slots = c(
-    domainsReport = "data.frame"
-  ),
-  
-  contains = "AAStringSet",
-  
-  # Make a function that can test to see if the data is consistent.
-  # This is not called if you have an initialize function defined!
-  validity = function(object) {
-    val <- is.data.frame(object@domainsReport)
-    return(val)
-  }
-)
 
 
 .hits_report_to_gff <- function(f = "hitsReport.csv") {

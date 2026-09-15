@@ -41,7 +41,7 @@ diag(identSubMat) <- 1
   pair_align_scores %<>%
     dplyr::rowwise() %>%
     dplyr::mutate(
-      max_length = max(nchar(part_aa_set[id1]), nchar(part_aa_set[id2])),
+      max_length = max(Biostrings::nchar(part_aa_set[id1]), Biostrings::nchar(part_aa_set[id2])),
       # This is an approximate equivalent of how Alvaro computed dissimilarity in distal
       dissim = 100 - 100 * (max_length - score) / max_length,
       dissim = ifelse(dissim < 0, 100, 100 - dissim),
