@@ -1040,7 +1040,38 @@ with `repeat_align`, an argument a `plot(x)` caller never supplied and cannot
 inspect.
 
 Decided: `plot_tales_msa()` is folded into `plot.tales_msa()` and unexported.
-Expect the same shape at the other entry points.
+Done.
+
+**The other entry points, audited the same way:**
+
+- `plot.tales()` -> `plot_tales_composition()`: **clean.** A one-line
+  pass-through to a function that already takes the object and checks through
+  `.tales_require()`; every message names a column, not an argument the caller
+  did not supply. The only question here is a different one -- two public
+  names (`plot(x)` and `plot_tales_composition(x)`) for one operation, both
+  taking the same object. Unlike the msa case there is no legacy matrix
+  interface to remove, so this is an API-surface choice, not a defect.
+
+- `tales_compare()` -> `.tales_compare_core()`: **one dead check.** The core
+  aborts with "Your tale arrays identifers are probably not unique. Make sure
+  that there is only one part per position per array_id." Tested: `tales()`
+  already rejects a duplicated `array_id`/`position_in_array` pair, so this
+  cannot fire through `tales_compare()`. (It also misspells "identifiers".)
+  Left in place pending a decision -- unlike the plot case, `.tales_compare_core()`
+  is a private contract that a future caller might breach.
+
+  Its two *other* checks are live and must stay: `tales()` accepts `NA` and
+  `""` in `aa_seq` (tested), so "Some of the provided TALE parts have no amino
+  acid sequence" is reachable and doing real work.
+
+- `tales_align()` -> `.build_repeat_msa()`: **leaks.** Its messages name
+  `input_seqs`, which is an internal argument; a `tales_align()` caller passes
+  a `tales` object and has no `input_seqs` to inspect. Same defect as the plot
+  case, smaller blast radius.
+
+**Incidental finding, unrelated to leakage:** `tales()` accepts `NA` in a
+residue column (`rvd`, `dom_code`). Worth deciding whether that is intended --
+a missing RVD at a position is a different thing from a gap.
 
 ### 8.7 `tales_consensus()` depended on row order **[V]** — FIXED
 
