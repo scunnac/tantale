@@ -1035,6 +1035,55 @@ restarted -- the reason it now lives in the repository.
 To accept an intended change: inspect the diff, then
 `testthat::snapshot_accept("golden")`.
 
+### 8.1 A purpose-built fixture for `tell_tales()` **[A]**
+
+`tell_tales()` is slow, and the slowness is not where it looks.
+
+| run on the current 116 kb fixture (2 regions, 4 TALEs) | elapsed |
+|---|---|
+| `correct_array = FALSE` | 8.8 s |
+| `correct_array = TRUE` | **254.6 s** |
+
+The correction is 29x the rest of the pipeline. But it does **not** scale with
+the size of the subject sequence. `CorrectFrameshifts()` is called with
+`maxComparisons = length(AAref)` against `decipher_ref_tales_aa.fa.gz`, which
+holds **1057 reference TALEs**, so every array is aligned against all of them.
+The cost is (number of arrays) x (size of the reference set):
+
+| reference TALEs | elapsed |
+|---|---|
+| 1057 (default) | 254.6 s |
+| 100 | 60.9 s |
+| 20 | 20.3 s |
+
+So there are two independent levers, and they fix different things:
+
+1. **A trimmed reference set** is what makes the correction path testable at
+   all -- 12x, and `correction_ref` is already an argument, so a test can pass
+   its own without touching the package default.
+2. **A toy subject sequence** -- two TALEs, one carrying a single-nucleotide
+   insertion in its ORF -- shortens the HMMER stage and, more importantly,
+   gives the correction a **known right answer** to assert against. Today
+   nothing checks that the correction corrects anything; it is only checked
+   that the call does not error.
+
+Suggested composition for the toy, to be built from the existing BAI3 regions
+rather than synthesised, so the sequences stay biologically real:
+
+- two complete TALE ORFs with short flanks, enough for `extend_len = 300`
+  to have something to extend into;
+- one left intact, as the negative control -- correction must not change it;
+- one with a single nucleotide inserted in a known repeat, far enough from
+  the ends that the frameshift truncates the ORF and is detectable. Record
+  the insertion point in the fixture's name or a companion file so the test
+  can assert the correction restores exactly that position;
+- optionally a third region with no TALE at all, which would pin the
+  "no hits" branch on real sequence rather than the random DNA the current
+  test generates.
+
+Relates to 5.3: the refactor needs a characterisation baseline, and the
+baseline needs a fixture that can run in seconds.
+
 ### 8.2 Silence MAFFT by default **[A]**
 
 `.build_repeat_msa()` runs MAFFT through `system()` with
