@@ -167,6 +167,56 @@
 }
 
 
+#' Merge hits of the same domain type that overlap each other
+#'
+#' nhmmer can report the same repeat twice, as two overlapping hits. Left
+#' alone those become two repeats in the array, and the inferred RVD sequence
+#' gains a residue that is not there.
+#'
+#' Merging is done per domain type, never across types: an N-terminus hit
+#' overlapping a repeat hit is a real feature of where one domain ends and the
+#' next begins, not a duplicate.
+#'
+#' The identifiers of the hits that went into each merged range are kept in
+#' \code{nhmmerHitID}, separated by \code{|}, so a merged range can be traced
+#' back to the raw search output.
+#'
+#' @param gr Hits as a \code{GRanges}, with \code{query_name} naming the
+#'   domain type and \code{hitID} identifying each hit.
+#' @return A \code{GRanges} of merged hits, re-identified as \code{MDOM_*}.
+#' @noRd
+.telltale_merge_overlapping_hits <- function(gr) {
+  byDomain <- GenomicRanges::split(gr, f = gr$query_name)
+
+  merged <- lapply(byDomain, function(g) {
+    reduced <- as.data.frame(GenomicRanges::findOverlaps(
+        g, g, minoverlap = 2, type = "any", ignore.strand = FALSE, select = "all")) %>%
+      dplyr::group_by(queryHits) %>%
+      dplyr::group_map({
+        ~ GenomicRanges::reduce(g[as.numeric(.x$subjectHits)], with.revmap = FALSE)
+      }) %>%
+      plyranges::bind_ranges() %>%
+      unique()
+
+    # which raw hits ended up inside each merged range
+    formerIDs <- as.data.frame(GenomicRanges::findOverlaps(
+        g, reduced, minoverlap = 2, type = "within", ignore.strand = FALSE, select = "all")) %>%
+      dplyr::group_by(subjectHits) %>%
+      dplyr::group_map({
+        ~ paste0(g[as.numeric(.x$queryHits)]$hitID, collapse = "|")
+      }) %>%
+      unlist()
+    reduced$nhmmerHitID <- formerIDs
+    reduced
+  }) %>%
+    plyranges::bind_ranges(.id = "query_name")
+
+  merged$hitID <- paste("MDOM", sprintf("%05.0f", 1:length(merged)), sep = "_")
+  names(merged) <- merged$hitID
+  merged
+}
+
+
 #' Every file and directory a tell_tales() run writes
 #'
 #' Computed once, up front, so that the rest of the function reads as a
@@ -420,40 +470,7 @@ tell_tales <- function(
   
   #####   Domain-wise merge of overlapping hits  #####
   if (merge_hits) {
-    ## Split the ranges by domain type
-    nhmrOutGrByDomain <- GenomicRanges::split(nhmmerOutputGR, f = nhmmerOutputGR$query_name)
-    ## Perform merge
-    reducedOlapGr <- lapply(nhmrOutGrByDomain, function(gr) {
-      reducedOlapGr <- as.data.frame(GenomicRanges::findOverlaps(gr, gr,
-                                                                 minoverlap = 2,
-                                                                 type = "any",
-                                                                 ignore.strand=FALSE,
-                                                                 select = "all")) %>%
-        dplyr::group_by(queryHits) %>%
-        dplyr::group_map({
-          ~ GenomicRanges::reduce(gr[as.numeric(.x$subjectHits)], with.revmap = FALSE)
-        }) %>%
-        plyranges::bind_ranges() %>%
-        unique()
-      formerIDs <- as.data.frame(GenomicRanges::findOverlaps(gr, reducedOlapGr,
-                                                             minoverlap = 2,
-                                                             type = "within",
-                                                             ignore.strand=FALSE,
-                                                             select = "all")) %>%
-        dplyr::group_by(subjectHits) %>%
-        dplyr::group_map({
-          ~ paste0(gr[as.numeric(.x$queryHits)]$hitID, collapse = "|")
-        }) %>%
-        unlist()
-      reducedOlapGr$nhmmerHitID <- formerIDs
-      return(reducedOlapGr)
-    }) %>%
-      plyranges::bind_ranges(.id = "query_name")
-    reducedOlapGr$hitID <- paste("MDOM", sprintf("%05.0f", 1:length(reducedOlapGr)), sep="_")
-    names(reducedOlapGr) <- reducedOlapGr$hitID
-    
-    ## From there on, use the merged hits GRanges
-    nhmmerOutputGR <- reducedOlapGr
+    nhmmerOutputGR <- .telltale_merge_overlapping_hits(nhmmerOutputGR)
   } else {
     nhmmerOutputGR <- nhmmerOutputGRBeforeMerge
   }
@@ -896,7 +913,12 @@ tell_tales <- function(
                S4Vectors::mcols(hitsByArraysLst),
                seqnames.field= "OriginalSubjectName",
                keep.extra.columns= TRUE),
-             if (exists("reducedOlapGr")) nhmmerOutputGRBeforeMerge else NULL
+             # the unmerged hits are included only when merging happened, so
+             # that a merged range can be compared against what went into it.
+             # This used to test exists("reducedOlapGr"), an intermediate of
+             # the merge branch -- which silently became FALSE the moment that
+             # branch was lifted into a function.
+             if (merge_hits) nhmmerOutputGRBeforeMerge else NULL
   )
   rtracklayer::export.gff3(allGR, paths$all_ranges_gff)
   
