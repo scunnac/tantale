@@ -1035,7 +1035,7 @@ restarted -- the reason it now lives in the repository.
 To accept an intended change: inspect the diff, then
 `testthat::snapshot_accept("golden")`.
 
-### 8.0 `tell_tales()` has an unguarded filter **[A]**
+### 8.0 `tell_tales()` has an unguarded filter — FIXED **[V]**
 
 Found while checking that the new baseline is actually sensitive.
 
@@ -1070,8 +1070,15 @@ Two further things worth noticing about this argument:
 - The comparison is `>` where the name says "minimum", so `min_domain_hits = 4`
   keeps sequences with **five** hits or more.
 
-Fix during 5.3 rather than before it: the guard belongs in whichever internal
-ends up owning that stage.
+**Done**, during 5.3. The guard lives in `.telltale_find_domain_hits()`, the
+internal that now owns this stage, and says which argument caused it and that
+it counts per subject sequence. All three of `tell_tales()`'s give-up points
+have tests now (`test_tell_tales_guards.R`); none had any before.
+
+The other two observations stand and are **not** addressed: it still filters
+per contig rather than per array, and still compares with `>` despite being
+named a minimum. Both change results for existing users, so they are a
+decision, not a cleanup.
 
 ### 8.1 A purpose-built fixture for `tell_tales()` **[A]**
 

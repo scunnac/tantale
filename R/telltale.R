@@ -84,6 +84,89 @@
 }
 
 
+#' Run nhmmer and return the TALE domain hits that survive filtering
+#'
+#' The first stage of \code{tell_tales()}: search the subject sequences with
+#' the merged profile, read the tabular output, and keep the hits worth
+#' carrying forward.
+#'
+#' Filtering happens twice, for different reasons. Each domain type is scored
+#' against its own threshold, because an N-terminus, a repeat and a C-terminus
+#' are different lengths and score on different scales. Then whole subject
+#' sequences are dropped if they carry too few hits, on the reasoning that a
+#' contig with one or two stray domain matches is unlikely to hold a real
+#' TALE.
+#'
+#' @param subject_file Sequences to search.
+#' @param hmm What \code{.telltale_hmm_profiles()} returned.
+#' @param paths What \code{.telltale_paths()} returned.
+#' @param hmmer_path Directory holding the nhmmer binary.
+#' @param nterm_min_score,repeat_min_score,cterm_min_score Per-domain score
+#'   thresholds.
+#' @param min_domain_hits A subject sequence is kept when it carries *more*
+#'   than this many hits. Note it counts hits per subject sequence, not per
+#'   TALE array; see restructuring-notes.md 8.0.
+#' @return The filtered table, or \code{NULL} when nothing survives -- which
+#'   the caller must treat as "stop here", since every later stage assumes at
+#'   least one hit.
+#' @noRd
+.telltale_find_domain_hits <- function(subject_file, hmm, paths, hmmer_path,
+                                       nterm_min_score, repeat_min_score,
+                                       cterm_min_score, min_domain_hits) {
+  .run_nhmmer_search(hmmer_path = hmmer_path,
+                     subject_file = subject_file,
+                     hmm_file = paths$merged_hmm,
+                     search_out_file = paths$hmmer_search,
+                     readable_out_file = paths$hmmer_readable)
+
+  hits <- try(read.table(paths$hmmer_search), silent = TRUE)
+  if (inherits(hits, "try-error")) {
+    warning("NhmmerSearch found no TALE cds hit in ", subject_file , " Exitting...")
+    return(NULL)
+  }
+
+  colnames(hits) <- c("target_name", "accession", "query_name", "accession", "hmmfrom", "hmm_to", "alifrom",
+                      "ali_to", "envfrom", "env_to", "sq_len", "strand", "Evalue", "score", "bias", "description_of_target")
+
+  ## filtering results differentially depending on the query HMM
+  hits <- subset(hits,
+                 query_name == hmm$nterm & score >= nterm_min_score |
+                   query_name == hmm$repeats & score >= repeat_min_score |
+                   query_name == hmm$cterm & score >= cterm_min_score
+  )
+  hits <- droplevels(hits)
+  if (nrow(hits) == 0L) {
+    cli::cli_warn("No record remains after filtering NhmmerSearch hits based on score. Exitting...")
+    return(NULL)
+  }
+  ## Add a hitID column
+  hits$hitID <- paste("DOM", sprintf("%05.0f", 1:nrow(hits)), sep = "_")
+
+  ## Trick to re-order positions in an increasing order to satisfy IRanges() in preparation of creating a GRanges
+  hits[, c("start", "end")] <- plyr::adply(.data = hits[, c("envfrom", "env_to")],
+                                           .margins = 1, .fun = c(min, max))[, -(1:2)]
+  rownames(hits) <- hits$hitID
+
+  ## Filter out target DNA sequences that have too few repeat CDSs
+  ## NB: for the sake of consistency  it would be better just to filter out
+  ## from any further consideration the ARRAYS shorter than a certain value (say 5).
+  ## WHAT DO WE DO ABOUT THAT?
+  perSubject <- plyr::ddply(hits[, -20], ~ target_name + sq_len, nrow) # I do not know why but it fails to work if I leave the RVD column (#20)
+  hits <- subset(hits, target_name %in% perSubject[perSubject$V1 > min_domain_hits, "target_name"])
+  hits <- droplevels(hits)
+  if (nrow(hits) == 0L) {
+    # Unguarded before: the run carried on and died several stages later
+    # inside Bioconductor with "Rle of type 'NULL' is not supported".
+    cli::cli_warn(c("No subject sequence carries more than {min_domain_hits} TALE domain hit{?s}.",
+                    "i" = "{.arg min_domain_hits} counts hits per subject sequence, not per TALE array.",
+                    "x" = "Nothing left to analyse. Exitting..."))
+    return(NULL)
+  }
+
+  hits
+}
+
+
 #' Every file and directory a tell_tales() run writes
 #'
 #' Computed once, up front, so that the rest of the function reads as a
@@ -123,6 +206,7 @@
     ## the three HMM profiles concatenated, which is what nhmmer is given
     merged_hmm     = file.path(output_dir, "TALE_CDS_all_diagnostic_regions_hmmfile.out"),
     hmmer_search   = file.path(output_dir, "hmmerSearchOut.txt"),
+    hmmer_readable = file.path(output_dir, "nhmmerHumanReadableOutputOfLastRun.txt"),
     ## logging info and some general analysis measures
     log            = file.path(output_dir, "tell_tales.log")
   )
@@ -310,54 +394,16 @@ tell_tales <- function(
   ## as specified in .telltale_hmm_profiles()
   hmm <- .telltale_hmm_profiles(hmm_dir, paths$merged_hmm)
   
-  ####   Perform TALE domain CDS search with HMMER  #####
-  
-  .run_nhmmer_search(hmmer_path = hmmer_path,
-                  subject_file = subject_file,
-                  hmm_file = paths$merged_hmm,
-                  search_out_file = paths$hmmer_search,
-                  readable_out_file = file.path(output_dir, "nhmmerHumanReadableOutputOfLastRun.txt"))
-  
-  ####   Load, process, filter TALE domain CDS HMMER hit results    ####
-  ## Loading search tabular output file
-  nhmmerTabularOutput <- try(read.table(paths$hmmer_search), silent = TRUE)
-  if (inherits(nhmmerTabularOutput, "try-error")) {
-    warning("NhmmerSearch found no TALE cds hit in ", subject_file , " Exitting...")
-    return(invisible(output_dir))
-  }
+  ####   Find the TALE domain CDS hits   #####
+  nhmmerTabularOutput <- .telltale_find_domain_hits(
+    subject_file = subject_file, hmm = hmm, paths = paths,
+    hmmer_path = hmmer_path,
+    nterm_min_score = nterm_min_score, repeat_min_score = repeat_min_score,
+    cterm_min_score = cterm_min_score, min_domain_hits = min_domain_hits)
+  # Every stage below assumes at least one hit.
+  if (is.null(nhmmerTabularOutput)) return(invisible(output_dir))
 
-  colnames(nhmmerTabularOutput) <- c("target_name", "accession", "query_name", "accession", "hmmfrom", "hmm_to", "alifrom",
-                                     "ali_to", "envfrom", "env_to", "sq_len", "strand", "Evalue", "score", "bias", "description_of_target")
-  
-  ## filtering results differentially depending on the query HMM
-  nhmmerTabularOutput <- subset(nhmmerTabularOutput,
-                                query_name == hmm$nterm & score >= nterm_min_score |
-                                  query_name == hmm$repeats & score >= repeat_min_score |
-                                  query_name == hmm$cterm & score >= cterm_min_score
-  )
-  nhmmerTabularOutput <- droplevels(nhmmerTabularOutput)
-  if(nrow(nhmmerTabularOutput) == 0L) {
-    cli::cli_warn("No record remains after filtering NhmmerSearch hits based on score. Exitting...")
-    return(invisible(output_dir))
-  }
-  ## Add a hitID column
-  nhmmerTabularOutput$hitID <- paste("DOM", sprintf("%05.0f", 1:nrow(nhmmerTabularOutput)), sep="_")
-  
-  ## Trick to re-order positions in an increasing order to satisfy IRanges() in preparation of creating a GRanges
-  nhmmerTabularOutput[,c("start", "end")] <- plyr::adply(.data = nhmmerTabularOutput[,c("envfrom", "env_to")],
-                                                         .margins = 1, .fun = c(min, max))[,-(1:2)]
-  rownames(nhmmerTabularOutput) <- nhmmerTabularOutput$hitID
-  
   #####   Storing all info about individual TALE domains in a GenomicRanges object   ####
-  
-  ## Filter out target DNA sequences that have too few repeat CDSs
-  ## NB: for the sake of consistency  it would be better just to filter out
-  ## from any further consideration the ARRAYS shorter than a certain value (say 5).
-  ## WHAT DO WE DO ABOUT THAT?
-  temp_df <- plyr::ddply(nhmmerTabularOutput[,-20], ~ target_name + sq_len, nrow) # I do not know why but it fails to work if I leave the RVD column (#20)
-  nhmmerTabularOutput <- subset(nhmmerTabularOutput, target_name %in% temp_df[temp_df$V1 > min_domain_hits, "target_name"])
-  nhmmerTabularOutput <- droplevels(nhmmerTabularOutput)
-  
 
   ## Creating a GRanges object from nhmmerOutput
   nhmmerOutputGR <- GenomicRanges::makeGRangesFromDataFrame(
