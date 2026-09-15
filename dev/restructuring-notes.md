@@ -512,7 +512,55 @@ needs, then make `tales_align()` group-aware. Not before.
 
 ---
 
-### 5.3 `tell_tales()` needs refactoring **[A]**
+### 5.3 `tell_tales()` refactoring — MECHANICAL PASS DONE **[V]**
+
+| | before | after |
+|---|---|---|
+| lines in `tell_tales()` | 745 | **160** |
+| deepest indentation | 65 | 48 |
+| `if`/`else` branches | 18 | 4 |
+| `for` loops | 5 | 0 |
+| arguments | 17 | 17 (untouched) |
+
+Seventeen internals, each named for what it does, and the body now reads as
+a pipeline: prepare the subject, read the profiles, find the hits, put them
+on the genome, merge, group into arrays, find the ORFs, run AnnoTALE, finish
+the RVD strings, align the termini, measure, report, log.
+
+**Verification.** Every extraction was checked the same way, not assumed: a
+baseline captured on the refactored code was re-run against the
+pre-extraction commit (`git stash push R/telltale.R`). Passing in both
+directions means the two produce identical output. Every step also ran the
+full suite, and each is its own commit, so any one of them reverts alone.
+
+**Two defects found, neither of which any test would have caught**
+
+1. The GFF export decided whether to include the unmerged hits by testing
+   `exists("reducedOlapGr")` -- an intermediate variable of the merge branch.
+   Lifting that branch into a function removed the variable from the frame,
+   `exists()` silently became `FALSE`, and `allRanges.gff` lost half its
+   records: 199 lines to 103. It asks `merge_hits` now.
+2. Removing the `annout` S4 class removed an `@import Biostrings` that its
+   roxygen block had been carrying for the whole package. Four unqualified
+   calls depended on it; the worst was `nchar()` on an `XStringSet`, which
+   reads as base R and only differs for an S4 argument. The import is now
+   declared deliberately (7.3 still wants it narrowed).
+
+**Also fixed on the way:** the unguarded `min_domain_hits` filter (8.0); the
+three terminus anchor codes, hardcoded here as literals, now read from
+`tales_anchor_codes()`; the nested `AnnoTALEanalyze()` promoted to
+`.run_annotale_analyze()` (8.0b); the DNA and protein terminus alignments,
+written twice, unified; `methods::Quote()` dropped from the package imports.
+
+**Not done, deliberately.** The 17 arguments are untouched: grouping them is
+a judgement call, it interacts with 9.1, and it changes the user-facing
+interface, which the rest of this pass did not. Two `TODO` blocks remain in
+the body -- circular molecules, and what two output files should contain --
+both of which are questions for the maintainer rather than cleanups.
+
+#### Original notes
+
+### 5.3-original `tell_tales()` needs refactoring **[A]**
 
 **[V]** Measured, so the scale is on record rather than impressionistic:
 
