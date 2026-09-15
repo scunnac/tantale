@@ -1003,6 +1003,38 @@ for no reason.
 **Callers with no caller: 5.** Moved to `R/unused_pending_review.R`, not
 deleted -- see the header of that file for what is known about each.
 
+### 8.3 Regression baseline — DONE **[V]**
+
+`tests/testthat/test_golden.R` plus `helper-golden.R`. Twenty snapshots
+covering the tales column contract, the anomaly report, the requirements
+table, the five projections, `tales_compare()`, both `tales_align()` layers,
+`tales_group()`, the data behind `plot()` on a `tales_msa`, and the consensus
+of the reference alignment. Runs in about 19 seconds; MAFFT and arlem are
+exercised for real.
+
+These assert nothing about what the values *should* be. They record what the
+pipeline produces, so a refactor meant to change nothing can be shown to have
+changed nothing, and one that does change something says where.
+
+**Whole tables are not snapshotted.** Each is reduced to a fingerprint: one
+row per column carrying type, length, distinct count, missingness and an md5
+of the values. Snapshots stay readable (23 KB in total) and a diff names the
+artefact *and* the column that moved. Doubles are rounded before digesting so
+that last-bit differences between machines do not register. Small artefacts
+worth reading -- the column contract, the requirements table, the consensus --
+are snapshotted whole.
+
+`expect_golden()` forces `cran = TRUE`: `expect_snapshot_value()` skips on CRAN
+by default, and a baseline that quietly does not run is worse than none.
+
+Verified to work by reintroducing the `tales_consensus()` tie-break bug: two
+snapshots failed, naming the consensus and the plot data. This replaces an
+ad-hoc baseline kept in a session scratchpad, which was lost when the session
+restarted -- the reason it now lives in the repository.
+
+To accept an intended change: inspect the diff, then
+`testthat::snapshot_accept("golden")`.
+
 ### 8.4 `print()` methods for `tales` and `tales_msa` **[A]**
 
 Both classes currently fall through to the tibble print method, so the screen
@@ -1085,21 +1117,21 @@ Done.
   that there is only one part per position per array_id." Tested: `tales()`
   already rejects a duplicated `array_id`/`position_in_array` pair, so this
   cannot fire through `tales_compare()`. (It also misspells "identifiers".)
-  Left in place pending a decision -- unlike the plot case, `.tales_compare_core()`
-  is a private contract that a future caller might breach.
+  **Deleted.** The class is where that invariant belongs, and duplicating it
+  in a private function only created a second place for it to go stale.
 
   Its two *other* checks are live and must stay: `tales()` accepts `NA` and
   `""` in `aa_seq` (tested), so "Some of the provided TALE parts have no amino
   acid sequence" is reachable and doing real work.
 
-- `tales_align()` -> `.build_repeat_msa()`: **leaks.** Its messages name
-  `input_seqs`, which is an internal argument; a `tales_align()` caller passes
-  a `tales` object and has no `input_seqs` to inspect. Same defect as the plot
-  case, smaller blast radius.
+- `tales_align()` -> `.build_repeat_msa()`: **fixed.** Its messages named
+  `input_seqs`, an internal argument a `tales_align()` caller has no way to
+  inspect.
 
-**Incidental finding, unrelated to leakage:** `tales()` accepts `NA` in a
-residue column (`rvd`, `dom_code`). Worth deciding whether that is intended --
-a missing RVD at a position is a different thing from a gap.
+**Incidental finding, resolved:** `tales()` accepts `NA` in a residue column,
+but not silently -- `.tales_anomalies()` reports it as `missing_rvd` /
+`missing_dom_code`, `tales()` warns, and `sanitize = TRUE` drops the array.
+Working as designed; empty strings are covered by the same check.
 
 ### 8.7 `tales_consensus()` depended on row order **[V]** — FIXED
 

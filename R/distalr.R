@@ -435,19 +435,6 @@ tales_compare <- function(x, ncores = 1, aln_method = "DECIPHER",
     cli::cli_warn("It seems that some of the provided TALE parts miss the DNA sequence!")
   } 
   
-  ## Make sure that array_id - position combinations are unique
-  # in case someone would not have made array_ids unique before
-  # mixing tale predictions from several genomes...
-  arayPosCombinCounts <- tale_parts %>%
-    dplyr::group_by(array_id, position_in_array) %>%
-    dplyr::count() %>%
-    dplyr::pull(n)
-  if (!all(arayPosCombinCounts == 1L)) {
-    cli::cli_abort(paste0("Your tale arrays identifers are probably not unique.",
-         "\n",
-         "Make sure that there is only one part per position per array_id."), class = c("tantale_error"))
-  }
-  
   # Assign domain codes
   tale_parts %<>% dplyr::group_by(aa_seq) %>%
     dplyr::mutate(dom_code = dplyr::cur_group_id() %>% unlist() %>% as.character()) %>%
