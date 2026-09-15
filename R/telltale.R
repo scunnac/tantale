@@ -384,6 +384,146 @@
 }
 
 
+#' Write before-and-after alignments of each corrected array
+#'
+#' For every array, three versions are aligned and written as a browsable
+#' HTML page: the sequence as found, the sequence after frameshift
+#' correction, and the version handed to AnnoTALE with any \code{N}
+#' substituted. They exist to be looked at -- frameshift correction changes
+#' the reading frame of a real sequence, and this is what lets a user see
+#' what was changed and judge whether to believe it.
+#'
+#' Both the DNA and its translation are written, because a frameshift is
+#' obvious in the protein and easy to miss in the nucleotides.
+#'
+#' @param raw,corrected,substituted The three versions, named by array.
+#' @param dna_dir,aa_dir Where to write.
+#' @return \code{NULL}, invisibly.
+#' @noRd
+.telltale_write_correction_alignments <- function(raw, corrected, substituted,
+                                                  dna_dir, aa_dir) {
+  for (n in names(corrected)) {
+    rawSeq <- raw[n]
+    names(rawSeq) <- paste0("raw_", n)
+    correctedSeq <- corrected[n]
+    names(correctedSeq) <- paste0("corrected_", n)
+    substitutedSeq <- substituted[n]
+    names(substitutedSeq) <- paste0("forAnnoTALE", n)
+
+    seqToAlign <- c(rawSeq, correctedSeq, substitutedSeq)
+    alignedSeqs <- DECIPHER::AlignSeqs(seqToAlign, verbose = FALSE)
+    DECIPHER::BrowseSeqs(alignedSeqs,
+                         htmlFile = file.path(dna_dir, glue::glue("CorrectionAlignmentDNA_{n}.html")),
+                         openURL = FALSE, colWidth = 120)
+
+    seqToAlignTranslated <- Biostrings::translate(seqToAlign, no.init.codon = TRUE,
+                                                  if.fuzzy.codon = "solve")
+    alignedSeqsTranslated <- DECIPHER::AlignSeqs(seqToAlignTranslated, verbose = FALSE)
+    DECIPHER::BrowseSeqs(alignedSeqsTranslated,
+                         htmlFile = file.path(aa_dir, glue::glue("CorrectionAlignmentAA_{n}.html")),
+                         openURL = FALSE, colWidth = 120)
+  }
+  invisible(NULL)
+}
+
+
+#' Find the TALE ORF in each array, correcting frameshifts if asked
+#'
+#' Each extended array region is searched for its longest open reading frame,
+#' which is the putative TALE coding sequence handed to AnnoTALE.
+#'
+#' With \code{correct_array = TRUE} the arrays are first run through
+#' \code{DECIPHER::CorrectFrameshifts()} against a reference set of TALE
+#' proteins. A sequencing error that shifts the reading frame truncates the
+#' ORF and loses every repeat downstream of it, so a TALE that is real can
+#' look like a fragment; correction restores the frame. It is expensive:
+#' every array is compared against every reference, so the cost is the number
+#' of arrays times the size of the reference set.
+#'
+#' Correction can leave \code{N} in a sequence where it inserted a base it
+#' could not call. AnnoTALE will not read those, so they are substituted with
+#' \code{C} before it runs -- a change to the sequence given to AnnoTALE, not
+#' to the one reported, and the written alignments show exactly where it
+#' happened.
+#'
+#' @param array_seqs The extended array sequences.
+#' @param by_array The grouped hits, whose metadata gains the per-array indel
+#'   counts when correction runs.
+#' @param correct_array Whether to correct.
+#' @param correction_ref Fasta of reference TALE proteins.
+#' @param frameshift Frameshift penalty passed to DECIPHER.
+#' @param paths What \code{.telltale_paths()} returned.
+#' @param ... Passed to \code{DECIPHER::CorrectFrameshifts()}.
+#' @return A list of \code{orf} (what AnnoTALE is given), \code{full_orf}
+#'   (what is reported), and \code{by_array}, updated.
+#' @noRd
+.telltale_array_orfs <- function(array_seqs, by_array, correct_array,
+                                 correction_ref, frameshift, paths, ...) {
+  if (!correct_array) {
+    orfs <- systemPipeR::predORF(x = array_seqs,
+                                 n = 1, type = "gr", mode = "ORF", strand = "sense")
+    fullTalOrf <- BSgenome::getSeq(array_seqs, orfs)
+    names(fullTalOrf) <- as.character(GenomicRanges::seqnames(orfs))
+    return(list(orf = fullTalOrf, full_orf = fullTalOrf, by_array = by_array))
+  }
+
+  # An alternative approach: https://github.com/Jstacs/Jstacs/tree/master/projects/talecorrect
+  cli::cli_inform(paste0("Correcting putative TALE coding sequences. Be patient, this may take a LONG time..."))
+  AAref <- Biostrings::readAAStringSet(correction_ref, seek.first.rec = TRUE, use.names = TRUE)
+  ## TO SPEEDUP CORRECTION could correct only predicted ORFs that cover less than X% of the raw sequence
+  correction <- DECIPHER::CorrectFrameshifts(array_seqs,
+                                             AAref, type = "both",
+                                             maxComparisons = length(AAref),
+                                             frameShift = frameshift, ...)
+  cli::cli_inform("Correction of putative TALE coding sequences is done!")
+  corrected <- correction$sequences
+
+  ####   Correction stats   ####
+  indels <- function(which, name) {
+    .correction_tibble(correction$indels) %>%
+      dplyr::group_by(Seq) %>%
+      dplyr::count(variable, name = name) %>%
+      dplyr::filter(variable == which) %>%
+      dplyr::select(-variable)
+  }
+  S4Vectors::mcols(by_array) <- merge(
+    S4Vectors::mcols(by_array),
+    dplyr::full_join(indels("insertions", "predicted_ins_count"),
+                     indels("deletions", "predicted_dels_count"), by = "Seq"),
+    by.x = "array_id", by.y = "Seq", all.x = TRUE)
+  S4Vectors::mcols(by_array)[c("predicted_dels_count", "predicted_ins_count")] %<>%
+    apply(., 2, function(v) ifelse(is.na(v), 0, v))
+
+  for (n in names(corrected)[Biostrings::vcountPattern("N", corrected) > 0]) {
+    cli::cli_warn(paste0("After correction, {n} sequence contains 'N's which will be substituted by 'C's in order",
+                         "to run AnnoTALE analyze for RVDs prediction."))
+  }
+  substituted <- Biostrings::chartr("N", "C", corrected)
+
+  .telltale_write_correction_alignments(
+    raw = array_seqs, corrected = corrected, substituted = substituted,
+    dna_dir = paths$correction_dna, aa_dir = paths$correction_aa)
+
+  orfs <- systemPipeR::predORF(x = substituted,
+                               n = 1, type = "gr", mode = "ORF", strand = "sense")
+  talOrf <- BSgenome::getSeq(substituted, orfs)
+  names(talOrf) <- as.character(GenomicRanges::seqnames(orfs))
+
+  # The idea here was to convert back the Ns that were substituted for AnnoTALE in order to output
+  # an unsubstituted orf.
+  # I am not sure the code below properly does that and retrospectively,
+  # it may be a problem for downstream bioinformatic analyses to have Ns in the sequence...
+  #
+  # insPosition <- vmatchPattern("N", corrected)
+  # for (i in names(insPosition)) {
+  #   if (length(width(insPosition[[i]])) == 0) next()
+  #   insPositionAfCorr <- insPosition[[i]][BiocGenerics::start(insPosition[[i]]) < width(talOrf[i])]
+  #   talOrf[i] <- replaceAt(talOrf[i], insPositionAfCorr, value = "N")
+  # }
+  list(orf = talOrf, full_orf = talOrf, by_array = by_array)
+}
+
+
 #' Every file and directory a tell_tales() run writes
 #'
 #' Computed once, up front, so that the rest of the function reads as a
@@ -678,104 +818,14 @@ tell_tales <- function(
   
   
 
-  if (!correct_array) {
-    #### Get ORFs from uncorrected Tal arrays if frame shifts correction is OFF ####
-    orfs <- systemPipeR::predORF(x = extdCompleteArraysSeqs,
-                                 n = 1, type = "gr", mode = "ORF", strand = "sense")
-    fullTalOrf <- BSgenome::getSeq(extdCompleteArraysSeqs, orfs)
-    names(fullTalOrf) <- as.character(GenomicRanges::seqnames(orfs))
-    TalOrfForAnnoTALE <- fullTalOrf
-  } else { 
-    #### Correct Tal arrays frame shifts if requested  ####
-    # An alternative approach: https://github.com/Jstacs/Jstacs/tree/master/projects/talecorrect
-    ####   Run CorrectFrameshifts   ####
-    cli::cli_inform(paste0("Correcting putative TALE coding sequences. Be patient, this may take a LONG time..."))
-    AAref <- Biostrings::readAAStringSet(correction_ref, seek.first.rec = TRUE, use.names = TRUE)
-    rawArraySeq <- extdCompleteArraysSeqs
-    ## TO SPEEDUP CORRECTION could correct only predicted ORFs that cover less than X% of the rawArraySeq
-    ArrayCorrection <- DECIPHER::CorrectFrameshifts(rawArraySeq,
-                                                    AAref, type = "both",
-                                                    maxComparisons = length(AAref),
-                                                    frameShift = frameshift, ...)
-    cli::cli_inform("Correction of putative TALE coding sequences is done!")
-    corrExtdCompleteArraysSeqs <- ArrayCorrection$sequences
-    
-    ####   Correction stats   ####
-    deletions_count <- .correction_tibble(ArrayCorrection$indels) %>%
-      dplyr::group_by(Seq) %>%
-      dplyr::count(variable, name = "predicted_dels_count") %>%
-      dplyr::filter(variable == "deletions") %>%
-      dplyr::select(-variable)
-    insertions_count <- .correction_tibble(ArrayCorrection$indels) %>%
-      dplyr::group_by(Seq) %>%
-      dplyr::count(variable, name = "predicted_ins_count") %>%
-      dplyr::filter(variable == "insertions") %>%
-      dplyr::select(-variable)
-    
-    
-    S4Vectors::mcols(hitsByArraysLst) <- merge(S4Vectors::mcols(hitsByArraysLst), 
-                                               dplyr::full_join(insertions_count, deletions_count, by = "Seq"), 
-                                               by.x = "array_id", by.y = "Seq", all.x = T) 
-    
-    S4Vectors::mcols(hitsByArraysLst)[c("predicted_dels_count", "predicted_ins_count")] %<>% apply(., 2, function(v) ifelse(is.na(v), 0, v))
-    
-    #### Multiple alignenment of orginal vs corrected vs corrected+N/C subtituted sequences  ####
-    
-    for (n in names(corrExtdCompleteArraysSeqs)[Biostrings::vcountPattern("N", corrExtdCompleteArraysSeqs) > 0]) {
-      cli::cli_warn(paste0("After correction, {n} sequence contains 'N's which will be substituted by 'C's in order",
-                       "to run AnnoTALE analyze for RVDs prediction."))
-    }
-    substCorrExtdCompleteArraysSeqs <- Biostrings::chartr("N", "C", corrExtdCompleteArraysSeqs)
-    
+  orfResult <- .telltale_array_orfs(
+    array_seqs = extdCompleteArraysSeqs, by_array = hitsByArraysLst,
+    correct_array = correct_array, correction_ref = correction_ref,
+    frameshift = frameshift, paths = paths, ...)
+  TalOrfForAnnoTALE <- orfResult$orf
+  fullTalOrf <- orfResult$full_orf
+  hitsByArraysLst <- orfResult$by_array
 
-    
-    for (n in names(corrExtdCompleteArraysSeqs)) {
-      rawSeq <- rawArraySeq[n]
-      names(rawSeq) <- paste0("raw_", n)
-      correctedSeq <- corrExtdCompleteArraysSeqs[n]
-      names(correctedSeq) <- paste0("corrected_", n)
-      substitutedSeq <- substCorrExtdCompleteArraysSeqs[n]
-      names(substitutedSeq) <- paste0("forAnnoTALE", n)
-      seqToAlign <- c(rawSeq, correctedSeq, substitutedSeq)
-      alignedSeqs <- DECIPHER::AlignSeqs(seqToAlign, verbose = FALSE)
-      DECIPHER::BrowseSeqs(alignedSeqs,
-                           htmlFile = file.path(paths$correction_dna, glue::glue("CorrectionAlignmentDNA_{n}.html")),
-                           openURL = F, colWidth = 120)
-      
-      seqToAlignTranslated <- Biostrings::translate(seqToAlign, no.init.codon = T, if.fuzzy.codon = "solve")
-      alignedSeqsTranslated <- DECIPHER::AlignSeqs(seqToAlignTranslated, verbose = FALSE)
-      DECIPHER::BrowseSeqs(alignedSeqsTranslated,
-                           htmlFile = file.path(paths$correction_aa, glue::glue("CorrectionAlignmentAA_{n}.html")),
-                           openURL = F, colWidth = 120)
-      
-    }
-    
-    ####   TalOrfForAnnoTALE   ####
-    orfs <- systemPipeR::predORF(x = substCorrExtdCompleteArraysSeqs,
-                                 n = 1, type = "gr", mode = "ORF", strand = "sense")
-    TalOrfForAnnoTALE <- BSgenome::getSeq(substCorrExtdCompleteArraysSeqs, orfs)
-    names(TalOrfForAnnoTALE) <- as.character(GenomicRanges::seqnames(orfs))
-    
-    #### Get ORFs from corrected arrays sequences that have 'Ns' substituted by 'Cs' ####
-    
-    fullTalOrf <- TalOrfForAnnoTALE
-    
-    # The idea here was to convert back the Ns that were substituted for AnnoTALE in order to output
-    # an unsubstituted orf.
-    # I am not sure the code below properly does that and retrospectively,
-    # it may be a problem for downstream bioinformatic analyses to have Ns in the sequence...
-    #
-    # insPosition <- vmatchPattern("N", corrExtdCompleteArraysSeqs)
-    # for (i in names(insPosition)) {
-    #   if (length(width(insPosition[[i]])) == 0) next()
-    #   insPositionAfCorr <- insPosition[[i]][BiocGenerics::start(insPosition[[i]]) < width(fullTalOrf[i])]
-    #   fullTalOrf[i] <- replaceAt(fullTalOrf[i], insPositionAfCorr, value = "N")
-    # }
-
-  }
-  
-  
-  
   #### AnnoTALE analyze on tal ORFs  ####
   
   # Shall we also run the predict stage of annotale? May be it will do a better job at
