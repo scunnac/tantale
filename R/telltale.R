@@ -883,6 +883,58 @@
 }
 
 
+#' Put the domain hits on the genome, with their sequences
+#'
+#' Turns the tabular nhmmer output into ranges on the original sequences, and
+#' records each hit's DNA alongside two counts derived from it.
+#'
+#' \code{frameshift_count} is the hit's length modulo three. A domain that
+#' codes for protein should be a whole number of codons, so a non-zero value
+#' says the hit is not in frame -- which is the signal frameshift correction
+#' exists to act on.
+#'
+#' The sequence names are restored to the originals here: they were
+#' simplified on the way in because spaces in fasta headers break the
+#' downstream parsing.
+#'
+#' @param hits The filtered tabular hits.
+#' @param subject_seqs The sequences that were searched.
+#' @param seqlevels,seqinfo The original names and sequence information.
+#' @return A \code{GRanges} of hits carrying their sequence.
+#' @noRd
+.telltale_hits_to_ranges <- function(hits, subject_seqs, seqlevels, seqinfo) {
+  gr <- GenomicRanges::makeGRangesFromDataFrame(
+    df = hits, keep.extra.columns = TRUE, seqnames.field = "target_name")
+  names(gr) <- gr$hitID
+
+  ## Updating seqinfo with original seqinfo from the sequences before renaming
+  gr <- GenomeInfoDb::renameSeqlevels(gr, value = seqlevels)
+  GenomeInfoDb::seqinfo(gr, pruning.mode = "coarse") <- seqinfo[GenomeInfoDb::seqlevels(gr)]
+  gr
+}
+
+
+#' Attach each hit's DNA sequence and its codon arithmetic
+#' @inheritParams .telltale_hits_to_ranges
+#' @param gr Hits as ranges.
+#' @return \code{gr}, with \code{seq}, \code{codon_count} and
+#'   \code{frameshift_count} in its metadata.
+#' @noRd
+.telltale_add_hit_seqs <- function(gr, subject_seqs) {
+  hitSeqs <- BSgenome::getSeq(subject_seqs, gr)
+  S4Vectors::mcols(gr) %<>% cbind(
+    data.frame(
+      "seq" = as.character(hitSeqs),
+      "codon_count" = Biostrings::nchar(hitSeqs) %/% 3,
+      # not a whole number of codons: the hit is out of frame
+      "frameshift_count" = Biostrings::nchar(hitSeqs) %% 3,
+      row.names = NULL,
+      check.rows = TRUE)
+  )
+  gr
+}
+
+
 #' Every file and directory a tell_tales() run writes
 #'
 #' Computed once, up front, so that the rest of the function reads as a
@@ -1116,48 +1168,24 @@ tell_tales <- function(
   # Every stage below assumes at least one hit.
   if (is.null(nhmmerTabularOutput)) return(invisible(output_dir))
 
-  #####   Storing all info about individual TALE domains in a GenomicRanges object   ####
-
-  ## Creating a GRanges object from nhmmerOutput
-  nhmmerOutputGR <- GenomicRanges::makeGRangesFromDataFrame(
-    df = nhmmerTabularOutput, keep.extra.columns = TRUE,
-    seqnames.field = "target_name"
-  )
-  names(nhmmerOutputGR) <- nhmmerOutputGR$hitID
-  
-  ## Updating seqinfo with original seqinfo from the sequences before renaming
-  nhmmerOutputGR <- GenomeInfoDb::renameSeqlevels(nhmmerOutputGR, value = originalSeqlevels)
-  GenomeInfoDb::seqinfo(nhmmerOutputGR, pruning.mode = "coarse") <- originalSeqInfo[GenomeInfoDb::seqlevels(nhmmerOutputGR)]
-  
-  nhmmerOutputGRBeforeMerge <- nhmmerOutputGR
-  
-  #####   Domain-wise merge of overlapping hits  #####
-  if (merge_hits) {
-    nhmmerOutputGR <- .telltale_merge_overlapping_hits(nhmmerOutputGR)
-  } else {
-    nhmmerOutputGR <- nhmmerOutputGRBeforeMerge
-  }
-  
-  
-  #####   Extract the DNA sequences of the hits and record in GRanges mcols   #####
+  #####   Put the hits on the genome   ####
   ## Load in R the DNA sequences that are queried for TALE CDS
   subjectDNASequences <- Biostrings::readDNAStringSet(filepath = subject_file)
   names(subjectDNASequences) <- originalSeqlevels[match(names(subjectDNASequences), names(originalSeqlevels))]
-  
-  ## Extract the DNA sequences of the hits
-  hitSeqs <- BSgenome::getSeq(subjectDNASequences, nhmmerOutputGR)
-  S4Vectors::mcols(nhmmerOutputGR) %<>% cbind(
-    data.frame(
-      "seq" = as.character(hitSeqs),
-      "codon_count" = Biostrings::nchar(hitSeqs) %/% 3,
-      "frameshift_count" = Biostrings::nchar(hitSeqs) %% 3,
-      row.names = NULL,
-      check.rows = T)
-  )
-  
-  
-  
-  
+
+  nhmmerOutputGRBeforeMerge <- .telltale_hits_to_ranges(
+    nhmmerTabularOutput, subjectDNASequences, originalSeqlevels, originalSeqInfo)
+
+  #####   Domain-wise merge of overlapping hits  #####
+  nhmmerOutputGR <- if (merge_hits) {
+    .telltale_merge_overlapping_hits(nhmmerOutputGRBeforeMerge)
+  } else {
+    nhmmerOutputGRBeforeMerge
+  }
+
+  #####   Record each hit's DNA sequence   #####
+  nhmmerOutputGR <- .telltale_add_hit_seqs(nhmmerOutputGR, subjectDNASequences)
+
   #####   Group (nearly) adjacent hits in "TALE array" regions   #####
   grouped <- .telltale_group_arrays(nhmmerOutputGR, min_gap, subjectDNASequences, hmm)
   arraysGR <- grouped$arrays
