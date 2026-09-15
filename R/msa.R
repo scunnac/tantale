@@ -75,15 +75,20 @@ tales_consensus <- function(align) {
 #' @family TALE alignment
 tales_consensus_match <- function(align, long = TRUE) {
   consensus <- tales_consensus(align)
-  align <- align
-  for (k in 1:ncol(align)){
+  # A logical matrix of its own, rather than overwriting the character one:
+  # assigning TRUE into a character matrix stores "TRUE", so the result used
+  # to be strings, and sum()/which()/! on it did the wrong thing.
+  out <- matrix(FALSE, nrow = nrow(align), ncol = ncol(align),
+                dimnames = dimnames(align))
+  for (k in seq_len(ncol(align))) {
     rept <- consensus[k]
-    if (is.na(rept)) {
-      align[,k] <- FALSE
-    } else {
-      align[,k] <- ifelse(toupper(align[,k]) == toupper(rept), TRUE, FALSE)
+    # A gap matches nothing, and nothing matches a column whose consensus is
+    # itself a gap.
+    if (!is.na(rept)) {
+      out[, k] <- !is.na(align[, k]) & toupper(align[, k]) == toupper(rept)
     }
   }
+  align <- out
   if (!long) return(align)
   matchConsensusLong <- align %>% reshape2::melt() %>%
     dplyr::as_tibble()

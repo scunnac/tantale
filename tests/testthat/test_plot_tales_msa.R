@@ -198,3 +198,32 @@ test_that("a column where every array differs is broken deterministically", {
   expect_identical(tales_consensus(m)[2], "x")   # a genuine majority is unaffected
   expect_identical(tales_consensus(m[c(3, 1, 2), ]), tales_consensus(m))
 })
+
+#### tales_consensus_match() ####
+
+test_that("tales_consensus_match() returns logicals, not the strings TRUE/FALSE", {
+  # It used to assign TRUE into the character matrix it was handed, which
+  # stores "TRUE"; sum(), which() and ! then all did the wrong thing, despite
+  # the documented return being a logical matrix.
+  m <- matrix(c("HD", "NI", "HD",
+                "NG", "NG", "NG"), nrow = 3,
+              dimnames = list(c("t1", "t2", "t3"), NULL))
+  w <- tales_consensus_match(m, long = FALSE)
+  expect_type(w, "logical")
+  expect_identical(dim(w), dim(m))
+  expect_identical(dimnames(w), dimnames(m))
+  expect_identical(sum(w), 5L)          # only t2's NI differs from consensus HD
+  expect_type(tales_consensus_match(m, long = TRUE)$tales_consensus_match, "logical")
+})
+
+test_that("a gap never counts as matching the consensus", {
+  m <- matrix(c("HD", NA, "HD",
+                NA, "NI", NA), nrow = 3,
+              dimnames = list(c("t1", "t2", "t3"), NULL))
+  w <- tales_consensus_match(m, long = FALSE)
+  # column 1: consensus HD, so the gap in t2 is FALSE and never NA
+  expect_identical(unname(w[, 1]), c(TRUE, FALSE, TRUE))
+  expect_false(anyNA(w))
+  # column 2 is mostly gap, so its consensus is a gap and nothing matches it
+  expect_identical(unname(w[, 2]), c(FALSE, FALSE, FALSE))
+})
