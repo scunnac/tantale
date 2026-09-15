@@ -524,6 +524,129 @@
 }
 
 
+#' Run AnnoTALE's "analyze" stage on one putative TALE ORF
+#'
+#' \code{\link{run_annotale_predict}} runs AnnoTALE's predict and analyze
+#' stages together, starting from a genome. \code{tell_tales()} has already
+#' found the ORF by then, so it needs analyze on its own.
+#'
+#' @param fasta_file The ORF to analyze.
+#' @param output_dir Where AnnoTALE writes its parts and RVD files.
+#' @param prefix TALE name prefix; taken from the file name when absent.
+#' @param annotale_jar Path to the AnnoTALE jar.
+#' @return AnnoTALE's exit status, invisibly.
+#' @noRd
+.run_annotale_analyze <- function(fasta_file,
+                                  output_dir = getwd(),
+                                  prefix = NULL,
+                                  annotale_jar = system.file("tools", "AnnoTALEcli-1.5.jar",
+                                                             package = "tantale", mustWork = TRUE)) {
+  stopifnot(dir.exists(output_dir) || dir.create(path = output_dir, showWarnings = TRUE,
+                                                 recursive = TRUE, mode = "775"))
+  # Define a prefix for TALEs (assembly ID) derived from the genome file name.
+  if (is.null(prefix)) {
+    prefix <- gsub(pattern = "^(.*)\\.(fasta|fa|fas)$",
+                   replacement = "\\1", basename(fasta_file),
+                   perl = TRUE)
+  }
+  comAnalyze <- paste0(
+    "java -jar ", annotale_jar,
+    " analyze ",
+    " t=", fasta_file,
+    " outdir=", output_dir
+  )
+  invisible(system(comAnalyze, ignore.stdout = TRUE, ignore.stderr = TRUE))
+}
+
+
+#' Read each array's RVD sequence and domain composition from AnnoTALE
+#'
+#' AnnoTALE is run once per array, in its own directory, and its output read
+#' back. It is the step that turns a coding sequence into the biology: which
+#' parts are the N-terminus, the repeats and the C-terminus, and what RVD
+#' each repeat carries.
+#'
+#' It fails on some ORFs, and does so in several ways -- the jar errors, or
+#' it writes no protein parts, or it writes an empty RVD file. All of them
+#' mean the same thing here, that this array yielded nothing, so each is
+#' caught, the empty file removed so nothing downstream reads it, and the
+#' array reported and skipped rather than aborting the run.
+#'
+#' @param orfs The putative TALE ORFs, named by array.
+#' @param by_array The grouped hits, read for each array's source sequence
+#'   name.
+#' @param annotale_dir Directory to create the per-array subdirectories in.
+#' @return A list of \code{rvds} (one sequence per array that worked),
+#'   \code{domains} (their domain composition) and \code{messages} (what
+#'   failed, for the run log).
+#' @noRd
+.telltale_run_annotale <- function(orfs, by_array, annotale_dir) {
+  messages <- character()
+
+  out <- lapply(names(orfs), function(talOrfID) {
+    AnnotaleDir <- file.path(annotale_dir, talOrfID)
+    dir.create(AnnotaleDir)
+    TalOrf <- orfs[talOrfID]
+    correctedTalOrfFile <- file.path(AnnotaleDir, "putativeTalOrf.fasta")
+    Biostrings::writeXStringSet(TalOrf, correctedTalOrfFile)
+
+    cli::cli_inform("Now running AnnoTALE analyze for {talOrfID}")
+    checkAnnoTale <- try(.run_annotale_analyze(correctedTalOrfFile, AnnotaleDir), silent = TRUE)
+
+    prot_parts_files <- file.path(AnnotaleDir, "TALE_Protein_parts.fasta")
+    annoTaleRVD_file <- file.path(AnnotaleDir, "TALE_RVDs.fasta")
+    seqOfRVDs <- try(Biostrings::readAAStringSet(annoTaleRVD_file,
+                                                 seek.first.rec = TRUE,
+                                                 use.names = TRUE),
+                     silent = TRUE)
+    prot_parts <- try(Biostrings::readAAStringSet(prot_parts_files), silent = TRUE)
+
+    if (any(
+      inherits(checkAnnoTale, "try-error"), # in case annotale does not work
+      if (inherits(prot_parts, "try-error")) { # in case annotale does not return a prot_parts file or if it is empty.
+        file.exists(prot_parts_files) && file.remove(prot_parts_files)
+        TRUE
+      } else {
+        if (file.exists(prot_parts_files) && length(prot_parts) == 0L) {
+          file.remove(prot_parts_files) # should also return TRUE
+        }
+      },
+      if (inherits(seqOfRVDs, "try-error")) { # in case annotale works but cannot find rvds or rvd seq file is empty.
+        file.exists(annoTaleRVD_file) && file.remove(annoTaleRVD_file)
+        TRUE
+      } else {
+        if (Biostrings::width(seqOfRVDs) == 0) file.remove(annoTaleRVD_file) # should also return TRUE
+      }
+    )) {
+      messages <<- c(messages,
+                     (m <- glue::glue("Annotale failed to parse TALE domains for {talOrfID}.")))
+      cli::cli_warn(m)
+      return(list(rvds = Biostrings::AAStringSet(), domains = data.frame()))
+    }
+    names(seqOfRVDs) <- talOrfID
+
+    ## domains report
+    stops <- Biostrings::vcountPattern("*", prot_parts)
+    domainsReport <- tibble::tibble(
+      "array_id" = talOrfID,
+      "seqnames" = S4Vectors::mcols(by_array)$OriginalSubjectName[S4Vectors::mcols(by_array)$array_id == talOrfID],
+      "query_name" = gsub("(.+\\: )|( \\d+)", "", names(prot_parts)),
+      "codon_count" = Biostrings::width(prot_parts) - stops
+    )
+
+    list(rvds = seqOfRVDs, domains = domainsReport)
+  })
+
+  # Each element carries an AAStringSet and a data frame. That pairing used to
+  # be an exported S4 class whose only purpose was to let sapply() return both
+  # at once; a list does it without putting an implementation detail in the
+  # package's API.
+  list(rvds = unlist(Biostrings::AAStringSetList(lapply(out, `[[`, "rvds"))),
+       domains = do.call(rbind, lapply(out, `[[`, "domains")),
+       messages = messages)
+}
+
+
 #' Every file and directory a tell_tales() run writes
 #'
 #' Computed once, up front, so that the rest of the function reads as a
@@ -827,104 +950,14 @@ tell_tales <- function(
   hitsByArraysLst <- orfResult$by_array
 
   #### AnnoTALE analyze on tal ORFs  ####
-  
   # Shall we also run the predict stage of annotale? May be it will do a better job at
   # finding orf and/or filtering out "pseudo tales" because some times analyse output a RVD from
   # a domain that does not look like a repeat....
-  
-  
-  AnnoTALEanalyze <- function(fasta_file,
-                              output_dir = getwd(),
-                              prefix = NULL,
-                              annotale_jar = system.file("tools", "AnnoTALEcli-1.5.jar",
-                                                     package = "tantale", mustWork = T)
-                              ) {
-    # Define output dirs for the various stages of AnnoTALE
-    stopifnot(dir.exists(output_dir) || dir.create(path = output_dir, showWarnings = TRUE,
-                                                  recursive = TRUE, mode = "775"))
-    # Define a prefix for TALEs (assembly ID) derived from the genome file name.
-    if (is.null(prefix)) {
-      prefix <- gsub(pattern = "^(.*)\\.(fasta|fa|fas)$" ,
-                     replacement  = "\\1", basename(fasta_file),
-                     perl = TRUE)
-    }
-    # Run the "analyze" stage of AnnoTALE
-    comAnalyze <- paste0(
-      "java -jar ", annotale_jar,
-      " analyze ",
-      " t=", fasta_file,
-      " outdir=", output_dir
-    )
-    exitAnalyze <- system(comAnalyze, ignore.stdout = TRUE, ignore.stderr = TRUE)
-    return(invisible(exitAnalyze))
-  }
-  
-  ## run annotale for tal putative orfs
-  
-  annoTaleMessages <- character()
-  
-  annoTaleOut <- lapply(names(TalOrfForAnnoTALE), function(talOrfID) {
-    AnnotaleDir <- file.path(paths$annotale, talOrfID)
-    dir.create(AnnotaleDir)
-    TalOrf <- TalOrfForAnnoTALE[talOrfID]
-    correctedTalOrfFile <- file.path(AnnotaleDir, "putativeTalOrf.fasta")
-    Biostrings::writeXStringSet(TalOrf, correctedTalOrfFile)
-    # Run Annotale on corrected ORF
-    cli::cli_inform("Now running AnnoTALE analyze for {talOrfID}")
-    checkAnnoTale <- try(AnnoTALEanalyze(correctedTalOrfFile, AnnotaleDir), silent = TRUE)
-    # Get Annotale output with conditions handling
-    dna_parts_files <- file.path(AnnotaleDir, "TALE_DNA_parts.fasta")
-    prot_parts_files <- file.path(AnnotaleDir, "TALE_Protein_parts.fasta")
-    annoTaleRVD_file <- file.path(AnnotaleDir, "TALE_RVDs.fasta")
-    seqOfRVDs <- try(Biostrings::readAAStringSet(annoTaleRVD_file,
-                                                 seek.first.rec = T,
-                                                 use.names = T),
-                     silent = TRUE)
-    prot_parts <- try(Biostrings::readAAStringSet(prot_parts_files), silent = TRUE)
-    
-    if (any(
-      inherits(checkAnnoTale, "try-error"), # in case annotale does not work 
-      if (inherits(prot_parts, "try-error")) { # in case annotale does not return a prot_parts file or if it is empty.
-        file.exists(prot_parts_files) && file.remove(prot_parts_files)
-        TRUE
-      } else {
-        if (file.exists(prot_parts_files) && length(prot_parts) == 0L) {
-          file.remove(prot_parts_files) # should also return TRUE
-        }
-      },
-      if (inherits(seqOfRVDs, "try-error")) { # in case annotale works but cannot find rvds or rvd seq file is empty.
-        file.exists(annoTaleRVD_file) && file.remove(annoTaleRVD_file)
-        TRUE 
-      } else {
-        if (Biostrings::width(seqOfRVDs) == 0) file.remove(annoTaleRVD_file) # should also return TRUE
-      }
-    )) {
-      annoTaleMessages <<- c(annoTaleMessages,
-                            (m <- glue::glue("Annotale failed to parse TALE domains for {talOrfID}.")))
-      cli::cli_warn(m)
-      return(list(rvds = Biostrings::AAStringSet(), domains = data.frame()))
-    }
-    names(seqOfRVDs) <- talOrfID
-    
-    ## domains report
-    stops <- Biostrings::vcountPattern("*", prot_parts)
-    domainsReport <- tibble::tibble("array_id" = talOrfID,
-                                "seqnames" = S4Vectors::mcols(hitsByArraysLst)$OriginalSubjectName[S4Vectors::mcols(hitsByArraysLst)$array_id == talOrfID],
-                                "query_name" = gsub("(.+\\: )|( \\d+)", "", names(prot_parts)),
-                                "codon_count" = Biostrings::width(prot_parts) - stops
-                                )
-    
-    list(rvds = seqOfRVDs, domains = domainsReport)
-  })
+  annotale <- .telltale_run_annotale(TalOrfForAnnoTALE, hitsByArraysLst, paths$annotale)
+  seqsOfRVDs <- annotale$rvds
+  domainsReport <- annotale$domains
+  annoTaleMessages <- annotale$messages
 
-  # Each element carries an AAStringSet and a data frame. That pairing used to
-  # be an exported S4 class whose only purpose was to let sapply() return both
-  # at once; a list does it without putting an implementation detail in the
-  # package's API.
-  seqsOfRVDs <- unlist(Biostrings::AAStringSetList(lapply(annoTaleOut, `[[`, "rvds")))
-  domainsReport <- do.call(rbind, lapply(annoTaleOut, `[[`, "domains"))
-  
-  
   #### TODO  #####
   # The exact content of the files below needs to be reassesed and 
   # we need to determine if this is really what we want.

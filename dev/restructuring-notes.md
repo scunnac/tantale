@@ -1035,6 +1035,20 @@ restarted -- the reason it now lives in the repository.
 To accept an intended change: inspect the diff, then
 `testthat::snapshot_accept("golden")`.
 
+### 8.0b `run_annotale_predict()` and the analyze-only call **[A]**
+
+`tell_tales()` had a nested function definition that shelled out to
+AnnoTALE's "analyze" stage. It is now `.run_annotale_analyze()` at top level.
+
+It overlaps the exported `run_annotale_predict()`, which runs predict *and*
+analyze starting from a genome. They are not duplicates -- `tell_tales()` has
+already found the ORF by the time it calls AnnoTALE, so it needs analyze on
+its own -- but the two build their `java -jar` command lines separately, and
+they disagree: the exported one wraps paths in `shQuote()` and the internal
+one does not. A path with a space in it works through one and not the other.
+
+Worth folding the command construction into one place.
+
 ### 8.0 `tell_tales()` has an unguarded filter — FIXED **[V]**
 
 Found while checking that the new baseline is actually sensitive.
