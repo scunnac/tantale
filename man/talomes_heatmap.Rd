@@ -60,7 +60,6 @@ The function creates a graphical presentation from a tale annotation table. The 
 Other TALE plots:
 \code{\link[=plot.tales]{plot.tales()}},
 \code{\link[=plot.tales_msa]{plot.tales_msa()}},
-\code{\link[=plot_tales_composition]{plot_tales_composition()}},
 \code{\link[=plot_target_preds]{plot_target_preds()}}
 }
 \concept{TALE plots}

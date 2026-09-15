@@ -15,7 +15,7 @@ callers <- list(
   tales_coded_strings    = function(x) tales_coded_strings(x),
   tales_domain_codes     = function(x) tales_domain_codes(x),
   tales_rvd_strings      = function(x) tales_rvd_strings(x),
-  plot_tales_composition = function(x) plot_tales_composition(x),
+  plot.tales = function(x) plot(x),
   tales_compare          = function(x) tales_compare(x)
 )
 

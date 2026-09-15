@@ -1003,6 +1003,29 @@ for no reason.
 **Callers with no caller: 5.** Moved to `R/unused_pending_review.R`, not
 deleted -- see the header of that file for what is known about each.
 
+### 8.4 `print()` methods for `tales` and `tales_msa` **[A]**
+
+Both classes currently fall through to the tibble print method, so the screen
+says `# A tibble: 955 x 10` and nothing about what the object *is*. Everything
+the class knows that a tibble does not is invisible:
+
+- that it is a `tales` at all, rather than a data frame that happens to have
+  these columns;
+- how many arrays it holds, as opposed to how many parts (rows);
+- which residue layers are present (`rvd`, `dom_code`), which is what decides
+  what `tales_align()` and `plot()` can do with it;
+- the `dom_code` namespace stamp, whose whole purpose is to catch tables from
+  different runs being mixed, and which is invisible until something fails;
+- for a `tales_msa`, the alignment width, and how gappy it is.
+
+A print method is the cheapest place to surface all of that, and it is the
+first thing a user sees. Worth doing before the vignettes are rebuilt, since
+the printed object will appear throughout them.
+
+Consider `format()` alongside it, and whether `summary()` earns its place too
+(the anomaly count from `tales_anomalies()` would be a natural thing to put
+there rather than in `print()`).
+
 ### 8.6b Co-locating single-caller internals — PARTLY DONE **[V]**
 
 Done, and the file responsibilities now line up:

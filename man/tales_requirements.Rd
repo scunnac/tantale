@@ -21,7 +21,7 @@ from the class's own column contract, which says what makes an object
   \item{\code{tales_rvd_strings()}}{\code{rvd}}
   \item{\code{tales_coded_strings()}}{\code{dom_code}}
   \item{\code{tales_domain_codes()}}{\code{dom_code} and \code{aa_seq}; \code{rvd} included when present}
-  \item{\code{plot_tales_composition()}}{\code{rvd}, \code{aa_seq}, \code{domain_type}; \code{seqnames} adds a facet, \code{alignment_position} enables the aligned layout}
+  \item{\code{plot()} on a tales}{\code{rvd}, \code{aa_seq}, \code{domain_type}; \code{seqnames} adds a facet, \code{alignment_position} enables the aligned layout}
   \item{\code{tale_parts_to_rvd()}}{\code{rvd}}
   \item{\code{repeat_to_rvd_map_distalr()}}{\code{dom_code}, \code{rvd}}
 }

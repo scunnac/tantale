@@ -183,13 +183,22 @@ diag(identSubMat) <- 1
 
 
 
-#' Visualise the domain composition of a set of TALE arrays
+
+
+#' Plot the domain composition of a set of TALE arrays
 #'
 #' @description
 #' A compact, information-rich view of the arrays in a \code{tales} object: one
 #' point per part, positioned by its place in the array, coloured by domain type
 #' and filled by amino-acid length, with the RVD printed on each repeat.
 #'
+#' A \code{\link{tales_msa}} dispatches to \code{\link{plot.tales_msa}}
+#' instead, being the more specific class.
+#'
+#' @param x A \code{\link{tales}} object, as returned by
+#'   \code{\link{tales_from_telltale}} or in the \code{tales} element of
+#'   \code{\link{tales_compare}}'s output. A legacy \code{tale_parts} data
+#'   frame is accepted and converted.
 #' @param position Which coordinate to lay the parts out on. \code{"array"}
 #'   (default) uses \code{position_in_array}, so each array starts at 1 and runs
 #'   contiguously. \code{"alignment"} uses \code{alignment_position}, which
@@ -197,17 +206,15 @@ diag(identSubMat) <- 1
 #'   which keeps the column): gaps then appear as empty columns and shared
 #'   features line up. Aberrant repeats, for instance, are visible as a column
 #'   in the aligned layout and scattered in the unaligned one.
-#' @param x A \code{\link{tales}} object, as returned by
-#'   \code{\link{tales_from_telltale}} or in the \code{tales} element of
-#'   \code{\link{tales_compare}}'s output. A legacy \code{tale_parts} data
-#'   frame is accepted and converted.
+#' @param ... Unused, present for compatibility with the \code{plot} generic.
 #' @return The ggplot object, invisibly printed as a side effect.
+#' @method plot tales
 #' @export
 #' @family TALE plots
-plot_tales_composition <- function(x, position = c("array", "alignment")) {
+plot.tales <- function(x, position = c("array", "alignment"), ...) {
   position <- match.arg(position)
   if (!is_tales(x)) x <- tales(x)
-  .tales_require(x, "plot_tales_composition")
+  .tales_require(x, "plot.tales")
   if (identical(position, "alignment") && !"alignment_position" %in% names(x)) {
     cli::cli_abort(
       c("{.code position = \"alignment\"} needs the {.field alignment_position} column.",
@@ -247,24 +254,6 @@ plot_tales_composition <- function(x, position = c("array", "alignment")) {
 
   print(p)
   invisible(p)
-}
-
-
-#' Plot the domain composition of a tales object
-#'
-#' @description
-#' The \code{\link[=plot]{plot}} method for \code{\link{tales}}, delegating to
-#' \code{\link{plot_tales_composition}}. A \code{\link{tales_msa}} dispatches
-#' to \code{\link{plot.tales_msa}} instead, being the more specific class.
-#'
-#' @param x A \code{\link{tales}} object.
-#' @param ... Passed to \code{\link{plot_tales_composition}}.
-#' @return The ggplot object, invisibly.
-#' @method plot tales
-#' @export
-#' @family TALE plots
-plot.tales <- function(x, ...) {
-  plot_tales_composition(x, ...)
 }
 
 

@@ -2,27 +2,40 @@
 % Please edit documentation in R/distalr.R
 \name{plot.tales}
 \alias{plot.tales}
-\title{Plot the domain composition of a tales object}
+\title{Plot the domain composition of a set of TALE arrays}
 \usage{
-\method{plot}{tales}(x, ...)
+\method{plot}{tales}(x, position = c("array", "alignment"), ...)
 }
 \arguments{
-\item{x}{A \code{\link{tales}} object.}
+\item{x}{A \code{\link{tales}} object, as returned by
+\code{\link{tales_from_telltale}} or in the \code{tales} element of
+\code{\link{tales_compare}}'s output. A legacy \code{tale_parts} data
+frame is accepted and converted.}
 
-\item{...}{Passed to \code{\link{plot_tales_composition}}.}
+\item{position}{Which coordinate to lay the parts out on. \code{"array"}
+(default) uses \code{position_in_array}, so each array starts at 1 and runs
+contiguously. \code{"alignment"} uses \code{alignment_position}, which
+requires an aligned object (or one demoted from a \code{\link{tales_msa}},
+which keeps the column): gaps then appear as empty columns and shared
+features line up. Aberrant repeats, for instance, are visible as a column
+in the aligned layout and scattered in the unaligned one.}
+
+\item{...}{Unused, present for compatibility with the \code{plot} generic.}
 }
 \value{
-The ggplot object, invisibly.
+The ggplot object, invisibly printed as a side effect.
 }
 \description{
-The \code{\link[=plot]{plot}} method for \code{\link{tales}}, delegating to
-\code{\link{plot_tales_composition}}. A \code{\link{tales_msa}} dispatches
-to \code{\link{plot.tales_msa}} instead, being the more specific class.
+A compact, information-rich view of the arrays in a \code{tales} object: one
+point per part, positioned by its place in the array, coloured by domain type
+and filled by amino-acid length, with the RVD printed on each repeat.
+
+A \code{\link{tales_msa}} dispatches to \code{\link{plot.tales_msa}}
+instead, being the more specific class.
 }
 \seealso{
 Other TALE plots:
 \code{\link[=plot.tales_msa]{plot.tales_msa()}},
-\code{\link[=plot_tales_composition]{plot_tales_composition()}},
 \code{\link[=plot_target_preds]{plot_target_preds()}},
 \code{\link[=talomes_heatmap]{talomes_heatmap()}}
 }
