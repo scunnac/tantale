@@ -43,6 +43,47 @@
 
 
 
+#' Read the three TALE profile HMMs and concatenate them for nhmmer
+#'
+#' The search is done with one merged profile file rather than three separate
+#' runs, so the three are read, checked, and written out together here.
+#'
+#' Each profile's \code{NAME} tag is what nhmmer reports in its
+#' \code{query_name} column, which is how the hits are later told apart --
+#' N-terminus from repeat from C-terminus. That makes the names part of the
+#' contract between this stage and every stage that filters hits, so they are
+#' returned rather than re-parsed downstream.
+#'
+#' @param hmm_dir Directory holding the profiles. They must carry the names
+#'   below; see the TODO in \code{tell_tales()} about letting a user supply
+#'   arbitrary paths.
+#' @param merged_file Where to write the concatenation.
+#' @return A list with the \code{nterm}, \code{repeats} and \code{cterm}
+#'   profile names, in the order nhmmer will see them, plus \code{files},
+#'   the three paths they were read from.
+#' @noRd
+.telltale_hmm_profiles <- function(hmm_dir, merged_file) {
+  files <- c(file.path(hmm_dir, "Xo_TALE_Nterm_CDS_profile.hmm"),
+             file.path(hmm_dir, "Xo_TALE_repeat_CDS_profile.hmm"),
+             file.path(hmm_dir, "Xo_TALE_Cterm_CDS_profile.hmm"))
+
+  lines <- plyr::llply(files, function(f) readLines(con = f))
+  names <- unlist(plyr::llply(lines, function(x) {
+    hmmName <- grep("NAME", x, perl = TRUE, value = TRUE)
+    hmmName <- unlist(strsplit(hmmName, split = "\\s+"))
+    if (length(hmmName) != 2) stop("One or several profile ",
+                                   "HMM have a name with spaces. ",
+                                   "Please remove them in the file at the Tag 'NAME'")
+    hmmName[2]
+  }))
+
+  writeLines(text = unlist(lines), con = merged_file)
+  list(nterm = names[1], repeats = names[2], cterm = names[3],
+       # the paths are reported in the run log, so they are carried too
+       files = stats::setNames(files, c("nterm", "repeats", "cterm")))
+}
+
+
 #' Every file and directory a tell_tales() run writes
 #'
 #' Computed once, up front, so that the rest of the function reads as a
@@ -263,35 +304,11 @@ tell_tales <- function(
   subject_file <- tempfile()
   Biostrings::writeXStringSet(originalSeqs, filepath = subject_file)
   
-  ####   Full paths of input HMM files for TALE domains (DNA and AA)   ####
-  
+  ####   Read the TALE profile HMMs and concatenate them for nhmmer   ####
   ## TODO come up with a mechanism for the user to be able to provide the FULL PATH
   ## to custom hmm !!! hmm_dir parameter is useless unless custom hmm are named
-  ## as specified below
-  TALE_NtermDNAHMMFile <- file.path(hmm_dir, "Xo_TALE_Nterm_CDS_profile.hmm")
-  repeatDNAHMMFile <- file.path(hmm_dir, "Xo_TALE_repeat_CDS_profile.hmm")
-  TALE_CtermDNAHMMFile <- file.path(hmm_dir, "Xo_TALE_Cterm_CDS_profile.hmm")
-  
-  DNAHMMFiles <- c(TALE_NtermDNAHMMFile, repeatDNAHMMFile, TALE_CtermDNAHMMFile)
-  
-  
-  
-  ####   Concatenate HMM files for TALE DNA motifs and parse HMM names   ####
-  hmmslines <- plyr::llply(DNAHMMFiles, function(x) txt <- readLines(con = x))
-  names(DNAHMMFiles) <- plyr::llply(hmmslines, function(x) {
-    hmmName <- grep("NAME", x, perl = TRUE, value = TRUE)
-    hmmName <- unlist(strsplit(hmmName, split = "\\s+"))
-    if (length(hmmName) != 2) stop("One or several profile ",
-                                   "HMM have a name with spaces. ",
-                                   "Please remove them in the file at the Tag 'NAME'")
-    hmmName <- hmmName[2]
-  }
-  )
-  TALE_NtermDNAHMMName <- names(DNAHMMFiles)[1]
-  repeatDNAHMMName <- names(DNAHMMFiles)[2]
-  TALE_CtermDNAHMMName <- names(DNAHMMFiles)[3]
-  
-  writeLines(text = unlist(hmmslines), con = paths$merged_hmm)
+  ## as specified in .telltale_hmm_profiles()
+  hmm <- .telltale_hmm_profiles(hmm_dir, paths$merged_hmm)
   
   ####   Perform TALE domain CDS search with HMMER  #####
   
@@ -314,9 +331,9 @@ tell_tales <- function(
   
   ## filtering results differentially depending on the query HMM
   nhmmerTabularOutput <- subset(nhmmerTabularOutput,
-                                query_name == TALE_NtermDNAHMMName & score >= nterm_min_score |
-                                  query_name == repeatDNAHMMName & score >= repeat_min_score |
-                                  query_name == TALE_CtermDNAHMMName & score >= cterm_min_score
+                                query_name == hmm$nterm & score >= nterm_min_score |
+                                  query_name == hmm$repeats & score >= repeat_min_score |
+                                  query_name == hmm$cterm & score >= cterm_min_score
   )
   nhmmerTabularOutput <- droplevels(nhmmerTabularOutput)
   if(nrow(nhmmerTabularOutput) == 0L) {
@@ -460,8 +477,8 @@ tell_tales <- function(
     AllDomains = sapply(hitsByArraysLst,
                         function(x) {
                           all(
-                            c(TALE_NtermDNAHMMName, repeatDNAHMMName,
-                              TALE_CtermDNAHMMName) %in% as.character(x$query_name)
+                            c(hmm$nterm, hmm$repeats,
+                              hmm$cterm) %in% as.character(x$query_name)
                           )
                         }
     )
@@ -695,12 +712,12 @@ tell_tales <- function(
     # This is necessary for other tantale utilities that can operate on 'full' domains sequences, ie downstream of distal, for TALE  domains sequences alignments.
     for (s in names(seqsOfRVDs)) {
       hitsByArray <- hitsByArraysLst[[s]]
-      seqsOfRVDs[s] <- paste(ifelse(TALE_NtermDNAHMMName %in% as.character(hitsByArray$query_name),
+      seqsOfRVDs[s] <- paste(ifelse(hmm$nterm %in% as.character(hitsByArray$query_name),
                                     taleArrayStartAnchorCode, taleArrayAtypicalExtremityCode), 
                              seqsOfRVDs[s], 
                              sep = rvd_sep)
       seqsOfRVDs[s] <- paste(seqsOfRVDs[s], 
-                             ifelse(TALE_CtermDNAHMMName %in% as.character(hitsByArray$query_name),
+                             ifelse(hmm$cterm %in% as.character(hitsByArray$query_name),
                                     taleArrayEndAnchorCode, taleArrayAtypicalExtremityCode), 
                              sep = rvd_sep)
     }
@@ -849,9 +866,9 @@ tell_tales <- function(
   ####   Generate info messages and log file about the analysis   #####
   
   ## counts of appearance of each RVD type (excluding N- and C- terms symbols) for the log file
-  #RVDtbl <- table(subset(unlist(hitsByArraysLst), query_name ==repeatDNAHMMName, drop = TRUE)$RVD)
+  #RVDtbl <- table(subset(unlist(hitsByArraysLst), query_name ==hmm$repeats, drop = TRUE)$RVD)
   ## Total count of repeat CDS after filtering for uniformative subject seqs for the log file
-  numberOfRepeatHitsAfterFiltering <- length(subset(unlist(hitsByArraysLst), query_name == repeatDNAHMMName))
+  numberOfRepeatHitsAfterFiltering <- length(subset(unlist(hitsByArraysLst), query_name == hmm$repeats))
   ## Distribution of the number of hits per array
   countsHitsByArrayDistri <- summary(S4Vectors::mcols(hitsByArraysLst)$NumberOfHits)
   ## Number of domains in arrays that display all domain types
@@ -866,9 +883,9 @@ tell_tales <- function(
     paste("Current date:", date(), sep = "\t"),
     "#_________Provided I/O parameters __________",
     paste("File of subject DNA sequences:", subject_file, sep = "\t"),
-    paste("TALE N-term CDS region detection HMM file:", TALE_NtermDNAHMMFile, sep = "\t"),
-    paste("TALE repeat unit CDS detection HMM file:", repeatDNAHMMFile, sep = "\t"),
-    paste("TALE C-term CDS region detection HMM file:", TALE_CtermDNAHMMFile, sep = "\t"),
+    paste("TALE N-term CDS region detection HMM file:", hmm$files[["nterm"]], sep = "\t"),
+    paste("TALE repeat unit CDS detection HMM file:", hmm$files[["repeats"]], sep = "\t"),
+    paste("TALE C-term CDS region detection HMM file:", hmm$files[["cterm"]], sep = "\t"),
     paste("Output directory:", output_dir, sep = "\t"),
     
     "#____________Other parameters________________",
