@@ -1035,6 +1035,31 @@ restarted -- the reason it now lives in the repository.
 To accept an intended change: inspect the diff, then
 `testthat::snapshot_accept("golden")`.
 
+### 8.2 Silence MAFFT by default **[A]**
+
+`.build_repeat_msa()` runs MAFFT through `system()` with
+`ignore.stderr = FALSE` (`tales_msa_class.R`, the `res <- system(...)` call).
+MAFFT writes its banner, strategy notice and per-sequence progress to stderr,
+so every alignment floods the console with dozens of lines the user did not
+ask for. The alignment itself is already redirected to a file with `>`, so
+stdout carries nothing of interest either.
+
+Wanted: a `mafft_verbose = FALSE` argument on `.build_repeat_msa()`, surfaced
+through `tales_align()`. Note the spelling — the package converted every
+argument to snake_case in 9.1, so `mafft_verbose`, not `mafftVerbose`.
+
+**One thing to get right.** Simply setting `ignore.stderr = TRUE` also
+discards MAFFT's error messages, and the current failure path is already thin:
+when the output file comes back empty the code aborts with nothing but the
+exit status, so a silenced run would report *that* it failed and never *why*.
+Better to redirect stderr to a temporary file (`2> {logfile}` in the command,
+or `stderr = TRUE` on a captured call) and replay its contents only when the
+run fails. That gives silence in the normal case and more diagnostics than
+today in the failing one.
+
+Worth checking whether MAFFT's `--quiet` flag covers enough on its own; it
+suppresses the progress reporting but the banner may survive it.
+
 ### 8.4 `print()` methods for `tales` and `tales_msa` **[A]**
 
 Both classes currently fall through to the tibble print method, so the screen
