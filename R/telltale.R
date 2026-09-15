@@ -935,6 +935,38 @@
 }
 
 
+#' Rewrite the subject sequences under names HMMER will accept
+#'
+#' nhmmer truncates a sequence name at the first space, so two contigs whose
+#' headers differ only after a space become indistinguishable in its output
+#' and their hits are silently pooled. Every sequence is therefore rewritten
+#' to a temporary file under a placeholder name, and the originals restored
+#' once the hits are back.
+#'
+#' @param subject_file The user's fasta.
+#' @return A list of the rewritten \code{file}, the \code{seqlevels} map
+#'   from placeholder back to original, and the original \code{seqinfo}.
+#' @noRd
+.telltale_prepare_subject <- function(subject_file) {
+  cli::cli_inform("HMMER is very picky about forbiden characters in sequence name. Renaming sequences in {subject_file}.")
+  originalSeqs <- Biostrings::readDNAStringSet(filepath = subject_file)
+  Rsamtools::indexFa(subject_file)
+  originalSeqInfo <- Rsamtools::seqinfo(Rsamtools::FaFile(subject_file))
+
+  originalSeqlevels <- names(originalSeqs)
+  foolproofSeqlevels <- paste0("seq", 1:length(originalSeqlevels))
+  names(originalSeqlevels) <- foolproofSeqlevels
+  names(originalSeqs) <- foolproofSeqlevels
+
+  cli::cli_inform(paste0("Original seq names : {glue::glue_collapse(originalSeqlevels, sep = ' ; ')}"))
+  cli::cli_inform(paste0("Dummy seq names : {glue::glue_collapse(names(originalSeqlevels), sep = ' ; ')}"))
+
+  renamed <- tempfile()
+  Biostrings::writeXStringSet(originalSeqs, filepath = renamed)
+  list(file = renamed, seqlevels = originalSeqlevels, seqinfo = originalSeqInfo)
+}
+
+
 #' Every file and directory a tell_tales() run writes
 #'
 #' Computed once, up front, so that the rest of the function reads as a
@@ -1140,23 +1172,13 @@ tell_tales <- function(
   ####   Checks for parameters and other things   ####
 
   ## Deal with spaces in sequence names because this messes up parsing of HMMER output
-  cli::cli_inform("HMMER is very picky about forbiden characters in sequence name. Renaming sequences in {subject_file}.")
-  originalSeqs <- Biostrings::readDNAStringSet(filepath = subject_file)
-  Rsamtools::indexFa(subject_file)
-  originalSeqInfo <- Rsamtools::seqinfo(Rsamtools::FaFile(subject_file))
-  originalSeqlevels <- names(originalSeqs)
-  foolproofSeqlevels <- paste0("seq", 1:length(originalSeqlevels))
-  names(originalSeqlevels) <- foolproofSeqlevels
-  names(originalSeqs) <- foolproofSeqlevels
-  cli::cli_inform(paste0("Original seq names : {glue::glue_collapse(originalSeqlevels, sep = ' ; ')}"))
-  cli::cli_inform(paste0("Dummy seq names : {glue::glue_collapse(names(originalSeqlevels), sep = ' ; ')}"))
-  subject_file <- tempfile()
-  Biostrings::writeXStringSet(originalSeqs, filepath = subject_file)
-  
-  ####   Read the TALE profile HMMs and concatenate them for nhmmer   ####
-  ## TODO come up with a mechanism for the user to be able to provide the FULL PATH
-  ## to custom hmm !!! hmm_dir parameter is useless unless custom hmm are named
-  ## as specified in .telltale_hmm_profiles()
+  ####   Checks for parameters and other things   ####
+  ## Deal with spaces in sequence names because this messes up parsing of hmmer output
+  subject <- .telltale_prepare_subject(subject_file)
+  subject_file <- subject$file
+  originalSeqlevels <- subject$seqlevels
+  originalSeqInfo <- subject$seqinfo
+
   hmm <- .telltale_hmm_profiles(hmm_dir, paths$merged_hmm)
   
   ####   Find the TALE domain CDS hits   #####
