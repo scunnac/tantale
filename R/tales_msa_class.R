@@ -414,11 +414,11 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
   
   # Deals with cases where the nomber of sequences is < 2
   if (length(seqsAsVectors) == 0L) {
-    cli::cli_warn("The provided object in input_seqs is empty. Returning an empty matrix")
+    cli::cli_warn("There are no sequences to align. Returning an empty matrix.")
     return(matrix())
   }
   if (length(seqsAsVectors) == 1L) {
-    cli::cli_inform("The provided object in input_seqs has only one sequence. Returning it as a matrix.")
+    cli::cli_inform("Only one sequence to align. Returning it as a one-row matrix.")
     msaOfResiduesAsMatrix <- as.matrix(as.data.frame(seqsAsVectors))
     msaOfResiduesAsMatrix <- matrix(msaOfResiduesAsMatrix, nrow = 1)
     rownames(msaOfResiduesAsMatrix) <- colnames(as.data.frame(seqsAsVectors))
@@ -438,8 +438,11 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
     repeatType <- "rvds"
   }
   if( length(residues) > nrow(asciitableForMafft) ) {
-    cli::cli_warn("Number of unique resisues (RVDs or repeat units) must be =< 248.")
-    cli::cli_abort(paste0("Currently, your set of sequences contains {length(residues)} unique residues..."), class = c("tantale_error"))
+    cli::cli_warn("The number of distinct residues (RVDs or repeat units) must be 248 or fewer.")
+    cli::cli_abort(
+      c("These sequences contain {length(residues)} distinct residues.",
+        "i" = "MAFFT's text mode encodes each residue as one byte, which caps the alphabet at 248."),
+      class = c("tantale_error_msa_alphabet", "tantale_error"))
   }
   
 
@@ -495,10 +498,12 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
     } else if (length(repeat_sims) == 1 && is.character(repeat_sims)) {
       repeatSims <- .format_repeat_dist_mat(repeat_sims)
     } else {
-      cli::cli_warn("Somthing is wrong with the value provided for repeat_sims. It must be either")
-      cli::cli_warn("the path to a '*_Repeatmatrix.mat' file produced by Distal or")
-      cli::cli_warn(paste0("table like object with three columns, usually produced by the"))
-      cli::cli_abort(".format_repeat_dist_mat() function", class = c("tantale_error"))
+      cli::cli_abort(
+        c("Cannot read {.arg repeat_sims}.",
+          "i" = "Expected a table of pairwise scores, or the path to a {.file *_Repeatmatrix.mat} file written by Distal.",
+          "i" = 'Use {.code repeat_sims = "rvd"} for the built-in RVD matrix, or leave it {.code NULL} for none.',
+          "x" = "Got {.obj_type_friendly {repeat_sims}}."),
+        class = c("tantale_error_msa_sim_table", "tantale_error"))
     }
 
     stopifnot(all(residues %in% unique(repeatSims$id1)))
@@ -522,7 +527,7 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
   # Getting msa output and converting back to alignment of residues
   msaOfHex <- Biostrings::readBStringSet(mafftHexOutFile)
   if (length(msaOfHex) == 0L) {
-    cli::cli_warn("MAFFT failled to complete sucessfully...")
+    cli::cli_warn("MAFFT did not complete successfully.")
     cli::cli_abort("MAFFT exit status: {res}", class = c("tantale_error"))
   } else {
   }

@@ -244,26 +244,6 @@ as_tales.default <- function(x, sep = "-", residue_col = c("rvd", "dom_code"), .
 }
 
 
-#' Build a tales object from a tell_tales run directory
-#'
-#' Reads the AnnoTALE/telltale part files of a single
-#' \code{\link[tantale:tell_tales]{tell_tales}} output directory and returns a
-#' validated \code{\link{tales}} object.
-#'
-#' The result carries no \code{dom_code}: that surrogate key is minted later,
-#' by the relatedness computation, over the whole set of parts being analysed.
-#'
-#' @param sanitize If \code{TRUE}, arrays carrying biological anomalies are
-#'   removed with a warning naming them and why; if \code{FALSE} (default) they
-#'   are kept and merely warned about. See \code{\link{tales_anomalies}}.
-#' @param telltale_dir Path to a single \code{\link[tantale:tell_tales]{tell_tales}}
-#'   output directory.
-#' @return A validated \code{tales} object.
-#' @export
-#' @family TALE discovery
-tales_from_telltale <- function(telltale_dir, sanitize = FALSE) {
-  tales(.tale_parts(telltale_dir), sanitize = sanitize)
-}
 
 
 #### Validator ####

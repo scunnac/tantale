@@ -1021,7 +1021,7 @@ left alone. My reading of each:
 
 | internal | situation | suggestion |
 |---|---|---|
-| `.tale_parts()` + its two helpers `.tale_parts_from_file()`, `.rvds_from_annotale_file()` | a coherent trio in `distalr.R`, entered only from `tales_from_telltale()` in `tales_class.R` | move the trio out to a new `R/tales_ingest.R` with `tales_from_telltale()`. `distalr.R` would then be only about comparison, which is the bigger win |
+| `.tale_parts()` + its two helpers | **DONE** — the trio and `tales_from_telltale()` are now `R/tales_ingest.R`. `distalr.R` no longer reads anything off disk | — |
 | `.build_repeat_msa()` | **DONE** — moved to `tales_msa_class.R` beside `tales_align()`, taking `.as_mafft_score_table()` and `.rvd_score_table()` with it, since it is their only caller. Co-located, not inlined: 157 lines of MAFFT plumbing inside a 57-line `tales_align()` would have made the caller harder to read, and "run MAFFT in text mode and return a matrix" is a name the reader needs. Six tests also call it directly with fasta paths and bare sequence lists, exercising edge cases `tales_align()` cannot reach | — |
 | `.tales_dom_code_namespace()` | in `tales_class.R`, called from `distalr.R` | leave. It is a property of the class read by another module, which is normal |
 | `.tales_msa_contract_holds()` | in `tales_msa_class.R`, called from `tales_class.R` | leave, same reason |
