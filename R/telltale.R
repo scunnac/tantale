@@ -821,6 +821,68 @@
 }
 
 
+#' Add the per-array measures that come from the ORF and the termini
+#'
+#' Four numbers per array, all of them ways of asking "does this look like a
+#' whole TALE?": the length of each terminus, the length of the longest ORF,
+#' and what fraction of the array that ORF covers. An array whose ORF covers
+#' only part of its length is one where something -- a frameshift, a
+#' premature stop, a mis-called region -- interrupts the coding sequence.
+#'
+#' @param by_array The grouped hits.
+#' @param ends_aa The terminus sequences, from
+#'   \code{.telltale_align_termini()}.
+#' @param full_orf The longest ORF per array.
+#' @param array_seqs The extended array sequences the ORFs were found in.
+#' @return \code{by_array}, with the measures in its metadata.
+#' @noRd
+.telltale_add_array_measures <- function(by_array, ends_aa, full_orf, array_seqs) {
+  endsAAlength <- lapply(names(ends_aa), function(e) {
+    stringset <- ends_aa[e] %>% Biostrings::AAStringSetList(., use.names = FALSE) %>% unlist()
+    df <- data.frame(names(stringset), BiocGenerics::width(stringset))
+    colnames(df) <- c("array_id", paste0(e, "AAlength"))
+    df
+  })
+  S4Vectors::mcols(by_array) <- merge(S4Vectors::mcols(by_array),
+                                      do.call(merge, endsAAlength),
+                                      by = "array_id", all.x = TRUE)
+
+  moreInfo <- merge(
+    S4Vectors::mcols(by_array),
+    data.frame(array_id = names(full_orf),
+               LongestOrfLength = Biostrings::nchar(full_orf),
+               OrfCovOverArrayLength = round(100 * Biostrings::nchar(full_orf) /
+                                               GenomicRanges::width(array_seqs[names(full_orf)])),
+               LongestORFSeq = full_orf),
+    by = "array_id", all.x = TRUE, sort = FALSE)
+  rownames(moreInfo) <- moreInfo$array_id
+  S4Vectors::mcols(by_array) <- moreInfo[rownames(S4Vectors::mcols(by_array)), ]
+  by_array
+}
+
+
+#' Distances between neighbouring arrays on the same sequence
+#'
+#' Summarised in the run log only. A short gap between two arrays can mean
+#' they are really one TALE whose middle was missed, so the distribution is
+#' worth a glance when a strain's TALE count looks wrong.
+#'
+#' @param arrays The array ranges.
+#' @return A list of the gaps under 500 nt and their quartiles.
+#' @noRd
+.telltale_array_gaps <- function(arrays) {
+  bySeqlevel <- split(arrays, GenomicRanges::seqnames(arrays))
+  gaps <- sapply(bySeqlevel, function(x) {
+    t(as.data.frame(GenomicRanges::distanceToNearest(x)))[3, ]
+  })
+  gaps <- unlist(gaps)
+  gaps <- gaps[!is.na(gaps)]
+  below500 <- gaps[gaps <= 500]
+  list(below_500 = below500,
+       quartiles = quantile(below500, probs = c(0.25, 0.50, 0.75)))
+}
+
+
 #' Every file and directory a tell_tales() run writes
 #'
 #' Computed once, up front, so that the rest of the function reads as a
@@ -1147,51 +1209,15 @@ tell_tales <- function(
   .telltale_align_termini(paths$annotale, output_dir, type = "DNA")
   endsAA <- .telltale_align_termini(paths$annotale, output_dir, type = "AA")
 
-  #### Protein length of N-term and C-term ####
-  
-  endsAAlength <- lapply(names(endsAA), function(e) {
-    stringset <- endsAA[e] %>% Biostrings::AAStringSetList(., use.names = F) %>% unlist()
-    df <- data.frame(names(stringset), BiocGenerics::width(stringset))
-    colnames(df) <- c("array_id", paste0(e, "AAlength"))
-    return(df)
-  })
-  
-  
-  S4Vectors::mcols(hitsByArraysLst) <- merge(S4Vectors::mcols(hitsByArraysLst),
-                                             do.call(merge, endsAAlength),
-                                             by = "array_id", 
-                                             all.x = T)
-  
-  #### 
-  
-  
-  ## Merge with arrays metadata in mcols(hitsByArraysLst)
-  moreInfo <- merge(
-    S4Vectors::mcols(hitsByArraysLst),
-    data.frame(array_id = names(fullTalOrf),
-               LongestOrfLength = Biostrings::nchar(fullTalOrf),
-               OrfCovOverArrayLength = round(100 * Biostrings::nchar(fullTalOrf)/GenomicRanges::width(extdCompleteArraysSeqs[names(fullTalOrf)])),
-               LongestORFSeq = fullTalOrf),
-    by = "array_id", all.x = TRUE, sort = FALSE)
-  rownames(moreInfo) <- moreInfo$array_id
-  S4Vectors::mcols(hitsByArraysLst) <- moreInfo[rownames(S4Vectors::mcols(hitsByArraysLst)),]
-  #str(S4Vectors::mcols(hitsByArraysLst))
-  
+  #### Per-array measures from the ORF and the termini ####
+  hitsByArraysLst <- .telltale_add_array_measures(
+    hitsByArraysLst, endsAA, fullTalOrf, extdCompleteArraysSeqs)
 
-  ####   IS THIS STILL USEFULL?   ####
-  ####   Look at gaps between HitDomains on the same subject sequence to detect potential missed repeats   #####
-  arraysBySeqlevelLst <- split(arraysGR, GenomicRanges::seqnames(arraysGR)) # group  arraysGR by seqlevel
-  
-  gaplengthBetweenHitDomains <- sapply(arraysBySeqlevelLst, function(x) {
-    dists <- t(as.data.frame(GenomicRanges::distanceToNearest(x)))[3,]
-  })
-  gaplengthBetweenHitDomains <- unlist(gaplengthBetweenHitDomains)
-  gaplengthBetweenHitDomains <- gaplengthBetweenHitDomains[!is.na(gaplengthBetweenHitDomains)]
-  gaplengthBetweenHitDomainsbelow500 <- gaplengthBetweenHitDomains[gaplengthBetweenHitDomains <= 500]
-  quartilesGapLength <- quantile(gaplengthBetweenHitDomainsbelow500,  probs = c(0.25, 0.50, 0.75))
-  ##ggplot(data.frame(gapSize = gaplengthBetweenHitDomainsbelow500), aes(x=gapSize)) + geom_histogram(binwidth=10)
-  
-  
+  ####   Gaps between neighbouring arrays, for the log   ####
+  arrayGaps <- .telltale_array_gaps(arraysGR)
+  gaplengthBetweenHitDomainsbelow500 <- arrayGaps$below_500
+  quartilesGapLength <- arrayGaps$quartiles
+
   ####   Write tabulated reports and sequence files   #####
   arrayReport <- .telltale_write_reports(
     by_array = hitsByArraysLst, domains_report = domainsReport,
