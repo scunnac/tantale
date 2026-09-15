@@ -765,6 +765,62 @@
 }
 
 
+#' Write the run's reports
+#'
+#' Three tables and two GFFs, each answering a different question about the
+#' same run: \code{hitsReport} one row per domain hit, \code{domainsReport}
+#' one row per part AnnoTALE named, \code{arrayReport} one row per array with
+#' its RVD sequence. The GFFs put the same ranges where a genome browser can
+#' show them against the original sequence.
+#'
+#' The RVD fasta is the file the rest of the package reads: it is what
+#' \code{\link{tales_from_telltale}} and the target predictors start from.
+#' Arrays that yielded no RVDs are left out of it rather than written empty.
+#'
+#' @param by_array The grouped hits, carrying the per-array metadata.
+#' @param domains_report What AnnoTALE reported, per part.
+#' @param unmerged The hits before merging, or \code{NULL}.
+#' @param paths What \code{.telltale_paths()} returned.
+#' @return The array report, which the run log also summarises.
+#' @noRd
+.telltale_write_reports <- function(by_array, domains_report, unmerged, paths) {
+  ## Report on the hmmer hits, both as tab-delimited and as gff
+  hitsReport <- lapply(as.list(by_array, use.names = TRUE),
+                       function(gr) tibble::as_tibble(as.data.frame(gr))) %>%
+    dplyr::bind_rows(.id = "array_id")
+  readr::write_tsv(x = hitsReport, file = paths$hits_report)
+  .hits_report_to_gff(paths$hits_report) # saving to gff format
+  readr::write_tsv(x = domains_report, file = paths$domains_report)
+
+  ##   Report with info on arrays, including the seq of RVD
+  arrayReport <- as.data.frame(
+    S4Vectors::mcols(by_array)[
+      order(S4Vectors::mcols(by_array)$OriginalSubjectName,
+            S4Vectors::mcols(by_array)$NumberOfHits), ]
+  )
+  readr::write_tsv(x = arrayReport, file = paths$array_report)
+
+  ## Write a gff with everything collated
+  allGR <- c(unlist(by_array),
+             GenomicRanges::makeGRangesFromDataFrame(
+               S4Vectors::mcols(by_array),
+               seqnames.field = "OriginalSubjectName",
+               keep.extra.columns = TRUE),
+             # the unmerged hits are included only when merging happened, so
+             # that a merged range can be compared against what went into it
+             unmerged)
+  rtracklayer::export.gff3(allGR, paths$all_ranges_gff)
+
+  ## Write a fasta file of the seqs of RVDs
+  rvds <- Biostrings::BStringSet(S4Vectors::mcols(by_array)$SeqOfRVD)
+  names(rvds) <- S4Vectors::mcols(by_array)$array_id
+  rvds <- rvds[!Biostrings::width(rvds) == 0]
+  Biostrings::writeXStringSet(x = rvds, paths$rvd_sequences)
+
+  arrayReport
+}
+
+
 #' Every file and directory a tell_tales() run writes
 #'
 #' Computed once, up front, so that the rest of the function reads as a
@@ -1136,52 +1192,12 @@ tell_tales <- function(
   ##ggplot(data.frame(gapSize = gaplengthBetweenHitDomainsbelow500), aes(x=gapSize)) + geom_histogram(binwidth=10)
   
   
-  ####   Write tabulated reports   #####
-  ## Report on the hmmer hits. both  as a  tab-delimited  and a gff
-  hitsReport <- lapply(as.list(hitsByArraysLst, use.names = TRUE),
-                       function(gr) {
-                         tibble::as_tibble(as.data.frame(gr))
-                       }
-  ) %>% dplyr::bind_rows(.id = "array_id")
-  readr::write_tsv(x = hitsReport, file = paths$hits_report)
-  .hits_report_to_gff(paths$hits_report) # saving to gff format
-  readr::write_tsv(x = domainsReport, file = paths$domains_report)
-  
-  ##   Report with info on arrays, including the seq of RVD
-  arrayReport <- as.data.frame(
-    S4Vectors::mcols(hitsByArraysLst)[
-      order(
-        S4Vectors::mcols(hitsByArraysLst)$OriginalSubjectName,
-        S4Vectors::mcols(hitsByArraysLst)$NumberOfHits
-      ),]
-  )
-  readr::write_tsv(x = arrayReport, file = paths$array_report)
-  
-  
-  ## Write a gff with all collated
-  allGR <- c(unlist(hitsByArraysLst),
-             GenomicRanges::makeGRangesFromDataFrame(
-               S4Vectors::mcols(hitsByArraysLst),
-               seqnames.field= "OriginalSubjectName",
-               keep.extra.columns= TRUE),
-             # the unmerged hits are included only when merging happened, so
-             # that a merged range can be compared against what went into it.
-             # This used to test exists("reducedOlapGr"), an intermediate of
-             # the merge branch -- which silently became FALSE the moment that
-             # branch was lifted into a function.
-             if (merge_hits) nhmmerOutputGRBeforeMerge else NULL
-  )
-  rtracklayer::export.gff3(allGR, paths$all_ranges_gff)
-  
-  ####   Extract various DNA/AA sequences of interest and save to files   #####
-  
-  
-  ## Write a fasta file of the seq of RVDs
-  seqsOfRVDs <- Biostrings::BStringSet(S4Vectors::mcols(hitsByArraysLst)$SeqOfRVD)
-  names(seqsOfRVDs) <- S4Vectors::mcols(hitsByArraysLst)$array_id
-  seqsOfRVDs <- seqsOfRVDs[!Biostrings::width(seqsOfRVDs) == 0]
-  Biostrings::writeXStringSet(x = seqsOfRVDs, paths$rvd_sequences)
-  
+  ####   Write tabulated reports and sequence files   #####
+  arrayReport <- .telltale_write_reports(
+    by_array = hitsByArraysLst, domains_report = domainsReport,
+    unmerged = if (merge_hits) nhmmerOutputGRBeforeMerge else NULL,
+    paths = paths)
+
   ####   Generate info messages and log file about the analysis   #####
   .telltale_log(
     params = list(subject_file = subject_file, output_dir = output_dir,
