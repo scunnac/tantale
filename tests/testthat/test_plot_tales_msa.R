@@ -1,93 +1,56 @@
-
-# load(file.path("/home/cunnac/TEMP/test_tantale/mining.RData"))
-# saveRDS(distalr_deci_output, file = testthat::test_path("data_for_tests", "sampleDistalrOutput.rds"))
-# saveRDS(grp, file = testthat::test_path("data_for_tests", "sampleDistalrGroups.rds"))
-# saveRDS(repeatMsaByGroup_withSim, file = testthat::test_path("data_for_tests", "repeatMsaByGroup.rds"))
-
 distalrOut <- readRDS(file = testthat::test_path("data_for_tests", "sampleDistalrOutput.rds"))
-#taleGroups <- readRDS(file = testthat::test_path("data_for_tests", "sampleDistalrGroups.rds"))
 repeatMsaByGroup <- readRDS(file = testthat::test_path("data_for_tests", "sampleRepeatMsaByGroup.rds"))
 
+# The alignment as the class holds it: one object carrying every layer, which
+# is what plot() takes. Built by tales_align() from the same three arrays the
+# matrix fixture covers.
+msa <- readRDS(testthat::test_path("data_for_tests", "sampleTalesMsa.rds"))
+
+# Matrices are still the input to the internal helpers (.consensus_panel(),
+# .rvd_to_match_align()), so the matrix fixture stays for those.
 repeat_align <- repeatMsaByGroup[[6]]
 rvd_align <- repeat_to_rvd_align(repeat_align = repeat_align,
-                                   rvd_map = repeat_to_rvd_map_distalr(distalrOut$tale_parts))
+                                 rvd_map = repeat_to_rvd_map_distalr(distalrOut$tale_parts))
 
 
-tales_consensus(repeat_align)
-tales_consensus(rvd_align)
+#### the arguments are named layers of the object ####
 
-tales_consensus_match(repeat_align)
+test_that("plot() refuses a layer the alignment does not carry", {
+  expect_error(plot(msa, fill = "not_a_layer"), class = "tantale_error_msa_layer")
+  expect_error(plot(msa, label = "not_a_layer"), class = "tantale_error_msa_layer")
+})
 
+test_that("plot() refuses an empty alignment in terms of the alignment", {
+  # Previously this reported a problem with `repeat_align`, an argument a
+  # plot() caller never supplies and cannot inspect.
+  expect_error(plot(msa[0, ]), class = "tantale_error_msa_empty")
+})
 
-try(plot_tales_msa(repeat_align = NULL,
-                   tal_sim = NULL,
-                   repeat_sim = NULL,
-                   rvd_align = NULL,
-                   h_cut = 90,
-                   ref_pattern = NULL,
-                   consensus = FALSE,
-                   fill_type = "repeat_sim" # "repeatClust"
-))
-
-try(plot_tales_msa(repeat_align = repeat_align[3,],
-                   tal_sim = NULL,
-                   repeat_sim = distalrOut$repeat.similarity,
-                   rvd_align = rvd_align[3, , drop = FALSE],
-                   h_cut = 90,
-                   ref_pattern = NULL,
-                   consensus = FALSE,
-                   fill_type = "repeat_sim" # "repeatClust"
-))
-
-try(plot_tales_msa(repeat_align = repeat_align[3,, drop = FALSE],
-                   tal_sim = NULL,
-                   repeat_sim = distalrOut$repeat.similarity,
-                   rvd_align = rvd_align[3, ],
-                   h_cut = 90,
-                   ref_pattern = NULL,
-                   consensus = FALSE,
-                   fill_type = "repeat_sim" # "repeatClust"
-))
-
-
-##############""
-
-
-
-
-
-
-
-
-
-
-
-
+test_that("a single-array alignment plots", {
+  # The old matrix interface could be handed a vector here, by a caller who
+  # subset without drop = FALSE. as.matrix() on the object cannot produce one.
+  one <- msa[msa$array_id == unique(msa$array_id)[1], ]
+  expect_s3_class(suppressMessages(plot(one)), "ggplot")
+})
 
 
 # --- Assertions ------------------------------------------------------------
 # Everything above is exploratory script kept from development. Until the
-# ggplot2 4.x `palette` fix, plot_tales_msa() aborted on every call, so none of
+# ggplot2 4.x `palette` fix, the plotting code aborted on every call, so none of
 # it could have asserted anything; these are the first real checks.
 
-test_that("plot_tales_msa() returns a ggplot for both fill types", {
-  m <- repeatMsaByGroup[[which(sapply(repeatMsaByGroup,
-                                      function(z) is.matrix(z) && nrow(z) > 2))[1]]]
+test_that("plot() returns a ggplot for both fill types", {
   for (ft in c("repeat_clust", "repeat_sim")) {
-    p <- suppressWarnings(suppressMessages(plot_tales_msa(
-      repeat_align = m,
-      repeat_sim = distalrOut$repeat.similarity,
-      fill_type = ft
+    p <- suppressWarnings(suppressMessages(plot(
+      msa, domain_sim = distalrOut$repeat.similarity, fill_type = ft
     )))
     expect_s3_class(p, "ggplot")
   }
 })
 
 test_that("the returned plot actually renders", {
-  m <- repeatMsaByGroup[[which(sapply(repeatMsaByGroup,
-                                      function(z) is.matrix(z) && nrow(z) > 2))[1]]]
-  p <- suppressWarnings(suppressMessages(plot_tales_msa(
-    repeat_align = m, repeat_sim = distalrOut$repeat.similarity
+  p <- suppressWarnings(suppressMessages(plot(
+    msa, domain_sim = distalrOut$repeat.similarity
   )))
   f <- withr::local_tempfile(fileext = ".png")
   suppressWarnings(suppressMessages(
@@ -101,10 +64,8 @@ test_that("the returned plot actually renders", {
 #### consensus row ####
 
 test_that("consensus = TRUE adds a panel and consensus = FALSE does not", {
-  skip_if_not(file.exists(test_path("data_for_tests", "sampleRepeatMsaByGroup.rds")))
-  m <- readRDS(test_path("data_for_tests", "sampleRepeatMsaByGroup.rds"))[[4]]
-  without <- suppressMessages(plot_tales_msa(repeat_align = m, consensus = FALSE))
-  with    <- suppressMessages(plot_tales_msa(repeat_align = m, consensus = TRUE))
+  without <- suppressMessages(plot(msa, consensus = FALSE))
+  with    <- suppressMessages(plot(msa, consensus = TRUE))
   # with a consensus the result is an aplot composition carrying an extra panel
   expect_gt(length(with), length(without))
 })
@@ -157,8 +118,8 @@ fixture_rvd <- function() {
 
 test_that("rvd_sim fills by RVD specificity relative to the reference", {
   f <- fixture_rvd()
-  p <- suppressMessages(plot_tales_msa(repeat_align = f$m, rvd_align = f$rvd,
-                                       fill_type = "rvd_sim"))
+  p <- suppressMessages(plot(msa, fill = "dom_code", label = "rvd",
+                             fill_type = "rvd_sim"))
   layer <- if (is.null(p$plotlist)) p$data else p$plotlist[[1]]$data
   expect_true("rvdSimVsRef" %in% names(layer))
   # a correlation, so bounded and signed -- unlike the 0-100 repeat similarity
@@ -182,32 +143,24 @@ test_that("opposite specificities score strongly negative", {
   expect_lt(min(sc, na.rm = TRUE), -0.9)
 })
 
-test_that("rvd_sim needs an rvd_align", {
-  f <- fixture_rvd()
-  expect_error(plot_tales_msa(repeat_align = f$m, fill_type = "rvd_sim"),
+test_that("rvd_sim needs a labelled RVD layer", {
+  expect_error(plot(msa, label = NULL, fill_type = "rvd_sim"),
                class = "tantale_error_msa_layer")
 })
 
 test_that("an unknown fill_type is refused and names the valid ones", {
-  f <- fixture_rvd()
   expect_error(
-    suppressMessages(plot_tales_msa(repeat_align = f$m, rvd_align = f$rvd,
-                                    repeat_sim = f$d$repeat.similarity,
-                                    fill_type = "nonsense")),
+    suppressMessages(plot(msa, domain_sim = distalrOut$repeat.similarity,
+                          fill_type = "nonsense")),
     class = "tantale_error_msa_layer")
 })
 
 test_that("the tree panel is built from either distance vocabulary", {
-  # plot_tales_msa() reads id1/id2/dissim; pairwise_distances() lets the older
+  # plot() reads id1/id2/dissim; pairwise_distances() lets the older
   # TAL1/TAL2/Sim spelling in at the door. Both must give the same figure.
-  skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
-  d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  m <- readRDS(test_path("data_for_tests", "sampleRepeatMsaByGroup.rds"))[[4]]
-
-  legacy <- suppressMessages(plot_tales_msa(repeat_align = m,
-                                            tal_sim = d$tal.similarity))
-  canonical <- suppressMessages(plot_tales_msa(repeat_align = m,
-                                               tal_sim = tale_distances(d$tal.similarity)))
+  d <- distalrOut
+  legacy <- suppressMessages(plot(msa, tal_sim = d$tal.similarity))
+  canonical <- suppressMessages(plot(msa, tal_sim = tale_distances(d$tal.similarity)))
   expect_s3_class(legacy, "aplot")
   # a tree panel was actually added, not silently skipped
   expect_true(any(vapply(legacy$plotlist, function(p) inherits(p, "ggtree"), logical(1))))
@@ -219,5 +172,29 @@ test_that("the tree panel is built from either distance vocabulary", {
   expect_identical(tips(legacy), tips(canonical))
   # the tree must order on distance, not on its inverse: the two nearest TALEs
   # are neighbouring leaves
-  expect_setequal(tips(legacy), rownames(m))
+  # the reference row is marked with a trailing _#
+  expect_setequal(sub("_#$", "", tips(legacy)), unique(msa$array_id))
+})
+
+#### consensus is a property of the alignment, not of its row order ####
+
+test_that("tales_consensus() does not depend on the order of the rows", {
+  m <- readRDS(test_path("data_for_tests", "sampleRepeatMsaByGroup.rds"))[[4]]
+  reference <- tales_consensus(m)
+  set.seed(20260915)
+  for (i in 1:8) {
+    permuted <- m[sample(nrow(m)), , drop = FALSE]
+    expect_identical(tales_consensus(permuted), reference)
+  }
+})
+
+test_that("a column where every array differs is broken deterministically", {
+  # Three arrays, three distinct repeats: no majority exists. Whatever is
+  # reported must at least be the same for the same alignment.
+  m <- matrix(c("b", "a", "c",
+                "x", "x", "y"), nrow = 3,
+              dimnames = list(c("t1", "t2", "t3"), NULL))
+  expect_identical(tales_consensus(m)[1], "a")   # smallest in sort order
+  expect_identical(tales_consensus(m)[2], "x")   # a genuine majority is unaffected
+  expect_identical(tales_consensus(m[c(3, 1, 2), ]), tales_consensus(m))
 })

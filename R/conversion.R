@@ -189,37 +189,6 @@ repeat_to_rvd_map_distalr <- function(tale_parts) {
 
 
 
-#' Substitute Distal repeat IDs for RVDs in a TALE alignment matrix.
-#'
-#'
-#' @param repeat_align A multiple TALE repeat sequences alignment in the form of
-#'   a matrix as returned by
-#'   \code{\link{tales_align}}.
-#' @param rvd_map The return value of the
-#'   \code{\link[tantale:repeat_to_rvd_map]{repeat_to_rvd_map}} function or the 
-#'   \code{\link[tantale:repeat_to_rvd_map_distalr]{repeat_to_rvd_map_distalr}} function
-#'   if you used the \code{\link{tales_compare}} function.
-#'   
-#'
-#' @return A TALE alignment matrix made up of RVD sequences.
-#' @export
-#' @family tales projections
-repeat_to_rvd_align <- function(repeat_align , rvd_map) {
-  states <- unique(as.vector(repeat_align))
-  ##### TODO: check that all values in states are present in the rvd_map df ####
-  # If not, error
-  rvd_align <- t(
-    apply(repeat_align, 1,
-          function(repeatSeq){
-            rvdSeq <- rvd_map$RVD[match(repeatSeq, rvd_map$repeatID)]
-          }
-    )
-  )
-  rvd_align <- matrix(rvd_align, nrow = nrow(repeat_align)) # in case of 1-row matrix
-  rownames(rvd_align) <- rownames(repeat_align)
-  colnames(rvd_align) <- colnames(repeat_align)
-  return(rvd_align)
-}
 
 
 

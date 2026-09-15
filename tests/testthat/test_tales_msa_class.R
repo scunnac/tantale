@@ -201,9 +201,9 @@ test_that("tales_align() carries the dom_code namespace", {
 
 #### plot() method ####
 
-test_that("plot() on a tales_msa produces the same object as the direct call", {
-  # plot_tales_msa() itself has no assertions anywhere in the suite, so this
-  # also serves as the first executable check that the plotting path runs.
+test_that("plot() draws an rvd-only alignment", {
+  # An alignment built on rvd alone carries a single layer, so fill names it
+  # and there is nothing left to label with.
   out <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
   x <- tales(out$tale_parts)
   msa <- suppressWarnings(suppressMessages(
@@ -211,13 +211,10 @@ test_that("plot() on a tales_msa produces the same object as the direct call", {
                 residue_col = "rvd")
   ))
 
-  viaMethod <- suppressWarnings(suppressMessages(
-    plot(msa, fill = "rvd", label = NULL)
-  ))
-  direct <- suppressWarnings(suppressMessages(
-    plot_tales_msa(repeat_align = as.matrix(msa, value = "rvd"))
-  ))
-  expect_s3_class(viaMethod, class(direct)[1])
+  p <- suppressWarnings(suppressMessages(plot(msa, fill = "rvd", label = NULL)))
+  expect_s3_class(p, "ggplot")
+  # no tal_sim and no consensus, so no panels were attached
+  expect_null(p$plotlist)
 })
 
 test_that("plot() errors on a layer the alignment lacks", {

@@ -1023,6 +1023,34 @@ inspect.
 Decided: `plot_tales_msa()` is folded into `plot.tales_msa()` and unexported.
 Expect the same shape at the other entry points.
 
+### 8.7 `tales_consensus()` depended on row order **[V]** — FIXED
+
+Found while checking that folding `plot_tales_msa()` into `plot.tales_msa()`
+preserved behaviour: the plot data differed, and the difference was real.
+
+`tales_consensus()` scored candidates with
+`unique(allElements)[which.max(freq)]`. `unique()` returns values in order of
+first appearance and `which.max()` takes the first maximum, so a tie was won
+by whichever array happened to be the top row. Permuting the rows of an
+alignment changed its consensus. Fixed by sorting the candidates first; the
+counting is untouched.
+
+**The deeper question is left open.** On the three-array fixture, two of 28
+columns carry three *distinct* repeats — no majority exists at all, yet a
+value is still reported and the figure then colours cells by whether they
+"match the consensus" at a position that has none. A deterministic arbitrary
+pick is better than a non-deterministic one, but it is still arbitrary.
+Options, for the maintainer:
+
+- return `NA` where no element is strictly more frequent than the rest, so
+  the figure shows no consensus rather than a fictitious one;
+- keep a value but mark weak columns (the usual sequence-logo convention);
+- leave as is, treating it as "modal element" rather than "consensus", and
+  say so in the name.
+
+This is a biological question about what the figure should claim, not a
+coding one, which is why it is parked here.
+
 ## 9. Long-term systematic passes **[A]**
 
 Whole-codebase sweeps, to be done deliberately rather than opportunistically.

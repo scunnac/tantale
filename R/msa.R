@@ -29,7 +29,14 @@
 }
 
 #' Compute a consensus from a TALE msa
-#' @description Pick the most frequent element in each column of the alignment matrix.
+#' @description Pick the most frequent element in each column of the alignment
+#'   matrix.
+#'
+#' @details Where two or more elements are equally frequent the smallest in
+#'   sort order is returned, so the result does not depend on the order of the
+#'   rows. Note that a column in which every array carries a different repeat
+#'   has no majority at all, and what is returned for it is one of several
+#'   equally common values rather than a consensus in any meaningful sense.
 #'
 #' @param align A multiple Tal sequences alignment in the form of a
 #'   matrix.
@@ -40,8 +47,13 @@
 tales_consensus <- function(align) {
   sapply(1:ncol(align), function(x) {
   allElements <- align[,x]
-  freq <- sapply(unique(allElements), function(p) S4Vectors::countMatches(p, allElements))
-  unique(allElements)[which.max(freq)]
+  # Candidates in sorted order, not order of appearance: which.max() takes the
+  # first maximum, so with unique() the winner of a tie was whichever row
+  # happened to be on top. The same alignment with its rows permuted then gave
+  # a different consensus.
+  candidates <- sort(unique(allElements), na.last = TRUE)
+  freq <- sapply(candidates, function(p) S4Vectors::countMatches(p, allElements))
+  candidates[which.max(freq)]
 })
 }
 
@@ -343,7 +355,7 @@ tales_consensus_match <- function(align, long = TRUE) {
 
 
 
-#' Build the one-row consensus panel used by plot_tales_msa()
+#' Build the one-row consensus panel used by plot.tales_msa()
 #'
 #' Returns a standalone ggplot holding a single "Consensus" row, styled to match
 #' the main alignment so the two read as one figure when composed with aplot.
@@ -384,49 +396,57 @@ tales_consensus_match <- function(align, long = TRUE) {
 }
 
 
-#' 'Nice' plotting a multiple alignment of TALE sequences
-#' @description Plot TALEs msa in the ggplot2 framework.
+#' Plot a multiple alignment of TALEs
+#'
+#' @description Draws the alignment as a heatmap: one row per array, one
+#'   column per alignment position, with cells coloured by one layer and
+#'   optionally labelled with another.
 #'
 #' @details
-#' Three things are decided independently, and it helps to read the figure that
-#' way: what each cell *says*, what colour that text is, and what colour the
-#' block behind it is.
+#' A \code{tales_msa} carries every layer at once -- \code{rvd},
+#' \code{dom_code} and whatever else the object holds -- so \code{fill} and
+#' \code{label} name two of them rather than being passed as separate
+#' matrices.
 #'
-#' \strong{Cell text} is the RVD when \code{rvd_align} is supplied, and the
-#' repeat code otherwise. Termini are relabelled \code{N-} and \code{-C}; an
-#' unidentified terminus keeps its \code{XXXXX} code, which is deliberately not
-#' mistakable for an RVD. Repeat codes are padded to three characters so columns
-#' line up.
+#' Three things are decided independently, and it helps to read the figure
+#' that way: what each cell *says*, what colour that text is, and what colour
+#' the block behind it is.
+#'
+#' \strong{Cell text} is whatever \code{label} names, or nothing when
+#' \code{label = NULL}. Termini are relabelled \code{N-} and \code{-C}; an
+#' unidentified terminus keeps its \code{XXXXX} code, which is deliberately
+#' not mistakable for an RVD. Repeat codes are padded to three characters so
+#' columns line up.
 #'
 #' \strong{Text colour} always answers one question: does this element match
-#' the consensus of its column? Cyan for yes, pink for no. The consensus is the
-#' most frequent element in the column (\code{\link{tales_consensus}}), taken
-#' over RVDs when \code{rvd_align} is supplied and over repeat codes otherwise
-#' -- so the text colour and the text itself always describe the same layer.
+#' the consensus of its column? Cyan for yes, pink for no. The consensus is
+#' the most frequent element in the column (\code{\link{tales_consensus}}),
+#' taken over the labelled layer -- so the text colour and the text itself
+#' always describe the same thing.
 #'
 #' \strong{Block fill} is what \code{fill_type} selects, and it is the only
 #' part that can be unavailable:
 #'
 #' \tabular{lll}{
 #'   \strong{fill_type} \tab \strong{shows} \tab \strong{needs} \cr
-#'   \code{"repeat_clust"} \tab which cluster the repeat falls in, cut at \code{h_cut} \tab \code{repeat_sim} \cr
-#'   \code{"repeat_sim"} \tab protein-sequence similarity to the reference, 0-100 \tab \code{repeat_sim} \cr
-#'   \code{"rvd_sim"} \tab how alike the RVD's DNA-binding preference is to the reference's, -1 to 1 \tab \code{rvd_align} \cr
+#'   \code{"repeat_clust"} \tab which cluster the repeat falls in, cut at \code{h_cut} \tab \code{domain_sim} \cr
+#'   \code{"repeat_sim"} \tab protein-sequence similarity to the reference, 0-100 \tab \code{domain_sim} \cr
+#'   \code{"rvd_sim"} \tab how alike the RVD's DNA-binding preference is to the reference's, -1 to 1 \tab a \code{label} layer \cr
 #' }
 #'
-#' With neither \code{repeat_sim} nor \code{rvd_align}, every block is flat
-#' grey: the text still carries the consensus comparison, but there is nothing
-#' to colour blocks by.
+#' With no \code{domain_sim} and no \code{label}, every block is flat grey:
+#' the text still carries the consensus comparison, but there is nothing to
+#' colour blocks by.
 #'
 #' A cell with no value for the chosen layer keeps its text and loses its
 #' colour. In \code{"rvd_sim"} that is the termini, which have no DNA-binding
 #' preference and so no position on a specificity scale.
 #'
-#' \strong{The reference} matters for both similarity fills. \code{ref_pattern}
-#' is matched against the array names and must identify exactly one, otherwise
-#' the default is used with a warning; by default it is the array with the most
-#' non-gap parts, ties broken alphabetically. The reference row is marked with a
-#' trailing \code{_#}.
+#' \strong{The reference} matters for both similarity fills.
+#' \code{ref_pattern} is matched against the array names and must identify
+#' exactly one, otherwise the default is used with a warning; by default it is
+#' the array with the most non-gap parts, ties broken alphabetically. The
+#' reference row is marked with a trailing \code{_#}.
 #'
 #' \strong{Two panels may be attached.} Supplying \code{tal_sim} with more
 #' than one array adds a dendrogram panel on the left; \code{consensus = TRUE}
@@ -435,86 +455,83 @@ tales_consensus_match <- function(align, long = TRUE) {
 #' alignment through its \code{plotlist} element rather than adding layers to
 #' the result directly.
 #'
-#' Either \code{repeat_align} or \code{rvd_align} is required; everything else
-#' is optional and adds a layer to the figure.
-#'
+#' @param x A \code{\link{tales_msa}} object.
+#' @param fill Layer whose values colour the cells. Defaults to
+#'   \code{"dom_code"} when present, otherwise the first available residue
+#'   layer.
+#' @param label Layer whose values are written in the cells. Left unset it
+#'   defaults to \code{"rvd"} when that is not already the \code{fill}; pass
+#'   \code{NULL} explicitly for an unlabelled heatmap.
 #' @param tal_sim Pairwise distances between whole TALEs, as the
 #'   \code{tale_distances} element of a \code{\link{tales_compare}} result.
 #'   Used to build the tree panel that orders the alignment rows.
-#' @param repeat_align A multiple Tal repeat sequences alignment in the form of a
-#'   matrix as returned by \code{\link{tales_align}}.
-#' @param repeat_sim Pairwise distances between repeat units, as the
-#'   \code{domain_distances} element of a \code{\link{tales_compare}} result.
-#'   Used to group repeats into clusters, and to score each repeat against the
-#'   reference TALE\'s repeat at the same alignment column.
-#' @param h_cut height for tree cutting when defining domain/repeat
-#'   clusters.
-#' @param rvd_align A multiple Tal RVD sequences alignment in the form of a
-#'   matrix as returned by \code{\link[tantale:repeat_to_rvd_align]{repeat_to_rvd_align}}
-#'   or \code{\link{tales_align}}.
-#' @param ref_pattern Regular expression pattern that will be used to search TALE
-#'   names to select the reference in the alignment.
-#' @param consensus (logical) Whether to add a consensus row above the
-#'   alignment. The consensus is the most frequent element in each column, taken
-#'   from \code{rvd_align} when supplied and from \code{repeat_align}
-#'   otherwise, so it always matches whatever the cells are labelled with. It
-#'   is drawn as its own panel above the alignment.
+#' @param domain_sim Pairwise distances between repeat units, as the
+#'   \code{domain_distances} element of a \code{\link{tales_compare}}
+#'   result. Used to group repeats into clusters, and to score each repeat
+#'   against the reference TALE\'s repeat at the same alignment column.
+#' @param h_cut Height at which the repeat tree is cut to define clusters.
+#'   Interpreted on a distance scale, so 0 means identical.
+#' @param ref_pattern Regular expression matched against the array names to
+#'   choose the reference TALE. Must identify exactly one.
+#' @param consensus Whether to add a consensus panel above the alignment. The
+#'   consensus is the most frequent element in each column of the labelled
+#'   layer, so it always matches what the cells say.
 #' @param fill_type One of \code{"repeat_clust"}, \code{"repeat_sim"} or
 #'   \code{"rvd_sim"}. The first two colour cells by repeat cluster or by
 #'   protein-sequence similarity to the reference. \code{"rvd_sim"} colours
 #'   them instead by how alike each RVD's *DNA-binding preference* is to the
 #'   reference TALE's RVD at that position, on a diverging scale over
-#'   \code{[-1, 1]}; it needs \code{rvd_align} but not \code{repeat_sim}.
-#'   The repeat- and RVD-level views genuinely differ: \code{HD} and \code{ND}
-#'   are distinct repeats with identical specificity, while repeats differing
-#'   only at positions 12-13 are near-identical proteins targeting different
-#'   bases.
-#'   Legacy note: "repeat_clust" or "repeat_sim". If both options are
-#'   possible because the necessary information is there (at least a
-#'   \code{repeat_sim} value), this argument will decide what type of 'box color
-#'   filling' is employed and it is either based on the cluster where the repeat
-#'   falls after clustering all the repeat in the alignment or it is based on
-#'   the amino acid similarity between a repeat at a position and the repeat of
-#'   the 'reference' TALE at this position.
+#'   \code{[-1, 1]}. The repeat- and RVD-level views genuinely differ:
+#'   \code{HD} and \code{ND} are distinct repeats with identical
+#'   specificity, while repeats differing only at positions 12-13 are
+#'   near-identical proteins targeting different bases.
+#' @param ... Unused, present for compatibility with the \code{plot} generic.
+#'
 #' @return An \code{\link[aplot:insert_left]{aplot}} object.
-#' 
+#' @method plot tales_msa
 #' @export
 #' @family TALE plots
-plot_tales_msa <- function(repeat_align,
-                           tal_sim = NULL,
-                           rvd_align = NULL,
-                           repeat_sim = NULL,
+plot.tales_msa <- function(x, fill = NULL, label = NULL,
+                           tal_sim = NULL, domain_sim = NULL,
                            h_cut = 10,
                            ref_pattern = NULL,
                            consensus = FALSE,
-                           fill_type = "repeat_clust" #"repeat_sim"
-) {
-  
-  # Arguments checking
-  if (is.null(rvd_align) & is.null(repeat_align)) {
-    cli::cli_abort("You must provide at least either a value for `repeat_align` or for `rvd_align`", class = c("tantale_error"))
+                           fill_type = "repeat_clust",
+                           ...) {
+
+  # Resolve the two layers against what this alignment actually carries.
+  available <- intersect(TALES_RESIDUE_COLS, names(x))
+  if (is.null(fill)) fill <- if ("dom_code" %in% available) "dom_code" else available[1]
+  # missing(), not is.null(): an explicit label = NULL asks for no labels at
+  # all, which is different from not having said which layer to use.
+  if (missing(label) && "rvd" %in% available && !identical(fill, "rvd")) label <- "rvd"
+  for (layer in c(fill, label)) {
+    if (!is.null(layer) && !layer %in% names(x)) {
+      cli::cli_abort(
+        c("This alignment has no {.field {layer}} layer.",
+          "i" = "Available: {.field {available}}"),
+        class = c("tantale_error_msa_layer", "tantale_error")
+      )
+    }
   }
-  if (!is.null(rvd_align)) {
-    countOfTales <- nrow(rvd_align)
-    arrayNames <- rownames(rvd_align)
+
+  arrayNames <- unique(x$array_id)
+  countOfTales <- length(arrayNames)
+  if (countOfTales < 1L) {
+    cli::cli_abort(
+      "Cannot plot an alignment with no arrays in it.",
+      class = c("tantale_error_msa_empty", "tantale_error")
+    )
   }
-  if (!is.null(repeat_align)) {
-    countOfTales <-  nrow(repeat_align)
-    arrayNames <- rownames(repeat_align)
-  }
-  if (!is.null(repeat_align) & is.null(nrow(repeat_align))) {
-    cli::cli_abort(paste0("Check the provided input repeat_align matrix.",
-                      "It may conain a single sequence that was coerced to vector rather than remaining a matrix...",
-                      .sep = " "), class = c("tantale_error"))
-  }
-  if (!is.null(rvd_align) & is.null(nrow(rvd_align))) {
-    cli::cli_abort(paste0("Check the provided input rvd_align matrix.",
-                      "It may conain a single sequence that was coerced to vector rather than remaining a matrix...",
-                      .sep = " "), class = c("tantale_error"))
-  }
-  if (countOfTales < 1) {
-    cli::cli_abort("The provided input repeat_align matrix has less than one sequence. Cannot proceed...", class = c("tantale_error"))
-  }
+
+  # The drawing code below works on one matrix per layer. as.matrix() always
+  # returns a matrix, including for a single array, so the layers cannot
+  # arrive malformed the way a hand-assembled matrix could.
+  repeat_align <- as.matrix(x, value = fill)
+  rvd_align <- if (!is.null(label)) as.matrix(x, value = label) else NULL
+  repeat_sim <- domain_sim
+  arrayNames <- rownames(repeat_align)
+  countOfTales <- nrow(repeat_align)
 
   # Both tables are addressed as id1/id2/dissim below. pairwise_distances()
   # also accepts the older TAL1/RepU1/Sim spellings, so either is allowed in.

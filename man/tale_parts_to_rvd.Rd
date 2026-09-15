@@ -28,7 +28,6 @@ the association between repeat ID and RVD.
 }
 \seealso{
 Other tales projections:
-\code{\link[=repeat_to_rvd_align]{repeat_to_rvd_align()}},
 \code{\link[=repeat_to_rvd_map]{repeat_to_rvd_map()}},
 \code{\link[=repeat_to_rvd_map_distalr]{repeat_to_rvd_map_distalr()}},
 \code{\link[=tales_coded_strings]{tales_coded_strings()}},

@@ -21,7 +21,6 @@ distinct domain sequence is one "residue".
 \code{\link{tales_domain_codes}} for the code-to-sequence lookup.
 
 Other tales projections:
-\code{\link[=repeat_to_rvd_align]{repeat_to_rvd_align()}},
 \code{\link[=repeat_to_rvd_map]{repeat_to_rvd_map()}},
 \code{\link[=repeat_to_rvd_map_distalr]{repeat_to_rvd_map_distalr()}},
 \code{\link[=tale_parts_to_rvd]{tale_parts_to_rvd()}},

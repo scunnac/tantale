@@ -14,7 +14,15 @@ matrix.}
 A vector of consensus elements in each column of \code{align}.
 }
 \description{
-Pick the most frequent element in each column of the alignment matrix.
+Pick the most frequent element in each column of the alignment
+  matrix.
+}
+\details{
+Where two or more elements are equally frequent the smallest in
+  sort order is returned, so the result does not depend on the order of the
+  rows. Note that a column in which every array carries a different repeat
+  has no majority at all, and what is returned for it is one of several
+  equally common values rather than a consensus in any meaningful sense.
 }
 \seealso{
 Other TALE alignment:
