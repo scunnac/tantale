@@ -93,6 +93,37 @@ the top row. **Permuting an alignment's rows changed its consensus.** Fixed by
 sorting the candidates. Found because folding the plot changed the golden
 baseline and the difference turned out to be real, not cosmetic.
 
+### After you went to bed
+
+**Co-location, as agreed.** `.build_repeat_msa()` moved to
+`tales_msa_class.R` beside `tales_align()`, taking `.as_mafft_score_table()`
+and `.rvd_score_table()` with it. The three files now divide cleanly:
+
+- `msa.R` — **drawing** an alignment
+- `tales_msa_class.R` — **the class, and building** one
+- `conversion.R` — projecting a `tales` onto strings and maps
+
+**`R/tales_ingest.R` is new.** `tales_from_telltale()` and its three private
+steps (`.tale_parts()`, `.tale_parts_from_file()`,
+`.rvds_from_annotale_file()`) moved out of `distalr.R` and `tales_class.R`.
+`distalr.R` no longer reads anything off disk.
+
+**`.build_repeat_msa()`'s messages no longer name `input_seqs`**, an internal
+argument a `tales_align()` caller does not have. Four consecutive warnings
+merged into one abort saying what was expected and what arrived; four typos
+went with them.
+
+**`tales_consensus_match()` returned strings.** It assigned `TRUE` into the
+character matrix it was handed, which stores `"TRUE"`, so `sum()`, `which()`
+and `!` all misbehaved — while the documentation promised a logical matrix.
+Now it builds its own logical matrix; a gap is `FALSE`, and nothing matches a
+column whose consensus is itself a gap. It was exported and **mentioned
+nowhere in the suite**; it has tests now.
+
+Found by asking which exported symbols the tests never touch. The answer was
+14 of 54, but most are S3 methods dispatched implicitly or wrappers needing
+java/conda. `tales_consensus_match()` was the one in the area I was working.
+
 ---
 
 ## 3. Waiting for you
