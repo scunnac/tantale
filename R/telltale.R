@@ -700,6 +700,71 @@
 }
 
 
+#' Finish the RVD strings and attach them to the arrays
+#'
+#' AnnoTALE reports the RVDs of an array as a dash-separated string. Three
+#' things are done to it here.
+#'
+#' A lowercase letter in an RVD is AnnoTALE's way of flagging a repeat whose
+#' length departs from the canonical ~34 aa. Such an array is marked
+#' \code{aberrantRepeat}, because an aberrant repeat changes how the array
+#' should be read and is worth knowing about before the RVDs are used to
+#' predict targets.
+#'
+#' The separator becomes \code{rvd_sep}, whatever the caller asked for.
+#'
+#' Finally, with \code{extremity_codes}, each string is bracketed by codes
+#' standing for the termini, so that a string of RVDs and a string of repeat
+#' codes describe the same number of parts. Where a terminus was detected the
+#' code names it; where the array simply ends without one, the code is
+#' \code{XXXXX} -- a terminus is presumed present but was not identified,
+#' which is a different statement from its absence.
+#'
+#' @param rvds The RVD strings as AnnoTALE reported them.
+#' @param by_array The grouped hits; gains \code{SeqOfRVD} and
+#'   \code{aberrantRepeat}.
+#' @param hmm What \code{.telltale_hmm_profiles()} returned, for recognising
+#'   which termini a given array actually has.
+#' @param rvd_sep Separator between RVDs.
+#' @param extremity_codes Whether to bracket with terminus codes.
+#' @return A list of the finished \code{rvds} and the updated
+#'   \code{by_array}.
+#' @noRd
+.telltale_finish_rvd_strings <- function(rvds, by_array, hmm, rvd_sep,
+                                         extremity_codes) {
+  # a lowercase letter marks a repeat of non-canonical length
+  aberrantRepeat <- sapply(rvds, function(s) {
+    ifelse(length(s) > 0, grepl("[a-z]", s), NA)
+  })
+
+  rvds <- gsub("\\-", rvd_sep, rvds) %>% Biostrings::AAStringSet()
+
+  if (extremity_codes) {
+    # This is necessary for other tantale utilities that can operate on 'full'
+    # domains sequences, ie downstream of distal, for TALE domains sequences
+    # alignments.
+    anchors <- tales_anchor_codes()   # NTERM, CTERM, XXXXX
+    for (s in names(rvds)) {
+      present <- as.character(by_array[[s]]$query_name)
+      rvds[s] <- paste(ifelse(hmm$nterm %in% present, anchors[1], anchors[3]),
+                       rvds[s], sep = rvd_sep)
+      rvds[s] <- paste(rvds[s],
+                       ifelse(hmm$cterm %in% present, anchors[2], anchors[3]),
+                       sep = rvd_sep)
+    }
+  }
+
+  S4Vectors::mcols(by_array) <- merge(
+    S4Vectors::mcols(by_array),
+    data.frame(SeqOfRVD = rvds, aberrantRepeat = aberrantRepeat,
+               array_id = names(rvds)),
+    by = "array_id", all.x = TRUE)
+  S4Vectors::mcols(by_array)$SeqOfRVD[is.na(S4Vectors::mcols(by_array)$SeqOfRVD)] <- ""
+
+  list(rvds = rvds, by_array = by_array)
+}
+
+
 #' Every file and directory a tell_tales() run writes
 #'
 #' Computed once, up front, so that the rest of the function reads as a
@@ -889,9 +954,6 @@ tell_tales <- function(
   #   TALE N-TERM CDS hit in the RVD sequence
   # @param taleArrayEndAnchorCode This scalar character vector will symbolize a
   #   TALE C-TERM CDS hit in the RVD sequence
-  taleArrayStartAnchorCode <- "NTERM"
-  taleArrayEndAnchorCode <- "CTERM"
-  taleArrayAtypicalExtremityCode <- "XXXXX"
 
   #### TODO ####
   # Add an ooptional argument that olds the circularity status of molecules in genome
@@ -1020,36 +1082,11 @@ tell_tales <- function(
   # save tals that DO NOT have rvds
   Biostrings::writeXStringSet(extdCompleteArraysSeqs[!names(extdCompleteArraysSeqs) %in% names(seqsOfRVDs)], paths$pseudo_tal)
   
-  aberrantRepeat <- sapply(seqsOfRVDs, function(s) {
-    ifelse(length(s) > 0, grepl("[a-z]", s), NA)
-  })
-  
-  seqsOfRVDs <- gsub("\\-", rvd_sep, seqsOfRVDs) %>% Biostrings::AAStringSet()
-  
-  if (extremity_codes) {
-    # This is necessary for other tantale utilities that can operate on 'full' domains sequences, ie downstream of distal, for TALE  domains sequences alignments.
-    for (s in names(seqsOfRVDs)) {
-      hitsByArray <- hitsByArraysLst[[s]]
-      seqsOfRVDs[s] <- paste(ifelse(hmm$nterm %in% as.character(hitsByArray$query_name),
-                                    taleArrayStartAnchorCode, taleArrayAtypicalExtremityCode), 
-                             seqsOfRVDs[s], 
-                             sep = rvd_sep)
-      seqsOfRVDs[s] <- paste(seqsOfRVDs[s], 
-                             ifelse(hmm$cterm %in% as.character(hitsByArray$query_name),
-                                    taleArrayEndAnchorCode, taleArrayAtypicalExtremityCode), 
-                             sep = rvd_sep)
-    }
-  }
-  
-  S4Vectors::mcols(hitsByArraysLst) <- merge(S4Vectors::mcols(hitsByArraysLst),
-                                             data.frame(SeqOfRVD = seqsOfRVDs,
-                                                        aberrantRepeat = aberrantRepeat,
-                                                        array_id = names(seqsOfRVDs)
-                                                        ),
-                                             by = "array_id", 
-                                             all.x = T)
-  S4Vectors::mcols(hitsByArraysLst)$SeqOfRVD[is.na(S4Vectors::mcols(hitsByArraysLst)$SeqOfRVD)] <- ""
-  
+  rvdResult <- .telltale_finish_rvd_strings(seqsOfRVDs, hitsByArraysLst, hmm,
+                                            rvd_sep, extremity_codes)
+  seqsOfRVDs <- rvdResult$rvds
+  hitsByArraysLst <- rvdResult$by_array
+
   #### Align N-term and C-term ####
   .telltale_align_termini(paths$annotale, output_dir, type = "DNA")
   endsAA <- .telltale_align_termini(paths$annotale, output_dir, type = "AA")
