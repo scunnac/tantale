@@ -153,15 +153,17 @@ Roughly in order of how much they matter.
    because unlike the plot case this is a private contract. Its two other
    checks are live — `tales()` accepts `NA` and `""` in `aa_seq`.
 
-5. **`tales_align()` leaks `input_seqs`** into its messages, the same defect as
-   the plot case with a smaller blast radius.
+5. **Four cross-file single-caller internals left** (ledger §8.6b), with my
+   reading of each. `.tales_dom_code_namespace()` and
+   `.tales_msa_contract_holds()` I would leave — a class property read by
+   another module is normal. `.run_nhmmer_search()` and `.hits_report_to_gff()`
+   are the open ones: `tellTale_utilities.R` is down to five members, so it is
+   either folded into `telltale.R` or kept.
 
-6. **Six cross-file single-caller internals** (ledger §8.6b), with my reading
-   of each. The one I would actually do: move `.tale_parts()` and its two
-   helpers out of `distalr.R` into a new `R/tales_ingest.R` with
-   `tales_from_telltale()`, leaving `distalr.R` about comparison only.
+   *(Items 5 and 6 as first written — the `input_seqs` leak and moving
+   `.tale_parts()` — are done, see above.)*
 
-7. **`tales()` accepts `NA` in a residue column.** Intended? A missing RVD at a
+6. **`tales()` accepts `NA` in a residue column.** Intended? A missing RVD at a
    position is not the same thing as a gap.
 
 Then the two big ones already on the list: **§5.3 `tell_tales()`** (745 lines,
