@@ -217,6 +217,74 @@
 }
 
 
+#' Group neighbouring domain hits into candidate TALE arrays
+#'
+#' A TALE is a run of domain hits close together on the same strand: an
+#' N-terminus, a series of repeats, a C-terminus. Hits separated by less than
+#' \code{min_gap} are taken to belong to the same array, and each array
+#' becomes a region of interest, \code{ROI_*}.
+#'
+#' Hits within an array should not overlap -- the merge stage exists to make
+#' sure of that -- so any that still do are reported. They matter because the
+#' RVD sequence is read off the repeats in order, and two overlapping hits
+#' put a residue in it that is not in the protein.
+#'
+#' @param gr Domain hits, merged.
+#' @param min_gap Largest gap, in bases, still counted as contiguous.
+#' @param subject_seqs The DNA the hits were found in, for extracting each
+#'   array's sequence.
+#' @param hmm What \code{.telltale_hmm_profiles()} returned; used to record
+#'   whether an array carries all three domain types.
+#' @return A list of \code{arrays} (one range per array) and \code{by_array}
+#'   (the hits, grouped, carrying the per-array metadata).
+#' @noRd
+.telltale_group_arrays <- function(gr, min_gap, subject_seqs, hmm) {
+  ## Use reduce to obtain the regions that span "contiguous" hits
+  arraysGR <- GenomicRanges::reduce(gr,
+                                    drop.empty.ranges = FALSE,
+                                    min.gapwidth = min_gap,
+                                    with.revmap = TRUE,
+                                    ignore.strand = FALSE)
+  revmap <- S4Vectors::mcols(arraysGR)$revmap  # an IntegerList
+
+  ## Use the mapping from reduced to original ranges to group the originals
+  byArray <- BiocGenerics::relist(gr[unlist(revmap)], revmap)
+  names(byArray) <- paste("ROI", sprintf("%05.0f", 1:length(byArray)), sep = "_")
+  names(arraysGR) <- names(byArray)
+
+  ## Make sure that hits do not overlap for some weird reason
+  doHitsOverlap <- !GenomicRanges::isDisjoint(byArray)
+  if (any(doHitsOverlap)) {
+    warning("It appears that some hmmer hits actually overlap.\n It is thus possible that the inferred sequences of RVDs have artefactual insertions.\n")
+    warning(paste0("Please check the hits in the following RegionsOfInterest:", "\n",
+                   paste(names(doHitsOverlap)[doHitsOverlap], collapse = "\n"), "\n")
+    )
+  }
+
+  ## Populate metadata about the elements of the list of arrays
+  S4Vectors::mcols(byArray) <- S4Vectors::DataFrame(
+    array_id = names(byArray),
+    OriginalSubjectName = sapply(byArray,
+                                 function(x) unique(as.character(GenomicRanges::seqnames(x)))),
+    Start = BiocGenerics::start(arraysGR),
+    End = BiocGenerics::end(arraysGR),
+    Strand = BiocGenerics::strand(arraysGR),
+    NumberOfHits = S4Vectors::elementNROWS(byArray),
+    ArraySeq = BSgenome::getSeq(subject_seqs, arraysGR),
+    AllDomains = sapply(byArray,
+                        function(x) {
+                          all(
+                            c(hmm$nterm, hmm$repeats,
+                              hmm$cterm) %in% as.character(x$query_name)
+                          )
+                        }
+    )
+  )
+
+  list(arrays = arraysGR, by_array = byArray)
+}
+
+
 #' Every file and directory a tell_tales() run writes
 #'
 #' Computed once, up front, so that the rest of the function reads as a
@@ -496,57 +564,9 @@ tell_tales <- function(
   
   
   #####   Group (nearly) adjacent hits in "TALE array" regions   #####
-  
-  ## Group "contiguous" hits (repeats or other regions) in a GRangesList
-  ## Use reduce to obtain the list of regions (arrays of domains for the time being) that span "contiguous" hits
-  ## Here contiguous is defined as hits that are less than min_gap bp appart
-  arraysGR <- GenomicRanges::reduce(nhmmerOutputGR,
-                                    drop.empty.ranges=FALSE,
-                                    min.gapwidth= min_gap,
-                                    with.revmap=TRUE,
-                                    ignore.strand=FALSE)
-  revmap <- S4Vectors::mcols(arraysGR)$revmap  # an IntegerList
-  
-  
-  ## Use the mapping from reduced to original ranges to group the original ranges by reduced range:
-  hitsByArraysLst <- BiocGenerics::relist(nhmmerOutputGR[unlist(revmap)], revmap)
-  names(hitsByArraysLst) <- paste("ROI", sprintf("%05.0f", 1:length(hitsByArraysLst)), sep = "_")
-  names(arraysGR) <- names(hitsByArraysLst)
-  # hitsByArraysLst <- BiocGenerics::sort(hitsByArraysLst) # just to make sure...
-  
-  ## Make sure that hits do not overlap for some weird reason
-  doHitsOverlap <- !GenomicRanges::isDisjoint(hitsByArraysLst)
-  if (any(doHitsOverlap)) {
-    warning("It appears that some hmmer hits actually overlap.\n It is thus possible that the inferred sequences of RVDs have artefactual insertions.\n")
-    warning(paste0("Please check the hits in the following RegionsOfInterest:", "\n",
-                   paste(names(doHitsOverlap)[doHitsOverlap], collapse = "\n"), "\n")
-    )
-  }
-  
-  
-  #####   Storing all info about domain arrays in a central object   ####
-  ## Populate metadata about the elements of the list of arrays
-  
-  
-  S4Vectors::mcols(hitsByArraysLst) <- S4Vectors::DataFrame(
-    array_id = names(hitsByArraysLst),
-    OriginalSubjectName = sapply(hitsByArraysLst,
-                                 function(x) unique(as.character(GenomicRanges::seqnames(x)))),
-    Start = BiocGenerics::start(arraysGR),
-    End = BiocGenerics::end(arraysGR),
-    Strand = BiocGenerics::strand(arraysGR),
-    NumberOfHits = S4Vectors::elementNROWS(hitsByArraysLst),
-    ArraySeq = BSgenome::getSeq(subjectDNASequences, arraysGR),
-    AllDomains = sapply(hitsByArraysLst,
-                        function(x) {
-                          all(
-                            c(hmm$nterm, hmm$repeats,
-                              hmm$cterm) %in% as.character(x$query_name)
-                          )
-                        }
-    )
-  )
-  
+  grouped <- .telltale_group_arrays(nhmmerOutputGR, min_gap, subjectDNASequences, hmm)
+  arraysGR <- grouped$arrays
+  hitsByArraysLst <- grouped$by_array
 
   #####   Extend DNA Tal arrays   #####
   ## Extract the genomic sequence of arrays +-bp on the borders
