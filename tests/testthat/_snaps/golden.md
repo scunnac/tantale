@@ -1105,3 +1105,43 @@
       ]
     }
 
+# golden: tell_tales() with frameshift correction
+
+    {
+      "type": "list",
+      "attributes": {
+        "names": {
+          "type": "character",
+          "attributes": {},
+          "value": ["file", "kind", "value"]
+        },
+        "row.names": {
+          "type": "integer",
+          "attributes": {},
+          "value": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44]
+        },
+        "class": {
+          "type": "character",
+          "attributes": {},
+          "value": ["data.frame"]
+        }
+      },
+      "value": [
+        {
+          "type": "character",
+          "attributes": {},
+          "value": ["C-terminusAAAlignment.html", "C-terminusDNAAlignment.html", "CorrectionAlignmentAA/CorrectionAlignmentAA_ROI_00001.html", "CorrectionAlignmentAA/CorrectionAlignmentAA_ROI_00002.html", "CorrectionAlignmentAA/CorrectionAlignmentAA_ROI_00003.html", "CorrectionAlignmentAA/CorrectionAlignmentAA_ROI_00004.html", "CorrectionAlignmentDNA/CorrectionAlignmentDNA_ROI_00001.html", "CorrectionAlignmentDNA/CorrectionAlignmentDNA_ROI_00002.html", "CorrectionAlignmentDNA/CorrectionAlignmentDNA_ROI_00003.html", "CorrectionAlignmentDNA/CorrectionAlignmentDNA_ROI_00004.html", "N-terminusAAAlignment.html", "N-terminusDNAAlignment.html", "TALE_CDS_all_diagnostic_regions_hmmfile.out", "allRanges.gff", "annotale/ROI_00001/TALE_DNA_parts.fasta", "annotale/ROI_00001/TALE_Protein_parts.fasta", "annotale/ROI_00001/TALE_RVDs.fasta", "annotale/ROI_00001/protocol_analyze.txt", "annotale/ROI_00001/putativeTalOrf.fasta", "annotale/ROI_00002/TALE_DNA_parts.fasta", "annotale/ROI_00002/TALE_Protein_parts.fasta", "annotale/ROI_00002/TALE_RVDs.fasta", "annotale/ROI_00002/protocol_analyze.txt", "annotale/ROI_00002/putativeTalOrf.fasta", "annotale/ROI_00003/TALE_DNA_parts.fasta", "annotale/ROI_00003/TALE_Protein_parts.fasta", "annotale/ROI_00003/TALE_RVDs.fasta", "annotale/ROI_00003/protocol_analyze.txt", "annotale/ROI_00003/putativeTalOrf.fasta", "annotale/ROI_00004/TALE_DNA_parts.fasta", "annotale/ROI_00004/TALE_Protein_parts.fasta", "annotale/ROI_00004/TALE_RVDs.fasta", "annotale/ROI_00004/protocol_analyze.txt", "annotale/ROI_00004/putativeTalOrf.fasta", "arrayReport.tsv", "domainsReport.tsv", "hitsReport.gff", "hitsReport.tsv", "hmmerSearchOut.txt", "nhmmerHumanReadableOutputOfLastRun.txt", "pseudoTalCds.fasta", "putativeTalOrf.fasta", "rvdSequences.fas", "tell_tales.log"]
+        },
+        {
+          "type": "character",
+          "attributes": {},
+          "value": ["stable", "stable", "stable", "stable", "stable", "stable", "stable", "stable", "stable", "stable", "stable", "stable", "stable", "stable", "stable", "stable", "stable", "volatile", "stable", "stable", "stable", "stable", "volatile", "stable", "stable", "stable", "stable", "volatile", "stable", "stable", "stable", "stable", "volatile", "stable", "stable", "stable", "stable", "stable", "volatile", "volatile", "stable", "stable", "stable", "volatile"]
+        },
+        {
+          "type": "character",
+          "attributes": {},
+          "value": ["3a6ea7b0799a22a407d83292576dc702", "1e03893dba346ba22b200bbe4a528444", "da648aa174491c6e7507aee54e7106f9", "3fc1c6d11b1f53da9b5589b9f75e57dc", "fd58b3f23df4f6c3adcfaf6e5014768b", "c86b8f8b822554656479b9181d7b2847", "f9e4d6d02ba383e8a39d18ad4f67e520", "175fccff135050279e8aec6d6d009dcc", "3071da7222f5b73ac857e1a4cc7b270c", "a501378ea0a1f4291a29b1776bb958c3", "31e630d42844a449dbe1ba16f8b87ab9", "70a5d38c28daa4997663cf2e1e164af5", "50a112fea7605d0311a3d19a03b8c47d", "41f3669bf6f3ae99d07754ce0d1b69e5", "01023400366a145f6449e30d2dd1a0a1", "9a57a59db49f9e87f8d28758cb8dcbfe", "1be93fdd3eba94d2b587ba3d6076a2e0", "6", "f67b5d07473a1c28b1ae256b943c2e57", "2b3c077ffe37cd2bc74d03af2dcd5727", "265d63eb6569b334e6aff457d8e9b29f", "1e821d49e3d0358bd4845c7d015c4019", "6", "5635d755a5dc5650a3978304d41d74f4", "97cd7b6b3089aa177d2dcfaf22068765", "02ac192c50561316164ec2cc010d2d99", "fea39f0c647e02f3d42aa98fbdad579b", "6", "c2822710934920edb798a173c38c989c", "a999193e4d94c2193504952e31a6b423", "02668961774948e7a387ada5a9eb6afb", "0919279857ba783d05965ae74b4df49c", "6", "790de3881ca81405dc319b2f7b2646a6", "32d69186e84c0f2331db7f55621d3cf5", "c8daa90fabd215845d43a2d541379f4a", "6bdc6d26716cfdc5cfc3d75872107cb8", "89037746c22a593709fae79690de32d1", "118", "2125", "d41d8cd98f00b204e9800998ecf8427e", "b17912eec646034b980d982b8de231f1", "c874f8e5137fe7a19e91841a22dff0f6", "34"]
+        }
+      ]
+    }
+

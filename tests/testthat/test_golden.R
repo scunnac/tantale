@@ -119,38 +119,25 @@ test_that("golden: the consensus of the reference alignment", {
 # function had two tests, both of which only checked that it did not error --
 # no cover at all for 745 lines.
 #
+# All three expectations share one run, via telltale_run(): the call takes
+# about nine seconds and running it three times was most of this file's cost.
+#
 # Correction is left off here: it is 29x the rest of the pipeline and scales
-# with the 1057-sequence reference set, not with the subject (ledger 8.1). The
-# correction branch gets its own baseline once the toy fixture exists.
+# with the reference set rather than the subject (ledger 8.1). The correction
+# branch has its own baseline below, against a trimmed reference.
 
 test_that("golden: tell_tales() writes the same files with the same contents", {
-  out <- file.path(tempdir(), "golden_telltale")
-  unlink(out, recursive = TRUE)
-  on.exit(unlink(out, recursive = TRUE), add = TRUE)
-
-  res <- suppressWarnings(suppressMessages(tell_tales(
-    subject_file = system.file("extdata", "bai3_sample_tal_genomic_regions.fasta",
-                               package = "tantale", mustWork = TRUE),
-    output_dir = out)))
-  expect_identical(res, out)
-
-  expect_golden(telltale_fingerprint(out))
+  r <- telltale_run()
+  expect_identical(r$returned, r$dir)
+  expect_golden(telltale_fingerprint(r$dir))
 })
 
 test_that("golden: the tables tell_tales() writes, column by column", {
   # The digests above say "something changed"; these say which column, which
   # is what saves the time when it does.
-  out <- file.path(tempdir(), "golden_telltale_tables")
-  unlink(out, recursive = TRUE)
-  on.exit(unlink(out, recursive = TRUE), add = TRUE)
-
-  suppressWarnings(suppressMessages(tell_tales(
-    subject_file = system.file("extdata", "bai3_sample_tal_genomic_regions.fasta",
-                               package = "tantale", mustWork = TRUE),
-    output_dir = out)))
-
+  r <- telltale_run()
   for (f in c("hitsReport.tsv", "domainsReport.tsv", "arrayReport.tsv")) {
-    tbl <- readr::read_tsv(file.path(out, f), show_col_types = FALSE,
+    tbl <- readr::read_tsv(file.path(r$dir, f), show_col_types = FALSE,
                            progress = FALSE)
     expect_golden(fingerprint(as.data.frame(tbl)))
   }
@@ -160,20 +147,50 @@ test_that("golden: a tell_tales() run loads back as a tales object", {
   # The end-to-end contract: what the entry point writes is what the class
   # reads. A refactor that kept every file byte-identical but broke this would
   # still have broken the pipeline.
-  out <- file.path(tempdir(), "golden_telltale_roundtrip")
-  unlink(out, recursive = TRUE)
-  on.exit(unlink(out, recursive = TRUE), add = TRUE)
-
-  suppressWarnings(suppressMessages(tell_tales(
-    subject_file = system.file("extdata", "bai3_sample_tal_genomic_regions.fasta",
-                               package = "tantale", mustWork = TRUE),
-    output_dir = out)))
-
-  x <- suppressWarnings(tales_from_telltale(out))
+  x <- suppressWarnings(tales_from_telltale(telltale_run()$dir))
   expect_s3_class(x, "tales")
   # source_directory records where the run happened, so it holds this
   # session's tempdir and changes every time. Keep the part that carries
   # signal -- which ROI each part came from -- and drop the prefix.
   x$source_directory <- basename(x$source_directory)
   expect_golden(fingerprint(x))
+})
+
+
+#### the frameshift-correction branch ####
+
+# correct_array = TRUE is the half of tell_tales() nothing has ever tested,
+# and the half most likely to break in a refactor: it is the deepest nesting
+# and the only stage that rewrites sequences rather than describing them.
+#
+# It runs against a 20-sequence reference kept in data_for_tests, not the
+# 1057-sequence one the package ships. The cost of correction is
+# (number of arrays) x (size of the reference), so trimming the reference is
+# what makes this affordable -- 255 s with the shipped default, ~19 s here
+# (ledger 8.1). The package default is untouched; correction_ref is an
+# argument, so the test simply passes its own.
+#
+# This pins the code path, not the biology. A 20-sequence reference is not
+# claimed to correct as well as the full one.
+
+test_that("golden: tell_tales() with frameshift correction", {
+  out <- file.path(tempdir(), "golden_telltale_corrected")
+  unlink(out, recursive = TRUE)
+  on.exit(unlink(out, recursive = TRUE), add = TRUE)
+
+  suppressWarnings(suppressMessages(tell_tales(
+    subject_file = system.file("extdata", "bai3_sample_tal_genomic_regions.fasta",
+                               package = "tantale", mustWork = TRUE),
+    output_dir = out,
+    correct_array = TRUE,
+    correction_ref = test_path("data_for_tests", "correction_ref_20.fa.gz"))))
+
+  # the correction branch writes two directories the uncorrected run does not
+  expect_true(dir.exists(file.path(out, "CorrectionAlignmentDNA")))
+  expect_true(dir.exists(file.path(out, "CorrectionAlignmentAA")))
+  # one alignment per array, so the stage ran for every one of them
+  expect_length(list.files(file.path(out, "CorrectionAlignmentDNA")), 4L)
+  expect_length(list.files(file.path(out, "CorrectionAlignmentAA")), 4L)
+
+  expect_golden(telltale_fingerprint(out))
 })

@@ -1098,7 +1098,13 @@ So there are two independent levers, and they fix different things:
 
 1. **A trimmed reference set** is what makes the correction path testable at
    all -- 12x, and `correction_ref` is already an argument, so a test can pass
-   its own without touching the package default.
+   its own without touching the package default. **DONE**:
+   `tests/testthat/data_for_tests/correction_ref_20.fa.gz`, 20 sequences taken
+   at even intervals through the shipped file rather than the first 20, so the
+   subset is not biased by whatever ordering that file happens to have. The
+   correction branch now has a baseline and runs in ~19 s. It pins the code
+   path, not the biology: a 20-sequence reference is not claimed to correct as
+   well as the full one.
 2. **A toy subject sequence** -- two TALEs, one carrying a single-nucleotide
    insertion in its ORF -- shortens the HMMER stage and, more importantly,
    gives the correction a **known right answer** to assert against. Today
@@ -1121,6 +1127,39 @@ rather than synthesised, so the sequences stay biologically real:
 
 Relates to 5.3: the refactor needs a characterisation baseline, and the
 baseline needs a fixture that can run in seconds.
+
+### 8.1b Curating the shipped correction reference **[A]**
+
+Separate from the test fixture above, and a biological question rather than
+an engineering one.
+
+`inst/extdata/decipher_ref_tales_aa.fa.gz` holds **1057 reference TALEs**,
+1.25 M amino acids, median length 1198. `CorrectFrameshifts()` is called with
+`maxComparisons = length(AAref)`, so every candidate array is aligned against
+every one of them. That is the entire reason correction costs 255 s where the
+rest of the pipeline costs 9 s, and the cost is borne by every user on every
+run.
+
+Questions worth answering before touching it:
+
+- **Where did the 1057 come from?** Whether they were curated or simply
+  everything available at the time is not recorded anywhere in the package.
+- **How redundant is it?** TALEs are highly similar by construction. If the
+  set collapses to a few dozen clusters at high identity, most of those 1057
+  alignments are re-deriving the same answer.
+- **Does a smaller set correct as well?** This is the measurable one: correct
+  a set of known-frameshifted arrays against the full reference and against
+  candidate subsets, and compare the corrected sequences. If a curated 100
+  reproduces the full set's output, the default could change and every user's
+  run gets ~10x faster.
+- **Is `maxComparisons = length(AAref)` the right call at all?** DECIPHER's
+  own default is lower. Capping it is a one-line change that does not require
+  touching the reference file, though it makes which references get compared
+  depend on ordering.
+
+Do not trim the shipped file on speed grounds alone: a reference that is fast
+but corrects worse is a bad trade, and correction rewrites the user's
+sequences.
 
 ### 8.2 Silence MAFFT by default **[A]**
 

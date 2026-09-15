@@ -100,3 +100,23 @@ telltale_fingerprint <- function(dir) {
   rownames(out) <- NULL
   out
 }
+
+
+# tell_tales() takes ~9 seconds, and three separate expectations want to look
+# at the same run. Run it once per test file and hand the same output
+# directory to all of them.
+telltale_run <- local({
+  cache <- NULL
+  function() {
+    if (is.null(cache)) {
+      out <- file.path(tempdir(), "golden_telltale")
+      unlink(out, recursive = TRUE)
+      ret <- suppressWarnings(suppressMessages(tantale::tell_tales(
+        subject_file = system.file("extdata", "bai3_sample_tal_genomic_regions.fasta",
+                                   package = "tantale", mustWork = TRUE),
+        output_dir = out)))
+      cache <<- list(dir = out, returned = ret)
+    }
+    cache
+  }
+})
