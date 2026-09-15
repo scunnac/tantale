@@ -21,8 +21,10 @@ A multiple Tal sequences alignment in the form of a
 }
 \description{
 Compute a logical matrix corresponding to the input \code{align}
-input with \code{TRUE} if an element match the consensus element at that position
-or \code{FALSE} otherwise.
+input with \code{TRUE} where an element matches the consensus at that
+position and \code{FALSE} where it does not. Columns with no consensus --
+see \code{\link{tales_consensus}} -- are \code{NA} throughout, since
+there is nothing there to match.
 }
 \seealso{
 Other TALE alignment:

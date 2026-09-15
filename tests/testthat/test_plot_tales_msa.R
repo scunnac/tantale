@@ -188,15 +188,20 @@ test_that("tales_consensus() does not depend on the order of the rows", {
   }
 })
 
-test_that("a column where every array differs is broken deterministically", {
-  # Three arrays, three distinct repeats: no majority exists. Whatever is
-  # reported must at least be the same for the same alignment.
+test_that("a column where every array differs has no consensus", {
+  # Three arrays, three distinct repeats: nothing is more common than anything
+  # else, so there is no agreement to report.
   m <- matrix(c("b", "a", "c",
                 "x", "x", "y"), nrow = 3,
               dimnames = list(c("t1", "t2", "t3"), NULL))
-  expect_identical(tales_consensus(m)[1], "a")   # smallest in sort order
+  expect_identical(tales_consensus(m)[1], NA_character_)
   expect_identical(tales_consensus(m)[2], "x")   # a genuine majority is unaffected
   expect_identical(tales_consensus(m[c(3, 1, 2), ]), tales_consensus(m))
+})
+
+test_that("a two-way tie is NA too, not the smaller of the two", {
+  m <- matrix(c("a", "b"), nrow = 2, dimnames = list(c("t1", "t2"), NULL))
+  expect_identical(tales_consensus(m)[1], NA_character_)
 })
 
 #### tales_consensus_match() ####
@@ -216,14 +221,38 @@ test_that("tales_consensus_match() returns logicals, not the strings TRUE/FALSE"
   expect_type(tales_consensus_match(m, long = TRUE)$tales_consensus_match, "logical")
 })
 
-test_that("a gap never counts as matching the consensus", {
+test_that("a gap never counts as matching a consensus that exists", {
   m <- matrix(c("HD", NA, "HD",
                 NA, "NI", NA), nrow = 3,
               dimnames = list(c("t1", "t2", "t3"), NULL))
   w <- tales_consensus_match(m, long = FALSE)
-  # column 1: consensus HD, so the gap in t2 is FALSE and never NA
+  # column 1: consensus HD, so the gap in t2 is FALSE, not NA
   expect_identical(unname(w[, 1]), c(TRUE, FALSE, TRUE))
-  expect_false(anyNA(w))
-  # column 2 is mostly gap, so its consensus is a gap and nothing matches it
-  expect_identical(unname(w[, 2]), c(FALSE, FALSE, FALSE))
+})
+
+test_that("a column with no consensus is NA throughout, not FALSE", {
+  # FALSE would assert that these repeats differ from the consensus, at a
+  # position that has none.
+  m <- matrix(c("HD", "NI", "ND",
+                NA, "NI", NA), nrow = 3,
+              dimnames = list(c("t1", "t2", "t3"), NULL))
+  w <- tales_consensus_match(m, long = FALSE)
+  expect_identical(unname(w[, 1]), c(NA, NA, NA))   # three distinct: tied
+  expect_identical(unname(w[, 2]), c(NA, NA, NA))   # mostly gap
+  expect_type(w, "logical")
+})
+
+test_that("on real data, the columns with no consensus are the termini", {
+  # The three arrays carry three distinct N-terminal and C-terminal sequences,
+  # so there is no consensus repeat at either end. At the RVD level they do
+  # agree -- all three are N- and C-termini -- which is the point of looking at
+  # the two layers separately.
+  msa <- readRDS(test_path("data_for_tests", "sampleTalesMsa.rds"))
+  byCode <- tales_consensus(as.matrix(msa, value = "dom_code"))
+  byRvd  <- tales_consensus(as.matrix(msa, value = "rvd"))
+
+  expect_identical(which(is.na(byCode)), c(1L, length(byCode)))
+  expect_false(anyNA(byRvd))
+  expect_identical(byRvd[1], "NTERM")
+  expect_identical(byRvd[length(byRvd)], "CTERM")
 })

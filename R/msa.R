@@ -32,11 +32,12 @@
 #' @description Pick the most frequent element in each column of the alignment
 #'   matrix.
 #'
-#' @details Where two or more elements are equally frequent the smallest in
-#'   sort order is returned, so the result does not depend on the order of the
-#'   rows. Note that a column in which every array carries a different repeat
-#'   has no majority at all, and what is returned for it is one of several
-#'   equally common values rather than a consensus in any meaningful sense.
+#' @details A column has a consensus only when one element is strictly more
+#'   common than every other. Where two or more are tied for most frequent --
+#'   as happens whenever each array carries a different repeat at that
+#'   position -- the result is \code{NA}, because there is no agreement to
+#'   report. \code{NA} is likewise returned when the most common thing at a
+#'   position is a gap.
 #'
 #' @param align A multiple Tal sequences alignment in the form of a
 #'   matrix.
@@ -47,20 +48,23 @@
 tales_consensus <- function(align) {
   sapply(1:ncol(align), function(x) {
   allElements <- align[,x]
-  # Candidates in sorted order, not order of appearance: which.max() takes the
-  # first maximum, so with unique() the winner of a tie was whichever row
-  # happened to be on top. The same alignment with its rows permuted then gave
-  # a different consensus.
   candidates <- sort(unique(allElements), na.last = TRUE)
   freq <- sapply(candidates, function(p) S4Vectors::countMatches(p, allElements))
+  # No consensus unless one element is strictly more common than every other.
+  # A column in which each array carries a different repeat has no majority,
+  # and reporting one of the tied values would invent agreement that is not
+  # there.
+  if (sum(freq == max(freq)) > 1L) return(NA_character_)
   candidates[which.max(freq)]
 })
 }
 
 #' Do elements in a TALE msa match the consensus?
 #' @description Compute a logical matrix corresponding to the input \code{align}
-#' input with \code{TRUE} if an element match the consensus element at that position
-#' or \code{FALSE} otherwise.
+#' input with \code{TRUE} where an element matches the consensus at that
+#' position and \code{FALSE} where it does not. Columns with no consensus --
+#' see \code{\link{tales_consensus}} -- are \code{NA} throughout, since
+#' there is nothing there to match.
 #'
 #' @param align A multiple Tal sequences alignment in the form of a
 #'   matrix.
@@ -82,9 +86,11 @@ tales_consensus_match <- function(align, long = TRUE) {
                 dimnames = dimnames(align))
   for (k in seq_len(ncol(align))) {
     rept <- consensus[k]
-    # A gap matches nothing, and nothing matches a column whose consensus is
-    # itself a gap.
-    if (!is.na(rept)) {
+    if (is.na(rept)) {
+      # The column has no consensus, so "does this match it?" has no answer.
+      out[, k] <- NA
+    } else {
+      # A gap is not a match.
       out[, k] <- !is.na(align[, k]) & toupper(align[, k]) == toupper(rept)
     }
   }
@@ -97,155 +103,12 @@ tales_consensus_match <- function(align, long = TRUE) {
 }
 
 
-##### Tale domains sequences multiple alignment ####
 
 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-#' Build the one-row consensus panel used by plot.tales_msa()
-#'
-#' Returns a standalone ggplot holding a single "Consensus" row, styled to match
-#' the main alignment so the two read as one figure when composed with aplot.
-#'
-#' This has to be a separate panel rather than an extra row of the alignment:
-#' \code{aplot::insert_left()} reorders the main plot's y axis onto the tree's
-#' leaves, and a y level with no matching leaf is silently dropped -- the
-#' consensus row simply disappears.
-#'
-#' @param align The alignment matrix to take the consensus of.
-#' @param n_positions Width of the alignment, so the x scale matches the main plot.
-#' @param pad Whether to pad labels to three characters, as the main plot does
-#'   for \code{dom_code}.
-#' @return A ggplot.
-#' @noRd
-.consensus_panel <- function(align, n_positions, pad = FALSE) {
-  cons <- tales_consensus(align)
-  cons <- gsub("NTERM", "N-", cons)
-  cons <- gsub("CTERM", "-C", cons)
-  if (isTRUE(pad)) cons <- stringr::str_pad(cons, 3, "left")
-  df <- tibble::tibble(position_in_array = seq_along(cons),
-                       array_id = "Consensus",
-                       label = cons)
-  ggplot2::ggplot(df, mapping = ggplot2::aes(x = position_in_array, y = array_id)) +
-    ggplot2::geom_label(mapping = ggplot2::aes(label = label),
-                        fill = "grey92", color = "grey15",
-                        label.size = NA, family = "mono",
-                        size = 3, fontface = "bold", na.rm = TRUE) +
-    ggplot2::scale_x_discrete(name = NULL, limits = factor(1:n_positions)) +
-    ggplot2::scale_y_discrete(name = NULL,
-                              expand = ggplot2::expansion(mult = c(0.15, 0.15))) +
-    ggplot2::theme_minimal() +
-    ggplot2::theme(axis.text.x = ggplot2::element_blank(),
-                   # keep the vertical rules so columns stay traceable between
-                   # this panel and the alignment below it
-                   panel.grid.major.y = ggplot2::element_blank(),
-                   panel.grid.minor = ggplot2::element_blank())
-}
-
-
-#### Turning an alignment of repeat codes into an alignment of something else ####
-#
-# Each of these takes the matrix plot.tales_msa() is drawing and returns a
-# matrix of the same shape holding a different quantity: a cluster id, a
-# similarity to the reference, an RVD specificity score. They are the fill
-# layers, and plot.tales_msa() is their only caller, so they live beside it.
-
-.repeat_to_sim_align <- function(repeat_align, repeat_sim, ref_tag = NULL) {
-  # A function that substitute the repeatIDs with the aa similarity relative to a
-  # reference repeat for each column. The ref repeat is the one from a TALE that
-  # is defined as a reference in the alignment. This function takes as input, the
-  # repeat alignment and the df output by `.format_repeat_dist_mat()` This
-  # function outputs the modified alignment matrix
-  
-  refRowIdx <- match(.pick_ref_name(repeat_align, ref_tag = ref_tag), rownames(repeat_align))
-  simAlign <- apply(repeat_align, 2,
-                    function(column) {
-                      refState <- column[refRowIdx]
-                      relevantSims <- subset(repeat_sim, subset = id1 == refState)
-                      sim <- 100 - relevantSims$dissim[match(column, relevantSims$id2, nomatch = NA)]
-                      if (is.na(refState)) sim[!is.na(column)] <- 0 # if reference repeat is NA, set the aligned repeat sim = 0
-                      return(sim)
-                    }
-  )
-  simAlign <- matrix(simAlign, nrow = nrow(repeat_align)) # in case of 1-row matrix
-  rownames(simAlign) <- rownames(repeat_align)
-  colnames(simAlign) <- colnames(repeat_align)
-  return(simAlign)
-}
-
-#' Convert repeat alignment to clusterID alignment
-#'
-#' @param repeat_sim A long, three columns data frame with pairwise similarity scores between repeats as available in the \code{domain_distances} element of the object returned by the \code{\link{tales_compare}} function.
-#' @param repeat_align a multiple Tal repeat sequences alignment in the form of a matrix as returned by \code{\link{tales_align}}.
-#' @param h_cut a numeric value indicating the height at which to cut the hclust tree of repeats. Interpreted on a distance scale (0 = identical).
-#' @return a matrix with exactly the same dimension as the input \code{repeat_sim} but containing clusterID instead of
-#' repeatID.
-#' @noRd
-.repeat_to_cluster_align <- function(repeat_sim, repeat_align, h_cut = 10) {
-  # as.dist() expects a DISTANCE, which is what the class stores.
-  repeat_dissim <- as.matrix(reshape2::acast(repeat_sim, id1 ~ id2, value.var = "dissim"))
-  dist_clust <- hclust(as.dist(repeat_dissim))
-  dist_cut <- as.data.frame(cbind(RepID = dist_clust$labels, Rep_clust = cutree(dist_clust, h = h_cut)))
-  clustIDAlign <- apply(repeat_align, 2,
-                        function(column){
-                          as.numeric(dist_cut$Rep_clust[match(column, dist_cut$RepID)])
-                        })
-  clustIDAlign <- matrix(clustIDAlign, nrow = nrow(repeat_align)) # in case of 1-row matrix
-  rownames(clustIDAlign) <- rownames(repeat_align)
-  colnames(clustIDAlign) <- colnames(repeat_align)
-  return(clustIDAlign)
-}
-
-#' Recode an RVD alignment as similarity to a reference row
-#'
-#' Substitutes each RVD with a score expressing how similar its DNA-binding
-#' preference is to the RVD of a reference TALE, column by column. This is the
-#' RVD-level counterpart of \code{.repeat_to_sim_align()}, which works on
-#' protein sequence similarity instead: the two come apart, since repeats can be
-#' sequence-divergent yet share an RVD, or near-identical yet differ at
-#' positions 12-13.
-#'
-#' Currently unwired: no \code{fill_type} in either plotting function requests
-#' an RVD-level layer. It is the only consumer of the internal
-#' \code{rvdSimDf} dataset.
-#'
-#' @param rvd_align A character matrix of aligned RVDs.
-#' @param rvd_sims A data frame of pairwise RVD similarity with columns
-#'   \code{rvd1}, \code{rvd2} and \code{Cor}. Defaults to the package's
-#'   internal \code{rvdSimDf}.
-#' @param ref_tag Pattern selecting the reference row; see
-#'   \code{.pick_ref_name()}.
-#' @return A numeric matrix with the dimensions and dimnames of
-#'   \code{rvd_align}.
-#' @keywords internal
-.rvd_to_match_align <- function(rvd_align, rvd_sims = rvdSimDf, ref_tag = NULL) {
-  refRowIdx <- match(.pick_ref_name(rvd_align, ref_tag = ref_tag), rownames(rvd_align))
-  simAlign <- apply(rvd_align, 2,
-                    function(column) {
-                      refState <- column[refRowIdx]
-                      relevantSims <- subset(rvd_sims, subset = rvd1 == refState)
-                      relevantSims$Cor[match(column, relevantSims$rvd2, nomatch = NA)]
-                    }
-  )
-  simAlign <- matrix(simAlign, nrow = nrow(rvd_align)) # in case of 1-row matrix
-  rownames(simAlign) <- rownames(rvd_align)
-  colnames(simAlign) <- colnames(rvd_align)
-  return(simAlign)
-}
-
+#### The actual method for msa ploting ####
 
 #' Plot a multiple alignment of TALEs
 #'
@@ -560,6 +423,7 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
   #                                                                    `FALSE` = "red")
   # )
   labelConsensusColorScale <- ggplot2::scale_color_manual(name = "Match consensus?",
+                                                          na.value = "grey35",
                                                           values = c(`FALSE` = "deeppink2",
                                                                      `TRUE` = "cyan3")
   )
@@ -693,5 +557,145 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
   print(finalPlot)
   return(finalPlot)
 }
+
+
+
+
+
+#' Build the one-row consensus panel used by plot.tales_msa()
+#'
+#' Returns a standalone ggplot holding a single "Consensus" row, styled to match
+#' the main alignment so the two read as one figure when composed with aplot.
+#'
+#' This has to be a separate panel rather than an extra row of the alignment:
+#' \code{aplot::insert_left()} reorders the main plot's y axis onto the tree's
+#' leaves, and a y level with no matching leaf is silently dropped -- the
+#' consensus row simply disappears.
+#'
+#' @param align The alignment matrix to take the consensus of.
+#' @param n_positions Width of the alignment, so the x scale matches the main plot.
+#' @param pad Whether to pad labels to three characters, as the main plot does
+#'   for \code{dom_code}.
+#' @return A ggplot.
+#' @noRd
+.consensus_panel <- function(align, n_positions, pad = FALSE) {
+  cons <- tales_consensus(align)
+  cons <- gsub("NTERM", "N-", cons)
+  cons <- gsub("CTERM", "-C", cons)
+  if (isTRUE(pad)) cons <- stringr::str_pad(cons, 3, "left")
+  df <- tibble::tibble(position_in_array = seq_along(cons),
+                       array_id = "Consensus",
+                       label = cons)
+  ggplot2::ggplot(df, mapping = ggplot2::aes(x = position_in_array, y = array_id)) +
+    ggplot2::geom_label(mapping = ggplot2::aes(label = label),
+                        fill = "grey92", color = "grey15",
+                        label.size = NA, family = "mono",
+                        size = 3, fontface = "bold", na.rm = TRUE) +
+    ggplot2::scale_x_discrete(name = NULL, limits = factor(1:n_positions)) +
+    ggplot2::scale_y_discrete(name = NULL,
+                              expand = ggplot2::expansion(mult = c(0.15, 0.15))) +
+    ggplot2::theme_minimal() +
+    ggplot2::theme(axis.text.x = ggplot2::element_blank(),
+                   # keep the vertical rules so columns stay traceable between
+                   # this panel and the alignment below it
+                   panel.grid.major.y = ggplot2::element_blank(),
+                   panel.grid.minor = ggplot2::element_blank())
+}
+
+
+
+
+
+#### Turning an alignment of something into an alignment of something else ####
+#
+# Each of these takes the matrix plot.tales_msa() is drawing and returns a
+# matrix of the same shape holding a different quantity: a cluster id, a
+# similarity to the reference, an RVD specificity score. They are the fill
+# layers, and plot.tales_msa() is their only caller, so they live beside it.
+
+.repeat_to_sim_align <- function(repeat_align, repeat_sim, ref_tag = NULL) {
+  # A function that substitute the repeatIDs with the aa similarity relative to a
+  # reference repeat for each column. The ref repeat is the one from a TALE that
+  # is defined as a reference in the alignment. This function takes as input, the
+  # repeat alignment and the df output by `.format_repeat_dist_mat()` This
+  # function outputs the modified alignment matrix
+  
+  refRowIdx <- match(.pick_ref_name(repeat_align, ref_tag = ref_tag), rownames(repeat_align))
+  simAlign <- apply(repeat_align, 2,
+                    function(column) {
+                      refState <- column[refRowIdx]
+                      relevantSims <- subset(repeat_sim, subset = id1 == refState)
+                      sim <- 100 - relevantSims$dissim[match(column, relevantSims$id2, nomatch = NA)]
+                      if (is.na(refState)) sim[!is.na(column)] <- 0 # if reference repeat is NA, set the aligned repeat sim = 0
+                      return(sim)
+                    }
+  )
+  simAlign <- matrix(simAlign, nrow = nrow(repeat_align)) # in case of 1-row matrix
+  rownames(simAlign) <- rownames(repeat_align)
+  colnames(simAlign) <- colnames(repeat_align)
+  return(simAlign)
+}
+
+#' Convert repeat alignment to clusterID alignment
+#'
+#' @param repeat_sim A long, three columns data frame with pairwise similarity scores between repeats as available in the \code{domain_distances} element of the object returned by the \code{\link{tales_compare}} function.
+#' @param repeat_align a multiple Tal repeat sequences alignment in the form of a matrix as returned by \code{\link{tales_align}}.
+#' @param h_cut a numeric value indicating the height at which to cut the hclust tree of repeats. Interpreted on a distance scale (0 = identical).
+#' @return a matrix with exactly the same dimension as the input \code{repeat_sim} but containing clusterID instead of
+#' repeatID.
+#' @noRd
+.repeat_to_cluster_align <- function(repeat_sim, repeat_align, h_cut = 10) {
+  # as.dist() expects a DISTANCE, which is what the class stores.
+  repeat_dissim <- as.matrix(reshape2::acast(repeat_sim, id1 ~ id2, value.var = "dissim"))
+  dist_clust <- hclust(as.dist(repeat_dissim))
+  dist_cut <- as.data.frame(cbind(RepID = dist_clust$labels, Rep_clust = cutree(dist_clust, h = h_cut)))
+  clustIDAlign <- apply(repeat_align, 2,
+                        function(column){
+                          as.numeric(dist_cut$Rep_clust[match(column, dist_cut$RepID)])
+                        })
+  clustIDAlign <- matrix(clustIDAlign, nrow = nrow(repeat_align)) # in case of 1-row matrix
+  rownames(clustIDAlign) <- rownames(repeat_align)
+  colnames(clustIDAlign) <- colnames(repeat_align)
+  return(clustIDAlign)
+}
+
+#' Recode an RVD alignment as similarity to a reference row
+#'
+#' Substitutes each RVD with a score expressing how similar its DNA-binding
+#' preference is to the RVD of a reference TALE, column by column. This is the
+#' RVD-level counterpart of \code{.repeat_to_sim_align()}, which works on
+#' protein sequence similarity instead: the two come apart, since repeats can be
+#' sequence-divergent yet share an RVD, or near-identical yet differ at
+#' positions 12-13.
+#'
+#' Currently unwired: no \code{fill_type} in either plotting function requests
+#' an RVD-level layer. It is the only consumer of the internal
+#' \code{rvdSimDf} dataset.
+#'
+#' @param rvd_align A character matrix of aligned RVDs.
+#' @param rvd_sims A data frame of pairwise RVD similarity with columns
+#'   \code{rvd1}, \code{rvd2} and \code{Cor}. Defaults to the package's
+#'   internal \code{rvdSimDf}.
+#' @param ref_tag Pattern selecting the reference row; see
+#'   \code{.pick_ref_name()}.
+#' @return A numeric matrix with the dimensions and dimnames of
+#'   \code{rvd_align}.
+#' @keywords internal
+.rvd_to_match_align <- function(rvd_align, rvd_sims = rvdSimDf, ref_tag = NULL) {
+  refRowIdx <- match(.pick_ref_name(rvd_align, ref_tag = ref_tag), rownames(rvd_align))
+  simAlign <- apply(rvd_align, 2,
+                    function(column) {
+                      refState <- column[refRowIdx]
+                      relevantSims <- subset(rvd_sims, subset = rvd1 == refState)
+                      relevantSims$Cor[match(column, relevantSims$rvd2, nomatch = NA)]
+                    }
+  )
+  simAlign <- matrix(simAlign, nrow = nrow(rvd_align)) # in case of 1-row matrix
+  rownames(simAlign) <- rownames(rvd_align)
+  colnames(simAlign) <- colnames(rvd_align)
+  return(simAlign)
+}
+
+
 
 

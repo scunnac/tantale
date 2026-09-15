@@ -18,11 +18,12 @@ Pick the most frequent element in each column of the alignment
   matrix.
 }
 \details{
-Where two or more elements are equally frequent the smallest in
-  sort order is returned, so the result does not depend on the order of the
-  rows. Note that a column in which every array carries a different repeat
-  has no majority at all, and what is returned for it is one of several
-  equally common values rather than a consensus in any meaningful sense.
+A column has a consensus only when one element is strictly more
+  common than every other. Where two or more are tied for most frequent --
+  as happens whenever each array carries a different repeat at that
+  position -- the result is \code{NA}, because there is no agreement to
+  report. \code{NA} is likewise returned when the most common thing at a
+  position is a gap.
 }
 \seealso{
 Other TALE alignment:
