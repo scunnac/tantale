@@ -647,6 +647,59 @@
 }
 
 
+#' Align the N- and C-termini of every array found
+#'
+#' The termini are the parts of a TALE that do not vary with its target: the
+#' repeats differ from one TALE to the next by design, while the flanking
+#' regions are near-identical across a strain's TALEs. Aligning them across
+#' arrays is therefore a way to see whether a predicted array is a plausible
+#' TALE at all -- a terminus that does not align with the others is a sign
+#' the prediction is wrong, or that the sequence is.
+#'
+#' Nothing downstream reads the alignments; they are written for a person to
+#' look at. Fewer than two arrays makes an alignment meaningless, and that
+#' case is reported rather than attempted.
+#'
+#' @param annotale_dir Directory holding one AnnoTALE output per array.
+#' @param output_dir Where the HTML goes.
+#' @param type \code{"DNA"} or \code{"AA"}.
+#' @return The collected parts, one element per terminus.
+#' @noRd
+.telltale_align_termini <- function(annotale_dir, output_dir, type = c("DNA", "AA")) {
+  type <- match.arg(type)
+  spec <- switch(type,
+    DNA = list(parts = "TALE_DNA_parts.fasta", label = "DNA",
+               read = Biostrings::readDNAStringSet, setlist = Biostrings::DNAStringSetList,
+               suffix = "DNAAlignment.html"),
+    AA  = list(parts = "TALE_Protein_parts.fasta", label = "protein",
+               read = Biostrings::readAAStringSet, setlist = Biostrings::AAStringSetList,
+               suffix = "AAAlignment.html"))
+
+  partFiles <- list.files(annotale_dir, spec$parts, recursive = TRUE, full.names = TRUE)
+
+  sapply(c("N-terminus", "C-terminus"), function(part) {
+    allpart <- sapply(partFiles, function(p) {
+      allpart <- spec$read(p, seek.first.rec = TRUE)
+      onepart <- allpart[grepl(part, names(allpart))]
+      names(onepart) <- basename(dirname(p))   # the ROI this part came from
+      onepart
+    }, simplify = "array", USE.NAMES = FALSE) %>%
+      spec$setlist() %>%
+      unlist()
+
+    if (length(allpart) > 1) {
+      alignment <- DECIPHER::AlignSeqs(allpart, verbose = FALSE)
+      DECIPHER::BrowseSeqs(alignment,
+                           htmlFile = file.path(output_dir, glue::glue("{part}{spec$suffix}")),
+                           openURL = FALSE, colWidth = 120)
+    } else {
+      cli::cli_warn("Skipping {part} TALE {spec$label} regions alignment because the input sequence has less than 2 putative TALEs.")
+    }
+    allpart
+  }, USE.NAMES = TRUE)
+}
+
+
 #' Every file and directory a tell_tales() run writes
 #'
 #' Computed once, up front, so that the rest of the function reads as a
@@ -998,50 +1051,9 @@ tell_tales <- function(
   S4Vectors::mcols(hitsByArraysLst)$SeqOfRVD[is.na(S4Vectors::mcols(hitsByArraysLst)$SeqOfRVD)] <- ""
   
   #### Align N-term and C-term ####
-  dnaPartFiles <- list.files(paths$annotale, "TALE_DNA_parts.fasta", recursive = T, full.names = T)
-  for (part in c("N-terminus", "C-terminus")) {
-    allpart <- sapply(dnaPartFiles, function(p) {
-      allpart <- Biostrings::readDNAStringSet(p, seek.first.rec = T)
-      onepart <- allpart[grepl(part, names(allpart))]
-      talRoi <- basename(dirname(p))
-      names(onepart) <- talRoi
-      return(onepart)
-    }, simplify = "array", USE.NAMES = F) %>%
-      Biostrings::DNAStringSetList() %>%
-      unlist()
-    if(length(allpart) > 1) {
-      dnaAlignment <- DECIPHER::AlignSeqs(allpart, verbose = FALSE)
-      DECIPHER::BrowseSeqs(dnaAlignment,
-                           htmlFile = file.path(output_dir, glue::glue("{part}DNAAlignment.html")),
-                           openURL = F, colWidth = 120)
-    } else {
-        cli::cli_warn("Skipping {part} TALE DNA regions alignment because the input sequence has less than 2 putative TALEs.")
-      }
-  }
-  
-  aaPartFiles <- list.files(paths$annotale, "TALE_Protein_parts.fasta", recursive = T, full.names = T)
-  endsAA <- sapply(c("N-terminus", "C-terminus"), function(part) {
-    allpart <- sapply(aaPartFiles, function(p) {
-      allpart <- Biostrings::readAAStringSet(p, seek.first.rec = T)
-      onepart <- allpart[grepl(part, names(allpart))]
-      talRoi <- basename(dirname(p))
-      names(onepart) <- talRoi
-      return(onepart)
-    }, simplify = "array", USE.NAMES = F) %>%
-      Biostrings::AAStringSetList() %>%
-      unlist()
-    if(length(allpart) > 1) {
-      aaAlignment <- DECIPHER::AlignSeqs(allpart, verbose = FALSE)
-      DECIPHER::BrowseSeqs(aaAlignment,
-                           htmlFile = file.path(output_dir, glue::glue("{part}AAAlignment.html")),
-                           openURL = F, colWidth = 120)
-    } else {
-      cli::cli_warn("Skipping {part} TALE protein regions alignment because the input sequence has less than 2 putative TALEs.")
-    }
-    return(allpart)
-  }, USE.NAMES = T)
-  
-  
+  .telltale_align_termini(paths$annotale, output_dir, type = "DNA")
+  endsAA <- .telltale_align_termini(paths$annotale, output_dir, type = "AA")
+
   #### Protein length of N-term and C-term ####
   
   endsAAlength <- lapply(names(endsAA), function(e) {
