@@ -44,6 +44,8 @@ produced. That is a valid \code{tales} — see \code{dev/class-design.md}
 Other tales objects:
 \code{\link[=is_tales]{is_tales()}},
 \code{\link[=new_tales]{new_tales()}},
+\code{\link[=print.tales]{print.tales()}},
+\code{\link[=print.tales_msa]{print.tales_msa()}},
 \code{\link[=tales]{tales()}},
 \code{\link[=tales_anchor_codes]{tales_anchor_codes()}},
 \code{\link[=tales_anomalies]{tales_anomalies()}},

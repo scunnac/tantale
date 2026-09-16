@@ -1488,6 +1488,38 @@ in the signature or spelled out in the docs.** Worth re-running the audit
 (`scratchpad/dots.R` in the session notes, trivially rebuilt) whenever a new
 exported wrapper appears.
 
+### 8.2b `tales_coded_strings()` needs a `sep` argument **[A]**
+
+The two projections are siblings and should take the same arguments, but do
+not:
+
+```r
+tales_rvd_strings(x, sep = "-", rvd_only = TRUE)
+tales_coded_strings(x)
+```
+
+`tales_coded_strings()` hardcodes `collapse = " "`
+(`tales_projections.R:25`). Add `sep = "-"`... but **check the default before
+changing it**, because the separator is not cosmetic here:
+
+- `.build_repeat_msa()` is handed repeat-code strings built with `sep = " "`,
+  and splits them back on the same character. `tales_align()` constructs its
+  own strings rather than calling `tales_coded_strings()`, so it is probably
+  insulated -- confirm that before assuming it.
+- A repeat code is a bare integer rendered as text, so `"1 2 3"` and
+  `"1-2-3"` are both unambiguous; unlike RVDs, no code contains either
+  character. The choice is therefore free, which is exactly why it should be
+  the caller's.
+
+Whether the default should match `tales_rvd_strings()`'s `"-"` (consistency
+between siblings) or stay `" "` (not changing output for existing callers) is
+a judgement about which matters more. Matching the sibling reads better but
+changes what the function returns today.
+
+Same pass should check `rvd_only`: `tales_rvd_strings()` has it and
+`tales_coded_strings()` does not, and it is not obvious whether dropping the
+terminus codes makes sense for repeat codes.
+
 ### 8.2 Silence MAFFT by default — DONE **[V]**
 
 `.build_repeat_msa()` runs MAFFT through `system()` with
