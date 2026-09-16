@@ -1122,6 +1122,58 @@ that Perl libraries are bundled and "cause tantale to occupy quite some disk
 space". After 7.4 the size story has changed and that sentence should be
 re-checked against what is actually shipped.
 
+### 7.5a An article on the `tales` class, and what a `dom_code` is **[A]**
+
+A full pkgdown article on the `tales` class, written for an audience that is
+biologists first. The `tales_msa` class gets the same treatment later, with
+the alignment material.
+
+**The section that matters most: what a `dom_code` is.** Nothing currently
+explains it to someone who is not already reading the source, and it is the
+concept the whole comparison machinery rests on. What it has to say:
+
+- **A `dom_code` names a distinct repeat sequence.** Two parts with the same
+  amino acid sequence get the same code; two that differ anywhere across the
+  ~34 residues get different ones.
+
+- **It is what makes a TALE alignable.** Aligning TALEs residue by residue is
+  meaningless -- the repeats are near-identical, so everything matches
+  everything. Giving each distinct repeat a symbol turns an array into a
+  *sequence of repeat units*, and that can be aligned the way a protein
+  sequence is, with insertions and deletions of whole repeats. This is why
+  `tales_align()` works on `dom_code` (or `rvd`) rather than on `aa_seq`.
+
+- **It is finer than an RVD.** The RVD is residues 12-13 and says what base
+  the repeat binds. Two repeats can carry the same RVD -- the same
+  specificity -- while differing elsewhere in the repeat, and they get
+  different `dom_code`s. So `rvd` is the functional layer and `dom_code` the
+  identity layer, which is why the class carries both and why the plots let
+  you choose.
+
+- **How they are computed, plainly**: group the parts by `aa_seq`, number the
+  groups. `dplyr::cur_group_id()`, nothing cleverer.
+
+- **And the consequence that bites**: the numbers depend on which arrays were
+  in the table when they were assigned. Code 42 from one run is not code 42
+  from another. This is not a wart to apologise for but a fact to state
+  early, because it is why `tales_compare()` stamps a
+  `dom_code_namespace` and why mixing a similarity table from one run with
+  codes from another is an error the package tries to catch. The redundancy
+  is worth a number: the reference fixture has **251 distinct repeats across
+  955 parts**, which is also what makes the pairwise repeat comparison
+  affordable -- it runs over distinct repeats, not over parts.
+
+**The rest of the article** should cover: what a `tales` is (one row per
+part, not per TALE, and why); the column contract and which columns are
+optional; the three ways to build one (`tales_from_telltale()`,
+`as_tales()`, `tales_compare()`); that it is a tibble and dplyr verbs work on
+it; `tales_anomalies()` and `sanitize`; and the projections
+(`tales_rvd_strings()`, `tales_coded_strings()`, `tales_domain_codes()`).
+
+Relates to 8.5b: if `tales_compare()` is broken into three exported steps,
+the code-assignment step becomes the natural place to link this explanation
+from.
+
 ### 7.5 Worked examples: vignettes and `@examples` **[A]**
 
 **Found during the 9.2 sweep:** the "Overview of TALE composition by genome"
