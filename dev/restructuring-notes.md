@@ -1488,7 +1488,7 @@ in the signature or spelled out in the docs.** Worth re-running the audit
 (`scratchpad/dots.R` in the session notes, trivially rebuilt) whenever a new
 exported wrapper appears.
 
-### 8.2 Silence MAFFT by default **[A]**
+### 8.2 Silence MAFFT by default — DONE **[V]**
 
 `.build_repeat_msa()` runs MAFFT through `system()` with
 `ignore.stderr = FALSE` (`tales_msa_class.R`, the `res <- system(...)` call).
@@ -1510,8 +1510,17 @@ or `stderr = TRUE` on a captured call) and replay its contents only when the
 run fails. That gives silence in the normal case and more diagnostics than
 today in the failing one.
 
-Worth checking whether MAFFT's `--quiet` flag covers enough on its own; it
-suppresses the progress reporting but the banner may survive it.
+**Done.** `mafft_verbose = FALSE` on `.build_repeat_msa()`, surfaced as a
+real argument of `tales_align()`. Measured: **61 lines of stderr per
+alignment, down to 0.**
+
+`--quiet` was not used. Redirecting stderr to a temporary file does more: it
+covers the banner and the strategy notice as well as the progress, and the
+captured text is replayed when the run fails. Silence therefore costs nothing
+diagnostically -- the failure path is *better* than before, which reported an
+exit status and nothing else. Verified against a deliberately bad option:
+the abort carries MAFFT's own usage output and is classed
+`tantale_error_mafft_failed`.
 
 ### 8.4 `print()` methods for `tales` and `tales_msa` **[A]**
 

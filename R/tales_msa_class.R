@@ -246,6 +246,11 @@ as.matrix.tales_msa <- function(x, value = NULL, gap = NA, ...) {
 #'   but note that the version matters: MAFFT changed how it aligns text-mode
 #'   sequences after 7.4x, and later releases leave the termini of a TALE
 #'   alignment unanchored.
+#' @param mafft_verbose Whether to let MAFFT write to the console. It reports
+#'   its banner, the strategy it chose and its progress through the sequences,
+#'   which is dozens of lines per alignment and rarely what you want. Left
+#'   \code{FALSE} that output is captured rather than discarded, and replayed
+#'   if the alignment fails -- so silence costs nothing diagnostically.
 #' @param ... Further arguments to the MAFFT runner, chiefly
 #'   \code{gap_symbol}, the value gaps take in the returned matrix
 #'   (\code{NA} by default).
@@ -256,6 +261,7 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
                         repeat_sims = NULL,
                         mafft_opts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1",
                         mafft_path = NULL,
+                        mafft_verbose = FALSE,
                         ...) {
   residue_col <- match.arg(residue_col)
   if (!is_tales(x)) {
@@ -283,6 +289,7 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
 
   m <- .build_repeat_msa(input_seqs = seqs, sep = " ", repeat_sims = repeat_sims,
                         mafft_opts = mafft_opts, mafft_path = mafft_path,
+                        mafft_verbose = mafft_verbose,
                         gap_symbol = NA, ...)
 
   if (!setequal(rownames(m), unique(x$array_id))) {
@@ -415,6 +422,7 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
 .build_repeat_msa <- function(input_seqs, sep = " ", repeat_sims = NULL,
                            mafft_opts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1",
                            mafft_path = NULL,
+                           mafft_verbose = FALSE,
                            gap_symbol = NA) {
   # A bunch of tempfiles
   simMatHexFile <- tempfile(pattern = "simMatHexFile")
@@ -549,14 +557,32 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
   asciiConverstionCmd <- glue::glue("{hex2text} {shQuote(hexFile)} > {shQuote(asciFile)}")
   mafftCmd <-  glue::glue("{mafftBin} {maffMatOpt} --text {mafft_opts} {shQuote(asciFile)} > {shQuote(mafftAsciiOutFile)}")
   MsaConversionToHexCmd <- glue::glue("{text2hex} {shQuote(mafftAsciiOutFile)} > {shQuote(mafftHexOutFile)}")
-  res <- system(command = paste(asciiConverstionCmd, mafftCmd, MsaConversionToHexCmd, sep = "; "),
+  pipeline <- paste(asciiConverstionCmd, mafftCmd, MsaConversionToHexCmd, sep = "; ")
+
+  # MAFFT reports its banner, the strategy it chose and its per-sequence
+  # progress on stderr, which is dozens of lines per alignment. Captured to a
+  # file rather than discarded, so that a failed run can still say why: the
+  # only other thing available when it fails is an exit status.
+  stderrFile <- tempfile(pattern = "mafftStderr")
+  if (!mafft_verbose) {
+    pipeline <- paste0("{ ", pipeline, " ; } 2> ", shQuote(stderrFile))
+  }
+  res <- system(command = pipeline,
          ignore.stdout = FALSE, ignore.stderr = FALSE, intern = FALSE)
 
   # Getting msa output and converting back to alignment of residues
   msaOfHex <- Biostrings::readBStringSet(mafftHexOutFile)
   if (length(msaOfHex) == 0L) {
-    cli::cli_warn("MAFFT did not complete successfully.")
-    cli::cli_abort("MAFFT exit status: {res}", class = c("tantale_error"))
+    saidWhy <- if (!mafft_verbose && file.exists(stderrFile)) {
+      utils::tail(readLines(stderrFile, warn = FALSE), 20)
+    } else character()
+    cli::cli_abort(
+      c("MAFFT did not complete successfully.",
+        "x" = "Exit status {res}.",
+        if (length(saidWhy)) c("i" = "MAFFT said:") else
+          c("i" = "Re-run with {.code mafft_verbose = TRUE} to see what it reported."),
+        stats::setNames(saidWhy, rep(" ", length(saidWhy)))),
+      class = c("tantale_error_mafft_failed", "tantale_error"))
   } else {
   }
   #cat(as.character(msaOfHex), sep = "\n")

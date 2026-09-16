@@ -10,6 +10,7 @@ tales_align(
   repeat_sims = NULL,
   mafft_opts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1",
   mafft_path = NULL,
+  mafft_verbose = FALSE,
   ...
 )
 }
@@ -44,6 +45,12 @@ with the helpers under \code{mafftdir/libexec}) to use your own copy --
 but note that the version matters: MAFFT changed how it aligns text-mode
 sequences after 7.4x, and later releases leave the termini of a TALE
 alignment unanchored.}
+
+\item{mafft_verbose}{Whether to let MAFFT write to the console. It reports
+its banner, the strategy it chose and its progress through the sequences,
+which is dozens of lines per alignment and rarely what you want. Left
+\code{FALSE} that output is captured rather than discarded, and replayed
+if the alignment fails -- so silence costs nothing diagnostically.}
 
 \item{...}{Further arguments to the MAFFT runner, chiefly
 \code{gap_symbol}, the value gaps take in the returned matrix

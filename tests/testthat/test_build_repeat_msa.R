@@ -155,3 +155,27 @@ test_that("the default RVD alignment is unchanged by this feature", {
     tales_align(sub, residue_col = "rvd", repeat_sims = FALSE)))
   expect_equal(as.data.frame(a), as.data.frame(b))
 })
+
+
+#### mafft_verbose ####
+
+test_that("a failed MAFFT run says what MAFFT reported, even when silenced", {
+  # Silence must not cost diagnostics: stderr is captured rather than
+  # discarded, and replayed when the run fails. Without that, a failure would
+  # offer nothing but an exit status.
+  seqs <- list(a = "1 2 3", b = "1 2 4", c = "1 3 4")
+  e <- tryCatch(
+    suppressWarnings(suppressMessages(
+      tantale:::.build_repeat_msa(input_seqs = seqs, sep = " ",
+                                  mafft_opts = "--not-a-real-option",
+                                  mafft_verbose = FALSE))),
+    error = function(e) e)
+  expect_s3_class(e, "tantale_error_mafft_failed")
+  # MAFFT's own words, not just our wrapper's
+  expect_match(conditionMessage(e), "mafft", ignore.case = TRUE)
+})
+
+test_that("mafft_verbose is reachable from tales_align()", {
+  expect_true("mafft_verbose" %in% names(formals(tales_align)))
+  expect_false(formals(tales_align)$mafft_verbose)
+})
