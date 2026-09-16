@@ -1132,9 +1132,17 @@ the alignment material.
 explains it to someone who is not already reading the source, and it is the
 concept the whole comparison machinery rests on. What it has to say:
 
-- **A `dom_code` names a distinct repeat sequence.** Two parts with the same
-  amino acid sequence get the same code; two that differ anywhere across the
-  ~34 residues get different ones.
+- **A `dom_code` names a distinct *domain* sequence -- not a repeat.** This
+  is the point the name is making and it must be said first. A TALE part is
+  an N-terminus, a repeat, or a C-terminus, and all three get codes on the
+  same footing; "domain" is the word chosen precisely to cover them
+  indiscriminately. Two parts with the same amino acid sequence get the same
+  code, whatever kind of part they are.
+
+  The distinction is not pedantic. On the reference fixture, 251 distinct
+  codes cover **180 repeats and 71 termini** -- describing the total as a
+  repeat count overstates it by nearly a third. (This exact error was made
+  and caught while writing `summary.tales()`.)
 
 - **It is what makes a TALE alignable.** Aligning TALEs residue by residue is
   meaningless -- the repeats are near-identical, so everything matches
@@ -1143,12 +1151,17 @@ concept the whole comparison machinery rests on. What it has to say:
   sequence is, with insertions and deletions of whole repeats. This is why
   `tales_align()` works on `dom_code` (or `rvd`) rather than on `aa_seq`.
 
-- **It is finer than an RVD.** The RVD is residues 12-13 and says what base
-  the repeat binds. Two repeats can carry the same RVD -- the same
-  specificity -- while differing elsewhere in the repeat, and they get
-  different `dom_code`s. So `rvd` is the functional layer and `dom_code` the
-  identity layer, which is why the class carries both and why the plots let
-  you choose.
+- **It is finer than an RVD, and defined where an RVD is not.** The RVD is
+  residues 12-13 and says what base the repeat binds. Two repeats can carry
+  the same RVD -- the same specificity -- while differing elsewhere in the
+  repeat, and they get different `dom_code`s. So `rvd` is the functional
+  layer and `dom_code` the identity layer, which is why the class carries
+  both and why the plots let you choose.
+
+  And a terminus has no RVD at all: the `rvd` column holds `NTERM`, `CTERM`
+  or `XXXXX` there, which are placeholders standing in for "not a repeat",
+  whereas its `dom_code` is a real identifier of a real sequence. Another
+  reason the two layers are not interchangeable.
 
 - **How they are computed, plainly**: group the parts by `aa_seq`, number the
   groups. `dplyr::cur_group_id()`, nothing cleverer.
@@ -1159,9 +1172,9 @@ concept the whole comparison machinery rests on. What it has to say:
   early, because it is why `tales_compare()` stamps a
   `dom_code_namespace` and why mixing a similarity table from one run with
   codes from another is an error the package tries to catch. The redundancy
-  is worth a number: the reference fixture has **251 distinct repeats across
-  955 parts**, which is also what makes the pairwise repeat comparison
-  affordable -- it runs over distinct repeats, not over parts.
+  is worth a number: the reference fixture has **251 distinct domains across
+  955 parts**, which is also what makes the pairwise comparison affordable --
+  it runs over distinct domains, not over parts.
 
 **The rest of the article** should cover: what a `tales` is (one row per
 part, not per TALE, and why); the column contract and which columns are

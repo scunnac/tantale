@@ -32,6 +32,8 @@ Other tales objects:
 \code{\link[=new_tales]{new_tales()}},
 \code{\link[=print.tales]{print.tales()}},
 \code{\link[=print.tales_msa]{print.tales_msa()}},
+\code{\link[=summary.tales]{summary.tales()}},
+\code{\link[=summary.tales_msa]{summary.tales_msa()}},
 \code{\link[=tales]{tales()}},
 \code{\link[=tales_anomalies]{tales_anomalies()}},
 \code{\link[=tales_assert_complete]{tales_assert_complete()}},
