@@ -990,6 +990,50 @@ would have to stay, be downloaded on demand, or move to a data package.
 
 ---
 
+### 7.4b Tell users how to get conda, and that they now need it **[A]**
+
+7.4 changed what a user must have before the package works at all. Before,
+MAFFT and HMMER shipped inside it and the core pipeline ran on a bare Linux
+box; now the first `tales_align()` or `tell_tales()` builds the `tantale`
+conda environment, so **conda or mamba, plus a working network connection, is
+a hard prerequisite of the main workflow** rather than of optional extras.
+
+The README and the pkgdown site both need updating, and neither currently
+says enough:
+
+- `README.md` line 59 says only "**Conda and Mamba** must be installed as
+  well.", in a list of caveats, with no instructions.
+- The package-level doc in `R/tantale.R` links to `install_miniconda()`'s help
+  page, which is better but still only a link, and it is buried under
+  "CAUTIONARY NOTES" alongside remarks about Java and Perl.
+
+**What to write.** The point users need is that they do not have to install
+conda by hand or know anything about it -- `reticulate` will do it from
+inside R:
+
+```r
+install.packages("reticulate")
+reticulate::install_miniconda()      # or point at an existing installation
+```
+
+and that `reticulate::conda_binary()` is how tantale finds it afterwards, so
+an existing conda/mamba/micromamba is used if there is one. Worth stating
+explicitly:
+
+- it happens **once**, and the environment is built on first use, not at
+  install time, so the first call is slow and needs the network;
+- which tools come from it -- MAFFT, HMMER, mmseqs2 and the Perl
+  dependencies -- so a failure to build it has an understandable consequence
+  rather than an opaque one;
+- that conda and micromamba keep **separate roots**, and an environment named
+  `tantale` in one is not the one in the other. This bit us during 7.4 and
+  will bite a user who has both.
+
+Also worth revisiting while there: the README's last bullet still explains
+that Perl libraries are bundled and "cause tantale to occupy quite some disk
+space". After 7.4 the size story has changed and that sentence should be
+re-checked against what is actually shipped.
+
 ### 7.5 Worked examples: vignettes and `@examples` **[A]**
 
 **Found during the 9.2 sweep:** the "Overview of TALE composition by genome"
