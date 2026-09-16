@@ -1499,8 +1499,15 @@ run.
 
 Questions worth answering before touching it:
 
-- **Where did the 1057 come from?** Whether they were curated or simply
-  everything available at the time is not recorded anywhere in the package.
+- **Where did the 1057 come from?** **Answered by the maintainer:** it is the
+  raw output of `tell_tales()` run over a large set of *Xanthomonas oryzae*
+  genomes, assembled long ago, **with no curation applied**. The file's own
+  contents corroborate that exactly -- 70 genome accessions, AnnoTALE-style
+  `<accession>-tempTALE<n>` names, `(Pseudo)` markers left in place, and
+  fragments far too short to be TALEs.
+
+  So the question is not whether to *re*-curate but whether to curate at all,
+  for the first time.
 - **How redundant is it?** TALEs are highly similar by construction. If the
   set collapses to a few dozen clusters at high identity, most of those 1057
   alignments are re-deriving the same answer.
