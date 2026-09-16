@@ -417,7 +417,12 @@ mechanism behave identically in both.
 Downstream consequence: a good part of the conversion functions can then be
 unexported.
 
-### 5.1 Does `diagnose_tale_parts()` survive the `tales` class? **[P]**
+### 5.1 Does `diagnose_tale_parts()` survive the `tales` class? — RETIRED **[V]**
+
+**Resolved.** The function is gone; `tales_anomalies()` reports the same
+conditions, `tales(sanitize = TRUE)` drops the offending arrays, and the
+checks are part of the class rather than a separate diagnostic. Nothing in
+`R/` or `NAMESPACE` mentions it.
 
 **[V]** It checks three things — rows with `NA` in `aaSeq`, `dnaSeq` or `rvd` —
 and has two modes: report the offending arrays (default), or *remove* them
@@ -1302,7 +1307,7 @@ left alone. My reading of each:
 | `.tales_msa_contract_holds()` | in `tales_msa_class.R`, called from `tales_class.R` | leave, same reason |
 | `.run_nhmmer_search()`, `.hits_report_to_gff()` | in `tellTale_utilities.R`, called only from `telltale.R` | `tellTale_utilities.R` is down to five members after the parking. Either fold what is left into `telltale.R` and drop the file, or leave it |
 
-### 8.6 Legacy preconditions leaking through class methods **[A]**
+### 8.6 Legacy preconditions leaking through class methods — DONE **[V]**
 
 `plot.tales_msa()` decomposes its object and hands the pieces to
 `plot_tales_msa()`, whose argument checks are written for a caller assembling
@@ -1387,7 +1392,7 @@ Whole-codebase sweeps, to be done deliberately rather than opportunistically.
 Deferred until the class design settles, since it will dictate several of the
 names.
 
-### 9.0 Governing convention — rOpenSci package API guidelines **[A]**
+### 9.0 Governing convention — rOpenSci package API guidelines **[reference]**
 
 Source: <https://devguide.ropensci.org/pkg_building.html#package-api>. Adopted
 as the reference standard for 9.1, 9.2, and — importantly — for the generics
