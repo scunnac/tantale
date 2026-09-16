@@ -990,6 +990,77 @@ would have to stay, be downloaded on demand, or move to a data package.
 
 ---
 
+### 7.4a `tantale_setup()` **[A]** — queued for unattended work
+
+A single entry point that checks, and optionally builds, everything the
+package needs outside R. Decided after 7.4 made the conda environment a
+prerequisite of the core pipeline.
+
+**The reason to build it is correctness, not convenience.**
+`.create_tantale_env()` today tests only whether an environment *named*
+`tantale` exists. If one does, it prints "can be used for analysis" and
+returns success **without looking inside it**. An environment built by an
+older version of this package holds MAFFT 7.520, which silently produces
+different alignments -- unanchored termini, a different column count (7.4).
+Nothing would report it. This happened three times during 7.4 and was caught
+only because a golden baseline existed to compare against; a user has no such
+thing.
+
+So the pins in `tantale_conda_env.yaml` are currently aspirational. Verifying
+them is the point of this function.
+
+**Shape**
+
+```r
+tantale_setup(install = FALSE, conda = FALSE, conda_bin = "auto")
+```
+
+Diagnostic by default -- called bare it reports and changes nothing:
+
+```
+✔ conda            /home/cunnac/mamba/bin/mamba
+✔ tantale env      /home/cunnac/mamba/envs/tantale
+✔ mafft            7.453   (required 7.453)
+✔ hmmer            3.3.2   (required 3.3.2)
+✔ mmseqs2          14.7e284
+✖ java             not on PATH -- needed by AnnoTALE, PrediTALE, TALEcorrection
+✔ perl             5.36.0
+ℹ Run tantale_setup(install = TRUE) to build or repair the environment.
+```
+
+**Requirements**
+
+1. **Check versions against the yaml pins**, not merely presence. Parse the
+   pins out of `inst/tools/tantale_conda_env.yaml` so there is one source of
+   truth; a hardcoded second list would drift.
+2. **Repair, not just create.** `install = TRUE` on an environment with the
+   wrong MAFFT must fix it. Note that `micromamba create` on an existing
+   environment does *not* downgrade a package -- 7.4 learned this the hard
+   way; an explicit `install` of the pinned version does.
+3. **Check Java and Perl too.** They are hard requirements of the AnnoTALE,
+   PrediTALE and TALEcorrection wrappers, they are not conda's business, and
+   they currently fail deep inside a `system()` call with nothing useful said.
+   This is the only place they would ever be checked.
+4. **Report the environment's path**, because conda and micromamba keep
+   separate roots and `tantale` can exist in both with different contents.
+   Say which one is in use.
+5. **Installing conda itself stays opt-in** behind its own argument. Putting a
+   package manager on someone's machine is a larger side effect than building
+   an environment, and should be asked for. Note that
+   `reticulate::install_miniconda()` installs **miniconda**, not mamba -- do
+   not let the docs promise otherwise.
+6. **The lazy path stays.** Users cannot be made to call this, so
+   `.create_tantale_env()` must still work on demand. It gains the version
+   check, and its failure message should point at `tantale_setup()`.
+
+Precedent for the idiom: `keras::install_keras()`,
+`tensorflow::install_tensorflow()`, `spacyr::spacy_install()`. All of them
+require the user to ask before touching the system.
+
+**Knock-on:** this shrinks 7.4b a lot. The README stops needing to explain
+conda roots and lazy environment creation, and says instead: install tantale,
+run `tantale_setup(install = TRUE)`.
+
 ### 7.4b Tell users how to get conda, and that they now need it **[A]**
 
 7.4 changed what a user must have before the package works at all. Before,
