@@ -46,11 +46,14 @@ reference:
 - title: Target prediction
   desc: Predicting EBEs in a promoter set, and plotting the result.
   contents: has_concept("target prediction")
-- title: Package and legacy classes
-  desc: Package-level documentation and the S4 class used by the telltale path.
+- title: Setting up
+  desc: Checking and building the external tools tantale drives.
+  contents:
+  - tantale_setup
+- title: Package documentation
+  desc: Package-level documentation.
   contents:
   - tantale-package
-  - annout-class
 - title: External tool wrappers
   desc: Wrappers around AnnoTALE and QueTAL.
   contents: has_concept("external TALE tools")

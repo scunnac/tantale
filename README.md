@@ -37,27 +37,84 @@ Here is a snapshot of the topics that are or will (hopefully) be covered in the 
 
 
 
-**NOTE** :
+## Installation
 
-- For further details, please, take a look at the package [page](https://scunnac.github.io/tantale)
+For further details, take a look at the package
+[website](https://scunnac.github.io/tantale).
 
-- Install via the `remotes` package
+### 1. Install the R package
 
-```
+```r
 remotes::install_github("scunnac/tantale",
-                          type = "source",
-                          dependencies = TRUE,
-                          upgrade = "never"
-                          )
+                        type = "source",
+                        dependencies = TRUE,
+                        upgrade = "never")
 ```
+
+### 2. Make sure conda is available
+
+tantale does not bundle the programs it drives. MAFFT, HMMER, mmseqs2 and the
+Perl dependencies of the target predictors come from a conda environment the
+package builds for itself, so **conda (or mamba, or micromamba) is a
+prerequisite of the main workflow**, not just of optional extras.
+
+You do not have to install it by hand or know anything about it. If you have
+no conda at all, `reticulate` will install one from inside R:
+
+```r
+install.packages("reticulate")
+reticulate::install_miniconda()
+```
+
+Note this installs **miniconda**, not mamba. If you already have conda, mamba
+or micromamba, tantale finds it through `reticulate::conda_binary()` and uses
+that instead -- nothing else to do.
+
+### 3. Check everything is in place
+
+```r
+tantale::tantale_setup()
+```
+
+This reports what is present and what is missing, and changes nothing.
+`tantale_setup(install = TRUE)` then builds or repairs the environment.
+
+Running it is optional -- the environment is built on first use if it is
+absent -- but it is worth doing once, for two reasons:
+
+- **The first real call would otherwise be the slow one.** The environment is
+  built on first use rather than at install time, so it needs the network and
+  takes a few minutes.
+- **It checks versions, not just presence.** MAFFT changed its `--text` mode
+  gap handling after 7.4x, and later versions align TALE repeat strings
+  differently. An environment left over from an older version of tantale
+  produces different alignments from the same input, and nothing else would
+  tell you.
+
+> **If you have both conda and micromamba**, note they keep **separate
+> roots**. An environment named `tantale` in one is not the one in the other,
+> and a rebuild can report success while the package goes on using the other
+> copy. `tantale_setup()` prints the binary, the default root and the
+> environment actually in use, precisely so this is visible.
+
+### Also needed
+
+- **Java and Perl on the PATH.** Several wrappers (AnnoTALE, PrediTALE, TALE
+  correction, the target predictors) are written in other languages.
+  `tantale_setup()` checks for these too.
+- **Linux.** tantale has been written with only Linux in mind and will very
+  likely not work on other operating systems.
+
+tantale ships about 60 MB of Java programs (AnnoTALE, PrediTALE and TALE
+correction) that have no conda package, which is most of its footprint.
+
+---
+
+**NOTE** :
 
 - This is still a **work in progress** and is not necessarily fully and **properly** implemented!!!
 - Documentation could be improved and extended.
 - If you feel like contributing, that is great, please send me an email: sebastien.cunnac@ird.fr
-- tantale has been written with only Linux systems in mind and will very likely not work on other OS (eg Windows)
-- Some of tantale wrappers use code written in other languages. For them to work, you must ideally have **Java and Perl on the PATH** in your system.
-- **Conda and Mamba** must be installed as well.
-- Perl scripts (DisTAL et al.) used in tantale require a number of perl libraries. Upon experimenting a bit we realized it was more convenient to include those libraries in tantale. The consequence is that those files cause tantale to occupy a quite some disk space...
-    
-    
+
+
 

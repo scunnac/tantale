@@ -37,6 +37,29 @@
 #'    \item General parser for results aggregation
 #'    \item Connector with daTALbase (to be done)}
 #'
+#'@section Setting up:
+#'
+#'  tantale does not bundle the programs it drives. MAFFT, HMMER, mmseqs2 and
+#'  the Perl dependencies of the target predictors come from a conda
+#'  environment the package builds for itself, so **conda (or mamba, or
+#'  micromamba) is a prerequisite of the main workflow**, not only of
+#'  optional extras. The environment is built on first use rather than at
+#'  install time, so the first call needs a network connection and takes a
+#'  few minutes.
+#'
+#'  Start with [tantale_setup()]. Called bare it reports what is present and
+#'  changes nothing; `tantale_setup(install = TRUE)` builds or repairs the
+#'  environment. It checks **versions**, not merely presence, which matters
+#'  because MAFFT changed its `--text` mode gap handling after 7.4x and later
+#'  versions align TALE repeat strings differently -- an environment left
+#'  over from an older tantale gives different alignments from the same
+#'  input, and nothing else would report it.
+#'
+#'  If you have no conda at all, `reticulate` will install one from inside R
+#'  with [reticulate::install_miniconda()] (miniconda, note, not mamba). An
+#'  existing conda, mamba or micromamba is found automatically through
+#'  `reticulate::conda_binary()` and used instead.
+#'
 #'@note CAUTIONARY NOTES:
 #'
 #'  \itemize{
@@ -44,9 +67,7 @@
 #'     likely \strong{not work on other OS} (eg Windows)
 #'    \item Some of tantale wrappers use code written in other languages :
 #'     \strong{Java and Perl must be on the PATH} in your system.
-#'    \item Furthermore, Conda and Mamba must be installed.
-#'    \item For direction on how to use Conda with R, consult the
-#'     \href{https://rstudio.github.io/reticulate/reference/install_miniconda.html}{install_miniconda()} help page.}
+#'     [tantale_setup()] checks for both.}
 #'
 #'
 #'@importFrom IRanges IRanges

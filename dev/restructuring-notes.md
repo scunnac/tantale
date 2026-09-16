@@ -1142,7 +1142,7 @@ branches, which need network and would modify the machine. The parsing and
 comparison they depend on are tested against fixtures; the install call
 itself is one `reticulate::conda_install()`.
 
-### 7.4b Tell users how to get conda, and that they now need it **[A]**
+### 7.4b Tell users how to get conda, and that they now need it -- DONE **[V]**
 
 7.4 changed what a user must have before the package works at all. Before,
 MAFFT and HMMER shipped inside it and the core pipeline ran on a bare Linux
@@ -1185,6 +1185,35 @@ Also worth revisiting while there: the README's last bullet still explains
 that Perl libraries are bundled and "cause tantale to occupy quite some disk
 space". After 7.4 the size story has changed and that sentence should be
 re-checked against what is actually shipped.
+
+**Written.** `README.md` gains a proper three-step Installation section
+(install the package, make sure conda is available, run `tantale_setup()`),
+replacing the single caveat bullet. The package-level doc in `R/tantale.R`
+gains a `@section Setting up:` that says the same thing, and the two remaining
+cautionary bullets now point at `tantale_setup()` rather than at a
+`reticulate` help page.
+
+Everything 7.4b asked to be stated explicitly is stated: that it happens
+once and on first use rather than at install time; which tools come from the
+environment; that miniconda is not mamba; that an existing conda/mamba is
+found automatically; and that conda and micromamba keep separate roots, with
+`tantale_setup()`'s three-path report as the way to see it.
+
+**Two stale things corrected while there.**
+
+- The README claimed bundled Perl libraries "cause tantale to occupy quite
+  some disk space". False since 7.4 -- there are no bundled Perl libraries.
+  The ~60 MB is three Java programs (AnnoTALE 16 MB, PrediTALE 14 MB, TALE
+  correction 27 MB), none of which has a conda package. Corrected.
+- `_pkgdown.yml` still listed `annout-class`, whose Rd disappeared when the
+  S4 class was retired to `inst/legacy`. That is a **hard error** in
+  `pkgdown::build_site()`, so the site could not have been rebuilt. Removed,
+  and a "Setting up" section added for `tantale_setup()`.
+  `pkgdown::check_pkgdown()` is now clean.
+
+Worth keeping as a habit: **run `pkgdown::check_pkgdown()` after retiring or
+adding an exported topic.** Nothing else catches a dangling reference entry,
+and `R CMD check` does not look at `_pkgdown.yml`.
 
 ### 7.5a An article on the `tales` class, and what a `dom_code` is **[A]**
 
