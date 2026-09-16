@@ -239,9 +239,13 @@ as.matrix.tales_msa <- function(x, value = NULL, gap = NA, ...) {
 #'   discouraged is one long gap swallowing a stretch of repeats that really
 #'   do correspond. Raise \code{--op} if the alignment fragments into too
 #'   many small gaps.
-#' @param mafft_path Directory of a MAFFT installation, laid out as the
-#'   bundled one is (\code{mafft.bat} at the top, helpers under
-#'   \code{mafftdir/libexec}). Defaults to the copy shipped with the package.
+#' @param mafft_path Where to find MAFFT. \code{NULL}, the default, uses the
+#'   \code{tantale} conda environment, creating it on first use. Give the root
+#'   of a standalone MAFFT directory instead (one holding \code{mafft.bat}
+#'   with the helpers under \code{mafftdir/libexec}) to use your own copy --
+#'   but note that the version matters: MAFFT changed how it aligns text-mode
+#'   sequences after 7.4x, and later releases leave the termini of a TALE
+#'   alignment unanchored.
 #' @param ... Further arguments to the MAFFT runner, chiefly
 #'   \code{gap_symbol}, the value gaps take in the returned matrix
 #'   (\code{NA} by default).
@@ -251,7 +255,7 @@ as.matrix.tales_msa <- function(x, value = NULL, gap = NA, ...) {
 tales_align <- function(x, residue_col = c("rvd", "dom_code"),
                         repeat_sims = NULL,
                         mafft_opts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1",
-                        mafft_path = system.file("tools", "mafft-linux64", package = "tantale", mustWork = TRUE),
+                        mafft_path = NULL,
                         ...) {
   residue_col <- match.arg(residue_col)
   if (!is_tales(x)) {
@@ -410,7 +414,7 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
 #' @noRd
 .build_repeat_msa <- function(input_seqs, sep = " ", repeat_sims = NULL,
                            mafft_opts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1",
-                           mafft_path = system.file("tools", "mafft-linux64",package = "tantale", mustWork = TRUE),
+                           mafft_path = NULL,
                            gap_symbol = NA) {
   # A bunch of tempfiles
   simMatHexFile <- tempfile(pattern = "simMatHexFile")
@@ -538,9 +542,10 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
 
   # Running mafft msa
   cli::cli_inform("Now running MAFFT (Copyright 2002-2007 Kazutaka Katoh) on TALE array sequences.")
-  hex2text <- shQuote(file.path(mafft_path, "mafftdir", "libexec", "hex2maffttext"))
-  text2hex <- shQuote(file.path(mafft_path, "mafftdir", "libexec", "maffttext2hex"))
-  mafftBin <- shQuote(file.path(mafft_path, "mafft.bat"))
+  mafftBins <- .mafft_binaries(mafft_path)
+  hex2text <- shQuote(mafftBins$hex2text)
+  text2hex <- shQuote(mafftBins$text2hex)
+  mafftBin <- shQuote(mafftBins$mafft)
   asciiConverstionCmd <- glue::glue("{hex2text} {shQuote(hexFile)} > {shQuote(asciFile)}")
   mafftCmd <-  glue::glue("{mafftBin} {maffMatOpt} --text {mafft_opts} {shQuote(asciFile)} > {shQuote(mafftAsciiOutFile)}")
   MsaConversionToHexCmd <- glue::glue("{text2hex} {shQuote(mafftAsciiOutFile)} > {shQuote(mafftHexOutFile)}")

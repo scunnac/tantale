@@ -8,5 +8,9 @@ dependencies:
   - hmmer=3.3.2
   - clustalo=1.2.4
   - igvtools=2.16.2
-  - mafft=7.520
+  # 7.453, not something newer: MAFFT changed its --text mode gap handling
+  # after 7.4x, and later versions align TALE repeat-code strings differently,
+  # leaving the N- and C-termini unanchored. 7.453 is byte-identical to the
+  # 7.450 that used to ship inside the package. See restructuring-notes.md 7.4.
+  - mafft=7.453
 

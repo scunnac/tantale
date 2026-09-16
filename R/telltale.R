@@ -2,7 +2,7 @@
 # subject_file = system.file("extdata", "bai3_sample_tal_regions.fasta", package = "tantale", mustWork = T)
 # output_dir = tempdir(check = TRUE)
 # hmm_dir = system.file("extdata", "hmmProfile", package = "tantale", mustWork = T)
-# hmmer_path = system.file("tools", "hmmer-3.3", "bin", package = "tantale", mustWork = T)
+# hmmer_path = NULL   # NULL -> the tantale conda env
 # correct_array = TRUE
 # correction_ref = system.file("extdata", "decipher_ref_tales_aa.fa.gz", package = "tantale", mustWork = T)
 # frameshift = -11
@@ -22,7 +22,7 @@
 # subject_file = "/home/cunnac/TEMP/220928-8_talCor.fasta"
 # output_dir = file.path("/home/cunnac/TEMP", gsub("(\\.fasta)|(\\.fa)|(\\.fna)|(\\.fsa)", "", basename(subject_file)))
 # hmm_dir = system.file("extdata", "hmmProfile", package = "tantale", mustWork = T)
-# hmmer_path = system.file("tools", "hmmer-3.3", "bin", package = "tantale", mustWork = T)
+# hmmer_path = NULL   # NULL -> the tantale conda env
 # correct_array = FALSE
 # correction_ref = system.file("extdata", "decipher_ref_tales_aa.fa.gz", package = "tantale", mustWork = T)
 # frameshift = -11
@@ -40,6 +40,62 @@
 
 
 
+
+
+#### Helpers for tell_tales() ####
+#
+
+
+.get_hmmer <- function() {
+  # HMMER comes from the tantale conda environment rather than being shipped
+  # inside the package. 3.3.2 there was checked against the 3.3 that used to
+  # be bundled: identical hits, only the version banner in the raw output
+  # differs (restructuring-notes.md 7.4).
+  file.path(.tantale_env_prefix(), "bin")
+}
+
+
+.check_hmmer <- function(hmmer_path) {
+  cmd <- file.path(hmmer_path, "hmmsearch -h | grep \"^#\"")
+  if (system(command = cmd, intern = FALSE, ignore.stdout = TRUE, ignore.stderr = TRUE)) {
+    stop("HMMER is not in PATH. Follow instructions at http://hmmer.org/documentation.html to install it.")
+  } else {
+    out <- system(command = cmd,intern = TRUE)
+    cli::cli_inform(gsub("^#[ ]?", "", out[2:3]))
+  }
+}
+
+.run_nhmmer_search <- function(hmmer_path = NULL, subject_file, hmm_file, search_out_file, readable_out_file) {
+  if (is.null(hmmer_path)) hmmer_path <- .get_hmmer()
+  .check_hmmer(hmmer_path)
+  searchCmd <- paste(shQuote(file.path(hmmer_path, "nhmmer")),
+                     "--tblout",
+                     shQuote(search_out_file),
+                     shQuote(hmm_file),
+                     shQuote(subject_file),
+                     ">",
+                     shQuote(readable_out_file),
+                     sep = " "
+  )
+  system(command = searchCmd, ignore.stderr = FALSE, intern = TRUE)
+}
+
+
+
+.hits_report_to_gff <- function(f = "hitsReport.csv") {
+  # Convert the info contained in a HitReport file into a GFF file for display by
+  # a genome viewer.
+  # The f parameter corresponds to the path to a hitsReport file.
+  # Read the file as a data.frame
+  hitsReport <- read.delim(f)
+  # Create a GenomicRange that will be converted.
+  hitsGR <- GenomicRanges::makeGRangesFromDataFrame(hitsReport, keep.extra.columns=TRUE)
+  # Write a gff3 file to disk with this info.
+  rtracklayer::export.gff3(hitsGR,
+                           con = file.path(dirname(f), paste0(sub("\\..*$", "", basename(f)), ".gff"))
+  )
+  
+}
 
 
 
@@ -100,7 +156,9 @@
 #' @param subject_file Sequences to search.
 #' @param hmm What \code{.telltale_hmm_profiles()} returned.
 #' @param paths What \code{.telltale_paths()} returned.
-#' @param hmmer_path Directory holding the nhmmer binary.
+#' @param hmmer_path Directory holding the \code{nhmmer} binary.
+#'   \code{NULL}, the default, uses the \code{tantale} conda environment,
+#'   creating it on first use.
 #' @param nterm_min_score,repeat_min_score,cterm_min_score Per-domain score
 #'   thresholds.
 #' @param min_domain_hits A subject sequence is kept when it carries at least
@@ -458,6 +516,27 @@
   }
   invisible(NULL)
 }
+
+
+.correction_tibble <- function(indels) {
+  indelsTble <- lapply(indels, function(lst) {
+    info <- tibble::tibble()
+    colnames(info) <- c("variable","value")
+    for (talOrfID in 1:length(lst)) {
+      element <- lst[talOrfID]
+      if (length(unlist(element)) == 0L) {
+        next()
+      } else {
+        info %<>% dplyr::bind_rows(tibble::tibble(variable = names(element), value = as.numeric(unlist(element))))
+      }
+    }
+    return(info)
+  }
+  ) %>% dplyr::bind_rows(.id = "Seq")
+  return(indelsTble)
+} 
+
+
 
 
 #' Find the TALE ORF in each array, correcting frameshifts if asked
@@ -1054,6 +1133,9 @@
 }
 
 
+#### Actual tell_tales() function definition ####
+
+
 #' Search and report on the features of TALE protein domains potentially encoded
 #' in subject DNA sequences
 #'
@@ -1193,7 +1275,7 @@ tell_tales <- function(
   min_gap = 35,
   extremity_codes = TRUE,
   rvd_sep = "-",
-  hmmer_path = system.file("tools", "hmmer-3.3", "bin", package = "tantale", mustWork = T),
+  hmmer_path = NULL,
   extend_len = 300,
   correct_array = FALSE,
   correction_ref = system.file("extdata", "decipher_ref_tales_aa.fa.gz", package = "tantale", mustWork = T),
@@ -1220,8 +1302,6 @@ tell_tales <- function(
   
   ####   Checks for parameters and other things   ####
 
-  ## Deal with spaces in sequence names because this messes up parsing of HMMER output
-  ####   Checks for parameters and other things   ####
   ## Deal with spaces in sequence names because this messes up parsing of hmmer output
   subject <- .telltale_prepare_subject(subject_file)
   subject_file <- subject$file
@@ -1343,85 +1423,4 @@ tell_tales <- function(
     annotale_messages = annoTaleMessages)
 
   return(invisible(output_dir))
-}
-
-
-#### Helpers for tell_tales() ####
-#
-# Formerly R/tellTale_utilities.R. Folded in here because tell_tales() is the
-# only caller of every one of them.
-
-.get_hmmer <- function() {
-  pathOfHmmerBinsDir <- system.file("tools", "hmmer-3.3", "bin", package = "tantale", mustWork = TRUE)
-  return(pathOfHmmerBinsDir)
-}
-
-
-.check_hmmer <- function(hmmer_path) {
-  cmd <- file.path(hmmer_path, "hmmsearch -h | grep \"^#\"")
-  if (system(command = cmd, intern = FALSE, ignore.stdout = TRUE, ignore.stderr = TRUE)) {
-    stop("HMMER is not in PATH. Follow instructions at http://hmmer.org/documentation.html to install it.")
-  } else {
-    out <- system(command = cmd,intern = TRUE)
-    cli::cli_inform(gsub("^#[ ]?", "", out[2:3]))
-  }
-}
-
-
-
-
-
-
-.run_nhmmer_search <- function(hmmer_path = NULL, subject_file, hmm_file, search_out_file, readable_out_file) {
-  if (is.null(hmmer_path)) hmmer_path <- .get_hmmer()
-  .check_hmmer(hmmer_path)
-  searchCmd <- paste(shQuote(file.path(hmmer_path, "nhmmer")),
-                     "--tblout",
-                     shQuote(search_out_file),
-                     shQuote(hmm_file),
-                     shQuote(subject_file),
-                     ">",
-                     shQuote(readable_out_file),
-                     sep = " "
-  )
-  system(command = searchCmd, ignore.stderr = FALSE, intern = TRUE)
-}
-
-
-
-
-.correction_tibble <- function(indels) {
-  indelsTble <- lapply(indels, function(lst) {
-    info <- tibble::tibble()
-    colnames(info) <- c("variable","value")
-    for (talOrfID in 1:length(lst)) {
-      element <- lst[talOrfID]
-      if (length(unlist(element)) == 0L) {
-        next()
-      } else {
-        info %<>% dplyr::bind_rows(tibble::tibble(variable = names(element), value = as.numeric(unlist(element))))
-      }
-    }
-    return(info)
-  }
-  ) %>% dplyr::bind_rows(.id = "Seq")
-  return(indelsTble)
-} 
-
-
-
-
-.hits_report_to_gff <- function(f = "hitsReport.csv") {
-  # Convert the info contained in a HitReport file into a GFF file for display by
-  # a genome viewer.
-  # The f parameter corresponds to the path to a hitsReport file.
-  # Read the file as a data.frame
-  hitsReport <- read.delim(f)
-  # Create a GenomicRange that will be converted.
-  hitsGR <- GenomicRanges::makeGRangesFromDataFrame(hitsReport, keep.extra.columns=TRUE)
-  # Write a gff3 file to disk with this info.
-  rtracklayer::export.gff3(hitsGR,
-                           con = file.path(dirname(f), paste0(sub("\\..*$", "", basename(f)), ".gff"))
-  )
-  
 }

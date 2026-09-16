@@ -72,6 +72,8 @@ expect_golden <- function(x) {
 .RUN_SPECIFIC <- paste(
   "^##date",            # rtracklayer's GFF header
   "^# Date:",           # HMMER's own header
+  "^# Version:",        # HMMER's build, not its findings: a version that
+                        # changed results would show up in the hits instead
   "Current date",       # tell_tales.log
   "^# CPU time:",       # HMMER, genuinely varies run to run
   "^# Mc/sec:",         # HMMER throughput, likewise

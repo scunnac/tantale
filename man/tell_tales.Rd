@@ -18,8 +18,7 @@ tell_tales(
   min_gap = 35,
   extremity_codes = TRUE,
   rvd_sep = "-",
-  hmmer_path = system.file("tools", "hmmer-3.3", "bin", package = "tantale", mustWork =
-    T),
+  hmmer_path = NULL,
   extend_len = 300,
   correct_array = FALSE,
   correction_ref = system.file("extdata", "decipher_ref_tales_aa.fa.gz", package =

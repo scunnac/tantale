@@ -9,8 +9,7 @@ tales_align(
   residue_col = c("rvd", "dom_code"),
   repeat_sims = NULL,
   mafft_opts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1",
-  mafft_path = system.file("tools", "mafft-linux64", package = "tantale", mustWork =
-    TRUE),
+  mafft_path = NULL,
   ...
 )
 }
@@ -38,9 +37,13 @@ matrix, as accepted by \code{\link{tales_align}}.}
   do correspond. Raise \code{--op} if the alignment fragments into too
   many small gaps.}
 
-\item{mafft_path}{Directory of a MAFFT installation, laid out as the
-bundled one is (\code{mafft.bat} at the top, helpers under
-\code{mafftdir/libexec}). Defaults to the copy shipped with the package.}
+\item{mafft_path}{Where to find MAFFT. \code{NULL}, the default, uses the
+\code{tantale} conda environment, creating it on first use. Give the root
+of a standalone MAFFT directory instead (one holding \code{mafft.bat}
+with the helpers under \code{mafftdir/libexec}) to use your own copy --
+but note that the version matters: MAFFT changed how it aligns text-mode
+sequences after 7.4x, and later releases leave the termini of a TALE
+alignment unanchored.}
 
 \item{...}{Further arguments to the MAFFT runner, chiefly
 \code{gap_symbol}, the value gaps take in the returned matrix

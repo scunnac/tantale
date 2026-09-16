@@ -69,6 +69,84 @@
 # use POSIX qw(ceil);
 
 
+#' Locate the tantale conda environment, creating it if necessary
+#'
+#' The environment is where the package's external tools live -- MAFFT,
+#' HMMER, mmseqs2 and the Perl dependencies of the target predictors. They are
+#' no longer shipped inside the package, so this is how they are found.
+#'
+#' Versions are pinned in \code{inst/tools/tantale_conda_env.yaml} and the
+#' pins matter: MAFFT in particular aligns TALE repeat strings differently
+#' after 7.4x (restructuring-notes.md 7.4). An environment created by an older
+#' version of this package may hold the wrong ones, so the pins are checked
+#' here rather than trusted.
+#'
+#' @param conda_bin Passed to \code{reticulate}.
+#' @return The environment's prefix directory.
+#' @noRd
+.tantale_env_prefix <- function(conda_bin = "auto") {
+  if (as.logical(.create_tantale_env(conda_bin = conda_bin))) {
+    cli::cli_abort(
+      c("Could not create the {.val tantale} conda environment.",
+        "i" = "It provides MAFFT, HMMER and mmseqs2, which this package needs.",
+        "i" = "Check that conda or mamba is installed and that you are online."),
+      class = c("tantale_error_conda_env", "tantale_error"))
+  }
+  envs <- reticulate::conda_list(conda = conda_bin)
+  python <- envs$python[envs$name == "tantale"]
+  if (length(python) == 0L) {
+    cli::cli_abort("No conda environment named {.val tantale} was found.",
+                   class = c("tantale_error_conda_env", "tantale_error"))
+  }
+  if (length(python) > 1L) {
+    # conda and micromamba keep separate roots, so the same environment name
+    # can exist in both. Prefer the one belonging to the binary in use.
+    root <- dirname(dirname(reticulate::conda_binary(conda_bin)))
+    owned <- python[startsWith(python, root)]
+    if (length(owned) >= 1L) {
+      python <- owned[1]
+    } else {
+      cli::cli_warn(c("{length(python)} conda environments are named {.val tantale}.",
+                      "i" = "Using {.file {dirname(dirname(python[1]))}}."))
+      python <- python[1]
+    }
+  }
+  dirname(dirname(python))
+}
 
 
-
+#' Paths to the MAFFT executables
+#'
+#' MAFFT's text mode needs three programs, not one: the aligner itself and the
+#' two converters that move sequences in and out of its hexadecimal encoding.
+#' They sit in different places depending on how MAFFT was installed, so the
+#' layout is resolved here rather than assumed.
+#'
+#' @param mafft_path \code{NULL} to use the conda environment, or the root of
+#'   a standalone MAFFT directory (one holding \code{mafft.bat} with the
+#'   helpers under \code{mafftdir/libexec}).
+#' @param conda_bin Passed to \code{reticulate}.
+#' @return A list of the three executable paths.
+#' @noRd
+.mafft_binaries <- function(mafft_path = NULL, conda_bin = "auto") {
+  if (is.null(mafft_path)) {
+    prefix <- .tantale_env_prefix(conda_bin = conda_bin)
+    bins <- list(mafft = file.path(prefix, "bin", "mafft"),
+                 hex2text = file.path(prefix, "libexec", "mafft", "hex2maffttext"),
+                 text2hex = file.path(prefix, "libexec", "mafft", "maffttext2hex"))
+  } else {
+    # a standalone MAFFT directory, laid out as the distributed archives are
+    bins <- list(mafft = file.path(mafft_path, "mafft.bat"),
+                 hex2text = file.path(mafft_path, "mafftdir", "libexec", "hex2maffttext"),
+                 text2hex = file.path(mafft_path, "mafftdir", "libexec", "maffttext2hex"))
+  }
+  missing <- names(bins)[!vapply(bins, file.exists, logical(1))]
+  if (length(missing) > 0L) {
+    cli::cli_abort(
+      c("Cannot find {length(missing)} of MAFFT's executable{?s}.",
+        "x" = "Missing: {.file {unlist(bins[missing])}}",
+        "i" = "Text-mode alignment needs the two hex converters as well as {.file mafft} itself."),
+      class = c("tantale_error_mafft_missing", "tantale_error"))
+  }
+  bins
+}

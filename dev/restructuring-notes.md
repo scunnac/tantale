@@ -898,7 +898,50 @@ false positives are declared away (see 7.2) -- which is the real argument for
 
 ---
 
-### 7.4 Shrink the payload: get MAFFT and HMMER from conda **[A]**
+### 7.4 Shrink the payload — DONE **[V]**
+
+`inst/tools` is **122 MB -> 63 MB**. MAFFT and HMMER now come from the
+`tantale` conda environment, which already existed and already declared both.
+
+**The versions were checked, not assumed.**
+
+- **HMMER 3.3 -> 3.3.2.** Whole pipeline run both ways: of 36 output files, 2
+  differed, and within those exactly one line -- the version banner. Every
+  hit identical.
+- **MAFFT 7.450 -> 7.520 changed results**, reproducibly and in both
+  directions (28 vs 29 columns on `dom_code`, 29 vs 28 on `rvd`). Worse,
+  7.520 left the termini unanchored: with 7.450 every array starts at column
+  1 with its N-terminus and ends at the last column with its C-terminus,
+  while 7.520 staggered them. Gap penalties do not explain it -- `--op` 0-5
+  and `--ep` 1-10 all gave the same wrong answer. `--globalpair --op 1 --ep 1`
+  recovers the column count and the anchoring, and is identical for
+  well-populated arrays, but still differs on sparse ones.
+- **MAFFT 7.453 from bioconda is byte-identical to the bundled 7.450**, on
+  both layers. That is what the yaml pins, with a comment saying why.
+
+**What this changes for users.** The core pipeline no longer works offline
+out of the box: the first `tales_align()` or `tell_tales()` creates the conda
+environment. Conda was already a stated requirement, and TALVEZ and functal
+already depended on it, but they were optional paths and these are not.
+
+`mafft_path` and `hmmer_path` default to `NULL`, meaning "use the conda
+environment". Passing a directory still works for a standalone MAFFT, and
+the docs warn that the version matters.
+
+**A trap found on the way.** conda and micromamba keep separate roots, so
+`tantale` can exist twice with different contents -- it did here, and
+`reticulate::conda_list()` returned both. `.tantale_env_prefix()` prefers the
+one belonging to the binary in use rather than picking arbitrarily.
+
+**What is left, and why.** `arlem` (144 KB) has no conda package, so the
+`R CMD check` executable-files WARNING remains -- but for one small file
+rather than roughly 1300. The jars stay: AnnoTALE (16 MB), PrediTALE (14 MB)
+and TALEcorrection (27 MB) have no conda packages, and `correct_tales()` is
+wanted for the vignettes.
+
+#### Original notes
+
+### 7.4-original Shrink the payload: get MAFFT and HMMER from conda **[A]**
 
 `inst/` is 163 MB, and `inst/tools` is 122 MB of it -- the bulk of what a user
 downloads.
