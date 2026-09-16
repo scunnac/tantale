@@ -5,6 +5,7 @@
 \title{Group TALEs by similarity}
 \usage{
 tales_group(
+  x,
   tal_sim,
   plot_tree = FALSE,
   k = NULL,
@@ -13,10 +14,11 @@ tales_group(
 )
 }
 \arguments{
-\item{tal_sim}{A \code{\link{tale_distances}} object, as returned by
-\code{\link{tales_compare}}. A plain data frame using the legacy
-\code{TAL1}/\code{TAL2}/\code{Sim} column names is also accepted and
-coerced.}
+\item{x}{A \link{tales} object -- the one whose comparison produced \code{tal_sim}.}
+
+\item{tal_sim}{A \link{tale_distances} object, as returned by \code{\link[=tales_compare]{tales_compare()}}.
+A plain data frame using the legacy \code{TAL1}/\code{TAL2}/\code{Sim} column names is
+also accepted and coerced.}
 
 \item{plot_tree}{Logical, whether to plot the hclust tree. With
 \code{method = "k-medoids"} no tree is drawn; a silhouette-value plot is
@@ -34,14 +36,30 @@ test. Only used when \code{method = "k-medoids"}; the minimum is 2.}
 or \code{"k-medoids"} (see \code{\link[cluster:pam]{pam}}).}
 }
 \value{
-A data frame of array names and their assigned groups.
+\code{x} with an added (or replaced) \code{group} column.
 }
 \description{
 Classifies TALE arrays into groups by hierarchical or k-medoids clustering
-of their pairwise similarity.
+of their pairwise similarity, and returns the \link{tales} object with the
+result attached as its \code{group} column.
+}
+\details{
+The clustering is computed from \code{tal_sim}, but the result belongs on the
+\code{tales} object the distances were computed from, so that is what comes
+back. \code{group} is a recognised \code{tales} column, validated as constant within
+an array -- it is an array-level property, like \code{seqnames}.
+
+Taking \code{x} rather than returning a bare lookup table is what makes the
+correspondence checkable: the array names in \code{tal_sim} must be the array
+names in \code{x}, and this is the only place that can be verified. A mismatch
+is an error rather than a silent \code{NA} group, because a partly-grouped
+object is the kind of thing that fails much later and confusingly.
+
+The bare mapping is still one line away if you want it:
+\code{unique(out[c("array_id", "group")])}.
 }
 \seealso{
-\code{\link{tales_compare}}, which produces the input.
+\code{\link[=tales_compare]{tales_compare()}}, which produces both inputs.
 
 Other pairwise distances:
 \code{\link[=as.matrix.pairwise_distances]{as.matrix.pairwise_distances()}},

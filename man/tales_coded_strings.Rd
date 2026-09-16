@@ -4,21 +4,51 @@
 \alias{tales_coded_strings}
 \title{Domain-coded strings, one per TALE array}
 \usage{
-tales_coded_strings(x)
+tales_coded_strings(x, sep = " ", repeats_only = FALSE)
 }
 \arguments{
-\item{x}{A \code{\link{tales}} object carrying a \code{dom_code} column.}
+\item{x}{A \link{tales} object carrying a \code{dom_code} column.}
+
+\item{sep}{Separator between codes. Defaults to \code{" "}; see Details.}
+
+\item{repeats_only}{Drop the terminus parts, keeping only repeats.
+\code{FALSE} by default; see Details. Needs a \code{domain_type} column.}
 }
 \value{
-A \code{\link[Biostrings]{BStringSet}}, named by \code{array_id}.
+A \link[Biostrings:BStringSet]{Biostrings::BStringSet}, named by \code{array_id}.
 }
 \description{
-Renders each array as a space-separated string of its \code{dom_code}s in
-part order — the encoding ARLEM and MAFFT's text mode consume, where each
-distinct domain sequence is one "residue".
+Renders each array as a separated string of its \code{dom_code}s in part order --
+the encoding ARLEM and MAFFT's text mode consume, where each distinct
+domain sequence is one "residue".
+}
+\details{
+This is the sibling of \code{\link[=tales_rvd_strings]{tales_rvd_strings()}} and takes the same two
+arguments, but \strong{both defaults differ}, because the two projections feed
+different consumers:
+
+\tabular{lll}{
+\tab \code{\link[=tales_rvd_strings]{tales_rvd_strings()}} \tab \code{\link[=tales_coded_strings]{tales_coded_strings()}} \cr
+\code{sep} \tab \code{"-"}, the AnnoTALE convention \tab \code{" "}, what ARLEM and
+MAFFT \code{--text} split on \cr
+filter \tab \code{rvd_only = TRUE} \tab \code{repeats_only = FALSE} \cr
+}
+
+The separator is free to choose here in a way it is not for RVDs: a
+\code{dom_code} is a bare integer rendered as text, so \code{"1 2 3"} and \code{"1-2-3"}
+are equally unambiguous. It defaults to a space because that is what the
+documented consumers of this encoding expect, not because the character
+matters.
+
+The termini are kept by default, where \code{\link[=tales_rvd_strings]{tales_rvd_strings()}} drops them.
+Target prediction concerns the repeat domain only, so dropping them there
+is right; alignment is the consumer here, and the two termini are the most
+reliable anchors an alignment of TALE arrays has. Set \code{repeats_only = TRUE}
+to compare bare repeat arrays.
 }
 \seealso{
-\code{\link{tales_domain_codes}} for the code-to-sequence lookup.
+\code{\link[=tales_domain_codes]{tales_domain_codes()}} for the code-to-sequence lookup,
+\code{\link[=tales_rvd_strings]{tales_rvd_strings()}} for the sibling projection.
 
 Other tales projections:
 \code{\link[=repeat_to_rvd_map]{repeat_to_rvd_map()}},

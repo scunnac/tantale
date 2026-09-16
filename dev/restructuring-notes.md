@@ -494,6 +494,35 @@ currently uses `scales = "free_y", space = "free"`, which **shares** the x
 axis -- per-group alignments need `free_x` too, or the narrower group is padded
 out to the wider one's width.
 
+#### Decided: how `group` gets populated **[V]**
+
+Maintainer's call, and the right one: `tales_group()` takes the `tales`
+object whose comparison produced `tal_sim` and returns it with `group`
+filled, rather than a separate `add_group()` combining a bare mapping with a
+`tales` after the fact.
+
+Implemented as `tales_group(x, tal_sim, ...)`, returning `x` with `group`
+added. Previously it took `tal_sim` alone and returned a
+`data.frame(name, group)`.
+
+The argument order is a judgement made when implementing, not something the
+maintainer specified: `x` first, following the rOpenSci data-first
+convention (§9.0) and the rest of the `tales_*` API. Trivially flipped.
+
+**Why the combining variant is worse, concretely.** Taking `x` is the only
+point at which the correspondence between the distances and the object can
+be checked. `tales_group()` now errors (`tantale_error_group_mismatch`) if
+any array in `x` is ungrouped or any grouped name is absent from `x`, which
+means "these distances did not come from this object". An `add_group()`
+called later could do the same check, but nothing would *oblige* the caller
+to route through it, and the failure mode it prevents -- a partly-grouped
+object -- surfaces far downstream and confusingly.
+
+The bare mapping is not lost: `unique(out[c("array_id", "group")])`.
+
+**Still open:** this settles how `group` is populated, not the A-vs-B
+question below, which is about what a multi-group *alignment* is.
+
 #### Connected: a group-aware `tales_align()`
 
 Rather than making the user loop, `tales_align()` could notice a `group` column
@@ -990,7 +1019,7 @@ would have to stay, be downloaded on demand, or move to a data package.
 
 ---
 
-### 7.4a `tantale_setup()` **[A]** — queued for unattended work
+### 7.4a `tantale_setup()` -- DONE **[V]**
 
 A single entry point that checks, and optionally builds, everything the
 package needs outside R. Decided after 7.4 made the conda environment a
@@ -1077,6 +1106,41 @@ require the user to ask before touching the system.
 **Knock-on:** this shrinks 7.4b a lot. The README stops needing to explain
 conda roots and lazy environment creation, and says instead: install tantale,
 run `tantale_setup(install = TRUE)`.
+
+**Built**, in `R/tantale_setup.R`, to the shape specified above. All six
+requirements met:
+
+1. *Versions, not presence.* `.tantale_pins()` parses
+   `inst/tools/tantale_conda_env.yaml` so there is one source of truth;
+   `.tantale_installed()` reads `conda-meta/`, whose filenames are
+   `name-version-build.json`. No subprocess, and it does not need conda to be
+   working in order to report that conda is not working. Both hard cases are
+   covered and tested: hyphenated names (`perl-statistics-r`) and
+   non-numeric versions (`14.7e284`).
+2. *Repair, not just create.* `.tantale_repair()` runs an explicit
+   `conda_install` of the pinned specs, because `create` against an existing
+   environment will not downgrade.
+3. *Java and Perl checked*, with what needs them named in the failure line.
+4. *Three paths reported.* `.tantale_conda_root()` exists because
+   `dirname(dirname(bin))` is **not** the root: micromamba's binary sits in
+   `~/bin` while its root is `MAMBA_ROOT_PREFIX`. Getting this wrong is
+   precisely what made 7.4's rebuilds land in a different root from the one
+   in use. Everything operates on `-p <prefix>`.
+5. *Conda install is opt-in* behind its own `conda` argument, and the docs
+   say `install_miniconda()` installs miniconda, not mamba.
+6. *The lazy path still works.* `.tantale_warn_if_unpinned()` rides along
+   with `.tantale_env_prefix()`, warning once per session and pointing at
+   `tantale_setup(install = TRUE)`.
+
+**Removed while here:** `.create_tantale_env()` announced on every run that
+an environment "has been found on your system and can be used for analysis"
+-- without having looked inside it. Noise when true and a false assurance
+when false, which is the exact failure 7.4a was written to catch. Now silent.
+
+**Not exercised by the test suite:** the `install = TRUE` and `conda = TRUE`
+branches, which need network and would modify the machine. The parsing and
+comparison they depend on are tested against fixtures; the install call
+itself is one `reticulate::conda_install()`.
 
 ### 7.4b Tell users how to get conda, and that they now need it **[A]**
 
@@ -1598,7 +1662,7 @@ exposing; `max_comparisons` is the real lever.
 494 on real frameshifted arrays. Their call -- *"I will do the test myself
 later on"*.
 
-### 8.1d Golden baseline records machine-specific paths **[ ]**
+### 8.1d Golden baseline records machine-specific paths -- DONE **[V]**
 
 `tell_tales.log` echoes absolute paths -- the three HMM files, and
 `correction_ref`. Under `load_all()` these are the source tree; from an
@@ -1615,6 +1679,26 @@ filter those lines (loses the ability to catch a default change -- which is
 exactly what caught the rename), or teach the fingerprint to rewrite absolute
 paths to a placeholder rather than drop whole lines. The third keeps both
 properties and is probably right.
+
+**Fixed**, by the third option: `helper-golden.R` now rewrites absolute
+directories to `<path>/` before digesting, keeping the basename. Both
+properties are preserved -- the baseline travels between machines, and a
+change of *which* reference file is used still shows up.
+
+Also added `^# Current dir:` to the drop list; that is HMMER echoing the
+working directory, which is where the run happened rather than what it found.
+
+**The interesting part was getting the pattern narrow enough.** A first
+attempt matched "anything between two slashes", which also rewrote
+`</title></head>`, HMMER's `//` record separators and the `//` in
+`http://hmmer.org/`. It would have produced a perfectly stable digest while
+quietly destroying content -- a weaker baseline wearing the appearance of a
+more portable one. The pattern now requires a slash that starts a token and
+at least one non-empty `segment/` group, and every case the broad version got
+wrong is a test.
+
+Audited after the change: exactly one file (`tell_tales.log`) and exactly the
+four lines this section identified are touched.
 
 ### 8.1c `...` must not hide arguments behind an internal **[V]** — audited
 
@@ -1703,7 +1787,7 @@ Worth doing. Every step is separately useful -- someone may want the
 repeat-level distances without paying for ARLEM at all -- and the
 decomposition documents the model.
 
-### 8.2b `tales_coded_strings()` needs a `sep` argument **[A]**
+### 8.2b `tales_coded_strings()` needs a `sep` argument -- DONE **[V]**
 
 The two projections are siblings and should take the same arguments, but do
 not:
@@ -1734,6 +1818,50 @@ changes what the function returns today.
 Same pass should check `rvd_only`: `tales_rvd_strings()` has it and
 `tales_coded_strings()` does not, and it is not obvious whether dropping the
 terminus codes makes sense for repeat codes.
+
+**Resolved.** `tales_coded_strings(x, sep = " ", repeats_only = FALSE)`.
+
+*Was the separator safe to change?* Checked, and yes -- but it was not
+changed. `tales_coded_strings()` has **no callers inside `R/` at all**, only
+tests; `tales_align()` builds its own `" "`-joined strings at
+`tales_msa_class.R:288` rather than going through the projection, so it was
+never coupled. The default stays `" "` because the function's documented job
+is the encoding ARLEM and MAFFT `--text` consume, and those split on spaces.
+Changing it would have silently altered output for existing users with no
+error anywhere.
+
+So the siblings now take the same two arguments with *different defaults*,
+which is the honest answer rather than a compromise -- they feed different
+consumers, and the docs say so in a small table.
+
+| | `tales_rvd_strings()` | `tales_coded_strings()` |
+|---|---|---|
+| `sep` | `"-"` (AnnoTALE) | `" "` (ARLEM, MAFFT) |
+| filter | `rvd_only = TRUE` | `repeats_only = FALSE` |
+
+*And `rvd_only`?* Added as `repeats_only`, defaulting to `FALSE`. Target
+prediction concerns repeats only, so dropping termini is right for RVDs;
+alignment is the consumer here and the termini are the most reliable anchors
+an alignment of TALE arrays has. It filters on `domain_type == "repeat"` and
+errors if that column is absent.
+
+**Naming debt noted:** `tales_rvd_strings()`'s `rvd_only` means "repeats
+only" and would be better named `repeats_only` to match. Not renamed -- it is
+an exported argument and §9.1 is closed. Worth folding into any future
+breaking pass.
+
+**A bug this uncovered.** The shared `coded_tales()` test fixture carried
+`rvd = NTERM, NI, NTERM` for one array -- two N-termini, the second
+mid-array. Not a TALE. It had gone unnoticed because the fixture had no
+`domain_type` column, and without one the anomaly checks cannot run. Adding
+the column made `tales()` flag it at once (`terminus_duplicated`,
+`terminus_misplaced`). Fixture rebuilt as one complete and one incomplete
+array, preserving every property the tests relied on (three distinct codes,
+code 7 -> `MDP`, a recurring code within an array).
+
+Worth generalising: **a fixture that omits the columns the validators key on
+is not exercising the validators.** Other minimal fixtures in the suite are
+likely in the same position.
 
 ### 8.2 Silence MAFFT by default — DONE **[V]**
 

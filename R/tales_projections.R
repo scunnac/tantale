@@ -9,20 +9,61 @@
 
 #' Domain-coded strings, one per TALE array
 #'
-#' Renders each array as a space-separated string of its \code{dom_code}s in
-#' part order — the encoding ARLEM and MAFFT's text mode consume, where each
-#' distinct domain sequence is one "residue".
+#' Renders each array as a separated string of its `dom_code`s in part order --
+#' the encoding ARLEM and MAFFT's text mode consume, where each distinct
+#' domain sequence is one "residue".
 #'
-#' @param x A \code{\link{tales}} object carrying a \code{dom_code} column.
-#' @return A \code{\link[Biostrings]{BStringSet}}, named by \code{array_id}.
-#' @seealso \code{\link{tales_domain_codes}} for the code-to-sequence lookup.
+#' @details
+#' This is the sibling of [tales_rvd_strings()] and takes the same two
+#' arguments, but **both defaults differ**, because the two projections feed
+#' different consumers:
+#'
+#' \tabular{lll}{
+#'   \tab [tales_rvd_strings()] \tab [tales_coded_strings()] \cr
+#'   `sep` \tab `"-"`, the AnnoTALE convention \tab `" "`, what ARLEM and
+#'     MAFFT `--text` split on \cr
+#'   filter \tab `rvd_only = TRUE` \tab `repeats_only = FALSE` \cr
+#' }
+#'
+#' The separator is free to choose here in a way it is not for RVDs: a
+#' `dom_code` is a bare integer rendered as text, so `"1 2 3"` and `"1-2-3"`
+#' are equally unambiguous. It defaults to a space because that is what the
+#' documented consumers of this encoding expect, not because the character
+#' matters.
+#'
+#' The termini are kept by default, where [tales_rvd_strings()] drops them.
+#' Target prediction concerns the repeat domain only, so dropping them there
+#' is right; alignment is the consumer here, and the two termini are the most
+#' reliable anchors an alignment of TALE arrays has. Set `repeats_only = TRUE`
+#' to compare bare repeat arrays.
+#'
+#' @param x A [tales] object carrying a `dom_code` column.
+#' @param sep Separator between codes. Defaults to `" "`; see Details.
+#' @param repeats_only Drop the terminus parts, keeping only repeats.
+#'   `FALSE` by default; see Details. Needs a `domain_type` column.
+#' @return A [Biostrings::BStringSet], named by `array_id`.
+#' @seealso [tales_domain_codes()] for the code-to-sequence lookup,
+#'   [tales_rvd_strings()] for the sibling projection.
 #' @export
 #' @family tales projections
-tales_coded_strings <- function(x) {
+tales_coded_strings <- function(x, sep = " ", repeats_only = FALSE) {
   .tales_assert_dom_code(x, "tales_coded_strings")
+  if (isTRUE(repeats_only)) {
+    if (!"domain_type" %in% names(x)) {
+      cli::cli_abort(
+        c("{.code repeats_only = TRUE} needs a {.field domain_type} column.",
+          "i" = "Use {.code repeats_only = FALSE} to render every part."),
+        class = c("tantale_error_projection_column", "tantale_error"))
+    }
+    x <- x[x$domain_type == "repeat", ]
+    if (nrow(x) == 0L) {
+      cli::cli_abort("No parts left to render.",
+                     class = c("tantale_error_projection_empty", "tantale_error"))
+    }
+  }
   ord <- x[order(x$array_id, x$position_in_array), ]
   strings <- vapply(split(ord$dom_code, ord$array_id),
-                    paste, character(1), collapse = " ")
+                    paste, character(1), collapse = sep)
   out <- Biostrings::BStringSet(unname(strings))
   names(out) <- names(strings)
   out

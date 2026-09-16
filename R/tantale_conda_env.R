@@ -42,7 +42,10 @@
     }
     return(invisible(0L))
   } else {
-    cli::cli_inform("A Conda environment with the name {.val {env_name}} has been found on your system and can be used for analysis.")
+    # Deliberately silent. This used to announce that the environment "can be
+    # used for analysis" -- on every run, and without having looked inside it.
+    # Both halves were wrong: it is noise when true, and a false assurance
+    # when the environment holds the wrong MAFFT (7.4a).
     return(invisible(0L))
   }
 }
@@ -89,7 +92,8 @@
     cli::cli_abort(
       c("Could not create the {.val tantale} conda environment.",
         "i" = "It provides MAFFT, HMMER and mmseqs2, which this package needs.",
-        "i" = "Check that conda or mamba is installed and that you are online."),
+        "i" = "Check that conda or mamba is installed and that you are online.",
+        "i" = "{.run tantale_setup()} reports what is missing."),
       class = c("tantale_error_conda_env", "tantale_error"))
   }
   envs <- reticulate::conda_list(conda = conda_bin)
@@ -111,7 +115,12 @@
       python <- python[1]
     }
   }
-  dirname(dirname(python))
+  prefix <- dirname(dirname(python))
+  # The pins are only real if something checks them. tantale_setup() is the
+  # place to do it deliberately; this is the safety net for users who never
+  # call it, which is most of them (7.4a).
+  .tantale_warn_if_unpinned(prefix)
+  prefix
 }
 
 

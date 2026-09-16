@@ -85,8 +85,13 @@ test_that("golden: tales_align() on both residue layers", {
 })
 
 test_that("golden: tales_group() partitions the arrays the same way", {
-  expect_golden(fingerprint(suppressWarnings(suppressMessages(
-      tales_group(fx()$tal.similarity, k = 4, method = "hclust")))))
+  # tales_group() returns the tales with `group` filled (ledger 5.2), so the
+  # partition is pinned as the array -> group mapping rather than the whole
+  # object -- which would re-pin every other tales column for no gain.
+  d <- fx()
+  out <- suppressWarnings(suppressMessages(
+    tales_group(tales(d$tale_parts), d$tal.similarity, k = 4, method = "hclust")))
+  expect_golden(unique(as.data.frame(out)[c("array_id", "group")]))
 })
 
 
@@ -193,4 +198,38 @@ test_that("golden: tell_tales() with frameshift correction", {
   expect_length(list.files(file.path(out, "CorrectionAlignmentAA")), 4L)
 
   expect_golden(telltale_fingerprint(out))
+})
+
+
+#### the baseline's own machinery ####
+
+test_that("the fingerprint is independent of where the package lives", {
+  # ledger 8.1d. tell_tales.log echoes absolute paths; the digest must not.
+  here  <- "correction_ref\t:\t/home/someone/tantale/inst/extdata/ref.fa.gz"
+  there <- "correction_ref\t:\t/usr/lib/R/site-library/tantale/extdata/ref.fa.gz"
+  expect_identical(.normalise_paths(here), .normalise_paths(there))
+  # but which file it was is still visible, which is the point
+  expect_match(.normalise_paths(here), "ref.fa.gz", fixed = TRUE)
+})
+
+test_that("normalising paths does not eat ordinary text", {
+  # Every case here is one a first, broader pattern got wrong. A normaliser
+  # that quietly rewrote content would weaken the baseline rather than make
+  # it portable, so these are the guard on that.
+  unchanged <- c(
+    "2 insertions / 0 deletions",
+    "Number of arrays:\t4",
+    "</title></head>",                              # HTML closing tags
+    "</pre></html>",
+    "//",                                           # HMMER record separator
+    "# HMMER 3.3.2 (Nov 2020); http://hmmer.org/",  # a URL
+    "<span class=\"_21\">V</span>"
+  )
+  expect_identical(.normalise_paths(unchanged), unchanged)
+})
+
+test_that("normalising paths keeps the basename and drops only the directory", {
+  expect_identical(
+    .normalise_paths("HMM file:\t/a/b/c/Xo_TALE_Nterm_CDS_profile.hmm"),
+    "HMM file:\t<path>/Xo_TALE_Nterm_CDS_profile.hmm")
 })

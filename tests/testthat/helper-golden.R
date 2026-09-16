@@ -75,6 +75,7 @@ expect_golden <- function(x) {
   "^# Version:",        # HMMER's build, not its findings: a version that
                         # changed results would show up in the hits instead
   "Current date",       # tell_tales.log
+  "^# Current dir:",    # HMMER echoes the working directory, not a finding
   "^# CPU time:",       # HMMER, genuinely varies run to run
   "^# Mc/sec:",         # HMMER throughput, likewise
   "/tmp/",              # any absolute temp path
@@ -83,12 +84,36 @@ expect_golden <- function(x) {
   sep = "|"
 )
 
+# Absolute directories say where this machine keeps a file, not what the run
+# found. tell_tales.log echoes four of them -- the three HMM profiles and
+# correction_ref -- and they differ between a load_all() run from the source
+# tree and a run from an installed package, so digesting them verbatim made
+# this baseline reproduce only on the machine that recorded it (ledger 8.1d).
+#
+# Rewriting rather than dropping the line is what keeps the useful half. The
+# basename says *which* reference was used, and that is exactly the signal
+# that caught the 8.1b rename; only the directory is noise.
+# The pattern has to be narrow. A first attempt at "anything between two
+# slashes" also ate `</head>`, HMMER's `//` record separators and the `//` in
+# `http://hmmer.org/` -- all of which are content, and silently digesting
+# them away would have made the baseline weaker, not more portable.
+#
+# So: a slash that starts a token (preceded by nothing or by a delimiter),
+# followed by one or more non-empty `segment/` groups. `//` cannot match
+# because a segment must be non-empty, and `</head>` cannot because `<` is
+# not a delimiter. Only the directory part is consumed; the basename stays.
+.PATH_PREFIX <- "(^|[[:space:]=,;'\"(\\[])/(?:[A-Za-z0-9._+~-]+/)+"
+
+.normalise_paths <- function(txt) {
+  gsub(.PATH_PREFIX, "\\1<path>/", txt, perl = TRUE)
+}
+
 .telltale_file_digest <- function(path) {
   txt <- readLines(path, warn = FALSE)
   keep <- txt[!grepl(.RUN_SPECIFIC, txt)]
   list(n_lines = length(txt),
        n_dropped = length(txt) - length(keep),
-       digest = digest::digest(keep, algo = "md5"))
+       digest = digest::digest(.normalise_paths(keep), algo = "md5"))
 }
 
 telltale_fingerprint <- function(dir) {

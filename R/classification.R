@@ -5,12 +5,28 @@
 #' Group TALEs by similarity
 #'
 #' Classifies TALE arrays into groups by hierarchical or k-medoids clustering
-#' of their pairwise similarity.
+#' of their pairwise similarity, and returns the [tales] object with the
+#' result attached as its `group` column.
 #'
-#' @param tal_sim A \code{\link{tale_distances}} object, as returned by
-#'   \code{\link{tales_compare}}. A plain data frame using the legacy
-#'   \code{TAL1}/\code{TAL2}/\code{Sim} column names is also accepted and
-#'   coerced.
+#' @details
+#' The clustering is computed from `tal_sim`, but the result belongs on the
+#' `tales` object the distances were computed from, so that is what comes
+#' back. `group` is a recognised `tales` column, validated as constant within
+#' an array -- it is an array-level property, like `seqnames`.
+#'
+#' Taking `x` rather than returning a bare lookup table is what makes the
+#' correspondence checkable: the array names in `tal_sim` must be the array
+#' names in `x`, and this is the only place that can be verified. A mismatch
+#' is an error rather than a silent `NA` group, because a partly-grouped
+#' object is the kind of thing that fails much later and confusingly.
+#'
+#' The bare mapping is still one line away if you want it:
+#' `unique(out[c("array_id", "group")])`.
+#'
+#' @param x A [tales] object -- the one whose comparison produced `tal_sim`.
+#' @param tal_sim A [tale_distances] object, as returned by [tales_compare()].
+#'   A plain data frame using the legacy `TAL1`/`TAL2`/`Sim` column names is
+#'   also accepted and coerced.
 #' @param plot_tree Logical, whether to plot the hclust tree. With
 #'   \code{method = "k-medoids"} no tree is drawn; a silhouette-value plot is
 #'   produced instead.
@@ -22,11 +38,15 @@
 #'   test. Only used when \code{method = "k-medoids"}; the minimum is 2.
 #' @param method One of \code{"hclust"} (see \code{\link[stats:cutree]{cutree}})
 #'   or \code{"k-medoids"} (see \code{\link[cluster:pam]{pam}}).
-#' @return A data frame of array names and their assigned groups.
-#' @seealso \code{\link{tales_compare}}, which produces the input.
+#' @return `x` with an added (or replaced) `group` column.
+#' @seealso [tales_compare()], which produces both inputs.
 #' @export
 #' @family pairwise distances
-tales_group <- function(tal_sim, plot_tree = FALSE, k = NULL, k_range = NULL, method = "k-medoids") {
+tales_group <- function(x, tal_sim, plot_tree = FALSE, k = NULL, k_range = NULL, method = "k-medoids") {
+  if (!is_tales(x)) {
+    cli::cli_abort("{.arg x} must be a {.cls tales} object.",
+                   class = c("tantale_error_tales_type", "tantale_error"))
+  }
 
   # For alternative methods for cluster definition:
   # -  Expectation Maximization (EM): https://en.wikibooks.org/wiki/Data_Mining_Algorithms_In_R/Clustering/Expectation_Maximization_(EM)
@@ -145,9 +165,33 @@ tales_group <- function(tal_sim, plot_tree = FALSE, k = NULL, k_range = NULL, me
   
   
   if(plot_tree == TRUE) {print(p)}
-  return(taleGroups)
-  
-  
+
+  .tales_attach_groups(x, taleGroups)
+}
+
+
+#' Put a name->group mapping onto the tales object it was computed from
+#'
+#' Kept separate because it is the part with the invariant in it: every array
+#' in `x` must be grouped, and every grouped name must be an array of `x`.
+#' Either direction failing means the distances did not come from this object.
+#' @noRd
+.tales_attach_groups <- function(x, groups) {
+  arrays <- unique(x$array_id)
+  missing <- setdiff(arrays, groups$name)
+  extra   <- setdiff(groups$name, arrays)
+  if (length(missing) || length(extra)) {
+    cli::cli_abort(
+      c("{.arg tal_sim} does not describe the arrays in {.arg x}.",
+        "x" = if (length(missing))
+          "In {.arg x} but not grouped: {.val {utils::head(missing, 5)}}{if (length(missing) > 5) ' ...' else ''}",
+        "x" = if (length(extra))
+          "Grouped but not in {.arg x}: {.val {utils::head(extra, 5)}}{if (length(extra) > 5) ' ...' else ''}",
+        "i" = "{.arg tal_sim} must come from comparing this same object."),
+      class = c("tantale_error_group_mismatch", "tantale_error"))
+  }
+  x$group <- groups$group[match(x$array_id, groups$name)]
+  x
 }
 
 
