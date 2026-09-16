@@ -24,7 +24,7 @@ defaults, since the options are the tools' own.}
 }
 \value{
 A tibble of EBE predictions, with column names homogenised across
-  backends, plus a \code{method} column recording which tool produced them.
+backends, plus a \code{method} column recording which tool produced them.
 }
 \description{
 Runs a TALE target (EBE) prediction tool over a set of TALE RVD sequences

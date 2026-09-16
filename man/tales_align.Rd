@@ -27,16 +27,16 @@ built-in RVD similarity matrix when aligning RVDs, or a
 matrix, as accepted by \code{\link{tales_align}}.}
 
 \item{mafft_opts}{Command-line options handed to MAFFT. The default,
-  \code{"--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1"},
-  asks for an accurate local alignment and sets the gap penalties.
+\code{"--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1"},
+asks for an accurate local alignment and sets the gap penalties.
 
-  \code{--op} is the cost of opening a gap and \code{--ep} the cost of
-  extending one. They are set unusually here -- free to open, expensive to
-  extend -- because of what is being aligned. A TALE gains or loses whole
-  repeats, so a gap should start wherever it needs to; what should be
-  discouraged is one long gap swallowing a stretch of repeats that really
-  do correspond. Raise \code{--op} if the alignment fragments into too
-  many small gaps.}
+\code{--op} is the cost of opening a gap and \code{--ep} the cost of
+extending one. They are set unusually here -- free to open, expensive to
+extend -- because of what is being aligned. A TALE gains or loses whole
+repeats, so a gap should start wherever it needs to; what should be
+discouraged is one long gap swallowing a stretch of repeats that really
+do correspond. Raise \code{--op} if the alignment fragments into too
+many small gaps.}
 
 \item{mafft_path}{Where to find MAFFT. \code{NULL}, the default, uses the
 \code{tantale} conda environment, creating it on first use. Give the root
@@ -66,7 +66,7 @@ an \code{alignment_position} column added, so every other layer
 (\code{rvd}, \code{dom_code}, \code{aa_seq}, ...) remains available.
 }
 \details{
-The mapping back from MAFFT's output is **positional**: the k-th non-gap cell
+The mapping back from MAFFT's output is \strong{positional}: the k-th non-gap cell
 of an aligned row is the k-th part fed in. That is well defined only because
 this function builds MAFFT's input from \code{x} itself, which is why
 \code{\link{tales_assert_complete}} is enforced first.

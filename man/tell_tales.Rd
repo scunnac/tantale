@@ -21,8 +21,9 @@ tell_tales(
   hmmer_path = NULL,
   extend_len = 300,
   correct_array = FALSE,
-  correction_ref = system.file("extdata", "decipher_ref_tales_aa.fa.gz", package =
+  correction_ref = system.file("extdata", "tale_correction_ref.fa.gz", package =
     "tantale", mustWork = T),
+  max_comparisons = NULL,
   frameshift = -11,
   ...
 )
@@ -54,17 +55,17 @@ the TALE arrays found within a sequence that passes -- see
 \code{min_array_length} for that.}
 
 \item{min_array_length}{Minimum number of \strong{repeat units} for a TALE
-  array to be kept. Defaults to \code{0}, which keeps everything.
+array to be kept. Defaults to \code{0}, which keeps everything.
 
-  Counting repeats rather than all hits means an array is not penalised for
-  having had its termini missed, and matches what "array length" usually
-  means for a TALE: the number of repeats is what determines how long a
-  target box it recognises.
+Counting repeats rather than all hits means an array is not penalised for
+having had its termini missed, and matches what "array length" usually
+means for a TALE: the number of repeats is what determines how long a
+target box it recognises.
 
-  Whether a short array is noise or a genuinely truncated TALE is a
-  judgement about the biology, which is why nothing is discarded unless you
-  ask. A pseudogene with three surviving repeats is real, and may be what
-  you are looking for.}
+Whether a short array is noise or a genuinely truncated TALE is a
+judgement about the biology, which is why nothing is discarded unless you
+ask. A pseudogene with three surviving repeats is real, and may be what
+you are looking for.}
 
 \item{merge_hits}{Perform overlapping hits merging per domain type. Should not
 be modified.}
@@ -86,9 +87,71 @@ ORF prediction stage.}
 
 \item{correct_array}{True or False}
 
-\item{correction_ref}{Reference AA sequences for tal array
-predicted ORF correction if you do not want to use the ones provided with
-tantale.}
+\item{correction_ref}{Fasta of reference TALE proteins to correct
+against. Two are shipped, both built by
+\code{data-raw/make_correction_references.R} from the same source:
+
+\itemize{
+\item \code{tale_correction_ref.fa.gz} (default, 494 sequences) --
+every distinct TALE protein of at least 300 aa found across 70
+\emph{Xanthomonas oryzae} genomes.
+\item \code{tale_correction_ref_representative.fa.gz} (136) -- a
+diversity-sampled subset, for a smaller footprint.
+}
+
+Both keep the pseudogenes. Their frameshifts came from high-quality
+genomes and so are real biology, and correction is meant to recover a
+sequence as it exists in nature rather than reshape every array into an
+intact TALE. A reference of only intact TALEs risks "repairing" a
+genuine pseudogene into an ORF no strain carries.}
+
+\item{max_comparisons}{How many reference proteins each array may be
+aligned against during frameshift correction, and \strong{the main
+control on how long correction takes}. \code{NULL}, the default, allows
+all of them.
+
+\code{DECIPHER::CorrectFrameshifts()} scores every reference with a
+cheap distance first, sorts them, and only then aligns against the
+closest \code{max_comparisons} of them -- stopping sooner if one is
+close enough. So the references never reached cost almost nothing, and
+lowering this does not change \emph{which} references are preferred,
+only how deep the search goes before settling for the best seen.
+
+Measured on four arrays against the 1057-sequence source set, all giving
+byte-identical corrected sequences:
+
+\tabular{lr}{
+\strong{max_comparisons} \tab \strong{seconds} \cr
+all (1057) \tab 252 \cr
+400 \tab 179 \cr
+100 \tab 47 \cr
+50 \tab 23 \cr
+20 \tab 10 \cr
+}
+
+\strong{The trade-off.} A cap risks a divergent array whose only good
+reference lies outside the closest \code{max_comparisons} by the cheap
+pre-screen. That pre-screen is an approximation, so a low cap trusts it
+to rank the truly best reference near the top.
+
+When it fails it does not fail by leaving an array uncorrected -- it
+fails by correcting it against a poor reference, which is worse, because
+the result still looks like a corrected ORF. Against a deliberately
+small 20-sequence reference, the same four arrays give:
+
+\tabular{ll}{
+\strong{max_comparisons} \tab \strong{indels called per array} \cr
+all (20), 20, 10 \tab 2, 2, 0, 1 \cr
+5 \tab 2, 2, 0, 2 \cr
+2 \tab 9, 11, 0, 15 \cr
+}
+
+At 2 the aligner cannot reach a decent reference and invents indels
+wholesale. What matters is therefore not the ratio to the reference set
+but whether the closest \code{max_comparisons} are genuinely close: 20
+of 1057 is ample, 5 of 20 is not. With a large reference set a cap in
+the tens is safe and very much faster; with a small or a poorly matched
+one, prefer the default and pay for the full search.}
 
 \item{frameshift}{This is an internal parameter of the
 \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}} function. The
@@ -99,56 +162,54 @@ default is 11 and fiddle with this at your own risk...}
 }
 \value{
 This functions has only side effects (writing files, mostly).
-  However, if everything ran smoothly, it will invisibly return the path of
-  the directory where output files were written.
+However, if everything ran smoothly, it will invisibly return the path of
+the directory where output files were written.
 
-
-  List of output files:
-  \itemize{
-  \item allRanges.gff: gff file of all Tal arrays detected by HMMer
-  \item arrayReport.tsv: report of all Tal arrays. In the arrayReport.tsv,
-  column \emph{predicted_dels_count}/\emph{predicted_ins_count} shows the
-  number of putative deletions/insertions in the raw sequences that have been
-  corrected in the corrected sequences with the
-  function \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}}.
-  \item hitsReport.tsv: report of all hits detected by HMMer
-  \item hitsReport.gff: gff file of all hits detected by HMMer
-  \item domainsReport.tsv: report of all Tal amino acid domains detected by AnnoTALE analyze
-  \item putativeTalOrf.fasta: Tal putative ORFs
-  \item pseudoTalCds.fasta: pseudo Tal CDS, putative Tal array ORFs detected by HMMer for whch
-   AnnoTALE analyze failed to find RVD(s).
-  \item rvdSequences.fas: Sequence of RVDs (separated by rvd_sep) predicted to be encoded in the Tal array
-   ORFs by AnnoTALE. Note that if extremity_codes is \code{TRUE} (by default),
-   the N- and C-TREM anchor codes will be appended at the beginning and end of the sequences
-   if the corresponding domain coding sequence was wound by HMMer at the DNA level.
-   If no such HMMer hits were found, the "XXXXX" string will be appended
-   to denote that AA sequences outside of the RVD array are likely to be atypical.
-  \item C-terminusAAAlignment.html: protein alignment of all C-termini
-  \item C-terminusDNAAlignment.html: DNA alignment of all C-termini
-  \item N-terminusAAAlignment.html: protein alignment of all N-termini
-  \item N-terminusDNAAlignment.html: DNA alignment of all N-termini
-  \item TALE_CDS_all_diagnostic_regions_hmmfile.out: HMMER profile used for tale cds search.
-  \item hmmerSearchOut.txt: ignore
-  \item nhmmerHumanReadableOutputOfLastRun.txt: primary HMMER output file.
-  \item tell_tales.log: a log file
-  \item annotale folder: folder containing result of AnnoTALE analyze for all Tal arrays
-  \item CorrectionAlignmentAA folder: folder containing protein alignment of Tal array detected by HMMer and corrected Tal array if \code{correct_array} = TRUE
-  \item CorrectionAlignmentDNA folder: folder containing DNA alignment of Tal array detected by HMMer and corrected Tal array if \code{correct_array = TRUE}
-  }
+List of output files:
+\itemize{
+\item allRanges.gff: gff file of all Tal arrays detected by HMMer
+\item arrayReport.tsv: report of all Tal arrays. In the arrayReport.tsv,
+column \emph{predicted_dels_count}/\emph{predicted_ins_count} shows the
+number of putative deletions/insertions in the raw sequences that have been
+corrected in the corrected sequences with the
+function \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}}.
+\item hitsReport.tsv: report of all hits detected by HMMer
+\item hitsReport.gff: gff file of all hits detected by HMMer
+\item domainsReport.tsv: report of all Tal amino acid domains detected by AnnoTALE analyze
+\item putativeTalOrf.fasta: Tal putative ORFs
+\item pseudoTalCds.fasta: pseudo Tal CDS, putative Tal array ORFs detected by HMMer for whch
+AnnoTALE analyze failed to find RVD(s).
+\item rvdSequences.fas: Sequence of RVDs (separated by rvd_sep) predicted to be encoded in the Tal array
+ORFs by AnnoTALE. Note that if extremity_codes is \code{TRUE} (by default),
+the N- and C-TREM anchor codes will be appended at the beginning and end of the sequences
+if the corresponding domain coding sequence was wound by HMMer at the DNA level.
+If no such HMMer hits were found, the "XXXXX" string will be appended
+to denote that AA sequences outside of the RVD array are likely to be atypical.
+\item C-terminusAAAlignment.html: protein alignment of all C-termini
+\item C-terminusDNAAlignment.html: DNA alignment of all C-termini
+\item N-terminusAAAlignment.html: protein alignment of all N-termini
+\item N-terminusDNAAlignment.html: DNA alignment of all N-termini
+\item TALE_CDS_all_diagnostic_regions_hmmfile.out: HMMER profile used for tale cds search.
+\item hmmerSearchOut.txt: ignore
+\item nhmmerHumanReadableOutputOfLastRun.txt: primary HMMER output file.
+\item tell_tales.log: a log file
+\item annotale folder: folder containing result of AnnoTALE analyze for all Tal arrays
+\item CorrectionAlignmentAA folder: folder containing protein alignment of Tal array detected by HMMer and corrected Tal array if \code{correct_array} = TRUE
+\item CorrectionAlignmentDNA folder: folder containing DNA alignment of Tal array detected by HMMer and corrected Tal array if \code{correct_array = TRUE}
+}
 }
 \description{
 \code{tell_tales} has been primarily written to report on 'corrected' TALE RVD
 sequences in indels prone, noisy DNA sequences (suboptimally polished genomes
-assembly, raw reads of long read sequencing technologies [eg PacBio, ONT])
+assembly, raw reads of long read sequencing technologies such as PacBio or ONT)
 that would otherwise be missed by conventional tools (eg AnnoTALE).
 }
 \details{
 The approach is first to use \href{http://hmmer.org/}{HMMER} to find and
 categorize regions in the input DNA sequence that are related to the coding
 sequence of canonical TALE protein domains (N-Term, repeats, C-term). Hits
-that are (nearly [see the min_gap parameter]) adjacent are grouped in
+that are (nearly -- see the \code{min_gap} parameter) adjacent are grouped in
 "taleArrays" which are considered as potential tal genes.
-
 
 If the \code{correct_array} parameter is turned off, the longest
 predicted open reading frame (+extend_len) for each talArray is fed to

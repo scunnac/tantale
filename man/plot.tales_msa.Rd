@@ -50,7 +50,7 @@ layer, so it always matches what the cells say.}
 \item{fill_type}{One of \code{"repeat_clust"}, \code{"repeat_sim"} or
 \code{"rvd_sim"}. The first two colour cells by repeat cluster or by
 protein-sequence similarity to the reference. \code{"rvd_sim"} colours
-them instead by how alike each RVD's *DNA-binding preference* is to the
+them instead by how alike each RVD's \emph{DNA-binding preference} is to the
 reference TALE's RVD at that position, on a diverging scale over
 \code{[-1, 1]}. The repeat- and RVD-level views genuinely differ:
 \code{HD} and \code{ND} are distinct repeats with identical
@@ -64,8 +64,8 @@ An \code{\link[aplot:insert_left]{aplot}} object.
 }
 \description{
 Draws the alignment as a heatmap: one row per array, one
-  column per alignment position, with cells coloured by one layer and
-  optionally labelled with another.
+column per alignment position, with cells coloured by one layer and
+optionally labelled with another.
 }
 \details{
 A \code{tales_msa} carries every layer at once -- \code{rvd},
@@ -74,7 +74,7 @@ A \code{tales_msa} carries every layer at once -- \code{rvd},
 matrices.
 
 Three things are decided independently, and it helps to read the figure
-that way: what each cell *says*, what colour that text is, and what colour
+that way: what each cell \emph{says}, what colour that text is, and what colour
 the block behind it is.
 
 \strong{Cell text} is whatever \code{label} names, or nothing when
@@ -93,10 +93,10 @@ always describe the same thing.
 part that can be unavailable:
 
 \tabular{lll}{
-  \strong{fill_type} \tab \strong{shows} \tab \strong{needs} \cr
-  \code{"repeat_clust"} \tab which cluster the repeat falls in, cut at \code{h_cut} \tab \code{domain_sim} \cr
-  \code{"repeat_sim"} \tab protein-sequence similarity to the reference, 0-100 \tab \code{domain_sim} \cr
-  \code{"rvd_sim"} \tab how alike the RVD's DNA-binding preference is to the reference's, -1 to 1 \tab a \code{label} layer \cr
+\strong{fill_type} \tab \strong{shows} \tab \strong{needs} \cr
+\code{"repeat_clust"} \tab which cluster the repeat falls in, cut at \code{h_cut} \tab \code{domain_sim} \cr
+\code{"repeat_sim"} \tab protein-sequence similarity to the reference, 0-100 \tab \code{domain_sim} \cr
+\code{"rvd_sim"} \tab how alike the RVD's DNA-binding preference is to the reference's, -1 to 1 \tab a \code{label} layer \cr
 }
 
 With no \code{domain_sim} and no \code{label}, every block is flat grey:

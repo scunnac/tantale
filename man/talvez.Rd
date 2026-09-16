@@ -43,9 +43,9 @@ reticulate package functions.}
 }
 \value{
 A tibble with the EBE predictions. \strong{Note that column names
-  have been modified} relative to the column names found in the originale
-  programs's output in order to homogenize column names across TALE target
-  prediction programs in tantale.
+have been modified} relative to the column names found in the originale
+programs's output in order to homogenize column names across TALE target
+prediction programs in tantale.
 }
 \description{
 A R wrapper around the

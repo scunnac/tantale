@@ -11,7 +11,7 @@ tales_domain_codes(x)
 }
 \value{
 A \code{\link[tibble]{tibble}} with \code{dom_code}, \code{aa_seq}
-  and \code{rvd} columns, one row per code.
+and \code{rvd} columns, one row per code.
 }
 \description{
 One row per distinct domain sequence: its \code{dom_code}, the amino acid

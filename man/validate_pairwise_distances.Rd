@@ -14,7 +14,7 @@ validate_pairwise_distances(x)
 }
 \description{
 Checks the column contract, and nothing else. Squareness, the diagonal and
-symmetry are deliberately *not* checked here: the package filters these
+symmetry are deliberately \emph{not} checked here: the package filters these
 tables asymmetrically on purpose, so those properties are preconditions of
 the methods that need them — see \code{\link{distances_assert_square}}.
 }

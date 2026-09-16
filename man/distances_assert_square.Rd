@@ -16,12 +16,12 @@ distances_assert_square(x, arg = "x")
 }
 \description{
 Checks that the table holds every ordered pair of the ids it contains —
-\code{n^2} rows for \code{n} ids. Phrased over the ids *present*, so that a
+\code{n^2} rows for \code{n} ids. Phrased over the ids \emph{present}, so that a
 symmetric subset stays square: filtering both id columns to the same set of
 entities preserves this, while filtering one of them does not.
 }
 \details{
-A **precondition**, not an invariant. \code{conversion.R} filters on
+A \strong{precondition}, not an invariant. \code{conversion.R} filters on
 \code{id1} alone inside a loop over alignment columns, and \code{msa.R}
 filters the two id columns in succession, passing through a non-square
 intermediate. Both are correct; enforcing squareness everywhere would

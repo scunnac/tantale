@@ -17,7 +17,7 @@ functal(
 \arguments{
 \item{tal_file}{Path to a QueTAL-formatted file of TALE RVD sequences.}
 
-\item{tree_format}{Tree layout passed to functal's `-n` option (default `"fan"`).}
+\item{tree_format}{Tree layout passed to functal's \code{-n} option (default \code{"fan"}).}
 
 \item{output_prefix}{Prefix used for functal's output file names.}
 

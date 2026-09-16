@@ -11,16 +11,16 @@
 }
 \value{
 A tibble with one row per (array, anomaly): \code{array_id},
-  \code{check} and \code{detail}. Zero rows if the object is clean.
+\code{check} and \code{detail}. Zero rows if the object is clean.
 }
 \description{
-Collects the array-level anomalies that make an object *odd* rather than
-*unreadable*: missing sequence data, impossible domain-type arrangements,
+Collects the array-level anomalies that make an object \emph{odd} rather than
+\emph{unreadable}: missing sequence data, impossible domain-type arrangements,
 coordinate disagreements, attributes that should be constant within an array
 but are not.
 }
 \details{
-These are deliberately **not** errors. Real TALE predictions are messy, and a
+These are deliberately \strong{not} errors. Real TALE predictions are messy, and a
 class that refuses to load them forces cleaning outside the package and
 destroys exactly the diagnostic signal a user wants. They are reported as a
 warning on construction and can be removed with \code{sanitize = TRUE}.

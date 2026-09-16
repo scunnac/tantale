@@ -18,7 +18,7 @@
 }
 \value{
 An object of class \code{summary.tales}: a list of the measures,
-  so they can be used as well as read.
+so they can be used as well as read.
 }
 \description{
 The measures worth knowing about a set of TALE arrays before doing anything

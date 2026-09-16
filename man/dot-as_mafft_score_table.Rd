@@ -19,7 +19,7 @@ without tripping the deprecation warning.
 Normalise a pairwise table to what MAFFT's --textmatrix wants
 }
 \details{
-MAFFT scores matches, so it wants a *similarity*: higher means more alike.
+MAFFT scores matches, so it wants a \emph{similarity}: higher means more alike.
 Accepts either the canonical \code{\link{pairwise_distances}} vocabulary
 (\code{id1}, \code{id2}, \code{dissim}) or the legacy one
 (\code{RepU1}, \code{RepU2}, \code{Sim}), inverting the distance on the

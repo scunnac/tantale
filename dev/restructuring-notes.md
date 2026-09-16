@@ -1525,6 +1525,97 @@ Do not trim the shipped file on speed grounds alone: a reference that is fast
 but corrects worse is a bad trade, and correction rewrites the user's
 sequences.
 
+**Resolved.** Answers to the four questions above, and what was done.
+
+*Provenance.* Confirmed by the maintainer and by the file: uncurated
+`tell_tales()` output over 70 *X. oryzae* genomes. 1057 sequences, of which
+555 are byte-identical duplicates and 8 are too short to be TALEs (shortest
+23 aa against a median of 1198).
+
+*Redundancy.* Very high, as expected. After dedup and a 300 aa floor, 494
+remain; clustering the intact ones at 0.04 collapses them to 65 clusters.
+
+*Does a smaller set correct as well?* **Reference size is not the lever.** 494
+and 1057 give the same corrections at almost the same cost, because the cost
+is dominated by alignment, not by the cheap pre-screen every reference goes
+through.
+
+*Is `maxComparisons = length(AAref)` right?* **This is the lever**, and the
+finding that mattered. Reading the DECIPHER source settled what the docs do
+not say: `CorrectFrameshifts()` scores *all* references with a cheap distance,
+`order(d, widths, decreasing = TRUE)`, truncates to `maxComparisons`, and only
+then aligns, stopping early at `acceptDistance`. So the cap does not pick
+arbitrary references -- it bounds how deep a ranked search goes. Measured on
+four arrays against the 1057 set, all byte-identical: 252 s uncapped, 10 s at
+20.
+
+(Method note, worth keeping: I first asserted this ranking behaviour, then
+wrongly retracted it when the documentation was silent. The maintainer's
+correction -- *"reading the source code of the function may teach you far more
+that you ask for with the tests"* -- was right, and reading it confirmed the
+original claim. Prefer the source to inference when the docs are silent.)
+
+**What shipped.**
+
+- `data-raw/make_correction_references.R` builds both sets from
+  `data-raw/tale_correction_ref_source.fa.gz` (the renamed original).
+- `inst/extdata/tale_correction_ref.fa.gz` -- 494, the new default.
+- `inst/extdata/tale_correction_ref_representative.fa.gz` -- 136, a
+  diversity-sampled subset (all pseudogenes + one longest member per cluster).
+- Pseudogenes are kept in both, deliberately: the genomes were high quality,
+  so the frameshifts are real biology, and a reference of only intact TALEs
+  risks "repairing" a genuine pseudogene into an ORF no strain carries.
+- `Clusterize()` settings: `includeTerminalGaps = TRUE`,
+  `penalizeGapLetterMatches = NA`, `method = "overlap"` (inert when
+  `includeTerminalGaps` is TRUE, stated for clarity).
+- `max_comparisons` promoted to a real `tell_tales()` argument, defaulting to
+  `NULL` = all references. It had to be a real argument, not passed through
+  `...`, which collided ("formal argument matched by multiple actual
+  arguments").
+- It is echoed into `tell_tales.log`, since it changes results.
+
+**The trade-off, measured.** The cap is not a free speedup, and it fails in
+the worse direction -- not by leaving an array uncorrected but by correcting
+it against a poor reference, which still looks like a corrected ORF. Against
+a deliberately small 20-sequence reference:
+
+| `max_comparisons` | indels called per array |
+|---|---|
+| all (20), 20, 10 | 2, 2, 0, 1 |
+| 5 | 2, 2, 0, **2** |
+| 2 | **9, 11, 0, 15** |
+
+So what matters is not the ratio to the reference set but whether the closest
+`max_comparisons` are genuinely close: 20 of 1057 is ample, 5 of 20 is not.
+This is in `@param max_comparisons` and pinned by a test in
+`test_tell_tales_guards.R`.
+
+*`processors`.* Tried, per the maintainer's recollection that it once broke
+things. It no longer breaks, and gives ~10% -- it does not scale. Not worth
+exposing; `max_comparisons` is the real lever.
+
+**Deferred to the maintainer:** validating the 136-sequence set against the
+494 on real frameshifted arrays. Their call -- *"I will do the test myself
+later on"*.
+
+### 8.1d Golden baseline records machine-specific paths **[ ]**
+
+`tell_tales.log` echoes absolute paths -- the three HMM files, and
+`correction_ref`. Under `load_all()` these are the source tree; from an
+installed package they are the library path. `.RUN_SPECIFIC` in
+`helper-golden.R` drops `/tmp/` and `Rtmp` lines but not these, so the golden
+snapshot for `tell_tales.log` only reproduces on the machine that recorded it.
+
+Pre-existing, not introduced by 8.1b -- but it surfaced there, because
+renaming the reference file changed that line and nothing else.
+
+A baseline that fails for everyone but its author is worth much less than one
+that travels. Options: log basenames instead of paths (loses provenance),
+filter those lines (loses the ability to catch a default change -- which is
+exactly what caught the rename), or teach the fingerprint to rewrite absolute
+paths to a placeholder rather than drop whole lines. The third keeps both
+properties and is probably right.
+
 ### 8.1c `...` must not hide arguments behind an internal **[V]** — audited
 
 **The rule.** When an exported function forwards `...` to something the user
@@ -2472,6 +2563,39 @@ only one should be stored: keeping both invites them drifting out of step.
 stored quantity later.
 
 ---
+
+### 9.7 Roxygen markdown enabled -- DONE **[V]**
+
+`DESCRIPTION` had no `Roxygen:` field, so markdown was off -- while the
+roxygen comments had been written for years as if it were on. Backticks,
+`*emph*` and `**strong**` were reaching the rendered help as literal
+characters: `**precondition**` showed up in `?tales_assert_complete` with the
+asterisks visible.
+
+Turned on with `Roxygen: list(markdown = TRUE)`.
+
+**How it was verified**, since this reparses every block in the package and
+can silently change any of them: copy `man/` aside, flip the flag,
+re-document, and diff. 31 of 64 Rd files changed. Classified:
+
+- Most of the diff is whitespace re-wrapping -- no content change.
+- The rest is the fix: `` `dom_code` `` and friends became `\code{}` (7
+  occurrences of `dom_code` alone), `*valid*`/`*unreadable*` became
+  `\emph{}`, `**not**`/`**precondition**` became `\strong{}`.
+- **Two regressions, caught and fixed.** Square brackets in prose are link
+  syntax under markdown, so `[eg PacBio, ONT]` and `[see the min_gap
+  parameter]` in `tell_tales`'s description became `\link{}` to targets that
+  do not exist -- an R CMD check WARNING. Rewritten as plain prose.
+
+Checks that it is clean: the set of `\link` targets is now identical to
+before the switch, all 64 Rd files pass `tools::parse_Rd()`, and no literal
+`**` remains anywhere in `man/`.
+
+Snake_case survived unharmed: CommonMark does not treat intraword
+underscores as emphasis, so `dom_code` and `array_id` render as written.
+
+**The rule for anything written later:** square brackets in roxygen prose are
+a link. Use parentheses, or escape them.
 
 ## 10. Explicitly ruled out
 

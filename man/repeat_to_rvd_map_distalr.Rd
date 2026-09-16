@@ -13,7 +13,7 @@ repeat_to_rvd_map_distalr(tale_parts)
 A two columns repeatID - RVD data frame.
 }
 \description{
-Uses Distal repeat sequences and RVD sequences from a set of TALEs 
+Uses Distal repeat sequences and RVD sequences from a set of TALEs
 analyzed with the \code{\link{tales_compare}} function to return
 the association between repeat ID and RVD.
 }

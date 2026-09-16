@@ -28,7 +28,7 @@ version than the one provided with tantale.}
 }
 \value{
 Returns invisibly the exit code of the shell call to the last
-  AnnoTALE step (ie '0' if successful).
+AnnoTALE step (ie '0' if successful).
 }
 \description{
 A R wrapper around the

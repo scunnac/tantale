@@ -16,8 +16,8 @@ matrix.}
 }
 \value{
 A multiple Tal sequences alignment in the form of a
-  matrix filled with logical values if \code{long} is \code{FALSE} and
-  a long tibble representing the original alignment otherwise (default).
+matrix filled with logical values if \code{long} is \code{FALSE} and
+a long tibble representing the original alignment otherwise (default).
 }
 \description{
 Compute a logical matrix corresponding to the input \code{align}

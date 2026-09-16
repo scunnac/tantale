@@ -39,3 +39,4 @@ Encoding: UTF-8
 OS_type: unix
 biocViews: Software
 Config/roxygen2/version: 8.0.0
+Roxygen: list(markdown = TRUE)

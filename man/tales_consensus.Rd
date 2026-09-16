@@ -15,15 +15,15 @@ A vector of consensus elements in each column of \code{align}.
 }
 \description{
 Pick the most frequent element in each column of the alignment
-  matrix.
+matrix.
 }
 \details{
 A column has a consensus only when one element is strictly more
-  common than every other. Where two or more are tied for most frequent --
-  as happens whenever each array carries a different repeat at that
-  position -- the result is \code{NA}, because there is no agreement to
-  report. \code{NA} is likewise returned when the most common thing at a
-  position is a gap.
+common than every other. Where two or more are tied for most frequent --
+as happens whenever each array carries a different repeat at that
+position -- the result is \code{NA}, because there is no agreement to
+report. \code{NA} is likewise returned when the most common thing at a
+position is a gap.
 }
 \seealso{
 Other TALE alignment:

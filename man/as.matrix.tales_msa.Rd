@@ -18,7 +18,7 @@ available of \code{rvd}, \code{dom_code}.}
 }
 \value{
 A character matrix with arrays as rows and alignment positions as
-  columns.
+columns.
 }
 \description{
 Materialises the rectangular form: one row per array, one column per

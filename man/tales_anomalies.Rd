@@ -11,10 +11,10 @@ tales_anomalies(x)
 }
 \value{
 A tibble of \code{array_id}, \code{check} and \code{detail}, one
-  row per anomaly. Zero rows if the object is clean.
+row per anomaly. Zero rows if the object is clean.
 }
 \description{
-Lists the arrays that are *odd* rather than *unreadable*: missing sequence
+Lists the arrays that are \emph{odd} rather than \emph{unreadable}: missing sequence
 data, impossible domain-type arrangements, coordinate disagreements, or an
 attribute that varies within an array when it should not.
 

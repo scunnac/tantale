@@ -18,7 +18,7 @@ internal \code{rvdSimDf}.}
 }
 \value{
 A numeric matrix with the dimensions and dimnames of
-  \code{rvd_align}.
+\code{rvd_align}.
 }
 \description{
 Substitutes each RVD with a score expressing how similar its DNA-binding

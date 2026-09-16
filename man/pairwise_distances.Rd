@@ -23,7 +23,7 @@ only one copy of the quantity is stored. Further columns
 \item{dom_code_namespace}{Optional scalar string identifying the run whose
 \code{dom_code} values this table is keyed by, see
 \code{\link{tales_namespace}}. Relevant for \code{domain_distances()}, whose ids
-*are* \code{dom_code}s.}
+\emph{are} \code{dom_code}s.}
 }
 \value{
 A validated \code{pairwise_distances} object.

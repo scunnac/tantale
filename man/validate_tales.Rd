@@ -14,7 +14,7 @@ validate_tales(x)
 }
 \description{
 Checks the column contract and every invariant that is closed under row
-subsetting. Properties that hold only of a *complete* object — that an array
+subsetting. Properties that hold only of a \emph{complete} object — that an array
 carries all its parts, numbered contiguously from 1 — are deliberately not
 checked here; they are preconditions of the functions that need them, such
 as alignment.

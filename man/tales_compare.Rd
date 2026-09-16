@@ -21,11 +21,11 @@ sequences: \code{"DECIPHER"} (default), \code{"Biostrings"} or
 \value{
 A list of three objects, all describing the same run:
 \itemize{
-  \item \code{tales}: the input, with a \code{dom_code} column added.
-  \item \code{domain_distances}: a \code{\link{domain_distances}} between repeat units,
-    keyed by \code{dom_code}.
-  \item \code{tale_distances}: a \code{\link{tale_distances}} between whole arrays,
-    keyed by \code{array_id}.
+\item \code{tales}: the input, with a \code{dom_code} column added.
+\item \code{domain_distances}: a \code{\link{domain_distances}} between repeat units,
+keyed by \code{dom_code}.
+\item \code{tale_distances}: a \code{\link{tale_distances}} between whole arrays,
+keyed by \code{array_id}.
 }
 }
 \description{
@@ -60,7 +60,7 @@ of minisatellite maps based on run-length encoding scheme.
 }
 \seealso{
 \code{\link{tales_group}} to cluster arrays from the returned
-  \code{tale_distances}.
+\code{tale_distances}.
 
 Other pairwise distances:
 \code{\link[=as.matrix.pairwise_distances]{as.matrix.pairwise_distances()}},

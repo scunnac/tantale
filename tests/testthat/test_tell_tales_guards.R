@@ -97,3 +97,36 @@ test_that("min_domain_hits is inclusive, as documented", {
                             show_col_types = FALSE, progress = FALSE)
   expect_true("talRegion6" %in% report$seqnames)
 })
+
+
+#### max_comparisons ####
+
+test_that("max_comparisons is a real argument, not hidden behind ...", {
+  # It used to be passed explicitly to CorrectFrameshifts while ... forwarded
+  # to the same function, so a caller setting it hit "formal argument matched
+  # by multiple actual arguments".
+  expect_true("max_comparisons" %in% names(formals(tell_tales)))
+  expect_null(formals(tell_tales)$max_comparisons)
+})
+
+test_that("too low a max_comparisons degrades the correction", {
+  # The cap is a real trade-off, not a free speedup. Against the 20-sequence
+  # test reference: 10 comparisons reproduce the uncapped result, 2 do not --
+  # unable to reach a decent reference, DECIPHER corrects against a poor match
+  # and invents indels.
+  ref <- test_path("data_for_tests", "correction_ref_20.fa.gz")
+  run <- function(mc) {
+    out <- tempfile()
+    suppressWarnings(suppressMessages(tell_tales(
+      subject_file = subject(), output_dir = out, correct_array = TRUE,
+      correction_ref = ref, max_comparisons = mc)))
+    r <- readr::read_tsv(file.path(out, "arrayReport.tsv"),
+                         show_col_types = FALSE, progress = FALSE)
+    r <- r[order(r$array_id), ]
+    r$predicted_ins_count + r$predicted_dels_count
+  }
+  uncapped <- run(NULL)
+  expect_equal(run(10), uncapped)          # enough of the 20 to be reached
+  expect_false(isTRUE(all.equal(run(2), uncapped)))  # not enough
+  expect_gt(sum(run(2)), sum(uncapped))    # and it errs by over-correcting
+})

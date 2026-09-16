@@ -11,7 +11,7 @@
 }
 \value{
 A data frame of \code{id1}, \code{id2}, \code{sim} covering
-  every ordered pair of \code{residues}.
+every ordered pair of \code{residues}.
 }
 \description{
 The repeat-level similarity matrix is keyed by \code{dom_code}, which is
@@ -24,13 +24,13 @@ correlation of each RVD's A/C/G/T preference profile
 \details{
 \code{XX} -- a terminus detected but not identified -- has a uniform base
 profile, so its correlation with everything is undefined. Those cells are
-filled as **neutral** (0): we know nothing about it, so it should neither
+filled as \strong{neutral} (0): we know nothing about it, so it should neither
 attract nor repel.
 
 The one exception is \code{XX} against itself, which is set to the maximum.
 That is forced, not chosen: MAFFT produces unusable output when the diagonal
 is not high, and a low diagonal would anyway assert that an \code{XX} must
-*not* align with an \code{XX}, which is a stronger claim than ignorance.
+\emph{not} align with an \code{XX}, which is a stronger claim than ignorance.
 
 Scale is irrelevant -- MAFFT normalises the matrix, so a linear rescale or
 offset leaves the alignment unchanged. Only relative structure

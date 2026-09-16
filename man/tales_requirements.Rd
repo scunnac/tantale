@@ -12,18 +12,18 @@ A tibble of function, requirement kind, and columns.
 \description{
 What each function needs of a \code{\link{tales}} object. This is distinct
 from the class's own column contract, which says what makes an object
-*valid*: a valid \code{tales} may still lack what a given operation needs.
+\emph{valid}: a valid \code{tales} may still lack what a given operation needs.
 }
 \details{
 \describe{
-  \item{\code{tales_compare()}}{\code{aa_seq} or \code{dna_seq} (translated)}
-  \item{\code{tales_align()}}{whichever of \code{rvd} / \code{dom_code} \code{residue_col} names}
-  \item{\code{tales_rvd_strings()}}{\code{rvd}}
-  \item{\code{tales_coded_strings()}}{\code{dom_code}}
-  \item{\code{tales_domain_codes()}}{\code{dom_code} and \code{aa_seq}; \code{rvd} included when present}
-  \item{\code{plot()} on a tales}{\code{rvd}, \code{aa_seq}, \code{domain_type}; \code{seqnames} adds a facet, \code{alignment_position} enables the aligned layout}
-  \item{\code{tale_parts_to_rvd()}}{\code{rvd}}
-  \item{\code{repeat_to_rvd_map_distalr()}}{\code{dom_code}, \code{rvd}}
+\item{\code{tales_compare()}}{\code{aa_seq} or \code{dna_seq} (translated)}
+\item{\code{tales_align()}}{whichever of \code{rvd} / \code{dom_code} \code{residue_col} names}
+\item{\code{tales_rvd_strings()}}{\code{rvd}}
+\item{\code{tales_coded_strings()}}{\code{dom_code}}
+\item{\code{tales_domain_codes()}}{\code{dom_code} and \code{aa_seq}; \code{rvd} included when present}
+\item{\code{plot()} on a tales}{\code{rvd}, \code{aa_seq}, \code{domain_type}; \code{seqnames} adds a facet, \code{alignment_position} enables the aligned layout}
+\item{\code{tale_parts_to_rvd()}}{\code{rvd}}
+\item{\code{repeat_to_rvd_map_distalr()}}{\code{dom_code}, \code{rvd}}
 }
 }
 \seealso{

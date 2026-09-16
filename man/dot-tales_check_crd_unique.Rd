@@ -8,7 +8,7 @@
 }
 \description{
 Placement (NA on exactly the non-repeat parts) and order agreement are
-*biological* checks and live in \code{.tales_anomalies()}; only uniqueness
+\emph{biological} checks and live in \code{.tales_anomalies()}; only uniqueness
 is structural, since a repeated coordinate makes the array unindexable.
 }
 \keyword{internal}

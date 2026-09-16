@@ -23,7 +23,7 @@ of mostly-singleton repeat codes -- so aligning on one and viewing as the
 other is a genuinely different result from aligning on the other directly.
 }
 \details{
-The mapping is **positional**: the k-th non-gap cell of a row is taken to be
+The mapping is \strong{positional}: the k-th non-gap cell of a row is taken to be
 the k-th element of that row's repeat vector. That is only well defined when
 the two agree in length, which is now checked.
 }
