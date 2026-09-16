@@ -1018,8 +1018,9 @@ tantale_setup(install = FALSE, conda = FALSE, conda_bin = "auto")
 Diagnostic by default -- called bare it reports and changes nothing:
 
 ```
-✔ conda            /home/cunnac/mamba/bin/mamba
-✔ tantale env      /home/cunnac/mamba/envs/tantale
+✔ conda binary     /home/cunnac/bin/micromamba       # what reticulate drives
+ℹ default root     /home/cunnac/micromamba           # where `-n` would create
+✔ tantale env      /home/cunnac/mamba/envs/tantale   # what is actually used
 ✔ mafft            7.453   (required 7.453)
 ✔ hmmer            3.3.2   (required 3.3.2)
 ✔ mmseqs2          14.7e284
@@ -1041,9 +1042,25 @@ Diagnostic by default -- called bare it reports and changes nothing:
    PrediTALE and TALEcorrection wrappers, they are not conda's business, and
    they currently fail deep inside a `system()` call with nothing useful said.
    This is the only place they would ever be checked.
-4. **Report the environment's path**, because conda and micromamba keep
-   separate roots and `tantale` can exist in both with different contents.
-   Say which one is in use.
+4. **Report three separate paths, not one.** The binary, the default root,
+   and the environment actually in use are different things, and on a machine
+   with any history they diverge. Measured on the development machine:
+
+   | | |
+   |---|---|
+   | binary `reticulate` drives | `/home/cunnac/bin/micromamba` |
+   | micromamba's own root (`MAMBA_ROOT_PREFIX`) | `/home/cunnac/micromamba` |
+   | the `tantale` env reticulate resolves to | `/home/cunnac/mamba/envs/tantale` |
+
+   `reticulate::conda_list()` scans several known locations, so it returns
+   environments from every root it finds -- two rows named `tantale` here.
+   This is not hypothetical: during 7.4 three rebuilds appeared to succeed,
+   with honest logs saying MAFFT 7.453 was linked, while the package kept
+   using an env in the other root that still held 7.520.
+
+   **Corollary for the implementation: always operate on `-p <prefix>`, never
+   `-n <name>`.** `-n` creates under the binary's default root, which is not
+   necessarily the root the environment lives in.
 5. **Installing conda itself stays opt-in** behind its own argument. Putting a
    package manager on someone's machine is a larger side effect than building
    an environment, and should be asked for. Note that
