@@ -1142,10 +1142,29 @@ internal that now owns this stage, and says which argument caused it and that
 it counts per subject sequence. All three of `tell_tales()`'s give-up points
 have tests now (`test_tell_tales_guards.R`); none had any before.
 
-The other two observations stand and are **not** addressed: it still filters
-per contig rather than per array, and still compares with `>` despite being
-named a minimum. Both change results for existing users, so they are a
-decision, not a cleanup.
+**The other two observations, resolved by the maintainer:**
+
+- **The off-by-one is fixed.** The filter compares with `>=` now, so a
+  subject sequence carrying exactly `min_domain_hits` hits is kept, which is
+  what the documentation always said. Nothing changes at the default: real
+  TALE contigs carry dozens of hits, and only a sequence sitting exactly on
+  the threshold behaves differently.
+- **Per contig vs per array was not a bug** -- the documentation and the code
+  agreed, and my first reading of it here was wrong. The author's own note at
+  that line asked whether short *arrays* should also be dropped. They should,
+  optionally: `min_array_length` is a second argument, defaulting to `0`,
+  which drops arrays with too few repeats after grouping. The two filters are
+  complements, not alternatives -- one is a cheap pre-filter on input
+  sequences, the other a quality filter on the arrays found in them, and the
+  per-contig filter can never catch a 3-repeat fragment sitting on a contig
+  that also holds two real TALEs.
+
+  It counts **repeat units**, not all hits, so an array is not penalised for
+  having had a terminus missed, and because the repeat count is what "array
+  length" means for a TALE -- it determines how long a target box it
+  recognises. Default 0 because whether a short array is noise or a truncated
+  TALE is a judgement about the biology: a pseudogene with three surviving
+  repeats is real, and may be exactly what someone is looking for.
 
 ### 8.1 A purpose-built fixture for `tell_tales()` **[A]**
 

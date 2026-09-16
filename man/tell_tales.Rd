@@ -13,6 +13,7 @@ tell_tales(
   repeat_min_score = 20,
   cterm_min_score = 200,
   min_domain_hits = 4,
+  min_array_length = 0,
   merge_hits = TRUE,
   min_gap = 35,
   extremity_codes = TRUE,
@@ -47,8 +48,24 @@ the hit as genuine}
 consider the hit as genuine}
 
 \item{min_domain_hits}{Minimum number of nhmmer hits for a subject
-sequence to be reported as having TALE diagnostic regions. This is a way to
-simplify output a little by getting ride of uninformative sequences}
+sequence (a contig, a chromosome) to be considered further. A cheap way
+to discard whole sequences that carry nothing but stray matches, before
+any expensive work is done on them. It says nothing about the length of
+the TALE arrays found within a sequence that passes -- see
+\code{min_array_length} for that.}
+
+\item{min_array_length}{Minimum number of \strong{repeat units} for a TALE
+  array to be kept. Defaults to \code{0}, which keeps everything.
+
+  Counting repeats rather than all hits means an array is not penalised for
+  having had its termini missed, and matches what "array length" usually
+  means for a TALE: the number of repeats is what determines how long a
+  target box it recognises.
+
+  Whether a short array is noise or a genuinely truncated TALE is a
+  judgement about the biology, which is why nothing is discarded unless you
+  ask. A pseudogene with three surviving repeats is real, and may be what
+  you are looking for.}
 
 \item{merge_hits}{Perform overlapping hits merging per domain type. Should not
 be modified.}

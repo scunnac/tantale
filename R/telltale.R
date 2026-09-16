@@ -103,9 +103,10 @@
 #' @param hmmer_path Directory holding the nhmmer binary.
 #' @param nterm_min_score,repeat_min_score,cterm_min_score Per-domain score
 #'   thresholds.
-#' @param min_domain_hits A subject sequence is kept when it carries *more*
-#'   than this many hits. Note it counts hits per subject sequence, not per
-#'   TALE array; see restructuring-notes.md 8.0.
+#' @param min_domain_hits A subject sequence is kept when it carries at least
+#'   this many hits. Counts hits per subject sequence, not per TALE array --
+#'   it is a cheap pre-filter that discards whole contigs carrying nothing but
+#'   stray matches. Short *arrays* are filtered separately, after grouping.
 #' @return The filtered table, or \code{NULL} when nothing survives -- which
 #'   the caller must treat as "stop here", since every later stage assumes at
 #'   least one hit.
@@ -152,12 +153,14 @@
   ## from any further consideration the ARRAYS shorter than a certain value (say 5).
   ## WHAT DO WE DO ABOUT THAT?
   perSubject <- plyr::ddply(hits[, -20], ~ target_name + sq_len, nrow) # I do not know why but it fails to work if I leave the RVD column (#20)
-  hits <- subset(hits, target_name %in% perSubject[perSubject$V1 > min_domain_hits, "target_name"])
+  # >=, not >: the argument is documented as a minimum, and a sequence
+  # carrying exactly that many hits used to be dropped.
+  hits <- subset(hits, target_name %in% perSubject[perSubject$V1 >= min_domain_hits, "target_name"])
   hits <- droplevels(hits)
   if (nrow(hits) == 0L) {
     # Unguarded before: the run carried on and died several stages later
     # inside Bioconductor with "Rle of type 'NULL' is not supported".
-    cli::cli_warn(c("No subject sequence carries more than {min_domain_hits} TALE domain hit{?s}.",
+    cli::cli_warn(c("No subject sequence carries at least {min_domain_hits} TALE domain hit{?s}.",
                     "i" = "{.arg min_domain_hits} counts hits per subject sequence, not per TALE array.",
                     "x" = "Nothing left to analyse. Exitting..."))
     return(NULL)
@@ -234,11 +237,16 @@
 #' @param subject_seqs The DNA the hits were found in, for extracting each
 #'   array's sequence.
 #' @param hmm What \code{.telltale_hmm_profiles()} returned; used to record
-#'   whether an array carries all three domain types.
+#'   whether an array carries all three domain types, and to recognise which
+#'   hits are repeats.
+#' @param min_array_length Arrays with fewer repeat units than this are
+#'   dropped. \code{0} keeps everything.
 #' @return A list of \code{arrays} (one range per array) and \code{by_array}
-#'   (the hits, grouped, carrying the per-array metadata).
+#'   (the hits, grouped, carrying the per-array metadata), or \code{NULL} if
+#'   the length filter removed every array.
 #' @noRd
-.telltale_group_arrays <- function(gr, min_gap, subject_seqs, hmm) {
+.telltale_group_arrays <- function(gr, min_gap, subject_seqs, hmm,
+                                   min_array_length = 0) {
   ## Use reduce to obtain the regions that span "contiguous" hits
   arraysGR <- GenomicRanges::reduce(gr,
                                     drop.empty.ranges = FALSE,
@@ -251,6 +259,30 @@
   byArray <- BiocGenerics::relist(gr[unlist(revmap)], revmap)
   names(byArray) <- paste("ROI", sprintf("%05.0f", 1:length(byArray)), sep = "_")
   names(arraysGR) <- names(byArray)
+
+  ## Drop arrays with too few repeats, before anything is computed about them.
+  ## Repeats, not all hits: an array should not be penalised for having had a
+  ## terminus missed, and the repeat count is what "array length" means for a
+  ## TALE.
+  if (min_array_length > 0) {
+    repeatCount <- vapply(byArray, function(x) sum(as.character(x$query_name) == hmm$repeats),
+                          integer(1))
+    tooShort <- repeatCount < min_array_length
+    if (any(tooShort)) {
+      cli::cli_inform(c("Dropping {sum(tooShort)} array{?s} with fewer than {min_array_length} repeat{?s}.",
+                        "i" = "Array{?s}: {.val {names(byArray)[tooShort]}}"))
+      byArray <- byArray[!tooShort]
+      arraysGR <- arraysGR[!tooShort]
+    }
+    if (length(byArray) == 0L) {
+      cli::cli_warn(c("No TALE array has at least {min_array_length} repeat{?s}.",
+                      "x" = "Nothing left to analyse. Exitting..."))
+      return(NULL)
+    }
+    # renumber so the ROI ids stay contiguous
+    names(byArray) <- paste("ROI", sprintf("%05.0f", seq_along(byArray)), sep = "_")
+    names(arraysGR) <- names(byArray)
+  }
 
   ## Make sure that hits do not overlap for some weird reason
   doHitsOverlap <- !GenomicRanges::isDisjoint(byArray)
@@ -334,6 +366,7 @@
     paste("repeat_min_score",":", params$repeat_min_score, sep = "\t"),
     paste("cterm_min_score",":", params$cterm_min_score, sep = "\t"),
     paste("min_domain_hits",":", params$min_domain_hits, sep = "\t"),
+    paste("min_array_length",":", params$min_array_length, sep = "\t"),
     paste("merge_hits",":", params$merge_hits, sep = "\t"),
     paste("min_gap",":", params$min_gap, sep = "\t"),
     paste("extend_len",":", params$extend_len, sep = "\t"),
@@ -1070,8 +1103,23 @@
 #' @param cterm_min_score Minimal nhmmer score cut_off value to
 #'   consider the hit as genuine
 #' @param min_domain_hits Minimum number of nhmmer hits for a subject
-#'   sequence to be reported as having TALE diagnostic regions. This is a way to
-#'   simplify output a little by getting ride of uninformative sequences
+#'   sequence (a contig, a chromosome) to be considered further. A cheap way
+#'   to discard whole sequences that carry nothing but stray matches, before
+#'   any expensive work is done on them. It says nothing about the length of
+#'   the TALE arrays found within a sequence that passes -- see
+#'   \code{min_array_length} for that.
+#' @param min_array_length Minimum number of \strong{repeat units} for a TALE
+#'   array to be kept. Defaults to \code{0}, which keeps everything.
+#'
+#'   Counting repeats rather than all hits means an array is not penalised for
+#'   having had its termini missed, and matches what "array length" usually
+#'   means for a TALE: the number of repeats is what determines how long a
+#'   target box it recognises.
+#'
+#'   Whether a short array is noise or a genuinely truncated TALE is a
+#'   judgement about the biology, which is why nothing is discarded unless you
+#'   ask. A pseudogene with three surviving repeats is real, and may be what
+#'   you are looking for.
 #' @param merge_hits Perform overlapping hits merging per domain type. Should not
 #'   be modified.
 #' @param min_gap Minimum gap in base pairs between two tale domain hits for
@@ -1140,6 +1188,7 @@ tell_tales <- function(
   repeat_min_score = 20,
   cterm_min_score = 200,
   min_domain_hits = 4,
+  min_array_length = 0,
   merge_hits = TRUE,
   min_gap = 35,
   extremity_codes = TRUE,
@@ -1209,7 +1258,9 @@ tell_tales <- function(
   nhmmerOutputGR <- .telltale_add_hit_seqs(nhmmerOutputGR, subjectDNASequences)
 
   #####   Group (nearly) adjacent hits in "TALE array" regions   #####
-  grouped <- .telltale_group_arrays(nhmmerOutputGR, min_gap, subjectDNASequences, hmm)
+  grouped <- .telltale_group_arrays(nhmmerOutputGR, min_gap, subjectDNASequences, hmm,
+                                    min_array_length = min_array_length)
+  if (is.null(grouped)) return(invisible(output_dir))
   arraysGR <- grouped$arrays
   hitsByArraysLst <- grouped$by_array
 
@@ -1280,7 +1331,8 @@ tell_tales <- function(
                   nterm_min_score = nterm_min_score,
                   repeat_min_score = repeat_min_score,
                   cterm_min_score = cterm_min_score,
-                  min_domain_hits = min_domain_hits, merge_hits = merge_hits,
+                  min_domain_hits = min_domain_hits,
+                  min_array_length = min_array_length, merge_hits = merge_hits,
                   min_gap = min_gap, extend_len = extend_len,
                   correct_array = correct_array, correction_ref = correction_ref,
                   frameshift = frameshift),
