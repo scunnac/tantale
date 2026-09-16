@@ -228,12 +228,31 @@ as.matrix.tales_msa <- function(x, value = NULL, gap = NA, ...) {
 #'   built-in RVD similarity matrix when aligning RVDs, or a
 #'   \code{\link{domain_distances}} object when aligning repeat codes. Optional similarity table passed to MAFFT as a scoring
 #'   matrix, as accepted by \code{\link{tales_align}}.
-#' @param ... Passed to \code{\link{tales_align}} (e.g. \code{mafft_opts}).
+#' @param mafft_opts Command-line options handed to MAFFT. The default,
+#'   \code{"--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1"},
+#'   asks for an accurate local alignment and sets the gap penalties.
+#'
+#'   \code{--op} is the cost of opening a gap and \code{--ep} the cost of
+#'   extending one. They are set unusually here -- free to open, expensive to
+#'   extend -- because of what is being aligned. A TALE gains or loses whole
+#'   repeats, so a gap should start wherever it needs to; what should be
+#'   discouraged is one long gap swallowing a stretch of repeats that really
+#'   do correspond. Raise \code{--op} if the alignment fragments into too
+#'   many small gaps.
+#' @param mafft_path Directory of a MAFFT installation, laid out as the
+#'   bundled one is (\code{mafft.bat} at the top, helpers under
+#'   \code{mafftdir/libexec}). Defaults to the copy shipped with the package.
+#' @param ... Further arguments to the MAFFT runner, chiefly
+#'   \code{gap_symbol}, the value gaps take in the returned matrix
+#'   (\code{NA} by default).
 #' @return A \code{tales_msa} object.
 #' @export
 #' @family TALE alignment
 tales_align <- function(x, residue_col = c("rvd", "dom_code"),
-                        repeat_sims = NULL, ...) {
+                        repeat_sims = NULL,
+                        mafft_opts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1",
+                        mafft_path = system.file("tools", "mafft-linux64", package = "tantale", mustWork = TRUE),
+                        ...) {
   residue_col <- match.arg(residue_col)
   if (!is_tales(x)) {
     cli::cli_abort("{.arg x} must be a {.cls tales} object.",
@@ -259,6 +278,7 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
   seqs <- lapply(seqs, paste, collapse = " ")
 
   m <- .build_repeat_msa(input_seqs = seqs, sep = " ", repeat_sims = repeat_sims,
+                        mafft_opts = mafft_opts, mafft_path = mafft_path,
                         gap_symbol = NA, ...)
 
   if (!setequal(rownames(m), unique(x$array_id))) {

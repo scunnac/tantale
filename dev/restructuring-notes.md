@@ -1278,6 +1278,41 @@ Do not trim the shipped file on speed grounds alone: a reference that is fast
 but corrects worse is a bad trade, and correction rewrites the user's
 sequences.
 
+### 8.1c `...` must not hide arguments behind an internal **[V]** — audited
+
+**The rule.** When an exported function forwards `...` to something the user
+cannot see, the `@param ...` has to name the arguments themselves, not point
+at the callee. "Passed to `.build_repeat_msa()`" is useless advice: the reader
+cannot call that function, cannot read its help, and has no way to discover
+what it accepts.
+
+**The case that prompted it.** `tales_align()` took `x`, `residue_col`,
+`repeat_sims` and `...`, and its `@param ...` read "Passed to
+`tales_align()` (e.g. `mafft_opts`)" -- circular, and naming an argument
+without saying what it does or what its default is. MAFFT's options were
+therefore reachable but undiscoverable, which matters because the default
+sets gap penalties (`--op 0 --ep 5`) that are unusual on purpose and that a
+user may well want to change.
+
+Fixed by promoting `mafft_opts` and `mafft_path` to real arguments of
+`tales_align()`, documented in terms of what they do to an alignment of
+TALE repeats rather than as a pass-through.
+
+**The audit.** Every exported function that forwards `...`:
+
+| function | `...` reaches | verdict |
+|---|---|---|
+| `tales_align()` | `.build_repeat_msa()` (internal) | **was the problem; fixed** |
+| `as_tales()`, `as_tales.data.frame()` | `tales()` | fine -- exported and documented |
+| `tales_predict_targets()` | `talvez()`, `preditale()` | fine -- both exported, and `@param ...` links to them |
+| `tell_tales()` | `DECIPHER::CorrectFrameshifts()` | fine -- names the external function and links to its help |
+
+So this was one occurrence, not a pattern. The rule stands for anything added
+later: **if `...` lands somewhere the reader cannot open, the arguments belong
+in the signature or spelled out in the docs.** Worth re-running the audit
+(`scratchpad/dots.R` in the session notes, trivially rebuilt) whenever a new
+exported wrapper appears.
+
 ### 8.2 Silence MAFFT by default **[A]**
 
 `.build_repeat_msa()` runs MAFFT through `system()` with
