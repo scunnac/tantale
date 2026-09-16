@@ -1606,10 +1606,26 @@ sequence while being built from different repeats.
   it was base-only since R 4.4 while `DESCRIPTION` allows 3.6.3. The package
   defines its own at `tales_msa_class.R:206`, so it was never at risk.
 
-Still open from the original note: `format()` as a separate method, and
-whether `summary()` earns a place -- the anomaly count from
+**`format()` methods too**, for both classes, and not as polish: both
+inherit a `format()` from tibble, so adding `print()` alone left the two
+halves of one operation disagreeing. `print(x)` showed the view above while
+`format(x)` still returned `# A tibble: 955 x 10`. Anyone writing
+`cat(format(x), sep = "\n")` -- the idiomatic way to get a printed form as
+text -- got the wrong one.
+
+`format()` now builds the lines and `print()` only emits them. The tibble
+rendering stays reachable as `format(tibble::as_tibble(x))`.
+
+A third bug fell out of that: the `tales_msa` header used a `\\` line
+continuation inside the `cli` template, which left an **embedded newline in
+one element**. `format()` reported six lines while printing seven, so the
+vector lied about its own length -- exactly what breaks a caller indexing
+lines to put in a log. Tests now assert that no element contains a newline
+and that `format(x)` equals `capture.output(print(x))` for both classes.
+
+Still open: whether `summary()` earns a place. The anomaly count from
 `tales_anomalies()` would sit better there than in `print()`, which should
-stay cheap.
+stay cheap enough to fire on every object you look at.
 
 ### 8.6b Co-locating single-caller internals — PARTLY DONE **[V]**
 

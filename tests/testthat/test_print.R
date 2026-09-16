@@ -91,3 +91,37 @@ test_that("print() returns its object invisibly", {
   expect_identical(utils::capture.output(y <- print(x)), utils::capture.output(print(x)))
   expect_identical(y, x)
 })
+
+
+#### format() and print() are two halves of one thing ####
+
+test_that("format() returns lines and prints nothing", {
+  x <- fixture()
+  expect_type(format(x), "character")
+  expect_silent(invisible(format(x)))
+  expect_identical(utils::capture.output(invisible(format(x))), character())
+})
+
+test_that("format() and print() agree, for both classes", {
+  skip_if_not(file.exists(test_path("data_for_tests", "sampleTalesMsa.rds")))
+  for (obj in list(fixture(), readRDS(test_path("data_for_tests", "sampleTalesMsa.rds")))) {
+    expect_identical(format(obj), utils::capture.output(print(obj)))
+  }
+})
+
+test_that("format() yields one element per line, with no embedded newlines", {
+  # A caller writing format(x) into a log expects to be able to index lines.
+  # An embedded "\n" makes the vector lie about its own length -- which it did,
+  # from a line continuation inside the cli template.
+  skip_if_not(file.exists(test_path("data_for_tests", "sampleTalesMsa.rds")))
+  for (obj in list(fixture(), readRDS(test_path("data_for_tests", "sampleTalesMsa.rds")))) {
+    expect_false(any(grepl("\n", format(obj), fixed = TRUE)))
+  }
+})
+
+test_that("the tibble rendering is still reachable", {
+  # format.tales masks the one inherited from tibble; as_tibble() gets it back
+  x <- fixture()
+  expect_match(format(tibble::as_tibble(x))[1], "A tibble")
+  expect_no_match(format(x)[1], "A tibble")
+})

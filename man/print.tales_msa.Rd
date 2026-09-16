@@ -13,19 +13,20 @@
 
 \item{gap}{What to draw where an array has no residue at a position.}
 
-\item{...}{Unused, present for compatibility with the \code{print} generic.}
+\item{...}{Unused, present for compatibility with the \code{format} generic.}
 }
 \value{
 \code{x}, invisibly.
 }
 \description{
-As \code{\link{print.tales}}, plus the alignment width, and a preview that
-shows aligned rows rather than bare sequences: gaps are drawn, so the
-columns line up and the shape of the alignment is visible.
+Emits what \code{\link{format.tales_msa}} builds; see there for what is
+shown and why.
 }
 \seealso{
 Other tales objects:
 \code{\link[=as_tales]{as_tales()}},
+\code{\link[=format.tales]{format.tales()}},
+\code{\link[=format.tales_msa]{format.tales_msa()}},
 \code{\link[=is_tales]{is_tales()}},
 \code{\link[=new_tales]{new_tales()}},
 \code{\link[=print.tales]{print.tales()}},

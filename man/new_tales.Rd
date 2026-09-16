@@ -23,6 +23,8 @@ have already established the invariants.
 \seealso{
 Other tales objects:
 \code{\link[=as_tales]{as_tales()}},
+\code{\link[=format.tales]{format.tales()}},
+\code{\link[=format.tales_msa]{format.tales_msa()}},
 \code{\link[=is_tales]{is_tales()}},
 \code{\link[=print.tales]{print.tales()}},
 \code{\link[=print.tales_msa]{print.tales_msa()}},
