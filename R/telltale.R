@@ -583,10 +583,10 @@
                    perl = TRUE)
   }
   comAnalyze <- paste0(
-    "java -jar ", annotale_jar,
+    "java -jar ", shQuote(annotale_jar),
     " analyze ",
-    " t=", fasta_file,
-    " outdir=", output_dir
+    " t=", shQuote(fasta_file),
+    " outdir=", shQuote(output_dir)
   )
   invisible(system(comAnalyze, ignore.stdout = TRUE, ignore.stderr = TRUE))
 }
@@ -1375,13 +1375,13 @@ tell_tales <- function(
 .run_nhmmer_search <- function(hmmer_path = NULL, subject_file, hmm_file, search_out_file, readable_out_file) {
   if (is.null(hmmer_path)) hmmer_path <- .get_hmmer()
   .check_hmmer(hmmer_path)
-  searchCmd <- paste(file.path(hmmer_path, "nhmmer"),
+  searchCmd <- paste(shQuote(file.path(hmmer_path, "nhmmer")),
                      "--tblout",
-                     search_out_file,
-                     hmm_file,
-                     subject_file,
+                     shQuote(search_out_file),
+                     shQuote(hmm_file),
+                     shQuote(subject_file),
                      ">",
-                     readable_out_file,
+                     shQuote(readable_out_file),
                      sep = " "
   )
   system(command = searchCmd, ignore.stderr = FALSE, intern = TRUE)

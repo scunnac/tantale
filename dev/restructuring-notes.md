@@ -1088,7 +1088,7 @@ restarted -- the reason it now lives in the repository.
 To accept an intended change: inspect the diff, then
 `testthat::snapshot_accept("golden")`.
 
-### 8.0b `run_annotale_predict()` and the analyze-only call **[A]**
+### 8.0b Quoting paths in shell commands — DONE **[V]**
 
 `tell_tales()` had a nested function definition that shelled out to
 AnnoTALE's "analyze" stage. It is now `.run_annotale_analyze()` at top level.
@@ -1100,7 +1100,31 @@ its own -- but the two build their `java -jar` command lines separately, and
 they disagree: the exported one wraps paths in `shQuote()` and the internal
 one does not. A path with a space in it works through one and not the other.
 
-Worth folding the command construction into one place.
+**Resolved by quoting, not by sharing.** No common helper: the maintainer's
+call was to add `shQuote()` where it was missing rather than build an
+abstraction over command construction.
+
+The audit found it missing well beyond AnnoTALE. Every shell command the
+package builds now quotes its interpolated paths:
+
+| file | command |
+|---|---|
+| `telltale.R` | `.run_annotale_analyze()`, `.run_nhmmer_search()` |
+| `tales_msa_class.R` | the MAFFT pipeline and its `--textmatrix` (2 sites) |
+| `distalr.R` | arlem, and the four mmseqs calls |
+| `talecorrection_java.R` | nhmmer, and the TALEcorrection jar |
+| `target_predictions.R` | PrediTALE, TALVEZ |
+| `AnnoTALE_QueTAL_functions_library.R` | functal |
+
+`run_annotale_predict()` and `run_annotale_build()` already quoted theirs.
+The parked HMMER wrappers in `unused_pending_review.R` were left alone.
+
+Two of these needed restructuring rather than a wrapped variable, because
+they pasted a directory and a filename into one string: the MAFFT binaries
+(`{mafft_path}/mafft.bat`) and the TALEcorrection nhmmer outputs
+(`{outputFolder}/out_nhmmer.{domains}.txt`). A path is built with
+`file.path()` first and quoted whole; quoting only the directory would have
+left the separator outside the quotes.
 
 ### 8.0 `tell_tales()` has an unguarded filter — FIXED **[V]**
 

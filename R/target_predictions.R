@@ -55,7 +55,7 @@ preditale <- function(rvd_seqs, subj_file, opt_param = "", output_dir = NULL,
     "Cannot proceed. Please remove the following files:\n", paste("-", f, sep = " ", collapse = "\n"))
   }
   # Assembling preditale command
-  cmd <- glue::glue("java -Xms512M -Xmx2G -jar {predictor_path} preditale {opt_param} TALEs={rvdSeqsFile} s={subj_file} outdir={output_dir}")
+  cmd <- glue::glue("java -Xms512M -Xmx2G -jar {shQuote(predictor_path)} preditale {opt_param} TALEs={shQuote(rvdSeqsFile)} s={shQuote(subj_file)} outdir={shQuote(output_dir)}")
   glue::glue("## Invoking Preditale using the following command:\n", stringr::str_wrap(cmd, 80), "\n")
   # Running Preditale
   system(command = cmd)
@@ -171,7 +171,7 @@ talvez <- function(rvd_seqs, subj_file, opt_param = "-t 0 -l 19", output_dir = N
   envReady <- !as.logical(.create_tantale_env(conda_bin = conda_bin))
   if (envReady) {
     cmd <- glue::glue(#"cd {tempOutDir};",
-                      "perl TALVEZ_3.2.pl {opt_param} -e mat1 -z mat2 {basename(rvdSeqsFileForTv)} {basename(subj_file)}")
+                      "perl TALVEZ_3.2.pl {opt_param} -e mat1 -z mat2 {shQuote(basename(rvdSeqsFileForTv))} {shQuote(basename(subj_file))}")
     cli::cli_inform(paste0("Invoking Talvez using the following command:\n {stringr::str_wrap(cmd, 80)}"))
     res <- .run_in_conda(env_name = "tantale",
                             conda_bin = conda_bin,

@@ -47,8 +47,10 @@ correct_tales <- function(uncorrected_path ,
   }
   
   #### run nHMMER ####
-  nhmmerCmd <- paste(glue::glue("nhmmer {hmm_path}/{domains}.hmm {uncorrected_path} > {outputFolder}/out_nhmmer.{domains}.txt",
-                       .sep = "; "), collapse = "; ")
+  nhmmerCmd <- paste(glue::glue(
+    "nhmmer {shQuote(file.path(hmm_path, paste0(domains, '.hmm')))} {shQuote(uncorrected_path)}",
+    " > {shQuote(file.path(outputFolder, paste0('out_nhmmer.', domains, '.txt')))}",
+    .sep = ""), collapse = "; ")
   envReady <- !as.logical(.create_tantale_env(conda_bin = conda_bin))
   if (envReady) {
     cli::cli_inform("Running nHMMER")
@@ -66,9 +68,10 @@ correct_tales <- function(uncorrected_path ,
   
   #### run TALEcorrection ####
   cli::cli_inform("Performing TALEs cds correction on provided sequences.")
-  talecorCmd <- glue::glue("java -jar {pathToTALECorrection} correct s={uncorrected_path}",
-                  "n={outputFolder}/out_nhmmer.{domains[\"N\"]}.txt r={outputFolder}/out_nhmmer.{domains[\"R\"]}.txt",
-                  "c={outputFolder}/out_nhmmer.{domains[\"C\"]}.txt outdir={outputFolder}", .sep = " ")
+  hmmerOut <- function(d) shQuote(file.path(outputFolder, paste0("out_nhmmer.", d, ".txt")))
+  talecorCmd <- glue::glue("java -jar {shQuote(pathToTALECorrection)} correct s={shQuote(uncorrected_path)}",
+                  "n={hmmerOut(domains[\"N\"])} r={hmmerOut(domains[\"R\"])}",
+                  "c={hmmerOut(domains[\"C\"])} outdir={shQuote(outputFolder)}", .sep = " ")
   res <- try(system(command = talecorCmd, intern = TRUE))
   if (inherits(res, "try-error")) {
     cli::cli_warn("The following TALEcorrection commands failed:")

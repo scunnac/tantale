@@ -75,19 +75,19 @@ diag(identSubMat) <- 1
   
   Biostrings::writeXStringSet(part_aa_set, filepath = partAaStringSetFile)
   
-  mmseq2createdb <- glue::glue("mmseqs createdb {partAaStringSetFile} {mmseq2DbPath}")
+  mmseq2createdb <- glue::glue("mmseqs createdb {shQuote(partAaStringSetFile)} {shQuote(mmseq2DbPath)}")
 
-  mmseq2prefilter <- glue::glue("mmseqs prefilter {mmseq2DbPath} {mmseq2DbPath} {prefDbPath}",
+  mmseq2prefilter <- glue::glue("mmseqs prefilter {shQuote(mmseq2DbPath)} {shQuote(mmseq2DbPath)} {shQuote(prefDbPath)}",
                                "-v 3 --threads {max(floor(ncores/2), 1)} --max-seqs 1000 -s 7.5 --add-self-matches 1",
                                "--cov-mode 0", .sep = " ")
   
-  mmseq2align <- glue::glue("mmseqs align {mmseq2DbPath} {mmseq2DbPath} {prefDbPath} {alnDbPath}",
+  mmseq2align <- glue::glue("mmseqs align {shQuote(mmseq2DbPath)} {shQuote(mmseq2DbPath)} {shQuote(prefDbPath)} {shQuote(alnDbPath)}",
                                "-v 3 --threads {ncores} --add-self-matches 1 --min-seq-id 0",
                                "--cov-mode 0 --gap-open aa:11,nucl:5 --gap-extend aa:1,nucl:2",
                                "-a 1 --alignment-mode 3 --alignment-output-mode 0 --seq-id-mode 1",
                                .sep = " ")
   
-  mmseq2convertalis <- glue::glue("mmseqs convertalis {mmseq2DbPath} {mmseq2DbPath} {alnDbPath} {alnTabFile}",
+  mmseq2convertalis <- glue::glue("mmseqs convertalis {shQuote(mmseq2DbPath)} {shQuote(mmseq2DbPath)} {shQuote(alnDbPath)} {shQuote(alnTabFile)}",
                                "--format-mode 4 -v 3",
                                "--format-output query,target,evalue,raw,pident,nident,mismatch,gapopen,qstart,qend,qlen,tstart,tend,tlen,alnlen,bits,qcov,tcov",
                                .sep = " ")
@@ -547,7 +547,7 @@ tales_compare <- function(x, ncores = 1, aln_method = "DECIPHER",
   
   #### run arlem with a system call and parse std output ####
   arlemPath <- system.file("tools", "arlem", "arlem", package = "tantale", mustWork = T)
-  arlemCmd <- glue::glue("{arlemPath} -f {codesSeqsfile} -cfile {cfile} -align -insert -showalign")
+  arlemCmd <- glue::glue("{shQuote(arlemPath)} -f {shQuote(codesSeqsfile)} -cfile {shQuote(cfile)} -align -insert -showalign")
   cli::cli_inform("Running ARLEM version 1.0 : ")
   cli::cli_inform("Copyright by Mohamed I. Abouelhoda")
   cli::cli_inform(paste0("Plz. cite Abouelhoda, Giegerich, Behzadi, and Steyaert"))

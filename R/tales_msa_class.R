@@ -481,7 +481,7 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
     repeatSims$id2 <- asciitableForMafft$hex[match(repeatSims$id2, residues)]
     colnames(repeatSims) <- NULL
     write.table(repeatSims, file = simMatHexFile, row.names = FALSE, fileEncoding = "ASCII")
-    maffMatOpt <- glue::glue("--textmatrix {simMatHexFile}")
+    maffMatOpt <- glue::glue("--textmatrix {shQuote(simMatHexFile)}")
   } else if (repeatType == "rvds") {
     cli::cli_abort(
       c("A repeat similarity table cannot score an RVD alignment.",
@@ -513,14 +513,17 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
     repeatSims$id2 <- asciitableForMafft$hex[match(repeatSims$id2, residues)]
     colnames(repeatSims) <-  NULL
     write.table(repeatSims, file = simMatHexFile, row.names = FALSE, fileEncoding = "ASCII")
-    maffMatOpt <- glue::glue("--textmatrix {simMatHexFile}")
+    maffMatOpt <- glue::glue("--textmatrix {shQuote(simMatHexFile)}")
   }
 
   # Running mafft msa
   cli::cli_inform("Now running MAFFT (Copyright 2002-2007 Kazutaka Katoh) on TALE array sequences.")
-  asciiConverstionCmd <- glue::glue("{mafft_path}/mafftdir/libexec/hex2maffttext {hexFile} > {asciFile}")
-  mafftCmd <-  glue::glue("{mafft_path}/mafft.bat {maffMatOpt} --text {mafft_opts} {asciFile} > {mafftAsciiOutFile}")
-  MsaConversionToHexCmd <- glue::glue("{mafft_path}/mafftdir/libexec/maffttext2hex {mafftAsciiOutFile} > {mafftHexOutFile}")
+  hex2text <- shQuote(file.path(mafft_path, "mafftdir", "libexec", "hex2maffttext"))
+  text2hex <- shQuote(file.path(mafft_path, "mafftdir", "libexec", "maffttext2hex"))
+  mafftBin <- shQuote(file.path(mafft_path, "mafft.bat"))
+  asciiConverstionCmd <- glue::glue("{hex2text} {shQuote(hexFile)} > {shQuote(asciFile)}")
+  mafftCmd <-  glue::glue("{mafftBin} {maffMatOpt} --text {mafft_opts} {shQuote(asciFile)} > {shQuote(mafftAsciiOutFile)}")
+  MsaConversionToHexCmd <- glue::glue("{text2hex} {shQuote(mafftAsciiOutFile)} > {shQuote(mafftHexOutFile)}")
   res <- system(command = paste(asciiConverstionCmd, mafftCmd, MsaConversionToHexCmd, sep = "; "),
          ignore.stdout = FALSE, ignore.stderr = FALSE, intern = FALSE)
 
