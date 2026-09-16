@@ -1740,9 +1740,40 @@ vector lied about its own length -- exactly what breaks a caller indexing
 lines to put in a log. Tests now assert that no element contains a newline
 and that `format(x)` equals `capture.output(print(x))` for both classes.
 
-Still open: whether `summary()` earns a place. The anomaly count from
-`tales_anomalies()` would sit better there than in `print()`, which should
-stay cheap enough to fire on every object you look at.
+**`summary()` methods too**, `R/tales_summary.R`, 26 tests. They return an
+object that a `print` method renders, so the numbers are usable and not
+merely visible.
+
+```
+<tales> summary
+  arrays / parts            44 / 955
+  distinct domains          251 of 955 parts  (C-terminus 37, N-terminus 34, repeat 180)
+  distinct RVDs             17
+  repeats per array         min 12   median 19   max 27
+  arrays with both termini  44 of 44
+  source sequences          4
+  anomalies                 none
+```
+
+Contents were cross-checked against what `tell_tales()` already thinks worth
+logging, which independently confirmed "complete arrays" and array-length
+min/median/max. It also turned up a commented-out line in that log --
+"Total number of distinct types of RVD" -- which the author wanted and lost
+when the table it needed was disabled. It is back, here.
+
+For a `tales_msa` the measure that earns its place is **columns with no
+consensus, per layer**. On a gappy four-array alignment: 17 of 28 columns
+have no `dom_code` consensus but only 10 have no `rvd` one. That gap is the
+biology -- repeats that are distinct proteins can share a base preference --
+and it is a one-line answer to "is this alignment telling me something, or is
+it disagreement all the way down".
+
+**Left out deliberately:** the RVD frequency table (composition analysis,
+belongs in its own function returning data), and per-array breakdowns (they
+scale with the object; a summary should not).
+
+Still open: nothing. `format()`, `print()` and `summary()` are all in place
+for both classes.
 
 ### 8.6b Co-locating single-caller internals — PARTLY DONE **[V]**
 

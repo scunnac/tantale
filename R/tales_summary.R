@@ -85,9 +85,11 @@ summary.tales <- function(object, ...) {
         vapply(split(object$dom_code, object$domain_type),
                function(v) length(unique(v)), integer(1))
       } else NULL,
-      n_distinct_rvds = if (has("rvd") && has("domain_type")) {
-        length(unique(object$rvd[object$domain_type == "repeat"]))
-      } else if (has("rvd")) length(unique(object$rvd)) else NULL,
+      # repeats only, and NA is a missing RVD rather than a kind of one
+      n_distinct_rvds = if (has("rvd")) {
+        v <- if (has("domain_type")) object$rvd[object$domain_type == "repeat"] else object$rvd
+        length(unique(v[!is.na(v)]))
+      } else NULL,
       repeats_per_array = if (!is.null(repeats) && length(repeats)) {
         c(min = min(repeats), median = stats::median(repeats), max = max(repeats))
       } else NULL,
