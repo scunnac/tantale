@@ -1554,7 +1554,7 @@ exit status and nothing else. Verified against a deliberately bad option:
 the abort carries MAFFT's own usage output and is classed
 `tantale_error_mafft_failed`.
 
-### 8.4 `print()` methods for `tales` and `tales_msa` **[A]**
+### 8.4 `print()` methods for `tales` and `tales_msa` — DONE **[V]**
 
 Both classes currently fall through to the tibble print method, so the screen
 says `# A tibble: 955 x 10` and nothing about what the object *is*. Everything
@@ -1573,9 +1573,43 @@ A print method is the cheapest place to surface all of that, and it is the
 first thing a user sees. Worth doing before the vignettes are rebuilt, since
 the printed object will appear throughout them.
 
-Consider `format()` alongside it, and whether `summary()` earns its place too
-(the anomaly count from `tales_anomalies()` would be a natural thing to put
-there rather than in `print()`).
+**Done.** `R/tales_print.R`, 25 tests.
+
+```
+<tales> 44 arrays, 955 parts
+  layers: rvd, dom_code   |   namespace: 4a3059c6   |   6 other columns
+                      dom_code
+  BAI3_ROI_00001      194 68 152 68 94 154 151 157 152 94 60 34 153 154 15 ...
+  BAI3_ROI_00002      199 64 50 64 94 149 8 54 5 94 127 115 158 39 56 50 5 ...
+  ...                 ...
+  PXO86_ROI_00018     213 131 120 128 140 79 145 84 10 40 96 116 18 166 96 ...
+  PXO86_ROI_00019     214 139 116 116 114 50 21 50 39 17 18 65 93 115 94 1 ...
+```
+
+A `tales_msa` prints the same way but draws its gaps and pads every cell to a
+common width, so the columns line up down the page -- an alignment is
+something you recognise by looking at it.
+
+The preview follows Biostrings: first two, `...`, last two, eliding nothing
+when the object holds four arrays or fewer. It previews `dom_code` over
+`rvd` because repeat codes discriminate better -- two arrays can share an RVD
+sequence while being built from different repeats.
+
+**Two bugs caught while writing the tests**, both worth remembering:
+
+- The header was built with `cli::cli_text()`, which writes to the **message
+  connection**. A `print()` method must write to stdout: as it was, the header
+  would interleave wrongly under redirection and `capture.output()` could not
+  see it at all. `cli::format_inline()` plus `cat()` keeps the styling and the
+  pluralisation while going to the right place.
+- I briefly "fixed" a non-existent portability problem with `%||%`, thinking
+  it was base-only since R 4.4 while `DESCRIPTION` allows 3.6.3. The package
+  defines its own at `tales_msa_class.R:206`, so it was never at risk.
+
+Still open from the original note: `format()` as a separate method, and
+whether `summary()` earns a place -- the anomaly count from
+`tales_anomalies()` would sit better there than in `print()`, which should
+stay cheap.
 
 ### 8.6b Co-locating single-caller internals — PARTLY DONE **[V]**
 
