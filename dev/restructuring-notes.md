@@ -1488,6 +1488,58 @@ in the signature or spelled out in the docs.** Worth re-running the audit
 (`scratchpad/dots.R` in the session notes, trivially rebuilt) whenever a new
 exported wrapper appears.
 
+### 8.5b Break `tales_compare()` into three composable steps **[A]**
+
+Maintainer's proposal, and I agree with it. `.tales_compare_core()` does three
+things that are separable and each independently useful:
+
+1. assign the `dom_code`s;
+2. compute the `domain_distances`;
+3. compute the `tale_distances`.
+
+**One correction to the ordering, which improves the design rather than
+complicating it.** Steps 2 and 3 are not parallel: **the TALE distances are
+built *from* the domain distances.** At `distalr.R:498-510` the pairwise
+repeat dissimilarities are cast to a matrix, passed through
+`stats::dist(method = "minkowski", p = 3.5)` to force the triangle
+inequality, rescaled to 0-100, and written as ARLEM's cost matrix. ARLEM then
+aligns the repeat-code strings *using that matrix* as its substitution cost.
+
+So the real chain is **1 -> 2 -> 3**, and that is worth exposing rather than
+hiding, because it states something biological the current monolith conceals:
+two TALEs are compared by aligning their repeat arrays, where the cost of
+substituting one repeat for another is how different those repeats are as
+proteins. The repeat-level comparison is not a by-product of the TALE-level
+one; it is its input.
+
+Composed, the three would read:
+
+```r
+x  <- tales_assign_domain_codes(x)          # 1
+dd <- tales_domain_distances(x, aln_method) # 2
+td <- tales_tale_distances(x, dd)           # 3, consumes dd
+```
+
+and `tales_compare()` stays as the convenience wrapper that runs all three.
+
+**What already exists, and what does not.** `tales_domain_codes()` is taken
+but does something else -- it *reads back* the `dom_code`/`aa_seq`
+correspondence from an object that already has codes. Step 1 needs a
+different name.
+
+**The hazard to think about before exporting step 1.** Codes are assigned
+with `dplyr::cur_group_id()` over `aa_seq`, so they depend on which arrays
+were in the table at the time. That is exactly why the `dom_code_namespace`
+stamp exists -- to catch similarity tables from one run being used with codes
+from another. Exporting the assignment makes that run-dependence part of the
+public API, so the function must stamp a namespace and its documentation must
+be blunt: **these codes are meaningful only within one call, and comparing
+them across calls is an error the namespace is there to catch.**
+
+Worth doing. Every step is separately useful -- someone may want the
+repeat-level distances without paying for ARLEM at all -- and the
+decomposition documents the model.
+
 ### 8.2b `tales_coded_strings()` needs a `sep` argument **[A]**
 
 The two projections are siblings and should take the same arguments, but do
