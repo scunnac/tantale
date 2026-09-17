@@ -3,13 +3,59 @@
 Working document for the pre-publication overhaul. Records findings, agreed
 actions and deferred questions so they don't live only in conversation.
 
-Branch: `dev`. Last updated: 2026-09-13.
+Branch: `dev`. Last updated: 2026-09-17.
 
 Status markers used below:
 
 - **[V]** verified empirically against the code/data in this repo
 - **[A]** agreed direction, not yet executed
 - **[P]** parked — needs a judgement call or a dedicated review pass
+- **[superseded]** kept as a record of a plan that was replaced; **not** work
+
+---
+
+## START HERE
+
+This file is ~3200 lines and is a record, not a reading list. **Do not read
+it end to end.** Read `CLAUDE.md` (it loads automatically), then only the
+sections below that bear on the task in hand.
+
+`grep -nE '\*\*\[A\]\*\*|\*\*\[P\]\*\*' dev/restructuring-notes.md`
+lists everything still open. As of 2026-09-17, seven sections:
+
+| § | what | blocked on |
+|---|---|---|
+| **9.2b** | `arrayReport.tsv` still has 14 legacy column names | **maintainer's call** — these are user-facing output files |
+| **5.2** | talome-wide MSA plot: list of alignments vs demoted `tales` | **maintainer's call** (A vs B) |
+| **12b** | `functal()` cannot run; `Bio::Perl` is unobtainable | **maintainer's call** between four options |
+| **6** | correctness backlog — computations that may not match intent | a dedicated pass; several are real bugs |
+| **11** | rework `tales_group()` | joint work, deliberately **after** the articles |
+| **7.5a** | article on the `tales` class and `dom_code` | ready to write |
+| **7.5** | vignettes and `@examples` | deliberately last |
+
+The grep also returns two `####` sub-headings marked `[P]` (inside §9.2 and
+§9.6). Those are parked questions *within* finished sections, not separate
+work.
+
+**§6 is the one most likely to be underestimated.** It is not tidying: it
+lists a similarity being passed where a distance is expected
+(`hclust(as.dist(Sim))`), and an input-type guess made against a hardcoded
+list of six frequent RVDs that would silently misclassify an alignment of
+unusual TALEs.
+
+Everything else marked `[V]` is done and verified; `[superseded]` sections
+are history.
+
+**Before editing anything**, confirm the external environment is what the
+package expects — `tantale_setup()`. It is machine state and cannot be
+inferred from the repo. This machine carries `/usr/bin/mafft` **7.505** and
+`/usr/bin/nhmmer` **3.4** against pins of 7.453 and 3.3.2, so a tool
+resolved through `PATH` instead of `.tantale_bin()` silently produces
+different results (§12).
+
+**Before accepting a golden snapshot**, use the `golden-rebaseline` skill.
+An accepted snapshot is indistinguishable from a correct one, so the
+discipline is to explain every changed row first (§8.3, §8.1d).
 
 ---
 
@@ -594,7 +640,7 @@ both of which are questions for the maintainer rather than cleanups.
 
 #### Original notes
 
-### 5.3-original `tell_tales()` needs refactoring **[A]**
+### 5.3-original `tell_tales()` needs refactoring **[superseded]**
 
 **[V]** Measured, so the scale is on record rather than impressionistic:
 
@@ -648,9 +694,11 @@ Deferred to a dedicated pass on "computations that may not match intent":
   testing against a hardcoded list of six frequent RVDs
   (`NN NG HD NI N* NS`). A small alignment of unusual TALEs containing none of
   them would be silently misclassified. A typed object removes the guess.
-- `functal()` is blocked on uninstalled Perl deps (`List::MoreUtils`,
-  `Bio::Perl` — the latter absent from the conda BioPerl package). Currently
-  documented by its test.
+- `functal()` is blocked on Perl deps. **Partly resolved 2026-09-17:**
+  `perl-list-moreutils` is now in the yaml and installed. `Bio::Perl` turns
+  out to be unobtainable — BioPerl dropped it in the 1.7 reorganisation and
+  the last version that had it wants perl 5.22. See §12b for the four
+  options, all maintainer decisions.
 - **[V] FIXED** — `plot_tales_msa()` aborted on **every** call under ggplot2
   4.0.3: `msa.R:830` passed `palette =` to `ggplot2::scale_fill_manual()`,
   which has no such argument (it takes `values`), so the name collided with the
@@ -970,7 +1018,7 @@ wanted for the vignettes.
 
 #### Original notes
 
-### 7.4-original Shrink the payload: get MAFFT and HMMER from conda **[A]**
+### 7.4-original Shrink the payload: get MAFFT and HMMER from conda **[superseded]**
 
 `inst/` is 163 MB, and `inst/tools` is 122 MB of it -- the bulk of what a user
 downloads.
@@ -1626,7 +1674,7 @@ however small. Pre-existing and not touched here; the tests select the real
 arrays explicitly. Worth a look if short spurious arrays ever become a
 nuisance.
 
-### 8.1b Curating the shipped correction reference **[A]**
+### 8.1b Curating the shipped correction reference -- DONE **[V]**
 
 Separate from the test fixture above, and a biological question rather than
 an engineering one.
@@ -2253,7 +2301,7 @@ Options, for the maintainer:
 This is a biological question about what the figure should claim, not a
 coding one, which is why it is parked here.
 
-## 9. Long-term systematic passes **[A]**
+## 9. Long-term systematic passes -- all DONE except 9.2b **[V]**
 
 Whole-codebase sweeps, to be done deliberately rather than opportunistically.
 Deferred until the class design settles, since it will dictate several of the
@@ -2725,7 +2773,7 @@ only. Giving them specific subclasses (as the class-system code already does,
 e.g. `tantale_error_tales_type`) would make them individually assertable in
 tests. Worth a pass, but each needs a judgement call about the right name.
 
-### 9.5-superseded Unify the user-messaging system **[A]**
+### 9.5-superseded Unify the user-messaging system **[superseded]**
 
 Current state — four idioms coexisting, ~190 call sites:
 

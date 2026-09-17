@@ -4,10 +4,17 @@ An R package for analysing TALEs (transcription activator-like effectors) of
 *Xanthomonas*. Current work is pre-publication cleanup on the `dev` branch.
 
 **`dev/restructuring-notes.md` is the ledger** and the main source of
-context: what has been done, what is deferred, and why. Sections are marked
-`**[A]**` (actionable), `**[V]**` (verified/done) or `**[ ]**` (open). Read
-the relevant section before starting on something, and write the outcome
-back into it — including what was tried and rejected.
+context: what has been done, what is deferred, and why. It is ~3200 lines
+and is a record, not a reading list — **start at its `START HERE` block**,
+which lists the open items, then read only the sections bearing on the task
+in hand.
+
+Markers: `[V]` verified/done, `[A]` agreed but not executed, `[P]` parked
+pending a judgement call, `[superseded]` a record of a replaced plan and
+therefore *not* work.
+
+Write outcomes back into the relevant section — including what was tried
+and rejected.
 
 ## Standing rules
 
@@ -36,6 +43,30 @@ converted.
 **Run `pkgdown::check_pkgdown()` after adding or retiring an exported
 topic.** A dangling entry in `_pkgdown.yml` is a hard error in
 `build_site()`, and `R CMD check` does not look at that file.
+
+**Use cli conditions, never `stop()`, `warning()` or `message()`.**
+`cli::cli_abort()` / `cli_warn()` / `cli_inform()`, each with a condition
+class (`c("tantale_error_<what>", "tantale_error")`) so tests can assert on
+the class rather than the wording. Re-audit with R's parser, not grep, so
+comments and strings cannot give false positives:
+
+```r
+pd <- getParseData(parse(f, keep.source = TRUE))
+pd[pd$token == "SYMBOL_FUNCTION_CALL" &
+   pd$text %in% c("stop", "warning", "message"), ]
+```
+
+Legitimate exceptions: `cat()` inside `print`/`format` methods,
+`packageStartupMessage()` in `startup.R`, and `stopifnot()` for internal
+invariants that are not addressed to the user. `classification.R` still has
+nine unconverted sites, deliberately — see ledger §11.
+
+**Run the environment's programs by absolute path, never via `PATH` or
+`conda run`.** `.tantale_bin(tools)` resolves them inside the conda prefix
+and `.tantale_exec()` runs them with the exit status checked. This is not
+style: this machine carries `/usr/bin/mafft` 7.505 and `/usr/bin/nhmmer`
+3.4 against pins of 7.453 and 3.3.2, and `conda run` puts only the *first*
+command of a compound string inside the environment. See ledger §12.
 
 **MAFFT is pinned to 7.453 on purpose.** Later versions changed `--text`
 mode gap handling and align TALE repeat-code strings differently, leaving
@@ -83,6 +114,12 @@ stamp exists to catch cross-run mixing, and is enforced, not advisory.
   helper.
 - `@param ...` must name the arguments it accepts if it forwards to
   something the reader cannot open (ledger §8.1c).
+
+## Where things stand
+
+`dev/restructuring-notes.md` is ~3200 lines. **Read its `START HERE` block,
+not the whole file.** It lists the six open items and what each is blocked
+on. Three of them are waiting on the maintainer's decision, not on work.
 
 ## Commits
 

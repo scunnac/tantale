@@ -1,6 +1,13 @@
-# Unattended session, 2026-09-17
+# Session of 2026-09-17
 
-Five commits on `dev`, none pushed. Full suite **642 passing, 0 failing**
+**This report has two halves.** Everything below the line "Part two" was
+done after the unattended run, interactively with the maintainer.
+
+---
+
+# Part one — unattended run
+
+Five commits on `dev` (pushed later, with part two). Full suite **642 passing, 0 failing**
 (was 555). `R CMD check`: **0 errors**, 1 warning, 2 notes — all three
 pre-existing and unrelated (bundled executables, long paths under
 `data_for_tests`, empty `NEWS.md`).
@@ -189,3 +196,74 @@ become a nuisance.
   and `@examples`. Both deliberately last, and §8.5b just changed the API
   they would describe, so waiting was right.
 - `pipeline.svg` still shows old column names.
+
+
+---
+
+# Part two — interactive, same day
+
+Seven further commits, all pushed to `origin/dev`. Suite **659 passing, 0
+failing** (was 642). `R CMD check` unchanged: 0 errors, 1 warning, 2 notes,
+all pre-existing.
+
+| commit | ledger |
+|---|---|
+| `216cfe5` ledger: `tales_group()` needs a joint rework | 11 |
+| `abf23d1` `CLAUDE.md` + `golden-rebaseline` skill | — |
+| `6182f8f` collect plot methods into `tales_plot.R` | 8.6c |
+| `530e824` insulate the MAFFT call; check its exit status | 12 |
+| `8b95165` one mechanism for running the environment's programs | 12, 12a, 12b |
+| `586cdcf` convert `stop()`/`message()`/`warning()` to cli | 13 |
+
+## The thing to know about this machine
+
+`/usr/bin/mafft` is **7.505** and `/usr/bin/nhmmer` is **3.4**, against pins
+of 7.453 and 3.3.2 — both inside the range the pins exist to exclude. Any
+tool resolved through `PATH` rather than `.tantale_bin()` silently produces
+different results. This is now enforced in code and recorded in `CLAUDE.md`.
+
+It was not hypothetical: `talecorrection()` joined three `nhmmer` calls with
+`"; "` and passed them to `conda run`, which puts only the **first** command
+inside the environment. Two of the three had been running against system
+HMMER 3.4.
+
+## One mechanism instead of two (§12)
+
+The maintainer was uncomfortable having MAFFT called by absolute path while
+seven other sites went through `.run_in_conda()`, and asked whether
+everything could go through `conda run`. Measurement said the opposite:
+
+| | absolute path | `conda run` |
+|---|---|---|
+| per call | ~36 ms | ~1.3 s |
+| compound command | every stage correct | only the first is in the env |
+
+So `.tantale_bin()` + `.tantale_exec()` now serve all eight call sites, and
+`.run_in_conda()` is parked. What `conda run` would have given us — the
+environment's variables — turned out not to be needed: `env -i` runs of
+mafft, mmseqs and perl all work, because conda bakes prefixes into its
+binaries.
+
+## The bug the maintainer found by reading (§12a)
+
+`.tantale_env_prefix()` broke ties between same-named environments with
+`dirname(dirname(conda_binary()))`. micromamba's binary is in `~/bin`, so
+that is the **home directory**, which every candidate is under — the filter
+matched all of them, the code took the first, and said nothing, because the
+warning was in the branch that runs when *nothing* matched. Replaced with
+selection by which environment satisfies the pins.
+
+## Open decisions, unchanged
+
+**9.2b**, **5.2** (A vs B), **12b** (`functal()`) all still want the
+maintainer. **11** (`tales_group()`) is deliberately after the articles.
+
+## Corrections to earlier records
+
+- **§9.5** said "22 bare `stop()` → 0" and read as though no base conditions
+  remained. "Bare" meant *empty message*; 38 message-carrying sites
+  survived. Wording fixed, 29 converted (§13), 9 left in
+  `classification.R` for the §11 rework.
+- **§8.1b** and **§9** headings still carried `[A]` after being completed,
+  and three superseded sections did too — so grepping for open work returned
+  history. Re-marked.
