@@ -678,9 +678,13 @@ arguments are a separate question and interact with 9.1.
 
 Deferred to a dedicated pass on "computations that may not match intent":
 
-- `hclust(as.dist(Sim))` in both `.cluster_repeats()` and
-  `.repeat_to_cluster_align()` — a similarity (`Sim = 100 - Dissim`) is fed
-  where a distance is expected, so high similarity reads as far apart.
+- ~~`hclust(as.dist(Sim))` feeding a similarity where a distance is
+  expected~~ -- **fixed, see "RESOLVED" immediately below.** This bullet
+  named the bug as still open after it had already been closed; left as a
+  strikethrough rather than deleted so a future reader searching for
+  "as.dist" does not re-open a closed question. (Found stale during the
+  2026-09-17 ledger audit -- the whole reason to distrust this file's
+  markers and re-check every claim against the code.)
 - `rvdSimDf` is orphaned while `build_repeat_msa()` forces identity scoring for
   RVD alignments (`if (is.null(repeat_sims) || repeatType == "rvds")
   maffMatOpt <- ""`), even though `rvdSimDf` is exactly the biologically
@@ -1263,6 +1267,44 @@ Worth keeping as a habit: **run `pkgdown::check_pkgdown()` after retiring or
 adding an exported topic.** Nothing else catches a dangling reference entry,
 and `R CMD check` does not look at `_pkgdown.yml`.
 
+### 7.5 Worked examples: vignettes and `@examples` **[A]**
+
+**Found during the 9.2 sweep:** the "Overview of TALE composition by genome"
+chunk in vignette 2 hand-rolls, in about fifteen lines of `ggplot()` calls,
+exactly the figure `plot_tales_composition()` now produces in one. It also
+passed `color = isNaAaSeq`, a variable defined nowhere in the vignette or the
+package -- dead since it was written, and invisible only because these
+vignettes do not build (7.1). The stray argument is removed; replacing the
+chunk with a `plot_tales_composition()` call belongs to this rewrite.
+
+
+`plot_tales_msa()` is the most capable function in the package and the hardest
+to use: three independent things determine the rendering (cell text, text
+colour, block fill), each with its own inputs. Its `@details` now explains the
+mechanism, but explanation is not the same as demonstration.
+
+Two gaps, both out of scope for now:
+
+**The pkgdown MSA section is obsolete.** It was written against
+`msa_heatmap()`, which is retired, and against the legacy slot names. Vignette
+3's calls were migrated mechanically but the surrounding prose still describes
+the old workflow, and none of it can be verified while 7.1 stands. It needs
+rewriting as a set of commented examples covering the combinations a user
+actually reaches for -- each `fill_type`, with and without a tree, with and
+without a consensus panel, RVD versus repeat-code labels.
+
+**No exported function has `@examples`.** Nothing in `man/` carries a runnable
+example, so `R CMD check` exercises none of the documented API and a reader has
+nothing to copy. This matters most for the plotting and class constructors,
+where the argument combinations are the hard part.
+
+Note the dependency: useful `@examples` need small, fast, self-contained
+fixtures. `inst/extdata` has some, but the plotting examples would want a tiny
+alignment that does not require running MAFFT. Worth building that fixture
+first; it would serve the vignettes too.
+
+---
+
 ### 7.5a An article on the `tales` class, and what a `dom_code` is -- DONE **[V]**
 
 A full pkgdown article on the `tales` class, written for an audience that is
@@ -1378,44 +1420,6 @@ priority): the four numbered `vignettes/*.Rmd` walkthroughs and the three
 `p*.Rmd` files are still R Markdown. They are §7.5's problem, not this
 one's, and §7.5 is deliberately last regardless of format.
 
-### 7.5 Worked examples: vignettes and `@examples` **[A]**
-
-**Found during the 9.2 sweep:** the "Overview of TALE composition by genome"
-chunk in vignette 2 hand-rolls, in about fifteen lines of `ggplot()` calls,
-exactly the figure `plot_tales_composition()` now produces in one. It also
-passed `color = isNaAaSeq`, a variable defined nowhere in the vignette or the
-package -- dead since it was written, and invisible only because these
-vignettes do not build (7.1). The stray argument is removed; replacing the
-chunk with a `plot_tales_composition()` call belongs to this rewrite.
-
-
-`plot_tales_msa()` is the most capable function in the package and the hardest
-to use: three independent things determine the rendering (cell text, text
-colour, block fill), each with its own inputs. Its `@details` now explains the
-mechanism, but explanation is not the same as demonstration.
-
-Two gaps, both out of scope for now:
-
-**The pkgdown MSA section is obsolete.** It was written against
-`msa_heatmap()`, which is retired, and against the legacy slot names. Vignette
-3's calls were migrated mechanically but the surrounding prose still describes
-the old workflow, and none of it can be verified while 7.1 stands. It needs
-rewriting as a set of commented examples covering the combinations a user
-actually reaches for -- each `fill_type`, with and without a tree, with and
-without a consensus panel, RVD versus repeat-code labels.
-
-**No exported function has `@examples`.** Nothing in `man/` carries a runnable
-example, so `R CMD check` exercises none of the documented API and a reader has
-nothing to copy. This matters most for the plotting and class constructors,
-where the argument combinations are the hard part.
-
-Note the dependency: useful `@examples` need small, fast, self-contained
-fixtures. `inst/extdata` has some, but the plotting examples would want a tiny
-alignment that does not require running MAFFT. Worth building that fixture
-first; it would serve the vignettes too.
-
----
-
 ## 8. Tests — error conditions now covered **[V]**
 
 `tests/testthat/test_error_conditions.R` added (18 assertions). It exists
@@ -1454,108 +1458,6 @@ Worth remembering when writing cli messages: an inline style span such as
   silently (`skip_on_cran()` retained, as it is inert off CRAN infrastructure).
 
 ---
-
-## 8.5 Internals audit — function census **[V]**
-
-A census of every top-level definition in `R/` (111: 51 exported, 60
-internal), counting call sites within the package.
-
-**Single-caller internals: 27.** But 18 of those already sit in the same file
-as their caller, so the maintenance cost is concentrated in the 9 that do
-not:
-
-| internal | defined in | only caller |
-|---|---|---|
-| `.repeat_to_sim_align()` | `conversion.R` | `msa.R` |
-| `.repeat_to_cluster_align()` | `conversion.R` | `msa.R` |
-| `.rvd_to_match_align()` | `conversion.R` | `msa.R` |
-| `.tale_parts()` | `distalr.R` | `tales_class.R` |
-| `.build_repeat_msa()` | `msa.R` | `tales_msa_class.R` |
-| `.tales_dom_code_namespace()` | `tales_class.R` | `distalr.R` |
-| `.tales_msa_contract_holds()` | `tales_msa_class.R` | `tales_class.R` |
-| `.run_nhmmer_search()` | `tellTale_utilities.R` | `telltale.R` |
-| `.hits_report_to_gff()` | `tellTale_utilities.R` | `telltale.R` |
-
-**The test is not "how many callers".** Some single-caller helpers earn their
-name: `.pairwise_align_biostrings/mmseq2/decipher()` are three siblings behind
-a `switch` and their symmetry is the readable part; the `.tales_check_*()`
-validators surface in error provenance. The useful question is whether the
-helper has a name the reader needs. If it does, it should live *next to* its
-caller; if it does not, it is a paragraph of the caller that was given a name
-for no reason.
-
-**Callers with no caller: 5.** Moved to `R/unused_pending_review.R`, not
-deleted -- see the header of that file for what is known about each.
-
-### 8.3 Regression baseline — DONE **[V]**
-
-`tests/testthat/test_golden.R` plus `helper-golden.R`. Twenty snapshots
-covering the tales column contract, the anomaly report, the requirements
-table, the five projections, `tales_compare()`, both `tales_align()` layers,
-`tales_group()`, the data behind `plot()` on a `tales_msa`, and the consensus
-of the reference alignment. Runs in about 19 seconds; MAFFT and arlem are
-exercised for real.
-
-These assert nothing about what the values *should* be. They record what the
-pipeline produces, so a refactor meant to change nothing can be shown to have
-changed nothing, and one that does change something says where.
-
-**Whole tables are not snapshotted.** Each is reduced to a fingerprint: one
-row per column carrying type, length, distinct count, missingness and an md5
-of the values. Snapshots stay readable (23 KB in total) and a diff names the
-artefact *and* the column that moved. Doubles are rounded before digesting so
-that last-bit differences between machines do not register. Small artefacts
-worth reading -- the column contract, the requirements table, the consensus --
-are snapshotted whole.
-
-`expect_golden()` forces `cran = TRUE`: `expect_snapshot_value()` skips on CRAN
-by default, and a baseline that quietly does not run is worse than none.
-
-Verified to work by reintroducing the `tales_consensus()` tie-break bug: two
-snapshots failed, naming the consensus and the plot data. This replaces an
-ad-hoc baseline kept in a session scratchpad, which was lost when the session
-restarted -- the reason it now lives in the repository.
-
-To accept an intended change: inspect the diff, then
-`testthat::snapshot_accept("golden")`.
-
-### 8.0b Quoting paths in shell commands — DONE **[V]**
-
-`tell_tales()` had a nested function definition that shelled out to
-AnnoTALE's "analyze" stage. It is now `.run_annotale_analyze()` at top level.
-
-It overlaps the exported `run_annotale_predict()`, which runs predict *and*
-analyze starting from a genome. They are not duplicates -- `tell_tales()` has
-already found the ORF by the time it calls AnnoTALE, so it needs analyze on
-its own -- but the two build their `java -jar` command lines separately, and
-they disagree: the exported one wraps paths in `shQuote()` and the internal
-one does not. A path with a space in it works through one and not the other.
-
-**Resolved by quoting, not by sharing.** No common helper: the maintainer's
-call was to add `shQuote()` where it was missing rather than build an
-abstraction over command construction.
-
-The audit found it missing well beyond AnnoTALE. Every shell command the
-package builds now quotes its interpolated paths:
-
-| file | command |
-|---|---|
-| `telltale.R` | `.run_annotale_analyze()`, `.run_nhmmer_search()` |
-| `tales_msa_class.R` | the MAFFT pipeline and its `--textmatrix` (2 sites) |
-| `distalr.R` | arlem, and the four mmseqs calls |
-| `talecorrection_java.R` | nhmmer, and the TALEcorrection jar |
-| `target_predictions.R` | PrediTALE, TALVEZ |
-| `AnnoTALE_QueTAL_functions_library.R` | functal |
-
-`run_annotale_predict()` and `run_annotale_build()` already quoted theirs.
-The parked HMMER wrappers in `unused_pending_review.R` were left alone.
-
-Two of these needed restructuring rather than a wrapped variable, because
-they pasted a directory and a filename into one string: the MAFFT binaries
-(`{mafft_path}/mafft.bat`) and the TALEcorrection nhmmer outputs
-(`{outputFolder}/out_nhmmer.{domains}.txt`). A path is built with
-`file.path()` first and quoted whole; quoting only the directory would have
-left the separator outside the quotes.
 
 ### 8.0 `tell_tales()` has an unguarded filter — FIXED **[V]**
 
@@ -1620,6 +1522,44 @@ have tests now (`test_tell_tales_guards.R`); none had any before.
   recognises. Default 0 because whether a short array is noise or a truncated
   TALE is a judgement about the biology: a pseudogene with three surviving
   repeats is real, and may be exactly what someone is looking for.
+
+### 8.0b Quoting paths in shell commands — DONE **[V]**
+
+`tell_tales()` had a nested function definition that shelled out to
+AnnoTALE's "analyze" stage. It is now `.run_annotale_analyze()` at top level.
+
+It overlaps the exported `run_annotale_predict()`, which runs predict *and*
+analyze starting from a genome. They are not duplicates -- `tell_tales()` has
+already found the ORF by the time it calls AnnoTALE, so it needs analyze on
+its own -- but the two build their `java -jar` command lines separately, and
+they disagree: the exported one wraps paths in `shQuote()` and the internal
+one does not. A path with a space in it works through one and not the other.
+
+**Resolved by quoting, not by sharing.** No common helper: the maintainer's
+call was to add `shQuote()` where it was missing rather than build an
+abstraction over command construction.
+
+The audit found it missing well beyond AnnoTALE. Every shell command the
+package builds now quotes its interpolated paths:
+
+| file | command |
+|---|---|
+| `telltale.R` | `.run_annotale_analyze()`, `.run_nhmmer_search()` |
+| `tales_msa_class.R` | the MAFFT pipeline and its `--textmatrix` (2 sites) |
+| `distalr.R` | arlem, and the four mmseqs calls |
+| `talecorrection_java.R` | nhmmer, and the TALEcorrection jar |
+| `target_predictions.R` | PrediTALE, TALVEZ |
+| `AnnoTALE_QueTAL_functions_library.R` | functal |
+
+`run_annotale_predict()` and `run_annotale_build()` already quoted theirs.
+The parked HMMER wrappers in `unused_pending_review.R` were left alone.
+
+Two of these needed restructuring rather than a wrapped variable, because
+they pasted a directory and a filename into one string: the MAFFT binaries
+(`{mafft_path}/mafft.bat`) and the TALEcorrection nhmmer outputs
+(`{outputFolder}/out_nhmmer.{domains}.txt`). A path is built with
+`file.path()` first and quoted whole; quoting only the directory would have
+left the separator outside the quotes.
 
 ### 8.1 A purpose-built fixture for `tell_tales()` -- DONE **[V]**
 
@@ -1837,6 +1777,41 @@ exposing; `max_comparisons` is the real lever.
 494 on real frameshifted arrays. Their call -- *"I will do the test myself
 later on"*.
 
+### 8.1c `...` must not hide arguments behind an internal **[V]** — audited
+
+**The rule.** When an exported function forwards `...` to something the user
+cannot see, the `@param ...` has to name the arguments themselves, not point
+at the callee. "Passed to `.build_repeat_msa()`" is useless advice: the reader
+cannot call that function, cannot read its help, and has no way to discover
+what it accepts.
+
+**The case that prompted it.** `tales_align()` took `x`, `residue_col`,
+`repeat_sims` and `...`, and its `@param ...` read "Passed to
+`tales_align()` (e.g. `mafft_opts`)" -- circular, and naming an argument
+without saying what it does or what its default is. MAFFT's options were
+therefore reachable but undiscoverable, which matters because the default
+sets gap penalties (`--op 0 --ep 5`) that are unusual on purpose and that a
+user may well want to change.
+
+Fixed by promoting `mafft_opts` and `mafft_path` to real arguments of
+`tales_align()`, documented in terms of what they do to an alignment of
+TALE repeats rather than as a pass-through.
+
+**The audit.** Every exported function that forwards `...`:
+
+| function | `...` reaches | verdict |
+|---|---|---|
+| `tales_align()` | `.build_repeat_msa()` (internal) | **was the problem; fixed** |
+| `as_tales()`, `as_tales.data.frame()` | `tales()` | fine -- exported and documented |
+| `tales_predict_targets()` | `talvez()`, `preditale()` | fine -- both exported, and `@param ...` links to them |
+| `tell_tales()` | `DECIPHER::CorrectFrameshifts()` | fine -- names the external function and links to its help |
+
+So this was one occurrence, not a pattern. The rule stands for anything added
+later: **if `...` lands somewhere the reader cannot open, the arguments belong
+in the signature or spelled out in the docs.** Worth re-running the audit
+(`scratchpad/dots.R` in the session notes, trivially rebuilt) whenever a new
+exported wrapper appears.
+
 ### 8.1d Golden baseline records machine-specific paths -- DONE **[V]**
 
 `tell_tales.log` echoes absolute paths -- the three HMM files, and
@@ -1875,135 +1850,39 @@ wrong is a test.
 Audited after the change: exactly one file (`tell_tales.log`) and exactly the
 four lines this section identified are touched.
 
-### 8.1c `...` must not hide arguments behind an internal **[V]** — audited
+### 8.2 Silence MAFFT by default — DONE **[V]**
 
-**The rule.** When an exported function forwards `...` to something the user
-cannot see, the `@param ...` has to name the arguments themselves, not point
-at the callee. "Passed to `.build_repeat_msa()`" is useless advice: the reader
-cannot call that function, cannot read its help, and has no way to discover
-what it accepts.
+`.build_repeat_msa()` runs MAFFT through `system()` with
+`ignore.stderr = FALSE` (`tales_msa_class.R`, the `res <- system(...)` call).
+MAFFT writes its banner, strategy notice and per-sequence progress to stderr,
+so every alignment floods the console with dozens of lines the user did not
+ask for. The alignment itself is already redirected to a file with `>`, so
+stdout carries nothing of interest either.
 
-**The case that prompted it.** `tales_align()` took `x`, `residue_col`,
-`repeat_sims` and `...`, and its `@param ...` read "Passed to
-`tales_align()` (e.g. `mafft_opts`)" -- circular, and naming an argument
-without saying what it does or what its default is. MAFFT's options were
-therefore reachable but undiscoverable, which matters because the default
-sets gap penalties (`--op 0 --ep 5`) that are unusual on purpose and that a
-user may well want to change.
+Wanted: a `mafft_verbose = FALSE` argument on `.build_repeat_msa()`, surfaced
+through `tales_align()`. Note the spelling — the package converted every
+argument to snake_case in 9.1, so `mafft_verbose`, not `mafftVerbose`.
 
-Fixed by promoting `mafft_opts` and `mafft_path` to real arguments of
-`tales_align()`, documented in terms of what they do to an alignment of
-TALE repeats rather than as a pass-through.
+**One thing to get right.** Simply setting `ignore.stderr = TRUE` also
+discards MAFFT's error messages, and the current failure path is already thin:
+when the output file comes back empty the code aborts with nothing but the
+exit status, so a silenced run would report *that* it failed and never *why*.
+Better to redirect stderr to a temporary file (`2> {logfile}` in the command,
+or `stderr = TRUE` on a captured call) and replay its contents only when the
+run fails. That gives silence in the normal case and more diagnostics than
+today in the failing one.
 
-**The audit.** Every exported function that forwards `...`:
+**Done.** `mafft_verbose = FALSE` on `.build_repeat_msa()`, surfaced as a
+real argument of `tales_align()`. Measured: **61 lines of stderr per
+alignment, down to 0.**
 
-| function | `...` reaches | verdict |
-|---|---|---|
-| `tales_align()` | `.build_repeat_msa()` (internal) | **was the problem; fixed** |
-| `as_tales()`, `as_tales.data.frame()` | `tales()` | fine -- exported and documented |
-| `tales_predict_targets()` | `talvez()`, `preditale()` | fine -- both exported, and `@param ...` links to them |
-| `tell_tales()` | `DECIPHER::CorrectFrameshifts()` | fine -- names the external function and links to its help |
-
-So this was one occurrence, not a pattern. The rule stands for anything added
-later: **if `...` lands somewhere the reader cannot open, the arguments belong
-in the signature or spelled out in the docs.** Worth re-running the audit
-(`scratchpad/dots.R` in the session notes, trivially rebuilt) whenever a new
-exported wrapper appears.
-
-### 8.5b Break `tales_compare()` into three composable steps -- DONE **[V]**
-
-Maintainer's proposal, and I agree with it. `.tales_compare_core()` does three
-things that are separable and each independently useful:
-
-1. assign the `dom_code`s;
-2. compute the `domain_distances`;
-3. compute the `tale_distances`.
-
-**One correction to the ordering, which improves the design rather than
-complicating it.** Steps 2 and 3 are not parallel: **the TALE distances are
-built *from* the domain distances.** At `distalr.R:498-510` the pairwise
-repeat dissimilarities are cast to a matrix, passed through
-`stats::dist(method = "minkowski", p = 3.5)` to force the triangle
-inequality, rescaled to 0-100, and written as ARLEM's cost matrix. ARLEM then
-aligns the repeat-code strings *using that matrix* as its substitution cost.
-
-So the real chain is **1 -> 2 -> 3**, and that is worth exposing rather than
-hiding, because it states something biological the current monolith conceals:
-two TALEs are compared by aligning their repeat arrays, where the cost of
-substituting one repeat for another is how different those repeats are as
-proteins. The repeat-level comparison is not a by-product of the TALE-level
-one; it is its input.
-
-Composed, the three would read:
-
-```r
-x  <- tales_assign_domain_codes(x)          # 1
-dd <- tales_domain_distances(x, aln_method) # 2
-td <- tales_tale_distances(x, dd)           # 3, consumes dd
-```
-
-and `tales_compare()` stays as the convenience wrapper that runs all three.
-
-**What already exists, and what does not.** `tales_domain_codes()` is taken
-but does something else -- it *reads back* the `dom_code`/`aa_seq`
-correspondence from an object that already has codes. Step 1 needs a
-different name.
-
-**The hazard to think about before exporting step 1.** Codes are assigned
-with `dplyr::cur_group_id()` over `aa_seq`, so they depend on which arrays
-were in the table at the time. That is exactly why the `dom_code_namespace`
-stamp exists -- to catch similarity tables from one run being used with codes
-from another. Exporting the assignment makes that run-dependence part of the
-public API, so the function must stamp a namespace and its documentation must
-be blunt: **these codes are meaningful only within one call, and comparing
-them across calls is an error the namespace is there to catch.**
-
-Worth doing. Every step is separately useful -- someone may want the
-repeat-level distances without paying for ARLEM at all -- and the
-decomposition documents the model.
-
-**Built**, in `R/tales_compare_steps.R`, in the 1 -> 2 -> 3 shape above:
-
-```r
-coded <- tales_assign_domain_codes(x)
-dd    <- tales_domain_distances(coded, aln_method = "DECIPHER")
-td    <- tales_tale_distances(coded, dd)
-```
-
-`tales_compare()` is now exactly that composition plus its existing input
-validation, and a test asserts the wrapper equals its parts.
-
-**Verification.** The golden baseline passed **44/44 with no snapshot
-changes**, so the decomposition is byte-identical to the monolith it
-replaces. That was the point of having the baseline.
-
-**Step 1 was named `tales_assign_domain_codes()`**, since `tales_domain_codes()`
-was taken and does something else -- it reads the code/sequence table back
-out of an object that already has codes.
-
-**The run-dependence hazard is enforced, not just documented.** Exporting
-step 1 makes `cur_group_id()`'s dependence on which arrays were present into
-public API, so:
-
-- `tales_assign_domain_codes()` stamps a `dom_code_namespace`, and its docs
-  have a dedicated section saying the codes mean nothing outside the call
-  that minted them;
-- `tales_tale_distances()` **refuses** (`tantale_error_namespace_mismatch`)
-  when its two arguments carry different namespaces. This matters more than
-  it looks: step 3 indexes domains by code, so distances keyed by another
-  run's codes would not fail, they would silently compare the wrong domains.
-- A test pins that two different subsets of the same object get different
-  namespaces.
-
-**One implicit coupling made explicit while extracting.** The ARLEM cost
-matrix is written with types `1..n` in row order, so it only means anything
-if the `dom_code`s are exactly `1..n` -- which holds because
-`cur_group_id()` produces them, but nothing said so. `.arlem_cost_file()`
-now sorts rows numerically with a comment stating the requirement.
-
-**`.tales_compare_core()` is parked, not deleted**, in
-`R/unused_pending_review.R`: it is the reference for what the composed
-version must reproduce.
+`--quiet` was not used. Redirecting stderr to a temporary file does more: it
+covers the banner and the strategy notice as well as the progress, and the
+captured text is replayed when the run fails. Silence therefore costs nothing
+diagnostically -- the failure path is *better* than before, which reported an
+exit status and nothing else. Verified against a deliberately bad option:
+the abort carries MAFFT's own usage output and is classed
+`tantale_error_mafft_failed`.
 
 ### 8.2b `tales_coded_strings()` needs a `sep` argument -- DONE **[V]**
 
@@ -2081,39 +1960,37 @@ Worth generalising: **a fixture that omits the columns the validators key on
 is not exercising the validators.** Other minimal fixtures in the suite are
 likely in the same position.
 
-### 8.2 Silence MAFFT by default — DONE **[V]**
+### 8.3 Regression baseline — DONE **[V]**
 
-`.build_repeat_msa()` runs MAFFT through `system()` with
-`ignore.stderr = FALSE` (`tales_msa_class.R`, the `res <- system(...)` call).
-MAFFT writes its banner, strategy notice and per-sequence progress to stderr,
-so every alignment floods the console with dozens of lines the user did not
-ask for. The alignment itself is already redirected to a file with `>`, so
-stdout carries nothing of interest either.
+`tests/testthat/test_golden.R` plus `helper-golden.R`. Twenty snapshots
+covering the tales column contract, the anomaly report, the requirements
+table, the five projections, `tales_compare()`, both `tales_align()` layers,
+`tales_group()`, the data behind `plot()` on a `tales_msa`, and the consensus
+of the reference alignment. Runs in about 19 seconds; MAFFT and arlem are
+exercised for real.
 
-Wanted: a `mafft_verbose = FALSE` argument on `.build_repeat_msa()`, surfaced
-through `tales_align()`. Note the spelling — the package converted every
-argument to snake_case in 9.1, so `mafft_verbose`, not `mafftVerbose`.
+These assert nothing about what the values *should* be. They record what the
+pipeline produces, so a refactor meant to change nothing can be shown to have
+changed nothing, and one that does change something says where.
 
-**One thing to get right.** Simply setting `ignore.stderr = TRUE` also
-discards MAFFT's error messages, and the current failure path is already thin:
-when the output file comes back empty the code aborts with nothing but the
-exit status, so a silenced run would report *that* it failed and never *why*.
-Better to redirect stderr to a temporary file (`2> {logfile}` in the command,
-or `stderr = TRUE` on a captured call) and replay its contents only when the
-run fails. That gives silence in the normal case and more diagnostics than
-today in the failing one.
+**Whole tables are not snapshotted.** Each is reduced to a fingerprint: one
+row per column carrying type, length, distinct count, missingness and an md5
+of the values. Snapshots stay readable (23 KB in total) and a diff names the
+artefact *and* the column that moved. Doubles are rounded before digesting so
+that last-bit differences between machines do not register. Small artefacts
+worth reading -- the column contract, the requirements table, the consensus --
+are snapshotted whole.
 
-**Done.** `mafft_verbose = FALSE` on `.build_repeat_msa()`, surfaced as a
-real argument of `tales_align()`. Measured: **61 lines of stderr per
-alignment, down to 0.**
+`expect_golden()` forces `cran = TRUE`: `expect_snapshot_value()` skips on CRAN
+by default, and a baseline that quietly does not run is worse than none.
 
-`--quiet` was not used. Redirecting stderr to a temporary file does more: it
-covers the banner and the strategy notice as well as the progress, and the
-captured text is replayed when the run fails. Silence therefore costs nothing
-diagnostically -- the failure path is *better* than before, which reported an
-exit status and nothing else. Verified against a deliberately bad option:
-the abort carries MAFFT's own usage output and is classed
-`tantale_error_mafft_failed`.
+Verified to work by reintroducing the `tales_consensus()` tie-break bug: two
+snapshots failed, naming the consensus and the plot data. This replaces an
+ad-hoc baseline kept in a session scratchpad, which was lost when the session
+restarted -- the reason it now lives in the repository.
+
+To accept an intended change: inspect the diff, then
+`testthat::snapshot_accept("golden")`.
 
 ### 8.4 `print()` methods for `tales` and `tales_msa` — DONE **[V]**
 
@@ -2219,6 +2096,184 @@ scale with the object; a summary should not).
 Still open: nothing. `format()`, `print()` and `summary()` are all in place
 for both classes.
 
+## 8.5 Internals audit — function census **[V]**
+
+A census of every top-level definition in `R/` (111: 51 exported, 60
+internal), counting call sites within the package.
+
+**Single-caller internals: 27.** But 18 of those already sit in the same file
+as their caller, so the maintenance cost is concentrated in the 9 that do
+not:
+
+| internal | defined in | only caller |
+|---|---|---|
+| `.repeat_to_sim_align()` | `conversion.R` | `msa.R` |
+| `.repeat_to_cluster_align()` | `conversion.R` | `msa.R` |
+| `.rvd_to_match_align()` | `conversion.R` | `msa.R` |
+| `.tale_parts()` | `distalr.R` | `tales_class.R` |
+| `.build_repeat_msa()` | `msa.R` | `tales_msa_class.R` |
+| `.tales_dom_code_namespace()` | `tales_class.R` | `distalr.R` |
+| `.tales_msa_contract_holds()` | `tales_msa_class.R` | `tales_class.R` |
+| `.run_nhmmer_search()` | `tellTale_utilities.R` | `telltale.R` |
+| `.hits_report_to_gff()` | `tellTale_utilities.R` | `telltale.R` |
+
+**The test is not "how many callers".** Some single-caller helpers earn their
+name: `.pairwise_align_biostrings/mmseq2/decipher()` are three siblings behind
+a `switch` and their symmetry is the readable part; the `.tales_check_*()`
+validators surface in error provenance. The useful question is whether the
+helper has a name the reader needs. If it does, it should live *next to* its
+caller; if it does not, it is a paragraph of the caller that was given a name
+for no reason.
+
+**Callers with no caller: 5.** Moved to `R/unused_pending_review.R`, not
+deleted -- see the header of that file for what is known about each.
+
+### 8.5b Break `tales_compare()` into three composable steps -- DONE **[V]**
+
+Maintainer's proposal, and I agree with it. `.tales_compare_core()` does three
+things that are separable and each independently useful:
+
+1. assign the `dom_code`s;
+2. compute the `domain_distances`;
+3. compute the `tale_distances`.
+
+**One correction to the ordering, which improves the design rather than
+complicating it.** Steps 2 and 3 are not parallel: **the TALE distances are
+built *from* the domain distances.** At `distalr.R:498-510` the pairwise
+repeat dissimilarities are cast to a matrix, passed through
+`stats::dist(method = "minkowski", p = 3.5)` to force the triangle
+inequality, rescaled to 0-100, and written as ARLEM's cost matrix. ARLEM then
+aligns the repeat-code strings *using that matrix* as its substitution cost.
+
+So the real chain is **1 -> 2 -> 3**, and that is worth exposing rather than
+hiding, because it states something biological the current monolith conceals:
+two TALEs are compared by aligning their repeat arrays, where the cost of
+substituting one repeat for another is how different those repeats are as
+proteins. The repeat-level comparison is not a by-product of the TALE-level
+one; it is its input.
+
+Composed, the three would read:
+
+```r
+x  <- tales_assign_domain_codes(x)          # 1
+dd <- tales_domain_distances(x, aln_method) # 2
+td <- tales_tale_distances(x, dd)           # 3, consumes dd
+```
+
+and `tales_compare()` stays as the convenience wrapper that runs all three.
+
+**What already exists, and what does not.** `tales_domain_codes()` is taken
+but does something else -- it *reads back* the `dom_code`/`aa_seq`
+correspondence from an object that already has codes. Step 1 needs a
+different name.
+
+**The hazard to think about before exporting step 1.** Codes are assigned
+with `dplyr::cur_group_id()` over `aa_seq`, so they depend on which arrays
+were in the table at the time. That is exactly why the `dom_code_namespace`
+stamp exists -- to catch similarity tables from one run being used with codes
+from another. Exporting the assignment makes that run-dependence part of the
+public API, so the function must stamp a namespace and its documentation must
+be blunt: **these codes are meaningful only within one call, and comparing
+them across calls is an error the namespace is there to catch.**
+
+Worth doing. Every step is separately useful -- someone may want the
+repeat-level distances without paying for ARLEM at all -- and the
+decomposition documents the model.
+
+**Built**, in `R/tales_compare_steps.R`, in the 1 -> 2 -> 3 shape above:
+
+```r
+coded <- tales_assign_domain_codes(x)
+dd    <- tales_domain_distances(coded, aln_method = "DECIPHER")
+td    <- tales_tale_distances(coded, dd)
+```
+
+`tales_compare()` is now exactly that composition plus its existing input
+validation, and a test asserts the wrapper equals its parts.
+
+**Verification.** The golden baseline passed **44/44 with no snapshot
+changes**, so the decomposition is byte-identical to the monolith it
+replaces. That was the point of having the baseline.
+
+**Step 1 was named `tales_assign_domain_codes()`**, since `tales_domain_codes()`
+was taken and does something else -- it reads the code/sequence table back
+out of an object that already has codes.
+
+**The run-dependence hazard is enforced, not just documented.** Exporting
+step 1 makes `cur_group_id()`'s dependence on which arrays were present into
+public API, so:
+
+- `tales_assign_domain_codes()` stamps a `dom_code_namespace`, and its docs
+  have a dedicated section saying the codes mean nothing outside the call
+  that minted them;
+- `tales_tale_distances()` **refuses** (`tantale_error_namespace_mismatch`)
+  when its two arguments carry different namespaces. This matters more than
+  it looks: step 3 indexes domains by code, so distances keyed by another
+  run's codes would not fail, they would silently compare the wrong domains.
+- A test pins that two different subsets of the same object get different
+  namespaces.
+
+**One implicit coupling made explicit while extracting.** The ARLEM cost
+matrix is written with types `1..n` in row order, so it only means anything
+if the `dom_code`s are exactly `1..n` -- which holds because
+`cur_group_id()` produces them, but nothing said so. `.arlem_cost_file()`
+now sorts rows numerically with a comment stating the requirement.
+
+**`.tales_compare_core()` is parked, not deleted**, in
+`R/unused_pending_review.R`: it is the reference for what the composed
+version must reproduce.
+
+### 8.6 Legacy preconditions leaking through class methods — DONE **[V]**
+
+`plot.tales_msa()` decomposes its object and hands the pieces to
+`plot_tales_msa()`, whose argument checks are written for a caller assembling
+matrices by hand. Measured against what the class guarantees:
+
+| check in `plot_tales_msa()` | reachable via the method? |
+|---|---|
+| neither `repeat_align` nor `rvd_align` given | no -- the method always builds `repeat_align` |
+| `repeat_align` was coerced to a vector | no -- `as.matrix.tales_msa()` uses `matrix()`; a one-array subset still returns a `1 x n` matrix |
+| `rvd_align` was coerced to a vector | no -- same |
+| fewer than one sequence | **yes** -- a zero-row `tales_msa` is valid |
+
+So three of four are unstateable, and the one that fires reports a problem
+with `repeat_align`, an argument a `plot(x)` caller never supplied and cannot
+inspect.
+
+Decided: `plot_tales_msa()` is folded into `plot.tales_msa()` and unexported.
+Done.
+
+**The other entry points, audited the same way:**
+
+- `plot.tales()` -> `plot_tales_composition()`: **clean.** A one-line
+  pass-through to a function that already takes the object and checks through
+  `.tales_require()`; every message names a column, not an argument the caller
+  did not supply. The only question here is a different one -- two public
+  names (`plot(x)` and `plot_tales_composition(x)`) for one operation, both
+  taking the same object. Unlike the msa case there is no legacy matrix
+  interface to remove, so this is an API-surface choice, not a defect.
+
+- `tales_compare()` -> `.tales_compare_core()`: **one dead check.** The core
+  aborts with "Your tale arrays identifers are probably not unique. Make sure
+  that there is only one part per position per array_id." Tested: `tales()`
+  already rejects a duplicated `array_id`/`position_in_array` pair, so this
+  cannot fire through `tales_compare()`. (It also misspells "identifiers".)
+  **Deleted.** The class is where that invariant belongs, and duplicating it
+  in a private function only created a second place for it to go stale.
+
+  Its two *other* checks are live and must stay: `tales()` accepts `NA` and
+  `""` in `aa_seq` (tested), so "Some of the provided TALE parts have no amino
+  acid sequence" is reachable and doing real work.
+
+- `tales_align()` -> `.build_repeat_msa()`: **fixed.** Its messages named
+  `input_seqs`, an internal argument a `tales_align()` caller has no way to
+  inspect.
+
+**Incidental finding, resolved:** `tales()` accepts `NA` in a residue column,
+but not silently -- `.tales_anomalies()` reports it as `missing_rvd` /
+`missing_dom_code`, `tales()` warns, and `sanitize = TRUE` drops the array.
+Working as designed; empty strings are covered by the same check.
+
 ### 8.6b Co-locating single-caller internals — PARTLY DONE **[V]**
 
 Done, and the file responsibilities now line up:
@@ -2271,57 +2326,6 @@ plain matrix rather than a `tales_msa`, so they are usable on any alignment;
 
 Pure reorganisation: no exports changed, no Rd content changed, and the
 suite passed 642/0 before and after, golden included.
-
-### 8.6 Legacy preconditions leaking through class methods — DONE **[V]**
-
-`plot.tales_msa()` decomposes its object and hands the pieces to
-`plot_tales_msa()`, whose argument checks are written for a caller assembling
-matrices by hand. Measured against what the class guarantees:
-
-| check in `plot_tales_msa()` | reachable via the method? |
-|---|---|
-| neither `repeat_align` nor `rvd_align` given | no -- the method always builds `repeat_align` |
-| `repeat_align` was coerced to a vector | no -- `as.matrix.tales_msa()` uses `matrix()`; a one-array subset still returns a `1 x n` matrix |
-| `rvd_align` was coerced to a vector | no -- same |
-| fewer than one sequence | **yes** -- a zero-row `tales_msa` is valid |
-
-So three of four are unstateable, and the one that fires reports a problem
-with `repeat_align`, an argument a `plot(x)` caller never supplied and cannot
-inspect.
-
-Decided: `plot_tales_msa()` is folded into `plot.tales_msa()` and unexported.
-Done.
-
-**The other entry points, audited the same way:**
-
-- `plot.tales()` -> `plot_tales_composition()`: **clean.** A one-line
-  pass-through to a function that already takes the object and checks through
-  `.tales_require()`; every message names a column, not an argument the caller
-  did not supply. The only question here is a different one -- two public
-  names (`plot(x)` and `plot_tales_composition(x)`) for one operation, both
-  taking the same object. Unlike the msa case there is no legacy matrix
-  interface to remove, so this is an API-surface choice, not a defect.
-
-- `tales_compare()` -> `.tales_compare_core()`: **one dead check.** The core
-  aborts with "Your tale arrays identifers are probably not unique. Make sure
-  that there is only one part per position per array_id." Tested: `tales()`
-  already rejects a duplicated `array_id`/`position_in_array` pair, so this
-  cannot fire through `tales_compare()`. (It also misspells "identifiers".)
-  **Deleted.** The class is where that invariant belongs, and duplicating it
-  in a private function only created a second place for it to go stale.
-
-  Its two *other* checks are live and must stay: `tales()` accepts `NA` and
-  `""` in `aa_seq` (tested), so "Some of the provided TALE parts have no amino
-  acid sequence" is reachable and doing real work.
-
-- `tales_align()` -> `.build_repeat_msa()`: **fixed.** Its messages named
-  `input_seqs`, an internal argument a `tales_align()` caller has no way to
-  inspect.
-
-**Incidental finding, resolved:** `tales()` accepts `NA` in a residue column,
-but not silently -- `.tales_anomalies()` reports it as `missing_rvd` /
-`missing_dom_code`, `tales()` warns, and `sanitize = TRUE` drops the array.
-Working as designed; empty strings are covered by the same check.
 
 ### 8.7 `tales_consensus()` depended on row order **[V]** — FIXED
 
