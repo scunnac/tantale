@@ -550,10 +550,10 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
 
   # Running mafft msa
   cli::cli_inform("Now running MAFFT (Copyright 2002-2007 Kazutaka Katoh) on TALE array sequences.")
-  mafftBins <- .mafft_binaries(mafft_path)
-  hex2text <- shQuote(mafftBins$hex2text)
-  text2hex <- shQuote(mafftBins$text2hex)
-  mafftBin <- shQuote(mafftBins$mafft)
+  mafftBins <- .mafft_paths(mafft_path)
+  hex2text <- shQuote(mafftBins[["hex2maffttext"]])
+  text2hex <- shQuote(mafftBins[["maffttext2hex"]])
+  mafftBin <- shQuote(mafftBins[["mafft"]])
   asciiConverstionCmd <- glue::glue("{hex2text} {shQuote(hexFile)} > {shQuote(asciFile)}")
   mafftCmd <-  glue::glue("{mafftBin} {maffMatOpt} --text {mafft_opts} {shQuote(asciFile)} > {shQuote(mafftAsciiOutFile)}")
   MsaConversionToHexCmd <- glue::glue("{text2hex} {shQuote(mafftAsciiOutFile)} > {shQuote(mafftHexOutFile)}")
@@ -579,8 +579,9 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
   if (!mafft_verbose) {
     pipeline <- paste0("{ ", pipeline, " ; } 2> ", shQuote(stderrFile))
   }
-  res <- system(command = pipeline,
-         ignore.stdout = FALSE, ignore.stderr = FALSE, intern = FALSE)
+  # check = FALSE below: this keeps its own failure message, which reads the
+  # captured stderr and names the alignment rather than the command.
+  res <- .tantale_exec(pipeline, check = FALSE)
 
   # Getting msa output and converting back to alignment of residues.
   # The file may not exist at all now that the pipeline short-circuits, so

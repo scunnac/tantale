@@ -404,3 +404,27 @@ repeat_to_rvd_align <- function(repeat_align , rvd_map) {
     coded_seq_set = codesSeqSet
   )
 }
+
+
+#### Superseded by .tantale_bin()/.tantale_exec() (ledger 12) ####
+#
+# Every caller now resolves the executable to an absolute path inside the
+# environment instead of going through `conda run`. Kept rather than
+# deleted: if a tool ever turns up that genuinely needs the environment's
+# variables and not just its binaries, this is the starting point. Note the
+# two faults it had -- `-n` by name (ledger 7.4a) and the fact that only the
+# first command of a compound string runs inside the environment.
+
+.run_in_conda <- function(env_name, command,
+                             conda_bin = "auto",
+                             cwd = getwd(),
+                             ...) {
+  conda_bin <- reticulate::conda_binary(conda_bin)
+  # activateEnvCmd <- glue::glue("eval \"$({conda_bin} shell hook -s posix)\"",
+  #                              "; micromamba activate {env_name}")
+  # fullCommand <- glue::glue_collapse(c(activateEnvCmd, command), sep = "; ")
+  fullCommand <- glue::glue("eval \"$({conda_bin} shell hook -s posix)\"",
+                            "{conda_bin} run --cwd {cwd} -n {env_name} {command}",
+                            .sep = "; ")
+  system(command = fullCommand, ...)
+}

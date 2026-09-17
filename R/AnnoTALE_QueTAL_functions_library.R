@@ -145,7 +145,8 @@ functal <- function(tal_file,
   # -I functal_dir is required for perl to find Statistics.pm, which ships
   # alongside the script rather than as an installed module. List::MoreUtils
   # and Bio::Perl come from the 'tantale' conda environment.
-  functal_cmd <- paste("perl", "-I", shQuote(functal_dir), shQuote(functal_path),
+  functal_cmd <- paste(shQuote(.tantale_bin("perl", conda_bin = conda_bin)),
+                       "-I", shQuote(functal_dir), shQuote(functal_path),
                       "-n", tree_format,
                       shQuote(tal_file),
                       shQuote(output_prefix))
@@ -154,10 +155,8 @@ functal <- function(tal_file,
   cli::cli_inform(c("Running functal", " " = "{functal_cmd}"))
   envReady <- !as.logical(.create_tantale_env(conda_bin = conda_bin))
   if (envReady) {
-    exitCom <- .run_in_conda(env_name = "tantale",
-                                conda_bin = conda_bin,
-                                command = functal_cmd,
-                                cwd = functal_dir)
+    exitCom <- .tantale_exec(functal_cmd, cwd = functal_dir,
+                             check = FALSE, what = "FuncTAL")
   } else {
     stop("Could not create the tantale conda environment on your machine to run functal...")
   }

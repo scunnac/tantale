@@ -13,4 +13,21 @@ dependencies:
   # leaving the N- and C-termini unanchored. 7.453 is byte-identical to the
   # 7.450 that used to ship inside the package. See restructuring-notes.md 7.4.
   - mafft=7.453
+  # Perl dependency of QueTAL/FuncTAL, which was listed in a comment in
+  # R/tantale_conda_env.R but never added here.
+  - perl-list-moreutils=0.430
+  #
+  # NOT added: perl-bioperl. FuncTAL does `use Bio::Perl` and calls
+  # translate_as_string(), but BioPerl dropped the Bio::Perl convenience
+  # module in the 1.7 reorganisation -- 1.7.8 installs 1023 files and none
+  # of them is Bio/Perl.pm -- and the last version that had it, 1.6.924,
+  # wants perl 5.22 against this environment's 5.32. Nothing on bioconda
+  # provides translate_as_string. So functal() cannot be fixed by adding a
+  # package; see restructuring-notes.md 12. Adding perl-bioperl anyway would
+  # be ~1000 files that fix nothing.
+  #
+  # Also NOT added: Algorithm::NeedlemanWunsch and Statistics::Basic, named
+  # in that same comment. They belonged to the Perl DisTAL that distalr.R
+  # reimplemented; nothing shipped uses them.
+  # Statistics.pm is bundled beside FuncTAL and reached with perl -I.
 

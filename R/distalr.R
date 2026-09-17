@@ -428,36 +428,33 @@ diag(identSubMat) <- 1
   
   Biostrings::writeXStringSet(part_aa_set, filepath = partAaStringSetFile)
   
-  mmseq2createdb <- glue::glue("mmseqs createdb {shQuote(partAaStringSetFile)} {shQuote(mmseq2DbPath)}")
+  mmseqs <- shQuote(.tantale_bin("mmseqs", conda_bin = conda_bin))
 
-  mmseq2prefilter <- glue::glue("mmseqs prefilter {shQuote(mmseq2DbPath)} {shQuote(mmseq2DbPath)} {shQuote(prefDbPath)}",
+  mmseq2createdb <- glue::glue("{mmseqs} createdb {shQuote(partAaStringSetFile)} {shQuote(mmseq2DbPath)}")
+
+  mmseq2prefilter <- glue::glue("{mmseqs} prefilter {shQuote(mmseq2DbPath)} {shQuote(mmseq2DbPath)} {shQuote(prefDbPath)}",
                                "-v 3 --threads {max(floor(ncores/2), 1)} --max-seqs 1000 -s 7.5 --add-self-matches 1",
                                "--cov-mode 0", .sep = " ")
   
-  mmseq2align <- glue::glue("mmseqs align {shQuote(mmseq2DbPath)} {shQuote(mmseq2DbPath)} {shQuote(prefDbPath)} {shQuote(alnDbPath)}",
+  mmseq2align <- glue::glue("{mmseqs} align {shQuote(mmseq2DbPath)} {shQuote(mmseq2DbPath)} {shQuote(prefDbPath)} {shQuote(alnDbPath)}",
                                "-v 3 --threads {ncores} --add-self-matches 1 --min-seq-id 0",
                                "--cov-mode 0 --gap-open aa:11,nucl:5 --gap-extend aa:1,nucl:2",
                                "-a 1 --alignment-mode 3 --alignment-output-mode 0 --seq-id-mode 1",
                                .sep = " ")
   
-  mmseq2convertalis <- glue::glue("mmseqs convertalis {shQuote(mmseq2DbPath)} {shQuote(mmseq2DbPath)} {shQuote(alnDbPath)} {shQuote(alnTabFile)}",
+  mmseq2convertalis <- glue::glue("{mmseqs} convertalis {shQuote(mmseq2DbPath)} {shQuote(mmseq2DbPath)} {shQuote(alnDbPath)} {shQuote(alnTabFile)}",
                                "--format-mode 4 -v 3",
                                "--format-output query,target,evalue,raw,pident,nident,mismatch,gapopen,qstart,qend,qlen,tstart,tend,tlen,alnlen,bits,qcov,tcov",
                                .sep = " ")
   
   if (!as.logical(.create_tantale_env(conda_bin = conda_bin))) {
-    res <- .run_in_conda(env_name = "tantale",
-                            conda_bin = conda_bin,
-                            command = mmseq2createdb)
-    res <- .run_in_conda(env_name = "tantale",
-                            conda_bin = conda_bin,
-                            command = mmseq2prefilter)
-    res <- .run_in_conda(env_name = "tantale",
-                            conda_bin = conda_bin,
-                            command = mmseq2align)
-    res <- .run_in_conda(env_name = "tantale",
-                            conda_bin = conda_bin,
-                            command = mmseq2convertalis)
+    # Each stage is checked. Previously all four statuses were assigned to
+    # `res` and none was tested, so a failed prefilter surfaced only as a
+    # confusing error from convertalis -- or not at all.
+    .tantale_exec(mmseq2createdb,    what = "mmseqs createdb")
+    .tantale_exec(mmseq2prefilter,   what = "mmseqs prefilter")
+    .tantale_exec(mmseq2align,       what = "mmseqs align")
+    .tantale_exec(mmseq2convertalis, what = "mmseqs convertalis")
   } else {
     stop("Could not create the tantale conda environment on your machine to run mmseq2...")
   }

@@ -170,13 +170,11 @@ talvez <- function(rvd_seqs, subj_file, opt_param = "-t 0 -l 19", output_dir = N
   # Assembling and running talvez command
   envReady <- !as.logical(.create_tantale_env(conda_bin = conda_bin))
   if (envReady) {
-    cmd <- glue::glue(#"cd {tempOutDir};",
-                      "perl TALVEZ_3.2.pl {opt_param} -e mat1 -z mat2 {shQuote(basename(rvdSeqsFileForTv))} {shQuote(basename(subj_file))}")
+    perl <- shQuote(.tantale_bin("perl", conda_bin = conda_bin))
+    cmd <- glue::glue(
+      "{perl} TALVEZ_3.2.pl {opt_param} -e mat1 -z mat2 {shQuote(basename(rvdSeqsFileForTv))} {shQuote(basename(subj_file))}")
     cli::cli_inform(paste0("Invoking Talvez using the following command:\n {stringr::str_wrap(cmd, 80)}"))
-    res <- .run_in_conda(env_name = "tantale",
-                            conda_bin = conda_bin,
-                            cwd = tempOutDir,
-                            command = cmd)
+    res <- .tantale_exec(cmd, cwd = tempOutDir, what = "Talvez")
   } else {
     stop("Could not create the tantale conda environment on your machine to run Talvez...")
   }

@@ -2999,3 +2999,112 @@ starts with evidence rather than a re-read. None of these are decisions.
 
 **Prerequisite met:** the function has 28 tests as of §5.2, so a rewrite has
 something to hold it in place.
+
+---
+
+## 12. One mechanism for running the environment's programs -- DONE **[V]**
+
+There were two: MAFFT resolved absolute paths inside the conda prefix and
+called them directly, while seven other call sites went through
+`.run_in_conda()`, which wrapped `conda run`. The maintainer was
+uncomfortable having both, and asked whether everything could go through
+`conda run` (or `reticulate::conda_run2()`).
+
+**It went the other way, on measurements.**
+
+| | absolute path | `conda run` |
+|---|---|---|
+| cost per call | ~36 ms | **~1.3 s** |
+| compound command | every stage correct | **only the first runs in the env** |
+
+The second row is the serious one. `conda run` receives its command as a
+string that the *outer* shell has already split, so in `a ; b ; c` only `a`
+runs inside the environment. Demonstrated:
+
+```
+conda_run2("... ; which mafft")  ->  /usr/bin/mafft        # outside
+via a temp script                ->  <prefix>/bin/mafft    # inside
+```
+
+**And this was not hypothetical.** This machine carries `/usr/bin/mafft`
+**7.505** and `/usr/bin/nhmmer` **3.4**, against pins of 7.453 and 3.3.2 --
+exactly the versions the pins exist to exclude. `talecorrection()` joins
+three `nhmmer` calls with `"; "`, so two of them had been running against
+system HMMER 3.4 with nothing said.
+
+Resolving every executable to an absolute path makes shell splitting
+irrelevant, which `conda run` plus a temp script would not.
+
+**What `conda run` would have given us and we did not need:** the
+environment's variables. Checked with `env -i`: mafft, mmseqs and perl all
+run correctly from a scrubbed environment, and the env's perl resolves its
+own `@INC`, because conda bakes prefixes into its binaries at build time.
+
+### What shipped
+
+- `.tantale_bin(tools)` -- absolute paths, checked, naming everything
+  missing at once. A small table handles the executables that are not in
+  `bin/` (MAFFT's two hex converters live under `libexec/mafft`).
+- `.tantale_exec(command, cwd, stderr_file, check, what)` -- runs it and
+  **checks the exit status**, uniformly. `reticulate::conda_run2()` does
+  this only on its micromamba branch; its plain-conda branch ends in a bare
+  `system2()` with no check, so whether a failing tool raised depended on
+  which conda the user had.
+- All seven `.run_in_conda()` callers converted; `.run_in_conda()` parked in
+  `unused_pending_review.R`.
+- `.mafft_binaries()` is gone. `.mafft_paths()` remains only for
+  `tales_align(mafft_path = )`, the escape hatch for a MAFFT outside the
+  environment, which has a different layout and cannot be resolved from a
+  prefix.
+- mmseqs2's four stages are now checked individually. Previously all four
+  statuses were assigned to `res` and none tested.
+
+### 12a The environment-choosing rule was broken **[V]**
+
+Spotted by the maintainer, who thought "prefer the one belonging to the
+binary in use" looked arbitrary. It was worse than arbitrary:
+
+```r
+root <- dirname(dirname(reticulate::conda_binary(conda_bin)))   # /home/cunnac
+owned <- python[startsWith(python, root)]
+```
+
+micromamba's binary is in `~/bin`, so that expression yields the **home
+directory**, which every candidate is under. The filter matched all of them,
+the code took `owned[1]` -- whatever order `conda_list()` returned -- and
+said nothing, because the warning was in the branch that runs when *nothing*
+matched. The same `dirname(dirname(bin))` error was fixed in
+`.tantale_conda_root()` during 7.4a; it was fixed in the function that
+*reports* the root and left in the one that *resolves* the environment.
+
+Replaced with `.tantale_pick_env()`, which uses the criterion that actually
+matters: **which candidate holds the tools at the pinned versions.** Exactly
+one match wins silently; several warn and name the choice; none is an error
+rather than a guess, since guessing means alignments from an unpinned MAFFT.
+`options(tantale.env_prefix = )` overrides everything.
+
+### 12b `functal()` cannot work, and cannot be fixed with a package **[A]**
+
+Found while adding the Perl dependencies to the yaml.
+`FuncTAL_v.1.1.pl` does `use Bio::Perl` and calls `translate_as_string()`.
+
+- BioPerl **dropped** `Bio::Perl` in the 1.7 reorganisation: 1.7.8 installs
+  1023 files and `Bio/Perl.pm` is not among them.
+- The last version that had it, 1.6.924, wants **perl 5.22** against this
+  environment's 5.32.
+- Nothing else on bioconda provides `translate_as_string`, and system perl
+  has no `Bio::Perl` either.
+
+So `perl-bioperl` was deliberately **not** added -- it would be ~1000 files
+that fix nothing. `perl-list-moreutils=0.430` **was** added, being genuinely
+needed and available.
+
+Options, all maintainer decisions: patch the one `translate_as_string()`
+call in the bundled script to use `Bio::PrimarySeq`; ship a vendored
+`Bio/Perl.pm`; document `functal()` as needing a hand-built perl; or retire
+it.
+
+Also corrected while here: the commented module list at the bottom of
+`R/tantale_conda_env.R` names `Algorithm::NeedlemanWunsch` and
+`Statistics::Basic`. Nothing shipped uses them -- they belonged to the Perl
+DisTAL that `distalr.R` reimplemented.

@@ -47,17 +47,19 @@ correct_tales <- function(uncorrected_path ,
   }
   
   #### run nHMMER ####
+  # Resolved to an absolute path, which matters here more than elsewhere:
+  # these commands are joined with "; ", and only the first of a compound
+  # string ever ran inside the environment. The rest were picking up
+  # /usr/bin/nhmmer -- HMMER 3.4 against this package's pinned 3.3.2.
+  nhmmer <- shQuote(.tantale_bin("nhmmer", conda_bin = conda_bin))
   nhmmerCmd <- paste(glue::glue(
-    "nhmmer {shQuote(file.path(hmm_path, paste0(domains, '.hmm')))} {shQuote(uncorrected_path)}",
+    "{nhmmer} {shQuote(file.path(hmm_path, paste0(domains, '.hmm')))} {shQuote(uncorrected_path)}",
     " > {shQuote(file.path(outputFolder, paste0('out_nhmmer.', domains, '.txt')))}",
     .sep = ""), collapse = "; ")
   envReady <- !as.logical(.create_tantale_env(conda_bin = conda_bin))
   if (envReady) {
     cli::cli_inform("Running nHMMER")
-    res <- .run_in_conda(env_name = "tantale",
-                            conda_bin = conda_bin,
-                            command = nhmmerCmd
-    )
+    res <- .tantale_exec(nhmmerCmd, check = FALSE)
     if (res) {
       cli::cli_warn("The following nHMMER commands failed:")
       cli::cli_abort("{nhmmerCmd}", class = c("tantale_error"))
