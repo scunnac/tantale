@@ -34,7 +34,37 @@ renamed/retired). Both are now flagged inline. There was not time to
 re-check every other `[V]` section the same way -- treat this file's
 "done" markers as a claim to spot-check against the code, not a guarantee.
 
-**Tonight's session in one place** (five commits, `6811f91`..`2c57864`,
+**2026-09-18 session, in one place** (uncommitted as of writing):
+
+1. **§7.5b done** -- the four numbered vignettes rebuilt from a blank
+   slate, self-contained, each verified with a real `rmarkdown::render()`;
+   a new `tales-msa-class.qmd` article (coercion + plotting, the piece
+   §7.5a deferred); a subsetting section added to `tales-class.qmd`;
+   `@examples` added to 26 exported functions, each verified by extracting
+   and running it, not just by inspection. `p2_multiple_alignments.Rmd`
+   was found broken against the current API (`repeat_to_rvd_align()`,
+   `plot_tales_msa()` -- both retired since §7.1's last check) and fixed;
+   `p3_tantale_objects.Rmd` retired to a redirect.
+2. **Two real bugs found while building the articles, not looked for**,
+   both fixed: `plot.tales_msa()` was returning its result visibly
+   (`return()`, not `invisible()`), double-rendering every non-assigned
+   `plot(msa, ...)` call; `as.matrix.pairwise_distances()`'s `@param`
+   doc named the wrong default column (`sim`, stale since the §9.6
+   rename -- the code defaults to `dissim`).
+3. **Two more findings, reported by the maintainer while `tell_tales.log`
+   was showing up in vignette 1's output, recorded in §6**: the log's
+   "File of subject DNA sequences" line reports an internal temp path
+   rather than the caller's actual `subject_file`, and its parameter block
+   mixes two-column and three-column tab-separated rows, breaking a
+   spreadsheet import.
+4. A full `pkgdown::build_site()` was run against a scratch-installed copy
+   to confirm reference pages, articles and all seven vignettes build
+   together.
+
+See §7.5b for the detail. Full verification commands are not reproduced
+here; re-run them from that section if anything here needs re-checking.
+
+**2026-09-17 session, in one place** (five commits, `6811f91`..`2c57864`,
 plus a housekeeping commit `d13bb5e`; all pushed):
 
 1. **§7.5a written** -- the pkgdown article on the `tales` class, all five
@@ -60,16 +90,20 @@ plus a housekeeping commit `d13bb5e`; all pushed):
    copies removed (maintainer's call) -- their content lives in this file.
 
 `grep -nE '\*\*\[A\]\*\*|\*\*\[P\]\*\*' dev/restructuring-notes.md`
-lists what is still open. As of 2026-09-17 (late evening), five sections
-(9.2b closed tonight):
+lists what is still open. As of 2026-09-18, four sections (7.5 closed by
+§7.5b; 9.2b closed the night before):
 
 | § | what | needs |
 |---|---|---|
 | **5.2** | talome-wide MSA plot: list of alignments vs demoted `tales` | **your call** (A vs B) |
 | **12b** | `functal()` cannot run; `Bio::Perl` is unobtainable | **your call** among four options |
 | **6** | correctness backlog -- computations that may not match intent | a dedicated pass; some are real bugs, not tidying |
-| **11** | rework `tales_group()` | joint work, deliberately **after** the articles |
-| **7.5** | the four numbered walkthrough vignettes and `@examples` | **low priority** -- website is not a current focus |
+| **11** | rework `tales_group()` | joint work -- §7.5's articles (the prerequisite) are now done, so this is next |
+
+§7.5 is done for the core API (§7.5b); `target_predictions.R`'s three
+exports and the AnnoTALE/QueTAL wrappers still have no `@examples`, listed
+there as a deliberate, low-priority remainder rather than as an open
+question.
 
 Two `####` sub-headings also carry `[P]`: one inside §9.1 (now flagged
 stale above), one inside §9.6 (`repeat_sim`/similarity storage question,
@@ -625,6 +659,73 @@ is not trivial:
 So the ordering is: decide A vs B, then add the bind method the chosen shape
 needs, then make `tales_align()` group-aware. Not before.
 
+#### Proposed route: `tales_bind()`, not `c.tales()` **[P]**
+
+Worked through in conversation, not yet a decision. Splits into two
+questions that looked like one.
+
+**`tales` can be bound now; `tales_msa` mostly can't, and that is not a gap
+to close but a fact about what the class claims.** `alignment_width` and
+`alignment_position` are a coordinate system specific to one MAFFT run --
+two independently-produced alignments essentially never share it, so
+binding their matrices does not produce a second `tales_msa`, it produces an
+object that *lies* about what column 5 means in each row. Same failure
+shape as the `positionInArray` bug already on record in §6: asserting a
+coordinate instead of deriving it, just at the object level rather than one
+column. The one case a `tales_msa` bind is honestly meaningful --
+reassembling row-subsets that share both `dom_code_namespace` and
+`.tales_msa_contract_holds()`, i.e. genuinely the same alignment run split
+apart -- is narrow, low-risk, and nothing currently asks for it. Everything
+else should refuse rather than silently demote.
+
+So the bind that the group-aware `tales_align()` above actually needs is at
+the `tales` level, applied *after* each group's `tales_msa` is demoted with
+`as_tales()` -- which is exactly what "the ordering" note above already
+concludes, just spelled out.
+
+**Route for the `tales`-level bind.** Delegate the row mechanics to
+`dplyr::bind_rows()`/vctrs rather than hand-rolling concatenation --
+`tales` is a tibble subclass, and that machinery already handles column
+union. Wrap it with the two invariant checks that matter:
+
+- `array_id` uniqueness across inputs -- hard error on collision, the same
+  check the constructor already makes.
+- `dom_code_namespace` -- the real decision. If inputs share a namespace
+  (rare -- subsets of one original coding), bind and keep it. If they don't
+  (the common case: two independent `tell_tales()` runs), the integers are
+  not the same meaning-space and cannot just sit side by side. Two honest
+  options: refuse and make the caller re-code explicitly, or recompute
+  `dom_code` fresh via `cur_group_id()` over the unioned `aa_seq`, stamp a
+  new namespace, and `cli_inform()` that codes were reassigned and that any
+  companion distance table from either input is now stale. Leaning toward
+  the second as the default -- refusing unconditionally makes the function
+  useless in the one case people actually reach for it -- but this is the
+  maintainer's call, not a settled design.
+- `group`, if present on either side: nothing currently stops two unrelated
+  "group 1"s from different runs colliding once combined. Worth requiring
+  disjoint labels, or a relabel option, same spirit as the `array_id` check.
+
+**Naming: `tales_bind()`, not `c.tales()`.** Two reasons, independent of the
+namespace question above. First, base `c()` S3 dispatch is leaky -- it only
+fires cleanly when every argument shares the class, and mixing a `tales`
+with a bare tibble or a different subclass can silently drop attributes
+instead of erroring, the wrong failure mode for a class whose whole point is
+invariants that must not go silent. Second, the namespace-mismatch handling
+above wants an argument (something like `on_namespace_mismatch = c("recode",
+"error")`) that `c(...)`'s signature has no room for. A named function
+follows the `object_verb()` convention already adopted (§9.0) rather than
+fighting a generic whose contract doesn't quite fit.
+
+**Necessity, scoped.** Only the group-aware `tales_align()` idea above
+currently depends on this, and that is itself downstream of the undecided A
+vs B choice -- if A wins (a plain list of per-group `tales_msa`), no bind
+method is needed at all. `tales_bind()` is probably worth building
+independently of that anyway: combining two `tell_tales()` runs (e.g.
+different genomes) into one object before comparing them is a normal
+workflow need, not just a §5.2 dependency. A `tales_msa`-level bind should
+stay unbuilt until something concrete needs the narrow same-run-subset
+case.
+
 ---
 
 ### 5.3 `tell_tales()` refactoring — MECHANICAL PASS DONE **[V]**
@@ -766,6 +867,30 @@ Deferred to a dedicated pass on "computations that may not match intent":
   itself** when the alignment gains a real `alignment_position` coordinate
   distinct from `position_in_array` (`class-design.md` §4) — listed here so it
   is not lost if that design changes, not as separate work.
+- `tell_tales.log` misreports its own input file. The line is meant to echo
+  what the caller passed as `subject_file`
+  ([telltale.R:424](../R/telltale.R#L424)), and the docstring says `params`
+  is "echoed verbatim" ([telltale.R:393](../R/telltale.R#L393)) -- but the
+  value that ends up in the log is a temp-file path (confirmed: a real run
+  logged `/tmp/RtmpKueJKN/file15129d4e02e654` for a call given a package
+  `system.file()` path). Somewhere between the argument and the log call,
+  `subject_file` was reassigned to an internal working copy -- plausibly
+  the HMMER-safe renamed copy the function makes when sequence names carry
+  characters HMMER rejects ("Renaming sequences in ..."). A log that cannot
+  say what it ran on defeats the stated purpose of the file (§7.4a's
+  reproducibility motive applies here too).
+- `tell_tales.log`'s parameter block is not uniformly tab-separated, so a
+  spreadsheet import misaligns columns. Most lines are one label plus one
+  value (`paste("Current date:", date(), sep = "\t")` --
+  [telltale.R:422](../R/telltale.R#L422)), but the "Other parameters" block
+  puts the colon in its *own* tab-separated field
+  (`paste("nterm_min_score", ":", params$nterm_min_score, sep = "\t")` --
+  [telltale.R:431-444](../R/telltale.R#L431-L444)), producing three columns
+  where the rest of the file has two. That mismatch is the "spurious
+  separator" -- not a stray character, a structurally different row shape
+  a handful of lines in. Fix is presumably to drop the colon into the label
+  (`paste0(name, ":")`) rather than giving it its own field, matching every
+  other line.
 
 ### RESOLVED: the as.dist() inversion bug **[V]**
 
@@ -1455,7 +1580,125 @@ priority): the four numbered `vignettes/*.Rmd` walkthroughs and the three
 `p*.Rmd` files are still R Markdown. They are §7.5's problem, not this
 one's, and §7.5 is deliberately last regardless of format.
 
-## 8. Tests — error conditions now covered **[V]**
+### 7.5b The four numbered vignettes rebuilt; a `tales_msa` article; `@examples` on the core API -- DONE **[V]**
+
+The blocker §7.1 named -- each vignette inheriting session state via
+`save.image()`/`load()` from a hardcoded `~/TEMP/test_tantale` path -- is
+gone. All four numbered vignettes were rewritten from a blank slate (the
+old ones were used only as a list of topics, per the maintainer's steer,
+since the API had moved on): each is now self-contained, building whatever
+it needs itself via `tempdir()`, and each was verified with a real
+`rmarkdown::render()` -- exit status checked, not just "no error printed"
+-- against a package installed to a scratch library.
+
+**What each one covers**, and why the shape changed from the original set:
+
+- **`1_tale_mining.Rmd`** -- `tell_tales()` on a clean genome, then the
+  gap this rewrite was specifically asked to close:
+  `tales_anomalies()` and **both** correction paths, contrasted rather than
+  documented separately, since a user has to choose between them.
+  `correct_array = TRUE` (`DECIPHER::CorrectFrameshifts()`, run from inside
+  `tell_tales()`, correcting already-found candidate arrays) and
+  `correct_tales()` (the Java `TALEcorrection` wrapper, correcting the whole
+  genome sequence *before* discovery) are not alternatives with the same
+  failure mode. This is shown, not asserted, on the real BAI3-1-1 fixture:
+  uncorrected, `ROI_00003`/`ROI_00005` have no `rvd` at all (AnnoTALE
+  cannot parse a frameshifted ORF); `correct_array = TRUE` with
+  `max_comparisons = 20` (kept low so the vignette builds in seconds, not
+  the ~8 minutes the full reference set takes) fixes both -- but breaks a
+  *third*, previously clean array, `ROI_00001`, exactly the risk
+  `max_comparisons`'s own docs describe; `correct_tales()` on the same
+  genome fixes `ROI_00003` but not `ROI_00005`, a third, different outcome.
+  None of this was staged -- it is what the fixture actually does, found
+  while writing the article and kept because it is a better illustration
+  of "check `tales_anomalies()` after correcting, whichever path you took"
+  than an invented example would have been.
+- **`2_tale_classification.Rmd`** -- multi-genome discovery (own
+  `tell_tales()` calls, not inherited), `tales_compare()`, `tales_group()`
+  (`k = "auto"`, avoiding the interactive-`k` prompt), `talomes_heatmap()`.
+- **`3_tale_msa.Rmd`** -- re-derives one real classification group
+  (7 arrays across BAI3/BAI3-1-1/MAI1/PXO86 collapse to a handful of
+  cross-strain groups of size 2-3, one per shared locus, plus PXO86-only
+  paralog groups -- group 9, used here, holds one member from each of
+  MAI1/BAI3/BAI3-1-1), aligns it, and plots it three ways. Deep mechanics
+  live in the new article (below) and are only linked from here.
+- **`4_tale_target_prediction.Rmd`** -- `talvez()`/`preditale()` against
+  the shipped clade III *SWEET* promoter set, using `tales_rvd_strings()`
+  directly (a `BStringSet`, no intermediate fasta) rather than the
+  hand-rolled file writing the original had, `plot_target_preds()`.
+
+**A new pkgdown article, `tales-msa-class.qmd`**, the counterpart §7.5a
+promised: what `alignment_position`/`tales_width()` are, why gaps are
+implicit, coercion **both directions** between `tales` and `tales_msa`
+(`tales_align()` promotes; `as_tales()` demotes, verified to strip the
+class and `alignment_width` while keeping `alignment_position` as an
+ordinary column; column-subsetting degrades the same way automatically,
+one grade at a time), and `plot.tales()`/`plot.tales_msa()` in depth --
+added specifically because §7.1's rebuild surfaced that a `tales`/
+`tales_msa` coercion-and-plotting section was still missing after 7.5a.
+
+**`tales-class.qmd` gained the subsetting section it was missing.** `[`,
+`select()`, `mutate()` and what each does to the class and to
+`dom_code_namespace` -- maintainer-flagged as absent while reviewing 7.5a.
+
+**Two real bugs found by building the articles, not looked for --
+fixed:**
+
+- `plot.tales_msa()` ended `print(finalPlot); return(finalPlot)` --
+  no `invisible()`. Building `tales-msa-class.qmd` with quarto showed every
+  non-assigned `plot(msa, ...)` call rendering a figure twice (confirmed
+  with a raw `pdf()` device: one page from the explicit `print()`, a
+  second from top-level auto-print of the visible return). Fixed to
+  `invisible(finalPlot)`, matching `plot.tales()`'s existing pattern;
+  `test_plot_tales_msa.R`'s 52 assertions still pass.
+- `as.matrix.pairwise_distances()`'s `@param value` doc said the default
+  is `sim`; the code default is `PAIRWISE_DISTANCES_VALUE_COL`, which is
+  `"dissim"` (§9.6's rename). Stale since that rename. Fixed.
+
+**`p2_multiple_alignments.Rmd` was broken against the current API** --
+`repeat_to_rvd_align()` and `plot_tales_msa()` are both gone (§8.6 folded
+the latter into `plot.tales_msa()`). §7.1's claim that p1/p2 "were
+re-knitted successfully after migration" predates that change, which is
+exactly the kind of stale `[V]` this file warns about elsewhere. Its first
+half (plain RVD/repeat-code alignment via `tales_align()` + `as.matrix()`)
+still worked and is kept; the second half (a 15-call sweep of
+`plot_tales_msa()`'s retired argument combinations) is replaced with a
+pointer to `tales-msa-class.qmd`, which now covers the same ground against
+a currently-exported API. Re-verified with `rmarkdown::render()`.
+`p3_tantale_objects.Rmd` -- unchanged since 2023, "TODO!!!" plus an
+absolute local image path (already flagged in §7, above) -- is retired to
+a two-line redirect to the two class articles, since its stated topic is
+now genuinely covered.
+
+**`@examples` added to 26 exported functions** across the core classes --
+`tales()`/`as_tales()`/`tales_namespace()`/`validate_tales()`/
+`tales_anomalies()`/`tales_assert_complete()`, `tales_msa()`/
+`as.matrix.tales_msa()`/`tales_align()`, `pairwise_distances()`/
+`distances_assert_square()`/`as.matrix.pairwise_distances()`/
+`distances_restrict()`, the three projections, the three
+`tales_compare()` steps plus `tales_compare()` itself, `tales_group()`,
+`talomes_heatmap()`, `tales_consensus()`/`tales_consensus_match()`,
+`tales_from_telltale()`, `plot.tales()`/`plot.tales_msa()`, and (behind
+`\donttest{}`, since they need the conda environment / a JVM)
+`tell_tales()`/`correct_tales()`. Every one of the 26 extracted with
+`tools::Rd2ex()` and executed against a scratch-installed copy of the
+package, not merely inspected -- all pass. Most reuse the tiny shipped
+`tellTaleExampleOutput` fixture (fast, no external tool needed, since
+DECIPHER and the bundled ARLEM binary are pure R / no-conda); the
+`tales_msa` examples are hand-built alignments where that is faster and
+clearer than running MAFFT for two rows.
+
+**Left for later, deliberately:** `target_predictions.R`'s three exports
+(`talvez()`, `preditale()`, `plot_target_preds()`) and the AnnoTALE/QueTAL
+wrapper functions (`run_annotale_predict()`, `run_annotale_build()`,
+`functal()`) still have no `@examples` -- lower traffic, and each needs
+either the conda environment or external files. `talvez()`/`preditale()`
+are, at least, exercised live in vignette 4.
+
+A full `pkgdown::build_site()` was run after all of the above, against a
+scratch-installed copy, to confirm the whole site -- reference pages, both
+new/edited articles, all seven vignettes -- builds together, not just each
+piece in isolation.
 
 `tests/testthat/test_error_conditions.R` added (18 assertions). It exists
 because 11 of the package's `tantale_error_*` classes had **zero** test
