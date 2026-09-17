@@ -132,7 +132,8 @@ x %>%
 
 Subsetting that would break the class -- dropping `array_id`, say -- quietly
 degrades the result to a plain tibble rather than erroring, so a `tales`
-never lies about what it is.
+never lies about what it is. The mechanics of that degradation are worth a
+closer look once `dom_code` is in the picture -- see below.
 
 `print()` and `format()` follow the same idea Biostrings uses for sequence
 sets: a header with the essentials (arrays, parts, which residue columns
@@ -322,6 +323,76 @@ Each step is independently useful -- the domain-level distances alone
 answer questions about repeat diversity, without ever running the
 array-level alignment -- and each is documented in its own right; see
 `tales_compare()` for the full chain.
+
+# Subsetting keeps the class only while the contract holds
+
+A `tales` is a tibble, so every subsetting route a tibble supports works on
+it too: `[`, `filter()`, `select()`, `arrange()`, `mutate()`. What differs
+from a plain tibble is what happens to the *class* along the way.
+
+**Row subsetting never breaks anything.** Every invariant a `tales` checks
+is closed under keeping a subset of rows -- which is exactly why
+completeness (§1, above) is a *precondition* of specific functions rather
+than part of the class itself. Filtering to one array, or to its repeats
+only, is still a valid `tales`:
+
+```{r subset_rows}
+one_array <- xa[xa$array_id == "ROI_00002", ]
+is_tales(one_array)
+nrow(one_array)
+```
+
+**Column subsetting is where it gets interesting.** Dropping a column the
+contract needs -- `array_id`, or both residue columns at once -- leaves
+something that can no longer be described as a `tales`, and the class says
+so by quietly stepping out of the way rather than by erroring:
+
+```{r subset_drop_key}
+no_id <- xa %>% select(-array_id)
+is_tales(no_id)
+class(no_id)
+```
+
+The same happens whichever route removes the load-bearing column --
+`select()`, `mutate()`, or plain `[, j]`. This is deliberate: a `tales`
+object that kept claiming to be one after losing its key would let every
+downstream function trust a promise the object could no longer keep.
+Dropping an optional column (`seqnames`, `aa_seq`, ...) has no such
+consequence, and the class survives untouched.
+
+`mutate()` earns one extra check the others do not need: it can overwrite
+`array_id` or `position_in_array` *in place*, which plain subsetting cannot
+do, so the result could keep every contract column while no longer being a
+valid key. That case is caught separately, immediately after the mutate:
+
+```{r subset_mutate_break_key, error = TRUE}
+xa %>% mutate(position_in_array = 1L)
+```
+
+What is **not** re-checked on every verb is the row-level biology --
+`tales_anomalies()` does not run again on each `filter()` call, because
+anomalies are a property to inspect deliberately (§ above), not a cost to
+pay on every pipe.
+
+**Attributes travel with a valid subset**, which matters most for
+`dom_code_namespace`. Cutting `xa` down to one array with `[` keeps its
+namespace, because the namespace describes *the run the codes came from*,
+not which rows happen to be kept right now:
+
+```{r subset_namespace}
+tales_namespace(one_array) == tales_namespace(xa)
+```
+
+That is only true because `one_array` was cut with `[`, not re-coded --
+`tales_assign_domain_codes()` on a subset mints a *different* namespace, as
+the mismatch example above already showed.
+
+A `tales_msa` carries one further attribute this way, `alignment_position`,
+and losing *that* while keeping everything else degrades it by exactly one
+step -- to a plain `tales`, not all the way to a tibble. The next article,
+on the `tales_msa` class, covers that graded degradation in full, together
+with the reverse direction: how a `tales` is promoted into an alignment in
+the first place.
 
 # Next
 

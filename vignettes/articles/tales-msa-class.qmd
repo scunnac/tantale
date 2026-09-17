@@ -1,0 +1,237 @@
+---
+title: "The tales_msa class"
+format:
+  html:
+    toc: true
+    number-sections: false
+editor_options:
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+The [previous article](tales-class.html) covered the `tales` class: one row
+per part, with `dom_code` as the identity layer that makes an array
+alignable. This one is about what happens once several arrays *are*
+aligned -- the `tales_msa` class -- and about the traffic between the two
+classes: how a `tales` is promoted into one, how it demotes back, and what
+each class draws when you plot it.
+
+```{r setup, message = FALSE}
+library(tantale)
+library(dplyr)
+```
+
+# Building one
+
+`tales_align()` takes a `tales` and returns a `tales_msa`: the same rows,
+plus one new column, `alignment_position`. Nothing else changes -- every
+column the input carried, `rvd` and `dom_code` both included, survives the
+trip, because the alignment is computed on *one* residue layer
+(`residue_col`) but the object it returns is still the whole table.
+
+The example below uses the same small fixture as the previous article --
+four arrays, small enough to align in a couple of seconds -- but runs
+`tales_compare()` first, since the alignment is more informative once
+`dom_code` and the two distance tables exist alongside it:
+
+```{r build_msa, message = FALSE, warning = FALSE}
+out <- file.path(tempdir(), "tales_msa_article")
+invisible(tell_tales(
+  subject_file = system.file("extdata", "bai3_sample_tal_genomic_regions.fasta",
+                             package = "tantale", mustWork = TRUE),
+  output_dir = out))
+
+x <- suppressWarnings(tales_from_telltale(out))
+cmp <- tales_compare(x)
+msa <- tales_align(cmp$tales, residue_col = "dom_code")
+msa
+```
+
+`residue_col = "dom_code"` means MAFFT is shown each array as a sequence of
+domain codes -- exactly the alignable-unit argument from the previous
+article. Aligning on `"rvd"` instead is possible too, but coarser: distinct
+repeats sharing an RVD would be forced to look identical to the aligner,
+which is a real loss of resolution whenever it matters (again, see the
+previous article's `HD` example).
+
+# What is new: `alignment_position`
+
+A `tales_msa` is a `tales` with one extra column and one extra stored
+number:
+
+- **`alignment_position`** -- where this part sits in the alignment, which
+  is not the same coordinate as `position_in_array`. The two agree up to
+  the first gap and diverge after it.
+- **`tales_width()`** -- the alignment's total column count, stored rather
+  than derived, because `max(alignment_position)` over a *subset* of arrays
+  can under-report a width whose last columns happen to be all gaps in that
+  subset.
+
+```{r width_demo}
+tales_width(msa)
+msa %>% filter(array_id == msa$array_id[1]) %>%
+  select(array_id, position_in_array, alignment_position, domain_type)
+```
+
+**Gaps are implicit, not stored.** There is no row, anywhere, whose
+`alignment_position` is a gap -- a gap is simply a column with no row for
+that array. This is why the class validates cheaply and why every `tales`
+invariant (the key, the residue columns, the `dom_code` bijection) keeps
+holding unchanged on a `tales_msa`: nothing new was added to *rows*, only a
+new column that says where each existing row lands. What the alignment
+adds on top is its own, narrower, set of rules -- checked by
+`validate_tales_msa()` in addition to everything `validate_tales()` already
+checks:
+
+- `alignment_position` is a positive integer, present on every row;
+- unique within an array (two parts cannot land in the same column);
+- **ordered like `position_in_array`** -- an alignment may insert gaps, it
+  may never reorder parts;
+- never beyond the declared width.
+
+# Views: matrices are computed, not stored
+
+The long table is the only thing actually stored. A rectangular alignment
+-- the picture most people have in mind, one row per array, one column per
+position -- is a *view*, built on request by `as.matrix()`, and it has to
+be asked which layer to render:
+
+```{r as_matrix_demo}
+as.matrix(msa, value = "dom_code")[, 1:8]
+as.matrix(msa, value = "rvd")[, 1:8]
+```
+
+Both matrices have the same shape and the same gaps -- they are two
+readings of one geometry, not two independent alignments. That equivalence
+is exactly what lets `plot.tales_msa()` (below) show a repeat's identity as
+a colour and its RVD as a label on the same cell.
+
+# Coercion between `tales` and `tales_msa`
+
+**Promotion** is `tales_align()`: give it a complete `tales`, get back a
+`tales_msa`. There is no other route, because the alignment column has to
+come from an actual alignment run -- nothing else could populate it
+honestly.
+
+**Demotion** is `as_tales()`, and it is a real operation, not a formality:
+
+```{r demote}
+demoted <- as_tales(msa)
+class(demoted)
+is_tales_msa(demoted)
+"alignment_position" %in% names(demoted)
+```
+
+`alignment_position` survives as an ordinary column -- demoting does not
+erase where things were aligned, it only stops the object *claiming* to be
+a coherent single alignment. That claim is exactly what `tales_width()`
+encodes, and it is gone: `tales_width(demoted)` is `NULL`. This matters
+for more than bookkeeping. A talome-wide summary spanning several
+*independently* aligned groups cannot honestly be one `tales_msa` --
+each group has its own width and its own coordinate system, so
+`alignment_position = 5` would mean unrelated things in two different
+groups. Demoting to a plain `tales` and carrying `alignment_position` as
+an ordinary column (per group) is the honest shape for that case; the
+class is not stretched to cover something it cannot actually guarantee.
+
+**Subsetting degrades the same way, automatically, one step at a time.**
+Row subsetting never touches the alignment contract, since every check
+above is closed under keeping a subset of rows. Column subsetting can:
+dropping `alignment_position` itself leaves something that is still a
+valid `tales` (everything else about a part is unaffected) but can no
+longer be a `tales_msa`, and the class notices without being told:
+
+```{r subset_degrade}
+no_alignment <- msa %>% select(-alignment_position)
+class(no_alignment)
+```
+
+This is the same graded-degradation mechanism from the previous
+article's `[.tales` method, just visible one level up: a `tales_msa` that
+loses what makes it an alignment steps down to a `tales` rather than lying
+about still being one, and a `tales` that loses its key steps down to a
+bare tibble for the same reason. Losing an *optional* column --
+`seqnames`, `aa_seq` -- costs nothing at either level.
+
+# Plotting: two methods, one generic
+
+`plot()` dispatches on class, so the two objects draw different things
+from the same call.
+
+## `plot.tales()` before and after alignment
+
+A `tales` without an alignment can only be laid out on
+`position_in_array`: every array starts its own count at 1, so an
+aberrant repeat scatters to wherever it happens to sit in each array.
+`position = "alignment"` needs the column that only an aligned (or
+demoted-from-aligned) object carries, and lines features up instead:
+
+```{r plot_before_after, fig.width=9, fig.height=4}
+plot(x, position = "array")
+plot(demoted, position = "alignment")
+```
+
+## `plot.tales_msa()`: three things decided independently
+
+The alignment plot draws a heatmap -- one row per array, one column per
+position -- and three questions about it are answered separately:
+
+- **what each cell *says*** -- `label`, defaulting to `rvd` whenever that
+  is not also the fill layer;
+- **what colour that text is** -- always whether the cell matches the
+  consensus of its column (`tales_consensus()`), cyan for yes, pink for
+  no, regardless of what `fill_type` is showing;
+- **what colour the block behind it is** -- `fill_type`, the only one of
+  the three that can be unavailable.
+
+| `fill_type` | shows | needs |
+|---|---|---|
+| `"repeat_clust"` | which cluster the repeat falls in, cut at `h_cut` | `domain_sim` |
+| `"repeat_sim"` | protein-sequence similarity to the reference, 0-100 | `domain_sim` |
+| `"rvd_sim"` | how alike the RVD's *DNA-binding preference* is to the reference's, -1 to 1 | a `label` layer |
+
+`domain_sim` is the `domain_distances` element of `tales_compare()`'s
+result -- the same table `tales_domain_distances()` produces on its own.
+Passing `tal_sim` (the `tale_distances` element) in addition adds a
+dendrogram panel ordering the rows by relatedness:
+
+```{r plot_msa_default, fig.width=10, fig.height=3}
+plot(msa)
+```
+
+```{r plot_msa_sim, fig.width=10, fig.height=3}
+plot(msa, fill_type = "repeat_sim",
+    domain_sim = cmp$domain_distances, tal_sim = cmp$tale_distances)
+```
+
+`"repeat_sim"` and `"repeat_clust"` colour by protein-sequence similarity
+to a reference row, chosen automatically as the array with the fewest
+gaps (ties broken alphabetically) unless `ref_pattern` names one. `rvd_sim`
+asks the same "how similar to the reference" question one layer up, at the
+level of DNA-binding specificity rather than protein sequence -- and the
+two genuinely disagree, because `HD` and `ND` are different repeats with
+identical specificity, while repeats differing only at positions 12-13 are
+near-identical proteins with opposite target bases. It needs no
+`domain_sim` at all, only the RVDs themselves:
+
+```{r plot_msa_rvdsim, fig.width=10, fig.height=3}
+plot(msa, fill_type = "rvd_sim")
+```
+
+A consensus panel can sit above either view. It reads the same layer the
+cells are labelled with, so it is never talking about something the cells
+below it are not:
+
+```{r plot_msa_consensus, fig.width=10, fig.height=3.3}
+plot(msa, consensus = TRUE,
+    domain_sim = cmp$domain_distances, tal_sim = cmp$tale_distances)
+```
+
+# Next
+
+Aligning is rarely the last step in a real analysis -- the walkthrough
+vignettes take this further, running the same mechanics over whole
+genomes and TALE groups rather than one small fixture.
