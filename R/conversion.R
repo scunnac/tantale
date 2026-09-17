@@ -26,7 +26,8 @@
   seqsAsVectors <- stringr::str_split(seqs, pattern = glue::glue("[{sep}]"))
   seqsAsVectors <- lapply(seqsAsVectors, function(x) { # Remove last residue if it is empty string
     if ( x[length(x)] == "") {
-      warning("Last element in 'vectorized' sequence is empty. It was removed from output.")
+      cli::cli_warn("Dropped an empty last element from a vectorized sequence.",
+                    class = "tantale_warning_empty_element")
       x[-length(x)]
     } else x
   }

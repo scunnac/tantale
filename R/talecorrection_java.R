@@ -65,7 +65,7 @@ correct_tales <- function(uncorrected_path ,
       cli::cli_abort("{nhmmerCmd}", class = c("tantale_error"))
     }
   } else {
-    stop("Could not create the tantale conda environment on your machine to run nHMMER...")
+    .abort_no_env("nHMMER")
   }
   
   #### run TALEcorrection ####

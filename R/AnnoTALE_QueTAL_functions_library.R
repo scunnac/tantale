@@ -59,7 +59,10 @@ run_annotale_predict <- function(fasta_file,
   )
   cli::cli_inform(c("Running AnnoTALE predict for {.val {prefix}}", " " = "{comPredict}"))
   exitPredict <- system(comPredict)
-  !exitPredict || stop("##  AnnoTALE predict failed with an error. Aborting...")
+  if (exitPredict != 0) {
+    cli::cli_abort("AnnoTALE predict failed with exit status {exitPredict}.",
+                   class = c("tantale_error_annotale_failed", "tantale_error"))
+  }
 
   # Run the "analyze" stage of AnnoTALE
   comAnalyze <- paste0(
@@ -158,10 +161,13 @@ functal <- function(tal_file,
     exitCom <- .tantale_exec(functal_cmd, cwd = functal_dir,
                              check = FALSE, what = "FuncTAL")
   } else {
-    stop("Could not create the tantale conda environment on your machine to run functal...")
+    .abort_no_env("FuncTAL")
   }
   if (exitCom != 0) {
-    stop("functal failed (perl exit code ", exitCom, "). See console output above for details.")
+    cli::cli_abort(
+      c("FuncTAL failed with perl exit status {exitCom}.",
+        "i" = "See the console output above for what it reported."),
+      class = c("tantale_error_functal_failed", "tantale_error"))
   }
 
   # Transferring the ouput to the output dir and deleting it in the functal "Outputs" directory

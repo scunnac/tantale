@@ -2697,7 +2697,13 @@ single messaging system.
 | before | after |
 |---|---|
 | 87 `logger::log_*()` | 0 |
-| 22 bare `stop()` + 1 bare `warning()` (empty messages) | 0 |
+| 22 **bare** `stop()` + 1 bare `warning()` -- calls with *no message* | 0 |
+
+**Read that second row carefully** -- it caused a misreading later. "Bare"
+meant `stop()` with an empty message, the residue of `log_error(msg);
+stop()` where the text went to the logger and the condition carried nothing.
+This pass did **not** convert message-carrying `stop()` to `cli_abort()`;
+38 of those remained. See §13.
 | `log_errors() && stop(...)` (message unreachable) | `cli_abort()` naming the bad value |
 | `cat()` / `print()` narration on stdout | `cli_inform()` on stderr |
 
@@ -3108,3 +3114,56 @@ Also corrected while here: the commented module list at the bottom of
 `R/tantale_conda_env.R` names `Algorithm::NeedlemanWunsch` and
 `Statistics::Basic`. Nothing shipped uses them -- they belonged to the Perl
 DisTAL that `distalr.R` reimplemented.
+
+
+---
+
+## 13. `stop()`/`message()`/`warning()` converted to cli **[V]**
+
+Spotted by the maintainer reading `distalr.R`. §9.5 above reads as though
+the package no longer used base conditions; it had only removed the
+*empty-message* ones.
+
+**Audited with R's parser**, not grep, so comments and strings cannot
+produce false positives:
+
+```r
+pd <- getParseData(parse(f, keep.source = TRUE))
+pd[pd$token == "SYMBOL_FUNCTION_CALL" & pd$text %in% targets, ]
+```
+
+38 sites: 28 `stop()`, 5 `message()`, 5 `warning()`.
+
+**Converted: 29 across 7 files.** Each gets `cli::cli_abort()` /
+`cli_inform()` / `cli_warn()` with a specific condition subclass where an
+obvious name existed -- `tantale_error_duplicate_names`,
+`tantale_error_missing_file`, `tantale_error_rvd_seqs`,
+`tantale_error_pairwise_incomplete`, `tantale_error_hmmer_missing` and so
+on -- which also closes §9.5's open follow-up about generic classes.
+
+**Deliberately left: the 9 in `classification.R`** (4 `stop`, 4 `message`,
+plus the `cat()` stdin prompt and the `message("WE SHOULD BE DOING
+SOMETHING")` placeholder). That file is reserved for the joint
+`tales_group()` rework in §11, and converting its messages now would be
+churn ahead of a rewrite.
+
+**Confirmed legitimate and untouched:** `cat()` in `tales_print.R` and
+`tales_summary.R` (print methods must write to stdout), `print(p)` in the
+plot methods, `packageStartupMessage()` in `startup.R`, and the 20
+`stopifnot()` calls, which assert internal invariants rather than address
+the user.
+
+**Three things the audit turned up**
+
+- **The same message four times.** "Could not create the tantale conda
+  environment on your machine to run *X*" appeared in `AnnoTALE…R`,
+  `distalr.R`, `talecorrection_java.R` and `target_predictions.R`, in four
+  slightly different wordings, none of which said what to do. Now one
+  `.abort_no_env(what)` pointing at `tantale_setup()`.
+- `AnnoTALE_QueTAL_functions_library.R:62` raised its error through
+  `||` short-circuiting: `!exitPredict || stop(...)`. Now an `if`.
+- `distalr.R` had `stop("Some alignment pairs...",)` -- a trailing comma in
+  the argument list.
+
+**Re-run the audit after adding code**; the one-liner above is the whole
+check.

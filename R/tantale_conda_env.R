@@ -276,3 +276,20 @@
       "i" = "Run {.run tantale_setup(install = TRUE)}, or set {.code options(tantale.env_prefix = )}."),
     class = c("tantale_error_conda_env", "tantale_error"))
 }
+
+
+#' The environment could not be created
+#'
+#' Four call sites raised this with four near-identical hand-written
+#' sentences, none of which said what to do about it. They now share one,
+#' which points at the function written for exactly this situation.
+#'
+#' @param what The tool that was about to be run.
+#' @noRd
+.abort_no_env <- function(what) {
+  cli::cli_abort(
+    c("Could not create the {.val tantale} conda environment, needed to run {what}.",
+      "i" = "{.run tantale_setup()} reports what is present and what is missing.",
+      "i" = "{.run tantale_setup(install = TRUE)} builds or repairs it."),
+    class = c("tantale_error_conda_env", "tantale_error"))
+}

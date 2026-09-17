@@ -58,7 +58,11 @@
 .check_hmmer <- function(hmmer_path) {
   cmd <- file.path(hmmer_path, "hmmsearch -h | grep \"^#\"")
   if (system(command = cmd, intern = FALSE, ignore.stdout = TRUE, ignore.stderr = TRUE)) {
-    stop("HMMER is not in PATH. Follow instructions at http://hmmer.org/documentation.html to install it.")
+    cli::cli_abort(
+      c("HMMER is not on the {.envvar PATH}.",
+        "i" = "{.run tantale_setup(install = TRUE)} installs it in the {.val tantale} environment.",
+        "i" = "Or install it yourself: {.url http://hmmer.org/documentation.html}"),
+      class = c("tantale_error_hmmer_missing", "tantale_error"))
   } else {
     out <- system(command = cmd,intern = TRUE)
     cli::cli_inform(gsub("^#[ ]?", "", out[2:3]))
@@ -127,9 +131,12 @@
   names <- unlist(plyr::llply(lines, function(x) {
     hmmName <- grep("NAME", x, perl = TRUE, value = TRUE)
     hmmName <- unlist(strsplit(hmmName, split = "\\s+"))
-    if (length(hmmName) != 2) stop("One or several profile ",
-                                   "HMM have a name with spaces. ",
-                                   "Please remove them in the file at the Tag 'NAME'")
+    if (length(hmmName) != 2) {
+      cli::cli_abort(
+        c("A profile HMM has spaces in its name.",
+          "i" = "Remove them from the {.field NAME} tag in the HMM file."),
+        class = c("tantale_error_hmm_name", "tantale_error"))
+    }
     hmmName[2]
   }))
 
@@ -180,7 +187,8 @@
 
   hits <- try(read.table(paths$hmmer_search), silent = TRUE)
   if (inherits(hits, "try-error")) {
-    warning("NhmmerSearch found no TALE cds hit in ", subject_file , " Exitting...")
+    cli::cli_warn("No TALE CDS hits found in {.file {subject_file}}.",
+                  class = "tantale_warning_no_hits")
     return(NULL)
   }
 
@@ -345,10 +353,10 @@
   ## Make sure that hits do not overlap for some weird reason
   doHitsOverlap <- !GenomicRanges::isDisjoint(byArray)
   if (any(doHitsOverlap)) {
-    warning("It appears that some hmmer hits actually overlap.\n It is thus possible that the inferred sequences of RVDs have artefactual insertions.\n")
-    warning(paste0("Please check the hits in the following RegionsOfInterest:", "\n",
-                   paste(names(doHitsOverlap)[doHitsOverlap], collapse = "\n"), "\n")
-    )
+    cli::cli_warn(
+      c("Some HMMER hits overlap, so the inferred RVD sequences may carry artefactual insertions.",
+        "i" = "Check these region{?s}: {.val {names(doHitsOverlap)[doHitsOverlap]}}"),
+      class = "tantale_warning_overlapping_hits")
   }
 
   ## Populate metadata about the elements of the list of arrays
@@ -470,7 +478,7 @@
     "#*************************\n"
   )
   
-  message(paste(txt, collapse = "\n"))
+  cli::cli_inform(paste(txt, collapse = "\n"))
   logf <- file(log_file, open = "w")
   writeLines(text = txt, con = logf)
   close(logf)

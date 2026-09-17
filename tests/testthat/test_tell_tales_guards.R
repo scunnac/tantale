@@ -15,8 +15,10 @@ test_that("no hmmer hit at all is reported, not crashed on", {
     Biostrings::DNAStringSet(paste(sample(Biostrings::DNA_BASES, 10000, replace = TRUE),
                                    collapse = "")),
     filepath = fasta)
+  # asserted by condition class rather than by wording: the class is the
+  # stable contract, the sentence is not (ledger 13)
   expect_warning(tell_tales(subject_file = fasta, output_dir = tempfile()),
-                 regexp = "found no TALE cds hit")
+                 class = "tantale_warning_no_hits")
 })
 
 test_that("a score threshold that rejects everything is reported", {

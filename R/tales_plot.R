@@ -286,7 +286,10 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
   } else if (is.null(repeat_align)) {
     repeatAlignLong <- rvdAlignLong
   } else {
-    stop("something wrong with parameters values")
+    cli::cli_abort(
+      c("Cannot build the requested plot from these arguments.",
+        "i" = "Check {.arg fill}, {.arg label} and {.arg fill_type} against the object's layers."),
+      class = c("tantale_error_bad_argument", "tantale_error"))
   }
 
   # joining repeat cluster if possible
@@ -688,8 +691,10 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
   if (!is.null(ref_tag)) {
     match <- grepl(ref_tag, rownames(align))
     if (sum(match) != 1) {
-      warning("Cannot identify a single unambiguous sequence to define as a reference using the string in ref_tag.\n",
-              "Using the default method for reference selection.")
+      cli::cli_warn(
+        c("{.arg ref_tag} matches {sum(match)} sequences, not one.",
+          "i" = "Falling back to the default reference, the longest array."),
+        class = "tantale_warning_ambiguous_ref")
       ref_tag <- NULL
     } else {
       refName <- rownames(align)[match]

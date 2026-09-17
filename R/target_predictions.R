@@ -41,18 +41,25 @@ preditale <- function(rvd_seqs, subj_file, opt_param = "", output_dir = NULL,
     rvdSeqsFile <- tempfile()
     Biostrings::writeXStringSet(rvd_seqs, rvdSeqsFile)
   } else {
-    stop("##  Something is wrong with the value provided for rvd_seqs. It must be either\n",
-         "##  the path to a fasta file containing strings of RVD sequences (space/dash-separated\n",
-         "##  rvd) or a Biostrings XStringSet object.")
+    cli::cli_abort(
+      c("{.arg rvd_seqs} is neither a file path nor a set of sequences.",
+        "i" = "Give it the path to a fasta file of RVD strings (space- or dash-separated),",
+        "i" = "or a {.cls Biostrings::XStringSet}."),
+      class = c("tantale_error_rvd_seqs", "tantale_error"))
   }
-  if(!file.exists(subj_file)) stop("Unable to find the set of target DNA sequences (fasta file) at the specified location. Please verify the file exists")
+  if (!file.exists(subj_file)) {
+    cli::cli_abort("No target DNA sequences at {.file {subj_file}}.",
+                   class = c("tantale_error_missing_file", "tantale_error"))
+  }
   if (is.null(output_dir)) {
     output_dir <- tempfile(pattern = "preditale_")
     dir.create(output_dir, recursive = TRUE)
   }
   if (length(f <- list.files(path = output_dir, pattern = "^Predicted_binding.*tsv$", full.names = TRUE)) != 0) {
-    stop("The output directory '", output_dir, "' already contains files that are possibly previous results of the preditale function. ",
-    "Cannot proceed. Please remove the following files:\n", paste("-", f, sep = " ", collapse = "\n"))
+    cli::cli_abort(
+      c("{.file {output_dir}} already holds what look like previous {.fn preditale} results.",
+        "x" = "Remove {length(f)} file{?s} first: {.file {f}}"),
+      class = c("tantale_error_output_not_empty", "tantale_error"))
   }
   # Assembling preditale command
   cmd <- glue::glue("java -Xms512M -Xmx2G -jar {shQuote(predictor_path)} preditale {opt_param} TALEs={shQuote(rvdSeqsFile)} s={shQuote(subj_file)} outdir={shQuote(output_dir)}")
@@ -137,12 +144,16 @@ talvez <- function(rvd_seqs, subj_file, opt_param = "-t 0 -l 19", output_dir = N
   } else if (inherits(rvd_seqs, "BStringSet")) {
     rvd_seqs <- rvd_seqs
   } else {
-    stop("##  Something is wrong with the value provided for rvd_seqs. It must be either\n",
-         "##  the path to a fasta file containing strings of RVD sequences (space/dash-separated\n",
-         "##  rvd) or a Biostrings XStringSet object.")
+    cli::cli_abort(
+      c("{.arg rvd_seqs} is neither a file path nor a set of sequences.",
+        "i" = "Give it the path to a fasta file of RVD strings (space- or dash-separated),",
+        "i" = "or a {.cls Biostrings::XStringSet}."),
+      class = c("tantale_error_rvd_seqs", "tantale_error"))
   }
-  if (!file.exists(subj_file)) stop("Unable to find the set of target DNA sequences (fasta file)",
-                                        " at the specified location. Please verify the file exists")
+  if (!file.exists(subj_file)) {
+    cli::cli_abort("No target DNA sequences at {.file {subj_file}}.",
+                   class = c("tantale_error_missing_file", "tantale_error"))
+  }
 
   # Creating a temporary output dir to run everything inside it
   tempOutDir <- tempfile(pattern = "talvez_")
@@ -160,7 +171,10 @@ talvez <- function(rvd_seqs, subj_file, opt_param = "-t 0 -l 19", output_dir = N
   if(!all(
     file.copy(from = list.files(talvez_dir, full.names = TRUE, include.dirs = TRUE),
               to = tempOutDir, overwrite = TRUE, recursive = TRUE)
-  )) stop("Unable to copy talvez scripts to temporary location...")
+  )) {
+    cli::cli_abort("Could not copy the Talvez scripts to {.file {tempOutDir}}.",
+                   class = c("tantale_error_copy_failed", "tantale_error"))
+  }
 
   # Formatting rvd sequences to fit the talvez format and write to tempfile
   rvdSeqsFileForTv <- tempfile(pattern = "rvdSeqsTalvez_", tmpdir = tempOutDir, fileext = ".tsv")
@@ -176,7 +190,7 @@ talvez <- function(rvd_seqs, subj_file, opt_param = "-t 0 -l 19", output_dir = N
     cli::cli_inform(paste0("Invoking Talvez using the following command:\n {stringr::str_wrap(cmd, 80)}"))
     res <- .tantale_exec(cmd, cwd = tempOutDir, what = "Talvez")
   } else {
-    stop("Could not create the tantale conda environment on your machine to run Talvez...")
+    .abort_no_env("Talvez")
   }
 
   # Parsing and reformating output
@@ -236,7 +250,13 @@ talvez <- function(rvd_seqs, subj_file, opt_param = "-t 0 -l 19", output_dir = N
   # Return a vector of match quality scores of lenght equal to the number of RVDs - Nucleotide pairs in input sequences
   RVDSeqVector <- unlist(stringr::str_split(rvd_seq, pattern = "-"))
   EBESeqVector <- unlist(stringr::str_split(ebe_seq, pattern = ""))
-  if(length(RVDSeqVector) != length(EBESeqVector)) stop("Number of elements in RVD and DNA sequences are not equal.")
+  if (length(RVDSeqVector) != length(EBESeqVector)) {
+    cli::cli_abort(
+      c("The RVD and DNA sequences describe different numbers of positions.",
+        "x" = "{length(RVDSeqVector)} RVD{?s} against {length(EBESeqVector)} base{?s}.",
+        "i" = "Each RVD binds one base, so the two must agree."),
+      class = c("tantale_error_length_mismatch", "tantale_error"))
+  }
 
   mapply(FUN = function(RSV, ESV, m) {
     RVDScores <- rvd_nuc_assoc_mat[rownames(rvd_nuc_assoc_mat) == RSV, ]
@@ -276,13 +296,17 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
   subjDnaSeqs <- Biostrings::readDNAStringSet(subj_file)
   predsGr <- preds %>% #dplyr::filter(strand == "-") %>%
     GenomicRanges::makeGRangesFromDataFrame(seqnames.field = "subjSeqId", keep.extra.columns = TRUE)
-  if (!all(as.character(BSgenome::getSeq(subjDnaSeqs, predsGr)) == predsGr$ebeSeq)) stop(
-    "EBE sequences in the target predictions table did not match those extracted from the subjDnaSeqs!\n",
-    "Verify that the content of the objects supplied as parameters are consistent.")
+  if (!all(as.character(BSgenome::getSeq(subjDnaSeqs, predsGr)) == predsGr$ebeSeq)) {
+    cli::cli_abort(
+      c("The EBE sequences in the predictions do not match {.arg subjDnaSeqs}.",
+        "i" = "The predictions were probably made against different sequences."),
+      class = c("tantale_error_ebe_mismatch", "tantale_error"))
+  }
 
-  if (length(filter_range) != 1L) stop(
-    "The range used for filtering the displayed region must be of lenght one."
-  )
+  if (length(filter_range) != 1L) {
+    cli::cli_abort("{.arg filter_range} must be a single range, not {length(filter_range)}.",
+                   class = c("tantale_error_bad_argument", "tantale_error"))
+  }
   filter_range <- as(filter_range, "GRanges")
 
 
@@ -472,7 +496,8 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
   if(unique(names(aln)) %>% length == length(aln)) {
     alndf$name = names(aln)
   }else{
-    stop("Sequences must have unique names")
+    cli::cli_abort("Sequences must have unique names.",
+                   class = c("tantale_error_duplicate_names", "tantale_error"))
   }
   cn = colnames(alndf)
   cn <- cn[!cn %in% "name"]

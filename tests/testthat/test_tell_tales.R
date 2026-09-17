@@ -6,7 +6,7 @@ test_that("send message if no hmmer hit", {
   Biostrings::DNAStringSet(x = paste(sample(Biostrings::DNA_BASES, size = 10000, replace = TRUE), collapse = "")) %>%
   Biostrings::writeXStringSet(filepath = fasta)
   expect_warning(tell_tales(subject_file = fasta, output_dir = tempfile()),
-                 regexp = "NhmmerSearch found no TALE cds hit")
+                 class = "tantale_warning_no_hits")
 })
 
 test_that("telltale no correction runs without error", {

@@ -372,7 +372,10 @@ diag(identSubMat) <- 1
   bpparam <- BiocParallel::MulticoreParam(ncores, progressbar = TRUE)
   
   if (anyDuplicated(names(part_aa_set))) {
-    stop("Parts in the provided input have duplicated names. Cannot proceeed...")
+    cli::cli_abort(
+      c("The provided parts have duplicated names.",
+        "i" = "Names identify the domains being compared, so they must be unique."),
+      class = c("tantale_error_duplicate_names", "tantale_error"))
   }
   
   pair_align_scores <- BiocParallel::bplapply(
@@ -424,7 +427,10 @@ diag(identSubMat) <- 1
                     ) %>%
     tibble::as_tibble()
   colnames(df) <- c("query", "target")
-  if(anyDuplicated(df) != 0) stop("The provided sequences must have unique names.")
+  if (anyDuplicated(df) != 0) {
+    cli::cli_abort("The provided sequences must have unique names.",
+                   class = c("tantale_error_duplicate_names", "tantale_error"))
+  }
   
   Biostrings::writeXStringSet(part_aa_set, filepath = partAaStringSetFile)
   
@@ -456,7 +462,7 @@ diag(identSubMat) <- 1
     .tantale_exec(mmseq2align,       what = "mmseqs align")
     .tantale_exec(mmseq2convertalis, what = "mmseqs convertalis")
   } else {
-    stop("Could not create the tantale conda environment on your machine to run mmseq2...")
+    .abort_no_env("mmseqs2")
   }
   
 
@@ -481,7 +487,10 @@ diag(identSubMat) <- 1
 
 .pairwise_align_decipher <- function(part_aa_set, ncores = 1) {
   if (anyDuplicated(names(part_aa_set))) {
-    stop("Parts in the provided input have duplicated names. Cannot proceeed...")
+    cli::cli_abort(
+      c("The provided parts have duplicated names.",
+        "i" = "Names identify the domains being compared, so they must be unique."),
+      class = c("tantale_error_duplicate_names", "tantale_error"))
   }
   msa <- DECIPHER::AlignSeqs(myXStringSet = part_aa_set, normPower = 0,
                              processors = ncores, verbose = FALSE)
@@ -522,10 +531,16 @@ diag(identSubMat) <- 1
     dplyr::count(id1, id2) %>%
     dplyr::pull(n)
   if (!all(partCombinCounts == 1L)) {
-    stop("Some alignment pairs have more than one record...",)
+    cli::cli_abort(
+      c("Some alignment pairs appear more than once in the scores table.",
+        "i" = "Each ordered pair of domains must be scored exactly once."),
+      class = c("tantale_error_pairwise_duplicated", "tantale_error"))
   }
   if (length(names(part_aa_set))^2 != nrow(pair_align_scores)) {
-    stop("Some parts pairs are absent from the pairwise parts distance table")
+    cli::cli_abort(
+      c("The pairwise distance table is incomplete.",
+        "x" = "Expected {length(names(part_aa_set))^2} rows, got {nrow(pair_align_scores)}."),
+      class = c("tantale_error_pairwise_incomplete", "tantale_error"))
   }
 }
 
