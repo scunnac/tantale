@@ -1359,6 +1359,25 @@ Fixed to the convention the existing vignettes already use, plain
 re-verified all 15 references resolve to the correct reference page.
 
 
+### 7.5z Articles are Quarto, not R Markdown -- agreed **[V]**
+
+Maintainer's call, made after §7.5a was written: future website articles
+under `vignettes/articles/` are `.qmd`, not `.Rmd`. pkgdown 2.2.0 supports
+quarto vignettes natively (its own NEWS: "`build_articles()` now executes
+quarto vignettes ..."), and quarto is installed on the dev machine (1.5.57).
+
+`tales-class.qmd` (§7.5a) was written as `.Rmd` an hour before this was
+said, converted immediately: YAML changed from
+`output: html_document: {...}` to `format: html: {...}`, content
+unchanged, re-verified with a direct `quarto render` against a temporary
+installed copy -- same 29 chunks, same numbers, same namespace-mismatch
+error text.
+
+**Not yet done, and not urgent** (maintainer: the website is not a current
+priority): the four numbered `vignettes/*.Rmd` walkthroughs and the three
+`p*.Rmd` files are still R Markdown. They are §7.5's problem, not this
+one's, and §7.5 is deliberately last regardless of format.
+
 ### 7.5 Worked examples: vignettes and `@examples` **[A]**
 
 **Found during the 9.2 sweep:** the "Overview of TALE composition by genome"

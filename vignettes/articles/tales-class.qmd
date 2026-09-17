@@ -1,10 +1,9 @@
 ---
 title: "The tales class"
-output:
-  html_document:
+format:
+  html:
     toc: true
-    toc_float: true
-    number_sections: false
+    number-sections: false
 editor_options:
   chunk_output_type: console
 ---

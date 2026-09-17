@@ -23,6 +23,14 @@ and rejected.
 with a comment saying what superseded it. This is the maintainer's explicit
 instruction; "obsolete now, plausibly useful later" is a real category here.
 
+**pkgdown articles are written as Quarto (`.qmd`), not R Markdown.**
+Agreed direction for the future website. `vignettes/articles/*.qmd` --
+pkgdown 2.2.0 supports quarto vignettes natively (see its NEWS). R's own
+build machinery never descends into `vignettes/articles/`
+(`tools::pkgVignettes()`), so these are never built by `R CMD build`/`check`
+and need no `VignetteBuilder` entry. The numbered `vignettes/*.Rmd` files
+are a separate, older thing -- §7.5, deliberately last -- not yet migrated.
+
 **Vignettes come last, and never constrain the code.** They will be rebuilt
 from the finished API, not the other way round. Do not let an existing
 vignette dictate a signature, and do not spend effort keeping them building
