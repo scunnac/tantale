@@ -123,6 +123,10 @@ test_that("too low a max_comparisons degrades the correction", {
     r <- readr::read_tsv(file.path(out, "arrayReport.tsv"),
                          show_col_types = FALSE, progress = FALSE)
     r <- r[order(r$array_id), ]
+    # named explicitly: these columns exist only when correction ran, and
+    # `NULL + NULL` is numeric(0), which would make every assertion below
+    # pass vacuously (the trap of ledger 9.2's third defect)
+    expect_true(all(c("predicted_ins_count", "predicted_dels_count") %in% names(r)))
     r$predicted_ins_count + r$predicted_dels_count
   }
   uncapped <- run(NULL)

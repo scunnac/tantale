@@ -1523,7 +1523,7 @@ have tests now (`test_tell_tales_guards.R`); none had any before.
   TALE is a judgement about the biology: a pseudogene with three surviving
   repeats is real, and may be exactly what someone is looking for.
 
-### 8.1 A purpose-built fixture for `tell_tales()` **[A]**
+### 8.1 A purpose-built fixture for `tell_tales()` -- DONE **[V]**
 
 `tell_tales()` is slow, and the slowness is not where it looks.
 
@@ -1577,6 +1577,54 @@ rather than synthesised, so the sequences stay biologically real:
 
 Relates to 5.3: the refactor needs a characterisation baseline, and the
 baseline needs a fixture that can run in seconds.
+
+**Item 2 built.** `data-raw/make_toy_tale_regions.R` cuts three regions from
+the shipped BAI3 sequences into
+`tests/testthat/data_for_tests/toy_tal_regions.fasta` (14.6 kb against the
+old 116 kb), with a companion `toy_tal_regions_truth.tsv` recording the
+answer:
+
+| region | what it is |
+|---|---|
+| `toy_intact` | one complete TALE, untouched |
+| `toy_frameshift` | the same TALE, one `A` inserted mid-array |
+| `toy_no_tale` | 4 kb of the same genome with no TALE in it |
+
+**Two copies of the same TALE is the design.** The intact one is the control,
+so any difference between the two is attributable to the inserted base rather
+than to the arrays being different TALEs. That is what lets the test assert
+something real without needing the correction to be perfect in absolute
+terms -- which it is not, against the deliberately small 20-sequence test
+reference.
+
+Measured, and now asserted in `test_tell_tales_correction.R`:
+
+| | intact | frameshifted |
+|---|---|---|
+| longest ORF, correction **off** | 4305 nt (93%) | **2631 nt (57%)** |
+| longest ORF, correction **on** | 4305 nt | **4305 nt** |
+| RVD string, correction on | — | **identical to intact** |
+| predicted insertions | 2 | **3** |
+
+So the inserted base truncates the ORF to 57% coverage, and correction
+recovers the original TALE exactly: same ORF length, same RVD string, and
+precisely one more insertion charged.
+
+**What this replaces.** The correction branch was covered only by a golden
+digest. A digest pins the code path but cannot notice correction silently
+ceasing to work -- once the changed digest is accepted it simply records the
+new wrong answer. These tests fail instead.
+
+The `toy_no_tale` region also pins the no-hits branch on real genomic
+sequence, where the previous test used randomly generated DNA, which is a
+much easier negative than the real thing.
+
+*Incidental finding:* each toy region also yields a spurious single-hit
+array at its 3' end, because `min_domain_hits` filters **subject sequences**,
+not arrays -- a contig with enough hits overall keeps all of its arrays,
+however small. Pre-existing and not touched here; the tests select the real
+arrays explicitly. Worth a look if short spurious arrays ever become a
+nuisance.
 
 ### 8.1b Curating the shipped correction reference **[A]**
 
@@ -2267,10 +2315,14 @@ The classes give the sweep a fixed point to converge on: whatever the arguments
 become, they should agree with `tale_sim` / `repeat_sim` / `tales_msa` rather
 than each other.
 
-### 9.2 Column names — DONE **[V]**
+### 9.2 Column names — DONE for the classes, PARTLY for the report files **[V]**
 
-Complete. Every table the package produces now uses snake_case, and the two
-egress bridges that let legacy-named internals survive are deleted.
+The `tales` class and the distance tables use snake_case throughout, and the
+two egress bridges that let legacy-named internals survive are deleted.
+
+**Correction (found later):** the sentence that stood here said "every table
+the package produces". That overstated it -- in the three TSVs `tell_tales()`
+writes, only `array_id` was renamed. See §9.2b for the inventory.
 
 **What the vocabulary is now**
 
@@ -2364,6 +2416,60 @@ in the same release as the class work.
 Note the interaction with 9.1: several *argument* names deliberately mirror
 *column* names (`tale_parts`, `rvd_map`), so the two sweeps should agree on a
 single vocabulary rather than be done independently.
+
+### 9.2b The sweep stopped at `array_id` in the report files **[A]** — needs your call
+
+§9.2 above says "Every table the package produces now uses snake_case". That
+is true of the `tales` class and the distance tables, and **not** true of the
+three TSVs `tell_tales()` writes. What 9.2 actually changed there was
+`array_id`; the rest of the columns were left alone.
+
+Measured on a corrected run:
+
+| file | snake_case | still legacy |
+|---|---|---|
+| `domainsReport.tsv` | all 4 | -- |
+| `hitsReport.tsv` | 10 of 12 | `nhmmerHitID`, `hitID` |
+| `arrayReport.tsv` | 3 of 17 | the other 14 |
+
+`arrayReport.tsv` in full: `OriginalSubjectName`, `Start`, `End`, `Strand`,
+`NumberOfHits`, `ArraySeq`, `AllDomains`, `SeqOfRVD`, `aberrantRepeat`,
+`N.terminusAAlength`, `C.terminusAAlength`, `LongestOrfLength`,
+`OrfCovOverArrayLength`, `LongestORFSeq`. (The three that are already right
+are `array_id` and the two `predicted_*_count` columns, which correction
+adds.)
+
+Note `N.terminusAAlength` is not merely camelCase -- the dots are what
+`data.frame()` does to `N-terminus`, so that name is an accident rather than
+a choice.
+
+**Proposed mapping**, if you want it finished:
+
+| now | proposed |
+|---|---|
+| `OriginalSubjectName` | `seqnames` (matches every other table) |
+| `Start`, `End`, `Strand` | `start`, `end`, `strand` |
+| `NumberOfHits` | `n_domain_hits` |
+| `ArraySeq` | `array_seq` |
+| `AllDomains` | `has_all_domains` |
+| `SeqOfRVD` | `rvd_string` |
+| `aberrantRepeat` | `has_aberrant_repeat` |
+| `N.terminusAAlength` / `C.terminusAAlength` | `nterm_aa_length` / `cterm_aa_length` |
+| `LongestOrfLength` | `longest_orf_length` |
+| `OrfCovOverArrayLength` | `orf_coverage` |
+| `LongestORFSeq` | `longest_orf_seq` |
+| `nhmmerHitID`, `hitID` | `nhmmer_hit_id`, `hit_id` |
+
+**Why this is not done unattended.** These are the column names of the
+package's primary output files, and the person who knows what reads them
+downstream is the maintainer, not me. §9.2 broke this format once already
+"by design", so doing it again is defensible -- but it is a decision, not a
+chore. The work itself is mechanical, has golden coverage, and would take
+one pass.
+
+Two things to decide: whether to do it at all, and whether
+`.tales_rename_legacy()` should learn the old spellings so that directories
+written by the current version still load after the change.
 
 ### 9.3 Decide `@internal` vs `@noRd` per function — PARTLY DONE **[V]**
 

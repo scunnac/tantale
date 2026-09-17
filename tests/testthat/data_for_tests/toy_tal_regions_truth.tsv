@@ -1,0 +1,4 @@
+seqname	source_array	source_contig	source_from	source_to	array_from	array_to	insertion_at	inserted_base	expected_tale
+toy_intact	ROI_00001	talRegion5	24501	29828	501	4828	NA	NA	TRUE
+toy_frameshift	ROI_00001	talRegion5	24501	29828	501	4828	2664	A	TRUE
+toy_no_tale	NA	talRegion6	30926	34926	NA	NA	NA	NA	FALSE
