@@ -45,6 +45,18 @@ A R wrapper around the
 preditale' module. Takes a list of TALE RVD sequences and a fasta file of DNA
 sequences and runs PrediTale.
 }
+\examples{
+\donttest{
+# Needs a Java runtime.
+x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
+                                     package = "tantale"))
+rvds <- tales_rvd_strings(x)
+subj <- system.file("extdata", "cladeIII_sweet_promoters.fasta",
+                    package = "tantale")
+preds <- preditale(rvd_seqs = rvds, subj_file = subj)
+head(preds)
+}
+}
 \seealso{
 Other target prediction:
 \code{\link[=plot_target_preds]{plot_target_preds()}},

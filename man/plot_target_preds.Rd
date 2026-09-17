@@ -26,6 +26,20 @@ Individual RVDs are printed inside colored boxes. The color of the boxes indicat
 
 Numeric values inside the boxes located immediately to the right of the TALE labels reflect prediction scores.
 }
+\examples{
+\donttest{
+# Needs a Java runtime, for preditale().
+x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
+                                     package = "tantale"))
+rvds <- tales_rvd_strings(x)
+subj <- system.file("extdata", "cladeIII_sweet_promoters.fasta",
+                    package = "tantale")
+preds <- preditale(rvd_seqs = rvds, subj_file = subj)
+best <- preds[order(-preds$score), ][1, ]
+plot_target_preds(preds = best, subj_file = subj,
+                  filter_range = paste0(best$subjSeqId, ":1-2000"))
+}
+}
 \seealso{
 Other target prediction:
 \code{\link[=preditale]{preditale()}},

@@ -31,6 +31,17 @@
 #'   prediction programs in tantale
 #' @export
 #' @family target prediction
+#' @examples
+#' \donttest{
+#' # Needs a Java runtime.
+#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
+#'                                      package = "tantale"))
+#' rvds <- tales_rvd_strings(x)
+#' subj <- system.file("extdata", "cladeIII_sweet_promoters.fasta",
+#'                     package = "tantale")
+#' preds <- preditale(rvd_seqs = rvds, subj_file = subj)
+#' head(preds)
+#' }
 preditale <- function(rvd_seqs, subj_file, opt_param = "", output_dir = NULL,
                       predictor_path = system.file("tools", "PrediTALE.jar", package = "tantale", mustWork = T)) {
   # Checking input args
@@ -134,6 +145,17 @@ preditale <- function(rvd_seqs, subj_file, opt_param = "", output_dir = NULL,
 #'   prediction programs in tantale.
 #' @export
 #' @family target prediction
+#' @examples
+#' \donttest{
+#' # Needs the tantale conda environment, built on first use.
+#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
+#'                                      package = "tantale"))
+#' rvds <- tales_rvd_strings(x)
+#' subj <- system.file("extdata", "cladeIII_sweet_promoters.fasta",
+#'                     package = "tantale")
+#' preds <- talvez(rvd_seqs = rvds, subj_file = subj)
+#' head(preds)
+#' }
 talvez <- function(rvd_seqs, subj_file, opt_param = "-t 0 -l 19", output_dir = NULL,
                    talvez_dir = system.file("tools", "TALVEZ_3.2", package = "tantale", mustWork = T),
                    conda_bin = "auto") {
@@ -291,6 +313,19 @@ talvez <- function(rvd_seqs, subj_file, opt_param = "-t 0 -l 19", output_dir = N
 #' @export
 #' @family target prediction
 #' @family TALE plots
+#' @examples
+#' \donttest{
+#' # Needs a Java runtime, for preditale().
+#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
+#'                                      package = "tantale"))
+#' rvds <- tales_rvd_strings(x)
+#' subj <- system.file("extdata", "cladeIII_sweet_promoters.fasta",
+#'                     package = "tantale")
+#' preds <- preditale(rvd_seqs = rvds, subj_file = subj)
+#' best <- preds[order(-preds$score), ][1, ]
+#' plot_target_preds(preds = best, subj_file = subj,
+#'                   filter_range = paste0(best$subjSeqId, ":1-2000"))
+#' }
 plot_target_preds <- function(preds, subj_file, filter_range) {
   ######### Check and parse arguments
   subjDnaSeqs <- Biostrings::readDNAStringSet(subj_file)

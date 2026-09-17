@@ -60,6 +60,18 @@ Note also that the talvez script is run in a conda environment providing the
 necessary dependencies. This environment will be created automatically if
 necessary.
 }
+\examples{
+\donttest{
+# Needs the tantale conda environment, built on first use.
+x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
+                                     package = "tantale"))
+rvds <- tales_rvd_strings(x)
+subj <- system.file("extdata", "cladeIII_sweet_promoters.fasta",
+                    package = "tantale")
+preds <- talvez(rvd_seqs = rvds, subj_file = subj)
+head(preds)
+}
+}
 \seealso{
 Other target prediction:
 \code{\link[=plot_target_preds]{plot_target_preds()}},
