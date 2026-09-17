@@ -18,6 +18,12 @@ from different runs must not be joined: \code{dom_code} is minted per run, so
 the codes collide across runs and a join would silently succeed against the
 wrong repeats.
 }
+\examples{
+rvd_fasta <- system.file("extdata", "TalA_RVDSeqs_AnnoTALE.fasta",
+                         package = "tantale")
+x <- as_tales(rvd_fasta, sep = "-")
+tales_namespace(x) # NULL -- dom_code has not been minted yet
+}
 \seealso{
 Other tales objects:
 \code{\link[=as_tales]{as_tales()}},

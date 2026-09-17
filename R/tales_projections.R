@@ -46,6 +46,12 @@
 #'   [tales_rvd_strings()] for the sibling projection.
 #' @export
 #' @family tales projections
+#' @examples
+#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
+#'                                      package = "tantale"))
+#' xa <- tales_assign_domain_codes(x)
+#' tales_coded_strings(xa)[1]
+#' tales_coded_strings(xa, sep = "-", repeats_only = TRUE)[1]
 tales_coded_strings <- function(x, sep = " ", repeats_only = FALSE) {
   .tales_assert_dom_code(x, "tales_coded_strings")
   if (isTRUE(repeats_only)) {
@@ -80,6 +86,11 @@ tales_coded_strings <- function(x, sep = " ", repeats_only = FALSE) {
 #' @seealso \code{\link{tales_coded_strings}}
 #' @export
 #' @family tales projections
+#' @examples
+#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
+#'                                      package = "tantale"))
+#' xa <- tales_assign_domain_codes(x)
+#' head(tales_domain_codes(xa))
 tales_domain_codes <- function(x) {
   .tales_assert_dom_code(x, "tales_domain_codes")
   .tales_require(x, "tales_domain_codes")
@@ -108,6 +119,11 @@ tales_domain_codes <- function(x) {
 #' @seealso \code{\link{tales_coded_strings}}
 #' @export
 #' @family tales projections
+#' @examples
+#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
+#'                                      package = "tantale"))
+#' tales_rvd_strings(x)[1]
+#' tales_rvd_strings(x, rvd_only = FALSE)[1] # keeps NTERM/CTERM markers
 tales_rvd_strings <- function(x, sep = "-", rvd_only = TRUE) {
   if (!is_tales(x)) {
     cli::cli_abort("{.arg x} must be a {.cls tales} object.",

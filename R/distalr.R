@@ -57,6 +57,11 @@
 #'   of an object that already has codes.
 #' @export
 #' @family pairwise distances
+#' @examples
+#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
+#'                                      package = "tantale"))
+#' xa <- tales_assign_domain_codes(x)
+#' tales_namespace(xa)
 tales_assign_domain_codes <- function(x) {
   if (!is_tales(x)) {
     cli::cli_abort("{.arg x} must be a {.cls tales} object.",
@@ -102,6 +107,11 @@ tales_assign_domain_codes <- function(x) {
 #' @seealso [tales_tale_distances()], which consumes this.
 #' @export
 #' @family pairwise distances
+#' @examples
+#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
+#'                                      package = "tantale"))
+#' xa <- tales_assign_domain_codes(x)
+#' tales_domain_distances(xa)
 tales_domain_distances <- function(x, aln_method = "DECIPHER", ncores = 1,
                                    conda_bin = "auto") {
   .assert_coded_tales(x, "tales_domain_distances")
@@ -162,6 +172,12 @@ tales_domain_distances <- function(x, aln_method = "DECIPHER", ncores = 1,
 #' @seealso [tales_compare()], which runs all three steps.
 #' @export
 #' @family pairwise distances
+#' @examples
+#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
+#'                                      package = "tantale"))
+#' xa <- tales_assign_domain_codes(x)
+#' dd <- tales_domain_distances(xa)
+#' tales_tale_distances(xa, dd)
 tales_tale_distances <- function(x, domain_distances) {
   .assert_coded_tales(x, "tales_tale_distances")
   .assert_same_namespace(x, domain_distances)
@@ -650,6 +666,12 @@ diag(identSubMat) <- 1
 #'   \code{tale_distances}.
 #' @export
 #' @family pairwise distances
+#' @examples
+#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
+#'                                      package = "tantale"))
+#' cmp <- tales_compare(x)
+#' names(cmp)
+#' cmp$tale_distances
 tales_compare <- function(x, ncores = 1, aln_method = "DECIPHER",
                               conda_bin = "auto") {
   if (!is_tales(x)) {

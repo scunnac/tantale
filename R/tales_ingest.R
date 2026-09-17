@@ -167,6 +167,9 @@
 #' @return A validated \code{tales} object.
 #' @export
 #' @family TALE discovery
+#' @examples
+#' tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
+#'                                 package = "tantale"))
 tales_from_telltale <- function(telltale_dir, sanitize = FALSE) {
   tales(.tale_parts(telltale_dir), sanitize = sanitize)
 }

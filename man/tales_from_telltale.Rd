@@ -26,6 +26,10 @@ validated \code{\link{tales}} object.
 The result carries no \code{dom_code}: that surrogate key is minted later,
 by the relatedness computation, over the whole set of parts being analysed.
 }
+\examples{
+tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
+                                package = "tantale"))
+}
 \seealso{
 Other TALE discovery:
 \code{\link[=correct_tales]{correct_tales()}},

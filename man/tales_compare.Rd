@@ -47,6 +47,13 @@ identifying that set — see \code{\link{tales_namespace}}. Passing a subset
 later is safe; re-running on a different part set mints different codes,
 and the differing namespace is what stops the two being joined by mistake.
 }
+\examples{
+x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
+                                     package = "tantale"))
+cmp <- tales_compare(x)
+names(cmp)
+cmp$tale_distances
+}
 \references{
 Pérez-Quintero A.L. et al. (2015). QueTAL: a suite of tools to classify and
 compare TAL effectors functionally and phylogenetically.

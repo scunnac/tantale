@@ -41,6 +41,13 @@ objects carry a namespace stamp and this function refuses when they
 disagree.
 }
 
+\examples{
+x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
+                                     package = "tantale"))
+xa <- tales_assign_domain_codes(x)
+dd <- tales_domain_distances(xa)
+tales_tale_distances(xa, dd)
+}
 \seealso{
 \code{\link[=tales_compare]{tales_compare()}}, which runs all three steps.
 

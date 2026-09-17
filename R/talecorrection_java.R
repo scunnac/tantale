@@ -32,6 +32,14 @@
 #' 
 #' @export
 #' @family TALE discovery
+#' @examples
+#' \donttest{
+#' # Needs nhmmer and a Java runtime.
+#' subj <- system.file("extdata", "bai3_sample_tal_genomic_regions.fasta",
+#'                     package = "tantale")
+#' out_fa <- tempfile(fileext = ".fa")
+#' correct_tales(uncorrected_path = subj, corrected_path = out_fa)
+#' }
 correct_tales <- function(uncorrected_path ,
                      corrected_path = file.path(getwd(), "correctedTALEs.fa"),
                      hmm_path = system.file("tools", "talecorrect", "HMMs", "Xoo", package = "tantale", mustWork = T),

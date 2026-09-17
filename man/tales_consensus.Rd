@@ -25,6 +25,14 @@ position -- the result is \code{NA}, because there is no agreement to
 report. \code{NA} is likewise returned when the most common thing at a
 position is a gap.
 }
+\examples{
+# column 1: HD is a clear majority. column 2: a three-way tie, no consensus.
+aln <- matrix(c("HD", "HD", "NI",
+               "NG", "NI", "HD"),
+             nrow = 3, dimnames = list(c("A1", "A2", "A3"), NULL))
+aln
+tales_consensus(aln)
+}
 \seealso{
 Other TALE alignment:
 \code{\link[=as.matrix.tales_msa]{as.matrix.tales_msa()}},

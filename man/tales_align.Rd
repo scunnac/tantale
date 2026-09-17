@@ -71,6 +71,16 @@ of an aligned row is the k-th part fed in. That is well defined only because
 this function builds MAFFT's input from \code{x} itself, which is why
 \code{\link{tales_assert_complete}} is enforced first.
 }
+\examples{
+\donttest{
+# Needs MAFFT, resolved from the tantale conda environment on first use.
+rvd_fasta <- system.file("extdata", "TalA_RVDSeqs_AnnoTALE.fasta",
+                         package = "tantale")
+x <- as_tales(rvd_fasta, sep = "-")
+msa <- tales_align(x, residue_col = "rvd")
+as.matrix(msa)
+}
+}
 \seealso{
 Other TALE alignment:
 \code{\link[=as.matrix.tales_msa]{as.matrix.tales_msa()}},

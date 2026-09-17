@@ -40,6 +40,11 @@ domain types, amino acid sequences or source contigs, so only
 produced. That is a valid \code{tales} — see \code{dev/class-design.md}
 §2.3 for why \code{seqnames} and the rest are optional.
 }
+\examples{
+rvd_fasta <- system.file("extdata", "TalA_RVDSeqs_AnnoTALE.fasta",
+                         package = "tantale")
+as_tales(rvd_fasta, sep = "-")
+}
 \seealso{
 Other tales objects:
 \code{\link[=format.tales]{format.tales()}},

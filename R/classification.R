@@ -42,6 +42,12 @@
 #' @seealso [tales_compare()], which produces both inputs.
 #' @export
 #' @family pairwise distances
+#' @examples
+#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
+#'                                      package = "tantale"))
+#' cmp <- tales_compare(x)
+#' grouped <- tales_group(cmp$tales, cmp$tale_distances, method = "hclust", k = 2)
+#' unique(grouped[c("array_id", "group")])
 tales_group <- function(x, tal_sim, plot_tree = FALSE, k = NULL, k_range = NULL, method = "k-medoids") {
   if (!is_tales(x)) {
     cli::cli_abort("{.arg x} must be a {.cls tales} object.",
@@ -218,6 +224,15 @@ tales_group <- function(x, tal_sim, plot_tree = FALSE, k = NULL, k_range = NULL,
 #'   \code{"single"} to draw one representative allele per group.
 #' @export
 #' @family TALE plots
+#' @examples
+#' ann <- data.frame(
+#'   group = c("G1", "G1", "G1", "G2", "G2"),
+#'   strain = c("S1", "S2", "S3", "S1", "S2"),
+#'   rvdseq = c("NI-HD-NG", "NI-HD-NG", "NN-HD-NG",
+#'             "HD-NI-NG-NG", "HD-NI-NG-NG")
+#' )
+#' talomes_heatmap(ann, group_col = "group", strain_col = "strain",
+#'                 rvd_col = "rvdseq")
 talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, trunc_tales_col = NULL, extra_col = NULL,
                             x_lab = "TALE Group", y_lab = "Strain", title = "RVD sequences variants",
                             plot_type = "all",

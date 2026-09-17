@@ -41,6 +41,18 @@ parent.
 Legacy column spellings (\code{TAL1}/\code{TAL2}, \code{RepU1}/\code{RepU2},
 \code{Sim}, \code{Dissim}, \code{arlemScore}, ...) are renamed on the way in.
 }
+\examples{
+d <- data.frame(
+  id1 = c("A1", "A1", "A2", "A2"),
+  id2 = c("A1", "A2", "A1", "A2"),
+  dissim = c(0, 35, 35, 0)
+)
+pairwise_distances(d)
+
+# Legacy spellings are recognised and folded in.
+legacy <- data.frame(TAL1 = "A1", TAL2 = "A2", Sim = 65)
+tale_distances(legacy)
+}
 \seealso{
 Other pairwise distances:
 \code{\link[=as.matrix.pairwise_distances]{as.matrix.pairwise_distances()}},

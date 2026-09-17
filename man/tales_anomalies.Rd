@@ -23,6 +23,19 @@ messy, and refusing to load them would force cleaning outside the package and
 destroy the diagnostic signal. Construction warns about them; this function
 tells you which and why; \code{tales(x, sanitize = TRUE)} removes them.
 }
+\examples{
+# A2 carries two N-termini -- an impossible arrangement.
+odd <- data.frame(
+  array_id = c("A1", "A1", "A2", "A2", "A2"),
+  position_in_array = c(1L, 2L, 1L, 2L, 3L),
+  domain_type = c("N-terminus", "repeat",
+                  "N-terminus", "N-terminus", "repeat"),
+  rvd = c("NTERM", "HD", "NTERM", "NTERM", "NI")
+)
+x <- suppressWarnings(tales(odd))
+tales_anomalies(x)
+tales(odd, sanitize = TRUE) # drops A2 instead of merely warning
+}
 \seealso{
 Other tales objects:
 \code{\link[=as_tales]{as_tales()}},

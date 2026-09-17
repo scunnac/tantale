@@ -27,6 +27,18 @@ filters the two id columns in succession, passing through a non-square
 intermediate. Both are correct; enforcing squareness everywhere would
 outlaw them.
 }
+\examples{
+d <- pairwise_distances(data.frame(
+  id1 = c("A1", "A1", "A2", "A2"),
+  id2 = c("A1", "A2", "A1", "A2"),
+  dissim = c(0, 35, 35, 0)
+))
+distances_assert_square(d)
+
+\dontrun{
+distances_assert_square(d[1:3, ]) # missing the A2-A2 pair -- errors
+}
+}
 \seealso{
 Other pairwise distances:
 \code{\link[=as.matrix.pairwise_distances]{as.matrix.pairwise_distances()}},

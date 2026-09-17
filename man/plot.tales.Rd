@@ -33,6 +33,11 @@ and filled by amino-acid length, with the RVD printed on each repeat.
 A \code{\link{tales_msa}} dispatches to \code{\link{plot.tales_msa}}
 instead, being the more specific class.
 }
+\examples{
+x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
+                                     package = "tantale"))
+plot(x)
+}
 \seealso{
 Other TALE plots:
 \code{\link[=plot.tales_msa]{plot.tales_msa()}},

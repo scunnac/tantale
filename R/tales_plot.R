@@ -41,6 +41,10 @@
 #' @method plot tales
 #' @export
 #' @family TALE plots
+#' @examples
+#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
+#'                                      package = "tantale"))
+#' plot(x)
 plot.tales <- function(x, position = c("array", "alignment"), ...) {
   position <- match.arg(position)
   if (!is_tales(x)) x <- tales(x)
@@ -184,6 +188,15 @@ plot.tales <- function(x, position = c("array", "alignment"), ...) {
 #' @method plot tales_msa
 #' @export
 #' @family TALE plots
+#' @examples
+#' aligned <- data.frame(
+#'   array_id = c("A1", "A1", "A1", "A2", "A2"),
+#'   position_in_array = c(1L, 2L, 3L, 1L, 2L),
+#'   alignment_position = c(1L, 2L, 3L, 1L, 3L),
+#'   rvd = c("NTERM", "HD", "CTERM", "NTERM", "CTERM")
+#' )
+#' msa <- tales_msa(aligned)
+#' plot(msa)
 plot.tales_msa <- function(x, fill = NULL, label = NULL,
                            tal_sim = NULL, domain_sim = NULL,
                            h_cut = 10,
@@ -537,7 +550,7 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
   }
 
   print(finalPlot)
-  return(finalPlot)
+  invisible(finalPlot)
 }
 
 

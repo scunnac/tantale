@@ -41,6 +41,12 @@ that produced it, and the classes refuse to join across namespaces. Read
 the stamp with \code{\link[=tales_namespace]{tales_namespace()}}.
 }
 
+\examples{
+x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
+                                     package = "tantale"))
+xa <- tales_assign_domain_codes(x)
+tales_namespace(xa)
+}
 \seealso{
 \code{\link[=tales_compare]{tales_compare()}}, which runs all three steps;
 \code{\link[=tales_domain_codes]{tales_domain_codes()}}, which reads the code-to-sequence table back out

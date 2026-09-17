@@ -56,6 +56,16 @@ talomes_heatmap(
 \description{
 The function creates a graphical presentation from a tale annotation table. The output is like a heatmap that presents rvd sequence variants in Tal groups as column and respective strains as rows (or vice versa). It is different from a typical heatmap that it can display more than one value in a cell; for example, if one strain has 2 rvd sequence variants belong to 1 group, it will be displayed by 2 colors in 1 cell.
 }
+\examples{
+ann <- data.frame(
+  group = c("G1", "G1", "G1", "G2", "G2"),
+  strain = c("S1", "S2", "S3", "S1", "S2"),
+  rvdseq = c("NI-HD-NG", "NI-HD-NG", "NN-HD-NG",
+            "HD-NI-NG-NG", "HD-NI-NG-NG")
+)
+talomes_heatmap(ann, group_col = "group", strain_col = "strain",
+                rvd_col = "rvdseq")
+}
 \seealso{
 Other TALE plots:
 \code{\link[=plot.tales]{plot.tales()}},

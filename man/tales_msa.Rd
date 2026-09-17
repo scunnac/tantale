@@ -27,6 +27,18 @@ are implicit: a gap is simply the absence of a row at that
 \details{
 Normally produced by \code{\link{tales_align}} rather than called directly.
 }
+\examples{
+# A hand-built alignment: A2 has a gap at position 2 relative to A1.
+aligned <- data.frame(
+  array_id = c("A1", "A1", "A1", "A2", "A2"),
+  position_in_array = c(1L, 2L, 3L, 1L, 2L),
+  alignment_position = c(1L, 2L, 3L, 1L, 3L),
+  rvd = c("NTERM", "HD", "CTERM", "NTERM", "CTERM")
+)
+msa <- tales_msa(aligned)
+tales_width(msa)
+as.matrix(msa)
+}
 \seealso{
 Other TALE alignment:
 \code{\link[=as.matrix.tales_msa]{as.matrix.tales_msa()}},

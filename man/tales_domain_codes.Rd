@@ -17,6 +17,12 @@ and \code{rvd} columns, one row per code.
 One row per distinct domain sequence: its \code{dom_code}, the amino acid
 sequence it stands for, and the RVD carried by that domain.
 }
+\examples{
+x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
+                                     package = "tantale"))
+xa <- tales_assign_domain_codes(x)
+head(tales_domain_codes(xa))
+}
 \seealso{
 \code{\link{tales_coded_strings}}
 

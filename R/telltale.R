@@ -1339,6 +1339,16 @@
 #'   }
 #' @export
 #' @family TALE discovery
+#' @examples
+#' \donttest{
+#' # Needs nhmmer and AnnoTALE, resolved from the tantale conda environment
+#' # (and a Java runtime) on first use.
+#' subj <- system.file("extdata", "bai3_sample_tal_genomic_regions.fasta",
+#'                     package = "tantale")
+#' out <- tempfile("tell_tales_example")
+#' tell_tales(subject_file = subj, output_dir = out)
+#' tales_from_telltale(out)
+#' }
 tell_tales <- function(
   subject_file,
   output_dir = getwd(),

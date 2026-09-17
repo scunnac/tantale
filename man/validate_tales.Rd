@@ -19,6 +19,13 @@ carries all its parts, numbered contiguously from 1 — are deliberately not
 checked here; they are preconditions of the functions that need them, such
 as alignment.
 }
+\examples{
+parts <- data.frame(
+  array_id = c("A1", "A1"), position_in_array = c(1L, 2L),
+  rvd = c("NTERM", "HD")
+)
+validate_tales(tales(parts))
+}
 \seealso{
 Other tales objects:
 \code{\link[=as_tales]{as_tales()}},

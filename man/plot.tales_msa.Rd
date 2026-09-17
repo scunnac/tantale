@@ -120,6 +120,16 @@ adds a consensus panel on top. When either is present the return value is an
 alignment through its \code{plotlist} element rather than adding layers to
 the result directly.
 }
+\examples{
+aligned <- data.frame(
+  array_id = c("A1", "A1", "A1", "A2", "A2"),
+  position_in_array = c(1L, 2L, 3L, 1L, 2L),
+  alignment_position = c(1L, 2L, 3L, 1L, 3L),
+  rvd = c("NTERM", "HD", "CTERM", "NTERM", "CTERM")
+)
+msa <- tales_msa(aligned)
+plot(msa)
+}
 \seealso{
 Other TALE plots:
 \code{\link[=plot.tales]{plot.tales()}},

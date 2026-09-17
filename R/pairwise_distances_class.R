@@ -88,6 +88,17 @@ is_pairwise_distances <- function(x) inherits(x, "pairwise_distances")
 #' @return A validated \code{pairwise_distances} object.
 #' @export
 #' @family pairwise distances
+#' @examples
+#' d <- data.frame(
+#'   id1 = c("A1", "A1", "A2", "A2"),
+#'   id2 = c("A1", "A2", "A1", "A2"),
+#'   dissim = c(0, 35, 35, 0)
+#' )
+#' pairwise_distances(d)
+#'
+#' # Legacy spellings are recognised and folded in.
+#' legacy <- data.frame(TAL1 = "A1", TAL2 = "A2", Sim = 65)
+#' tale_distances(legacy)
 pairwise_distances <- function(x, dom_code_namespace = NULL) {
   .new_validated_distances(x, subclass = NULL, dom_code_namespace = dom_code_namespace)
 }
@@ -222,6 +233,17 @@ validate_pairwise_distances <- function(x) {
 #' @return \code{x}, invisibly.
 #' @export
 #' @family pairwise distances
+#' @examples
+#' d <- pairwise_distances(data.frame(
+#'   id1 = c("A1", "A1", "A2", "A2"),
+#'   id2 = c("A1", "A2", "A1", "A2"),
+#'   dissim = c(0, 35, 35, 0)
+#' ))
+#' distances_assert_square(d)
+#'
+#' \dontrun{
+#' distances_assert_square(d[1:3, ]) # missing the A2-A2 pair -- errors
+#' }
 distances_assert_square <- function(x, arg = "x") {
   if (!is_pairwise_distances(x)) {
     cli::cli_abort("{.arg {arg}} must be a {.cls pairwise_distances} object.",
@@ -253,12 +275,20 @@ distances_assert_square <- function(x, arg = "x") {
 #' that appears at four call sites in the package.
 #'
 #' @param x A \code{pairwise_distances} object.
-#' @param value Name of the column to fill cells with. Defaults to \code{sim}.
+#' @param value Name of the column to fill cells with. Defaults to
+#'   \code{dissim}.
 #' @param ... Ignored.
 #' @return A numeric matrix, square, with sorted ids as dimnames.
 #' @method as.matrix pairwise_distances
 #' @export
 #' @family pairwise distances
+#' @examples
+#' d <- pairwise_distances(data.frame(
+#'   id1 = c("A1", "A1", "A2", "A2"),
+#'   id2 = c("A1", "A2", "A1", "A2"),
+#'   dissim = c(0, 35, 35, 0)
+#' ))
+#' as.matrix(d)
 as.matrix.pairwise_distances <- function(x, value = PAIRWISE_DISTANCES_VALUE_COL, ...) {
   if (!value %in% names(x)) {
     cli::cli_abort(
@@ -285,6 +315,13 @@ as.matrix.pairwise_distances <- function(x, value = PAIRWISE_DISTANCES_VALUE_COL
 #' @return A \code{pairwise_distances} over \code{ids} only.
 #' @export
 #' @family pairwise distances
+#' @examples
+#' d <- pairwise_distances(data.frame(
+#'   id1 = c("A1", "A1", "A1", "A2", "A2", "A2", "A3", "A3", "A3"),
+#'   id2 = c("A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"),
+#'   dissim = c(0, 35, 60, 35, 0, 40, 60, 40, 0)
+#' ))
+#' distances_restrict(d, c("A1", "A2"))
 distances_restrict <- function(x, ids) {
   if (!is_pairwise_distances(x)) {
     cli::cli_abort("{.arg x} must be a {.cls pairwise_distances} object.",

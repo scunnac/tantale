@@ -45,6 +45,15 @@ using an approach described in the Erkes et al. \href{https://doi.org/10.1186/s1
 \code{\link[tantale:tell_tales]{tell_tales}} can subsequently be run on the corrected
 sequences in no correction mode.
 }
+\examples{
+\donttest{
+# Needs nhmmer and a Java runtime.
+subj <- system.file("extdata", "bai3_sample_tal_genomic_regions.fasta",
+                    package = "tantale")
+out_fa <- tempfile(fileext = ".fa")
+correct_tales(uncorrected_path = subj, corrected_path = out_fa)
+}
+}
 \seealso{
 Other TALE discovery:
 \code{\link[=tales_from_telltale]{tales_from_telltale()}},

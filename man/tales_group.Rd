@@ -58,6 +58,13 @@ object is the kind of thing that fails much later and confusingly.
 The bare mapping is still one line away if you want it:
 \code{unique(out[c("array_id", "group")])}.
 }
+\examples{
+x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
+                                     package = "tantale"))
+cmp <- tales_compare(x)
+grouped <- tales_group(cmp$tales, cmp$tale_distances, method = "hclust", k = 2)
+unique(grouped[c("array_id", "group")])
+}
 \seealso{
 \code{\link[=tales_compare]{tales_compare()}}, which produces both inputs.
 

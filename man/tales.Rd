@@ -32,6 +32,16 @@ Builds a \code{tales} object from a data frame of TALE array parts: one row
 per (array, slot). Column names still using the legacy camelCase spelling
 (\code{arrayID}, \code{positionInArray}, ...) are renamed on the way in.
 }
+\examples{
+parts <- data.frame(
+  array_id = c("A1", "A1", "A1", "A2", "A2", "A2"),
+  position_in_array = c(1L, 2L, 3L, 1L, 2L, 3L),
+  domain_type = c("N-terminus", "repeat", "C-terminus",
+                  "N-terminus", "repeat", "C-terminus"),
+  rvd = c("NTERM", "HD", "CTERM", "NTERM", "NI", "CTERM")
+)
+tales(parts)
+}
 \seealso{
 Other tales objects:
 \code{\link[=as_tales]{as_tales()}},

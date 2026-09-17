@@ -231,6 +231,17 @@ canonical TALE protein (early frame shift, incomplete ORF, etc...), the
 "analyze" module of AnnoTALE outputs DNA parts but no protein parts and/or
 RVD sequence. This should be detected and reported in the tell_tales log.
 }
+\examples{
+\donttest{
+# Needs nhmmer and AnnoTALE, resolved from the tantale conda environment
+# (and a Java runtime) on first use.
+subj <- system.file("extdata", "bai3_sample_tal_genomic_regions.fasta",
+                    package = "tantale")
+out <- tempfile("tell_tales_example")
+tell_tales(subject_file = subj, output_dir = out)
+tales_from_telltale(out)
+}
+}
 \seealso{
 Other TALE discovery:
 \code{\link[=correct_tales]{correct_tales()}},

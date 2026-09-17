@@ -39,6 +39,12 @@ Distances are between \strong{distinct domains}, keyed by \code{dom_code}, so th
 cost goes with the number of distinct sequences rather than the number of
 parts. See \link[=summary.tales]{summary()} for that ratio on a given object.
 }
+\examples{
+x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
+                                     package = "tantale"))
+xa <- tales_assign_domain_codes(x)
+tales_domain_distances(xa)
+}
 \seealso{
 \code{\link[=tales_tale_distances]{tales_tale_distances()}}, which consumes this.
 

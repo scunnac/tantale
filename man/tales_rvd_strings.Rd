@@ -24,6 +24,12 @@ A \code{\link[Biostrings]{BStringSet}}, named by \code{array_id}.
 Renders each array as a separated string of its RVDs in part order — the
 form target-prediction tools consume.
 }
+\examples{
+x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
+                                     package = "tantale"))
+tales_rvd_strings(x)[1]
+tales_rvd_strings(x, rvd_only = FALSE)[1] # keeps NTERM/CTERM markers
+}
 \seealso{
 \code{\link{tales_coded_strings}}
 

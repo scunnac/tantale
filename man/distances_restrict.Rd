@@ -18,6 +18,14 @@ A \code{pairwise_distances} over \code{ids} only.
 Filters \strong{both} id columns, which is what keeps the result square. The
 package currently does this by hand at three call sites, in two steps.
 }
+\examples{
+d <- pairwise_distances(data.frame(
+  id1 = c("A1", "A1", "A1", "A2", "A2", "A2", "A3", "A3", "A3"),
+  id2 = c("A1", "A2", "A3", "A1", "A2", "A3", "A1", "A2", "A3"),
+  dissim = c(0, 35, 60, 35, 0, 40, 60, 40, 0)
+))
+distances_restrict(d, c("A1", "A2"))
+}
 \seealso{
 Other pairwise distances:
 \code{\link[=as.matrix.pairwise_distances]{as.matrix.pairwise_distances()}},

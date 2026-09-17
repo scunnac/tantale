@@ -46,6 +46,13 @@ is right; alignment is the consumer here, and the two termini are the most
 reliable anchors an alignment of TALE arrays has. Set \code{repeats_only = TRUE}
 to compare bare repeat arrays.
 }
+\examples{
+x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
+                                     package = "tantale"))
+xa <- tales_assign_domain_codes(x)
+tales_coded_strings(xa)[1]
+tales_coded_strings(xa, sep = "-", repeats_only = TRUE)[1]
+}
 \seealso{
 \code{\link[=tales_domain_codes]{tales_domain_codes()}} for the code-to-sequence lookup,
 \code{\link[=tales_rvd_strings]{tales_rvd_strings()}} for the sibling projection.

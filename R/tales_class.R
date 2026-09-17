@@ -99,6 +99,11 @@ is_tales <- function(x) inherits(x, "tales")
 #' @return A scalar string, or \code{NULL} if the object is not stamped.
 #' @export
 #' @family tales objects
+#' @examples
+#' rvd_fasta <- system.file("extdata", "TalA_RVDSeqs_AnnoTALE.fasta",
+#'                          package = "tantale")
+#' x <- as_tales(rvd_fasta, sep = "-")
+#' tales_namespace(x) # NULL -- dom_code has not been minted yet
 tales_namespace <- function(x) {
   attr(x, "dom_code_namespace", exact = TRUE)
 }
@@ -148,6 +153,15 @@ tales_namespace <- function(x) {
 #' @return A validated \code{tales} object.
 #' @export
 #' @family tales objects
+#' @examples
+#' parts <- data.frame(
+#'   array_id = c("A1", "A1", "A1", "A2", "A2", "A2"),
+#'   position_in_array = c(1L, 2L, 3L, 1L, 2L, 3L),
+#'   domain_type = c("N-terminus", "repeat", "C-terminus",
+#'                   "N-terminus", "repeat", "C-terminus"),
+#'   rvd = c("NTERM", "HD", "CTERM", "NTERM", "NI", "CTERM")
+#' )
+#' tales(parts)
 tales <- function(x, dom_code_namespace = NULL, sanitize = FALSE) {
   if (!is.data.frame(x)) {
     cli::cli_abort(
@@ -210,6 +224,10 @@ tales <- function(x, dom_code_namespace = NULL, sanitize = FALSE) {
 #' @return A validated \code{tales} object.
 #' @export
 #' @family tales objects
+#' @examples
+#' rvd_fasta <- system.file("extdata", "TalA_RVDSeqs_AnnoTALE.fasta",
+#'                          package = "tantale")
+#' as_tales(rvd_fasta, sep = "-")
 as_tales <- function(x, ...) {
   UseMethod("as_tales")
 }
@@ -260,6 +278,12 @@ as_tales.default <- function(x, sep = "-", residue_col = c("rvd", "dom_code"), .
 #' @return \code{x}, invisibly, if valid; otherwise an error.
 #' @export
 #' @family tales objects
+#' @examples
+#' parts <- data.frame(
+#'   array_id = c("A1", "A1"), position_in_array = c(1L, 2L),
+#'   rvd = c("NTERM", "HD")
+#' )
+#' validate_tales(tales(parts))
 validate_tales <- function(x) {
   cols <- names(x)
 
@@ -346,6 +370,18 @@ validate_tales <- function(x) {
 #'   row per anomaly. Zero rows if the object is clean.
 #' @export
 #' @family tales objects
+#' @examples
+#' # A2 carries two N-termini -- an impossible arrangement.
+#' odd <- data.frame(
+#'   array_id = c("A1", "A1", "A2", "A2", "A2"),
+#'   position_in_array = c(1L, 2L, 1L, 2L, 3L),
+#'   domain_type = c("N-terminus", "repeat",
+#'                   "N-terminus", "N-terminus", "repeat"),
+#'   rvd = c("NTERM", "HD", "NTERM", "NTERM", "NI")
+#' )
+#' x <- suppressWarnings(tales(odd))
+#' tales_anomalies(x)
+#' tales(odd, sanitize = TRUE) # drops A2 instead of merely warning
 tales_anomalies <- function(x) {
   .tales_anomalies(x)
 }
@@ -531,6 +567,17 @@ tales_anomalies <- function(x) {
 #' @return \code{x}, invisibly.
 #' @export
 #' @family tales objects
+#' @examples
+#' rvd_fasta <- system.file("extdata", "TalA_RVDSeqs_AnnoTALE.fasta",
+#'                          package = "tantale")
+#' x <- as_tales(rvd_fasta, sep = "-")
+#' tales_assert_complete(x) # every array is 1..n already -- no error
+#'
+#' \dontrun{
+#' # Keeping only the repeats breaks completeness, which tales_align() needs.
+#' repeats_only <- x[x$position_in_array > 1, ]
+#' tales_assert_complete(repeats_only)
+#' }
 tales_assert_complete <- function(x, arg = "x") {
   if (!is_tales(x)) {
     cli::cli_abort("{.arg {arg}} must be a {.cls tales} object.",

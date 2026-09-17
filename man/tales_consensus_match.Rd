@@ -26,6 +26,13 @@ position and \code{FALSE} where it does not. Columns with no consensus --
 see \code{\link{tales_consensus}} -- are \code{NA} throughout, since
 there is nothing there to match.
 }
+\examples{
+aln <- matrix(c("HD", "HD", "NI",
+               "NG", "NI", "HD"),
+             nrow = 3, dimnames = list(c("A1", "A2", "A3"), NULL))
+tales_consensus_match(aln, long = FALSE)
+tales_consensus_match(aln)
+}
 \seealso{
 Other TALE alignment:
 \code{\link[=as.matrix.tales_msa]{as.matrix.tales_msa()}},

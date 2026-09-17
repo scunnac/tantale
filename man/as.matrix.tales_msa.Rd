@@ -25,6 +25,17 @@ Materialises the rectangular form: one row per array, one column per
 alignment position, cells holding the requested layer. This is the only place
 the gapped matrix is built — the long object is the canonical storage.
 }
+\examples{
+aligned <- data.frame(
+  array_id = c("A1", "A1", "A1", "A2", "A2"),
+  position_in_array = c(1L, 2L, 3L, 1L, 2L),
+  alignment_position = c(1L, 2L, 3L, 1L, 3L),
+  rvd = c("NTERM", "HD", "CTERM", "NTERM", "CTERM")
+)
+msa <- tales_msa(aligned)
+as.matrix(msa) # gaps as NA
+as.matrix(msa, gap = "-") # gaps as "-"
+}
 \seealso{
 Other TALE alignment:
 \code{\link[=is_tales_msa]{is_tales_msa()}},

@@ -23,6 +23,13 @@
 #' 
 #' @export
 #' @family TALE alignment
+#' @examples
+#' # column 1: HD is a clear majority. column 2: a three-way tie, no consensus.
+#' aln <- matrix(c("HD", "HD", "NI",
+#'                "NG", "NI", "HD"),
+#'              nrow = 3, dimnames = list(c("A1", "A2", "A3"), NULL))
+#' aln
+#' tales_consensus(aln)
 tales_consensus <- function(align) {
   sapply(1:ncol(align), function(x) {
   allElements <- align[,x]
@@ -55,6 +62,12 @@ tales_consensus <- function(align) {
 #' 
 #' @export
 #' @family TALE alignment
+#' @examples
+#' aln <- matrix(c("HD", "HD", "NI",
+#'                "NG", "NI", "HD"),
+#'              nrow = 3, dimnames = list(c("A1", "A2", "A3"), NULL))
+#' tales_consensus_match(aln, long = FALSE)
+#' tales_consensus_match(aln)
 tales_consensus_match <- function(align, long = TRUE) {
   consensus <- tales_consensus(align)
   # A logical matrix of its own, rather than overwriting the character one:

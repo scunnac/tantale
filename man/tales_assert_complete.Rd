@@ -27,6 +27,18 @@ complete. Alignment requires completeness, because the mapping back from a
 MAFFT alignment is positional — the k-th aligned residue is the k-th part
 fed in.
 }
+\examples{
+rvd_fasta <- system.file("extdata", "TalA_RVDSeqs_AnnoTALE.fasta",
+                         package = "tantale")
+x <- as_tales(rvd_fasta, sep = "-")
+tales_assert_complete(x) # every array is 1..n already -- no error
+
+\dontrun{
+# Keeping only the repeats breaks completeness, which tales_align() needs.
+repeats_only <- x[x$position_in_array > 1, ]
+tales_assert_complete(repeats_only)
+}
+}
 \seealso{
 Other tales objects:
 \code{\link[=as_tales]{as_tales()}},

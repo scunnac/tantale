@@ -66,6 +66,17 @@ tales_width <- function(x) {
 #' @return A validated \code{tales_msa} object.
 #' @export
 #' @family TALE alignment
+#' @examples
+#' # A hand-built alignment: A2 has a gap at position 2 relative to A1.
+#' aligned <- data.frame(
+#'   array_id = c("A1", "A1", "A1", "A2", "A2"),
+#'   position_in_array = c(1L, 2L, 3L, 1L, 2L),
+#'   alignment_position = c(1L, 2L, 3L, 1L, 3L),
+#'   rvd = c("NTERM", "HD", "CTERM", "NTERM", "CTERM")
+#' )
+#' msa <- tales_msa(aligned)
+#' tales_width(msa)
+#' as.matrix(msa)
 tales_msa <- function(x, alignment_width = NULL, dom_code_namespace = NULL) {
   x <- tales(x, dom_code_namespace = dom_code_namespace)
   if ("alignment_position" %in% names(x) && is.numeric(x$alignment_position)) {
@@ -181,6 +192,16 @@ validate_tales_msa <- function(x) {
 #' @method as.matrix tales_msa
 #' @export
 #' @family TALE alignment
+#' @examples
+#' aligned <- data.frame(
+#'   array_id = c("A1", "A1", "A1", "A2", "A2"),
+#'   position_in_array = c(1L, 2L, 3L, 1L, 2L),
+#'   alignment_position = c(1L, 2L, 3L, 1L, 3L),
+#'   rvd = c("NTERM", "HD", "CTERM", "NTERM", "CTERM")
+#' )
+#' msa <- tales_msa(aligned)
+#' as.matrix(msa) # gaps as NA
+#' as.matrix(msa, gap = "-") # gaps as "-"
 as.matrix.tales_msa <- function(x, value = NULL, gap = NA, ...) {
   if (is.null(value)) {
     value <- intersect(TALES_RESIDUE_COLS, names(x))[1]
@@ -257,6 +278,15 @@ as.matrix.tales_msa <- function(x, value = NULL, gap = NA, ...) {
 #' @return A \code{tales_msa} object.
 #' @export
 #' @family TALE alignment
+#' @examples
+#' \donttest{
+#' # Needs MAFFT, resolved from the tantale conda environment on first use.
+#' rvd_fasta <- system.file("extdata", "TalA_RVDSeqs_AnnoTALE.fasta",
+#'                          package = "tantale")
+#' x <- as_tales(rvd_fasta, sep = "-")
+#' msa <- tales_align(x, residue_col = "rvd")
+#' as.matrix(msa)
+#' }
 tales_align <- function(x, residue_col = c("rvd", "dom_code"),
                         repeat_sims = NULL,
                         mafft_opts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1",

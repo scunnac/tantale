@@ -9,7 +9,8 @@
 \arguments{
 \item{x}{A \code{pairwise_distances} object.}
 
-\item{value}{Name of the column to fill cells with. Defaults to \code{sim}.}
+\item{value}{Name of the column to fill cells with. Defaults to
+\code{dissim}.}
 
 \item{...}{Ignored.}
 }
@@ -20,6 +21,14 @@ A numeric matrix, square, with sorted ids as dimnames.
 Materialises the wide form, with ids as both row and column names, sorted.
 This replaces the hand-written \code{acast(x, id1 ~ id2, value.var = "sim")}
 that appears at four call sites in the package.
+}
+\examples{
+d <- pairwise_distances(data.frame(
+  id1 = c("A1", "A1", "A2", "A2"),
+  id2 = c("A1", "A2", "A1", "A2"),
+  dissim = c(0, 35, 35, 0)
+))
+as.matrix(d)
 }
 \seealso{
 Other pairwise distances:
