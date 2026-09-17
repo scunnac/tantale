@@ -54,15 +54,15 @@ Here we start with RVD sequences of the African Xoo TALE TalA:
 tales <- as_tales(system.file("extdata", "TalA_RVDSeqs_AnnoTALE.fasta",
                               package = "tantale", mustWork = TRUE),
                   sep = "-", residue_col = "rvd")
-msa <- tales_align(tales, residue_col = "rvd",
+rvd_msa <- tales_align(tales, residue_col = "rvd",
                    mafft_opts = "--localpair --maxiterate 1000 --quiet --reorder --op 0 --ep 5 --thread 1")
-aln <- as.matrix(msa, gap = "-")
+rvd_aln <- as.matrix(rvd_msa, gap = "-")
 ```
 
 The output shown as a simple matrix :
 
 ```{r kable rvd align}
-knitr::kable(aln)
+knitr::kable(rvd_aln)
 ```
 
 Now, it is more evolutionarily relevant to look at Distal parts/domain/repeat (this is used somehow interchangeably with roughly the same meaning) code sequences. Needless to say that to obtain TALE parts code sequences, you need beforehand to run `tales_compare()` with DNA sequences. In this cas we just use a toy example provided with tantale.
@@ -72,9 +72,9 @@ Now, it is more evolutionarily relevant to look at Distal parts/domain/repeat (t
 tales <- as_tales(system.file("extdata", "small_Out_CodedRepeats.fa",
                               package = "tantale", mustWork = TRUE),
                   sep = " ", residue_col = "dom_code")
-msa <- tales_align(tales, residue_col = "dom_code",
+repeat_msa <- tales_align(tales, residue_col = "dom_code",
                    mafft_opts = "--localpair --maxiterate 1000 --quiet --reorder --op 0 --ep 5 --thread 1")
-aln <- as.matrix(msa, gap = "-")
+repeat_aln <- as.matrix(repeat_msa)
 ```
 
 **NOTE**, the difference in the `sep` parameter value.
@@ -82,235 +82,41 @@ aln <- as.matrix(msa, gap = "-")
 The output shown as a simple matrix :
 
 ```{r kable parts align}
-knitr::kable(aln)
-```
-
-
-# A detailled illustration of one of the TALE msa plotting functions
-
-First we get the necessary info from object from a previous run:
-
-```{r get info}
-distalrOut <- readRDS(file = system.file("extdata", "sampleDistalrOutput.rds",
-                                              package = "tantale", mustWork = TRUE))
-repeatMsaByGroup <- readRDS(file = system.file("extdata", "sampleRepeatMsaByGroup.rds",
-                                              package = "tantale", mustWork = TRUE))
-
-repeat_align <- repeatMsaByGroup[[4]]
-rvd_align <- repeat_to_rvd_align(repeat_align = repeat_align,
-                                   rvd_map = repeat_to_rvd_map_distalr(distalrOut$tale_parts))
-```
-
-This is what you get if you provide all the arguments:
-
-```{r detailled illustration of plot_tales_msa, fig.width=12, fig.height=2.5}
-p1 <- plot_tales_msa(repeat_align = repeat_align,
-               tal_sim = distalrOut$tal.similarity,
-               repeat_sim = distalrOut$repeat.similarity,
-               rvd_align = rvd_align,
-               h_cut = 90,
-               ref_pattern = NULL,
-               consensus = FALSE,
-               fill_type = "repeat_sim" # "repeat_clust"
-)
-```
-
-The returned object can be modified :
-
-```{r dismanteling a aplot}
-class(p1)
-str(p1$plotlist, max.level = 1)
-```
-
-Plotting the original alignment
-
-```{r The alignment part of the aplot, fig.width=12, fig.height=2.5}
-p1$plotlist[[1]]
-```
-
-Now we can modify the color scales and replot to check this is what we want.
-
-```{r The modified alignment part of the aplot, fig.width=12, fig.height=2.5}
-cat("modifying the original alignment as a ggplot")
-p2 <- p1$plotlist[[1]] + ggplot2::scale_fill_viridis_c() + ggplot2::scale_color_discrete()
-p2
-```
-
-We can extract the tree part of the object.
-
-
-```{r The tree part of the aplot, fig.width=2.5, fig.height=2.5}
-p1$plotlist[[2]]
-```
-
-And we can recombine all again :
-
-```{r reassembling align and tree, fig.width=12, fig.height=2.5}
-p1$plotlist[[1]] <- p2
-p1
-```
-
-
-Pay attention to the arguments provided to the plotting function.
-In the various calls to `plot_tales_msa`, arguments are gradually removed to exemplify the type of alignments that are thus displayed.
-
-```{r detailled illustration of plot_tales_msa others, fig.width=12, fig.height=2.5}
-p <- plot_tales_msa(repeat_align = repeat_align,
-               tal_sim = distalrOut$tal.similarity,
-               repeat_sim = distalrOut$repeat.similarity,
-               rvd_align = rvd_align,
-               h_cut = 90,
-               ref_pattern = NULL,
-               consensus = FALSE,
-               fill_type = "repeat_clust" # "repeat_clust"
-)
-
-p <- plot_tales_msa(repeat_align = repeat_align,
-               tal_sim = distalrOut$tal.similarity,
-               repeat_sim = distalrOut$repeat.similarity,
-               rvd_align = rvd_align,
-               h_cut = 90,
-               ref_pattern = NULL,
-               consensus = FALSE,
-               fill_type = "repeat_sim" # "repeat_clust"
-)
-
-p <- plot_tales_msa(repeat_align = repeat_align,
-               tal_sim = distalrOut$tal.similarity,
-               repeat_sim = distalrOut$repeat.similarity,
-               rvd_align = NULL,
-               h_cut = 90,
-               ref_pattern = NULL,
-               consensus = FALSE,
-               fill_type = "repeat_clust" # "repeat_clust"
-)
-
-# fill_type has no effect
-p <- plot_tales_msa(repeat_align = repeat_align,
-               tal_sim = distalrOut$tal.similarity,
-               repeat_sim = NULL,
-               rvd_align = rvd_align,
-               h_cut = 90,
-               ref_pattern = NULL,
-               consensus = FALSE,
-               fill_type = "repeat_sim" # "repeat_clust"
-)
-
-
-p <- plot_tales_msa(repeat_align = NULL,
-               tal_sim = distalrOut$tal.similarity,
-               repeat_sim = NULL,
-               rvd_align = rvd_align,
-               h_cut = 90,
-               ref_pattern = NULL,
-               consensus = FALSE,
-               fill_type = "repeat_sim" # "repeat_clust"
-)
-
-
-p <- plot_tales_msa(repeat_align = repeat_align,
-               tal_sim = distalrOut$tal.similarity,
-               repeat_sim = NULL,
-               rvd_align = NULL,
-               h_cut = 90,
-               ref_pattern = NULL,
-               consensus = FALSE,
-               fill_type = "repeat_sim" # "repeat_clust"
-)
-
-p <- plot_tales_msa(repeat_align = NULL,
-               tal_sim = NULL,
-               repeat_sim = NULL,
-               rvd_align = rvd_align,
-               h_cut = 90,
-               ref_pattern = NULL,
-               consensus = FALSE,
-               fill_type = "repeat_sim" # "repeat_clust"
-)
-
-
-p <- plot_tales_msa(repeat_align = repeat_align,
-               tal_sim = NULL,
-               repeat_sim = NULL,
-               rvd_align = NULL,
-               h_cut = 90,
-               ref_pattern = NULL,
-               consensus = FALSE,
-               fill_type = "repeat_sim" # "repeat_clust"
-)
-
-
-
-
-# Single sequence align
-p <- plot_tales_msa(repeat_align = repeat_align[3, , drop = FALSE],
-               tal_sim = distalrOut$tal.similarity,
-               repeat_sim = distalrOut$repeat.similarity,
-               rvd_align = rvd_align[3, , drop = FALSE],
-               h_cut = 90,
-               ref_pattern = NULL,
-               consensus = FALSE,
-               fill_type = "repeat_sim" # "repeat_clust"
-)
-
-p <- plot_tales_msa(repeat_align = repeat_align[3, , drop = FALSE],
-               tal_sim = NULL,
-               repeat_sim = distalrOut$repeat.similarity,
-               rvd_align = rvd_align[3, , drop = FALSE],
-               h_cut = 90,
-               ref_pattern = NULL,
-               consensus = FALSE,
-               fill_type = "repeat_clust" # "repeat_clust"
-)
-
-
-p <- plot_tales_msa(repeat_align = repeat_align[3, , drop = FALSE],
-               tal_sim = NULL,
-               repeat_sim = distalrOut$repeat.similarity,
-               rvd_align = NULL,
-               h_cut = 90,
-               ref_pattern = NULL,
-               consensus = FALSE,
-               fill_type = "repeat_sim" # "repeat_clust"
-)
-
-p <- plot_tales_msa(repeat_align = repeat_align[3, , drop = FALSE],
-               tal_sim = NULL,
-               repeat_sim = NULL,
-               rvd_align = NULL,
-               h_cut = 90,
-               ref_pattern = NULL,
-               consensus = FALSE,
-               fill_type = "repeat_sim" # "repeat_clust"
-)
-
-p <- plot_tales_msa(repeat_align = NULL,
-               tal_sim = NULL,
-               repeat_sim = NULL,
-               rvd_align = rvd_align[3, , drop = FALSE],
-               h_cut = 90,
-               ref_pattern = NULL,
-               consensus = FALSE,
-               fill_type = "repeat_sim" # "repeat_clust"
-)
+knitr::kable(repeat_aln)
 ```
 
 
 # A couple of utility functions for TALE msa
 
+Both matrices above -- an RVD alignment and a repeat-code alignment --
+work the same way with the two utilities below, since neither cares which
+residue vocabulary it is given.
+
 Compute the consensus of the columns in a TALE alignment:
 
 ```{r get consensus}
-tales_consensus(repeat_align)
-tales_consensus(rvd_align)
+tales_consensus(rvd_aln)
+tales_consensus(repeat_aln)
 ```
 
-Figure out what elements in the TALE alignment corresponds to the consensus:
+Figure out what elements in the TALE alignment correspond to the consensus:
 
 ```{r match consensus}
-tales_consensus_match(repeat_align)
-tales_consensus_match(repeat_align, long = FALSE)
+tales_consensus_match(repeat_aln)
+tales_consensus_match(repeat_aln, long = FALSE)
 ```
+
+# Plotting an alignment
+
+Rendering a `tales_msa` as a heatmap -- cell colour, cell text, and the
+tree and consensus panels that can sit alongside it -- is `plot()`, via
+`plot.tales_msa()`. It has enough independent arguments (which layer fills
+the cells, which labels them, whether a dendrogram or a consensus row is
+attached) to deserve its own worked treatment rather than a condensed one
+here: see the
+[`tales_msa` class article](../articles/tales-msa-class.html) for that,
+built against the same kind of small, real, `tell_tales()`-derived
+alignment as this vignette.
 
 
 

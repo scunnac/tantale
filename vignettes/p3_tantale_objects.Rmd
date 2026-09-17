@@ -14,7 +14,9 @@ editor_options:
   chunk_output_type: console
 ---
 
-TODO!!!
-
-
-![workflows network](/home/cunnac/Lab-Related/MyScripts/tantale/man/figures/pipeline.png)
+This overview never grew past a placeholder and an image embedded by
+absolute local path, so it rendered for nobody but its author. The content
+it promised -- what the `tales` and `tales_msa` objects are, and how they
+relate -- is now written, and better placed as pkgdown articles rather than
+a numbered vignette: see [the `tales` class](../articles/tales-class.html)
+and [the `tales_msa` class](../articles/tales-msa-class.html).
