@@ -16,46 +16,56 @@ Status markers used below:
 
 ## START HERE
 
-This file is ~3200 lines and is a record, not a reading list. **Do not read
+This file is ~3270 lines and is a record, not a reading list. **Do not read
 it end to end.** Read `CLAUDE.md` (it loads automatically), then only the
 sections below that bear on the task in hand.
 
+Sections are now in ascending numeric order within each chapter (fixed
+2026-09-17 -- §7 and §8 were badly scrambled: §8 alone had 18 subsections
+in add-order rather than numeric order). Nothing was renumbered, only
+moved, so the ~35 `(ledger §N)`-style references scattered through `R/`
+and `tests/` still point at the right section.
+
+**Treat every `[V]` as "verified once," not "still true."** Two sections
+marked done or `[V]` tonight turned out to describe code that no longer
+exists (§6's first bullet claimed a bug fixed elsewhere as still open; §9.1
+sub-heading described `msa_heatmap()`/`group_tales()`, both since
+renamed/retired). Both are now flagged inline. There was not time to
+re-check every other `[V]` section the same way -- treat this file's
+"done" markers as a claim to spot-check against the code, not a guarantee.
+
 `grep -nE '\*\*\[A\]\*\*|\*\*\[P\]\*\*' dev/restructuring-notes.md`
-lists everything still open. As of 2026-09-17, seven sections:
+lists what is still open. As of 2026-09-17 (evening), six sections:
 
-| § | what | blocked on |
+| § | what | needs |
 |---|---|---|
-| **9.2b** | `arrayReport.tsv` still has 14 legacy column names | **maintainer's call** — these are user-facing output files |
-| **5.2** | talome-wide MSA plot: list of alignments vs demoted `tales` | **maintainer's call** (A vs B) |
-| **12b** | `functal()` cannot run; `Bio::Perl` is unobtainable | **maintainer's call** between four options |
-| **6** | correctness backlog — computations that may not match intent | a dedicated pass; several are real bugs |
+| **9.2b** | `arrayReport.tsv` still has 14 legacy column names | **your call** -- primary output file, mechanical once decided |
+| **5.2** | talome-wide MSA plot: list of alignments vs demoted `tales` | **your call** (A vs B) |
+| **12b** | `functal()` cannot run; `Bio::Perl` is unobtainable | **your call** among four options |
+| **6** | correctness backlog -- computations that may not match intent | a dedicated pass; some are real bugs, not tidying |
 | **11** | rework `tales_group()` | joint work, deliberately **after** the articles |
-| **7.5a** | article on the `tales` class and `dom_code` | ready to write |
-| **7.5** | vignettes and `@examples` | deliberately last |
+| **7.5** | the four numbered walkthrough vignettes and `@examples` | **low priority** -- website is not a current focus |
 
-The grep also returns two `####` sub-headings marked `[P]` (inside §9.2 and
-§9.6). Those are parked questions *within* finished sections, not separate
-work.
+Two `####` sub-headings also carry `[P]`: one inside §9.1 (now flagged
+stale above), one inside §9.6 (`repeat_sim`/similarity storage question,
+still live).
 
-**§6 is the one most likely to be underestimated.** It is not tidying: it
-lists a similarity being passed where a distance is expected
-(`hclust(as.dist(Sim))`), and an input-type guess made against a hardcoded
-list of six frequent RVDs that would silently misclassify an alignment of
-unusual TALEs.
+**§6 is the one most likely to be underestimated** despite being "just a
+backlog." What remains after tonight's correction: `rvdSimDf` orphaned by
+an opt-in RVD scoring path that may need revisiting; `aaSeq`/`rvd` 1:1 not
+enforced; `build_repeat_msa()` guessing its input type against a hardcoded
+six-RVD list; a `positionInArray`/alignment-coordinate mislabelling that is
+expected to resolve itself once `tales_msa` gets a real coordinate column.
+None of these are the kind of thing to fix in a five-minute pass -- each
+needs its surrounding code read first.
 
-Everything else marked `[V]` is done and verified; `[superseded]` sections
-are history.
-
-**Before editing anything**, confirm the external environment is what the
-package expects — `tantale_setup()`. It is machine state and cannot be
-inferred from the repo. This machine carries `/usr/bin/mafft` **7.505** and
-`/usr/bin/nhmmer` **3.4** against pins of 7.453 and 3.3.2, so a tool
-resolved through `PATH` instead of `.tantale_bin()` silently produces
-different results (§12).
+**Before editing anything**, confirm the external environment --
+`tantale_setup()`. This machine carries `/usr/bin/mafft` **7.505** and
+`/usr/bin/nhmmer` **3.4** against pins of 7.453 and 3.3.2 (§12).
 
 **Before accepting a golden snapshot**, use the `golden-rebaseline` skill.
-An accepted snapshot is indistinguishable from a correct one, so the
-discipline is to explain every changed row first (§8.3, §8.1d).
+Explain every changed row before accepting -- an accepted snapshot is
+indistinguishable from a correct one (§8.3, §8.1d).
 
 ---
 
@@ -2462,6 +2472,14 @@ is the complete list):
 actually performs the clustering.
 
 #### Second category: inconsistent vocabulary, not casing **[P]**
+
+**Stale as of 2026-09-17, not yet rewritten:** the table below names
+`msa_heatmap()`, `plot_tales_msa()` and `group_tales()`. All three are gone
+-- `msa_heatmap()` retired (§4), `plot_tales_msa()` folded into
+`plot.tales_msa()`, `group_tales()` renamed `tales_group()` (§5.2). The
+`repeat_sim`/`repeat_sims`/`tal_sim` naming question itself may still be
+real (21/17/15 occurrences remain in `R/`) but needs re-checking against
+current call sites before acting on the table as written.
 
 These are all *already* snake_case, so the list above does not catch them, but
 they violate rule 5 (consistent argument naming across functions taking similar

@@ -125,9 +125,19 @@ stamp exists to catch cross-run mixing, and is enforced, not advisory.
 
 ## Where things stand
 
-`dev/restructuring-notes.md` is ~3200 lines. **Read its `START HERE` block,
-not the whole file.** It lists the six open items and what each is blocked
-on. Three of them are waiting on the maintainer's decision, not on work.
+`dev/restructuring-notes.md` is ~3270 lines. **Read its `START HERE` block,
+not the whole file.** As of 2026-09-17 it lists six open items; three need
+the maintainer's decision, and the website/vignette work (§7.5) is
+explicitly low priority right now.
+
+Sections are kept in ascending numeric order within each chapter (fixed
+2026-09-17, after §7 and §8 had drifted into add-order). Content only, never
+renumbered -- ~35 code comments cite specific section numbers.
+
+**Treat `[V]`/DONE markers as "verified once," not "still true."** Two
+sections were found tonight describing code that had since been renamed or
+retired elsewhere. Spot-check against the actual code before trusting a
+closed section, especially before building on top of it.
 
 ## Commits
 
