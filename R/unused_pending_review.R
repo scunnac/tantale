@@ -186,3 +186,221 @@ repeat_to_rvd_align <- function(repeat_align , rvd_map) {
   colnames(rvd_align) <- colnames(repeat_align)
   return(rvd_align)
 }
+
+
+#### Superseded by the three exported steps (ledger 8.5b) ####
+#
+# tales_compare() now composes tales_assign_domain_codes(),
+# tales_domain_distances() and tales_tale_distances() instead of calling
+# this. Kept, not deleted, until the decomposition has been exercised on
+# real work -- it is the reference for what the composed version must
+# reproduce, and the golden baseline is what says it does.
+
+#' The expensive part of the relatedness computation
+#'
+#' Called by \code{\link{tales_compare}}. Takes a plain tibble in the canonical
+#' column vocabulary and returns raw pieces; classing, stamping and assembly
+#' happen in the caller. Deliberately
+#' does no clustering: that was a stored field with no consumers, recomputed by
+#' its only would-be user at a different cut height (restructuring-notes.md §1).
+#' @noRd
+.tales_compare_core <- function(tale_parts, ncores = 1,
+                                aln_method = "DECIPHER", conda_bin = "auto") {
+  
+  #### Reality checks ####
+  
+  ## Make sure we are dealing only with parts that have defined protein sequences.
+  if (any(is.na(tale_parts$aa_seq) | tale_parts$aa_seq == "")) {
+    # must match the guard above, or an empty-string part lists nothing
+    badArrays <- unique(tale_parts$array_id[is.na(tale_parts$aa_seq) | tale_parts$aa_seq == ""])
+    cli::cli_abort(
+      c("Some of the provided TALE parts have no amino acid sequence.",
+        "i" = "Affected array{?s}: {.val {badArrays}}"),
+      class = c("tantale_error_parts_no_aa", "tantale_error"))
+  }
+  if (any(is.na(tale_parts$dna_seq) | tale_parts$dna_seq == "")) {
+    cli::cli_warn("It seems that some of the provided TALE parts miss the DNA sequence!")
+  } 
+  
+  # Assign domain codes
+  tale_parts %<>% dplyr::group_by(aa_seq) %>%
+    dplyr::mutate(dom_code = dplyr::cur_group_id() %>% unlist() %>% as.character()) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(dom_code = dplyr::if_else(is.na(aa_seq), as.character(NA), dom_code))
+  
+  
+  #### Assemble repeat code strings and write in a file for arlem ####
+  cli::cli_inform("Assemble repeat code TALE strings and write in a file for ARLEM")
+  
+  codesSeqsfile <- tempfile(fileext = ".fasta")
+  repeatStrings <- tale_parts %>%
+    dplyr::group_by(array_id) %>%
+    dplyr::arrange(position_in_array) %>%
+    dplyr::summarise(repeatString = paste(dom_code, collapse = " "),
+                     posString = paste(position_in_array, collapse = " "))
+  codesSeqSet <- Biostrings::BStringSet(repeatStrings$repeatString)
+  names(codesSeqSet) <- repeatStrings$array_id
+  
+  # # Must use seqinr because Biostrings wraps sequences in fasta file which messes up Arlem...
+  # codesSeqLst <- as.list(repeatStrings$repeatString)
+  # names(codesSeqLst) <- repeatStrings$array_id
+  # seqinr::write.fasta(codesSeqLst, names = names(codesSeqLst),
+  #                     file.out = codesSeqsfile, as.string = TRUE, nbchar = 10000)
+  
+  Biostrings::writeXStringSet(x = codesSeqSet,
+                              filepath = codesSeqsfile,
+                              format = "fasta", width = 20000L)
+  
+  
+  
+  #### Compute systematic pairwise dissimilarities (distances) between 'repeat' units. ####
+  # Get unique domains sequences
+  taleAaParts <- Biostrings::AAStringSet(tale_parts$aa_seq)
+  names(taleAaParts) <- tale_parts$dom_code
+  uniqueTaleAaParts <- unique(taleAaParts)
+  stopifnot(!anyDuplicated(names(uniqueTaleAaParts)))
+  stopifnot(!anyDuplicated(names(unique(taleAaParts))))
+  
+  # Get pairwise repeat aa sequence dissimilarity scores in a long tibble
+  cli::cli_inform(paste0("Computing a distance matrix between TALE parts amino acid sequences ",
+                   "using: {aln_method}"))
+  if (aln_method == "mmseq2") {
+    dissimLong <- .pairwise_align_mmseq2(part_aa_set = uniqueTaleAaParts, ncores = ncores,
+                                        conda_bin = conda_bin)
+    #saveRDS(dissimLong, file = "/home/cunnac/TEMP/dissimLong")
+  } else if (aln_method == "Biostrings") {
+    dissimLong <- .pairwise_align_biostrings(part_aa_set = uniqueTaleAaParts, ncores = ncores)
+  } else if (aln_method == "DECIPHER") {
+    dissimLong <- .pairwise_align_decipher(part_aa_set = uniqueTaleAaParts, ncores = ncores)
+  } else {
+    cli::cli_abort("{.arg aln_method} must be one of {.val Biostrings}, {.val mmseq2} or {.val DECIPHER}, not {.val {aln_method}}.",
+                   class = c("tantale_error_aln_method", "tantale_error"))
+  }
+  dissimLong %<>% dplyr::mutate(sim = 100 - dissim)
+  # Convert Distance (dissimilarity) measures to Similarity with a four-parameter logistic function
+  # pair_align_scores %<>% dplyr::mutate(Sim = 100/(1+exp(-1*-0.9*(Dissim-3))))
+  
+  
+  # Convert to square matrix
+  dissimMat <- reshape2::acast(dissimLong, formula = id1 ~ id2, value.var = "dissim")
+  stopifnot(nrow(dissimMat) == ncol(dissimMat))
+  # reorder row and colnames because I suspect arlem expect them in increasing order
+  dissimMat <- dissimMat[rownames(dissimMat) %>% as.numeric() %>% order(),
+                         colnames(dissimMat) %>% as.numeric() %>% order()]
+  
+  #### Generate an ARLEM cost matrix ####
+  if (TRUE) {
+    method <- "minkowski"
+    cli::cli_inform(paste0("Generate an ARLEM cost matrix which meets triangle inequality criteria by computing ",
+                     "the {method} distance between pairwise distance vectors."))
+    dissimMat <- as.matrix(stats::dist(dissimMat, method = method, p = 3.5, diag = TRUE, upper = TRUE))
+    dissimMat <- dissimMat/max(dissimMat) * 100
+  }
+  # if (!fossil::tri.ineq(dissimMat)) {
+  #   logger::log_error("TALE domains dissimilarity (distance) matrix does not respect the triangle inequality",
+  #                     "Arlem will fail. Aborting...")
+  #   stop()
+  # }
+  
+  #### Prepare Arlem cfile with systematic pairwise distances between 'repeat' units. ####
+  # Get parameters for arlem
+  TypeNo <- glue::glue("# Type no. ", nrow(dissimMat))
+  Types <- glue::glue("# Types ", paste(1:nrow(dissimMat), collapse = " "))
+  # Convert mat to character, beware of the ceiling in conversion...
+  dissimMat <- matrix(ceiling(dissimMat) %>% format(),
+                      ncol = ncol(dissimMat),
+                      dimnames = list(rownames(dissimMat), colnames(dissimMat))
+                      )
+  # 'erase' lower triangle and diag
+  dissimMat[lower.tri(dissimMat)] <- ""
+  diag(dissimMat) <- ""
+  
+  # Convert mat rows to strings of space separated values
+  dissimMatLines <- apply(dissimMat, 1, function(row) {
+    string <- paste(row, collapse = " ")
+    gsub("^[ ]+", "", string)
+  })
+  # remove empty last line
+  dissimMatLines <- dissimMatLines[1:(length(dissimMatLines) - 1)]
+  # Add the arlem stuff
+  dissimMatLines <- c(TypeNo, Types,
+                      "# Indel align 10", "# Indel hist 10", "# Dup 10",
+                      "# matrix",
+                      dissimMatLines)
+  
+  # write lines in a temp cfile
+  cfile <- tempfile()
+  writeLines(cfile, text = dissimMatLines)
+  
+  #### run arlem with a system call and parse std output ####
+  arlemPath <- system.file("tools", "arlem", "arlem", package = "tantale", mustWork = T)
+  arlemCmd <- glue::glue("{shQuote(arlemPath)} -f {shQuote(codesSeqsfile)} -cfile {shQuote(cfile)} -align -insert -showalign")
+  cli::cli_inform("Running ARLEM version 1.0 : ")
+  cli::cli_inform("Copyright by Mohamed I. Abouelhoda")
+  cli::cli_inform(paste0("Plz. cite Abouelhoda, Giegerich, Behzadi, and Steyaert"))
+  arlemRawRes <- system(arlemCmd, intern = TRUE)
+  arlemSelfRes <- grep("Processed Seq[.]:", arlemRawRes, value = TRUE) 
+  arlemSelfScores <- gsub("Processed Seq[.]: ([0-9]{1,}) Score: ([0-9]{1,}),.*", "\\1|\\2",
+                          substring(arlemSelfRes, 1, 35)) %>%
+    strsplit(split = "\\|") %>%
+    lapply(function(s) t(as.matrix(as.numeric(s)))) %>%
+    do.call(rbind, .) %>% tibble::as_tibble(.name_repair = "minimal")
+  arlemRes <- grep("Score of aligning Seq:",
+                   arlemRawRes, value = TRUE)
+  arlemScores <- gsub("Score of aligning Seq:([0-9]+), Seq:([0-9]+) =([0-9]+)", "\\1|\\2|\\3",
+                      arlemRes)
+  arlemScores <- strsplit(arlemScores, split = "\\|")
+  arlemScores <- lapply(arlemScores, function(s) {t(as.matrix(as.numeric(s)))}) %>%
+    do.call(rbind, .) %>%
+    tibble::as_tibble(.name_repair = "minimal")
+  colnames(arlemScores) <- c("id1", "id2", "arlem_score")
+  # Shaping into matrix to have scores in both directions (fill diag and triangle)
+  arlemScoresMat <- reshape2::acast(arlemScores, formula = id1 ~ id2, value.var = "arlem_score")
+  arlemScoresMat <- cbind("0" = NA, arlemScoresMat)
+  arlemScoresMat <- rbind(arlemScoresMat, NA)
+  rownames(arlemScoresMat)[length(codesSeqSet)] <- length(codesSeqSet) - 1
+  arlemScores <- stats::as.dist(t(arlemScoresMat), diag = TRUE, upper = TRUE) %>% as.matrix() %>%
+    reshape2::melt(value.name = "arlem_score") %>%
+    tibble::as_tibble()
+  colnames(arlemScores) <- c("id1", "id2", "arlem_score")
+  
+  #### Compute normalized arlem scores and include array_ids rather than arlem index ####
+  arrayLengths <- tale_parts %>% dplyr::group_by(array_id) %>% dplyr::count()
+  
+  normArlemScoresTble <- arlemScores %>%
+    dplyr::mutate(
+      id1 = names(codesSeqSet)[id1 + 1],
+      id2 = names(codesSeqSet)[id2 + 1]
+    ) %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(
+      max_length = max(arrayLengths$n[arrayLengths$array_id == id1],
+                       arrayLengths$n[arrayLengths$array_id == id2]),
+      norm_arlem_score = arlem_score/max_length
+    ) %>%
+    dplyr::ungroup()
+  
+  #### Check features of the Arlem results table
+  arraysCount <- codesSeqSet %>% length()
+  if (nrow(normArlemScoresTble) != arraysCount^2) {
+    allCombs <- expand.grid(names(codesSeqSet), names(codesSeqSet), stringsAsFactors = FALSE) %>% tibble::as_tibble()
+    colnames(allCombs) <- c("id1", "id2")
+    absentCombs <- dplyr::left_join(allCombs, normArlemScoresTble) %>%
+      dplyr::filter(is.na(norm_arlem_score))
+      cli::cli_abort(
+        c("The TALE similarity table does not have the expected number of comparisons.",
+          "x" = "Expected {arraysCount^2}, got {nrow(normArlemScoresTble)}; {nrow(absentCombs)} missing.",
+          "i" = "First missing pair{?s}: {.val {paste(utils::head(absentCombs$id1, 3), utils::head(absentCombs$id2, 3), sep = \"/\")}}"),
+        class = c("tantale_error_arlem_incomplete", "tantale_error"))
+  }
+  
+  
+  #### return the raw pieces; callers class and assemble them ####
+  cli::cli_inform("Finished computing TALE and repeat relatedness.")
+  list(
+    tale_parts = tale_parts,
+    dissim_long = dissimLong,
+    tal_sim = normArlemScoresTble,
+    coded_seq_set = codesSeqSet
+  )
+}

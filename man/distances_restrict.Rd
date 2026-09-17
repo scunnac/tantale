@@ -24,8 +24,11 @@ Other pairwise distances:
 \code{\link[=distances_assert_square]{distances_assert_square()}},
 \code{\link[=is_pairwise_distances]{is_pairwise_distances()}},
 \code{\link[=pairwise_distances]{pairwise_distances()}},
+\code{\link[=tales_assign_domain_codes]{tales_assign_domain_codes()}},
 \code{\link[=tales_compare]{tales_compare()}},
+\code{\link[=tales_domain_distances]{tales_domain_distances()}},
 \code{\link[=tales_group]{tales_group()}},
+\code{\link[=tales_tale_distances]{tales_tale_distances()}},
 \code{\link[=validate_pairwise_distances]{validate_pairwise_distances()}}
 }
 \concept{pairwise distances}

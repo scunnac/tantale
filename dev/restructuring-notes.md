@@ -1812,7 +1812,7 @@ in the signature or spelled out in the docs.** Worth re-running the audit
 (`scratchpad/dots.R` in the session notes, trivially rebuilt) whenever a new
 exported wrapper appears.
 
-### 8.5b Break `tales_compare()` into three composable steps **[A]**
+### 8.5b Break `tales_compare()` into three composable steps -- DONE **[V]**
 
 Maintainer's proposal, and I agree with it. `.tales_compare_core()` does three
 things that are separable and each independently useful:
@@ -1863,6 +1863,49 @@ them across calls is an error the namespace is there to catch.**
 Worth doing. Every step is separately useful -- someone may want the
 repeat-level distances without paying for ARLEM at all -- and the
 decomposition documents the model.
+
+**Built**, in `R/tales_compare_steps.R`, in the 1 -> 2 -> 3 shape above:
+
+```r
+coded <- tales_assign_domain_codes(x)
+dd    <- tales_domain_distances(coded, aln_method = "DECIPHER")
+td    <- tales_tale_distances(coded, dd)
+```
+
+`tales_compare()` is now exactly that composition plus its existing input
+validation, and a test asserts the wrapper equals its parts.
+
+**Verification.** The golden baseline passed **44/44 with no snapshot
+changes**, so the decomposition is byte-identical to the monolith it
+replaces. That was the point of having the baseline.
+
+**Step 1 was named `tales_assign_domain_codes()`**, since `tales_domain_codes()`
+was taken and does something else -- it reads the code/sequence table back
+out of an object that already has codes.
+
+**The run-dependence hazard is enforced, not just documented.** Exporting
+step 1 makes `cur_group_id()`'s dependence on which arrays were present into
+public API, so:
+
+- `tales_assign_domain_codes()` stamps a `dom_code_namespace`, and its docs
+  have a dedicated section saying the codes mean nothing outside the call
+  that minted them;
+- `tales_tale_distances()` **refuses** (`tantale_error_namespace_mismatch`)
+  when its two arguments carry different namespaces. This matters more than
+  it looks: step 3 indexes domains by code, so distances keyed by another
+  run's codes would not fail, they would silently compare the wrong domains.
+- A test pins that two different subsets of the same object get different
+  namespaces.
+
+**One implicit coupling made explicit while extracting.** The ARLEM cost
+matrix is written with types `1..n` in row order, so it only means anything
+if the `dom_code`s are exactly `1..n` -- which holds because
+`cur_group_id()` produces them, but nothing said so. `.arlem_cost_file()`
+now sorts rows numerically with a comment stating the requirement.
+
+**`.tales_compare_core()` is parked, not deleted**, in
+`R/unused_pending_review.R`: it is the reference for what the composed
+version must reproduce.
 
 ### 8.2b `tales_coded_strings()` needs a `sep` argument -- DONE **[V]**
 
