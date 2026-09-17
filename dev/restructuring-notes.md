@@ -1688,12 +1688,15 @@ DECIPHER and the bundled ARLEM binary are pure R / no-conda); the
 `tales_msa` examples are hand-built alignments where that is faster and
 clearer than running MAFFT for two rows.
 
-**Left for later, deliberately:** `target_predictions.R`'s three exports
-(`talvez()`, `preditale()`, `plot_target_preds()`) and the AnnoTALE/QueTAL
-wrapper functions (`run_annotale_predict()`, `run_annotale_build()`,
-`functal()`) still have no `@examples` -- lower traffic, and each needs
-either the conda environment or external files. `talvez()`/`preditale()`
-are, at least, exercised live in vignette 4.
+**`target_predictions.R`'s three exports done too**, after the above:
+`talvez()`, `preditale()`, `plot_target_preds()`, all behind `\donttest{}`
+(conda / a JVM). Verified directly against a real run rather than only via
+`Rd2ex()`, since `\donttest{}` blocks are not part of that check.
+
+**Left for later, deliberately:** the AnnoTALE/QueTAL wrapper functions
+(`run_annotale_predict()`, `run_annotale_build()`, `functal()`) still have
+no `@examples` -- lowest traffic of what remains, and `functal()` cannot
+even run yet (§12b).
 
 A full `pkgdown::build_site()` was run after all of the above, against a
 scratch-installed copy, to confirm the whole site -- reference pages, both
