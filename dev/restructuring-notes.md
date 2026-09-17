@@ -2145,6 +2145,35 @@ left alone. My reading of each:
 | `.tales_msa_contract_holds()` | in `tales_msa_class.R`, called from `tales_class.R` | leave, same reason |
 | `.run_nhmmer_search()`, `.hits_report_to_gff()` | in `tellTale_utilities.R`, called only from `telltale.R` | `tellTale_utilities.R` is down to five members after the parking. Either fold what is left into `telltale.R` and drop the file, or leave it |
 
+### 8.6c Plot methods collected into `tales_plot.R` **[V]**
+
+`plot.tales` lived in `distalr.R` and `plot.tales_msa` in `msa.R` -- both
+legacy files named after functions that used to dominate them rather than
+after what they now held. Moved together into `R/tales_plot.R`, with the
+five internals only `plot.tales_msa()` reaches (`.pick_ref_name()`,
+`.consensus_panel()`, `.repeat_to_sim_align()`,
+`.repeat_to_cluster_align()`, `.rvd_to_match_align()`).
+
+**Which axis.** The package had two competing ones. `tales_class.R` holds
+the class contract (constructor, validator, coercion) while `tales_print.R`
+and `tales_summary.R` hold a method family across *both* classes. For those
+two the arrangement is **forced**: `format.tales` and `format.tales_msa`
+share `.tales_preview_layer()`, `.tales_header()` and `.tales_preview()`,
+which cannot be split across two class files without duplication.
+
+Plot has no such constraint -- notably `plot.tales` has no internals at all,
+only the package-wide `.tales_require()` -- so either axis would have
+worked. Maintainer's call was the method-family axis, so that the two plot
+methods can be read against each other.
+
+`msa.R` was left holding only `tales_consensus()` and
+`tales_consensus_match()`, so it became `R/tales_consensus.R`. Both take a
+plain matrix rather than a `tales_msa`, so they are usable on any alignment;
+`summary.tales_msa()` and `plot.tales_msa()` are the in-package callers.
+
+Pure reorganisation: no exports changed, no Rd content changed, and the
+suite passed 642/0 before and after, golden included.
+
 ### 8.6 Legacy preconditions leaking through class methods — DONE **[V]**
 
 `plot.tales_msa()` decomposes its object and hands the pieces to

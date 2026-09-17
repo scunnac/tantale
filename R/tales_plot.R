@@ -1,111 +1,90 @@
+#### Plotting tales and tales_msa objects ####
+#
+# The two plot methods and everything only they use. They lived apart --
+# plot.tales in distalr.R and plot.tales_msa in msa.R -- which are both
+# legacy files named after the functions that used to dominate them rather
+# than after what they now hold.
+#
+# Organised by method family rather than by class, matching tales_print.R
+# and tales_summary.R. For those two the arrangement is forced, since
+# format.tales and format.tales_msa share their layout helpers; here it is a
+# choice, made so the sibling methods can be read against each other.
+#
+# The internals below the methods are all reached only from plot.tales_msa().
+# plot.tales has none of its own: it calls .tales_require() from
+# requirements.R, which the whole package shares.
 
 
-##### General utility functions ####
-
-.pick_ref_name <- function(align, ref_tag = NULL) {
-  # How do we select the reference TALE in an alignement?
-  #   - the reference could be defined by name or by a string match in the name (eg a strain ID)
-  #   - the reference could by default be defined as the longest tal and picked by
-  #     ordering their names in case of ties...
-
-  # Find ref_tag in seq names if provided and output the corresponding unique match
-  if (!is.null(ref_tag)) {
-    match <- grepl(ref_tag, rownames(align))
-    if (sum(match) != 1) {
-      warning("Cannot identify a single unambiguous sequence to define as a reference using the string in ref_tag.\n",
-              "Using the default method for reference selection.")
-      ref_tag <- NULL
-    } else {
-      refName <- rownames(align)[match]
-    }
-  }
-  # If no ref_tag is provided, pick the longest seq(s) and if there are ties, pick the first one alphabetically
-  if (is.null(ref_tag)) {
-    strippedAlignLengths <- apply(align, 1, function(seq) length(seq[!is.na(seq)]))
-    longest <- rownames(align)[strippedAlignLengths == max(strippedAlignLengths)]
-    ifelse(length(longest) == 1, refName <- longest, refName <- sort(longest)[1])
-  }
-  return(refName)
-}
-
-#' Compute a consensus from a TALE msa
-#' @description Pick the most frequent element in each column of the alignment
-#'   matrix.
+#' Plot the domain composition of a set of TALE arrays
 #'
-#' @details A column has a consensus only when one element is strictly more
-#'   common than every other. Where two or more are tied for most frequent --
-#'   as happens whenever each array carries a different repeat at that
-#'   position -- the result is \code{NA}, because there is no agreement to
-#'   report. \code{NA} is likewise returned when the most common thing at a
-#'   position is a gap.
+#' @description
+#' A compact, information-rich view of the arrays in a \code{tales} object: one
+#' point per part, positioned by its place in the array, coloured by domain type
+#' and filled by amino-acid length, with the RVD printed on each repeat.
 #'
-#' @param align A multiple Tal sequences alignment in the form of a
-#'   matrix.
-#' @return A vector of consensus elements in each column of \code{align}.
-#' 
+#' A \code{\link{tales_msa}} dispatches to \code{\link{plot.tales_msa}}
+#' instead, being the more specific class.
+#'
+#' @param x A \code{\link{tales}} object, as returned by
+#'   \code{\link{tales_from_telltale}} or in the \code{tales} element of
+#'   \code{\link{tales_compare}}'s output. A legacy \code{tale_parts} data
+#'   frame is accepted and converted.
+#' @param position Which coordinate to lay the parts out on. \code{"array"}
+#'   (default) uses \code{position_in_array}, so each array starts at 1 and runs
+#'   contiguously. \code{"alignment"} uses \code{alignment_position}, which
+#'   requires an aligned object (or one demoted from a \code{\link{tales_msa}},
+#'   which keeps the column): gaps then appear as empty columns and shared
+#'   features line up. Aberrant repeats, for instance, are visible as a column
+#'   in the aligned layout and scattered in the unaligned one.
+#' @param ... Unused, present for compatibility with the \code{plot} generic.
+#' @return The ggplot object, invisibly printed as a side effect.
+#' @method plot tales
 #' @export
-#' @family TALE alignment
-tales_consensus <- function(align) {
-  sapply(1:ncol(align), function(x) {
-  allElements <- align[,x]
-  candidates <- sort(unique(allElements), na.last = TRUE)
-  freq <- sapply(candidates, function(p) S4Vectors::countMatches(p, allElements))
-  # No consensus unless one element is strictly more common than every other.
-  # A column in which each array carries a different repeat has no majority,
-  # and reporting one of the tied values would invent agreement that is not
-  # there.
-  if (sum(freq == max(freq)) > 1L) return(NA_character_)
-  candidates[which.max(freq)]
-})
-}
-
-#' Do elements in a TALE msa match the consensus?
-#' @description Compute a logical matrix corresponding to the input \code{align}
-#' input with \code{TRUE} where an element matches the consensus at that
-#' position and \code{FALSE} where it does not. Columns with no consensus --
-#' see \code{\link{tales_consensus}} -- are \code{NA} throughout, since
-#' there is nothing there to match.
-#'
-#' @param align A multiple Tal sequences alignment in the form of a
-#'   matrix.
-#' @param long Set to \code{TRUE} (default) to return a long tibble, or
-#'   \code{FALSE} to return a logical matrix with the same shape as
-#'   \code{align}.
-#' @return A multiple Tal sequences alignment in the form of a
-#'   matrix filled with logical values if \code{long} is \code{FALSE} and
-#'   a long tibble representing the original alignment otherwise (default).
-#' 
-#' @export
-#' @family TALE alignment
-tales_consensus_match <- function(align, long = TRUE) {
-  consensus <- tales_consensus(align)
-  # A logical matrix of its own, rather than overwriting the character one:
-  # assigning TRUE into a character matrix stores "TRUE", so the result used
-  # to be strings, and sum()/which()/! on it did the wrong thing.
-  out <- matrix(FALSE, nrow = nrow(align), ncol = ncol(align),
-                dimnames = dimnames(align))
-  for (k in seq_len(ncol(align))) {
-    rept <- consensus[k]
-    if (is.na(rept)) {
-      # The column has no consensus, so "does this match it?" has no answer.
-      out[, k] <- NA
-    } else {
-      # A gap is not a match.
-      out[, k] <- !is.na(align[, k]) & toupper(align[, k]) == toupper(rept)
-    }
+#' @family TALE plots
+plot.tales <- function(x, position = c("array", "alignment"), ...) {
+  position <- match.arg(position)
+  if (!is_tales(x)) x <- tales(x)
+  .tales_require(x, "plot.tales")
+  if (identical(position, "alignment") && !"alignment_position" %in% names(x)) {
+    cli::cli_abort(
+      c("{.code position = \"alignment\"} needs the {.field alignment_position} column.",
+        "i" = "Align first with {.fn tales_align}, or use {.code position = \"array\"}."),
+      class = c("tantale_error_projection_column", "tantale_error")
+    )
   }
-  align <- out
-  if (!long) return(align)
-  matchConsensusLong <- align %>% reshape2::melt() %>%
-    dplyr::as_tibble()
-  colnames(matchConsensusLong) <- c("array_id", "position_in_array", "tales_consensus_match")
-  return(matchConsensusLong)
+  partsForPlots <- x %>%
+    dplyr::mutate(label = dplyr::if_else(domain_type == "repeat", rvd, ""),
+                  aa_length = factor(nchar(aa_seq)),
+                  .x = if (identical(position, "alignment")) .data$alignment_position
+                       else .data$position_in_array)
+
+  p <- partsForPlots %>%
+    ggplot2::ggplot(mapping = ggplot2::aes(fill = aa_length,
+                                           color = domain_type,
+                                           label = label,
+                                           y = array_id,
+                                           x = .x)) +
+    ggplot2::scale_color_viridis_d(option = "rocket") +
+    ggplot2::scale_fill_discrete() +
+    ggplot2::scale_x_continuous(
+      name = if (identical(position, "alignment")) "Position in alignment" else "Position in array",
+      breaks = 1:100, minor_breaks = NULL) +
+    ggplot2::geom_point(shape = 21, size = 5, stroke = 0.9) +
+    ggnewscale::new_scale_color() +
+    ggnewscale::new_scale_fill() +
+    ggplot2::geom_text(size = 2.1, color = "white") +
+    ggplot2::labs(title = "Overview of TALE composition by genome") +
+    ggplot2::theme_light()
+
+  # seqnames groups arrays by source contig. It is optional in a tales, so the
+  # facet is added only when it is there -- a fasta-derived object has none.
+  if ("seqnames" %in% names(x)) {
+    p <- p + ggplot2::facet_grid(seqnames ~ ., scales = "free_y", space = "free")
+  }
+
+  print(p)
+  invisible(p)
 }
-
-
-
-
-
 
 
 #### The actual method for msa ploting ####
@@ -697,5 +676,30 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
 }
 
 
+#### Choosing the reference row ####
 
+.pick_ref_name <- function(align, ref_tag = NULL) {
+  # How do we select the reference TALE in an alignement?
+  #   - the reference could be defined by name or by a string match in the name (eg a strain ID)
+  #   - the reference could by default be defined as the longest tal and picked by
+  #     ordering their names in case of ties...
 
+  # Find ref_tag in seq names if provided and output the corresponding unique match
+  if (!is.null(ref_tag)) {
+    match <- grepl(ref_tag, rownames(align))
+    if (sum(match) != 1) {
+      warning("Cannot identify a single unambiguous sequence to define as a reference using the string in ref_tag.\n",
+              "Using the default method for reference selection.")
+      ref_tag <- NULL
+    } else {
+      refName <- rownames(align)[match]
+    }
+  }
+  # If no ref_tag is provided, pick the longest seq(s) and if there are ties, pick the first one alphabetically
+  if (is.null(ref_tag)) {
+    strippedAlignLengths <- apply(align, 1, function(seq) length(seq[!is.na(seq)]))
+    longest <- rownames(align)[strippedAlignLengths == max(strippedAlignLengths)]
+    ifelse(length(longest) == 1, refName <- longest, refName <- sort(longest)[1])
+  }
+  return(refName)
+}
