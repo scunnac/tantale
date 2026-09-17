@@ -50,8 +50,8 @@ toy_run <- local({
 
 # the real arrays, dropping the single-hit fragments each region also yields
 toy_arrays <- function(report) {
-  a <- report[report$NumberOfHits > 4, ]
-  a[match(c("toy_intact", "toy_frameshift"), a$OriginalSubjectName), ]
+  a <- report[report$n_domain_hits > 4, ]
+  a[match(c("toy_intact", "toy_frameshift"), a$seqnames), ]
 }
 
 
@@ -75,7 +75,7 @@ test_that("a region with no TALE yields no array", {
   # Pinned on real genomic sequence rather than the random DNA the older
   # test generated: random DNA is an easier negative than the real thing.
   report <- toy_run(FALSE)$report
-  expect_false("toy_no_tale" %in% report$OriginalSubjectName)
+  expect_false("toy_no_tale" %in% report$seqnames)
 })
 
 
@@ -83,14 +83,14 @@ test_that("the inserted base truncates the ORF when correction is off", {
   # If this stops being true the fixture has lost its point, so it is
   # asserted rather than assumed.
   a <- toy_arrays(toy_run(FALSE)$report)
-  intact <- a[a$OriginalSubjectName == "toy_intact", ]
-  shifted <- a[a$OriginalSubjectName == "toy_frameshift", ]
+  intact <- a[a$seqnames == "toy_intact", ]
+  shifted <- a[a$seqnames == "toy_frameshift", ]
 
-  expect_gt(intact$LongestOrfLength, shifted$LongestOrfLength)
-  expect_gt(intact$OrfCovOverArrayLength, shifted$OrfCovOverArrayLength)
+  expect_gt(intact$longest_orf_length, shifted$longest_orf_length)
+  expect_gt(intact$orf_coverage, shifted$orf_coverage)
   # both still found as arrays -- the frameshift breaks the ORF, not the
   # HMMER-level detection of the repeats
-  expect_equal(intact$NumberOfHits, shifted$NumberOfHits)
+  expect_equal(intact$n_domain_hits, shifted$n_domain_hits)
 })
 
 
@@ -98,12 +98,12 @@ test_that("correction recovers the intact TALE from the frameshifted copy", {
   # The assertion the correction branch never had: not that the call
   # returned, but that it produced the right answer.
   a <- toy_arrays(toy_run(TRUE)$report)
-  intact <- a[a$OriginalSubjectName == "toy_intact", ]
-  shifted <- a[a$OriginalSubjectName == "toy_frameshift", ]
+  intact <- a[a$seqnames == "toy_intact", ]
+  shifted <- a[a$seqnames == "toy_frameshift", ]
 
-  expect_identical(shifted$SeqOfRVD, intact$SeqOfRVD)
-  expect_equal(shifted$LongestOrfLength, intact$LongestOrfLength)
-  expect_equal(shifted$OrfCovOverArrayLength, intact$OrfCovOverArrayLength)
+  expect_identical(shifted$rvd_string, intact$rvd_string)
+  expect_equal(shifted$longest_orf_length, intact$longest_orf_length)
+  expect_equal(shifted$orf_coverage, intact$orf_coverage)
 })
 
 
@@ -113,8 +113,8 @@ test_that("correction charges the extra base to the frameshifted copy", {
   # not the place to relitigate it. What must hold is the *difference*: one
   # inserted base, one extra insertion called.
   a <- toy_arrays(toy_run(TRUE)$report)
-  intact <- a[a$OriginalSubjectName == "toy_intact", ]
-  shifted <- a[a$OriginalSubjectName == "toy_frameshift", ]
+  intact <- a[a$seqnames == "toy_intact", ]
+  shifted <- a[a$seqnames == "toy_frameshift", ]
 
   expect_equal(shifted$predicted_ins_count, intact$predicted_ins_count + 1L)
   expect_equal(shifted$predicted_dels_count, intact$predicted_dels_count)

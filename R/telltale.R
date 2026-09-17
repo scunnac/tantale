@@ -206,13 +206,13 @@
     cli::cli_warn("No record remains after filtering NhmmerSearch hits based on score. Exitting...")
     return(NULL)
   }
-  ## Add a hitID column
-  hits$hitID <- paste("DOM", sprintf("%05.0f", 1:nrow(hits)), sep = "_")
+  ## Add a hit_id column
+  hits$hit_id <- paste("DOM", sprintf("%05.0f", 1:nrow(hits)), sep = "_")
 
   ## Trick to re-order positions in an increasing order to satisfy IRanges() in preparation of creating a GRanges
   hits[, c("start", "end")] <- plyr::adply(.data = hits[, c("envfrom", "env_to")],
                                            .margins = 1, .fun = c(min, max))[, -(1:2)]
-  rownames(hits) <- hits$hitID
+  rownames(hits) <- hits$hit_id
 
   ## Filter out target DNA sequences that have too few repeat CDSs
   ## NB: for the sake of consistency  it would be better just to filter out
@@ -247,11 +247,11 @@
 #' next begins, not a duplicate.
 #'
 #' The identifiers of the hits that went into each merged range are kept in
-#' \code{nhmmerHitID}, separated by \code{|}, so a merged range can be traced
+#' \code{nhmmer_hit_id}, separated by \code{|}, so a merged range can be traced
 #' back to the raw search output.
 #'
 #' @param gr Hits as a \code{GRanges}, with \code{query_name} naming the
-#'   domain type and \code{hitID} identifying each hit.
+#'   domain type and \code{hit_id} identifying each hit.
 #' @return A \code{GRanges} of merged hits, re-identified as \code{MDOM_*}.
 #' @noRd
 .telltale_merge_overlapping_hits <- function(gr) {
@@ -272,16 +272,16 @@
         g, reduced, minoverlap = 2, type = "within", ignore.strand = FALSE, select = "all")) %>%
       dplyr::group_by(subjectHits) %>%
       dplyr::group_map({
-        ~ paste0(g[as.numeric(.x$queryHits)]$hitID, collapse = "|")
+        ~ paste0(g[as.numeric(.x$queryHits)]$hit_id, collapse = "|")
       }) %>%
       unlist()
-    reduced$nhmmerHitID <- formerIDs
+    reduced$nhmmer_hit_id <- formerIDs
     reduced
   }) %>%
     plyranges::bind_ranges(.id = "query_name")
 
-  merged$hitID <- paste("MDOM", sprintf("%05.0f", 1:length(merged)), sep = "_")
-  names(merged) <- merged$hitID
+  merged$hit_id <- paste("MDOM", sprintf("%05.0f", 1:length(merged)), sep = "_")
+  names(merged) <- merged$hit_id
   merged
 }
 
@@ -362,14 +362,14 @@
   ## Populate metadata about the elements of the list of arrays
   S4Vectors::mcols(byArray) <- S4Vectors::DataFrame(
     array_id = names(byArray),
-    OriginalSubjectName = sapply(byArray,
-                                 function(x) unique(as.character(GenomicRanges::seqnames(x)))),
-    Start = BiocGenerics::start(arraysGR),
-    End = BiocGenerics::end(arraysGR),
-    Strand = BiocGenerics::strand(arraysGR),
-    NumberOfHits = S4Vectors::elementNROWS(byArray),
-    ArraySeq = BSgenome::getSeq(subject_seqs, arraysGR),
-    AllDomains = sapply(byArray,
+    seqnames = sapply(byArray,
+                      function(x) unique(as.character(GenomicRanges::seqnames(x)))),
+    start = BiocGenerics::start(arraysGR),
+    end = BiocGenerics::end(arraysGR),
+    strand = BiocGenerics::strand(arraysGR),
+    n_domain_hits = S4Vectors::elementNROWS(byArray),
+    array_seq = BSgenome::getSeq(subject_seqs, arraysGR),
+    has_all_domains = sapply(byArray,
                         function(x) {
                           all(
                             c(hmm$nterm, hmm$repeats,
@@ -409,9 +409,9 @@
   ## Total count of repeat CDS after filtering for uniformative subject seqs for the log file
   numberOfRepeatHitsAfterFiltering <- length(subset(unlist(by_array), query_name == hmm$repeats))
   ## Distribution of the number of hits per array
-  countsHitsByArrayDistri <- summary(S4Vectors::mcols(by_array)$NumberOfHits)
+  countsHitsByArrayDistri <- summary(S4Vectors::mcols(by_array)$n_domain_hits)
   ## Number of domains in arrays that display all domain types
-  # completeArrayLengths <- subset(S4Vectors::mcols(by_array), AllDomains)$NumberOfHits
+  # completeArrayLengths <- subset(S4Vectors::mcols(by_array), has_all_domains)$n_domain_hits
   
   
   ## might have been cleaner with a glue approach
@@ -453,13 +453,13 @@
           length(GenomeInfoDb::seqlevels(arrays)), sep = "\t"),
     paste("Total number of distinct regions (repeat arrays) with adjacent TALE motifs :", nrow(array_report), sep = "\t"),
     paste("Total number of 'complete' arrays (with both N- and C-term flanking motifs):",
-          sum(S4Vectors::mcols(by_array)$AllDomains),	sep = "\t"),
+          sum(S4Vectors::mcols(by_array)$has_all_domains),	sep = "\t"),
     
     #paste("Total number of distinct types of RVD:", nrow(RVDtbl), sep = "\t"),
     
-    paste("Minimum array length (number of TALE domain hits):", min(array_report$NumberOfHits), sep = "\t"),
-    paste("Maximum array length:", max(array_report$NumberOfHits), sep = "\t"),
-    paste("Median array length:", median(array_report$NumberOfHits), sep = "\t"),
+    paste("Minimum array length (number of TALE domain hits):", min(array_report$n_domain_hits), sep = "\t"),
+    paste("Maximum array length:", max(array_report$n_domain_hits), sep = "\t"),
+    paste("Median array length:", median(array_report$n_domain_hits), sep = "\t"),
     # paste("Length of the longest 'complete' array:", max(completeArrayLengths),	sep = "\t"),
     # paste("Length of the shortest 'complete' array:", min(completeArrayLengths),	sep = "\t"),
     
@@ -754,7 +754,7 @@
     stops <- Biostrings::vcountPattern("*", prot_parts)
     domainsReport <- tibble::tibble(
       "array_id" = talOrfID,
-      "seqnames" = S4Vectors::mcols(by_array)$OriginalSubjectName[S4Vectors::mcols(by_array)$array_id == talOrfID],
+      "seqnames" = S4Vectors::mcols(by_array)$seqnames[S4Vectors::mcols(by_array)$array_id == talOrfID],
       "query_name" = gsub("(.+\\: )|( \\d+)", "", names(prot_parts)),
       "codon_count" = Biostrings::width(prot_parts) - stops
     )
@@ -832,7 +832,7 @@
 #'
 #' A lowercase letter in an RVD is AnnoTALE's way of flagging a repeat whose
 #' length departs from the canonical ~34 aa. Such an array is marked
-#' \code{aberrantRepeat}, because an aberrant repeat changes how the array
+#' \code{has_aberrant_repeat}, because an aberrant repeat changes how the array
 #' should be read and is worth knowing about before the RVDs are used to
 #' predict targets.
 #'
@@ -846,8 +846,8 @@
 #' which is a different statement from its absence.
 #'
 #' @param rvds The RVD strings as AnnoTALE reported them.
-#' @param by_array The grouped hits; gains \code{SeqOfRVD} and
-#'   \code{aberrantRepeat}.
+#' @param by_array The grouped hits; gains \code{rvd_string} and
+#'   \code{has_aberrant_repeat}.
 #' @param hmm What \code{.telltale_hmm_profiles()} returned, for recognising
 #'   which termini a given array actually has.
 #' @param rvd_sep Separator between RVDs.
@@ -858,7 +858,7 @@
 .telltale_finish_rvd_strings <- function(rvds, by_array, hmm, rvd_sep,
                                          extremity_codes) {
   # a lowercase letter marks a repeat of non-canonical length
-  aberrantRepeat <- sapply(rvds, function(s) {
+  has_aberrant_repeat <- sapply(rvds, function(s) {
     ifelse(length(s) > 0, grepl("[a-z]", s), NA)
   })
 
@@ -881,10 +881,10 @@
 
   S4Vectors::mcols(by_array) <- merge(
     S4Vectors::mcols(by_array),
-    data.frame(SeqOfRVD = rvds, aberrantRepeat = aberrantRepeat,
+    data.frame(rvd_string = rvds, has_aberrant_repeat = has_aberrant_repeat,
                array_id = names(rvds)),
     by = "array_id", all.x = TRUE)
-  S4Vectors::mcols(by_array)$SeqOfRVD[is.na(S4Vectors::mcols(by_array)$SeqOfRVD)] <- ""
+  S4Vectors::mcols(by_array)$rvd_string[is.na(S4Vectors::mcols(by_array)$rvd_string)] <- ""
 
   list(rvds = rvds, by_array = by_array)
 }
@@ -920,8 +920,8 @@
   ##   Report with info on arrays, including the seq of RVD
   arrayReport <- as.data.frame(
     S4Vectors::mcols(by_array)[
-      order(S4Vectors::mcols(by_array)$OriginalSubjectName,
-            S4Vectors::mcols(by_array)$NumberOfHits), ]
+      order(S4Vectors::mcols(by_array)$seqnames,
+            S4Vectors::mcols(by_array)$n_domain_hits), ]
   )
   readr::write_tsv(x = arrayReport, file = paths$array_report)
 
@@ -929,7 +929,7 @@
   allGR <- c(unlist(by_array),
              GenomicRanges::makeGRangesFromDataFrame(
                S4Vectors::mcols(by_array),
-               seqnames.field = "OriginalSubjectName",
+               seqnames.field = "seqnames",
                keep.extra.columns = TRUE),
              # the unmerged hits are included only when merging happened, so
              # that a merged range can be compared against what went into it
@@ -937,7 +937,7 @@
   rtracklayer::export.gff3(allGR, paths$all_ranges_gff)
 
   ## Write a fasta file of the seqs of RVDs
-  rvds <- Biostrings::BStringSet(S4Vectors::mcols(by_array)$SeqOfRVD)
+  rvds <- Biostrings::BStringSet(S4Vectors::mcols(by_array)$rvd_string)
   names(rvds) <- S4Vectors::mcols(by_array)$array_id
   rvds <- rvds[!Biostrings::width(rvds) == 0]
   Biostrings::writeXStringSet(x = rvds, paths$rvd_sequences)
@@ -965,7 +965,10 @@
   endsAAlength <- lapply(names(ends_aa), function(e) {
     stringset <- ends_aa[e] %>% Biostrings::AAStringSetList(., use.names = FALSE) %>% unlist()
     df <- data.frame(names(stringset), BiocGenerics::width(stringset))
-    colnames(df) <- c("array_id", paste0(e, "AAlength"))
+    # "N-terminus"/"C-terminus" (from .telltale_align_termini()) to the
+    # snake_case column names arrayReport.tsv actually carries.
+    lengthCol <- if (e == "N-terminus") "nterm_aa_length" else "cterm_aa_length"
+    colnames(df) <- c("array_id", lengthCol)
     df
   })
   S4Vectors::mcols(by_array) <- merge(S4Vectors::mcols(by_array),
@@ -975,10 +978,10 @@
   moreInfo <- merge(
     S4Vectors::mcols(by_array),
     data.frame(array_id = names(full_orf),
-               LongestOrfLength = Biostrings::nchar(full_orf),
-               OrfCovOverArrayLength = round(100 * Biostrings::nchar(full_orf) /
-                                               GenomicRanges::width(array_seqs[names(full_orf)])),
-               LongestORFSeq = full_orf),
+               longest_orf_length = Biostrings::nchar(full_orf),
+               orf_coverage = round(100 * Biostrings::nchar(full_orf) /
+                                       GenomicRanges::width(array_seqs[names(full_orf)])),
+               longest_orf_seq = full_orf),
     by = "array_id", all.x = TRUE, sort = FALSE)
   rownames(moreInfo) <- moreInfo$array_id
   S4Vectors::mcols(by_array) <- moreInfo[rownames(S4Vectors::mcols(by_array)), ]
@@ -1030,7 +1033,7 @@
 .telltale_hits_to_ranges <- function(hits, subject_seqs, seqlevels, seqinfo) {
   gr <- GenomicRanges::makeGRangesFromDataFrame(
     df = hits, keep.extra.columns = TRUE, seqnames.field = "target_name")
-  names(gr) <- gr$hitID
+  names(gr) <- gr$hit_id
 
   ## Updating seqinfo with original seqinfo from the sequences before renaming
   gr <- GenomeInfoDb::renameSeqlevels(gr, value = seqlevels)

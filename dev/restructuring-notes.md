@@ -35,11 +35,11 @@ re-check every other `[V]` section the same way -- treat this file's
 "done" markers as a claim to spot-check against the code, not a guarantee.
 
 `grep -nE '\*\*\[A\]\*\*|\*\*\[P\]\*\*' dev/restructuring-notes.md`
-lists what is still open. As of 2026-09-17 (evening), six sections:
+lists what is still open. As of 2026-09-17 (late evening), five sections
+(9.2b closed tonight):
 
 | § | what | needs |
 |---|---|---|
-| **9.2b** | `arrayReport.tsv` still has 14 legacy column names | **your call** -- primary output file, mechanical once decided |
 | **5.2** | talome-wide MSA plot: list of alignments vs demoted `tales` | **your call** (A vs B) |
 | **12b** | `functal()` cannot run; `Bio::Perl` is unobtainable | **your call** among four options |
 | **6** | correctness backlog -- computations that may not match intent | a dedicated pass; some are real bugs, not tidying |
@@ -2609,7 +2609,7 @@ Note the interaction with 9.1: several *argument* names deliberately mirror
 *column* names (`tale_parts`, `rvd_map`), so the two sweeps should agree on a
 single vocabulary rather than be done independently.
 
-### 9.2b The sweep stopped at `array_id` in the report files **[A]** — needs your call
+### 9.2b The sweep stopped at `array_id` in the report files -- DONE **[V]**
 
 §9.2 above says "Every table the package produces now uses snake_case". That
 is true of the `tales` class and the distance tables, and **not** true of the
@@ -2662,6 +2662,57 @@ one pass.
 Two things to decide: whether to do it at all, and whether
 `.tales_rename_legacy()` should learn the old spellings so that directories
 written by the current version still load after the change.
+
+**Done.** Applied the mapping exactly as proposed, in `R/telltale.R` --
+these column names originate as `S4Vectors::mcols()` on the `by_array`
+`GRangesList`, one source of truth from which `arrayReport.tsv`,
+`hitsReport.tsv` and both GFFs (`allRanges.gff`, `hitsReport.gff`) are all
+derived, so the rename at that single point propagated correctly to every
+output format without touching the GFF-writing code at all -- verified by
+inspecting a real run's GFF attribute strings, not assumed.
+
+**On the two decisions:**
+
+1. *Whether to do it at all* -- yes (maintainer).
+2. *Whether `.tales_rename_legacy()` needs the old spellings* -- turned out
+   not to apply. That function bridges camelCase *class* columns
+   (`arrayID`, `positionInArray`, ...) into `tales()`'s constructor; these
+   report-file columns are never read back into a `tales` object at all.
+   Checked directly: `tales_ingest.R` reads exactly two columns out of
+   `hitsReport.tsv` -- `array_id` and `seqnames` -- both already
+   snake_case before this change, and neither `arrayReport.tsv` nor
+   `domainsReport.tsv` is read by any internal function. So there is no
+   ingest path to make backward-compatible; a directory written by an
+   older package version keeps its old headers regardless (files on disk
+   don't change), and nothing internal cares.
+
+**Result**, on the small shipped fixture:
+
+| file | columns |
+|---|---|
+| `arrayReport.tsv` | `array_id, seqnames, start, end, strand, n_domain_hits, array_seq, has_all_domains, predicted_ins_count, predicted_dels_count, rvd_string, has_aberrant_repeat, nterm_aa_length, cterm_aa_length, longest_orf_length, orf_coverage, longest_orf_seq` |
+| `hitsReport.tsv` | ... `nhmmer_hit_id, query_name, hit_id` ... |
+| `domainsReport.tsv` | unchanged, already fully snake_case |
+
+`.telltale_add_array_measures()`'s `paste0(e, "AAlength")` (where `e` is
+`"N-terminus"`/`"C-terminus"`, and the auto-sanitised `N.terminusAAlength`
+was never a chosen name, just what `data.frame()` did to a dash) became an
+explicit two-way lookup rather than a paste, since `nterm_aa_length` and
+`cterm_aa_length` don't share the parent string's shape.
+
+Golden re-baselined: 4 snapshot changes, every row of every diff traced to
+this rename before accepting (two per-column fingerprints, plus two
+whole-directory file-digest tables picking up the changed `.tsv`/`.gff`
+files) -- no unexplained change. `tests/testthat/test_tell_tales_correction.R`
+updated (9 references). Full suite green.
+
+**Known consequence, not fixed tonight:** `vignettes/1_tale_mining.Rmd`
+references `AllDomains`/`aberrantRepeat` in its own prose and a plotting
+chunk (`geom_bar(aes(..., fill = AllDomains, color = aberrantRepeat))`) and
+is now stale against real `tell_tales()` output. Left alone deliberately --
+that vignette is §7.5's problem, explicitly low priority, and rewriting it
+now would be doing §7.5's work under 9.2b's ticket.
+
 
 ### 9.3 Decide `@internal` vs `@noRd` per function — PARTLY DONE **[V]**
 
