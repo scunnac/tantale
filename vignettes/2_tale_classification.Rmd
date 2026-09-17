@@ -1,6 +1,6 @@
 ---
 title: "2. Classifying TALE sequences from genomes with tantale"
-output: 
+output:
   html_document:
     code_folding: show
     toc: true
@@ -10,7 +10,7 @@ vignette: >
   %\VignetteIndexEntry{2. Classifying TALE sequences from genomes with tantale}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 
@@ -20,207 +20,134 @@ knitr::opts_chunk$set(warning = FALSE)
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>>")
 ```
 
-```{r render, include=FALSE, eval = FALSE}
-rmarkdown::render(input = "/home/cunnac/Lab-Related/MyScripts/tantale/vignettes/2_tale_classification.Rmd")
-
-pkgdown::build_site(pkg = "/home/cunnac/Lab-Related/MyScripts/tantale",
-                    lazy = FALSE,
-                    )
-
-pkgdown::build_article(pkg = "/home/cunnac/Lab-Related/MyScripts/tantale",
-                    name = "2_tale_classification",
-                    quiet = FALSE
-                    )
-
-
-```
-
-
-
 ```{r package, warning=FALSE, message=FALSE}
 library(tantale)
-library(ggplot2)
-library(tidyverse)
-library(Biostrings)
-library(parallel)
-library(magrittr)
-library(DT)
-library(gplots)
-library(ape)
-library(ggtree)
-library(corrr)
-library(ggcorrplot)
+library(dplyr)
 ```
 
-Based on the results of the first article "Mining TALE sequences in genomes with tantale", this second section will cover steps downstream of *tal* loci prediction. It will illustrate TALE classification into groups of related sequences with functions in package `tantale`.\
-As a reminder, the genomes used for this article are MAI1, BAI3, BAI3-1-1 (an error-prone genome with TalC deleted) and PXO86, an outgroup Asian strain.\
+The [previous article](1_tale_mining.html) covered finding TALE loci in one
+genome at a time. A real study usually has several genomes, and the
+interesting question is not "what TALEs does this strain carry" but "which
+TALEs, across strains, are versions of the same thing" -- alleles of one
+locus, related by descent, rather than unrelated proteins that happen to
+both be TALEs. This article covers that comparison: `tales_compare()` to
+quantify how alike every pair of arrays and repeats is, and `tales_group()`
+to turn that into discrete groups.
 
+# Discovering TALEs across several genomes
 
-```{r load previous session}
-outdir <- fs::dir_create("~/TEMP/test_tantale") # tempdir(check = TRUE)
-load(file.path(outdir, "mining.RData"))
-```
+This is a fresh discovery run, independent of the previous article, over
+all four sample genomes together: MAI1, BAI3, PXO86, and the deliberately
+error-prone BAI3-1-1.
 
+```{r discover_all, message = FALSE, warning = FALSE}
+out <- fs::dir_create(file.path(tempdir(), "tale_classification"))
+genome_files <- c(
+  MAI1     = system.file("extdata", "MAI1.fa",     package = "tantale", mustWork = TRUE),
+  BAI3     = system.file("extdata", "BAI3.fa",     package = "tantale", mustWork = TRUE),
+  `BAI3-1-1` = system.file("extdata", "BAI3-1-1.fa", package = "tantale", mustWork = TRUE),
+  PXO86    = system.file("extdata", "PXO86.fa",    package = "tantale", mustWork = TRUE)
+)
 
-# Classify the various TALE sequences into groups of related sequences
-
-To classify TALE groups, we use the function `tales_compare()`, an R implementation of the original DisTal Perl program (see below), which outputs similarity between TALEs and similarity between repeats. The TALE similarity table can be taken as input of `tales_group()` for clustering groups, and the repeats similarity can be used for plotting multiple alignment of Tals within group.
-
-> `tales_compare()` superseded the original Perl-based `runDistal()`/`buildDisTalGroups()` functions, which have been removed from the package (along with the ~90MB of bundled Perl modules they required). Before removal, their output was benchmarked against `tales_compare()`'s three pairwise-alignment backends and found to correlate highly (see the archived comparison in an earlier version of this vignette, or git history for `R/distal.R`).
-
-## Run the R implementation of DisTal
-
-First we use the tell_tales output directories for each genome and get the information about TALE parts (ie domains). The final output is a tibble with a single part per row.
-
-```{r get tale parts, fig.width = 10, fig.height=10}
-# distalrOutDir <- file.path(outdir, "distalr")
-# unlink(distalrOutDir, recursive = TRUE)
-# dir.create(distalrOutDir, showWarnings = F)
-
-
-tale_parts <- lapply(list.dirs(telltale_outdir, recursive = FALSE), function(ttGenomeDir) {
-  genomeId <- gsub("_.*correction", "", basename(ttGenomeDir))
-  logger::log_debug("Current genome: {genomeId}")
-  tale_parts <- tales_from_telltale(ttGenomeDir) %>%
-    mutate(array_id = paste0(genomeId, "_", array_id))
-  return(tale_parts)
+all_tales <- lapply(names(genome_files), function(strain) {
+  strain_dir <- file.path(out, strain)
+  invisible(tell_tales(subject_file = genome_files[strain], output_dir = strain_dir,
+                       cterm_min_score = 300))
+  tales_from_telltale(strain_dir) %>%
+    mutate(array_id = paste0(strain, "_", array_id), strain = strain)
 }) %>%
-  bind_rows()
+  suppressWarnings() %>%
+  bind_rows() %>%
+  tales(sanitize = TRUE)
 
-DT::datatable(head(tale_parts), caption = "An example of the content of the tale_parts tibble.")
-
-
+n_distinct(all_tales$array_id)
 ```
 
-With this kind of representation it is quite easy to make summary plots like this one for example:
+`array_id` is prefixed by strain before the four objects are combined, since
+`tell_tales()` numbers regions independently within each genome -- without
+the prefix, `MAI1`'s `ROI_00001` and `BAI3`'s `ROI_00001` would collide.
+`sanitize = TRUE` drops the frameshift-broken BAI3-1-1 arrays flagged in the
+previous article, so the comparison below runs on complete arrays only.
 
+# Quantifying relatedness: `tales_compare()`
 
-```{r Overview of TALE composition by genome, fig.width = 10, fig.height=10}
-partsForPlots <- tale_parts %>%
-  mutate(label = if_else(domain_type == "repeat", rvd, ""),
-         aa_seq_length = factor(nchar(aa_seq))
-  )
-partsForPlots %>% ggplot(mapping = aes(fill = aa_seq_length,
-                                       color = domain_type,
-                                       label = label,
-                                       y = array_id,
-                                       x = position_in_array)) +
-  scale_color_viridis_d(option = "rocket") +
-  scale_fill_discrete() +
-  scale_x_continuous(breaks = 1:50, minor_breaks = NULL) +
-  geom_point(shape = 21, size = 5, stroke = 0.9) +
-  ggnewscale::new_scale_color() +
-  ggnewscale::new_scale_fill() +
-  geom_text(size = 2.1, color = "white") + 
-  facet_grid(seqnames~ ., scales = "free_y", space = "free") +
-  labs(title = "Overview of TALE composition by genome") +
-  theme_light()
+`tales_compare()` is tantale's R implementation of the DisTAL comparison
+used by the original QueTAL suite: it assigns every distinct domain
+sequence a `dom_code` (see the [`tales` class article](../articles/tales-class.html)
+for what that means), computes pairwise distances between distinct domains,
+and from those, distances between whole arrays.
+
+Comparing domain sequences is the expensive step, and three backends do it:
+`"DECIPHER"` (the default, and by far the fastest), `"Biostrings"`, and
+`"mmseq2"`. They implement the same alignment, so which one to use is a
+question of what is installed and how large the dataset is, not of which
+answer is right -- [a companion article](p1_tales_compare.html) compares
+all three directly on a small fixture and finds them highly correlated.
+Here, with `r n_distinct(all_tales$aa_seq)` domain sequences across
+`r n_distinct(all_tales$array_id)` arrays, DECIPHER is used outright:
+
+```{r tales_compare, message = FALSE}
+cmp <- tales_compare(all_tales, aln_method = "DECIPHER", ncores = 4)
+names(cmp)
+cmp$tale_distances
 ```
 
-Now, with this `tibble`, we can also run the R implementation of the Distal Perl code.
+# Allocating arrays to groups: `tales_group()`
 
+`tales_group()` clusters arrays from `tale_distances` and returns the
+`tales` object with the result attached as a `group` column -- taking the
+object the distances were computed from is what lets it check that the two
+actually correspond (see `?tales_group`).
 
-```{r doing the same with tales_compare, fig.width = 10, fig.height=10}
-partsForDistalr <- tale_parts
+Two clustering methods are available. `method = "hclust"` cuts a
+dendrogram at a height chosen to yield exactly `k` groups. `method =
+"k-medoids"` (the default) instead fits `cluster::pam()` across a range of
+candidate group counts and picks one by its silhouette value -- `k =
+"auto"` accepts that automatic pick, which is what is used here; `k` can
+also be set to a specific integer instead:
 
-system.time({distalr_bs_output <- tales_compare(partsForDistalr, ncores = 6,
-                             aln_method = "Biostrings")})
+```{r tales_group, fig.width=6, fig.height=4}
+grouped <- tales_group(cmp$tales, cmp$tale_distances,
+                       method = "k-medoids", k = "auto", k_range = 2:20)
 
-system.time({distalr_deci_output <- tales_compare(partsForDistalr, ncores = 6,
-                              aln_method = "DECIPHER")})
-
-system.time({distalr_mms_output <- tales_compare(partsForDistalr, ncores = 6,
-                              aln_method = "mmseq2",
-                              conda_bin = "/home/cunnac/bin/miniconda3/condabin/conda")})
-
+grouped %>% distinct(array_id, group) %>% count(group) %>% arrange(desc(n))
 ```
 
-Clearly, the "DECIPHER" method for pairwise alignment of domains aa sequences is much faster than all the others.
+Group sizes range from singletons -- an array with no close relative in
+this sample -- up to several members. `plot_tree = TRUE` draws the
+dendrogram version instead, useful for judging whether the chosen `k`
+looks reasonable rather than trusting the silhouette value blindly:
 
-
-
-## Contrast the output of the various distal functions
-
-
-Now, we can take a look at whether the results of the original Distal script are consistent with our R implementation of the program.
-
-
-```{r correlation of TALE similarity from various distal implementations, fig.width = 4, fig.height=4}
-talSimOutAgregated <- list(distalDECI = distalr_deci_output$tale_distances,
-     distalBIOS = distalr_bs_output$tale_distances,
-     distalMMS = distalr_mms_output$tale_distances
-) %>% bind_rows(.id = "method")
-
-talSimOutAgregatedLong <- reshape2::dcast(talSimOutAgregated %>% select(method, TAL1, TAL2, Sim),
-                                          formula = method ~ TAL1 + TAL2, value.var = "Sim"
-                                            )
-rownames(talSimOutAgregatedLong) <- talSimOutAgregatedLong$method
-talSimOutAgregatedLong$method <- NULL
-talSimOutAgregatedLong %<>% as.matrix() %>% t()
-rownames(talSimOutAgregatedLong) <- NULL
-
-corr_matrix <- cor(talSimOutAgregatedLong)
-knitr::kable(corr_matrix)
-ggcorrplot(corr_matrix)
-
-
-talSimOutAgregated <- reshape2::dcast(talSimOutAgregated %>% select(method, TAL1, TAL2, Sim),
-                                          formula = TAL1 + TAL2 ~ method, value.var = "Sim"
-                                            ) %>% as_tibble()
+```{r tales_group_hclust, fig.width=7, fig.height=5}
+invisible(tales_group(cmp$tales, cmp$tale_distances,
+                      method = "hclust", k = n_distinct(grouped$group),
+                      plot_tree = TRUE))
 ```
 
+# An overview across strains: `talomes_heatmap()`
 
-```{r pair plot of TALE similarity from various distal implementations, fig.width = 6, fig.height= 6}
-pairs(talSimOutAgregated[3:5], pch = 20, cex = 0.5, lower.panel = NULL)
+With arrays assigned to groups, one natural summary is which RVD sequence
+variant each strain carries in each group -- a *talome*, by analogy to a
+genome, being the whole complement of TALEs a strain carries:
+
+```{r talomes_heatmap, fig.width=9, fig.height=6}
+tale_annotation <- tibble::tibble(
+  array_id = names(tales_rvd_strings(grouped)),
+  rvdseq = as.character(tales_rvd_strings(grouped))
+) %>%
+  left_join(distinct(grouped, array_id, group, strain), by = "array_id")
+
+talomes_heatmap(tale_annotation, group_col = "group", strain_col = "strain",
+                rvd_col = "rvdseq")
 ```
 
+Each cell is one strain's RVD sequence variant in one group; a strain
+missing from a group carries no member of it, and a cell with more than
+one colour means that strain carries more than one distinct variant in
+that group.
 
+# Next
 
-The correlation of the TALE pairwise similarity scores output by the various `tales_compare()` backends is remarkably high.
-
-## Allocate TALEs to groups of related sequences
-
-```{r tale trees, fig.width = 6, fig.height=6}
-k <- 22
-groupsDECI <- invisible(tales_group(tal_sim = distalr_deci_output$tale_distances,
-                     plot_tree = TRUE, k = k, k_range = 10:40,
-                     method = "k-medoids"))
-
-groupsBIOS <- invisible(tales_group(tal_sim = distalr_bs_output$tale_distances,
-                     plot_tree = TRUE, k = k, k_range = 10:40,
-                     method = "k-medoids"))
-
-groupsMMS <- invisible(tales_group(tal_sim = distalr_mms_output$tale_distances,
-                     plot_tree = TRUE, k = k, k_range = 10:40,
-                     method = "k-medoids"))
-
-
-grp <- tales_group(tal_sim = distalr_deci_output$tale_distances,
-                     plot_tree = TRUE, k = k,
-                     method = "hclust")
-grp <- tales_group(tal_sim = distalr_bs_output$tale_distances,
-                     plot_tree = TRUE, k = k,
-                     method = "hclust")
-grp <- tales_group(tal_sim = distalr_mms_output$tale_distances,
-                     plot_tree = TRUE, k = k,
-                     method = "hclust")
-
-```
-
-Because PXO86 is the only Asian strain and these TALEs are rather distantly related to African ones, the part of the trees with PXO86 TALEs are not really meaningful in this context.
-
-
-```{r test_tale_group}
-taleGroups <- groupsDECI %>% as_tibble() %>% arrange(group, name)
-knitr::kable(head(taleGroups, n= 12))
-```
-
-Based on the silhouette values, `tales_group()` will take the value at the elbow of the curve. In this case we manually took k = `r k`.
-
-
-
-```{r save session}
-save.image(file.path(outdir, "mining.RData"))
-```
-
-
+Grouping tells you *which* arrays are related. Seeing exactly *how* --
+which repeats match, which are inserted or deleted relative to one
+another -- needs an alignment, which is the subject of the next article.

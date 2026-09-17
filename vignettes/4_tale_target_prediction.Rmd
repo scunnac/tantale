@@ -1,16 +1,16 @@
 ---
-title: "4. TALE targets predictions with tantale"
-output: 
+title: "4. TALE target predictions with tantale"
+output:
   html_document:
     code_folding: show
     toc: true
     toc_float: true
     number_sections: true
 vignette: >
-  %\VignetteIndexEntry{4. TALE targets predictions with tantale}
+  %\VignetteIndexEntry{4. TALE target predictions with tantale}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
-editor_options: 
+editor_options:
   chunk_output_type: console
 ---
 
@@ -20,173 +20,122 @@ knitr::opts_chunk$set(warning = FALSE)
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>>")
 ```
 
-```{r render, include=FALSE, eval = FALSE}
-rmarkdown::render(input = "/home/cunnac/Lab-Related/MyScripts/tantale/vignettes/2_tale_classification.Rmd")
-
-pkgdown::build_site(pkg = "/home/cunnac/Lab-Related/MyScripts/tantale",
-                    lazy = FALSE,
-                    )
-
-pkgdown::build_article(pkg = "/home/cunnac/Lab-Related/MyScripts/tantale",
-                    name = "2_tale_classification",
-                    quiet = FALSE
-                    )
-
-
-```
-
-
-
 ```{r package, warning=FALSE, message=FALSE}
 library(tantale)
-library(ggplot2)
-library(tidyverse)
-library(Biostrings)
-library(parallel)
-library(magrittr)
-library(DT)
-library(gplots)
-library(ape)
-library(ggtree)
-library(corrr)
-library(ggcorrplot)
+library(dplyr)
 ```
 
+The previous three articles found TALE arrays, grouped them, and aligned
+related ones. This last article asks the question a TALE's RVD sequence
+exists to answer: what DNA sequence does it bind? Each RVD contacts one
+base of the target through a well-characterised, largely one-to-one code
+(`NI` prefers A, `HD` prefers C, `NG` prefers T, `NN` prefers G or A, and so
+on), so a whole RVD sequence predicts an *EBE* -- an Effector Binding
+Element -- as a short DNA motif with one position per RVD.
 
-```{r load previous session}
-outdir <- fs::dir_create("~/TEMP/test_tantale") # tempdir(check = TRUE)
-load(file.path(outdir, "mining.RData"))
+tantale wraps two independent predictors that use this code differently
+enough to be worth contrasting: [TALVEZ](https://doi.org/10.1371/journal.pone.0068464),
+a position-weight-matrix scan, and
+[PrediTALE](https://doi.org/10.1371/journal.pcbi.1007206), which also models
+where a real EBE tends to sit relative to a transcription start site. Both
+are wrapped as `talvez()` and `preditale()`, taking the same inputs and
+returning the same column layout, so their predictions can be compared
+directly rather than translated by hand.
+
+# Predicting against a real promoter set
+
+RVD sequences come straight from a `tales` object via `tales_rvd_strings()`
+-- the same projection used for alignment input, just with the termini
+dropped by default, since prediction concerns the repeat domain only. This
+reuses the classification result from the second article:
+
+```{r discover_and_compare, message = FALSE, warning = FALSE}
+out <- fs::dir_create(file.path(tempdir(), "tale_target_prediction"))
+genome_files <- c(
+  MAI1 = system.file("extdata", "MAI1.fa", package = "tantale", mustWork = TRUE),
+  BAI3 = system.file("extdata", "BAI3.fa", package = "tantale", mustWork = TRUE),
+  PXO86 = system.file("extdata", "PXO86.fa", package = "tantale", mustWork = TRUE)
+)
+
+all_tales <- lapply(names(genome_files), function(strain) {
+  strain_dir <- file.path(out, strain)
+  invisible(tell_tales(subject_file = genome_files[strain], output_dir = strain_dir))
+  tales_from_telltale(strain_dir) %>%
+    mutate(array_id = paste0(strain, "_", array_id))
+}) %>%
+  suppressWarnings() %>%
+  bind_rows() %>%
+  tales(sanitize = TRUE)
+
+rvds <- tales_rvd_strings(all_tales)
+length(rvds)
 ```
 
+The target sequences are promoter regions of three clade III *SWEET* genes
+-- a well-studied class of rice susceptibility genes that TALEs from
+*Xanthomonas oryzae* are known to target -- from several rice varieties:
 
-Considering the molecular function of TALEs, it is naturally of great interest to predict their target DNA sequence or EBE (Effector Binding Element). For that tantale wraps two classical predictors, ([Talvez](https://doi.org/10.1371/journal.pone.0068464) and [PrediTALE](https://doi.org/10.1371/journal.pcbi.1007206)). This enables to contrast their predictions in a unified interface because their output has been harmonized in a common format.  
-
-In addition, a plotting function with customized output modes generate very convenient and insightful diagrams for these alignments.
-
-
-# TALE Target prediction
-
-We wrap Talvez and Preditale tools in 2 functions, `talvez()` and `preditale()`, that take the same types of RVD sequences and promoter DNA sequences as inputs and output a data frame containing predictions.
-
-We need to concatenate all RVD sequences from 3 `telltale` outputs and remove NTERM and CTERM markers.
-
-```{r predict_input}
-## rvd sequences from telltale output
-rvdSeqs_tt <-  readBStringSet(telltale_rvd)
-rvdSeqs_tt <- gsub("\\-{0,1}\\w{5}\\-{0,1}", "",rvdSeqs_tt) %>% BStringSet() # remove NTERM and CTERM
-predict_input <- file.path(outdir, "rvd_to_predict.fasta")
-writeXStringSet(rvdSeqs_tt, predict_input)
-
-
-## promoter sequences
-rvdSeqsXstrings <-  predict_input
-subj_file <-  system.file("extdata", "cladeIII_sweet_promoters.fasta", package = "tantale", mustWork = T)
-readBStringSet(subj_file) %>% names
+```{r subj_file}
+subj_file <- system.file("extdata", "cladeIII_sweet_promoters.fasta",
+                         package = "tantale", mustWork = TRUE)
+Biostrings::readBStringSet(subj_file) %>% names()
 ```
 
-## talvez
+## TALVEZ
 
-The output of `talvez()` contains the position, score and rank of each prediction.
-
-```{r talvez, eval = TRUE}
-talvezPreds <- talvez(rvd_seqs = rvdSeqsXstrings,
-                      subj_file = subj_file,
-                      opt_param = "-t 0 -l 19",
-                      conda_bin = "/home/cunnac/bin/miniconda3/condabin/conda")
-datatable(talvezPreds, options = list(pageLength = 1))
+```{r talvez, message = FALSE}
+talvez_preds <- talvez(rvd_seqs = rvds, subj_file = subj_file, opt_param = "-t 0 -l 19")
+nrow(talvez_preds)
+talvez_preds %>% arrange(desc(score)) %>% head(5)
 ```
 
-Here is an example of summarizing prediction result with `heatmap.2()` (scores are display by color scale, black refers no prediction):
+## PrediTALE
 
-```{r talvez_predict, fig.width = 6, fig.height = 8}
-talvezPreds$strain <- gsub("\\_.+", "", talvezPreds$taleId)
-talvezPreds$group <- sapply(talvezPreds$taleId, function(id) {
-  ifelse(id %in% taleGroups$name, taleGroups$group[taleGroups$name == id], NA)
-}, USE.NAMES = F)
-
-slctPromoters <- c("SWEET14p_Nipponbare_Sense", "SWEET13p_Nipponbare_Sense", "SWEET11p_Nipponbare_Sense")
-selectedPreds <- talvezPreds %>%
-  dplyr::filter(subjSeqId %in% slctPromoters) 
-
-selectedPredsMat <- selectedPreds %>%
-  reshape2::acast(taleId ~ subjSeqId, max, na.rm = TRUE, value.var = "score", fill = as.single(NA))
-
-heatmap.2(selectedPredsMat,
-                  col = viridis::viridis(20), #cm.colors(255),
-                  sepwidth=c(0.02,0.02), sepcolor="white", colsep = 1:ncol(selectedPredsMat), rowsep = 1:nrow(selectedPredsMat),
-                  trace="none",
-                  margins = c(10, 15),
-                  cexRow = 1,
-                  cexCol = 1, srtCol = 40,
-                  density.info= "histogram", key.xlab = "Pred. Score", key.title = NA,
-                  lwid = c(1,5), lhei = c(1,5),
-                  dendrogram = "none", Rowv = NULL, Colv = NULL,
-                  na.color = "black",
-                  main = "Talvez prediction"
-                  )
+```{r preditale, message = FALSE, results = "hide"}
+preditale_preds <- preditale(rvd_seqs = rvds, subj_file = subj_file)
 ```
 
-To see how RVD sequences match a promoter region, we supply the prediction table and the promoter sequence with the genomic range to `plot_target_preds()`:
-
-```{r SWEET13, fig.width = 14, fig.height = 4}
-grFilter <- "SWEET14p_Nipponbare_Sense:340-450"
-plot_target_preds(preds = selectedPreds, subj_file = subj_file, filter_range = grFilter)
+```{r preditale_show}
+nrow(preditale_preds)
+preditale_preds %>% arrange(desc(score)) %>% head(5)
 ```
 
+PrediTALE additionally reports a `pval` per prediction, since it models the
+null distribution of scores directly rather than only ranking candidates
+against each other -- worth using when the question is "is this a credible
+site at all" rather than only "which of these is the best".
 
+# Visualising predictions against the target sequence
 
+`plot_target_preds()` draws predicted RVD-to-base correspondences directly
+against the target DNA, coloured by how well each RVD's known base
+preference matches the base actually predicted underneath it -- so a
+"good" prediction is visually distinguishable from one held up by only one
+or two well-matching RVDs. Restrict to one promoter and a window within it
+to keep the figure readable:
 
-## preditale
+```{r plot_preds, fig.width=12, fig.height=4}
+best_on_target <- preditale_preds %>%
+  filter(subjSeqId == "SWEET14p_Nipponbare_Sense") %>%
+  arrange(desc(score)) %>%
+  head(5)
 
-With Preditale, we get similar data frame output but with p value additionally. Preditale takes a little bit longer than Talvez and may give some different predictions.
-
-```{r preditale, eval = TRUE}
-preditalePreds <- preditale(rvd_seqs = rvdSeqsXstrings, subj_file = subj_file, output_dir = NULL)
-datatable(preditalePreds, options = list(pageLength = 1))
+plot_target_preds(preds = best_on_target, subj_file = subj_file,
+                  filter_range = "SWEET14p_Nipponbare_Sense:300-500")
 ```
 
-```{r preditale_predict, fig.width = 6, fig.height = 6}
-talvezPreds$strain <- gsub("\\_.+", "", talvezPreds$taleId)
-talvezPreds$group <- sapply(talvezPreds$taleId, function(id) {
-  ifelse(id %in% taleGroups$name, taleGroups$group[taleGroups$name == id], NA)
-}, USE.NAMES = F)
+Each RVD is printed in a box over the base it is predicted to contact;
+predictions on the sense strand are drawn above the sequence and those on
+the antisense strand below it, since a TALE can bind either strand of its
+target.
 
-slctPromoters <- c("SWEET14p_Nipponbare_Sense", "SWEET13p_Nipponbare_Sense", "SWEET11p_Nipponbare_Sense")
-selectedPreds <- preditalePreds %>%
-  dplyr::filter(subjSeqId %in% slctPromoters) 
+# Closing the loop
 
-selectedPredsMat <- selectedPreds %>%
-  reshape2::acast(taleId ~ subjSeqId, max, na.rm = TRUE, value.var = "score", fill = as.single(NA))
-
-gplots::heatmap.2(selectedPredsMat,
-                  col = viridis::viridis(20), #cm.colors(255),
-                  sepwidth=c(0.02,0.02), sepcolor="white", colsep = 1:ncol(selectedPredsMat), rowsep = 1:nrow(selectedPredsMat),
-                  trace="none",
-                  margins = c(10, 15),
-                  cexRow = 1,
-                  cexCol = 1, srtCol = 40,
-                  density.info= "histogram", key.xlab = "Pred. Score", key.title = NA,
-                  lwid = c(1,5), lhei = c(1,5),
-                  dendrogram = "none", Rowv = NULL, Colv = NULL,
-                  na.color = "black",
-                  main = "Preditale prediction"
-                  )
-```
-
-```{r SWEET14, fig.width = 14, fig.height = 4}
-grFilter <- "SWEET14p_Nipponbare_Sense:340-450"
-plot_target_preds(preds = selectedPreds, subj_file = subj_file, filter_range = grFilter)
-```
-
-
-```{r save session}
-save.image(file.path(outdir, "mining.RData"))
-```
-
-
-# Session info
-
-```{r session info}
-sessioninfo::session_info()
-```
-
+These four articles followed one path through a TALE study: `tell_tales()`
+to find arrays (correcting them, and checking for what correction could not
+fix, along the way), `tales_compare()` and `tales_group()` to relate them,
+`tales_align()` to see that relatedness directly, and `talvez()`/
+`preditale()` to ask what they do. None of these steps requires the ones
+before it in code -- each function documented here takes ordinary `tales`
+objects or plain sequences -- but together they cover most of what a study
+of TALE diversity in a set of genomes actually needs.
