@@ -557,7 +557,19 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
   asciiConverstionCmd <- glue::glue("{hex2text} {shQuote(hexFile)} > {shQuote(asciFile)}")
   mafftCmd <-  glue::glue("{mafftBin} {maffMatOpt} --text {mafft_opts} {shQuote(asciFile)} > {shQuote(mafftAsciiOutFile)}")
   MsaConversionToHexCmd <- glue::glue("{text2hex} {shQuote(mafftAsciiOutFile)} > {shQuote(mafftHexOutFile)}")
-  pipeline <- paste(asciiConverstionCmd, mafftCmd, MsaConversionToHexCmd, sep = "; ")
+  # Joined with && rather than ; so the exit status means something. With ";"
+  # the status is the last command's, so a MAFFT failure is masked whenever
+  # maffttext2hex then succeeds on the truncated file it left behind.
+  pipeline <- paste(asciiConverstionCmd, mafftCmd, MsaConversionToHexCmd,
+                    sep = " && ")
+
+  # MAFFT's wrapper script prefers $MAFFT_BINARIES over the prefix conda baked
+  # into it, so a stray one in the user's shell -- a cluster module, an old
+  # hand-installed copy -- silently redirects it at other binaries. That would
+  # defeat the 7.453 pin, which exists because later versions align TALE
+  # repeat strings differently. MAFFT does notice the version mismatch and
+  # refuse, but it is cheaper not to depend on the environment at all.
+  pipeline <- paste0("unset MAFFT_BINARIES; ", pipeline)
 
   # MAFFT reports its banner, the strategy it chose and its per-sequence
   # progress on stderr, which is dozens of lines per alignment. Captured to a
@@ -570,9 +582,16 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
   res <- system(command = pipeline,
          ignore.stdout = FALSE, ignore.stderr = FALSE, intern = FALSE)
 
-  # Getting msa output and converting back to alignment of residues
-  msaOfHex <- Biostrings::readBStringSet(mafftHexOutFile)
-  if (length(msaOfHex) == 0L) {
+  # Getting msa output and converting back to alignment of residues.
+  # The file may not exist at all now that the pipeline short-circuits, so
+  # its absence is treated as the empty result rather than left to error
+  # with a file-not-found that says nothing about MAFFT.
+  msaOfHex <- if (file.exists(mafftHexOutFile)) {
+    Biostrings::readBStringSet(mafftHexOutFile)
+  } else {
+    Biostrings::BStringSet()
+  }
+  if (res != 0L || length(msaOfHex) == 0L) {
     saidWhy <- if (!mafft_verbose && file.exists(stderrFile)) {
       utils::tail(readLines(stderrFile, warn = FALSE), 20)
     } else character()

@@ -179,3 +179,41 @@ test_that("mafft_verbose is reachable from tales_align()", {
   expect_true("mafft_verbose" %in% names(formals(tales_align)))
   expect_false(formals(tales_align)$mafft_verbose)
 })
+
+
+#### The MAFFT call is insulated from the environment, and failures surface ####
+#
+# tales_align() runs MAFFT by absolute path into the conda environment rather
+# than by activating it. That is sound -- the conda build bakes its prefix
+# into the wrapper script -- with one exception, which these pin.
+
+align_fixture <- function() {
+  d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
+  x <- suppressWarnings(tales(d$tale_parts))
+  x[x$array_id %in% unique(x$array_id)[1:3], ]
+}
+
+test_that("a stray MAFFT_BINARIES does not change the alignment", {
+  # MAFFT's wrapper prefers $MAFFT_BINARIES over the prefix conda baked into
+  # it, so a leftover in the user's shell would redirect it at other binaries
+  # and defeat the 7.453 pin -- the pin that exists because later versions
+  # align TALE repeat strings differently.
+  x <- align_fixture()
+  clean <- suppressWarnings(suppressMessages(tales_align(x, residue_col = "rvd")))
+  withr::with_envvar(c(MAFFT_BINARIES = "/tmp/not-a-mafft"), {
+    hijacked <- suppressWarnings(suppressMessages(tales_align(x, residue_col = "rvd")))
+    expect_identical(as.matrix(hijacked, value = "rvd"),
+                     as.matrix(clean, value = "rvd"))
+  })
+})
+
+test_that("a MAFFT that exits nonzero is reported, not silently accepted", {
+  # The pipeline stages are joined with && so the exit status is meaningful:
+  # with ";" a MAFFT failure was masked whenever maffttext2hex then succeeded
+  # on the truncated file it left behind.
+  expect_error(
+    suppressWarnings(suppressMessages(
+      tales_align(align_fixture(), residue_col = "rvd",
+                  mafft_opts = "--this-flag-does-not-exist"))),
+    class = "tantale_error_mafft_failed")
+})
