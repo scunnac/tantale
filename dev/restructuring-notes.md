@@ -3,7 +3,7 @@
 Working document for the pre-publication overhaul. Records findings, agreed
 actions and deferred questions so they don't live only in conversation.
 
-Branch: `dev`. Last updated: 2026-09-17.
+Branch: `dev`. Last updated: 2026-09-17 (pushed as of commit `d13bb5e`).
 
 Status markers used below:
 
@@ -33,6 +33,31 @@ sub-heading described `msa_heatmap()`/`group_tales()`, both since
 renamed/retired). Both are now flagged inline. There was not time to
 re-check every other `[V]` section the same way -- treat this file's
 "done" markers as a claim to spot-check against the code, not a guarantee.
+
+**Tonight's session in one place** (five commits, `6811f91`..`2c57864`,
+plus a housekeeping commit `d13bb5e`; all pushed):
+
+1. **§7.5a written** -- the pkgdown article on the `tales` class, all five
+   `dom_code` points covered, every example live against the shipped
+   fixture. Reference-fixture numbers re-derived from
+   `sampleDistalrOutput.rds` rather than trusted, and matched exactly.
+2. **§7.5z decided and applied** -- articles are Quarto, not R Markdown;
+   `tales-class.qmd` converted and re-verified with a real `quarto render`.
+3. **The ledger itself audited and reordered.** §7 and §8 were in add-order
+   rather than numeric order (§8 alone had 18 subsections scrambled);
+   reordered with a content-preservation check (sorted line-multiset
+   identical before/after), nothing renumbered, so the ~35 `(ledger §N)`
+   references in `R/` and `tests/` still resolve correctly. Two stale
+   `[V]`/done claims caught in the process and flagged inline: a §6 bullet
+   describing a bug as open that was already fixed two paragraphs below
+   it, and a §9.1 sub-heading naming three functions (`msa_heatmap()`,
+   `plot_tales_msa()`, `group_tales()`) that no longer exist under those
+   names.
+4. **§9.2b finished** -- `arrayReport.tsv` and `hitsReport.tsv` are now
+   fully snake_case, exactly the mapping this section had proposed. Golden
+   re-baselined, every changed row traced to the rename before accepting.
+5. Four obsolete `dev/session-log-*` files and their rendered `.html`
+   copies removed (maintainer's call) -- their content lives in this file.
 
 `grep -nE '\*\*\[A\]\*\*|\*\*\[P\]\*\*' dev/restructuring-notes.md`
 lists what is still open. As of 2026-09-17 (late evening), five sections
