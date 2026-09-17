@@ -2911,3 +2911,62 @@ a link. Use parentheses, or escape them.
 - Treating `run_annotale_predict()` / `run_annotale_build()` as dead. They have
   no internal call sites but are legitimate standalone user utilities — the type
   case for "useful outside the `pipeline.svg` workflow".
+
+---
+
+## 11. Rework `tales_group()` — together, and last **[A]**
+
+**Maintainer's note:** `tales_group()` was written by a student, and the code
+should be improved. This is **not an unattended task**: to be done jointly,
+and scheduled **after** the website articles (§7.5a, §7.5) are finished.
+
+Only the signature has been touched so far (§5.2): it now takes the `tales`
+object and returns it with `group` filled. The body is as inherited.
+
+Observations from reading it while doing §5.2, recorded so the joint session
+starts with evidence rather than a re-read. None of these are decisions.
+
+**Things that make it hard to call from a script**
+
+- `k = NULL` **prompts on stdin** (`readLines(con = stdin(), 1)`, line 76)
+  after drawing a silhouette plot. A function that blocks for keyboard input
+  cannot be used in a pipeline, a test, or a vignette, and this is the
+  documented default.
+- `k` carries three types in one argument: `NULL` (prompt), the string
+  `"auto"`, or a number. A length > 1 `k` trips R's own "condition has
+  length > 1" on `k == "auto"` before reaching the intended
+  `stop("invalid k value!")` — there is already a test noting this.
+- `method = "k-medoids"` is the default but needs `k_range`, whose default
+  is `NULL`, so the documented default call errors.
+- Plotting is unconditional in two of the branches: the function computes
+  *and* draws, with no way to ask for only the first.
+- `set.seed(7)` is hardcoded inside the k-medoids loop, so the caller cannot
+  control or observe the seed.
+
+**Two substantive questions, not style**
+
+- The hclust branch runs a **bisection search over cut height** to land on
+  exactly `k` groups (lines 125-133), erroring with "Cannot determine k
+  groups!" when it cannot. `cutree(tree, k = numGroups)` does this directly
+  and always succeeds. Worth understanding why the height search is there
+  before replacing it — it may be deliberate, since the cut height is then
+  reported on the plot.
+- `hclust(d = dist(distMat, method = "euclidean"))` clusters the
+  dissimilarity matrix by the **Euclidean distance between its rows** —
+  i.e. it treats each TALE's vector of distances to all others as
+  coordinates, rather than clustering the distances themselves. The
+  commented-out `hclust(as.dist(distMat), ...)` right above it (line 118)
+  suggests this was uncertain at the time. These give different trees and
+  the choice is biological, not technical.
+
+**Smaller**
+
+- `stop()` throughout rather than `cli::cli_abort()` with condition classes,
+  so none of its failures are catchable by class the way the rest of the
+  package's are (§9.5).
+- `message("WE SHOULD BE DOING SOMETHING")` (line 113) is a live placeholder
+  on the `method = "hclust"`, `k = NULL` path.
+- Pulls in `ggtree`, `tidytree` and `viridis` for a side-effect plot.
+
+**Prerequisite met:** the function has 28 tests as of §5.2, so a rewrite has
+something to hold it in place.
