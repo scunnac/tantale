@@ -11,3 +11,5 @@
 ^figure$
 ^LICENSE\.md$
 ^Rplots\.pdf$
+^\.claude$
+^CLAUDE\.md$
