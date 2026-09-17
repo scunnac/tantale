@@ -1263,7 +1263,7 @@ Worth keeping as a habit: **run `pkgdown::check_pkgdown()` after retiring or
 adding an exported topic.** Nothing else catches a dangling reference entry,
 and `R CMD check` does not look at `_pkgdown.yml`.
 
-### 7.5a An article on the `tales` class, and what a `dom_code` is **[A]**
+### 7.5a An article on the `tales` class, and what a `dom_code` is -- DONE **[V]**
 
 A full pkgdown article on the `tales` class, written for an audience that is
 biologists first. The `tales_msa` class gets the same treatment later, with
@@ -1327,6 +1327,37 @@ it; `tales_anomalies()` and `sanitize`; and the projections
 Relates to 8.5b: if `tales_compare()` is broken into three exported steps,
 the code-assignment step becomes the natural place to link this explanation
 from.
+
+**Written.** `vignettes/articles/tales-class.Rmd`. All five `dom_code`
+points covered; the 251/180/71 split was re-derived from
+`sampleDistalrOutput.rds` rather than trusted from this ledger (they match
+exactly), and the article's own live example (the small shipped
+`bai3_sample_tal_genomic_regions.fasta`, run through `tell_tales()`) gives
+47 distinct codes across 96 parts, 39 of them repeats.
+
+**Two placement decisions, not specified by this section:**
+
+- **`vignettes/articles/`, not the numbered `vignettes/` sequence.**
+  Confirmed with `tools::pkgVignettes()` that R's build machinery does not
+  descend into that subfolder, so this is a pkgdown-only article: it never
+  runs during `R CMD build`/`check`, and does not need the conda
+  environment to be present for the package to build. The numbered
+  vignettes remain §7.5's job.
+- **Live, not static.** Every example is an executed chunk against the
+  small shipped fixture, not prose describing numbers by hand -- so the
+  article stays true across rebuilds rather than becoming another thing
+  that quietly drifts from the code (§9.2's own lesson).
+
+**A real bug caught by verifying rather than assuming.** The first draft
+cross-referenced functions as `[fn()][fn]`, which is roxygen2's `.Rd` link
+syntax and not valid in a plain `.Rmd` -- pandoc silently dropped every one
+under both plain `rmarkdown::render()` and a real `pkgdown::build_article()`
+(tested against a temporary installed copy, since pkgdown's article
+renderer requires an installed package and will not accept `load_all()`).
+Fixed to the convention the existing vignettes already use, plain
+`` `fn()` `` inline code, which `downlit` autolinks automatically -- and
+re-verified all 15 references resolve to the correct reference page.
+
 
 ### 7.5 Worked examples: vignettes and `@examples` **[A]**
 

@@ -1,0 +1,330 @@
+---
+title: "The tales class"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: false
+editor_options:
+  chunk_output_type: console
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
+```
+
+Every function in tantale that describes, compares or plots a set of TALEs
+takes or returns a `tales` object. This article is about what that object
+is, how to build one, and what its most important column -- `dom_code` --
+actually means.
+
+```{r setup, message = FALSE}
+library(tantale)
+library(dplyr)
+```
+
+# One row per part, not per TALE
+
+A `tales` object is a long table with **one row per part** of a TALE array:
+one row for the N-terminus, one for each central repeat, one for the
+C-terminus. It is not one row per TALE.
+
+That shape is forced by the biology. A TALE array is built from a variable
+number of repeats -- as few as a handful, more than thirty in some natural
+alleles -- so "one row per TALE" would need a ragged number of columns, one
+per possible repeat position. A long table sidesteps that entirely: an array
+with 12 repeats and one with 27 are both just more rows, distinguished by
+`array_id`.
+
+Building one from a real `tell_tales()` run looks like this. The example
+below uses the small sequence set shipped with the package, so it runs in a
+few seconds without any correction step:
+
+```{r tell_tales_demo, message = FALSE, warning = FALSE}
+out <- file.path(tempdir(), "tales_class_article")
+invisible(tell_tales(
+  subject_file = system.file("extdata", "bai3_sample_tal_genomic_regions.fasta",
+                             package = "tantale", mustWork = TRUE),
+  output_dir = out))
+
+x <- suppressWarnings(tales_from_telltale(out))
+x
+```
+
+Two columns locate a part within its array, and they answer different
+questions:
+
+- `position_in_array` numbers **every** part, termini included, starting at
+  1 (the N-terminus, when present).
+- `position_in_crd` numbers only the **repeats**, starting at 1 for the
+  first one, and is `NA` on the two termini.
+
+They agree wherever there is no N-terminus to offset them, and differ by
+exactly the number of non-repeat parts that come before a given position
+otherwise. This is also why keeping only the repeats of an array
+(`filter(x, domain_type == "repeat")`) is a perfectly valid `tales` and not
+a broken one: `position_in_crd` stays contiguous from 1 even though
+`position_in_array` no longer starts there. Completeness -- every part
+present, `position_in_array` running `1:n` -- is a precondition some
+functions need (alignment, chiefly, checked by `tales_assert_complete()`), not an invariant of the class
+itself.
+
+# The column contract
+
+Two columns are required outright, because without them a row cannot be
+located at all: `array_id` and `position_in_array`. A third requirement is
+looser -- at least one of `rvd` or `dom_code` must be present, since a
+`tales` with neither has no residues to describe.
+
+Everything else is optional, but validated for shape when it is there:
+
+| column | holds |
+|---|---|
+| `domain_type` | `"N-terminus"`, `"repeat"`, or `"C-terminus"` |
+| `position_in_crd` | position among repeats only, `NA` on termini |
+| `aa_seq`, `dna_seq` | the part's amino acid / nucleotide sequence |
+| `seqnames` | the source contig, for parts read off a genome |
+| `dom_code` | see below -- minted by comparison, not by discovery |
+| `source_directory` | which `tell_tales()` run produced this row |
+
+A `tales` built straight from a fasta of RVD sequences (below) has none of
+these beyond `rvd` itself, and that is a legitimate, if minimal, object.
+Any further column -- a strain name, a clade, a host range -- is preserved
+untouched and never warned about: metadata is expected to accumulate on
+this table via ordinary `mutate()` calls.
+
+# Three ways to build one
+
+**From a `tell_tales()` run**, as above, with `tales_from_telltale()`.
+This is the richest route: it carries sequences, source coordinates and
+both position columns.
+
+**From bare sequences**, with `as_tales()` -- a fasta of RVD or
+repeat-code strings, sequence names becoming `array_id`:
+
+```{r as_tales_demo}
+rvd_fasta <- system.file("extdata", "TalA_RVDSeqs_AnnoTALE.fasta",
+                         package = "tantale")
+cat(readLines(rvd_fasta, n = 2), sep = "\n")
+
+as_tales(rvd_fasta, sep = "-")
+```
+
+This result is deliberately column-poor -- `array_id`, `position_in_array`
+and `rvd`, nothing else -- because that is all a bare sequence file can
+supply. It is still a complete, valid `tales`.
+
+**From a comparison**, with `tales_assign_domain_codes()` (see below): the
+same object, given back with a `dom_code` column added.
+
+All three produce the same class, checked by the same `validate_tales()`,
+usable with the same functions afterwards.
+
+# It is a tibble
+
+A `tales` is a tibble with extra structure layered on top, not a different
+kind of thing. Ordinary dplyr verbs work on it directly:
+
+```{r dplyr_demo}
+x %>%
+  filter(domain_type == "repeat") %>%
+  count(array_id)
+```
+
+Subsetting that would break the class -- dropping `array_id`, say -- quietly
+degrades the result to a plain tibble rather than erroring, so a `tales`
+never lies about what it is.
+
+`print()` and `format()` follow the same idea Biostrings uses for sequence
+sets: a header with the essentials (arrays, parts, which residue columns
+are present), then the first and last arrays rendered as sequences, eliding
+the middle. `summary()` adds the slower numbers -- how redundant the domains
+are, how many repeats per array, whether every array has both termini --
+and folds in `tales_anomalies()`:
+
+```{r summary_demo}
+summary(x)
+```
+
+# Anomalies are reported, not refused
+
+Real TALE predictions are messy: a terminus can be duplicated, misplaced,
+or simply not found. `tales()` loads such arrays anyway rather than
+refusing them -- a class that insists on clean input forces cleaning
+outside the package and throws away exactly the signal a user would want to
+inspect.
+
+"Anomalous" is deliberately a narrower category than "wrong". An array
+missing a terminus, for instance, is not flagged here at all: it may
+genuinely sit at the edge of a contig. What *is* flagged is a part
+arrangement that cannot be biologically real -- two N-termini in one array,
+say, or one that is not at the start:
+
+```{r anomaly_demo}
+odd <- tibble::tibble(
+  array_id = c("a1", "a1", "a1", "a2", "a2", "a2"),
+  position_in_array = c(1L, 2L, 3L, 1L, 2L, 3L),
+  domain_type = c("N-terminus", "N-terminus", "repeat",
+                  "N-terminus", "repeat", "C-terminus"),
+  rvd = c("NTERM", "NTERM", "HD", "NTERM", "HD", "CTERM")
+)
+x_odd <- suppressWarnings(tales(odd))
+tales_anomalies(x_odd)
+```
+
+`tales(sanitize = TRUE)` drops the flagged arrays instead of merely warning
+about them:
+
+```{r sanitize_demo}
+tales(odd, sanitize = TRUE)
+```
+
+Structural problems -- a duplicated key, an `NA` where one is not allowed --
+are a different matter and remain hard errors either way: the table cannot
+be interpreted at all, rather than merely describing something odd.
+
+# Projections: turning parts back into sequences
+
+Some consumers want a `tales` as a table; others want each array back as a
+single string. Three functions bridge the gap:
+
+- `tales_rvd_strings()` -- one RVD string per array, the form
+  target-prediction tools consume. Drops the termini by default
+  (`rvd_only = TRUE`), since prediction concerns the repeat domain only.
+- `tales_coded_strings()` -- the `dom_code` sibling, for ARLEM and MAFFT's
+  text mode. Keeps the termini by default, since alignment wants them as
+  anchors, and separates codes with a space rather than a dash, because
+  that is what those tools split on.
+- `tales_domain_codes()` -- not a per-array string but the lookup table
+  itself: one row per distinct `dom_code`, with the amino acid sequence
+  and RVD it stands for.
+
+```{r projections_demo}
+xa <- tales_assign_domain_codes(x)
+tales_coded_strings(xa)["ROI_00002"]
+tales_domain_codes(xa) %>% head(4)
+```
+
+# What a `dom_code` is
+
+This is the column the rest of the comparison machinery is built on, and it
+is worth being precise about.
+
+## It names a domain, not a repeat
+
+A TALE part is an N-terminus, a repeat, or a C-terminus, and **all three get
+`dom_code`s on the same footing**. "Domain" is the word used here
+specifically because it has to cover a repeat and a terminus
+indiscriminately -- "repeat code" would be the wrong name for a column that
+also numbers C-termini. Two parts with identical amino acid sequences get
+the same code, whatever kind of part they are.
+
+The distinction is not pedantic. In the small example used throughout this
+article:
+
+```{r dom_code_counts}
+n_distinct(xa$dom_code)
+table(xa$domain_type[match(unique(xa$dom_code), xa$dom_code)])
+```
+
+`r n_distinct(xa$dom_code)` distinct codes, and only
+`r sum(xa$domain_type[!duplicated(xa$dom_code)] == "repeat")` of them are
+repeats -- the rest are distinct N- and C-termini. Describing the total as a
+repeat count would overstate the repeat diversity by a substantial margin.
+
+## It is what makes a TALE alignable
+
+Aligning TALE arrays residue by residue is meaningless: the repeats are
+near-identical (~34 amino acids, differing mainly at two positions), so
+almost anything matches almost anything else. Giving each distinct repeat a
+symbol turns an array into a *sequence of repeat units* instead, which can
+be aligned the way a protein sequence is -- with insertions and deletions of
+whole repeats rather than of individual residues. This is why `tales_align()` works on `dom_code` (or `rvd`), never on
+`aa_seq` directly.
+
+## It is finer than an RVD
+
+The RVD is residues 12-13 of a repeat, and it is what determines which DNA
+base the repeat binds. Two repeats can share an RVD -- the same binding
+specificity -- while differing elsewhere in the protein, and they get
+**different** `dom_code`s. So `rvd` is the functional layer and `dom_code`
+the identity layer, and the class carries both because they answer
+different questions.
+
+In this example, the RVD `HD` (the code for cytosine) is shared by several
+distinct repeat proteins:
+
+```{r hd_example}
+reps <- xa %>% filter(domain_type == "repeat")
+reps %>% filter(rvd == "HD") %>% distinct(dom_code, aa_seq) %>% head(4)
+```
+
+A terminus, meanwhile, has no RVD at all: its `rvd` column holds a
+placeholder -- `"NTERM"`, `"CTERM"`, or `"XXXXX"` for a terminus whose CDS
+was detected but not identified (see `tales_anchor_codes()`) -- while its
+`dom_code` is a real identifier of a real sequence. Another reason the two layers are not
+interchangeable.
+
+## How they are computed
+
+Plainly: group the parts by `aa_seq`, number the groups.
+`dplyr::cur_group_id()`, nothing cleverer, done by
+`tales_assign_domain_codes()`.
+
+## The numbers are only meaningful within one call
+
+Because the numbering depends on which distinct sequences are present, code
+`42` from one comparison is not code `42` from another -- add an array,
+remove one, or run it on a different day's data, and the same protein can
+land on a different number. This is not a wart to work around; it is a fact
+to know before using `dom_code` for anything, and the package enforces it
+rather than merely documenting it.
+
+Every object `tales_assign_domain_codes()` produces carries a namespace
+stamp, readable with `tales_namespace()`, derived from the exact set of
+sequences that produced it:
+
+```{r namespace_demo}
+tales_namespace(xa)
+```
+
+Mixing codes from two different calls is refused rather than silently
+computing a wrong answer. Splitting the example array set in two and
+re-assigning codes to one part gives it a different namespace, and using it
+against distances computed for the other part is an error:
+
+```{r namespace_mismatch, error = TRUE}
+dd_all <- suppressMessages(tales_domain_distances(xa))
+
+sub <- xa[xa$array_id != "ROI_00001", ][setdiff(names(xa), "dom_code")]
+xa_sub <- tales_assign_domain_codes(sub)
+
+tales_namespace(xa_sub) == tales_namespace(xa)
+
+tales_tale_distances(xa_sub, dd_all)
+```
+
+# Where `dom_code` leads: comparing TALEs
+
+Minting codes is the first of three steps that together compare a set of
+TALEs -- `tales_assign_domain_codes()` first, then `tales_domain_distances()`
+(how different the distinct domains are from each other, pairwise), then
+`tales_tale_distances()` (how different the *arrays* are, aligning their
+domain-code sequences using the domain distances as the substitution cost).
+`tales_compare()` runs all three and returns the corresponding `tales`,
+`domain_distances` and `tale_distances` objects together:
+
+```{r tales_compare_demo, message = FALSE, warning = FALSE}
+cmp <- tales_compare(x)
+names(cmp)
+```
+
+Each step is independently useful -- the domain-level distances alone
+answer questions about repeat diversity, without ever running the
+array-level alignment -- and each is documented in its own right; see
+`tales_compare()` for the full chain.
+
+# Next
+
+Aligning several `tales` into a `tales_msa` and what can be read off that
+alignment is the subject of the next article.
