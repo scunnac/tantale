@@ -891,6 +891,41 @@ A sensible first pass would be purely mechanical: extract the named stages into
 internals, without changing behaviour, and get the indentation down. The 17
 arguments are a separate question and interact with 9.1.
 
+### 5.4 Reassemble whole-TALE sequences from ordered domain parts **[P]**
+
+Maintainer's request (2026-09-18), for later: two new converters,
+`tales_get_protein_seq()` and `tales_get_dna_seq()`, taking a `tales`
+object and returning one `Biostrings` object (`AAStringSet`/
+`DNAStringSet`) per `array_id` -- built by pasting that array's parts'
+`aa_seq`/`dna_seq` together in `position_in_array` order (N-term,
+repeats in order, C-term). The maintainer recalled possibly having
+written something like this before but could not locate it.
+
+**Checked, does not currently exist.** Grepped `R/` and `inst/legacy/`
+for anything that concatenates a `tales`/`tale_parts` object's rows back
+into one sequence per array: nothing does this. The nearest things in
+the codebase are not it --
+`.extract_seqs_from_hits()` (`unused_pending_review.R`, itself parked)
+*creates* per-hit sequences by subsetting a genome at nhmmer
+coordinates, it does not reassemble already-parsed parts; `tale_parts()`
+type readers (`tales_ingest.R`) build the `aa_seq`/`dna_seq` columns in
+the first place but return one row per part, never concatenated; and
+`.translate_parts()` (`distalr.R`) translates `dna_seq` -> `aa_seq`
+per row, again not a concatenation across rows. So the maintainer's
+memory of writing this is either from code since removed, or from a
+different, unshipped project.
+
+Not implemented yet -- recorded here so the idea is not lost, not
+started. Worth settling before writing it: ordering key
+(`position_in_array` vs `alignment_position`, given `tales_msa` inputs
+would have gaps to skip or fail on); what happens to a `tales_msa`'s gap
+rows if one is passed in; whether N-/C-terminal parts are always present
+per array or need a documented fallback when absent; return type exactly
+(bare `AAStringSet`/`DNAStringSet`, `names()` set to `array_id`) to match
+how the rest of the package hands off to `Biostrings`
+(see `R/distalr.R:120`, `R/tales_ingest.R:15-16` for the existing
+conventions to match).
+
 ---
 
 ## 6. Correctness review backlog **[P]**
