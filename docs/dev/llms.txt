@@ -1,0 +1,335 @@
+[![Lifecycle:
+stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
+
+![](./reference/figures/tantale_logo_small.gif)
+
+## An integrated collection of functions for [TALE](https://en.wikipedia.org/wiki/Transcription_activator-like_effector) mining and analysis with the R language
+
+Analyzing TALEs in (mostly *Xanthomonas*) genomes typically means
+coordinating several concurrent and complementary tools running on
+different platforms (Java, Perl), which is cumbersome to script and
+automate. Making sense of the output is harder still, since there is no
+easy way to graphically represent the various objects of the analysis.
+
+With `tantale`, we compiled and extended our previous code wrapping TALE
+analysis tools into an integrated R interface that further provides an
+extensive list of utilities for easy plotting. This enables a moderately
+proficient R programmer to perform entire analysis pipelines directly in
+R and access result objects for custom manipulations.
+
+Here is a snapshot of the topics that are or will (hopefully) be covered
+in the future:
+
+- A TALE-oriented OOP framework:
+  - `tales`/`tales_msa` S3 classes, with subsetting, coercion, and
+    plotting methods – see [the `tales` class
+    article](https://scunnac.github.io/tantale/articles/tales_class.html)
+    and [the `tales_msa` class
+    article](https://scunnac.github.io/tantale/articles/tales_msa_class.html)
+- TALE mining in bacterial sequences:
+  - Wrapper around [AnnoTALE](https://doi.org/10.1038/srep21077) and
+    [correcTALE](https://doi.org/10.1186/s12864-023-09228-1)
+  - tell_tales, an R function similar to AnnoTALE
+  - Analysis tools for RVD inventory, repeat lenght
+- TALEs classification, phylogeny:
+  - Wrappers around [DisTAL](https://doi.org/10.3389/fpls.2015.00545),
+    [functal](https://doi.org/10.3389/fpls.2015.00545), AnnoTALE
+  - TALE groups inference
+  - Easily build Multiple alignments and generate nice plots
+- TALE targets predictions:
+  - Wrappers around target predictors
+    ([Talvez](https://doi.org/10.1371/journal.pone.0068464) and
+    [PrediTALE](https://doi.org/10.1371/journal.pcbi.1007206))
+  - General parser for results aggregation
+  - Connector with
+    [daTALbase](https://doi.org/10.1094/MPMI-06-17-0153-FI) (to be done)
+
+## Installation
+
+For further details, take a look at the package
+[website](https://scunnac.github.io/tantale).
+
+### 1. Install the R package
+
+``` r
+remotes::install_github("scunnac/tantale",
+                        type = "source",
+                        dependencies = TRUE,
+                        upgrade = "never")
+```
+
+### 2. Make sure conda is available
+
+tantale does not bundle the programs it drives. MAFFT, HMMER, mmseqs2
+and the Perl dependencies of the target predictors come from a conda
+environment the package builds for itself, so **conda (or mamba, or
+micromamba) is a prerequisite of the main workflow**, not just of
+optional extras.
+
+You do not have to install it by hand or know anything about it. If you
+have no conda at all, `reticulate` will install one from inside R:
+
+``` r
+install.packages("reticulate")
+reticulate::install_miniconda()
+```
+
+Note this installs **miniconda**, not mamba. If you already have conda,
+mamba or micromamba, tantale finds it through
+[`reticulate::conda_binary()`](https://rstudio.github.io/reticulate/reference/conda-tools.html)
+and uses that instead – nothing else to do.
+
+### 3. Check everything is in place
+
+``` r
+tantale::tantale_setup()
+```
+
+This reports what is present and what is missing, and changes nothing.
+`tantale_setup(install = TRUE)` then builds or repairs the environment.
+
+Running it is optional – the environment is built on first use if it is
+absent – but it is worth doing once, for two reasons:
+
+- **The first real call would otherwise be the slow one.** The
+  environment is built on first use rather than at install time, so it
+  needs the network and takes a few minutes.
+- **It checks versions, not just presence.** MAFFT changed its `--text`
+  mode gap handling after 7.4x, and later versions align TALE repeat
+  strings differently. An environment left over from an older version of
+  tantale produces different alignments from the same input, and nothing
+  else would tell you.
+
+> **If you have both conda and micromamba**, note they keep **separate
+> roots**. An environment named `tantale` in one is not the one in the
+> other, and a rebuild can report success while the package goes on
+> using the other copy.
+> [`tantale_setup()`](https://scunnac.github.io/tantale/dev/reference/tantale_setup.md)
+> prints the binary, the default root and the environment actually in
+> use, precisely so this is visible.
+
+### Also needed
+
+- **Java and Perl on the PATH.** Several wrappers (AnnoTALE, PrediTALE,
+  TALE correction, the target predictors) are written in other
+  languages.
+  [`tantale_setup()`](https://scunnac.github.io/tantale/dev/reference/tantale_setup.md)
+  checks for these too.
+- **Linux.** tantale has been written with only Linux in mind and will
+  very likely not work on other operating systems.
+
+tantale ships about 60 MB of Java programs (AnnoTALE, PrediTALE and TALE
+correction) that have no conda package, which is most of its footprint.
+
+------------------------------------------------------------------------
+
+**NOTE** :
+
+- tantale is under active development ahead of publication; interfaces
+  may still change.
+- Documentation could be improved and extended.
+- If you feel like contributing, that is great, please send me an email:
+  <sebastien.cunnac@ird.fr>
+
+------------------------------------------------------------------------
+
+## Use of large language models
+
+The authors used large language models (Claude, Anthropic – including
+Claude Sonnet 5) to assist with code development, debugging, and
+documentation writing throughout this package. Where LLM assistance
+extends to a manuscript describing this work, it is limited to the
+copy-editing stage; the manuscript itself is written entirely by the
+authors. Any figures are prepared by the authors, with LLMs used only to
+help write the scripts that generate them. The authors affirm that they
+are fully responsible for the content of the codebase, its
+documentation, and any accompanying manuscript.
+
+# Package index
+
+## TALE discovery
+
+Find TALE genes in genomic sequence and parse them into arrays of parts.
+
+- [`correct_tales()`](https://scunnac.github.io/tantale/dev/reference/correct_tales.md)
+  : Correct TALE ORFs in error-prone sequences
+- [`tales_from_telltale()`](https://scunnac.github.io/tantale/dev/reference/tales_from_telltale.md)
+  : Build a tales object from a tell_tales run directory
+- [`tell_tales()`](https://scunnac.github.io/tantale/dev/reference/tell_tales.md)
+  : Search and report on the features of TALE protein domains
+  potentially encoded in subject DNA sequences
+
+## tales objects
+
+The central long table of TALE array parts, its constructor and
+validators.
+
+- [`as_tales()`](https://scunnac.github.io/tantale/dev/reference/as_tales.md)
+  : Coerce sequences of TALE parts to a tales object
+- [`format(`*`<tales>`*`)`](https://scunnac.github.io/tantale/dev/reference/format.tales.md)
+  : Render a tales object as lines of text
+- [`format(`*`<tales_msa>`*`)`](https://scunnac.github.io/tantale/dev/reference/format.tales_msa.md)
+  : Render a tales_msa object as lines of text
+- [`is_tales()`](https://scunnac.github.io/tantale/dev/reference/is_tales.md)
+  : Is this a tales object?
+- [`print(`*`<tales>`*`)`](https://scunnac.github.io/tantale/dev/reference/print.tales.md)
+  : Print a tales object
+- [`print(`*`<tales_msa>`*`)`](https://scunnac.github.io/tantale/dev/reference/print.tales_msa.md)
+  : Print a tales_msa object
+- [`summary(`*`<tales>`*`)`](https://scunnac.github.io/tantale/dev/reference/summary.tales.md)
+  [`print(`*`<summary.tales>`*`)`](https://scunnac.github.io/tantale/dev/reference/summary.tales.md)
+  : Summarise a tales object
+- [`summary(`*`<tales_msa>`*`)`](https://scunnac.github.io/tantale/dev/reference/summary.tales_msa.md)
+  [`print(`*`<summary.tales_msa>`*`)`](https://scunnac.github.io/tantale/dev/reference/summary.tales_msa.md)
+  : Summarise a tales_msa object
+- [`tales()`](https://scunnac.github.io/tantale/dev/reference/tales.md)
+  : Create a tales object
+- [`tales_anchor_codes()`](https://scunnac.github.io/tantale/dev/reference/tales_anchor_codes.md)
+  : Codes marking a TALE array terminus
+- [`tales_anomalies()`](https://scunnac.github.io/tantale/dev/reference/tales_anomalies.md)
+  : Report the biological anomalies in a tales object
+- [`tales_assert_complete()`](https://scunnac.github.io/tantale/dev/reference/tales_assert_complete.md)
+  : Assert that a tales object holds complete arrays
+- [`tales_namespace()`](https://scunnac.github.io/tantale/dev/reference/tales_namespace.md)
+  : The dom_code namespace of a tales object
+- [`tales_requirements()`](https://scunnac.github.io/tantale/dev/reference/tales_requirements.md)
+  : Column requirements of the tales consumers
+- [`validate_tales()`](https://scunnac.github.io/tantale/dev/reference/validate_tales.md)
+  : Validate a tales object
+
+## Pairwise distances
+
+Comparing TALEs and their domains, and the typed tables that result.
+
+- [`as.matrix(`*`<pairwise_distances>`*`)`](https://scunnac.github.io/tantale/dev/reference/as.matrix.pairwise_distances.md)
+  : Render a similarity table as a square matrix
+- [`distances_assert_square()`](https://scunnac.github.io/tantale/dev/reference/distances_assert_square.md)
+  : Assert that a similarity table is complete and square
+- [`distances_restrict()`](https://scunnac.github.io/tantale/dev/reference/distances_restrict.md)
+  : Restrict a similarity table to a set of entities
+- [`is_pairwise_distances()`](https://scunnac.github.io/tantale/dev/reference/is_pairwise_distances.md)
+  : Is this a pairwise similarity table?
+- [`pairwise_distances()`](https://scunnac.github.io/tantale/dev/reference/pairwise_distances.md)
+  [`tale_distances()`](https://scunnac.github.io/tantale/dev/reference/pairwise_distances.md)
+  [`domain_distances()`](https://scunnac.github.io/tantale/dev/reference/pairwise_distances.md)
+  : Create a pairwise similarity table
+- [`tales_assign_domain_codes()`](https://scunnac.github.io/tantale/dev/reference/tales_assign_domain_codes.md)
+  : Assign a domain code to every distinct part sequence
+- [`tales_compare()`](https://scunnac.github.io/tantale/dev/reference/tales_compare.md)
+  : Compute TALE and repeat relatedness
+- [`tales_domain_distances()`](https://scunnac.github.io/tantale/dev/reference/tales_domain_distances.md)
+  : Pairwise distances between distinct TALE domains
+- [`tales_group()`](https://scunnac.github.io/tantale/dev/reference/tales_group.md)
+  : Group TALEs by similarity
+- [`tales_tale_distances()`](https://scunnac.github.io/tantale/dev/reference/tales_tale_distances.md)
+  : Pairwise distances between TALE arrays
+- [`validate_pairwise_distances()`](https://scunnac.github.io/tantale/dev/reference/validate_pairwise_distances.md)
+  : Validate a pairwise similarity table
+
+## Alignment
+
+Multiple alignment of TALE arrays and consensus over it.
+
+- [`as.matrix(`*`<tales_msa>`*`)`](https://scunnac.github.io/tantale/dev/reference/as.matrix.tales_msa.md)
+  : Render a TALE alignment as a matrix
+- [`is_tales_msa()`](https://scunnac.github.io/tantale/dev/reference/is_tales_msa.md)
+  : Is this a tales_msa object?
+- [`tales_align()`](https://scunnac.github.io/tantale/dev/reference/tales_align.md)
+  : Align the repeat arrays of a tales object
+- [`tales_consensus()`](https://scunnac.github.io/tantale/dev/reference/tales_consensus.md)
+  : Compute a consensus from a TALE msa
+- [`tales_consensus_match()`](https://scunnac.github.io/tantale/dev/reference/tales_consensus_match.md)
+  : Do elements in a TALE msa match the consensus?
+- [`tales_msa()`](https://scunnac.github.io/tantale/dev/reference/tales_msa.md)
+  : Create a tales_msa object
+- [`tales_width()`](https://scunnac.github.io/tantale/dev/reference/tales_width.md)
+  : Width of a TALE alignment
+- [`validate_tales_msa()`](https://scunnac.github.io/tantale/dev/reference/validate_tales_msa.md)
+  : Validate a tales_msa object
+
+## Projections and conversions
+
+Views derived from a tales object, and format conversions between them.
+
+- [`repeat_to_rvd_map()`](https://scunnac.github.io/tantale/dev/reference/repeat_to_rvd_map.md)
+  : Generate a mapping between Distal repeat IDs and their cognate RVD.
+- [`repeat_to_rvd_map_distalr()`](https://scunnac.github.io/tantale/dev/reference/repeat_to_rvd_map_distalr.md)
+  : Generate a mapping between Distal repeat IDs and their cognate RVD.
+- [`tale_parts_to_rvd()`](https://scunnac.github.io/tantale/dev/reference/tale_parts_to_rvd.md)
+  : Generates a RVD sequences set from a tale_parts object
+- [`tales_coded_strings()`](https://scunnac.github.io/tantale/dev/reference/tales_coded_strings.md)
+  : Domain-coded strings, one per TALE array
+- [`tales_domain_codes()`](https://scunnac.github.io/tantale/dev/reference/tales_domain_codes.md)
+  : The domain code lookup table
+- [`tales_rvd_strings()`](https://scunnac.github.io/tantale/dev/reference/tales_rvd_strings.md)
+  : RVD strings, one per TALE array
+
+## Plots
+
+Visualising alignments, array composition and talome content.
+
+- [`plot(`*`<tales>`*`)`](https://scunnac.github.io/tantale/dev/reference/plot.tales.md)
+  : Plot the domain composition of a set of TALE arrays
+- [`plot(`*`<tales_msa>`*`)`](https://scunnac.github.io/tantale/dev/reference/plot.tales_msa.md)
+  : Plot a multiple alignment of TALEs
+- [`plot_target_preds()`](https://scunnac.github.io/tantale/dev/reference/plot_target_preds.md)
+  : Plot TALE RVD sequences along a potential DNA target region
+- [`talomes_heatmap()`](https://scunnac.github.io/tantale/dev/reference/talomes_heatmap.md)
+  : Heatmap plotting of rvd sequence variants
+
+## Target prediction
+
+Predicting EBEs in a promoter set, and plotting the result.
+
+- [`plot_target_preds()`](https://scunnac.github.io/tantale/dev/reference/plot_target_preds.md)
+  : Plot TALE RVD sequences along a potential DNA target region
+- [`preditale()`](https://scunnac.github.io/tantale/dev/reference/preditale.md)
+  : Run TALE target predictions on DNA sequence(s) using PrediTale.
+- [`tales_predict_targets()`](https://scunnac.github.io/tantale/dev/reference/tales_predict_targets.md)
+  : Predict TALE target boxes
+- [`talvez()`](https://scunnac.github.io/tantale/dev/reference/talvez.md)
+  : Run TALE target predictions on DNA sequence(s) using Talvez
+
+## Setting up
+
+Checking and building the external tools tantale drives.
+
+- [`tantale_setup()`](https://scunnac.github.io/tantale/dev/reference/tantale_setup.md)
+  : Check, and optionally build, tantale's external dependencies
+
+## Package documentation
+
+Package-level documentation.
+
+- [`tantale`](https://scunnac.github.io/tantale/dev/reference/tantale-package.md)
+  [`tantale-package`](https://scunnac.github.io/tantale/dev/reference/tantale-package.md)
+  : tantale: Transcription Activator-Like Effectors (TALEs) tools
+
+## External tool wrappers
+
+Wrappers around AnnoTALE and QueTAL.
+
+- [`functal()`](https://scunnac.github.io/tantale/dev/reference/functal.md)
+  : Run functal from QueTAL to build a phylogenetic tree of TALE RVD
+  sequences.
+- [`run_annotale_build()`](https://scunnac.github.io/tantale/dev/reference/run_annotale_build.md)
+  : Run the "build" stage of AnnoTALE.
+- [`run_annotale_predict()`](https://scunnac.github.io/tantale/dev/reference/run_annotale_predict.md)
+  : Runs the "predict" and "analyze" steps of AnnoTALE on a fasta file.
+
+# Articles
+
+### Learn tantale
+
+- [Mining TALE sequences in
+  genomes](https://scunnac.github.io/tantale/dev/articles/tale_mining.md):
+- [The tales
+  class](https://scunnac.github.io/tantale/dev/articles/tales_class.md):
+- [Classifying TALE sequences from
+  genomes](https://scunnac.github.io/tantale/dev/articles/tale_classification.md):
+- [Multiple alignment of TALE
+  arrays](https://scunnac.github.io/tantale/dev/articles/tale_msa.md):
+- [The tales_msa
+  class](https://scunnac.github.io/tantale/dev/articles/tales_msa_class.md):
+- [Predicting TALE
+  targets](https://scunnac.github.io/tantale/dev/articles/tale_target_prediction.md):

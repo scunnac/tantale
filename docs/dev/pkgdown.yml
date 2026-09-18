@@ -1,0 +1,14 @@
+pandoc: 3.1.3
+pkgdown: 2.2.0
+pkgdown_sha: ~
+articles:
+  articles/tale_classification: tale_classification.html
+  articles/tale_mining: tale_mining.html
+  articles/tale_msa: tale_msa.html
+  articles/tale_target_prediction: tale_target_prediction.html
+  articles/tales_class: tales_class.html
+  articles/tales_msa_class: tales_msa_class.html
+last_built: 2026-09-18T18:41Z
+urls:
+  reference: https://scunnac.github.io/tantale/reference
+  article: https://scunnac.github.io/tantale/articles
