@@ -106,6 +106,26 @@ re-check every other `[V]` section the same way -- treat this file's
    files, given how broadly the anomaly check and the residue-type
    change could in principle reach) passed clean at the end with zero
    failures.
+9. **Three more fixes from maintainer review of the rendered site,
+   after the "done" report above, all in §6**: `tales_group()`'s
+   dendrogram cutoff line (and its label/`xlab`) was drawn at
+   `cutOff / 2`; no reason for the `/2` was found (`ggtree` does not
+   rescale `hclust` heights), so it now draws at the real `cutOff`.
+   `plot.tales_msa()`'s legend rendered on the right whenever a tree or
+   consensus panel was attached, because `aplot` composes panels through
+   `patchwork::plot_layout(guides = "collect")`, which reads the
+   *combined* object's theme for legend placement, not any individual
+   panel's -- fixed by converting to `patchwork` and re-theming at that
+   level for what gets printed (the value returned is still the
+   unmodified `aplot`, so nothing downstream changes). And `plyr` is
+   gone: audited (three live call sites, all in `R/telltale.R`) and
+   replaced with `lapply()`/`pmin()`+`pmax()`/`dplyr::count()`, dropped
+   from `DESCRIPTION`. All three re-verified against real data and their
+   targeted test files (`test_group_tales.R`, `test_plot_tales_msa.R`,
+   `test_plot_tales_composition.R`, `test_tell_tales*.R` -- 102 tests
+   across the six files, 0 failures); articles using either affected
+   plot have not yet been re-rendered against the fixed code (next
+   step).
 
 See §7.5b and §7.5c for the article-rebuild detail, and §6/§7 for the
 backlog items closed in the second half of the session. Full verification
@@ -985,6 +1005,78 @@ Deferred to a dedicated pass on "computations that may not match intent":
   right degeneracy, rather than a whole talome comparison) before
   deciding whether this is an `ape::as.phylo.hclust()` edge case to guard
   against or simply a warning to suppress.
+- **[V] FIXED** -- `tales_group(method = "hclust", plot_tree = TRUE)`'s
+  dendrogram drew its dashed cutoff line, and labelled it, at
+  `cutOff / 2` rather than `cutOff`
+  ([classification.R](../R/classification.R), the `geom_vline`/
+  `geom_text`/`xlab` trio in the hclust plotting branch). Asked the
+  maintainer whether the `/2` encoded a real reason before touching it;
+  none was found. Checked empirically rather than assumed: `ggtree()` on
+  an `hclust`-derived `phylo`, with or without
+  `ggtree::layout_dendrogram()`, plots x-coordinates that are exactly the
+  raw `hclust` heights -- no rescaling anywhere in that path -- so there
+  was never a factor of two to compensate for. Changed both the
+  `xintercept`/label position and the `xlab()` to use `cutOff` directly;
+  re-rendered against real data
+  (a saved `tales_compare()` result on the three-African-strain fixture
+  used in §7.5c's articles) and confirmed the line now sits where the
+  nine coloured subtree clades actually split, not crammed near the leaf
+  labels. `test_group_tales.R` passes unchanged (it does not assert on
+  line position).
+- **[V] FIXED** -- `plot.tales_msa()`'s legend rendered on the right of
+  the composed figure whenever a tree and/or consensus panel was
+  attached (`aplot::insert_left()`/`insert_top()`), despite the base
+  panel's own `theme(legend.position = ...)`. Root cause, found by
+  reading `aplot:::as.patchwork()`: `aplot` renders a composed object by
+  handing it to `patchwork::plot_layout(..., guides = "collect")`, and
+  patchwork's guide collection places the *collected* legend by the
+  combined object's own theme, not by any individual panel's -- so a
+  per-panel `legend.position` is silently ignored the moment more than
+  one panel exists. Confirmed with `[i, j] <-` indexed panel
+  reassignment (`aplot`'s own documented mechanism) that retheming the
+  correct cell -- found via `p$layout`, not guessed: for this figure
+  `layout[1,1]` is the tree panel and `layout[1,2]` is the main
+  alignment panel that owns the legend -- changes the *panel's* theme but
+  still renders the collected legend on the right, proving the panel
+  theme genuinely has no effect post-collection. The fix converts the
+  final `aplot` to a `patchwork` object with `aplot::as.patchwork()` and
+  applies `& ggplot2::theme(legend.position = "bottom")` to *that*, which
+  is the level patchwork actually reads for guide placement. Applied only
+  to what gets printed, not to the value `plot.tales_msa()` returns: the
+  function still returns the `aplot` object unchanged, so
+  `test_plot_tales_msa.R`'s `expect_s3_class(..., "aplot")` and
+  `$plotlist`-based introspection keep working with no test changes
+  needed. Also changed the base panel's own
+  `theme(legend.position = "top")` to `"bottom"`, so the plain
+  (no-tree, no-consensus) case matches the composed case instead of
+  differing by accident. Verified against real data: both the
+  tree-composed figure and the plain single-panel figure now show the
+  legend underneath, and `test_plot_tales_msa.R`/
+  `test_plot_tales_composition.R` pass unchanged (68 tests, 0 failures).
+- **[V] FIXED** -- the `plyr` dependency audited and removed
+  (maintainer's request, prompted by the `telltale.R:221` comment about
+  `plyr::ddply()` above). All three live call sites were in
+  `R/telltale.R`, none elsewhere in the package:
+  - `plyr::llply(files, ...)` / `plyr::llply(lines, ...)` -> `lapply()`,
+    a direct drop-in (no `.parallel`/`.progress` options were used).
+  - `plyr::adply(hits[, c("envfrom", "env_to")], 1, c(min, max))[, -(1:2)]`
+    -> `pmin(hits$envfrom, hits$env_to)` / `pmax(...)`, vectorised instead
+    of row-wise; verified identical output on the fixture.
+  - `plyr::ddply(hits[, -20], ~ target_name + sq_len, nrow)` ->
+    `dplyr::count(hits, target_name, sq_len, name = "V1")`. The
+    `hits[, -20]` in the original turned out to be a no-op at this point
+    in the pipeline -- `hits` has 19 columns here, not 20+, so the
+    negative index silently dropped nothing; confirmed with
+    `identical()` on `plyr::ddply()`'s output with and without the
+    `[, -20]`. The `telltale.R:221` comment (revised earlier tonight
+    during the self-deprecatory-language pass) claimed the RVD column
+    broke `ddply()` and needed dropping -- that claim was already stale
+    when it was reworded, since this call site was reachable only after
+    the RVD column had already been excluded upstream. The comment is now
+    removed along with the code it was explaining.
+  `plyr` dropped from `DESCRIPTION`'s `Imports:`.
+  `test_tell_tales.R`/`test_tell_tales_correction.R`/
+  `test_tell_tales_guards.R` all pass unchanged (34 tests, 0 failures).
 
 ### RESOLVED: the as.dist() inversion bug **[V]**
 
@@ -1097,7 +1189,10 @@ matrix"; `distalr()` feeds it the `Dissim` matrix as that cost file
   - `R/telltale.R:221` — "I do not know why but it fails to work..."
     rephrased to state the workaround factually (the RVD column breaks
     `plyr::ddply()` here) without dropping the honest admission that the
-    root cause was never tracked down.
+    root cause was never tracked down. *(Superseded the same session,
+    see §6: the plyr audit found the claim itself was stale — the
+    `[, -20]` it described was already a no-op — and the comment is gone
+    along with the `plyr::ddply()` call it explained.)*
 - **[V]** Local roxygen2 is 8.0.0 and rewrote `RoxygenNote` →
   `Config/roxygen2/version`. Worth checking against the usual toolchain.
 - ~~`talomes_heatmap()`'s roxygen describes `group_col` as displayed "as
