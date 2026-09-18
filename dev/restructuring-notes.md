@@ -3550,6 +3550,38 @@ budget for a golden re-baseline (§8.1d discipline: explain every changed
 row before accepting) and a `git mv` pass on fixtures, not just an edit
 to `telltale.R`.
 
+### 9.2d Inventory `inst/extdata/`; park what nothing uses in `extra/` **[A]**
+
+Maintainer (2026-09-18): audit which `inst/extdata/` files are actually
+reachable from the website (articles), `@examples`, or `tests/`, and
+move whatever is not into `extra/` (the existing convention this repo
+already uses for material kept but not shipped -- see `CLAUDE.md`'s
+"never delete code that looks dead" rule, same idea applied to data
+files rather than R code). Agreed direction, not started.
+
+Sizing, so the next pass starts with a number rather than a guess:
+`inst/extdata/` is **41 MB**, 27 top-level files plus the `hmmProfile/`
+and `tellTaleExampleOutput/` subdirectories. This is squarely inside
+the repo-bloat concern flagged and explicitly deferred in an earlier
+phase of this package's cleanup (that phase named `extra/`/`docs_temp/`
+bloat directly, among other things) -- the maintainer is the one
+reopening it now, not this session restarting it unprompted.
+
+Candidates worth checking first, not confirmed unused: `PXO142.fa` and
+`PXO99A.fa` -- `PXO86.fa` is the only *outgroup* genome confirmed still
+referenced (and only by name, deliberately excluded from three of the
+six articles per §7.5c); these two extra Xanthomonas genomes were not
+seen in any `grep` this session, but that is circumstantial, not a
+finding -- the actual inventory is the point of this ticket, not
+something to shortcut here.
+
+Method suggestion, not prescriptive: `grep -rl` each `inst/extdata/`
+basename across `R/`, `tests/`, and `vignettes/`, the same technique
+§9.2c's scope check just used -- a file with zero hits in all three is
+a candidate for `extra/`, one hit in a `tests/` fixture only (vs. a
+real `@examples` or article use) is worth a second look before moving,
+since test-only fixtures are exactly what `extra/` should not swallow.
+
 ### 9.3 Decide `@internal` vs `@noRd` per function — PARTLY DONE **[V]**
 
 Current state over 55 non-exported functions: 21 `@noRd`, 12
