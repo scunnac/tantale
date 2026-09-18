@@ -2049,6 +2049,30 @@ ends exactly on a heading is a genuine risk of eating that heading, and
 is worth a re-read of the surrounding structure after the edit, not just
 a check that the intended new text landed.
 
+**[V] FIXED, found the same night on further review** -- the site's
+navbar lost its "Articles" dropdown as an unintended side effect of the
+restructuring above. Before 7.5c, `_pkgdown.yml` had no `articles:`
+section at all, so pkgdown's `navbar_articles()` took its "no config"
+branch and auto-built a dropdown listing every vignette. Adding the
+`articles:` section (to control ordering/titles) switched it onto a
+different branch that, absent a per-group `navbar:` key, collapses to a
+single link to `articles/index.html` instead -- root-caused by reading
+`pkgdown:::navbar_articles()` directly rather than guessing from the
+rendered HTML. Fixed by adding `navbar: ~` to the one article group;
+`purrr::keep(articles_index, ~has_name(.x, "navbar"))` only needs the
+key to be *present*, not non-null, to take the submenu branch. Verified
+with a clean `pkgdown::build_home()` into a scratch destination (a
+stale destination directory silently no-ops the write in a way that
+looks identical to success in the console log -- caught only by
+`grep`-ing the actual output file, not by trusting "Writing
+`index.html`"; always verify a pkgdown navbar change against a genuinely
+fresh destination). Also fixed in the same pass: `tale_classification.qmd`
+had a `@sec-best-correction` cross-reference into a *different* article,
+which quarto cannot resolve outside a book/project (silent
+"Unable to resolve crossref" warning on every build) -- replaced with an
+explicit markdown link, the same pattern already used correctly
+elsewhere in the same file.
+
 ## 8. Tests — error conditions now covered **[V]**
 
 `tests/testthat/test_error_conditions.R` added (18 assertions). It exists
