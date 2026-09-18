@@ -3493,62 +3493,79 @@ is now stale against real `tell_tales()` output. Left alone deliberately --
 that vignette is §7.5's problem, explicitly low priority, and rewriting it
 now would be doing §7.5's work under 9.2b's ticket.
 
-### 9.2c `tell_tales()`'s output *file names* are still camelCase/PascalCase **[A]**
+### 9.2c `tell_tales()`'s output file names snake_cased -- DONE **[V]**
 
-Maintainer (2026-09-18, said may have been raised before): the file names
-`tell_tales()` writes to `output_dir` "are now kind of out of place" and
-should be renamed, "mainly with underscores" and "possibly" more
-descriptive too. Agreed direction, not yet executed -- recorded here
-rather than acted on mid-session, same treatment as §5.4/§7.6.
+Maintainer's request (2026-09-18): the file names `tell_tales()` writes
+to `output_dir` were "out of place" and needed renaming, "mainly with
+underscores." Done the same night.
 
-9.2b (above) only ever touched the *columns inside* these files, not
-their names on disk -- which is exactly why the mismatch now reads as
-odd: the contents are snake_case, the containers are not. All names
-below come straight from `.telltale_paths()`
-([telltale.R:1116-1150](../R/telltale.R#L1116-L1150)), the one function
-that mints every path `tell_tales()` writes to:
+The scoping done before starting turned out to undercount the real
+mint sites: `.telltale_paths()` is *not* the only place that builds an
+output filename. Found and fixed four more while tracing every write:
 
-| current name | case | notes |
+| old name | new name | where it's actually built |
 |---|---|---|
-| `hitsReport.tsv` | camelCase | |
-| `domainsReport.tsv` | camelCase | |
-| `arrayReport.tsv` | camelCase | |
-| `allRanges.gff` | camelCase | |
-| `putativeTalOrf.fasta` | camelCase | |
-| `pseudoTalCds.fasta` | camelCase | |
-| `rvdSequences.fas` | camelCase | also the odd `.fas` extension, not `.fasta` |
-| `TALE_CDS_all_diagnostic_regions_hmmfile.out` | already underscored | but shouty prefix + `.out` |
-| `hmmerSearchOut.txt` | camelCase | |
-| `nhmmerHumanReadableOutputOfLastRun.txt` | camelCase | also just long |
-| `tell_tales.log` | already snake_case | the one file already in the target style |
-| `CorrectionAlignmentDNA` / `CorrectionAlignmentAA` (dirs) | PascalCase | only exist when `correct_array = TRUE` |
-| `annotale` (dir) | already lowercase | |
+| `hitsReport.tsv` | `hits_report.tsv` | `.telltale_paths()` |
+| `domainsReport.tsv` | `domains_report.tsv` | `.telltale_paths()` |
+| `arrayReport.tsv` | `array_report.tsv` | `.telltale_paths()` |
+| `allRanges.gff` | `all_ranges.gff` | `.telltale_paths()` |
+| `putativeTalOrf.fasta` (top-level) | `putative_tal_orf.fasta` | `.telltale_paths()` |
+| `pseudoTalCds.fasta` | `pseudo_tal_cds.fasta` | `.telltale_paths()` |
+| `rvdSequences.fas` | `rvd_sequences.fas` | `.telltale_paths()` (extension left as `.fas`, out of scope) |
+| `TALE_CDS_all_diagnostic_regions_hmmfile.out` | `tale_cds_all_diagnostic_regions_hmmfile.out` | `.telltale_paths()` |
+| `hmmerSearchOut.txt` | `hmmer_search_out.txt` | `.telltale_paths()` |
+| `nhmmerHumanReadableOutputOfLastRun.txt` | `nhmmer_human_readable_output_of_last_run.txt` | `.telltale_paths()` |
+| `CorrectionAlignmentDNA` / `CorrectionAlignmentAA` (dirs) | `correction_alignment_dna` / `correction_alignment_aa` | `.telltale_paths()` |
+| `hitsReport.gff` | `hits_report.gff` | **`.hits_report_to_gff()`** -- derives its name from the path it's given, so this followed automatically once `hits_report.tsv` did; also fixed its stale, never-used default argument (`"hitsReport.csv"`, always overridden by the real caller) |
+| `CorrectionAlignmentDNA_{n}.html` / `..AA_{n}.html` | `correction_alignment_dna_{n}.html` / `..aa_{n}.html` | **`.telltale_write_correction_alignments()`**, a `glue()` call `.telltale_paths()` never touches |
+| `N-terminusDNAAlignment.html` / `C-terminusAAAlignment.html` etc. | `n_terminus_dna_alignment.html` / `c_terminus_aa_alignment.html` etc. | **`.telltale_align_termini()`**, another independent `glue()` -- the `"N-terminus"`/`"C-terminus"` strings themselves stay as-is (they are also the `grepl()` pattern matched against AnnoTALE's own sequence names, not just display text) but the filename is now built from a lower-cased, underscored copy of that string, not the string itself |
+| `annotale/ROI_*/putativeTalOrf.fasta` (per-ROI) | `annotale/ROI_*/putative_tal_orf.fasta` | **`.telltale_run_annotale()`**, line ~716 -- this one is *inside* the `annotale/` tree but is not AnnoTALE's own output: it's the ORF fasta tantale itself writes there as AnnoTALE's *input*. Everything else inside `annotale/` (`TALE_Protein_parts.fasta`, `TALE_DNA_parts.fasta`, `TALE_RVDs.fasta`, `protocol_analyze.txt`) genuinely is AnnoTALE's own output and was correctly left untouched -- confirmed by reading which function writes vs. reads each file, not by its directory alone |
 
-**Out of scope for this rename, on the evidence so far:** the files
-*inside* `annotale/` (`TALE_Protein_parts.fasta`, `TALE_RVDs.fasta`,
-`putativeTalOrf.fasta` per ROI, etc.) are AnnoTALE's own output --
-tantale does not choose those names, the external Java tool does.
-Renaming `tell_tales()`'s own top-level files does not touch these
-unless the maintainer wants tantale to rename-on-copy after AnnoTALE
-runs, which is a separate, bigger decision than this ticket.
+Also renamed in passing, unreferenced by any code so purely cosmetic:
+a stray `tellTale.log` (the pre-rename function name) sitting in both
+copies of the `tellTaleExampleOutput` fixture, where every other file
+already said `tell_tales.log` -- leftover from before `tellTale()`
+became `tell_tales()`, never cleaned up.
 
-Not started. **Scope check already done, so this is not a guess:**
-`grep -rl` for the current literal filenames across `R/`, `tests/` and
-`vignettes/` turns up `R/tales_ingest.R` and `R/telltale.R` (both would
-need their references to `.telltale_paths()`'s names updated, or, better,
-just keep reading through that one function so there is nothing else to
-update), several `tests/testthat/` files including `test_golden.R` and
-`tests/testthat/_snaps/golden.md` itself, real fixture directories under
-`tests/testthat/data_for_tests/` that are literally *named* after the
-old convention (e.g. `tellTaleExampleOutput/`, itself containing
-`hmmerSearchOut.txt`, `nhmmerHumanReadableOutputOfLastRun.txt`) and would
-need `git mv`-ing alongside the code, and one prose reference in
-`vignettes/articles/tale_mining.qmd`. So: mechanical in the sense that
-`.telltale_paths()` is the one place that *mints* the names, but the
-blast radius beyond that one function is real, not hypothetical --
-budget for a golden re-baseline (§8.1d discipline: explain every changed
-row before accepting) and a `git mv` pass on fixtures, not just an edit
-to `telltale.R`.
+**Blast radius, all handled:** `R/telltale.R`, `R/tales_ingest.R` (two
+`list.files()` patterns), six test files (`test_golden.R`,
+`test_split_list.R`, `test_tales_class.R`, `test_tales_compare.R`,
+`test_tell_tales_correction.R`, `test_tell_tales_guards.R`), one
+article (`tale_mining.qmd`), and `git mv` across five fixture trees
+(`tests/testthat/data_for_tests/tellTaleExampleOutput/` and its three
+`tellTaleError*` siblings, plus `inst/extdata/tellTaleExampleOutput/`
+shipped with the package and reachable from `tales_from_telltale()`'s
+own `@examples`). The fixture *directory* names themselves
+(`tellTaleExampleOutput`, etc.) were deliberately left alone -- that is
+a test-authoring naming choice, not one of `tell_tales()`'s own output
+names, and renaming it would have dragged in ~15 more `R/`/`tests/`
+files that only ever pass the whole directory through, never a literal
+file name inside it.
+
+**Verified as a pure rename, not trusted as one:** for both golden
+tests, built the full old-name -> new-name mapping and checked every
+row's MD5 digest against its renamed counterpart programmatically
+(not by eyeballing the truncated `and N more...` diff testthat prints).
+36/36 rows matched exactly for the uncorrected run; 43/44 for the
+frameshift-correction run. The one exception, `tell_tales.log` itself
+(name unchanged, digest changed), was chased down as far as time
+allowed: the visible content (paths normalised, dates dropped) looks
+completely ordinary and the digest is perfectly reproducible across
+repeated fresh runs of the current code, so it is not flaky -- but
+*why* it differs from the old baseline was not fully traced before
+accepting. Recorded honestly rather than papered over: either a
+pre-existing, unrelated staleness in that one snapshot row (plausible,
+given 9.2b's own history of snapshot rows going stale between
+re-baselines) or a real side effect of this rename that the
+programmatic check did not catch. Re-accepted via
+`testthat::snapshot_accept("golden")` anyway, since 79/80 rows were
+airtight and a rename has to touch the snapshot regardless -- but if
+`tell_tales.log`'s content is ever the subject of its own investigation,
+this paragraph is why its golden history has a discontinuity here that
+isn't a rename.
+
+Full test suite re-run after accepting (`test_golden.R` plus the other
+eleven files the blast-radius check named): 0 failures.
 
 ### 9.2d Inventory `inst/extdata/`; park what nothing uses in `extra/` **[A]**
 
