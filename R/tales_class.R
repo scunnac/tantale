@@ -357,8 +357,9 @@ validate_tales <- function(x) {
 #'
 #' @description
 #' Lists the arrays that are *odd* rather than *unreadable*: missing sequence
-#' data, impossible domain-type arrangements, coordinate disagreements, or an
-#' attribute that varies within an array when it should not.
+#' data, impossible domain-type arrangements, coordinate disagreements, an
+#' amino acid sequence paired with more than one RVD, or an attribute that
+#' varies within an array when it should not.
 #'
 #' Such arrays are accepted by \code{\link{tales}} -- real TALE predictions are
 #' messy, and refusing to load them would force cleaning outside the package and
@@ -391,8 +392,8 @@ tales_anomalies <- function(x) {
 #'
 #' Collects the array-level anomalies that make an object *odd* rather than
 #' *unreadable*: missing sequence data, impossible domain-type arrangements,
-#' coordinate disagreements, attributes that should be constant within an array
-#' but are not.
+#' coordinate disagreements, an amino acid sequence paired with more than one
+#' RVD, attributes that should be constant within an array but are not.
 #'
 #' These are deliberately **not** errors. Real TALE predictions are messy, and a
 #' class that refuses to load them forces cleaning outside the package and
@@ -426,6 +427,26 @@ tales_anomalies <- function(x) {
     bad <- is.na(x[[nm]]) | !nzchar(x[[nm]])
     add(x$array_id[bad], paste0("missing_", nm),
         paste0("part(s) with no ", nm))
+  }
+
+  ## aa_seq -> rvd must be a function -----------------------------------------
+  # Not a full bijection: many distinct aa_seq legitimately share one rvd
+  # (different proteins, same DNA-binding specificity -- the whole reason
+  # dom_code and rvd are separate layers, dev/restructuring-notes.md's
+  # tales-class article). What must not happen is the same aa_seq pairing
+  # with two different rvd values: dom_code is minted from aa_seq alone
+  # (cur_group_id()), so that would silently give tales_domain_codes() two
+  # rows for one dom_code, breaking its "one row per distinct code" contract.
+  if (all(c("aa_seq", "rvd") %in% cols)) {
+    known <- !is.na(x$aa_seq) & nzchar(x$aa_seq) & !is.na(x$rvd) & nzchar(x$rvd)
+    if (any(known)) {
+      n_rvd <- tapply(x$rvd[known], x$aa_seq[known], function(z) length(unique(z)))
+      bad_aa_seq <- names(n_rvd)[n_rvd > 1L]
+      if (length(bad_aa_seq)) {
+        add(x$array_id[known & x$aa_seq %in% bad_aa_seq], "aa_seq_rvd_inconsistent",
+            "the same amino acid sequence is paired with more than one rvd")
+      }
+    }
   }
 
   ## domain_type arrangement -------------------------------------------------

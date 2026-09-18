@@ -207,6 +207,31 @@ test_that("an empty dna_seq warns but does not fail", {
   expect_true("missing_dna_seq" %in% tales_anomalies(x)$check)
 })
 
+test_that("the same aa_seq paired with two different rvd values is an anomaly", {
+  df <- minimal_tales_df()
+  # a1 and a2 share the "LTPA" aa_seq at position 2; give a2's copy a
+  # different rvd without touching dom_code, so only this check fires.
+  df$rvd[df$array_id == "a2" & df$aa_seq == "LTPA"] <- "HD"
+  expect_warning(x <- tales(df), class = "tantale_warning_tales_anomalous")
+  an <- tales_anomalies(x)
+  expect_true("aa_seq_rvd_inconsistent" %in% an$check)
+  expect_setequal(an$array_id[an$check == "aa_seq_rvd_inconsistent"], c("a1", "a2"))
+  # both arrays share the offending aa_seq, so sanitize drops both
+  clean <- suppressWarnings(tales(df, sanitize = TRUE))
+  expect_false(any(c("a1", "a2") %in% clean$array_id))
+})
+
+test_that("different aa_seq sharing one rvd is not an anomaly", {
+  df <- minimal_tales_df()
+  # a2's repeat at position 2 becomes a different protein with a fresh
+  # dom_code, but keeps a1's rvd at that position -- legitimate: distinct
+  # repeats routinely share a binding specificity.
+  df$aa_seq[df$array_id == "a2" & df$position_in_array == 2] <- "LTPZ"
+  df$dom_code[df$array_id == "a2" & df$position_in_array == 2] <- "5"
+  x <- tales(df)
+  expect_equal(nrow(tales_anomalies(x)), 0L)
+})
+
 
 #### dplyr policy ####
 
