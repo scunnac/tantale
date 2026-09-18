@@ -1703,6 +1703,8 @@ scratch-installed copy, to confirm the whole site -- reference pages, both
 new/edited articles, all seven vignettes -- builds together, not just each
 piece in isolation.
 
+## 8. Tests — error conditions now covered **[V]**
+
 `tests/testthat/test_error_conditions.R` added (18 assertions). It exists
 because 11 of the package's `tantale_error_*` classes had **zero** test
 coverage, including six created during the cli conversion. A classed condition
