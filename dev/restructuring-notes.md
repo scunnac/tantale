@@ -2080,9 +2080,122 @@ tern" (dull). Rendered six candidates' actual home pages (`lumen`,
 = <name>))`, screenshotted each with headless `chromium` (this machine's
 snap-confined chromium can only read/write inside `$HOME`, not `/tmp` --
 worth remembering if screenshotting is needed again), and let the
-maintainer pick by eye rather than by description. Chose `zephyr`.
-`_pkgdown.yml`'s `template.bootswatch` updated accordingly; full
+maintainer pick by eye rather than by description. First picked
+`zephyr`, then changed their mind to `sandstone` on a second look --
+`_pkgdown.yml`'s `template.bootswatch` is `sandstone`.
 `build_site()` re-run to apply it everywhere, not just the home page.
+
+### 7.6 README/index/docs follow-ups, recorded for later **[P]**
+
+Four items from the maintainer (2026-09-18), not yet acted on -- parked
+here rather than implemented, consistent with how this session has been
+treating "for the ledger" requests (see §5.4).
+
+- **A "use of large language models" section for `README.md`.** Stub
+  provided, to mention `Claude Sonnet 5` rather than the stub's own
+  `Claude Opus 4.5/4.6` -- this ledger does not actually know which
+  model ran any earlier session (only that this one is Sonnet 5, per
+  its own system context), so the draft below names Sonnet 5
+  specifically and Claude/Anthropic generically rather than guessing at
+  which earlier models were involved. Draft, for the maintainer to
+  approve/edit before it lands, not yet added to `README.md`:
+
+  > **Use of large language models**
+  >
+  > The authors used large language models (Claude, Anthropic --
+  > including Claude Sonnet 5) to assist with code development,
+  > debugging, and documentation writing throughout this package. Where
+  > LLM assistance extends to a manuscript describing this work, it is
+  > limited to the copy-editing stage; the manuscript itself is written
+  > entirely by the authors. Any figures are prepared by the authors,
+  > with LLMs used only to help write the scripts that generate them.
+  > The authors affirm that they are fully responsible for the content
+  > of the codebase, its documentation, and any accompanying manuscript.
+
+  This is public-facing authorship-adjacent text -- explicitly not
+  committed without the maintainer's own wording pass.
+
+- **A dedicated pkgdown index page.** Right now the site's home page is
+  `README.md` verbatim (pkgdown's default when no `index.md`/`.Rmd`
+  exists). Maintainer's idea: a real `pkgdown/index.md` (or `.Rmd`/
+  `.qmd`) that introduces what a TALE actually is for a reader who has
+  never heard of one, gives a short package overview, and shows a
+  couple of the more striking plots already produced by the six
+  articles (candidates: the alignment figure from `tale_msa.qmd`, the
+  dendrogram from `tale_classification.qmd`, or the target-prediction
+  convergence plot from `tale_target_prediction.qmd`) to draw a
+  visiting reader further in. Not started. README would presumably stay
+  as the GitHub-facing entry point and the two would diverge on purpose
+  -- worth deciding explicitly rather than by drift, given §7.6's next
+  item.
+
+- **`README.md` and `R/tantale.R`'s `@description` checked for
+  contradiction, as asked -- done, this is the finding, nothing fixed
+  yet.** They are not copy-pasted from one source, so they drift
+  independently, and one genuine bug turned up:
+
+  - **`R/tantale.R`'s package description is a dangling sentence.**
+    `?tantale` currently renders "An integrated collection of functions
+    for:" followed immediately by "Please take a look at the package
+    website for further details." -- the sentence never says *for what*.
+    Confirmed by reading the rendered `man/tantale-package.Rd`, not just
+    the roxygen source. README's equivalent opening is a complete
+    two-paragraph pitch ("Analyzing TALEs in (mostly *Xanthomonas*)
+    genomes..." / "With `tantale`, we compiled and extended...") that
+    `R/tantale.R` never picked up -- the two were written independently,
+    not kept in sync.
+  - **Both files share one claim that is now simply false, not just
+    inconsistent with each other:** "A TALE-oriented OOP framework: A
+    TALE class and associated methods (to be done)". The `tales`/
+    `tales_msa` S3 class family (§5) has been done, settled, and is the
+    load-bearing data structure of the entire package. This line
+    predates §5's work in both places and was never revisited in either.
+  - Smaller, cosmetic drift: README uses the tools' proper names with
+    links (AnnoTALE, DisTAL, functal, Talvez, PrediTALE, daTALbase);
+    `R/tantale.R` uses lowercase/internal spellings (`annotale_jar`,
+    `distal`, `functal`) with no links, despite `Roxygen: list(markdown
+    = TRUE)` making `[text](url)` links available there too. Section
+    titles differ slightly ("TALE targets predictions" vs "TALE targets
+    mining") for identical content. Neither is wrong, just not the same
+    words for the same thing.
+  - **What to do about it, maintainer's call, not decided here:**
+    either (a) treat README as the single source and shrink
+    `R/tantale.R`'s `@description`/`@section`s to a short pointer at
+    README/the website instead of a second, independently-maintained
+    copy of the same pitch, or (b) keep both but fix today's two
+    concrete bugs (the dangling sentence, the stale "to be done") and
+    accept the drift risk going forward. (a) matches how this session
+    already resolved the numbered-vignette/article duality (§7.5c) --
+    one coherent source rather than two things that can silently stop
+    agreeing -- but `?tantale` is also the one description that reaches
+    a user who never leaves R, which is an argument for keeping it
+    reasonably self-contained rather than a bare pointer.
+
+- **The `Lifecycle: experimental` badge -- checked, not swapped.**
+  Fetched `https://lifecycle.r-lib.org/articles/stages.html` directly
+  rather than recalling it, since a wrong badge value shipped in a
+  public README is exactly the kind of small public-facing mistake
+  worth double-checking. Finding: the lifecycle project itself
+  **shrank** its vocabulary at some point to four currently-recommended
+  stages -- `stable`, `deprecated`, `superseded`, `experimental` --
+  and explicitly retired `maturing` and `questioning` as
+  no-longer-recommended. `maturing` is exactly the word that would have
+  fit tantale's actual state (interfaces settled far more than
+  "experimental" implies, per tonight's naming-convention and class
+  work, but README's own NOTE still says "interfaces may still change"
+  ahead of publication, so not `stable` either) -- but the project that
+  defines the badge no longer endorses that stage. Of the four current
+  options, `experimental`'s own definition ("no promises for long term
+  stability") is arguably still the closest honest fit, which is not
+  the answer the maintainer was expecting but is what the source says
+  today. Options, maintainer's call: keep `experimental` (accurate by
+  the current vocabulary, if not by feel); use the retired `maturing`
+  badge anyway (the shields.io SVG still renders even though
+  lifecycle.r-lib.org no longer documents it, so this is "use an
+  unendorsed value," not "impossible"); or drop the lifecycle-badge
+  convention for a plain custom shields.io badge with tantale-specific
+  wording (e.g. "pre-publication") that does not have to fit someone
+  else's four-word vocabulary at all.
 
 ## 8. Tests — error conditions now covered **[V]**
 
