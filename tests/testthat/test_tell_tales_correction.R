@@ -40,7 +40,7 @@ toy_run <- local({
         args$correction_ref <- test_path("data_for_tests", "correction_ref_20.fa.gz")
       }
       suppressWarnings(suppressMessages(do.call(tell_tales, args)))
-      r <- readr::read_tsv(file.path(out, "arrayReport.tsv"),
+      r <- readr::read_tsv(file.path(out, "array_report.tsv"),
                            show_col_types = FALSE, progress = FALSE)
       cache[[key]] <<- list(dir = out, report = as.data.frame(r))
     }

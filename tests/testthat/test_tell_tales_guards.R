@@ -67,7 +67,7 @@ test_that("min_array_length drops only the arrays below it", {
     tell_tales(subject_file = subject(), output_dir = out, min_array_length = 20)))
   expect_length(list.dirs(file.path(out, "annotale"), recursive = FALSE), 3L)
 
-  report <- readr::read_tsv(file.path(out, "arrayReport.tsv"),
+  report <- readr::read_tsv(file.path(out, "array_report.tsv"),
                             show_col_types = FALSE, progress = FALSE)
   expect_equal(nrow(report), 3L)
 })
@@ -95,7 +95,7 @@ test_that("min_domain_hits is inclusive, as documented", {
   out <- tempfile()
   suppressWarnings(suppressMessages(
     tell_tales(subject_file = subject(), output_dir = out, min_domain_hits = 24)))
-  report <- readr::read_tsv(file.path(out, "hitsReport.tsv"),
+  report <- readr::read_tsv(file.path(out, "hits_report.tsv"),
                             show_col_types = FALSE, progress = FALSE)
   expect_true("talRegion6" %in% report$seqnames)
 })
@@ -122,7 +122,7 @@ test_that("too low a max_comparisons degrades the correction", {
     suppressWarnings(suppressMessages(tell_tales(
       subject_file = subject(), output_dir = out, correct_array = TRUE,
       correction_ref = ref, max_comparisons = mc)))
-    r <- readr::read_tsv(file.path(out, "arrayReport.tsv"),
+    r <- readr::read_tsv(file.path(out, "array_report.tsv"),
                          show_col_types = FALSE, progress = FALSE)
     r <- r[order(r$array_id), ]
     # named explicitly: these columns exist only when correction ran, and

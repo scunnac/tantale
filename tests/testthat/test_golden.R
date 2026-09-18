@@ -141,7 +141,7 @@ test_that("golden: the tables tell_tales() writes, column by column", {
   # The digests above say "something changed"; these say which column, which
   # is what saves the time when it does.
   r <- telltale_run()
-  for (f in c("hitsReport.tsv", "domainsReport.tsv", "arrayReport.tsv")) {
+  for (f in c("hits_report.tsv", "domains_report.tsv", "array_report.tsv")) {
     tbl <- readr::read_tsv(file.path(r$dir, f), show_col_types = FALSE,
                            progress = FALSE)
     expect_golden(fingerprint(as.data.frame(tbl)))
@@ -191,11 +191,11 @@ test_that("golden: tell_tales() with frameshift correction", {
     correction_ref = test_path("data_for_tests", "correction_ref_20.fa.gz"))))
 
   # the correction branch writes two directories the uncorrected run does not
-  expect_true(dir.exists(file.path(out, "CorrectionAlignmentDNA")))
-  expect_true(dir.exists(file.path(out, "CorrectionAlignmentAA")))
+  expect_true(dir.exists(file.path(out, "correction_alignment_dna")))
+  expect_true(dir.exists(file.path(out, "correction_alignment_aa")))
   # one alignment per array, so the stage ran for every one of them
-  expect_length(list.files(file.path(out, "CorrectionAlignmentDNA")), 4L)
-  expect_length(list.files(file.path(out, "CorrectionAlignmentAA")), 4L)
+  expect_length(list.files(file.path(out, "correction_alignment_dna")), 4L)
+  expect_length(list.files(file.path(out, "correction_alignment_aa")), 4L)
 
   expect_golden(telltale_fingerprint(out))
 })

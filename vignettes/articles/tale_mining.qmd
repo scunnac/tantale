@@ -115,17 +115,17 @@ since they carry a few things the `tales` object does not.
 ```{r report_table, echo = FALSE}
 knitr::kable(tibble::tribble(
   ~file, ~`one row per`, ~`worth knowing`,
-  "`hitsReport.tsv`", "raw `nhmmer` hit", "`codon_count`, `frameshift_count` per hit -- before any merging or correction",
-  "`domainsReport.tsv`", "domain, after AnnoTALE", "what AnnoTALE actually parsed out of the ORF",
-  "`arrayReport.tsv`", "candidate array", "`has_all_domains`, `has_aberrant_repeat`, `orf_coverage`, and (with correction) `predicted_ins_count`/`predicted_dels_count`"
+  "`hits_report.tsv`", "raw `nhmmer` hit", "`codon_count`, `frameshift_count` per hit -- before any merging or correction",
+  "`domains_report.tsv`", "domain, after AnnoTALE", "what AnnoTALE actually parsed out of the ORF",
+  "`array_report.tsv`", "candidate array", "`has_all_domains`, `has_aberrant_repeat`, `orf_coverage`, and (with correction) `predicted_ins_count`/`predicted_dels_count`"
 ))
 ```
 
-`arrayReport.tsv` is the one this article leans on most, so it is worth
+`array_report.tsv` is the one this article leans on most, so it is worth
 reading directly rather than only through the `tales` object:
 
 ```{r array_report}
-array_report <- readr::read_tsv(file.path(mai1_dir, "arrayReport.tsv"),
+array_report <- readr::read_tsv(file.path(mai1_dir, "array_report.tsv"),
                                 show_col_types = FALSE)
 array_report %>%
   select(array_id, has_all_domains, longest_orf_length, orf_coverage)
@@ -168,7 +168,7 @@ structure out of their ORF. This is a frameshift, not a truncation --
 compare their `orf_coverage` to a complete array:
 
 ```{r orf_coverage_raw}
-readr::read_tsv(file.path(bai311_raw_dir, "arrayReport.tsv"),
+readr::read_tsv(file.path(bai311_raw_dir, "array_report.tsv"),
                 show_col_types = FALSE) %>%
   select(array_id, has_all_domains, longest_orf_length, orf_coverage)
 ```
@@ -346,7 +346,7 @@ Read it back for the two originally-broken arrays, across all three runs:
 
 ```{r coverage_helper}
 read_coverage <- function(dir, method) {
-  readr::read_tsv(file.path(dir, "arrayReport.tsv"), show_col_types = FALSE) |>
+  readr::read_tsv(file.path(dir, "array_report.tsv"), show_col_types = FALSE) |>
     select(array_id, orf_coverage) |>
     filter(array_id %in% c("ROI_00003", "ROI_00005")) |>
     mutate(method = method)

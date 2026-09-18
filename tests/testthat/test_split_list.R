@@ -12,21 +12,21 @@ test_that("split_list output list of expected shape with with a fasta file as in
 
 test_that("split_list output list of expected shape with a 'BStringSet' object as input and sep '-'", {
   l <- .split_list(
-    Biostrings::readBStringSet(test_path("data_for_tests", "tellTaleExampleOutput", "rvdSequences.fas")),
+    Biostrings::readBStringSet(test_path("data_for_tests", "tellTaleExampleOutput", "rvd_sequences.fas")),
     sep = "-")
   expect_setequal(lapply(l, length), c(28, 16, 28, 24))
 })
 
 test_that("split_list output list of expected shape with a fasta file as input and sep '-'", {
   l <- .split_list(
-    test_path("data_for_tests", "tellTaleExampleOutput", "rvdSequences.fas"),
+    test_path("data_for_tests", "tellTaleExampleOutput", "rvd_sequences.fas"),
     sep = "-")
   expect_setequal(lapply(l, length), c(28, 16, 28, 24))
 })
 
 test_that("split_list output list of expected shape with list of strings as input and sep '-'", {
   l <- .split_list(
-    Biostrings::readBStringSet(test_path("data_for_tests", "tellTaleExampleOutput", "rvdSequences.fas")) %>%
+    Biostrings::readBStringSet(test_path("data_for_tests", "tellTaleExampleOutput", "rvd_sequences.fas")) %>%
       as.character() %>% as.list(),
     sep = "-")
   expect_setequal(lapply(l, length), c(28, 16, 28, 24))
@@ -34,7 +34,7 @@ test_that("split_list output list of expected shape with list of strings as inpu
 
 test_that("split_list output an error if strings is not of expected type", {
   l <- .split_list(
-    Biostrings::readBStringSet(test_path("data_for_tests", "tellTaleExampleOutput", "rvdSequences.fas")) %>%
+    Biostrings::readBStringSet(test_path("data_for_tests", "tellTaleExampleOutput", "rvd_sequences.fas")) %>%
       as.character() %>% as.list(),  sep = "-")
   expect_error(.split_list(l))
 })

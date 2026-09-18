@@ -112,7 +112,7 @@ test_that("a plain data frame is refused", {
 
 test_that("a tales without aa_seq is refused", {
   x <- as_tales(test_path("data_for_tests", "tellTaleExampleOutput",
-                          "rvdSequences.fas"), sep = "-")
+                          "rvd_sequences.fas"), sep = "-")
   expect_error(tales_compare(x),
                class = "tantale_error_compare_no_aa")
 })

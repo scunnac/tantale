@@ -306,7 +306,7 @@ test_that("tales_anchor_codes() covers all three terminus sentinels", {
 #### as_tales() ####
 
 test_that("as_tales() builds a tales from an RVD fasta", {
-  x <- as_tales(test_path("data_for_tests", "tellTaleExampleOutput", "rvdSequences.fas"),
+  x <- as_tales(test_path("data_for_tests", "tellTaleExampleOutput", "rvd_sequences.fas"),
                 sep = "-")
   expect_s3_class(x, "tales")
   expect_setequal(names(x), c("array_id", "position_in_array", "rvd"))
@@ -315,14 +315,14 @@ test_that("as_tales() builds a tales from an RVD fasta", {
 })
 
 test_that("as_tales() numbers position_in_array from sequence order", {
-  x <- as_tales(test_path("data_for_tests", "tellTaleExampleOutput", "rvdSequences.fas"),
+  x <- as_tales(test_path("data_for_tests", "tellTaleExampleOutput", "rvd_sequences.fas"),
                 sep = "-")
   first <- dplyr::filter(x, array_id == x$array_id[1])
   expect_identical(first$position_in_array, seq_len(nrow(first)))
 })
 
 test_that("as_tales() accepts a BStringSet and a list, matching the file path result", {
-  p <- test_path("data_for_tests", "tellTaleExampleOutput", "rvdSequences.fas")
+  p <- test_path("data_for_tests", "tellTaleExampleOutput", "rvd_sequences.fas")
   from_path <- as_tales(p, sep = "-")
   from_set <- as_tales(Biostrings::readBStringSet(p), sep = "-")
   from_list <- as_tales(as.list(as.character(Biostrings::readBStringSet(p))), sep = "-")
