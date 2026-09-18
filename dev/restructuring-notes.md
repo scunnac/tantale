@@ -2197,6 +2197,54 @@ treating "for the ledger" requests (see §5.4).
   wording (e.g. "pre-publication") that does not have to fit someone
   else's four-word vocabulary at all.
 
+### 7.7 Version scheme decided: 0.9.x pre-publication, 1.0.0 at release — DONE **[V]**
+
+Maintainer's call, but it came with a real, previously-undiscovered
+technical constraint, so recording both the decision and the finding.
+
+**Decision:** the ad hoc `0.1.9553` devtools-dev-counter scheme is
+retired. From now until publication the package carries a `0.9.x`
+version; `1.0.0` is reserved for the actual release.
+
+**Finding, not obvious from the decision alone:** `Version: 0.9.1` (the
+first, natural-looking choice) silently broke something. This answers
+the still-open ledger question from §7.5c/START HERE about whether a
+pkgdown build should overwrite the tracked `docs/` -- not by a decision,
+but by discovering the two questions are coupled through a mechanism
+nobody had looked at: `pkgdown:::dev_mode_auto()` (backing this repo's
+`development: mode: auto`) treats a 3-component version as `"devel"`
+(routes to `docs/dev/`) only when the third component is `>= 9000`;
+otherwise it is `"release"` and `build_site()` writes straight into the
+tracked `docs/`. `0.1.9553` always satisfied this, by construction of
+the old devtools convention, not by anyone having read this rule.
+`0.9.1` does not (`1 < 9000`), so the routine sandstone-theme rebuild
+that used it wrote 215 new files and modified 16 tracked ones directly
+under `docs/` -- silently, with no error or warning, indistinguishable
+in the console log from a normal `docs/dev/` build. Caught only because
+`git status` was checked before committing (habit, not luck: this
+session's standing instruction is to check status after any broad
+change) and showed dozens of changes under `docs/` that had no business
+being there. Reverted with `git checkout -- <tracked files>` plus `rm
+-rf` on the new untracked ones (all still just working-tree changes,
+nothing had been committed) before any of it landed.
+
+**Resolved by picking `0.9.9001`** instead of `0.9.1` -- same
+`0.9.x`-then-`1.0.0` intent, same `>= 9000` third component `0.1.9553`
+always had, so `development: mode: auto` keeps working exactly as
+before with no config change. Verified directly against
+`pkgdown:::dev_mode_auto(package_version("0.9.9001"))` returning
+`"devel"`, not just re-run and hoped.
+
+**Still open, not decided today:** whether `docs/` (the tracked release
+site, last actually built 2023-10-04 and now describing a much older
+version of the package) should ever be deliberately rebuilt before
+`1.0.0`, or stay frozen as "the last real release" until publication.
+Nothing here answers that -- it only makes sure an accidental version
+choice cannot decide it by side effect again. Whoever next changes
+`Version:` in `DESCRIPTION` should re-run
+`pkgdown:::dev_mode_auto(package_version(new_version))` and confirm it
+still says `"devel"`, the same check that caught this.
+
 ## 8. Tests — error conditions now covered **[V]**
 
 `tests/testthat/test_error_conditions.R` added (18 assertions). It exists
