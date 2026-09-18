@@ -3480,6 +3480,62 @@ is now stale against real `tell_tales()` output. Left alone deliberately --
 that vignette is §7.5's problem, explicitly low priority, and rewriting it
 now would be doing §7.5's work under 9.2b's ticket.
 
+### 9.2c `tell_tales()`'s output *file names* are still camelCase/PascalCase **[A]**
+
+Maintainer (2026-09-18, said may have been raised before): the file names
+`tell_tales()` writes to `output_dir` "are now kind of out of place" and
+should be renamed, "mainly with underscores" and "possibly" more
+descriptive too. Agreed direction, not yet executed -- recorded here
+rather than acted on mid-session, same treatment as §5.4/§7.6.
+
+9.2b (above) only ever touched the *columns inside* these files, not
+their names on disk -- which is exactly why the mismatch now reads as
+odd: the contents are snake_case, the containers are not. All names
+below come straight from `.telltale_paths()`
+([telltale.R:1116-1150](../R/telltale.R#L1116-L1150)), the one function
+that mints every path `tell_tales()` writes to:
+
+| current name | case | notes |
+|---|---|---|
+| `hitsReport.tsv` | camelCase | |
+| `domainsReport.tsv` | camelCase | |
+| `arrayReport.tsv` | camelCase | |
+| `allRanges.gff` | camelCase | |
+| `putativeTalOrf.fasta` | camelCase | |
+| `pseudoTalCds.fasta` | camelCase | |
+| `rvdSequences.fas` | camelCase | also the odd `.fas` extension, not `.fasta` |
+| `TALE_CDS_all_diagnostic_regions_hmmfile.out` | already underscored | but shouty prefix + `.out` |
+| `hmmerSearchOut.txt` | camelCase | |
+| `nhmmerHumanReadableOutputOfLastRun.txt` | camelCase | also just long |
+| `tell_tales.log` | already snake_case | the one file already in the target style |
+| `CorrectionAlignmentDNA` / `CorrectionAlignmentAA` (dirs) | PascalCase | only exist when `correct_array = TRUE` |
+| `annotale` (dir) | already lowercase | |
+
+**Out of scope for this rename, on the evidence so far:** the files
+*inside* `annotale/` (`TALE_Protein_parts.fasta`, `TALE_RVDs.fasta`,
+`putativeTalOrf.fasta` per ROI, etc.) are AnnoTALE's own output --
+tantale does not choose those names, the external Java tool does.
+Renaming `tell_tales()`'s own top-level files does not touch these
+unless the maintainer wants tantale to rename-on-copy after AnnoTALE
+runs, which is a separate, bigger decision than this ticket.
+
+Not started. **Scope check already done, so this is not a guess:**
+`grep -rl` for the current literal filenames across `R/`, `tests/` and
+`vignettes/` turns up `R/tales_ingest.R` and `R/telltale.R` (both would
+need their references to `.telltale_paths()`'s names updated, or, better,
+just keep reading through that one function so there is nothing else to
+update), several `tests/testthat/` files including `test_golden.R` and
+`tests/testthat/_snaps/golden.md` itself, real fixture directories under
+`tests/testthat/data_for_tests/` that are literally *named* after the
+old convention (e.g. `tellTaleExampleOutput/`, itself containing
+`hmmerSearchOut.txt`, `nhmmerHumanReadableOutputOfLastRun.txt`) and would
+need `git mv`-ing alongside the code, and one prose reference in
+`vignettes/articles/tale_mining.qmd`. So: mechanical in the sense that
+`.telltale_paths()` is the one place that *mints* the names, but the
+blast radius beyond that one function is real, not hypothetical --
+budget for a golden re-baseline (§8.1d discipline: explain every changed
+row before accepting) and a `git mv` pass on fixtures, not just an edit
+to `telltale.R`.
 
 ### 9.3 Decide `@internal` vs `@noRd` per function — PARTLY DONE **[V]**
 
