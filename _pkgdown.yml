@@ -16,6 +16,7 @@ development:
 
 articles:
 - title: Learn tantale
+  navbar: ~
   contents:
   - articles/tale_mining
   - articles/tales_class
@@ -23,7 +24,6 @@ articles:
   - articles/tale_msa
   - articles/tales_msa_class
   - articles/tale_target_prediction
-#  theme: espresso
 #footer:
 #  structure: 
 #    left: txs

@@ -71,8 +71,8 @@ discover_strain <- function(strain) {
 ```
 
 `correct_array = TRUE` with `max_comparisons = 50` is the route
-@sec-best-correction (in the previous article) found clean for BAI3-1-1;
-run on MAI1 and BAI3 too, it costs a little extra time for no change,
+[the mining article](tale_mining.html#sec-best-correction) found clean
+for BAI3-1-1; run on MAI1 and BAI3 too, it costs a little extra time for no change,
 since neither needed correcting.
 
 ```{r discover_all, message = FALSE}
