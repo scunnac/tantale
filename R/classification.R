@@ -158,11 +158,11 @@ tales_group <- function(x, tal_sim, plot_tree = FALSE, k = NULL, k_range = NULL,
       ) +
       # ggplot2::scale_color_brewer("Groups", palette="BrBG") + # allowed maximum for palette BrBG is 11
       viridis::scale_color_viridis(discrete = T, option = "C", breaks = 1:numGroups) +
-      ggplot2::geom_vline(xintercept = -(cutOff/2), linetype = 2) +
-      ggtree::geom_text(x = (cutOff/2 - max(taleTree$height)/50),
-                        y = 8, label = paste("half of 'cutOff' value: ", sprintf("%.2f", cutOff/2)),
+      ggplot2::geom_vline(xintercept = -cutOff, linetype = 2) +
+      ggtree::geom_text(x = (cutOff - max(taleTree$height)/50),
+                        y = 8, label = paste("cutOff value: ", sprintf("%.2f", cutOff)),
                         color = "darkgrey", fontface = "plain") +
-      ggplot2::xlab("Height/2") +
+      ggplot2::xlab("Height") +
       ggtree::theme_dendrogram(plot.margin = ggplot2::margin(6,6,150,6))
   }
   
