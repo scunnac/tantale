@@ -94,7 +94,7 @@ filled by amino-acid length, with the RVD printed on each repeat.
 
 ```{r}
 #| label: fig-mai1-composition
-#| fig-cap: "Domain composition of the four TALE arrays found in MAI1."
+#| fig-cap: "Domain composition of the nine TALE arrays found in MAI1."
 #| fig-width: 9
 #| fig-height: 4
 plot(mai1)
