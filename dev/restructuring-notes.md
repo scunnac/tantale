@@ -2073,6 +2073,17 @@ which quarto cannot resolve outside a book/project (silent
 explicit markdown link, the same pattern already used correctly
 elsewhere in the same file.
 
+**[V] DECIDED** -- maintainer found the `lumen` bootswatch theme "a bit
+tern" (dull). Rendered six candidates' actual home pages (`lumen`,
+`flatly`, `journal`, `litera`, `sandstone`, `zephyr`) via
+`pkgdown::build_home()` with `override = list(template = list(bootswatch
+= <name>))`, screenshotted each with headless `chromium` (this machine's
+snap-confined chromium can only read/write inside `$HOME`, not `/tmp` --
+worth remembering if screenshotting is needed again), and let the
+maintainer pick by eye rather than by description. Chose `zephyr`.
+`_pkgdown.yml`'s `template.bootswatch` updated accordingly; full
+`build_site()` re-run to apply it everywhere, not just the home page.
+
 ## 8. Tests — error conditions now covered **[V]**
 
 `tests/testthat/test_error_conditions.R` added (18 assertions). It exists
