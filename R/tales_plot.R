@@ -387,7 +387,7 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
     ) +
     ggplot2::scale_y_discrete(name = NULL) +
     ggplot2::theme_minimal() +
-    ggplot2::theme(legend.position = "top")
+    ggplot2::theme(legend.position = "bottom")
   
   # COLORS in plots
   repeatClusterFillPaletteFunct <- colorRampPalette(c("#421727", "#6e2742", "#9a365c", "#b03e69", "azure2"))
@@ -549,7 +549,20 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
     )
   }
 
-  print(finalPlot)
+  # aplot composes panels with patchwork's guide collection, which places the
+  # collected legend by the *combined* object's own theme, not by any
+  # individual panel's -- so the "bottom" position set on the main panel above
+  # is silently ignored once a tree and/or consensus panel is attached, and
+  # the legend falls back to patchwork's default of "right". Printing a
+  # patchwork-converted copy is the only way to make that take effect; the
+  # value returned to the caller stays the aplot, so its $plotlist/[i,j]
+  # panel-indexing API is unchanged for anyone composing further.
+  if (inherits(finalPlot, "aplot")) {
+    print(aplot::as.patchwork(finalPlot) &
+            ggplot2::theme(legend.position = "bottom"))
+  } else {
+    print(finalPlot)
+  }
   invisible(finalPlot)
 }
 
