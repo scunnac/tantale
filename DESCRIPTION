@@ -16,7 +16,7 @@ BugReports: https://github.com/scunnac/tantale/issues
 Depends:
     R (>= 3.6.3)
 Imports:
-    magrittr, fs, dplyr, ggplot2, tibble, stringr, readr, plyr, glue, reshape2, XVector,
+    magrittr, fs, dplyr, ggplot2, tibble, stringr, readr, glue, reshape2, XVector,
     biovizBase, IRanges, Biostrings, pwalign, GenomicRanges, BSgenome, plyranges,
     Rsamtools, systemPipeR, DECIPHER,
     ape, ggtree, tidytree, aplot,

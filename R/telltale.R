@@ -127,8 +127,8 @@
              file.path(hmm_dir, "Xo_TALE_repeat_CDS_profile.hmm"),
              file.path(hmm_dir, "Xo_TALE_Cterm_CDS_profile.hmm"))
 
-  lines <- plyr::llply(files, function(f) readLines(con = f))
-  names <- unlist(plyr::llply(lines, function(x) {
+  lines <- lapply(files, function(f) readLines(con = f))
+  names <- unlist(lapply(lines, function(x) {
     hmmName <- grep("NAME", x, perl = TRUE, value = TRUE)
     hmmName <- unlist(strsplit(hmmName, split = "\\s+"))
     if (length(hmmName) != 2) {
@@ -209,18 +209,17 @@
   ## Add a hit_id column
   hits$hit_id <- paste("DOM", sprintf("%05.0f", 1:nrow(hits)), sep = "_")
 
-  ## Trick to re-order positions in an increasing order to satisfy IRanges() in preparation of creating a GRanges
-  hits[, c("start", "end")] <- plyr::adply(.data = hits[, c("envfrom", "env_to")],
-                                           .margins = 1, .fun = c(min, max))[, -(1:2)]
+  ## nhmmer does not guarantee envfrom <= env_to (a reverse-strand hit can
+  ## report them the other way round), and IRanges() requires start <= end.
+  hits$start <- pmin(hits$envfrom, hits$env_to)
+  hits$end   <- pmax(hits$envfrom, hits$env_to)
   rownames(hits) <- hits$hit_id
 
   ## Filter out target DNA sequences that have too few repeat CDSs
   ## NB: for the sake of consistency  it would be better just to filter out
   ## from any further consideration the ARRAYS shorter than a certain value (say 5).
   ## WHAT DO WE DO ABOUT THAT?
-  # The RVD column (#20) is dropped before this aggregation: keeping it
-  # breaks plyr::ddply() here, for reasons not yet tracked down.
-  perSubject <- plyr::ddply(hits[, -20], ~ target_name + sq_len, nrow)
+  perSubject <- dplyr::count(hits, target_name, sq_len, name = "V1")
   # >=, not >: the argument is documented as a minimum, and a sequence
   # carrying exactly that many hits used to be dropped.
   hits <- subset(hits, target_name %in% perSubject[perSubject$V1 >= min_domain_hits, "target_name"])
