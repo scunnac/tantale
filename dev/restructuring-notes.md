@@ -69,14 +69,48 @@ re-check every other `[V]` section the same way -- treat this file's
    block mixes two-column and three-column tab-separated rows, breaking
    a spreadsheet import. A third, `tales_group()`'s hclust dendrogram
    plot spamming an `ape`/`ggtree` warning, was found the same way and is
-   also in §6, dodged rather than fixed.
-5. A full `pkgdown::build_site()` was run twice against a
-   scratch-installed copy, once after each round, to confirm the whole
-   site builds together and not just each piece in isolation.
+   also in §6, dodged (by dropping the outgroup genome that triggers it
+   from the affected articles) rather than fixed at the source.
+5. **A config bug found only by actually running the build**: pkgdown
+   evaluates `articles:` `contents:` entries as R expressions, so the
+   hyphenated filenames the articles were first written with parsed as
+   subtraction and aborted the build. Fixed by renaming every article to
+   underscore_separated names (all cross-links updated to match) and by
+   pointing `contents:` at the `articles/<name>` topic form pkgdown
+   actually assigns them, confirmed via `pkgdown:::as_pkgdown(".")` rather
+   than guessed twice more.
+6. **Once the site was solid, the rest of §6's backlog was cleared
+   autonomously**, each verified against real data and the full test
+   suite before being called done: `rvdSimDf` turned out already fixed
+   (a stale ledger marker, not a code gap); `.build_repeat_msa()`'s
+   hardcoded six-RVD guess replaced with the type `tales_align()` already
+   knows and passes down; the same aa_seq pairing with two different rvd
+   values is now a caught (soft) anomaly, not a silent
+   `tales_domain_codes()` corruption; both `tell_tales.log` bugs fixed
+   and the golden baseline re-accepted, with the change explained (a
+   line that used to be dropped as `/tmp/`-noise is now real, stable
+   signal). A second stale `[P]` marker (§9.6's "still live" claim) was
+   also found and corrected -- it was already resolved by the section's
+   own main text.
+7. **Separately, the self-deprecatory-language cleanup from §7 was done**
+   (six of seven flagged spots; the README/tantale.R/AnnoTALE-library/
+   unused_pending_review/telltale.R language all revised), which
+   incidentally fixed a real roxygen bug: `R/tantale.R`'s four
+   `@section` tags had a stray prefix that made roxygen2 8.0 misparse
+   every one of them, the exact warning `devtools::document()` printed on
+   every single run tonight until this was found. `talomes_heatmap()`'s
+   reversed rows/columns doc (§7) fixed too.
+8. A full `pkgdown::build_site()` was run three times against a
+   scratch-installed copy across the session (once per config bug), and
+   the full local test suite (`testthat::test_dir()`, not just targeted
+   files, given how broadly the anomaly check and the residue-type
+   change could in principle reach) passed clean at the end with zero
+   failures.
 
-See §7.5b and §7.5c for the detail. Full verification commands are not
-reproduced here; re-run them from those sections if anything here needs
-re-checking.
+See §7.5b and §7.5c for the article-rebuild detail, and §6/§7 for the
+backlog items closed in the second half of the session. Full verification
+commands are not reproduced here; re-run them from those sections if
+anything here needs re-checking.
 
 **2026-09-17 session, in one place** (five commits, `6811f91`..`2c57864`,
 plus a housekeeping commit `d13bb5e`; all pushed):
@@ -111,18 +145,29 @@ lists what is still open. As of 2026-09-18, four sections (7.5 closed by
 |---|---|---|
 | **5.2** | talome-wide MSA plot: list of alignments vs demoted `tales` | **your call** (A vs B) |
 | **12b** | `functal()` cannot run; `Bio::Perl` is unobtainable | **your call** among four options |
-| **6** | correctness backlog -- computations that may not match intent | a dedicated pass; some are real bugs, not tidying |
+| **6** | `tales_group()`'s hclust dendrogram spams an `ape`/`ggtree` warning on some tree shapes -- dodged in the articles, not fixed | a reproduction with a small hclust object, then a decision: guard or suppress |
 | **11** | rework `tales_group()` | joint work -- §7.5's articles (the prerequisite) are now done, so this is next |
 | **7.5c** | package now ships no traditional vignette (`VignetteBuilder` removed) | **your call** -- keep it this way, or reinstate a real vignette alongside the pkgdown articles |
+
+§6 itself closed out almost entirely on 2026-09-18 -- five separate items
+fixed and verified (see the 2026-09-18 session summary above) -- and the
+dendrogram warning above is what is left of it, found the same night
+rather than carried over.
 
 §7.5 is done for the core API (§7.5b, §7.5c); `target_predictions.R`'s
 three exports and the AnnoTALE/QueTAL wrappers still have no `@examples`,
 listed there as a deliberate, low-priority remainder rather than as an
 open question.
 
-Two `####` sub-headings also carry `[P]`: one inside §9.1 (now flagged
-stale above), one inside §9.6 (`repeat_sim`/similarity storage question,
-still live).
+Two `####` sub-headings also carry `[P]`, and both turned out stale on
+re-check (2026-09-18): the one inside §9.1 (already flagged above), and
+one inside §9.6 -- despite the claim here that it was "still live", it
+sits inside that section's own `#### Original notes` / `9.6-original`
+history, and the "similarity may be the wrong quantity to store"
+question it poses is the exact one §9.6's main text already resolved a
+few lines above it ("resolved in favour of storing the distance").
+Zero genuinely open `####`-level `[P]`s remain, as far as this pass
+found.
 
 **§6 is the one most likely to be underestimated** despite being "just a
 backlog." What remains after tonight's correction: `rvdSimDf` orphaned by
@@ -1020,26 +1065,46 @@ matrix"; `distalr()` feeds it the `Dissim` matrix as that cost file
   `load(file.path(outdir, "mining.RData"))` from `~/TEMP/test_tantale/`, which
   does not exist on a fresh machine. The vignettes are currently
   personal-workstation notebooks rather than portable documents.
-- **[A]** Self-deprecatory / quality-shadowing language to revise:
-  - `README.md:54` — "work in progress ... not necessarily fully and properly
-    implemented!!!"
-  - `R/tantale.R:6` — "(IDEALLY)" in the package description, which renders on
-    `?tantale`
-  - `README.md:10` — "nightmarish experience" (about the ecosystem, not tantale,
-    but prominent and early)
-  - `R/AnnoTALE_QueTAL_functions_library.R` — names a collaborator's unpublished
-    data ("Hinda's Malian strains") and a tool crash in shipped source
-  - `R/tellTale_utilities.R:136` — `## !! THIS SHOULD BE MADE OBSOLETE ...`
-  - `R/telltale.R:317` — "I do not know why but it fails to work ..."
-  - `inst/legacy/tellTaleLegacy.R` — "far from optimal", "curiosity only"
-    (lower priority; already unexported with no man page)
+- **[A]** Self-deprecatory / quality-shadowing language to revise --
+  **done, 2026-09-18**, six of the seven flagged spots (the seventh,
+  `inst/legacy/tellTaleLegacy.R`, stays parked -- already unexported with
+  no man page, and explicitly lower priority):
+  - `README.md` — the "work in progress ... not necessarily fully and
+    properly implemented!!!" note replaced with a plain statement that
+    interfaces may still change ahead of publication; "nightmarish
+    experience" reworded to describe the actual problem (coordinating
+    tools across platforms) without the loaded language. A stray
+    "minning" typo fixed while there.
+  - `R/tantale.R` — "(IDEALLY)" dropped from the package description
+    rendered on `?tantale`. While in the same block: its four
+    `@section   - <title>:` tags had a stray `- ` prefix that made
+    roxygen2 8.0 mis-parse the title as spanning multiple lines --
+    exactly the "@section title spans multiple lines" warning that
+    showed up in every `devtools::document()` run tonight. Fixed
+    alongside the language, since it was the same lines; verified by
+    re-running `document()` and confirming the warning is gone, and by
+    checking the generated `.Rd`'s four `\section{}` titles render clean.
+  - `R/AnnoTALE_QueTAL_functions_library.R` — the comment naming a
+    collaborator's unpublished data genericised to describe the crash
+    condition without naming anyone.
+  - `R/unused_pending_review.R:71` (moved from `tellTale_utilities.R`,
+    which no longer exists under that name) — the alarmed
+    `## !! THIS SHOULD BE MADE OBSOLETE...` toned down; the file's own
+    header already documents this function's history in more useful
+    detail, including that the original comment's ask "apparently
+    happened, without the function being revisited" -- left untouched,
+    since it is accurate historical bookkeeping, not live alarm.
+  - `R/telltale.R:221` — "I do not know why but it fails to work..."
+    rephrased to state the workaround factually (the RVD column breaks
+    `plyr::ddply()` here) without dropping the honest admission that the
+    root cause was never tracked down.
 - **[V]** Local roxygen2 is 8.0.0 and rewrote `RoxygenNote` →
   `Config/roxygen2/version`. Worth checking against the usual toolchain.
-- **[P]** `talomes_heatmap()`'s roxygen describes `group_col` as displayed "as
-  rows" and `strain_col` "as columns", but the code does
-  `dcast(tale_annotation, strain ~ group)` — rows are strains, columns are
-  groups. The doc text looks reversed (pre-existing, not introduced by the
-  rename).
+- ~~`talomes_heatmap()`'s roxygen describes `group_col` as displayed "as
+  rows" and `strain_col` "as columns"~~ -- **fixed.** `dcast(tale_annotation,
+  strain ~ group)` puts strains in rows and groups in columns
+  (`reshape2::dcast`'s formula is `rows ~ columns`); the two `@param`
+  lines were swapped to match.
 
 ---
 
