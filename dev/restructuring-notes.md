@@ -34,35 +34,49 @@ renamed/retired). Both are now flagged inline. There was not time to
 re-check every other `[V]` section the same way -- treat this file's
 "done" markers as a claim to spot-check against the code, not a guarantee.
 
-**2026-09-18 session, in one place** (uncommitted as of writing):
+**2026-09-18 session, in one place:**
 
-1. **§7.5b done** -- the four numbered vignettes rebuilt from a blank
-   slate, self-contained, each verified with a real `rmarkdown::render()`;
-   a new `tales-msa-class.qmd` article (coercion + plotting, the piece
-   §7.5a deferred); a subsetting section added to `tales-class.qmd`;
-   `@examples` added to 26 exported functions, each verified by extracting
-   and running it, not just by inspection. `p2_multiple_alignments.Rmd`
-   was found broken against the current API (`repeat_to_rvd_align()`,
-   `plot_tales_msa()` -- both retired since §7.1's last check) and fixed;
-   `p3_tantale_objects.Rmd` retired to a redirect.
-2. **Two real bugs found while building the articles, not looked for**,
-   both fixed: `plot.tales_msa()` was returning its result visibly
+1. **§7.5b** -- the four numbered vignettes rebuilt from a blank slate,
+   self-contained, each verified with a real `rmarkdown::render()`; a new
+   `tales-msa-class.qmd` article (coercion + plotting, the piece §7.5a
+   deferred); a subsetting section added to `tales-class.qmd`;
+   `@examples` added to 29 exported functions, each verified by
+   extracting and running it, not just by inspection.
+2. **§7.5c, in the same session** -- maintainer review of that site found
+   real problems, not style notes, and asked for the numbered-vignette
+   vs. class-article split to go away. All six articles now live under
+   `vignettes/articles/*.qmd`; the old `vignettes/*.Rmd` numbered set and
+   `p1`/`p2`/`p3` are gone (merged in, where their content survived); the
+   package ships no traditional vignette any more (`VignetteBuilder`
+   removed -- a real product decision, flagged for the maintainer, not
+   assumed settled). PXO86 dropped from the classification/alignment/
+   target-prediction demos as a poor fit for what they are trying to
+   show; the `tales_align()` example replaced with one carrying a real,
+   biologically legible internal gap; `repeat_sims`/`tal_sim` actually
+   exercised rather than only documented; alignment and target-prediction
+   figures resized after both were found unreadable for opposite reasons.
+3. **Three real bugs found while building the articles, not looked
+   for**, all fixed: `plot.tales_msa()` was returning its result visibly
    (`return()`, not `invisible()`), double-rendering every non-assigned
-   `plot(msa, ...)` call; `as.matrix.pairwise_distances()`'s `@param`
-   doc named the wrong default column (`sim`, stale since the §9.6
-   rename -- the code defaults to `dissim`).
-3. **Two more findings, reported by the maintainer while `tell_tales.log`
-   was showing up in vignette 1's output, recorded in §6**: the log's
+   `plot(msa, ...)` call; `as.matrix.pairwise_distances()`'s `@param` doc
+   named the wrong default column (stale since the §9.6 rename); an
+   `Edit` while writing §7.5b silently dropped the `## 8. Tests` heading,
+   found and restored while writing §7.5c.
+4. **Two more findings, reported by the maintainer while `tell_tales.log`
+   was showing up in an article's output, recorded in §6**: the log's
    "File of subject DNA sequences" line reports an internal temp path
-   rather than the caller's actual `subject_file`, and its parameter block
-   mixes two-column and three-column tab-separated rows, breaking a
-   spreadsheet import.
-4. A full `pkgdown::build_site()` was run against a scratch-installed copy
-   to confirm reference pages, articles and all seven vignettes build
-   together.
+   rather than the caller's actual `subject_file`, and its parameter
+   block mixes two-column and three-column tab-separated rows, breaking
+   a spreadsheet import. A third, `tales_group()`'s hclust dendrogram
+   plot spamming an `ape`/`ggtree` warning, was found the same way and is
+   also in §6, dodged rather than fixed.
+5. A full `pkgdown::build_site()` was run twice against a
+   scratch-installed copy, once after each round, to confirm the whole
+   site builds together and not just each piece in isolation.
 
-See §7.5b for the detail. Full verification commands are not reproduced
-here; re-run them from that section if anything here needs re-checking.
+See §7.5b and §7.5c for the detail. Full verification commands are not
+reproduced here; re-run them from those sections if anything here needs
+re-checking.
 
 **2026-09-17 session, in one place** (five commits, `6811f91`..`2c57864`,
 plus a housekeeping commit `d13bb5e`; all pushed):
@@ -99,11 +113,12 @@ lists what is still open. As of 2026-09-18, four sections (7.5 closed by
 | **12b** | `functal()` cannot run; `Bio::Perl` is unobtainable | **your call** among four options |
 | **6** | correctness backlog -- computations that may not match intent | a dedicated pass; some are real bugs, not tidying |
 | **11** | rework `tales_group()` | joint work -- §7.5's articles (the prerequisite) are now done, so this is next |
+| **7.5c** | package now ships no traditional vignette (`VignetteBuilder` removed) | **your call** -- keep it this way, or reinstate a real vignette alongside the pkgdown articles |
 
-§7.5 is done for the core API (§7.5b); `target_predictions.R`'s three
-exports and the AnnoTALE/QueTAL wrappers still have no `@examples`, listed
-there as a deliberate, low-priority remainder rather than as an open
-question.
+§7.5 is done for the core API (§7.5b, §7.5c); `target_predictions.R`'s
+three exports and the AnnoTALE/QueTAL wrappers still have no `@examples`,
+listed there as a deliberate, low-priority remainder rather than as an
+open question.
 
 Two `####` sub-headings also carry `[P]`: one inside §9.1 (now flagged
 stale above), one inside §9.6 (`repeat_sim`/similarity storage question,
@@ -116,7 +131,10 @@ enforced; `build_repeat_msa()` guessing its input type against a hardcoded
 six-RVD list; a `positionInArray`/alignment-coordinate mislabelling that is
 expected to resolve itself once `tales_msa` gets a real coordinate column.
 None of these are the kind of thing to fix in a five-minute pass -- each
-needs its surrounding code read first.
+needs its surrounding code read first. (Update, 2026-09-18: the `rvdSimDf`
+and `build_repeat_msa()` items above were both already closed by the time
+this paragraph was reread -- see §6 itself, not this summary, for the
+current state.)
 
 **Before editing anything**, confirm the external environment --
 `tantale_setup()`. This machine carries `/usr/bin/mafft` **7.505** and
@@ -821,19 +839,33 @@ Deferred to a dedicated pass on "computations that may not match intent":
   "as.dist" does not re-open a closed question. (Found stale during the
   2026-09-17 ledger audit -- the whole reason to distrust this file's
   markers and re-check every claim against the code.)
-- `rvdSimDf` is orphaned while `build_repeat_msa()` forces identity scoring for
-  RVD alignments (`if (is.null(repeat_sims) || repeatType == "rvds")
-  maffMatOpt <- ""`), even though `rvdSimDf` is exactly the biologically
-  informed RVD substitution matrix that case would want.
+- ~~`rvdSimDf` is orphaned while `build_repeat_msa()` forces identity
+  scoring for RVD alignments~~ -- **stale, already fixed.** §2's "Dormant
+  but valuable — REPAIRED AND WIRED UP" already records this:
+  `repeat_sims = "rvd"` opts an RVD alignment into `rvdSimDf` via
+  `.rvd_score_table()` (`tales_msa_class.R`). Re-verified tonight, not
+  just re-read: `tale-msa.qmd`
+  (§7.5c) calls `tales_align(x, residue_col = "rvd", repeat_sims = "rvd")`
+  against real data and checks the result differs from the unscored
+  alignment. This bullet was simply never removed when §2 closed it --
+  left as a strikethrough for the same reason the `as.dist()` one above
+  is, not deleted.
 - `aaSeq` ↔ `rvd` is 1:1 in the sample data but not enforced. The two come from
   independent sources (protein-parts file vs `rvdSequences.fas`) and
   `tale_parts()`'s own comments say the disagreement is deliberately kept
   visible. If they ever diverged, `repeats.code` would gain duplicate `code`
   rows and quietly stop being a key-per-code table.
-- `build_repeat_msa()` infers whether its input is RVDs or repeat codes by
-  testing against a hardcoded list of six frequent RVDs
-  (`NN NG HD NI N* NS`). A small alignment of unusual TALEs containing none of
-  them would be silently misclassified. A typed object removes the guess.
+- ~~`build_repeat_msa()` infers whether its input is RVDs or repeat codes
+  by testing against a hardcoded list of six frequent RVDs~~ -- **fixed.**
+  "A typed object removes the guess" turned out not to need a new type at
+  all: `tales_align()` already knows which column it read
+  (`residue_col`), so `.build_repeat_msa()` now takes that as an explicit
+  `residue_type` argument and only falls back to the six-RVD guess when
+  called directly without one -- which only the tests exercising it in
+  isolation do (`tales_msa_class.R`). `test_tales_msa_class.R` and the
+  golden baseline both pass unchanged, confirming this is byte-identical
+  for every real caller and only changes the misclassification case the
+  guess existed to get wrong in the first place.
 - `functal()` is blocked on Perl deps. **Partly resolved 2026-09-17:**
   `perl-list-moreutils` is now in the yaml and installed. `Bio::Perl` turns
   out to be unobtainable — BioPerl dropped it in the 1.7 reorganisation and
@@ -852,21 +884,24 @@ Deferred to a dedicated pass on "computations that may not match intent":
   `test_plot_tales_msa.R`: nothing there *could* have asserted, since every
   call aborted — that file now has real assertions, including that the plot
   renders to a file.
-- **[V]** `tales_consensus_match(long = TRUE)` mislabels the alignment
-  coordinate as `positionInArray`
-  ([msa.R:74-76](../R/msa.R#L74-L76)). It melts an MSA matrix whose columns are
-  *alignment* positions — `build_repeat_msa()` sets
-  `colnames(...) <- 1:ncol(...)` on the **gapped** matrix
-  ([msa.R:233](../R/msa.R#L233)) — then asserts the name positionally. The two
-  coordinates diverge as soon as a gap is inserted: in
-  `sampleRepeatMsaByGroup.rds`, array `BAI3-1-1_ROI_00006` has 14 parts spread
-  over 18 columns, agreeing up to part 12 and then jumping — part 13 sits at
-  alignment position 17, part 14 at 18. Nothing errors, because the name is
-  asserted rather than derived. Another instance of the 16 positional
-  `colnames(x) <- c(...)` assignments noted in §5. **Expected to resolve
-  itself** when the alignment gains a real `alignment_position` coordinate
-  distinct from `position_in_array` (`class-design.md` §4) — listed here so it
-  is not lost if that design changes, not as separate work.
+- **[V]** `tales_consensus_match(long = TRUE)` labels the melted alignment
+  coordinate `position_in_array`
+  ([tales_consensus.R:92](../R/tales_consensus.R#L92); moved there from
+  the old `msa.R` this bullet originally cited, itself since split into
+  `tales_consensus.R`/`tales_plot.R` -- file:line updated, re-checked
+  against current code rather than trusted). The design this bullet was
+  waiting on landed months ago: `tales_msa` now has a real
+  `alignment_position` column, distinct from `position_in_array`, and
+  `as.matrix.tales_msa()`'s columns are genuinely alignment positions.
+  The label did **not** resolve itself the way this bullet hoped, because
+  `tales_consensus_match()` takes a bare matrix, not a `tales_msa`, so it
+  has no way to know which coordinate it was handed -- and every internal
+  caller (`tales_plot.R`'s long-format intermediates, same pattern) calls
+  that axis `position_in_array` too, consistently if arguably wrongly,
+  whatever kind of matrix actually produced it. Left as-is again: fixing
+  the name is a public return-value change on an exported function, not
+  a five-minute rename, and the original call not to treat this as
+  separate work still stands.
 - `tell_tales.log` misreports its own input file. The line is meant to echo
   what the caller passed as `subject_file`
   ([telltale.R:424](../R/telltale.R#L424)), and the docstring says `params`
@@ -891,6 +926,23 @@ Deferred to a dedicated pass on "computations that may not match intent":
   a handful of lines in. Fix is presumably to drop the colon into the label
   (`paste0(name, ":")`) rather than giving it its own field, matching every
   other line.
+- `tales_group(method = "hclust", plot_tree = TRUE)` can spam
+  `Invalid edge matrix for <phylo>. A <tbl_df> is returned.` -- from the
+  `ggtree`/`ape`/`tidytree` machinery `classification.R` builds the
+  dendrogram plot with, not from tantale's own code, but tantale's own
+  code is what feeds it whatever tree it gets. Found because it showed up
+  24 times over in a rendered article's HTML (§7.5c); confirmed by
+  elimination that a talome comparison spanning a distantly related
+  outgroup (PXO86 alongside three closely related African strains)
+  triggers it and the same comparison without that outgroup does not, but
+  *why* -- something about the resulting tree structure, not investigated
+  further -- was not run down. Worked around there by curating which
+  genomes go into the article, which is not a fix: a user's own
+  multi-strain dataset could hit the same tree shape and get the same
+  spam. Worth reproducing deliberately (a small hclust object with the
+  right degeneracy, rather than a whole talome comparison) before
+  deciding whether this is an `ape::as.phylo.hclust()` edge case to guard
+  against or simply a warning to suppress.
 
 ### RESOLVED: the as.dist() inversion bug **[V]**
 
@@ -1702,6 +1754,108 @@ A full `pkgdown::build_site()` was run after all of the above, against a
 scratch-installed copy, to confirm the whole site -- reference pages, both
 new/edited articles, all seven vignettes -- builds together, not just each
 piece in isolation.
+
+### 7.5c The numbered-vignette/article duality abrogated; genome choice and figure sizing fixed -- DONE **[V]**
+
+Maintainer review of 7.5b's site, in the same session, found real problems
+with it -- not style notes, substantive ones -- and a structural request:
+stop treating "the four numbered walkthroughs" and "the two class deep
+dives" as two separate kinds of thing.
+
+**Restructured into one coherent set.** All six articles now live under
+`vignettes/articles/*.qmd` -- the four numbered `vignettes/*.Rmd`
+walkthroughs and the `p1`/`p2`/`p3` files are gone, `git mv`'d or merged
+rather than deleted where their content survived. Two are deep dives
+extending a walkthrough rather than numbered steps of their own
+(`tales-class.qmd` extends "mining"; `tales-msa-class.qmd` extends
+"msa"), and every article says explicitly, near the top, where it sits
+relative to the others and links both ways. p1's backend-comparison
+content is now a subsection of the classification article; p2's still-
+valid alignment demo folded into the msa deep dive; p3 (already just a
+redirect) is gone outright, superseded by the two class articles it
+pointed at.
+
+**Consequence flagged, not decided: the package now ships no traditional
+vignette at all.** `DESCRIPTION`'s `VignetteBuilder: knitr` is removed --
+nothing under `vignettes/` builds via the standard mechanism any more,
+only the pkgdown-only `articles/` subfolder `tools::pkgVignettes()`
+already confirmed R's build machinery does not descend into (7.5a). That
+trades away `vignette()`/`browseVignettes()` access and anything bundled
+in the source tarball for offline reading, in exchange for finally having
+walkthroughs that render at all and can use quarto's callouts/crossrefs/
+lightbox consistently. **This is a real product decision, not a
+formatting one, and belongs on the maintainer's desk** rather than
+assumed settled by an autonomous session.
+
+**Three content problems, found by actually reading the built site
+rather than trusting that "renders without error" meant "good":**
+
+- **The classification demo was undermined by its own input.** All four
+  sample genomes were being compared together, and PXO86 -- a distantly
+  related Asian outgroup whose TALE repertoire barely overlaps the
+  African strains' -- turned a clean one-locus-per-strain signal into a
+  mess of singletons and PXO86-only paralog clusters, making
+  `tales_group()` look worse than it is. Dropping PXO86 from the
+  classification, alignment and target-prediction articles (mining still
+  covers all four, since PXO86 discovery on its own is fine) turns the
+  9-group result into 8 clean triplets, one member per strain, and --
+  found as a side effect of the same fix, not chased separately --
+  **silences a warning that had no business being in the rendered site
+  at all**: `ggtree`/`ape`'s `Invalid edge matrix for <phylo>. A <tbl_df>
+  is returned.`, baked into the old built page 24 times over from
+  `tales_group(method = "hclust", plot_tree = TRUE)`. Confirmed by
+  removing PXO86 alone, with everything else unchanged, that the warning
+  stops. **Not fixed at the source** -- nothing in `classification.R`
+  changed -- so a user's own dataset with a similarly structured tree
+  could still trigger it; recorded in §6 below rather than assumed gone
+  for good.
+- **The `tales_align()` example was a bad advertisement for gaps.** The
+  old example (four unrelated arrays from `bai3_sample_tal_genomic_
+  regions.fasta`) does have gaps, but scattered everywhere with no clean
+  story -- not "not very adapted" as a fixture, adapted for the wrong
+  thing. Replaced across both the walkthrough and the class deep dive
+  with a real classification group carrying exactly one internal gap,
+  outside both extremities, shared by BAI3 and BAI3-1-1 against MAI1 --
+  and, because BAI3-1-1 is the same background as BAI3 with *talC*
+  deleted, a biologically legible one: a deletion the two share because
+  they share an ancestor with it, not two coincidences. Both articles now
+  build on the *same* alignment (the class deep dive continues directly
+  from the walkthrough's, self-contained rather than session-shared), so
+  the deep dive is a continuation rather than a context switch.
+
+  While there, `repeat_sims`/`tal_sim` were exercised rather than only
+  documented, per the maintainer's request: on `dom_code`, supplying
+  `domain_distances` as a scoring matrix produces a measurably narrower
+  gap (one column instead of three) for the array carrying the deletion
+  -- concrete support for the existing "more compact alignments" claim.
+  On `rvd`, the built-in matrix changed nothing on this data, reported as
+  the honest (if less dramatic) finding it is rather than dropped for a
+  better story: three closely related arrays with a small RVD alphabet
+  leave a scoring matrix little room to matter.
+- **Two figures were unreadable, for opposite reasons.** The alignment
+  plots were stretched tall relative to their row count and narrow
+  relative to their column count, squeezing the repeat-code boxes;
+  settled empirically at roughly 9in width / 2.3in height per three-row
+  alignment, checked by rendering and looking rather than guessing.
+  `plot_target_preds()`'s RVD boxes were unreadable the opposite way --
+  crammed into a wide filter window with several unrelated predictions
+  competing for space. Narrowing the window to one region of interest
+  fixed it, and searching for a tighter example paid off unexpectedly: a
+  literal three-way tie, one TALE from each strain predicting the *exact
+  same* site on SWEET14 at an identical score, which is a better
+  illustration of orthologous conservation than the two-prediction
+  example it replaced.
+
+**A real mistake caught while writing this section, worth recording so
+it does not repeat:** the `Edit` that added §7.5b matched an `old_string`
+ending exactly at the `## 8. Tests` header and replaced it without
+preserving that header, silently merging §8's content under §7.5b with
+no heading between them for several commits. Found only by re-reading
+the section boundaries just now, not by any tool complaining. Restored.
+The lesson is generic, not specific to this file: an `old_string` that
+ends exactly on a heading is a genuine risk of eating that heading, and
+is worth a re-read of the surrounding structure after the edit, not just
+a check that the intended new text landed.
 
 ## 8. Tests — error conditions now covered **[V]**
 

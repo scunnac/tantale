@@ -318,6 +318,7 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
   seqs <- lapply(seqs, paste, collapse = " ")
 
   m <- .build_repeat_msa(input_seqs = seqs, sep = " ", repeat_sims = repeat_sims,
+                        residue_type = residue_col,
                         mafft_opts = mafft_opts, mafft_path = mafft_path,
                         mafft_verbose = mafft_verbose,
                         gap_symbol = NA, ...)
@@ -450,6 +451,7 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
 
 #' @noRd
 .build_repeat_msa <- function(input_seqs, sep = " ", repeat_sims = NULL,
+                           residue_type = NULL,
                            mafft_opts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1",
                            mafft_path = NULL,
                            mafft_verbose = FALSE,
@@ -488,16 +490,27 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
     return(msaOfResiduesAsMatrix)
   }
   
-  # Determine the type of 'elements' (rvd or repeat) contained in the sequences
-  frequentRvds <- c("NN", "NG", "HD", "NI", "N*", "NS")
-  if(! any(residues %in% frequentRvds)) {
-    cli::cli_inform(paste0("Will be assuming sequences contain repeat unit codes because ",
-                     "none of the RVDs obtained from input sequences matches ",
-                     "a list of 'frequent RVDs': {paste(frequentRvds, collapse = ' ')}"))
+  # Determine the type of 'elements' (rvd or repeat) contained in the
+  # sequences. tales_align() already knows this -- it is `residue_col` --
+  # and passes it through as `residue_type`, so only a caller that skips
+  # tales_align() and calls this directly without saying reaches the guess
+  # below, which can be fooled by a real alignment that happens to avoid
+  # every one of six common RVDs (restructuring-notes.md §6).
+  if (identical(residue_type, "rvd")) {
+    repeatType <- "rvds"
+  } else if (identical(residue_type, "dom_code")) {
     repeatType <- "repeatUnit"
   } else {
-    cli::cli_inform("Input sequences are detected as RVD sequences.")
-    repeatType <- "rvds"
+    frequentRvds <- c("NN", "NG", "HD", "NI", "N*", "NS")
+    if(! any(residues %in% frequentRvds)) {
+      cli::cli_inform(paste0("Will be assuming sequences contain repeat unit codes because ",
+                       "none of the RVDs obtained from input sequences matches ",
+                       "a list of 'frequent RVDs': {paste(frequentRvds, collapse = ' ')}"))
+      repeatType <- "repeatUnit"
+    } else {
+      cli::cli_inform("Input sequences are detected as RVD sequences.")
+      repeatType <- "rvds"
+    }
   }
   if( length(residues) > nrow(asciitableForMafft) ) {
     cli::cli_warn("The number of distinct residues (RVDs or repeat units) must be 248 or fewer.")
