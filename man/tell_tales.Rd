@@ -167,35 +167,35 @@ the directory where output files were written.
 
 List of output files:
 \itemize{
-\item allRanges.gff: gff file of all Tal arrays detected by HMMer
-\item arrayReport.tsv: report of all Tal arrays. In the arrayReport.tsv,
+\item all_ranges.gff: gff file of all Tal arrays detected by HMMer
+\item array_report.tsv: report of all Tal arrays. In array_report.tsv,
 column \emph{predicted_dels_count}/\emph{predicted_ins_count} shows the
 number of putative deletions/insertions in the raw sequences that have been
 corrected in the corrected sequences with the
 function \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}}.
-\item hitsReport.tsv: report of all hits detected by HMMer
-\item hitsReport.gff: gff file of all hits detected by HMMer
-\item domainsReport.tsv: report of all Tal amino acid domains detected by AnnoTALE analyze
-\item putativeTalOrf.fasta: Tal putative ORFs
-\item pseudoTalCds.fasta: pseudo Tal CDS, putative Tal array ORFs detected by HMMer for whch
+\item hits_report.tsv: report of all hits detected by HMMer
+\item hits_report.gff: gff file of all hits detected by HMMer
+\item domains_report.tsv: report of all Tal amino acid domains detected by AnnoTALE analyze
+\item putative_tal_orf.fasta: Tal putative ORFs
+\item pseudo_tal_cds.fasta: pseudo Tal CDS, putative Tal array ORFs detected by HMMer for whch
 AnnoTALE analyze failed to find RVD(s).
-\item rvdSequences.fas: Sequence of RVDs (separated by rvd_sep) predicted to be encoded in the Tal array
+\item rvd_sequences.fas: Sequence of RVDs (separated by rvd_sep) predicted to be encoded in the Tal array
 ORFs by AnnoTALE. Note that if extremity_codes is \code{TRUE} (by default),
 the N- and C-TREM anchor codes will be appended at the beginning and end of the sequences
 if the corresponding domain coding sequence was wound by HMMer at the DNA level.
 If no such HMMer hits were found, the "XXXXX" string will be appended
 to denote that AA sequences outside of the RVD array are likely to be atypical.
-\item C-terminusAAAlignment.html: protein alignment of all C-termini
-\item C-terminusDNAAlignment.html: DNA alignment of all C-termini
-\item N-terminusAAAlignment.html: protein alignment of all N-termini
-\item N-terminusDNAAlignment.html: DNA alignment of all N-termini
-\item TALE_CDS_all_diagnostic_regions_hmmfile.out: HMMER profile used for tale cds search.
-\item hmmerSearchOut.txt: ignore
-\item nhmmerHumanReadableOutputOfLastRun.txt: primary HMMER output file.
+\item c_terminus_aa_alignment.html: protein alignment of all C-termini
+\item c_terminus_dna_alignment.html: DNA alignment of all C-termini
+\item n_terminus_aa_alignment.html: protein alignment of all N-termini
+\item n_terminus_dna_alignment.html: DNA alignment of all N-termini
+\item tale_cds_all_diagnostic_regions_hmmfile.out: HMMER profile used for tale cds search.
+\item hmmer_search_out.txt: ignore
+\item nhmmer_human_readable_output_of_last_run.txt: primary HMMER output file.
 \item tell_tales.log: a log file
 \item annotale folder: folder containing result of AnnoTALE analyze for all Tal arrays
-\item CorrectionAlignmentAA folder: folder containing protein alignment of Tal array detected by HMMer and corrected Tal array if \code{correct_array} = TRUE
-\item CorrectionAlignmentDNA folder: folder containing DNA alignment of Tal array detected by HMMer and corrected Tal array if \code{correct_array = TRUE}
+\item correction_alignment_aa folder: folder containing protein alignment of Tal array detected by HMMer and corrected Tal array if \code{correct_array} = TRUE
+\item correction_alignment_dna folder: folder containing DNA alignment of Tal array detected by HMMer and corrected Tal array if \code{correct_array = TRUE}
 }
 }
 \description{

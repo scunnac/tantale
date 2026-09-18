@@ -86,7 +86,7 @@
 
 
 
-.hits_report_to_gff <- function(f = "hitsReport.csv") {
+.hits_report_to_gff <- function(f = "hits_report.tsv") {
   # Convert the info contained in a HitReport file into a GFF file for display by
   # a genome viewer.
   # The f parameter corresponds to the path to a hitsReport file.
@@ -516,14 +516,14 @@
     seqToAlign <- c(rawSeq, correctedSeq, substitutedSeq)
     alignedSeqs <- DECIPHER::AlignSeqs(seqToAlign, verbose = FALSE)
     DECIPHER::BrowseSeqs(alignedSeqs,
-                         htmlFile = file.path(dna_dir, glue::glue("CorrectionAlignmentDNA_{n}.html")),
+                         htmlFile = file.path(dna_dir, glue::glue("correction_alignment_dna_{n}.html")),
                          openURL = FALSE, colWidth = 120)
 
     seqToAlignTranslated <- Biostrings::translate(seqToAlign, no.init.codon = TRUE,
                                                   if.fuzzy.codon = "solve")
     alignedSeqsTranslated <- DECIPHER::AlignSeqs(seqToAlignTranslated, verbose = FALSE)
     DECIPHER::BrowseSeqs(alignedSeqsTranslated,
-                         htmlFile = file.path(aa_dir, glue::glue("CorrectionAlignmentAA_{n}.html")),
+                         htmlFile = file.path(aa_dir, glue::glue("correction_alignment_aa_{n}.html")),
                          openURL = FALSE, colWidth = 120)
   }
   invisible(NULL)
@@ -713,7 +713,7 @@
     AnnotaleDir <- file.path(annotale_dir, talOrfID)
     dir.create(AnnotaleDir)
     TalOrf <- orfs[talOrfID]
-    correctedTalOrfFile <- file.path(AnnotaleDir, "putativeTalOrf.fasta")
+    correctedTalOrfFile <- file.path(AnnotaleDir, "putative_tal_orf.fasta")
     Biostrings::writeXStringSet(TalOrf, correctedTalOrfFile)
 
     cli::cli_inform("Now running AnnoTALE analyze for {talOrfID}")
@@ -796,10 +796,10 @@
   spec <- switch(type,
     DNA = list(parts = "TALE_DNA_parts.fasta", label = "DNA",
                read = Biostrings::readDNAStringSet, setlist = Biostrings::DNAStringSetList,
-               suffix = "DNAAlignment.html"),
+               suffix = "dna_alignment.html"),
     AA  = list(parts = "TALE_Protein_parts.fasta", label = "protein",
                read = Biostrings::readAAStringSet, setlist = Biostrings::AAStringSetList,
-               suffix = "AAAlignment.html"))
+               suffix = "aa_alignment.html"))
 
   partFiles <- list.files(annotale_dir, spec$parts, recursive = TRUE, full.names = TRUE)
 
@@ -815,8 +815,9 @@
 
     if (length(allpart) > 1) {
       alignment <- DECIPHER::AlignSeqs(allpart, verbose = FALSE)
+      part_slug <- tolower(gsub("-", "_", part))
       DECIPHER::BrowseSeqs(alignment,
-                           htmlFile = file.path(output_dir, glue::glue("{part}{spec$suffix}")),
+                           htmlFile = file.path(output_dir, glue::glue("{part_slug}_{spec$suffix}")),
                            openURL = FALSE, colWidth = 120)
     } else {
       cli::cli_warn("Skipping {part} TALE {spec$label} regions alignment because the input sequence has less than 2 putative TALEs.")
@@ -967,7 +968,7 @@
     stringset <- ends_aa[e] %>% Biostrings::AAStringSetList(., use.names = FALSE) %>% unlist()
     df <- data.frame(names(stringset), BiocGenerics::width(stringset))
     # "N-terminus"/"C-terminus" (from .telltale_align_termini()) to the
-    # snake_case column names arrayReport.tsv actually carries.
+    # snake_case column names array_report.tsv actually carries.
     lengthCol <- if (e == "N-terminus") "nterm_aa_length" else "cterm_aa_length"
     colnames(df) <- c("array_id", lengthCol)
     df
@@ -1121,28 +1122,28 @@
     # by the AnnoTALE stage
     annotale       = file.path(output_dir, "annotale"),
     ## Tabular file reporting on individual TALE domain hits
-    hits_report    = file.path(output_dir, "hitsReport.tsv"),
-    domains_report = file.path(output_dir, "domainsReport.tsv"),
+    hits_report    = file.path(output_dir, "hits_report.tsv"),
+    domains_report = file.path(output_dir, "domains_report.tsv"),
     ## Tabular file reporting on putative TALEs (contiguous arrays of domain hits)
-    array_report   = file.path(output_dir, "arrayReport.tsv"),
+    array_report   = file.path(output_dir, "array_report.tsv"),
     ## Gff file with all the identified domains and arrays and their associated data
-    all_ranges_gff = file.path(output_dir, "allRanges.gff"),
+    all_ranges_gff = file.path(output_dir, "all_ranges.gff"),
     ## fasta of tal orfs that have rvds, and of those predicted not to
-    tale_orf_fasta = file.path(output_dir, "putativeTalOrf.fasta"),
-    pseudo_tal     = file.path(output_dir, "pseudoTalCds.fasta"),
+    tale_orf_fasta = file.path(output_dir, "putative_tal_orf.fasta"),
+    pseudo_tal     = file.path(output_dir, "pseudo_tal_cds.fasta"),
     ## the selected seqs of RVDs, without the separator
-    rvd_sequences  = file.path(output_dir, "rvdSequences.fas"),
+    rvd_sequences  = file.path(output_dir, "rvd_sequences.fas"),
     ## the three HMM profiles concatenated, which is what nhmmer is given
-    merged_hmm     = file.path(output_dir, "TALE_CDS_all_diagnostic_regions_hmmfile.out"),
-    hmmer_search   = file.path(output_dir, "hmmerSearchOut.txt"),
-    hmmer_readable = file.path(output_dir, "nhmmerHumanReadableOutputOfLastRun.txt"),
+    merged_hmm     = file.path(output_dir, "tale_cds_all_diagnostic_regions_hmmfile.out"),
+    hmmer_search   = file.path(output_dir, "hmmer_search_out.txt"),
+    hmmer_readable = file.path(output_dir, "nhmmer_human_readable_output_of_last_run.txt"),
     ## logging info and some general analysis measures
     log            = file.path(output_dir, "tell_tales.log")
   )
   dir.create(p$annotale)
   if (correct_array) {
-    p$correction_dna <- file.path(output_dir, "CorrectionAlignmentDNA")
-    p$correction_aa  <- file.path(output_dir, "CorrectionAlignmentAA")
+    p$correction_dna <- file.path(output_dir, "correction_alignment_dna")
+    p$correction_aa  <- file.path(output_dir, "correction_alignment_aa")
     dir.create(p$correction_dna, showWarnings = FALSE)
     dir.create(p$correction_aa, showWarnings = FALSE)
   }
@@ -1308,35 +1309,35 @@
 #'
 #'   List of output files:
 #'   \itemize{
-#'   \item allRanges.gff: gff file of all Tal arrays detected by HMMer
-#'   \item arrayReport.tsv: report of all Tal arrays. In the arrayReport.tsv,
+#'   \item all_ranges.gff: gff file of all Tal arrays detected by HMMer
+#'   \item array_report.tsv: report of all Tal arrays. In array_report.tsv,
 #'   column \emph{predicted_dels_count}/\emph{predicted_ins_count} shows the
 #'   number of putative deletions/insertions in the raw sequences that have been
 #'   corrected in the corrected sequences with the
 #'   function \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}}.
-#'   \item hitsReport.tsv: report of all hits detected by HMMer
-#'   \item hitsReport.gff: gff file of all hits detected by HMMer
-#'   \item domainsReport.tsv: report of all Tal amino acid domains detected by AnnoTALE analyze
-#'   \item putativeTalOrf.fasta: Tal putative ORFs
-#'   \item pseudoTalCds.fasta: pseudo Tal CDS, putative Tal array ORFs detected by HMMer for whch
+#'   \item hits_report.tsv: report of all hits detected by HMMer
+#'   \item hits_report.gff: gff file of all hits detected by HMMer
+#'   \item domains_report.tsv: report of all Tal amino acid domains detected by AnnoTALE analyze
+#'   \item putative_tal_orf.fasta: Tal putative ORFs
+#'   \item pseudo_tal_cds.fasta: pseudo Tal CDS, putative Tal array ORFs detected by HMMer for whch
 #'    AnnoTALE analyze failed to find RVD(s).
-#'   \item rvdSequences.fas: Sequence of RVDs (separated by rvd_sep) predicted to be encoded in the Tal array
+#'   \item rvd_sequences.fas: Sequence of RVDs (separated by rvd_sep) predicted to be encoded in the Tal array
 #'    ORFs by AnnoTALE. Note that if extremity_codes is \code{TRUE} (by default),
 #'    the N- and C-TREM anchor codes will be appended at the beginning and end of the sequences
 #'    if the corresponding domain coding sequence was wound by HMMer at the DNA level.
 #'    If no such HMMer hits were found, the "XXXXX" string will be appended
 #'    to denote that AA sequences outside of the RVD array are likely to be atypical.
-#'   \item C-terminusAAAlignment.html: protein alignment of all C-termini
-#'   \item C-terminusDNAAlignment.html: DNA alignment of all C-termini
-#'   \item N-terminusAAAlignment.html: protein alignment of all N-termini
-#'   \item N-terminusDNAAlignment.html: DNA alignment of all N-termini
-#'   \item TALE_CDS_all_diagnostic_regions_hmmfile.out: HMMER profile used for tale cds search.
-#'   \item hmmerSearchOut.txt: ignore
-#'   \item nhmmerHumanReadableOutputOfLastRun.txt: primary HMMER output file.
+#'   \item c_terminus_aa_alignment.html: protein alignment of all C-termini
+#'   \item c_terminus_dna_alignment.html: DNA alignment of all C-termini
+#'   \item n_terminus_aa_alignment.html: protein alignment of all N-termini
+#'   \item n_terminus_dna_alignment.html: DNA alignment of all N-termini
+#'   \item tale_cds_all_diagnostic_regions_hmmfile.out: HMMER profile used for tale cds search.
+#'   \item hmmer_search_out.txt: ignore
+#'   \item nhmmer_human_readable_output_of_last_run.txt: primary HMMER output file.
 #'   \item tell_tales.log: a log file
 #'   \item annotale folder: folder containing result of AnnoTALE analyze for all Tal arrays
-#'   \item CorrectionAlignmentAA folder: folder containing protein alignment of Tal array detected by HMMer and corrected Tal array if \code{correct_array} = TRUE
-#'   \item CorrectionAlignmentDNA folder: folder containing DNA alignment of Tal array detected by HMMer and corrected Tal array if \code{correct_array = TRUE}
+#'   \item correction_alignment_aa folder: folder containing protein alignment of Tal array detected by HMMer and corrected Tal array if \code{correct_array} = TRUE
+#'   \item correction_alignment_dna folder: folder containing DNA alignment of Tal array detected by HMMer and corrected Tal array if \code{correct_array = TRUE}
 #'   }
 #' @export
 #' @family TALE discovery

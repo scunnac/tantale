@@ -98,7 +98,7 @@
   # be aware of disagreements between AnnoTALE diagnostic on terminal domains presence in AA seqs
   # and nhmmer diagnostic on terminal domains CDS presence on DNA.
   rvds <- .split_list(list.files(path = telltale_dir,
-                                        pattern = "rvdSequences.fas",
+                                        pattern = "rvd_sequences.fas",
                                         recursive = F,
                                         full.names = T)
                              ) %>%
@@ -132,7 +132,7 @@
                                 unmatched = "drop", relationship = "one-to-one")
   # Include seqnames in the talParts tibble
   tale_parts %<>% dplyr::left_join(
-    readr::read_tsv(list.files(telltale_dir, "hitsReport.tsv", recursive = T, full.names = T),
+    readr::read_tsv(list.files(telltale_dir, "hits_report.tsv", recursive = T, full.names = T),
                     show_col_types = FALSE) %>%
       dplyr::select(array_id, seqnames) %>%
       dplyr::distinct(),
