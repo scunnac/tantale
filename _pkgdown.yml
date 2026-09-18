@@ -13,6 +13,16 @@ home:
               </a>
 development:
   mode: auto
+
+articles:
+- title: Learn tantale
+  contents:
+  - articles/tale_mining
+  - articles/tales_class
+  - articles/tale_classification
+  - articles/tale_msa
+  - articles/tales_msa_class
+  - articles/tale_target_prediction
 #  theme: espresso
 #footer:
 #  structure: 

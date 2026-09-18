@@ -1,84 +1,88 @@
 ---
-title: "4. TALE target predictions with tantale"
-output:
-  html_document:
-    code_folding: show
+title: "Predicting TALE targets"
+format:
+  html:
     toc: true
-    toc_float: true
-    number_sections: true
-vignette: >
-  %\VignetteIndexEntry{4. TALE target predictions with tantale}
-  %\VignetteEncoding{UTF-8}
-  %\VignetteEngine{knitr::rmarkdown}
+    number-sections: true
+    code-fold: show
+    lightbox: true
 editor_options:
   chunk_output_type: console
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(cache = FALSE)
-knitr::opts_chunk$set(warning = FALSE)
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>>")
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE)
 ```
 
-```{r package, warning=FALSE, message=FALSE}
+The previous articles found TALE arrays, grouped them, and aligned
+related ones. This last article asks the question a TALE's RVD sequence
+exists to answer: what DNA sequence does it bind? Each RVD contacts one
+base of the target through a well-characterised, largely one-to-one code
+(`NI` prefers A, `HD` prefers C, `NG` prefers T, `NN` prefers G or A, and
+so on), so a whole RVD sequence predicts an *EBE* -- an Effector Binding
+Element -- as a short DNA motif with one position per RVD.
+
+```{r package, message = FALSE}
 library(tantale)
 library(dplyr)
 ```
 
-The previous three articles found TALE arrays, grouped them, and aligned
-related ones. This last article asks the question a TALE's RVD sequence
-exists to answer: what DNA sequence does it bind? Each RVD contacts one
-base of the target through a well-characterised, largely one-to-one code
-(`NI` prefers A, `HD` prefers C, `NG` prefers T, `NN` prefers G or A, and so
-on), so a whole RVD sequence predicts an *EBE* -- an Effector Binding
-Element -- as a short DNA motif with one position per RVD.
-
 tantale wraps two independent predictors that use this code differently
-enough to be worth contrasting: [TALVEZ](https://doi.org/10.1371/journal.pone.0068464),
-a position-weight-matrix scan, and
-[PrediTALE](https://doi.org/10.1371/journal.pcbi.1007206), which also models
-where a real EBE tends to sit relative to a transcription start site. Both
-are wrapped as `talvez()` and `preditale()`, taking the same inputs and
-returning the same column layout, so their predictions can be compared
-directly rather than translated by hand.
+enough to be worth contrasting:
+[TALVEZ](https://doi.org/10.1371/journal.pone.0068464), a
+position-weight-matrix scan, and
+[PrediTALE](https://doi.org/10.1371/journal.pcbi.1007206), which also
+models where a real EBE tends to sit relative to a transcription start
+site. Both are wrapped as `talvez()` and `preditale()`, taking the same
+inputs and returning the same column layout, so their predictions can be
+compared directly rather than translated by hand.
 
-# Predicting against a real promoter set
+## Getting RVD sequences to predict with
 
-RVD sequences come straight from a `tales` object via `tales_rvd_strings()`
--- the same projection used for alignment input, just with the termini
-dropped by default, since prediction concerns the repeat domain only. This
-reuses the classification result from the second article:
+RVD sequences come straight from a `tales` object via
+`tales_rvd_strings()` -- the same projection used for alignment input,
+just with the termini dropped by default, since prediction concerns the
+repeat domain only. This reuses the same three genomes as
+[the classification](tale_classification.html) and
+[alignment](tale_msa.html) articles.
 
-```{r discover_and_compare, message = FALSE, warning = FALSE}
+```{r workdir}
 out <- fs::dir_create(file.path(tempdir(), "tale_target_prediction"))
 genome_files <- c(
-  MAI1 = system.file("extdata", "MAI1.fa", package = "tantale", mustWork = TRUE),
-  BAI3 = system.file("extdata", "BAI3.fa", package = "tantale", mustWork = TRUE),
-  PXO86 = system.file("extdata", "PXO86.fa", package = "tantale", mustWork = TRUE)
+  MAI1       = system.file("extdata", "MAI1.fa",     package = "tantale", mustWork = TRUE),
+  BAI3       = system.file("extdata", "BAI3.fa",     package = "tantale", mustWork = TRUE),
+  `BAI3-1-1` = system.file("extdata", "BAI3-1-1.fa", package = "tantale", mustWork = TRUE)
 )
+```
 
+```{r discover_all, message = FALSE}
 all_tales <- lapply(names(genome_files), function(strain) {
   strain_dir <- file.path(out, strain)
-  invisible(tell_tales(subject_file = genome_files[strain], output_dir = strain_dir))
-  tales_from_telltale(strain_dir) %>%
+  invisible(tell_tales(subject_file = genome_files[strain], output_dir = strain_dir,
+                       cterm_min_score = 300,
+                       correct_array = TRUE, max_comparisons = 50))
+  tales_from_telltale(strain_dir) |>
     mutate(array_id = paste0(strain, "_", array_id))
-}) %>%
-  suppressWarnings() %>%
-  bind_rows() %>%
+}) |>
+  suppressWarnings() |>
+  bind_rows() |>
   tales(sanitize = TRUE)
+```
 
+```{r rvds}
 rvds <- tales_rvd_strings(all_tales)
 length(rvds)
 ```
 
-The target sequences are promoter regions of three clade III *SWEET* genes
--- a well-studied class of rice susceptibility genes that TALEs from
-*Xanthomonas oryzae* are known to target -- from several rice varieties:
+The target sequences are promoter regions of three clade III *SWEET*
+genes -- a well-studied class of rice susceptibility genes that TALEs
+from *Xanthomonas oryzae* are known to target -- from several rice
+varieties:
 
 ```{r subj_file}
 subj_file <- system.file("extdata", "cladeIII_sweet_promoters.fasta",
                          package = "tantale", mustWork = TRUE)
-Biostrings::readBStringSet(subj_file) %>% names()
+Biostrings::readBStringSet(subj_file) |> names()
 ```
 
 ## TALVEZ
@@ -86,7 +90,10 @@ Biostrings::readBStringSet(subj_file) %>% names()
 ```{r talvez, message = FALSE}
 talvez_preds <- talvez(rvd_seqs = rvds, subj_file = subj_file, opt_param = "-t 0 -l 19")
 nrow(talvez_preds)
-talvez_preds %>% arrange(desc(score)) %>% head(5)
+```
+
+```{r talvez_show}
+talvez_preds |> arrange(desc(score)) |> head(5)
 ```
 
 ## PrediTALE
@@ -97,45 +104,73 @@ preditale_preds <- preditale(rvd_seqs = rvds, subj_file = subj_file)
 
 ```{r preditale_show}
 nrow(preditale_preds)
-preditale_preds %>% arrange(desc(score)) %>% head(5)
+preditale_preds |> arrange(desc(score)) |> head(5)
 ```
 
-PrediTALE additionally reports a `pval` per prediction, since it models the
-null distribution of scores directly rather than only ranking candidates
-against each other -- worth using when the question is "is this a credible
-site at all" rather than only "which of these is the best".
+::: {.callout-tip}
+## `pval`, not just a score
+PrediTALE additionally reports a `pval` per prediction, since it models
+the null distribution of scores directly rather than only ranking
+candidates against each other -- worth using when the question is "is
+this a credible site at all" rather than only "which of these is the
+best".
+:::
 
-# Visualising predictions against the target sequence
+## Visualising predictions against the target sequence
 
-`plot_target_preds()` draws predicted RVD-to-base correspondences directly
-against the target DNA, coloured by how well each RVD's known base
-preference matches the base actually predicted underneath it -- so a
-"good" prediction is visually distinguishable from one held up by only one
-or two well-matching RVDs. Restrict to one promoter and a window within it
-to keep the figure readable:
+`plot_target_preds()` draws predicted RVD-to-base correspondences
+directly against the target DNA, coloured by how well each RVD's known
+base preference matches the base actually predicted underneath it -- so
+a "good" prediction is visually distinguishable from one held up by only
+one or two well-matching RVDs.
 
-```{r plot_preds, fig.width=12, fig.height=4}
-best_on_target <- preditale_preds %>%
-  filter(subjSeqId == "SWEET14p_Nipponbare_Sense") %>%
-  arrange(desc(score)) %>%
-  head(5)
+::: {.callout-important}
+## Keep the plotted window narrow
+Every RVD gets its own box, one per base of the target. A window wide
+enough to span several unrelated predictions squeezes every box down to
+a sliver too narrow for its own label. Pick a window around *one* region
+of interest -- here, where two orthologous TALEs from different strains
+converge on the same site -- rather than the whole promoter at once.
+:::
 
-plot_target_preds(preds = best_on_target, subj_file = subj_file,
-                  filter_range = "SWEET14p_Nipponbare_Sense:300-500")
+The same locus turns up more than once across strains -- unsurprising,
+since [the classification article](tale_classification.html) already
+found this comparison to be dominated by one-locus-per-strain groups.
+Three arrays, one from each strain, all predict the *same* site:
+
+```{r best_predictions}
+converging <- preditale_preds |>
+  filter(taleId %in% c("BAI3_ROI_00008", "BAI3-1-1_ROI_00007", "MAI1_ROI_00008"),
+        subjSeqId == "SWEET14p_Nipponbare_Sense")
+converging |> select(subjSeqId, start, end, score, taleId)
+```
+
+```{r}
+#| label: fig-target-preds
+#| fig-cap: "Three orthologous TALEs, one from each strain, predicted to bind the exact same site in the SWEET14 promoter."
+#| fig-width: 12
+#| fig-height: 3.6
+plot_target_preds(preds = converging, subj_file = subj_file,
+                  filter_range = "SWEET14p_Nipponbare_Sense:460-505")
 ```
 
 Each RVD is printed in a box over the base it is predicted to contact;
 predictions on the sense strand are drawn above the sequence and those on
-the antisense strand below it, since a TALE can bind either strand of its
-target.
+the antisense strand below it, since a TALE can bind either strand of
+its target. All three predictions in @fig-target-preds land on the exact
+same site, from the same locus in three different strains, with
+identical scores -- exactly the kind of convergence
+[the alignment article](tale_msa.html) would call conserved rather than
+coincidental.
 
-# Closing the loop
+## Closing the loop
 
-These four articles followed one path through a TALE study: `tell_tales()`
-to find arrays (correcting them, and checking for what correction could not
-fix, along the way), `tales_compare()` and `tales_group()` to relate them,
-`tales_align()` to see that relatedness directly, and `talvez()`/
-`preditale()` to ask what they do. None of these steps requires the ones
-before it in code -- each function documented here takes ordinary `tales`
-objects or plain sequences -- but together they cover most of what a study
-of TALE diversity in a set of genomes actually needs.
+This set of articles followed one path through a TALE study:
+`tell_tales()` to find arrays (correcting them, and checking for what
+correction could not fix, along the way), `tales_compare()` and
+`tales_group()` to relate them, `tales_align()` to see that relatedness
+directly, and `talvez()`/`preditale()` to ask what they do. None of these
+steps requires the ones before it in code -- each function documented
+here takes ordinary `tales` objects or plain sequences -- but together
+they cover most of what a study of TALE diversity in a set of genomes
+actually needs.

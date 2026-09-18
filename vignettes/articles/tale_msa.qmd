@@ -1,126 +1,216 @@
 ---
-title: "3. Multiple alignment of TALE sequences with tantale"
-output:
-  html_document:
-    code_folding: show
+title: "Multiple alignment of TALE arrays"
+format:
+  html:
     toc: true
-    toc_float: true
-    number_sections: true
-vignette: >
-  %\VignetteIndexEntry{3. Multiple alignment of TALE sequences with tantale}
-  %\VignetteEncoding{UTF-8}
-  %\VignetteEngine{knitr::rmarkdown}
+    number-sections: true
+    code-fold: show
+    lightbox: true
 editor_options:
   chunk_output_type: console
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(cache = FALSE)
-knitr::opts_chunk$set(warning = FALSE)
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>>")
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE)
 ```
 
-```{r package, warning=FALSE, message=FALSE}
+The [previous article](tale_classification.html) grouped TALE arrays by
+overall similarity. Grouping says arrays are related; it does not say
+*how* -- which repeats correspond, where one array has an insertion or a
+deletion relative to another. That needs an alignment.
+
+```{r package, message = FALSE}
 library(tantale)
 library(dplyr)
 ```
 
-The [previous article](2_tale_classification.html) grouped TALE arrays by
-overall similarity. Grouping says arrays are related; it does not say *how*
--- which repeats correspond, where one array has an insertion or a deletion
-relative to another. That needs an alignment. The mechanics of
-`tales_align()` and of plotting a `tales_msa` are covered in full, with a
-small fixture, in the [`tales_msa` class article](../articles/tales-msa-class.html);
-this article instead picks up a real group from the classification just
-performed and looks at what its alignment actually shows.
+::: {.callout-note}
+## Where this fits
+This article is a walkthrough: pick one real classification group and
+align it. The mechanics -- what a `tales_msa` actually is, coercion
+between `tales` and `tales_msa`, and the plotting options in full --
+are a deep dive in [the `tales_msa` class article](tales_msa_class.html),
+which continues directly from the alignment built here rather than
+starting over.
+:::
 
 The AnnoTALE tool this package builds on can assign TALEs to classes, but
-cannot insert gaps while doing so -- and TALE arrays evolve substantially by
-whole-repeat duplication and deletion, so a method that cannot represent a
-gap is blind to exactly the events that matter most (see the
+cannot insert gaps while doing so -- and TALE arrays evolve substantially
+by whole-repeat duplication and deletion, so a method that cannot
+represent a gap is blind to exactly the events that matter most (see the
 [QueTAL paper](https://doi.org/10.3389/fpls.2015.00545)). `tales_align()`
 drives MAFFT in text mode instead, treating each distinct repeat as one
 alignable symbol, which lets it open and close gaps freely.
 
-# Re-deriving one group from the previous article
+## Re-deriving one group from the previous article
 
-Reproduced here rather than carried over, since each article in this series
-stands alone:
+Reproduced here rather than carried over, since each article in this
+series stands alone. The three genomes and the correction settings are
+exactly [the previous article's](tale_classification.html).
 
-```{r discover_and_group, message = FALSE, warning = FALSE}
+```{r workdir}
 out <- fs::dir_create(file.path(tempdir(), "tale_msa"))
 genome_files <- c(
-  MAI1     = system.file("extdata", "MAI1.fa",     package = "tantale", mustWork = TRUE),
-  BAI3     = system.file("extdata", "BAI3.fa",     package = "tantale", mustWork = TRUE),
-  `BAI3-1-1` = system.file("extdata", "BAI3-1-1.fa", package = "tantale", mustWork = TRUE),
-  PXO86    = system.file("extdata", "PXO86.fa",    package = "tantale", mustWork = TRUE)
+  MAI1       = system.file("extdata", "MAI1.fa",     package = "tantale", mustWork = TRUE),
+  BAI3       = system.file("extdata", "BAI3.fa",     package = "tantale", mustWork = TRUE),
+  `BAI3-1-1` = system.file("extdata", "BAI3-1-1.fa", package = "tantale", mustWork = TRUE)
 )
+```
 
+```{r discover_all, message = FALSE}
 all_tales <- lapply(names(genome_files), function(strain) {
   strain_dir <- file.path(out, strain)
   invisible(tell_tales(subject_file = genome_files[strain], output_dir = strain_dir,
-                       cterm_min_score = 300))
-  tales_from_telltale(strain_dir) %>%
-    mutate(array_id = paste0(strain, "_", array_id), strain = strain)
-}) %>%
-  suppressWarnings() %>%
-  bind_rows() %>%
+                       cterm_min_score = 300,
+                       correct_array = TRUE, max_comparisons = 50))
+  tales_from_telltale(strain_dir) |>
+    mutate(array_id = paste0(strain, "_", array_id))
+}) |>
+  suppressWarnings() |>
+  bind_rows() |>
   tales(sanitize = TRUE)
+```
 
-cmp <- tales_compare(all_tales, aln_method = "DECIPHER", ncores = 4) %>%
-  suppressMessages()
+```{r compare_and_group, message = FALSE}
+cmp <- tales_compare(all_tales, aln_method = "DECIPHER", ncores = 4)
 grouped <- tales_group(cmp$tales, cmp$tale_distances,
-                       method = "k-medoids", k = "auto", k_range = 2:20) %>%
+                       method = "k-medoids", k = "auto", k_range = 2:20) |>
   suppressMessages()
 ```
 
 One group holds a member from each of MAI1, BAI3 and BAI3-1-1 -- the same
-locus, present in three related African strains, one of them the
-error-prone assembly from the first article:
+locus, present in all three related African strains -- and, usefully for
+this article, its three copies are not identical:
 
 ```{r pick_group}
-group9 <- grouped %>% filter(group == 9)
-group9 %>% distinct(array_id, strain)
+picked_group <- grouped |> filter(group == 6)
+picked_group |> distinct(array_id)
 ```
 
-# Aligning the group
+## Aligning the group
 
-```{r align_group, message = FALSE, warning = FALSE}
-msa <- tales_align(group9, residue_col = "dom_code")
+```{r align_group, message = FALSE}
+msa <- tales_align(picked_group, residue_col = "dom_code")
 msa
 ```
 
-```{r plot_default, fig.width=9, fig.height=3}
+```{r}
+#| label: fig-msa-default
+#| fig-cap: "Alignment of one TALE locus across three related strains, coloured by repeat cluster."
+#| fig-width: 9
+#| fig-height: 2.3
 plot(msa, tal_sim = cmp$tale_distances, domain_sim = cmp$domain_distances)
 ```
 
-Cells are filled by which repeat cluster each domain falls in and labelled
-with its RVD; text colour marks whether that element matches the column's
-consensus. Even at three arrays, the alignment already says something
-`tales_group()`'s single distance number could not: whether these three
-copies of the locus differ by simple substitutions at matched positions, or
-by whole repeats present in some arrays and absent from others.
+@fig-msa-default already shows something `tales_group()`'s single
+distance number could not: **BAI3 and BAI3-1-1 are both missing four
+repeats that MAI1 has**, at alignment positions 13-16 -- a real internal
+gap, not one at either end of the array. Because BAI3-1-1 is the same
+genomic background as BAI3 with *talC* deleted, the two sharing this
+exact deletion is consistent with it being inherited from their common
+background rather than independent events in each.
 
-Colouring by similarity to a reference instead, rather than by cluster
-membership, makes graded divergence visible where cluster identity would
-only say "different":
+## Does a scoring matrix change the alignment?
 
-```{r plot_sim, fig.width=9, fig.height=3}
+`tales_align()` accepts a `repeat_sims` argument: a substitution cost
+matrix MAFFT uses when scoring which repeats to match against each other,
+rather than treating every mismatch as equally bad. Passing one is
+optional, and it is worth checking what it actually changes rather than
+assuming.
+
+### Aligning on `dom_code`
+
+Without one, every distinct repeat is as different from every other as
+any other pair -- MAFFT has no notion that two repeats might be more or
+less alike:
+
+```{r align_nomatrix}
+msa_plain <- tales_align(picked_group, residue_col = "dom_code")
+```
+
+With one, `domain_distances` -- the repeat-level protein similarity
+already computed by `tales_compare()` -- tells MAFFT how alike two
+repeats actually are:
+
+```{r align_matrix, message = FALSE}
+msa_scored <- tales_align(picked_group, residue_col = "dom_code",
+                          repeat_sims = cmp$domain_distances)
+```
+
+```{r compare_matrices}
+identical(as.matrix(msa_plain), as.matrix(msa_scored))
+```
+
+They differ. Looking at just the affected row shows how:
+
+```{r compare_matrices_detail}
+rbind(
+  no_matrix = as.matrix(msa_plain)["BAI3-1-1_ROI_00006", ],
+  scored    = as.matrix(msa_scored)["BAI3-1-1_ROI_00006", ]
+)
+```
+
+Scored, the gap this array carries is one column narrower -- MAFFT could
+place its real repeats slightly more compactly once it knew which
+substitutions were cheap. This matches what the package documentation
+already claims about `repeat_sims`: more compact alignments, fewer
+gap columns, on data where it has something to work with.
+
+### Aligning on `rvd`
+
+The built-in RVD similarity matrix works the same way, opted into with
+`repeat_sims = "rvd"` rather than a `domain_distances` table -- but scores
+DNA-binding specificity instead of protein sequence, so it is worth
+checking separately rather than assuming it behaves like the `dom_code`
+case:
+
+```{r align_rvd, message = FALSE}
+msa_rvd_plain  <- tales_align(picked_group, residue_col = "rvd")
+msa_rvd_scored <- tales_align(picked_group, residue_col = "rvd", repeat_sims = "rvd")
+identical(as.matrix(msa_rvd_plain), as.matrix(msa_rvd_scored))
+```
+
+On this group, aligning on RVDs gives the *same* alignment whether or not
+the matrix is supplied. That is a real result, not a shortcut taken here:
+the RVD alphabet is much smaller than the repeat-code one (a handful of
+distinct RVDs against a handful of distinct repeats, for three arrays
+this closely related), so there was little room for a scoring matrix to
+change anything. The lesson is not "the RVD matrix never matters" -- it
+is that whether either matrix matters depends on the data, which is
+exactly why this section checked rather than asserted it.
+
+## Other views of the same alignment
+
+Colouring by similarity to a reference instead of by cluster membership
+makes graded divergence visible where cluster identity would only say
+"different":
+
+```{r}
+#| label: fig-msa-sim
+#| fig-cap: "The same alignment, coloured by protein-sequence similarity to the reference array."
+#| fig-width: 9
+#| fig-height: 2.3
 plot(msa, fill_type = "repeat_sim",
     tal_sim = cmp$tale_distances, domain_sim = cmp$domain_distances)
 ```
 
 And with a consensus panel attached, the column-by-column question "does
-this array agree with the group" is answered directly above the alignment
-itself:
+this array agree with the group" is answered directly above the
+alignment itself:
 
-```{r plot_consensus, fig.width=9, fig.height=3.3}
+```{r}
+#| label: fig-msa-consensus
+#| fig-cap: "The same alignment again, with a consensus row attached above it."
+#| fig-width: 9
+#| fig-height: 2.6
 plot(msa, consensus = TRUE,
     tal_sim = cmp$tale_distances, domain_sim = cmp$domain_distances)
 ```
 
-# Next
+## Next
 
 Once related arrays are aligned, the biologically motivated next question
-is what DNA sequence their RVDs are predicted to bind -- covered in the
-final article of this series.
+is what DNA sequence their RVDs are predicted to bind -- covered in
+[the final article](tale_target_prediction.html) of this series. To go
+deeper on the alignment mechanics used here first, see
+[the `tales_msa` class article](tales_msa_class.html).

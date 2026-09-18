@@ -902,30 +902,27 @@ Deferred to a dedicated pass on "computations that may not match intent":
   the name is a public return-value change on an exported function, not
   a five-minute rename, and the original call not to treat this as
   separate work still stands.
-- `tell_tales.log` misreports its own input file. The line is meant to echo
-  what the caller passed as `subject_file`
-  ([telltale.R:424](../R/telltale.R#L424)), and the docstring says `params`
-  is "echoed verbatim" ([telltale.R:393](../R/telltale.R#L393)) -- but the
-  value that ends up in the log is a temp-file path (confirmed: a real run
-  logged `/tmp/RtmpKueJKN/file15129d4e02e654` for a call given a package
-  `system.file()` path). Somewhere between the argument and the log call,
-  `subject_file` was reassigned to an internal working copy -- plausibly
-  the HMMER-safe renamed copy the function makes when sequence names carry
-  characters HMMER rejects ("Renaming sequences in ..."). A log that cannot
-  say what it ran on defeats the stated purpose of the file (§7.4a's
-  reproducibility motive applies here too).
-- `tell_tales.log`'s parameter block is not uniformly tab-separated, so a
-  spreadsheet import misaligns columns. Most lines are one label plus one
-  value (`paste("Current date:", date(), sep = "\t")` --
-  [telltale.R:422](../R/telltale.R#L422)), but the "Other parameters" block
-  puts the colon in its *own* tab-separated field
-  (`paste("nterm_min_score", ":", params$nterm_min_score, sep = "\t")` --
-  [telltale.R:431-444](../R/telltale.R#L431-L444)), producing three columns
-  where the rest of the file has two. That mismatch is the "spurious
-  separator" -- not a stray character, a structurally different row shape
-  a handful of lines in. Fix is presumably to drop the colon into the label
-  (`paste0(name, ":")`) rather than giving it its own field, matching every
-  other line.
+- ~~`tell_tales.log` misreports its own input file~~ -- **fixed.**
+  `subject_file` was being reassigned to the HMMER-safe renamed temp copy
+  ([telltale.R:1394-1395](../R/telltale.R#L1394-L1395), confirmed: the
+  renaming is unconditional, not only when a name actually needs it)
+  before the log call read it. The original argument is now captured as
+  `original_subject_file` ahead of that reassignment and passed to
+  `.telltale_log()` instead. Verified against a real run -- the log now
+  names the actual fixture path, not a `/tmp/Rtmp...` one -- and the
+  golden baseline updated accordingly: the line no longer matches
+  `helper-golden.R`'s `/tmp/`-drop pattern, so it is now digested (with
+  its directory normalised, same as the HMM-profile paths already are),
+  making the baseline sensitive to *which* subject file was used. That is
+  a strict improvement, the same reasoning §8.1d already applied to the
+  other paths in this file.
+- ~~`tell_tales.log`'s parameter block is not uniformly tab-separated~~ --
+  **fixed.** The "Other parameters" block
+  ([telltale.R:430-444](../R/telltale.R#L430-L444)) put the colon in its
+  own tab-separated field instead of the label's; now
+  `paste("nterm_min_score:", value, sep = "\t")`, matching every other
+  line's two-column shape. Verified on a real run: every data row in the
+  log now splits into exactly two tab-separated fields.
 - `tales_group(method = "hclust", plot_tree = TRUE)` can spam
   `Invalid edge matrix for <phylo>. A <tbl_df> is returned.` -- from the
   `ggtree`/`ape`/`tidytree` machinery `classification.R` builds the

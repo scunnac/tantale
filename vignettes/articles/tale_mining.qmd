@@ -1,121 +1,157 @@
 ---
-title: "1. Mining TALE sequences in genomes with tantale"
-output:
-  html_document:
-    code_folding: show
+title: "Mining TALE sequences in genomes"
+format:
+  html:
     toc: true
-    toc_float: true
-    number_sections: true
-vignette: >
-  %\VignetteIndexEntry{1. Mining TALE sequences in genomes with tantale}
-  %\VignetteEncoding{UTF-8}
-  %\VignetteEngine{knitr::rmarkdown}
+    number-sections: true
+    code-fold: show
+    lightbox: true
 editor_options:
   chunk_output_type: console
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(cache = FALSE)
-knitr::opts_chunk$set(warning = FALSE)
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>>")
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE)
 ```
 
-```{r package, warning=FALSE, message=FALSE}
+This is the first of a set of articles walking through a typical study of
+TALE diversity: finding TALE genes in a genome (here), classifying the
+arrays found into groups of related sequences, aligning those groups, and
+predicting the DNA targets of the TALEs they contain. Two of the articles
+in the set are deep dives into a single class (`tales`, `tales_msa`)
+rather than the next step in the walkthrough; they are linked from the
+point where they become relevant, not numbered into the sequence.
+
+This article covers TALE discovery with `tell_tales()`, and something
+discovery cannot avoid: real assemblies are not always clean,
+`tell_tales()` can sometimes be fooled, and tantale offers two ways to fix
+that which are not interchangeable and neither of which is guaranteed to
+work. `tales_anomalies()` is the tool that tells you which.
+
+```{r package, message = FALSE}
 library(tantale)
 library(dplyr)
 ```
 
-This is the first of four articles walking through a typical study of TALE
-diversity: finding TALE genes in a genome (here), classifying the arrays
-found into groups of related sequences, aligning those groups, and
-predicting the DNA targets of the TALEs they contain.
+::: {.callout-note}
+## The genomes used throughout
+Four *Xanthomonas oryzae* genomes appear across this whole set of
+articles: **MAI1**, **BAI3** and **PXO86** are "clean" assemblies, and
+**BAI3-1-1** is a deliberately error-prone one -- an assembly of the same
+BAI3 background with *talC* deleted, carrying real sequencing/assembly
+artefacts in its TALE loci. That last kind is not a corner case: it is
+exactly the kind of input a mining pipeline has to cope with in practice,
+and it is what the second half of this article is about.
+:::
 
-This article covers TALE discovery with `tell_tales()`, and something
-discovery cannot avoid: real assemblies are not always clean, `tell_tales()`
-can sometimes be fooled, and the two ways tantale offers to fix that --
-correcting *inside* `tell_tales()` versus correcting the genome sequence
-*beforehand* -- are not interchangeable, and neither is guaranteed to work.
-`tales_anomalies()` is the tool that tells you which.
-
-Four *Xanthomonas oryzae* genomes are used throughout this article: MAI1,
-BAI3 and PXO86 are "clean" assemblies, and BAI3-1-1 is a deliberately
-error-prone one -- an assembly of the same BAI3 background with *talC*
-deleted, carrying real sequencing/assembly artefacts in its TALE loci. That
-second kind is not a corner case: it is exactly the kind of input a mining
-pipeline has to cope with in practice.
-
-# Finding TALE loci in genomic DNA
+## Finding TALE loci in genomic DNA
 
 `tell_tales()` searches a genome with `nhmmer`, using three profile HMMs
-tuned to the N-terminus, the repeat unit, and the C-terminus of a TALE CDS.
-Hits are merged, grouped into candidate arrays by proximity, and each
+tuned to the N-terminus, the repeat unit, and the C-terminus of a TALE
+CDS. Hits are merged, grouped into candidate arrays by proximity, and each
 array's longest ORF is handed to AnnoTALE to split into parts and call its
 RVD sequence. `NTERM`/`CTERM` markers are appended to the RVD string
 wherever a terminus was identified this way, so a downstream alignment
 knows where an array actually starts and ends.
 
-```{r discover_mai1, message = FALSE, warning = FALSE}
-out <- fs::dir_create(file.path(tempdir(), "tale_mining"))
+A scratch directory holds everything this set of articles builds:
 
+```{r workdir}
+out <- fs::dir_create(file.path(tempdir(), "tale_mining"))
+```
+
+Start with MAI1, a clean assembly, to see what discovery looks like when
+nothing goes wrong:
+
+```{r mai1_path}
 mai1_fa <- system.file("extdata", "MAI1.fa", package = "tantale", mustWork = TRUE)
 mai1_dir <- file.path(out, "MAI1")
+```
 
+```{r discover_mai1, message = FALSE}
 invisible(tell_tales(subject_file = mai1_fa, output_dir = mai1_dir))
 ```
 
-The result on disk is a directory of reports and fasta files; the result in
-R is a `tales` object, one row per part:
+The result on disk is a directory of reports and fasta files. The result
+in R is a `tales` object -- one row per part, not per TALE:
 
 ```{r tales_from_mai1}
 mai1 <- suppressWarnings(tales_from_telltale(mai1_dir))
 mai1
 ```
 
-`plot()` on a `tales` gives a compact overview of what was found -- every
-array's parts, positioned within the array, coloured by domain type and
-filled by amino-acid length, with the RVD printed on each repeat:
+::: {.callout-tip}
+## What a `tales` object actually is
+Rows, columns, subsetting, and the `dom_code` column that the rest of
+tantale is built on are covered in depth in
+[the `tales` class article](tales_class.html) -- read it once this
+walkthrough has given you an object to look at.
+:::
 
-```{r plot_mai1, fig.width=9, fig.height=4}
+`plot()` on a `tales` gives a compact overview of what was found: every
+array's parts, positioned within the array, coloured by domain type and
+filled by amino-acid length, with the RVD printed on each repeat.
+
+```{r}
+#| label: fig-mai1-composition
+#| fig-cap: "Domain composition of the four TALE arrays found in MAI1."
+#| fig-width: 9
+#| fig-height: 4
 plot(mai1)
 ```
+
+@fig-mai1-composition already shows something worth noticing: array
+lengths vary, and every array here runs the full width of its row --
+there are no gaps, because nothing has been aligned yet. `position_in_array`
+just counts parts within each array independently.
 
 ## What `tell_tales()` writes to disk
 
 Besides the RVD sequences and the TALE ORFs themselves, `tell_tales()`
 writes three tab-separated reports, which `tales_from_telltale()` reads
-back to build the object above. They are worth knowing about directly, since
-they carry a few things the `tales` object does not:
+back to build the object above. They are worth knowing about directly,
+since they carry a few things the `tales` object does not.
 
-| file | one row per | worth knowing |
-|---|---|---|
-| `hitsReport.tsv` | raw `nhmmer` hit | `codon_count`, `frameshift_count` per hit -- before any merging or correction |
-| `domainsReport.tsv` | domain, after AnnoTALE | what AnnoTALE actually parsed out of the ORF |
-| `arrayReport.tsv` | candidate array | `has_all_domains`, `has_aberrant_repeat`, `orf_coverage`, and (with correction) `predicted_ins_count`/`predicted_dels_count` |
+```{r report_table, echo = FALSE}
+knitr::kable(tibble::tribble(
+  ~file, ~`one row per`, ~`worth knowing`,
+  "`hitsReport.tsv`", "raw `nhmmer` hit", "`codon_count`, `frameshift_count` per hit -- before any merging or correction",
+  "`domainsReport.tsv`", "domain, after AnnoTALE", "what AnnoTALE actually parsed out of the ORF",
+  "`arrayReport.tsv`", "candidate array", "`has_all_domains`, `has_aberrant_repeat`, `orf_coverage`, and (with correction) `predicted_ins_count`/`predicted_dels_count`"
+))
+```
+
+`arrayReport.tsv` is the one this article leans on most, so it is worth
+reading directly rather than only through the `tales` object:
 
 ```{r array_report}
 array_report <- readr::read_tsv(file.path(mai1_dir, "arrayReport.tsv"),
                                 show_col_types = FALSE)
-array_report %>% select(array_id, has_all_domains, has_aberrant_repeat,
-                        longest_orf_length, orf_coverage)
+array_report %>%
+  select(array_id, has_all_domains, longest_orf_length, orf_coverage)
 ```
 
-`orf_coverage` is the longest ORF found as a percentage of the whole
+`orf_coverage` is the longest ORF found, as a percentage of the whole
 candidate array region -- a clean array covers nearly all of it. That
 number is about to matter a great deal.
 
-# When discovery goes wrong: detecting anomalies
+## When discovery goes wrong: detecting anomalies {#sec-anomalies}
 
 MAI1 is a good assembly, and every array above came back complete. That is
 not guaranteed. Running the same search on BAI3-1-1 -- deliberately
-error-prone -- without any correction shows what an assembly artefact does
-to the pipeline:
+error-prone -- shows what an assembly artefact does to the pipeline.
 
-```{r discover_bai311_raw, message = FALSE, warning = FALSE}
+```{r bai311_path}
 bai311_fa <- system.file("extdata", "BAI3-1-1.fa", package = "tantale", mustWork = TRUE)
 bai311_raw_dir <- file.path(out, "BAI3-1-1_raw")
+```
 
+```{r discover_bai311_raw, message = FALSE}
 invisible(tell_tales(subject_file = bai311_fa, output_dir = bai311_raw_dir,
                      cterm_min_score = 300))
+```
+
+```{r tales_from_bai311_raw}
 bai311_raw <- suppressWarnings(tales_from_telltale(bai311_raw_dir))
 ```
 
@@ -143,34 +179,46 @@ shifts every codon downstream of it, and the ORF finder simply stops at
 the first premature stop codon it meets. Nothing here is a bug: this is
 exactly the situation frameshift correction exists for.
 
-# Correcting frameshifts, two ways
+## Correcting frameshifts, two ways
 
 tantale offers two distinct routes to a corrected sequence, and they are
 not interchangeable: one corrects candidate *arrays* after they have
 already been found, from inside `tell_tales()`; the other corrects the
 *genome* before discovery even starts. Both can fail, in different ways,
-which is exactly why the check above is worth repeating after either one.
+which is exactly why @sec-anomalies's check is worth repeating after
+either one -- and, run on the same genome, they will turn out to disagree
+with each other about which array still needs help.
 
-## Correcting inside `tell_tales()`
+### Correcting inside `tell_tales()`
 
 `correct_array = TRUE` runs `DECIPHER::CorrectFrameshifts()` on each
 candidate array, aligning it against a shipped reference set of real TALE
 proteins and inferring the indels needed to remove premature stops.
+
+::: {.callout-important}
+## `max_comparisons` trades reliability for speed
 `max_comparisons` caps how many references each array may be aligned
-against, and is the main control on how long this takes -- full docs on
-`tell_tales()` measure the trade-off directly: at the default (all
-references) a set of four arrays took 252 seconds; capped to 20, 10
-seconds -- but at a cap of 2, the aligner cannot reach a good reference and
-invents indels wholesale. Capped to 20 is normally ample; it is used here
-to keep this article fast to build:
+against, and is the main control on how long correction takes. The full
+docs on `tell_tales()` measure the trade-off directly: at the default
+(all references) a set of four arrays took 252 seconds; capped to 20, 10
+seconds -- but at a cap of 2, the aligner cannot reach a good reference
+and invents indels wholesale. Capped to 20 is normally ample, and is used
+below to keep this article fast to build -- but the section it fixes
+also shows exactly what "ample, not certain" means in practice.
+:::
 
-```{r correct_inside, message = FALSE, warning = FALSE}
+```{r correct_inside_path}
 bai311_corr_dir <- file.path(out, "BAI3-1-1_corrected")
+```
 
+```{r correct_inside, message = FALSE}
 invisible(tell_tales(subject_file = bai311_fa, output_dir = bai311_corr_dir,
                      cterm_min_score = 300,
                      correct_array = TRUE, max_comparisons = 20))
 bai311_corr <- suppressWarnings(tales_from_telltale(bai311_corr_dir))
+```
+
+```{r anomalies_corr_inside}
 tales_anomalies(bai311_corr)
 ```
 
@@ -186,42 +234,54 @@ to parse domains out of it and cannot.
 Spending the full search on this same genome -- all ~500 shipped
 references rather than 20, about eight minutes instead of ten seconds --
 clears every anomaly, `ROI_00001` included, because the aligner can then
-actually reach a reference close enough to it. There is no shortcut around
-that trade-off: a small `max_comparisons` is a real risk, not a rounding
-error, and checking `tales_anomalies()` after correcting is how that risk
-gets caught rather than silently shipped downstream.
+actually reach a reference close enough to it. There is no shortcut
+around that trade-off: a small `max_comparisons` is a real risk, not a
+rounding error, and checking `tales_anomalies()` after correcting is how
+that risk gets caught rather than silently shipped downstream.
 
-## Correcting the genome, before discovery
+### Correcting the genome, before discovery
 
 `correct_tales()` takes a different, faster route: rather than aligning
 already-found candidate arrays against reference proteins, it wraps the
-Java `TALEcorrection` tool to scan the *whole input genome* directly against
-profile HMMs and repair frameshifts it finds, before `tell_tales()` ever
-runs. That makes it a genome-wide pre-processing step rather than a
-per-array one -- worth trying first on a large or especially error-prone
-assembly (an ONT-sequenced genome, say), precisely because it does not need
-candidate arrays to already exist:
+Java `TALEcorrection` tool to scan the *whole input genome* directly
+against profile HMMs and repair frameshifts it finds, before
+`tell_tales()` ever runs. That makes it a genome-wide pre-processing step
+rather than a per-array one -- worth trying first on a large or
+especially error-prone assembly (an ONT-sequenced genome, say), precisely
+because it does not need candidate arrays to already exist.
 
-```{r correct_outside, message = FALSE, warning = FALSE}
+```{r correct_outside_path}
 bai311_java_fa <- file.path(out, "BAI3-1-1_java_corrected.fa")
+```
 
+```{r correct_outside, message = FALSE}
 corrections <- correct_tales(uncorrected_path = bai311_fa,
                              corrected_path = bai311_java_fa,
                              return_corrections = TRUE)
-nrow(corrections)
+```
+
+`correct_tales()` reports every substitution it made, genome-wide, as a
+table -- this genome needed `r nrow(corrections)`:
+
+```{r corrections_head}
 head(corrections, 4)
 ```
 
-`tell_tales()` then runs on the corrected genome exactly as it would on any
-other -- no `correct_array` needed, because the correction already happened
-upstream:
+`tell_tales()` then runs on the corrected genome exactly as it would on
+any other -- no `correct_array` needed, because the correction already
+happened upstream:
 
-```{r discover_after_java_correct, message = FALSE, warning = FALSE}
+```{r discover_after_java_correct_path}
 bai311_java_dir <- file.path(out, "BAI3-1-1_java_tell_tales")
+```
 
+```{r discover_after_java_correct, message = FALSE}
 invisible(tell_tales(subject_file = bai311_java_fa, output_dir = bai311_java_dir,
                      cterm_min_score = 300, correct_array = FALSE))
 bai311_java <- suppressWarnings(tales_from_telltale(bai311_java_dir))
+```
+
+```{r anomalies_java}
 tales_anomalies(bai311_java)
 ```
 
@@ -229,24 +289,139 @@ A third outcome again: `ROI_00003` is fixed, but `ROI_00005` still is not
 -- the opposite pattern from the `max_comparisons = 20` run above, which
 fixed both original frameshifts but broke a third array instead. Neither
 correction path is a silver bullet, and which one a given array needs is
-not predictable in advance. What is true of both is that `tales_anomalies()`
-is the right tool to check afterwards, regardless of which correction path
-was used, or whether one was used at all.
+not predictable in advance.
+
+### A clean correction without an eight-minute wait {#sec-best-correction}
+
+Three results so far, none of them fully clean: `max_comparisons = 20`
+trades a fix for a new break; `correct_tales()` alone leaves one array
+short. Two ways forward, both measured rather than assumed:
+
+```{r correct_moderate_path}
+bai311_best_dir <- file.path(out, "BAI3-1-1_best")
+```
+
+```{r correct_moderate, message = FALSE}
+invisible(tell_tales(subject_file = bai311_fa, output_dir = bai311_best_dir,
+                     cterm_min_score = 300,
+                     correct_array = TRUE, max_comparisons = 50))
+bai311_best <- suppressWarnings(tales_from_telltale(bai311_best_dir))
+```
+
+```{r anomalies_best}
+tales_anomalies(bai311_best)
+```
+
+Zero anomalies -- raising the cap from 20 to 50 references was enough for
+every array in this genome, in a little over a minute rather than eight.
+`bai311_best` is the version the rest of this set of articles builds on.
+
+::: {.callout-tip}
+## A second way there: chain both correction paths
+Running `correct_tales()` first and feeding *its* output into
+`tell_tales(correct_array = TRUE)` also reaches zero anomalies, and lets
+the per-array step use a smaller `max_comparisons` again, because the
+genome-wide pass has already removed most of the damage `tell_tales()`
+would otherwise have to correct for on its own. Measured on this same
+genome (not re-run live here, to keep this article's build time down):
+
+| route | time | anomalies |
+|---|---|---|
+| `max_comparisons = 50` alone | ~79 s | 0 |
+| `correct_tales()` (~29 s) then `max_comparisons = 20` (~50 s) | ~79 s combined | still 1 (`ROI_00001`) |
+| `correct_tales()` (~29 s) then `max_comparisons = 50` (~66 s) | ~95 s combined | 0 |
+
+For this genome the two routes land at about the same cost. The chained
+route is worth reaching for on a genome messy enough that neither
+correction alone gets close: each pass only has to clean up what the
+other left behind, rather than solving the whole problem itself.
+:::
+
+## How much did either correction actually help? {#sec-improvement}
+
+Anomaly counts say whether AnnoTALE could parse an array at all, which is
+a pass/fail signal. `orf_coverage` is more informative, since it is a
+number and can be compared *before* an array even becomes an anomaly.
+Read it back for the two originally-broken arrays, across all three runs:
+
+```{r coverage_helper}
+read_coverage <- function(dir, method) {
+  readr::read_tsv(file.path(dir, "arrayReport.tsv"), show_col_types = FALSE) |>
+    select(array_id, orf_coverage) |>
+    filter(array_id %in% c("ROI_00003", "ROI_00005")) |>
+    mutate(method = method)
+}
+```
+
+```{r coverage_assemble}
+coverage <- bind_rows(
+  read_coverage(bai311_raw_dir,  "uncorrected"),
+  read_coverage(bai311_corr_dir, "max_comparisons = 20"),
+  read_coverage(bai311_java_dir, "correct_tales()"),
+  read_coverage(bai311_best_dir, "max_comparisons = 50")
+) |>
+  mutate(method = factor(method, levels = c(
+    "uncorrected", "max_comparisons = 20", "correct_tales()", "max_comparisons = 50"
+  )))
+```
+
+```{r coverage_table}
+coverage |>
+  tidyr::pivot_wider(names_from = method, values_from = orf_coverage) |>
+  knitr::kable()
+```
+
+```{r}
+#| label: fig-coverage-improvement
+#| fig-cap: "ORF coverage of the two frameshifted BAI3-1-1 arrays, before and after each correction attempt. max_comparisons = 50 is the only one of the three that recovers both arrays fully."
+#| fig-width: 8
+#| fig-height: 4
+ggplot2::ggplot(coverage, ggplot2::aes(x = method, y = orf_coverage, fill = method)) +
+  ggplot2::geom_col() +
+  ggplot2::facet_wrap(~ array_id) +
+  ggplot2::scale_fill_viridis_d(guide = "none") +
+  ggplot2::labs(x = NULL, y = "ORF coverage (%)") +
+  ggplot2::theme_light() +
+  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 30, hjust = 1))
+```
+
+@fig-coverage-improvement is the honest version of "did correction help":
+`max_comparisons = 20` and `correct_tales()` both recover most of
+`ROI_00003`'s coding sequence outright, but only partly help
+`ROI_00005` -- and only `max_comparisons = 50` reaches full coverage on
+both, which is exactly why @sec-best-correction settled on it. What is
+true of every attempted route is that `tales_anomalies()`, not a coverage
+number by itself, is what actually says whether AnnoTALE could use the
+result.
 
 ## Moving on with what you have
 
-Whichever route was taken, `tales(x, sanitize = TRUE)` drops whatever is
-still flagged so an analysis can proceed on what is clean, while keeping a
-clear record of what and why:
+`bai311_best` needs none of this -- it is already clean -- but a route
+that stops short of that, such as the `correct_tales()`-only run above,
+still needs a decision about what to do with what remains flagged.
+`tales(x, sanitize = TRUE)` drops it so an analysis can proceed on what is
+clean, while keeping a clear record of what and why:
 
 ```{r sanitize}
 bai311_clean <- tales(bai311_java, sanitize = TRUE)
 n_distinct(bai311_java$array_id) - n_distinct(bai311_clean$array_id)
 ```
 
-# Next
+::: {.callout-note}
+## What the rest of this set of articles uses
+From here on, "BAI3-1-1" means `bai311_best` -- the
+`max_comparisons = 50` correction from @sec-best-correction -- alongside
+MAI1 and BAI3. PXO86, the fourth genome shipped with the package, is left
+out of the classification and alignment articles that follow: it is a
+distant Asian outgroup whose TALE repertoire barely overlaps the African
+strains', and including it turns a clean set of one-ortholog-per-strain
+groups into a mix of real cross-strain groups and PXO86-only paralog
+clusters that do not illustrate the same thing.
+:::
 
-The next article picks up from a set of `tales` objects like the ones
-built here -- across several genomes this time -- and classifies their
-arrays into groups of related sequences with `tales_compare()` and
-`tales_group()`.
+## Next
+
+The [next article](tale_classification.html) picks up from a set of
+`tales` objects like the ones built here -- across several genomes this
+time -- and classifies their arrays into groups of related sequences with
+`tales_compare()` and `tales_group()`.

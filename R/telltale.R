@@ -428,20 +428,20 @@
     paste("Output directory:", params$output_dir, sep = "\t"),
     
     "#____________Other parameters________________",
-    paste("nterm_min_score",":", params$nterm_min_score, sep = "\t"),
-    paste("repeat_min_score",":", params$repeat_min_score, sep = "\t"),
-    paste("cterm_min_score",":", params$cterm_min_score, sep = "\t"),
-    paste("min_domain_hits",":", params$min_domain_hits, sep = "\t"),
-    paste("min_array_length",":", params$min_array_length, sep = "\t"),
-    paste("merge_hits",":", params$merge_hits, sep = "\t"),
-    paste("min_gap",":", params$min_gap, sep = "\t"),
-    paste("extend_len",":", params$extend_len, sep = "\t"),
-    paste("correct_array",":", params$correct_array, sep = "\t"),
-    paste("correction_ref",":", params$correction_ref, sep = "\t"),
-    paste("max_comparisons",":",
+    paste("nterm_min_score:", params$nterm_min_score, sep = "\t"),
+    paste("repeat_min_score:", params$repeat_min_score, sep = "\t"),
+    paste("cterm_min_score:", params$cterm_min_score, sep = "\t"),
+    paste("min_domain_hits:", params$min_domain_hits, sep = "\t"),
+    paste("min_array_length:", params$min_array_length, sep = "\t"),
+    paste("merge_hits:", params$merge_hits, sep = "\t"),
+    paste("min_gap:", params$min_gap, sep = "\t"),
+    paste("extend_len:", params$extend_len, sep = "\t"),
+    paste("correct_array:", params$correct_array, sep = "\t"),
+    paste("correction_ref:", params$correction_ref, sep = "\t"),
+    paste("max_comparisons:",
           if (is.null(params$max_comparisons)) "all" else params$max_comparisons,
           sep = "\t"),
-    paste("frameshift",":", params$frameshift, sep = "\t"),
+    paste("frameshift:", params$frameshift, sep = "\t"),
     
     "#__________Summary measures of TALE search outcome__________",
     paste("Number of analysed subject sequences :", length(subject_seqs), sep = "\t"),
@@ -1391,6 +1391,10 @@ tell_tales <- function(
   ####   Checks for parameters and other things   ####
 
   ## Deal with spaces in sequence names because this messes up parsing of hmmer output
+  ## original_subject_file is kept for the log (.telltale_log()) -- subject_file
+  ## itself is about to be reassigned to a renamed temp copy, and the log is
+  ## meant to say what the caller actually ran on.
+  original_subject_file <- subject_file
   subject <- .telltale_prepare_subject(subject_file)
   subject_file <- subject$file
   originalSeqlevels <- subject$seqlevels
@@ -1496,7 +1500,7 @@ tell_tales <- function(
 
   ####   Generate info messages and log file about the analysis   #####
   .telltale_log(
-    params = list(subject_file = subject_file, output_dir = output_dir,
+    params = list(subject_file = original_subject_file, output_dir = output_dir,
                   nterm_min_score = nterm_min_score,
                   repeat_min_score = repeat_min_score,
                   cterm_min_score = cterm_min_score,

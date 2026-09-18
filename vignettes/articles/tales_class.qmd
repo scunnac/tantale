@@ -3,7 +3,9 @@ title: "The tales class"
 format:
   html:
     toc: true
-    number-sections: false
+    number-sections: true
+    code-fold: show
+    lightbox: true
 editor_options:
   chunk_output_type: console
 ---
@@ -13,16 +15,25 @@ knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 ```
 
 Every function in tantale that describes, compares or plots a set of TALEs
-takes or returns a `tales` object. This article is about what that object
-is, how to build one, and what its most important column -- `dom_code` --
-actually means.
+takes or returns a `tales` object. This article is a deep dive into what
+that object is, how to build one, and what its most important column --
+`dom_code` -- actually means.
+
+::: {.callout-note}
+## Where this fits
+This article extends [Mining TALE sequences](tale_mining.html): read it
+once that walkthrough has given you a `tales` object to look at, and
+return there afterwards to continue with classification. It is not itself
+a numbered step -- its sibling deep dive, on the `tales_msa` class, comes
+later.
+:::
 
 ```{r setup, message = FALSE}
 library(tantale)
 library(dplyr)
 ```
 
-# One row per part, not per TALE
+# One row per part, not per TALE {#sec-one-row-per-part}
 
 A `tales` object is a long table with **one row per part** of a TALE array:
 one row for the N-terminus, one for each central repeat, one for the
@@ -45,7 +56,9 @@ invisible(tell_tales(
   subject_file = system.file("extdata", "bai3_sample_tal_genomic_regions.fasta",
                              package = "tantale", mustWork = TRUE),
   output_dir = out))
+```
 
+```{r tales_from_demo}
 x <- suppressWarnings(tales_from_telltale(out))
 x
 ```
@@ -65,8 +78,8 @@ otherwise. This is also why keeping only the repeats of an array
 a broken one: `position_in_crd` stays contiguous from 1 even though
 `position_in_array` no longer starts there. Completeness -- every part
 present, `position_in_array` running `1:n` -- is a precondition some
-functions need (alignment, chiefly, checked by `tales_assert_complete()`), not an invariant of the class
-itself.
+functions need (alignment, chiefly, checked by `tales_assert_complete()`),
+not an invariant of the class itself.
 
 # The column contract
 
@@ -205,7 +218,7 @@ tales_coded_strings(xa)["ROI_00002"]
 tales_domain_codes(xa) %>% head(4)
 ```
 
-# What a `dom_code` is
+# What a `dom_code` is {#sec-dom-code}
 
 This is the column the rest of the comparison machinery is built on, and it
 is worth being precise about.
@@ -229,8 +242,14 @@ table(xa$domain_type[match(unique(xa$dom_code), xa$dom_code)])
 
 `r n_distinct(xa$dom_code)` distinct codes, and only
 `r sum(xa$domain_type[!duplicated(xa$dom_code)] == "repeat")` of them are
-repeats -- the rest are distinct N- and C-termini. Describing the total as a
-repeat count would overstate the repeat diversity by a substantial margin.
+repeats -- the rest are distinct N- and C-termini.
+
+::: {.callout-tip}
+## Not a repeat count
+Describing the total as a repeat count would overstate the repeat
+diversity by a substantial margin -- this exact error was made, and
+caught, while writing `summary.tales()`.
+:::
 
 ## It is what makes a TALE alignable
 
@@ -289,20 +308,37 @@ tales_namespace(xa)
 ```
 
 Mixing codes from two different calls is refused rather than silently
-computing a wrong answer. Splitting the example array set in two and
-re-assigning codes to one part gives it a different namespace, and using it
-against distances computed for the other part is an error:
+computing a wrong answer. The rest of this section demonstrates that, one
+step at a time.
 
-```{r namespace_mismatch, error = TRUE}
-dd_all <- suppressMessages(tales_domain_distances(xa))
+Domain distances over the whole example set are the baseline to mix in
+something incompatible with:
 
+```{r namespace_full_distances, message = FALSE}
+dd_all <- tales_domain_distances(xa)
+```
+
+Splitting the example array set in two and re-assigning codes to one part
+gives it a *different* namespace, even though every sequence it contains
+was already present in the full set:
+
+```{r namespace_resplit}
 sub <- xa[xa$array_id != "ROI_00001", ][setdiff(names(xa), "dom_code")]
 xa_sub <- tales_assign_domain_codes(sub)
 
 tales_namespace(xa_sub) == tales_namespace(xa)
+```
 
+::: {.callout-warning}
+## Mixing namespaces is a caught error, not a silent one
+Using `xa_sub`'s codes against `dd_all` -- distances keyed by the other
+namespace -- does not compute a plausible-looking wrong answer. It
+refuses outright:
+
+```{r namespace_mismatch, error = TRUE}
 tales_tale_distances(xa_sub, dd_all)
 ```
+:::
 
 # Where `dom_code` leads: comparing TALEs
 
@@ -324,7 +360,7 @@ answer questions about repeat diversity, without ever running the
 array-level alignment -- and each is documented in its own right; see
 `tales_compare()` for the full chain.
 
-# Subsetting keeps the class only while the contract holds
+# Subsetting keeps the class only while the contract holds {#sec-subsetting}
 
 A `tales` is a tibble, so every subsetting route a tibble supports works on
 it too: `[`, `filter()`, `select()`, `arrange()`, `mutate()`. What differs
@@ -332,9 +368,9 @@ from a plain tibble is what happens to the *class* along the way.
 
 **Row subsetting never breaks anything.** Every invariant a `tales` checks
 is closed under keeping a subset of rows -- which is exactly why
-completeness (§1, above) is a *precondition* of specific functions rather
-than part of the class itself. Filtering to one array, or to its repeats
-only, is still a valid `tales`:
+completeness (@sec-one-row-per-part, above) is a *precondition* of
+specific functions rather than part of the class itself. Filtering to one
+array, or to its repeats only, is still a valid `tales`:
 
 ```{r subset_rows}
 one_array <- xa[xa$array_id == "ROI_00002", ]
@@ -371,8 +407,8 @@ xa %>% mutate(position_in_array = 1L)
 
 What is **not** re-checked on every verb is the row-level biology --
 `tales_anomalies()` does not run again on each `filter()` call, because
-anomalies are a property to inspect deliberately (§ above), not a cost to
-pay on every pipe.
+anomalies are a property to inspect deliberately (see above), not a cost
+to pay on every pipe.
 
 **Attributes travel with a valid subset**, which matters most for
 `dom_code_namespace`. Cutting `xa` down to one array with `[` keeps its
@@ -389,12 +425,15 @@ the mismatch example above already showed.
 
 A `tales_msa` carries one further attribute this way, `alignment_position`,
 and losing *that* while keeping everything else degrades it by exactly one
-step -- to a plain `tales`, not all the way to a tibble. The next article,
-on the `tales_msa` class, covers that graded degradation in full, together
-with the reverse direction: how a `tales` is promoted into an alignment in
-the first place.
+step -- to a plain `tales`, not all the way to a tibble.
+[The `tales_msa` class article](tales_msa_class.html) covers that graded
+degradation in full, together with the reverse direction: how a `tales` is
+promoted into an alignment in the first place.
 
 # Next
 
-Aligning several `tales` into a `tales_msa` and what can be read off that
-alignment is the subject of the next article.
+This article stands on its own; where to go next depends on what you were
+after. To continue the walkthrough this extends,
+[return to classifying TALE sequences](tale_classification.html). To go
+deeper on alignment, [the `tales_msa` class](tales_msa_class.html) picks
+up directly from @sec-dom-code and @sec-subsetting, above.
