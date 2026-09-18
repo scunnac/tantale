@@ -3,7 +3,8 @@
 #'\figure{tantale_logo_small.gif}{options: width=100 alt="tantale_logo"}
 #'
 #'
-#'@description An integrated collection of functions for:
+#'@description An integrated collection of functions for TALE mining and
+#'analysis in R.
 #'
 #'Please take a look at the package \href{https://scunnac.github.io/tantale}{website}
 #'for further details.
@@ -11,7 +12,8 @@
 #'@section A TALE-oriented OOP framework:
 #'
 #'  \itemize{
-#'    \item A TALE class and associated methods}
+#'    \item \code{tales}/\code{tales_msa} S3 classes, with subsetting,
+#'    coercion, and plotting methods}
 #'
 #'
 #'@section TALE mining in bacterial sequences:

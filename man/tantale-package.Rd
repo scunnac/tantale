@@ -6,7 +6,8 @@
 \alias{tantale-package}
 \title{tantale: Transcription Activator-Like Effectors (TALEs) tools}
 \description{
-An integrated collection of functions for:
+An integrated collection of functions for TALE mining and
+analysis in R.
 
 Please take a look at the package \href{https://scunnac.github.io/tantale}{website}
 for further details.
@@ -28,7 +29,8 @@ likely \strong{not work on other OS} (eg Windows)
 
 
 \itemize{
-\item A TALE class and associated methods}
+\item \code{tales}/\code{tales_msa} S3 classes, with subsetting,
+coercion, and plotting methods}
 }
 
 \section{TALE mining in bacterial sequences}{
