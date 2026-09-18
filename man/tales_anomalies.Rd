@@ -15,8 +15,9 @@ row per anomaly. Zero rows if the object is clean.
 }
 \description{
 Lists the arrays that are \emph{odd} rather than \emph{unreadable}: missing sequence
-data, impossible domain-type arrangements, coordinate disagreements, or an
-attribute that varies within an array when it should not.
+data, impossible domain-type arrangements, coordinate disagreements, an
+amino acid sequence paired with more than one RVD, or an attribute that
+varies within an array when it should not.
 
 Such arrays are accepted by \code{\link{tales}} -- real TALE predictions are
 messy, and refusing to load them would force cleaning outside the package and

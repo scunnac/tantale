@@ -208,8 +208,8 @@ tales_group <- function(x, tal_sim, plot_tree = FALSE, k = NULL, k_range = NULL,
 #' Heatmap plotting of rvd sequence variants
 #' @description The function creates a graphical presentation from a tale annotation table. The output is like a heatmap that presents rvd sequence variants in Tal groups as column and respective strains as rows (or vice versa). It is different from a typical heatmap that it can display more than one value in a cell; for example, if one strain has 2 rvd sequence variants belong to 1 group, it will be displayed by 2 colors in 1 cell.
 #' @param tale_annotation a data frame containing at least 3 columns for Tal groups, strain names, and rvd seqs, and 1 row is 1 Tal.
-#' @param group_col "character", column name of \code{tale_annotation} to be displayed as rows in the heatmap (e.g. tal groups).
-#' @param strain_col "character", column name of \code{tale_annotation} to be displayed as columns in the heatmap (e.g. strain names).
+#' @param group_col "character", column name of \code{tale_annotation} to be displayed as columns in the heatmap (e.g. tal groups).
+#' @param strain_col "character", column name of \code{tale_annotation} to be displayed as rows in the heatmap (e.g. strain names).
 #' @param rvd_col "character", column name for rvdseqs in the \code{tale_annotation}
 #' @param trunc_tales_col (optional, default = NULL) "character", column name of \code{tale_annotation} labeling the truncTales by TRUE/FALSE value. The truncTales are labeled by "T" in the heatmap cells, but if this argument is called.
 #' @param extra_col (optional, default = NULL) "character", column name of \code{tale_annotation} containing other information (e.g. origin). It will be presented in a side bar on the right of the heatmap.

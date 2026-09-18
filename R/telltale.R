@@ -218,7 +218,9 @@
   ## NB: for the sake of consistency  it would be better just to filter out
   ## from any further consideration the ARRAYS shorter than a certain value (say 5).
   ## WHAT DO WE DO ABOUT THAT?
-  perSubject <- plyr::ddply(hits[, -20], ~ target_name + sq_len, nrow) # I do not know why but it fails to work if I leave the RVD column (#20)
+  # The RVD column (#20) is dropped before this aggregation: keeping it
+  # breaks plyr::ddply() here, for reasons not yet tracked down.
+  perSubject <- plyr::ddply(hits[, -20], ~ target_name + sq_len, nrow)
   # >=, not >: the argument is documented as a minimum, and a sequence
   # carrying exactly that many hits used to be dropped.
   hits <- subset(hits, target_name %in% perSubject[perSubject$V1 >= min_domain_hits, "target_name"])

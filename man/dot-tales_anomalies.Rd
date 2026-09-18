@@ -16,8 +16,8 @@ A tibble with one row per (array, anomaly): \code{array_id},
 \description{
 Collects the array-level anomalies that make an object \emph{odd} rather than
 \emph{unreadable}: missing sequence data, impossible domain-type arrangements,
-coordinate disagreements, attributes that should be constant within an array
-but are not.
+coordinate disagreements, an amino acid sequence paired with more than one
+RVD, attributes that should be constant within an array but are not.
 }
 \details{
 These are deliberately \strong{not} errors. Real TALE predictions are messy, and a

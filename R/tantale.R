@@ -3,18 +3,18 @@
 #'\figure{tantale_logo_small.gif}{options: width=100 alt="tantale_logo"}
 #'
 #'
-#'@description An integrated collection of functions for (IDEALLY):
+#'@description An integrated collection of functions for:
 #'
 #'Please take a look at the package \href{https://scunnac.github.io/tantale}{website}
 #'for further details.
 #'
-#'@section   - A TALE-oriented OOP framework:
+#'@section A TALE-oriented OOP framework:
 #'
 #'  \itemize{
 #'    \item A TALE class and associated methods}
 #'
 #'
-#'@section   - TALE mining in bacterial sequences:
+#'@section TALE mining in bacterial sequences:
 #'
 #'  \itemize{
 #'    \item Wrapper around annotale_jar and correcTALE
@@ -22,7 +22,7 @@
 #'    \item Analysis tools for RVD inventory, repeat lenght}
 #'
 #'
-#'@section   - TALEs classification, phylogeny:
+#'@section TALEs classification, phylogeny:
 #'
 #'  \itemize{
 #'    \item Wrappers around distal, functal, annotale_jar
@@ -30,7 +30,7 @@
 #'    \item Easily build Multiple alignments and generate nice plots}
 #'
 #'
-#'@section   - TALE targets mining:
+#'@section TALE targets mining:
 #'
 #'  \itemize{
 #'    \item Wrappers around target predictors

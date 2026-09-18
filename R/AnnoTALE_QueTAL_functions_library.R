@@ -139,7 +139,7 @@ functal <- function(tal_file,
   # A few observations:
   # Refuse to use another output directory than the "Ouputs" one in the program folder
   # Cannot invoke the program from another working directory than the one where the pl script is located
-  # Crashes when provided the CDS of the TALES from Hinda's Malian strains
+  # Crashes on some real-world CDS inputs; not yet isolated to a specific cause
   # So here is a caller function to get around these issues:
 
   functal_dir <- dirname(functal_path)

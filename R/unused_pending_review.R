@@ -68,7 +68,7 @@
   system(command = alignCmd, ignore.stderr = FALSE, intern = TRUE)
 }
 
-## !! THIS SHOULD BE MADE OBSOLETE AND CODE USING IT SHOULD BE MODIFIED
+## A candidate for replacement if this is ever revived -- see the file header.
 .extract_seqs_from_hits <- function(nhmmer_hits, dna_seqs){
   repeatSeqsSetList <- mapply(
     function(hitID, start, end, strand, subjectID, sequences) {

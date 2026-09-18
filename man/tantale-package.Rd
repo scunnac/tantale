@@ -6,7 +6,7 @@
 \alias{tantale-package}
 \title{tantale: Transcription Activator-Like Effectors (TALEs) tools}
 \description{
-An integrated collection of functions for (IDEALLY):
+An integrated collection of functions for:
 
 Please take a look at the package \href{https://scunnac.github.io/tantale}{website}
 for further details.
@@ -24,6 +24,40 @@ likely \strong{not work on other OS} (eg Windows)
 \strong{Java and Perl must be on the PATH} in your system.
 \code{\link[=tantale_setup]{tantale_setup()}} checks for both.}
 }
+\section{A TALE-oriented OOP framework}{
+
+
+\itemize{
+\item A TALE class and associated methods}
+}
+
+\section{TALE mining in bacterial sequences}{
+
+
+\itemize{
+\item Wrapper around annotale_jar and correcTALE
+\item tell_tales, an R function similar to annotale_jar
+\item Analysis tools for RVD inventory, repeat lenght}
+}
+
+\section{TALEs classification, phylogeny}{
+
+
+\itemize{
+\item Wrappers around distal, functal, annotale_jar
+\item TALE groups inference
+\item Easily build Multiple alignments and generate nice plots}
+}
+
+\section{TALE targets mining}{
+
+
+\itemize{
+\item Wrappers around target predictors
+\item General parser for results aggregation
+\item Connector with daTALbase (to be done)}
+}
+
 \section{Setting up}{
 
 

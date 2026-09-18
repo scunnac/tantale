@@ -26,9 +26,9 @@ talomes_heatmap(
 \arguments{
 \item{tale_annotation}{a data frame containing at least 3 columns for Tal groups, strain names, and rvd seqs, and 1 row is 1 Tal.}
 
-\item{group_col}{"character", column name of \code{tale_annotation} to be displayed as rows in the heatmap (e.g. tal groups).}
+\item{group_col}{"character", column name of \code{tale_annotation} to be displayed as columns in the heatmap (e.g. tal groups).}
 
-\item{strain_col}{"character", column name of \code{tale_annotation} to be displayed as columns in the heatmap (e.g. strain names).}
+\item{strain_col}{"character", column name of \code{tale_annotation} to be displayed as rows in the heatmap (e.g. strain names).}
 
 \item{rvd_col}{"character", column name for rvdseqs in the \code{tale_annotation}}
 

@@ -4,10 +4,10 @@
 <p align="right">
   <img src="./man/figures/tantale_logo_small.gif">
 
-## An integrated collection of functions for [TALE](https://en.wikipedia.org/wiki/Transcription_activator-like_effector) minning and analysis with the R language
+## An integrated collection of functions for [TALE](https://en.wikipedia.org/wiki/Transcription_activator-like_effector) mining and analysis with the R language
 
 
-Because there are so many concurrent and complementary tools running on different platforms (java, perl), analyzing TALEs in (mostly Xanthomonas) genomes can turn into a nightmarish experience. Furthermore, making sense of the output is difficult because there is no easy way to graphically represent the various objects of the analysis.
+Analyzing TALEs in (mostly *Xanthomonas*) genomes typically means coordinating several concurrent and complementary tools running on different platforms (Java, Perl), which is cumbersome to script and automate. Making sense of the output is harder still, since there is no easy way to graphically represent the various objects of the analysis.
 
 With `tantale`, we compiled and extended our previous code wrapping TALE analysis tools into an integrated R interface that further provides an extensive list of utilities for easy plotting. This enables a moderately proficient R programmer to perform entire analysis pipelines directly in R and access result objects for custom manipulations.
 
@@ -112,7 +112,8 @@ correction) that have no conda package, which is most of its footprint.
 
 **NOTE** :
 
-- This is still a **work in progress** and is not necessarily fully and **properly** implemented!!!
+- tantale is under active development ahead of publication; interfaces may
+  still change.
 - Documentation could be improved and extended.
 - If you feel like contributing, that is great, please send me an email: sebastien.cunnac@ird.fr
 
