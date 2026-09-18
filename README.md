@@ -1,5 +1,5 @@
 <!-- badges: start -->
-[![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://lifecycle.r-lib.org/articles/stages.html#experimental)
+[![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 <!-- badges: end -->
 <p align="right">
   <img src="./man/figures/tantale_logo_small.gif">
@@ -15,7 +15,7 @@ Here is a snapshot of the topics that are or will (hopefully) be covered in the 
 
 
 - A TALE-oriented OOP framework:
-    - A TALE class and associated methods (to be done)
+    - `tales`/`tales_msa` S3 classes, with subsetting, coercion, and plotting methods -- see [the `tales` class article](https://scunnac.github.io/tantale/articles/tales_class.html) and [the `tales_msa` class article](https://scunnac.github.io/tantale/articles/tales_msa_class.html)
 
 
 - TALE mining in bacterial sequences:
@@ -116,6 +116,20 @@ correction) that have no conda package, which is most of its footprint.
   still change.
 - Documentation could be improved and extended.
 - If you feel like contributing, that is great, please send me an email: sebastien.cunnac@ird.fr
+
+---
+
+## Use of large language models
+
+The authors used large language models (Claude, Anthropic -- including
+Claude Sonnet 5) to assist with code development, debugging, and
+documentation writing throughout this package. Where LLM assistance
+extends to a manuscript describing this work, it is limited to the
+copy-editing stage; the manuscript itself is written entirely by the
+authors. Any figures are prepared by the authors, with LLMs used only to
+help write the scripts that generate them. The authors affirm that they
+are fully responsible for the content of the codebase, its documentation,
+and any accompanying manuscript.
 
 
 
