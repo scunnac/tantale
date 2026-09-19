@@ -262,6 +262,154 @@ as_tales.default <- function(x, sep = "-", residue_col = c("rvd", "dom_code"), .
 }
 
 
+#### Combining ####
+
+#' Combine tales objects
+#'
+#' Row-binds two or more \code{\link{tales}} objects into one, reconciling
+#' the invariants that a plain \code{\link[dplyr]{bind_rows}} would not check:
+#' \code{array_id} uniqueness across inputs, the \code{dom_code} namespace,
+#' and the \code{group} column.
+#'
+#' @details
+#' Not named \code{c.tales()} for two reasons: base \code{c()} dispatch is
+#' leaky (mixing a \code{tales} with an unrelated object can silently drop
+#' attributes rather than error, the wrong failure mode for a class whose
+#' point is invariants that must not go silent), and
+#' \code{on_namespace_mismatch} has no room in \code{c()}'s signature.
+#'
+#' \code{tales_msa} inputs are refused rather than silently demoted --
+#' \code{alignment_width}/\code{alignment_position} are a coordinate system
+#' specific to one alignment run, and binding two runs' matrices would
+#' produce an object that misdescribes what a given column means in each
+#' row. Demote explicitly with \code{\link{as_tales}} first if that is really
+#' what you want.
+#'
+#' \code{group} is dropped from the result whenever present on any input, not
+#' reconciled: it is a clustering result over one specific distance matrix
+#' and one specific set of arrays, so two "group 1"s from separate
+#' \code{\link{tales_group}} calls are not comparable, not merely at risk of
+#' colliding. Recompute it with \code{\link{tales_group}} after
+#' \code{\link{tales_compare}} on the bound result.
+#'
+#' \code{tale_distances}/\code{domain_distances} are untouched: this function
+#' only binds \code{tales} data. A companion distance table from either input
+#' does not describe the bound object -- re-run \code{\link{tales_compare}}
+#' if you need one.
+#'
+#' @param ... Two or more \code{\link{tales}} objects (not \code{tales_msa}).
+#' @param on_namespace_mismatch What to do when the inputs' \code{dom_code}
+#'   namespaces (see \code{\link{tales_namespace}}) disagree. \code{"recode"}
+#'   (default) drops the stale \code{dom_code} column and calls
+#'   \code{\link{tales_assign_domain_codes}} on the bound result, over the
+#'   union of \code{aa_seq}; \code{"error"} aborts instead, for callers who
+#'   want that stricter behaviour.
+#' @param sanitize Passed to \code{\link{tales}} for the final construction.
+#' @return A validated \code{\link{tales}} object.
+#' @export
+#' @family tales objects
+#' @examples
+#' a <- tales(data.frame(
+#'   array_id = "A1", position_in_array = 1:2,
+#'   rvd = c("NTERM", "HD")
+#' ))
+#' b <- tales(data.frame(
+#'   array_id = "A2", position_in_array = 1:2,
+#'   rvd = c("NTERM", "NI")
+#' ))
+#' tales_bind(a, b)
+tales_bind <- function(..., on_namespace_mismatch = c("recode", "error"), sanitize = FALSE) {
+  on_namespace_mismatch <- match.arg(on_namespace_mismatch)
+  inputs <- rlang::list2(...)
+
+  if (length(inputs) == 0L) {
+    cli::cli_abort(
+      "{.fn tales_bind} needs at least one {.cls tales} object.",
+      class = c("tantale_error_bind_type", "tantale_error")
+    )
+  }
+
+  for (x in inputs) {
+    if (!is_tales(x)) {
+      cli::cli_abort(
+        "Every argument to {.fn tales_bind} must be a {.cls tales} object.",
+        class = c("tantale_error_bind_type", "tantale_error")
+      )
+    }
+    if (is_tales_msa(x)) {
+      cli::cli_abort(
+        c("{.fn tales_bind} does not accept {.cls tales_msa} input.",
+          "i" = "Demote with {.fn as_tales} first if binding across alignment runs is really what you want."),
+        class = c("tantale_error_bind_tales_msa", "tantale_error")
+      )
+    }
+  }
+
+  .tales_bind_check_array_ids(inputs)
+
+  has_group <- any(vapply(inputs, function(x) "group" %in% names(x), logical(1)))
+  if (has_group) {
+    cli::cli_inform(
+      c("Dropping {.field group} from the bound result.",
+        "i" = "It is a clustering result over each input's own distances, not a comparable label. Recompute with {.fn tales_group} after {.fn tales_compare}."),
+      class = c("tantale_message_bind_group_dropped", "tantale_message")
+    )
+    inputs <- lapply(inputs, function(x) {
+      x$group <- NULL
+      x
+    })
+  }
+
+  bound <- dplyr::bind_rows(lapply(inputs, tibble::as_tibble))
+
+  namespace <- .tales_bind_reconcile_namespace(inputs, bound, on_namespace_mismatch)
+  bound <- namespace$x
+
+  tales(bound, dom_code_namespace = namespace$namespace, sanitize = sanitize)
+}
+
+#' @keywords internal
+.tales_bind_check_array_ids <- function(inputs) {
+  ids <- lapply(inputs, function(x) unique(x$array_id))
+  all_ids <- unlist(ids, use.names = FALSE)
+  dup <- unique(all_ids[duplicated(all_ids)])
+  if (length(dup) > 0L) {
+    cli::cli_abort(
+      c("{.field array_id} must be disjoint across the inputs to {.fn tales_bind}.",
+        "x" = "Present in more than one input: {.val {utils::head(dup, 8)}}"),
+      class = c("tantale_error_bind_array_id_collision", "tantale_error")
+    )
+  }
+  invisible(NULL)
+}
+
+#' @keywords internal
+.tales_bind_reconcile_namespace <- function(inputs, bound, on_namespace_mismatch) {
+  namespaces <- lapply(inputs, tales_namespace)
+  agree <- length(unique(namespaces)) <= 1L
+  if (agree) {
+    return(list(x = bound, namespace = namespaces[[1L]]))
+  }
+  if (on_namespace_mismatch == "error") {
+    cli::cli_abort(
+      c("The inputs to {.fn tales_bind} carry different {.field dom_code} namespaces.",
+        "i" = "Pass {.code on_namespace_mismatch = \"recode\"} to reassign {.field dom_code} over their union instead."),
+      class = c("tantale_error_bind_namespace_mismatch", "tantale_error")
+    )
+  }
+  cli::cli_inform(
+    c("Reassigning {.field dom_code} over the union of inputs.",
+      "i" = "The inputs' {.field dom_code} namespaces disagreed, so any distance table from either is now stale."),
+    class = c("tantale_message_bind_namespace_recoded", "tantale_message")
+  )
+  bound$dom_code <- NULL
+  # new_tales(), not tales(): this is an intermediate shape on its way to the
+  # single official construction in tales_bind() itself (step 6 of the
+  # ledger's plan, §5.2) -- validating here too would just double the
+  # anomaly warnings the final tales() call already reports.
+  recoded <- tales_assign_domain_codes(new_tales(bound))
+  list(x = tibble::as_tibble(recoded), namespace = tales_namespace(recoded))
+}
 
 
 #### Validator ####

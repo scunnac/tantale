@@ -295,9 +295,9 @@ implementable, not just closed. As of 2026-09-19, the actual picture:
 
 **Scoped work, ready to pick up, no decision blocking it:**
 
-- **`tales_bind()`** (§5.2's "Implementation plan") -- design is complete
-  end to end: signature, 7-step procedure, tests, docs. The most
-  immediately buildable thing on this list.
+- ~~**`tales_bind()`** (§5.2's "Implementation plan")~~ -- **built
+  2026-09-19, see §5.2's "Implementation plan" for the as-built record.**
+  §11 is next in line now.
 - **§11** rework `tales_group()` -- flagged "next" once §7.5's articles
   (the prerequisite) landed, which they have.
 - **§6** `tales_group()`'s hclust dendrogram still spams an
@@ -880,9 +880,10 @@ is not trivial:
 So the ordering is: decide A vs B, then add the bind method the chosen shape
 needs, then make `tales_align()` group-aware. Not before.
 
-#### Proposed route: `tales_bind()`, not `c.tales()` **[P]**
+#### Proposed route: `tales_bind()`, not `c.tales()` **[V]** — decided and built 2026-09-19
 
-Worked through in conversation, not yet a decision. Splits into two
+Worked through in conversation, then built as planned -- see
+"Implementation plan" below for the as-built record. Splits into two
 questions that looked like one.
 
 **`tales` can be bound now; `tales_msa` mostly can't, and that is not a gap
@@ -1044,11 +1045,33 @@ workflow need, not just a §5.2 dependency. A `tales_msa`-level bind should
 stay unbuilt until something concrete needs the narrow same-run-subset
 case.
 
-#### Implementation plan, as of 2026-09-19 -- design complete, not yet built
+#### Implementation plan, as of 2026-09-19 -- BUILT **[V]**
 
 Everything above worked through to a concrete, ready-to-implement shape.
 Consolidated here as one procedure rather than left scattered across the
 bullets above, since that is what an implementer actually needs.
+
+**Built as planned, same session.** `tales_bind()` in `R/tales_class.R`,
+right after `as_tales()`. All seven steps below implemented as specified,
+with one deliberate deviation from the letter of step 5: the internal
+tibble handed to `tales_assign_domain_codes()` during a namespace recode
+is wrapped with `new_tales()` (the unvalidated low-level constructor), not
+`tales()` -- `tales_assign_domain_codes()` itself calls `tales()` on its
+way out, so validating the intermediate too would just double the
+anomaly warnings that the one official construction in step 6 already
+reports. `tales_bind()` itself never calls `validate_tales()`/
+`.tales_anomalies()` directly, exactly as specified.
+
+Tests: `tests/testthat/test_tales_bind.R`, 30 cases covering every item in
+the "Tests to write" list below plus the round-trip check, all passing
+(`FAIL 0`). `pkgdown::check_pkgdown()` clean (the `@family tales objects`
+tag is enough; no `_pkgdown.yml` edit needed). No regressions in
+`test_tales_class.R`, `test_tales_compare_steps.R`, `test_tales_compare.R`
+or `test_group_tales.R` (the `ggtree` "Invalid edge matrix" noise there is
+the pre-existing §6 issue, unrelated).
+
+NEWS.md left untouched, per this round's standing instruction (no NEWS.md
+maintained this round -- see the 2026-09-18/19 session commits).
 
 - **Where:** `R/tales_class.R`, beside `tales()`/`as_tales()`/
   `tales_namespace()` -- a class-level verb, not a `distalr.R` concern.
