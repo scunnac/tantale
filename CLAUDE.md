@@ -125,10 +125,12 @@ stamp exists to catch cross-run mixing, and is enforced, not advisory.
 
 ## Where things stand
 
-`dev/restructuring-notes.md` is ~3270 lines. **Read its `START HERE` block,
-not the whole file.** As of 2026-09-17 it lists six open items; three need
-the maintainer's decision, and the website/vignette work (§7.5) is
-explicitly low priority right now.
+`dev/restructuring-notes.md` is ~4640 lines. **Read its `START HERE` block,
+not the whole file.** As of 2026-09-19 it lists four items needing the
+maintainer's decision (§12b, §7.5c, §7.7, §14) and a longer list of
+scoped, no-decision-needed work -- `tales_bind()`'s design is complete
+and ready to build, §11 (`tales_group()` rework) is next in line. The
+website/vignette work (§7.5) is done for the core API.
 
 Sections are kept in ascending numeric order within each chapter (fixed
 2026-09-17, after §7 and §8 had drifted into add-order). Content only, never

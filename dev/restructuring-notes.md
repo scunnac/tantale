@@ -3,7 +3,9 @@
 Working document for the pre-publication overhaul. Records findings, agreed
 actions and deferred questions so they don't live only in conversation.
 
-Branch: `dev`. Last updated: 2026-09-17 (pushed as of commit `d13bb5e`).
+Branch: `dev`. Last updated: 2026-09-19. Pushed as of commit `464e1fd`;
+six further commits since then (design/ledger only, no code) not yet
+pushed -- see the 2026-09-19 session summary below.
 
 Status markers used below:
 
@@ -16,9 +18,9 @@ Status markers used below:
 
 ## START HERE
 
-This file is ~3270 lines and is a record, not a reading list. **Do not read
-it end to end.** Read `CLAUDE.md` (it loads automatically), then only the
-sections below that bear on the task in hand.
+This file is ~4640 lines and is a record, not a reading list. **Do not
+read it end to end.** Read `CLAUDE.md` (it loads automatically), then
+only the sections below that bear on the task in hand.
 
 Sections are now in ascending numeric order within each chapter (fixed
 2026-09-17 -- §7 and §8 were badly scrambled: §8 alone had 18 subsections
@@ -127,10 +129,129 @@ re-check every other `[V]` section the same way -- treat this file's
    plot have not yet been re-rendered against the fixed code (next
    step).
 
+10. **Fourth fix from the same review pass, found by the maintainer
+    reading the rendered site:** `fig-mai1-composition`'s caption said
+    "four TALE arrays"; a real `tell_tales()` run on MAI1 finds nine
+    (`ROI_00001`-`00004`, `00006`-`00010`) -- stale text, not a code
+    bug. Fixed in `tale_mining.qmd`.
+11. **§9.2c, `tell_tales()`'s output file names, done the same night.**
+    `.telltale_paths()` covers most of them, but tracing every write
+    found three more mint sites it does not: `.hits_report_to_gff()`
+    (derives its name from the path it is given, so it followed once
+    `hits_report.tsv` did), `.telltale_write_correction_alignments()`'s
+    own `glue()` calls, and `.telltale_align_termini()`'s. Also renamed
+    the per-ROI `putative_tal_orf.fasta` that `tell_tales()` itself
+    writes inside `annotale/ROI_*/` as AnnoTALE's *input* -- distinct
+    from AnnoTALE's own output files in the same directory, which stay
+    untouched. Blast radius: `R/telltale.R`, `R/tales_ingest.R`, six
+    test files, one article, `git mv` across five fixture trees
+    (including `inst/extdata/`, shipped and reachable from
+    `tales_from_telltale()`'s own `@examples`). Golden re-baselined --
+    79/80 rows verified programmatically as byte-identical pure
+    renames; one row (`tell_tales.log`'s own digest) accepted without a
+    fully traced root cause, recorded honestly rather than papered
+    over. Full suite: 0 failures.
+12. **A version-scheme decision that nearly overwrote the tracked
+    release site.** Maintainer settled on `0.9.x` pre-publication,
+    `1.0.0` at release, replacing the old `0.1.9553` devtools-style
+    counter. The natural first choice, `0.9.1`, silently broke
+    `development: mode: auto`: `pkgdown:::dev_mode_auto()` only treats
+    a 3-component version as "devel" (-> `docs/dev/`) when the third
+    component is `>= 9000`; `0.9.1` does not clear that, so a routine
+    theme rebuild wrote 215 new files and modified 16 tracked ones
+    straight into `docs/` -- caught by `git status` before anything was
+    committed, reverted. Resolved with `0.9.9001`, which restores the
+    same `>= 9000` third component `0.1.9553` always had, verified
+    directly against `pkgdown:::dev_mode_auto()`.
+13. **Site polish, same session:** the `Articles` navbar dropdown had
+    silently regressed to a single link to `articles/index.html` when
+    the numbered-vignette/article duality was abrogated (§7.5c) --
+    `_pkgdown.yml`'s `articles:` section needs a per-group `navbar: ~`
+    key to keep pkgdown's dropdown-building code path, root-caused by
+    reading `pkgdown:::navbar_articles()` directly. A dangling
+    cross-article `@sec-` reference in `tale_classification.qmd` (quarto
+    cannot resolve crossrefs across separate documents outside a
+    book/project) fixed the same pass. Bootswatch theme changed from
+    `lumen` ("a bit tern") to `sandstone`, after the maintainer compared
+    six real candidates' rendered home pages side by side (screenshotted
+    with headless `chromium`, which on this machine can only read/write
+    inside `$HOME`, not `/tmp`). Full site rebuilt, `docs/` confirmed
+    untouched, `docs/dev/` committed (415 files) and pushed --
+    `e219065..464e1fd`.
+
 See §7.5b and §7.5c for the article-rebuild detail, and §6/§7 for the
 backlog items closed in the second half of the session. Full verification
 commands are not reproduced here; re-run them from those sections if
 anything here needs re-checking.
+
+**2026-09-19 session, in one place** (design and documentation only, no
+code changed; six commits, `f1f2930`..`d2439ed`, not yet pushed):
+
+1. **Three of §7.6's five README/docs follow-ups landed already** in the
+   session above (the LLM-use section, the stale class-bullet fix, the
+   lifecycle badge); this session added and closed a fourth --
+   **a test-coverage badge, checked before acting on**: this repo has no
+   CI at all (`.github/workflows/` does not exist), `covr` is not a
+   declared dependency, no codecov config. Recorded the real choice this
+   implies (a live badge needs standing up CI first; a static one goes
+   stale silently) rather than guessing at a number --
+   `covr::package_coverage()` was deliberately not run, since it
+   re-executes the full suite under instrumentation and this package's
+   external-tool-heavy tests make that multi-minute-plus. The fifth
+   item, a dedicated pkgdown index page, stays parked as genuine
+   content-authoring work.
+2. **§5.2 (talome-wide MSA plot) parked for much later**, with a leaning
+   recorded rather than a decision forced: the maintainer finds the
+   arguments for shape A (a plain list of per-group `tales_msa`) quite
+   strong. Not next in line -- §11 is.
+3. **§14, a full `DESCRIPTION` Imports audit**, prompted by a suspicion
+   ("a lot of them will need to leave") that the grep-based check did
+   not bear out: 42 of 43 `Imports:` packages have real, findable call
+   sites in live `R/` code. Two genuine exceptions did turn up:
+   `XVector`, referenced only inside the parked
+   `.extract_seqs_from_hits()` in `unused_pending_review.R` (a
+   keep-or-drop call, not urgent); and `reshape2`, a `plyr`-vintage
+   dependency superseded by `tidyr` the same way `plyr` was by `dplyr`,
+   but with 18 call sites across seven files -- six times `plyr`'s
+   footprint, a real future migration and not a quick fix.
+4. **`tales_bind()`'s design finished, end to end, nothing built yet.**
+   Worked through live with the maintainer, correcting two of the
+   session's own earlier proposals along the way, which is exactly why
+   this is recorded in this much detail rather than just "settled":
+   - **Distances:** rather than the rectangular-comparison optimisation
+     first floated (reuse the within-input distance blocks, compute
+     only the new cross-pairs), the maintainer chose the honest first
+     cut -- `tales_bind()` does not touch `tale_distances`/
+     `domain_distances` at all; a caller re-runs `tales_compare()` on
+     the bound result. Simpler, correct by construction, and it fully
+     sidesteps a `dom_code`-rekeying problem that would otherwise have
+     been real (see the conceptual note under §5.2's "Proposed route"
+     for the full reasoning on which `tales` operations invalidate a
+     companion distance table, and why subsetting and binding are not
+     the same shape of problem).
+   - **`group`:** the maintainer caught that this is not an `array_id`
+     -style identity-collision problem at all -- `group` is a
+     *clustering result* derived from one specific distance matrix over
+     one specific set of arrays, so two "group 1"s from separate runs
+     are not comparable, not just at risk of colliding. The
+     disjoint-labels check first proposed here would have produced an
+     object that looks validated while carrying meaningless data.
+     Corrected to: drop `group` entirely whenever present on any input,
+     `cli_inform()` why, point at `tales_group()`+`tales_compare()` as
+     how to get real groups back.
+   - **A `tales_comparison` class idea (bundling `tales_compare()`'s
+     return list under a real S3 class) was floated, then correctly
+     challenged by the maintainer** as not actually solving
+     `tales_bind()` -- it is an orthogonal display/ergonomics idea over
+     `tales_compare()`'s output, not a fix for reconciling two objects'
+     distance data. Recorded so it is not re-proposed as a solution to
+     the same problem later.
+   - The full seven-step procedure -- location, signature, validation
+     order, the `dom_code_namespace` recode path via
+     `tales_assign_domain_codes()`, the final `tales()` constructor
+     call, tests to write, docs -- is consolidated in one place under
+     §5.2's "Implementation plan, as of 2026-09-19". That subsection is
+     the one to read before building this; nothing here duplicates it.
 
 **2026-09-17 session, in one place** (five commits, `6811f91`..`2c57864`,
 plus a housekeeping commit `d13bb5e`; all pushed):
@@ -158,48 +279,55 @@ plus a housekeeping commit `d13bb5e`; all pushed):
    copies removed (maintainer's call) -- their content lives in this file.
 
 `grep -nE '\*\*\[A\]\*\*|\*\*\[P\]\*\*' dev/restructuring-notes.md`
-lists what is still open. As of 2026-09-18, four sections (7.5 closed by
-§7.5b; 9.2b closed the night before):
+lists what is still open at the section-heading level, but two sections
+that grep would call closed (§7.6, §14) have live sub-items worth
+listing too, and §5.2's `tales_bind()` sub-design is closed *and*
+implementable, not just closed. As of 2026-09-19, the actual picture:
 
-| § | what | needs |
+**Needs your decision:**
+
+| § | what | options |
 |---|---|---|
-| **5.2** | talome-wide MSA plot: list of alignments vs demoted `tales` | **your call** (A vs B) |
-| **12b** | `functal()` cannot run; `Bio::Perl` is unobtainable | **your call** among four options |
-| **6** | `tales_group()`'s hclust dendrogram spams an `ape`/`ggtree` warning on some tree shapes -- dodged in the articles, not fixed | a reproduction with a small hclust object, then a decision: guard or suppress |
-| **11** | rework `tales_group()` | joint work -- §7.5's articles (the prerequisite) are now done, so this is next |
-| **7.5c** | package now ships no traditional vignette (`VignetteBuilder` removed) | **your call** -- keep it this way, or reinstate a real vignette alongside the pkgdown articles |
+| **12b** | `functal()` cannot run; `Bio::Perl` is unobtainable | four options on record, none clearly best |
+| **7.5c** | package ships no traditional vignette (`VignetteBuilder` removed) | keep it this way, or reinstate a real vignette alongside the pkgdown articles |
+| **7.7** | the tracked release `docs/` is frozen at a 2023-10-04 build, now visibly stale next to a "stable" lifecycle badge | rebuild it before `1.0.0`, or leave it frozen deliberately until then |
+| **14** | `XVector` is imported but referenced only inside parked dead code | drop it (breaks `unused_pending_review.R`'s one parked function if ever revived without re-adding it) or keep it |
 
-§6 itself closed out almost entirely on 2026-09-18 -- five separate items
-fixed and verified (see the 2026-09-18 session summary above) -- and the
-dendrogram warning above is what is left of it, found the same night
-rather than carried over.
+**Scoped work, ready to pick up, no decision blocking it:**
 
-§7.5 is done for the core API (§7.5b, §7.5c); `target_predictions.R`'s
-three exports and the AnnoTALE/QueTAL wrappers still have no `@examples`,
-listed there as a deliberate, low-priority remainder rather than as an
-open question.
+- **`tales_bind()`** (§5.2's "Implementation plan") -- design is complete
+  end to end: signature, 7-step procedure, tests, docs. The most
+  immediately buildable thing on this list.
+- **§11** rework `tales_group()` -- flagged "next" once §7.5's articles
+  (the prerequisite) landed, which they have.
+- **§6** `tales_group()`'s hclust dendrogram still spams an
+  `ape`/`ggtree` "Invalid edge matrix" warning on some tree shapes --
+  dodged in the articles by dropping the outgroup genome, never fixed
+  at the source. Needs a reproduction with a small hclust object, then
+  a decision: guard or suppress.
+- **§9.2d** inventory `inst/extdata/` (41MB, 27 top-level files) and
+  park what nothing uses in `extra/` -- not started.
+- **§5.4** `tales_get_protein_seq()`/`tales_get_dna_seq()` converters --
+  parked feature request, not started.
+- **§7.6** a dedicated pkgdown index page instead of reusing `README.md`
+  verbatim -- real content-authoring, not started.
+- **§14** `reshape2` -> `tidyr` migration -- a real but substantially
+  bigger sibling to the `plyr` removal (18 call sites vs. 3), scoped
+  but not started.
 
-Two `####` sub-headings also carry `[P]`, and both turned out stale on
-re-check (2026-09-18): the one inside §9.1 (already flagged above), and
-one inside §9.6 -- despite the claim here that it was "still live", it
-sits inside that section's own `#### Original notes` / `9.6-original`
-history, and the "similarity may be the wrong quantity to store"
-question it poses is the exact one §9.6's main text already resolved a
-few lines above it ("resolved in favour of storing the distance").
-Zero genuinely open `####`-level `[P]`s remain, as far as this pass
-found.
+**Parked deliberately, not urgent:**
 
-**§6 is the one most likely to be underestimated** despite being "just a
-backlog." What remains after tonight's correction: `rvdSimDf` orphaned by
-an opt-in RVD scoring path that may need revisiting; `aaSeq`/`rvd` 1:1 not
-enforced; `build_repeat_msa()` guessing its input type against a hardcoded
-six-RVD list; a `positionInArray`/alignment-coordinate mislabelling that is
-expected to resolve itself once `tales_msa` gets a real coordinate column.
-None of these are the kind of thing to fix in a five-minute pass -- each
-needs its surrounding code read first. (Update, 2026-09-18: the `rvdSimDf`
-and `build_repeat_msa()` items above were both already closed by the time
-this paragraph was reread -- see §6 itself, not this summary, for the
-current state.)
+- **§5.2** the talome-wide MSA plot itself -- maintainer leans toward
+  shape A (a plain list of per-group alignments) but this is "much
+  later," not next.
+- **§7.5**'s remaining `@examples` gap (`target_predictions.R`'s three
+  exports, the AnnoTALE/QueTAL wrappers) -- explicitly low priority.
+
+Two `####` sub-headings also carry `[P]` and both are stale, already
+explained where they sit rather than re-flagged here: one inside §9.1,
+one inside §9.6's own `9.6-original` history (the question it poses is
+the exact one §9.6's main text already resolved a few lines above it).
+Zero genuinely open `####`-level `[P]`s, as far as this pass found.
 
 **Before editing anything**, confirm the external environment --
 `tantale_setup()`. This machine carries `/usr/bin/mafft` **7.505** and
