@@ -165,7 +165,7 @@
 #' @param rvd_map The return value of the
 #'   \code{\link[tantale:repeat_to_rvd_map]{repeat_to_rvd_map}} function or the 
 #'   \code{\link[tantale:repeat_to_rvd_map_distalr]{repeat_to_rvd_map_distalr}} function
-#'   if you used the \code{\link{tales_compare}} function.
+#'   if you used the \code{\link{tales_compare_distal}} function.
 #'   
 #'
 #' @return A TALE alignment matrix made up of RVD sequences.
@@ -190,7 +190,7 @@ repeat_to_rvd_align <- function(repeat_align , rvd_map) {
 
 #### Superseded by the three exported steps (ledger 8.5b) ####
 #
-# tales_compare() now composes tales_assign_domain_codes(),
+# tales_compare_distal() now composes tales_assign_domain_codes(),
 # tales_domain_distances() and tales_tale_distances() instead of calling
 # this. Kept, not deleted, until the decomposition has been exercised on
 # real work -- it is the reference for what the composed version must
@@ -198,7 +198,7 @@ repeat_to_rvd_align <- function(repeat_align , rvd_map) {
 
 #' The expensive part of the relatedness computation
 #'
-#' Called by \code{\link{tales_compare}}. Takes a plain tibble in the canonical
+#' Called by \code{\link{tales_compare_distal}}. Takes a plain tibble in the canonical
 #' column vocabulary and returns raw pieces; classing, stamping and assembly
 #' happen in the caller. Deliberately
 #' does no clustering: that was a stored field with no consumers, recomputed by

@@ -9,7 +9,7 @@
 \arguments{
 \item{x}{A \code{\link{tales}} object, as returned by
 \code{\link{tales_from_telltale}} or in the \code{tales} element of
-\code{\link{tales_compare}}'s output. A legacy \code{tale_parts} data
+\code{\link{tales_compare_distal}}'s output. A legacy \code{tale_parts} data
 frame is accepted and converted.}
 
 \item{position}{Which coordinate to lay the parts out on. \code{"array"}

@@ -4,7 +4,7 @@
 # table, so storing them invited the copy and the source drifting apart; see
 # restructuring-notes.md §1.
 #
-# Both need `dom_code`, which is minted by tales_compare().
+# Both need `dom_code`, which is minted by tales_compare_distal().
 
 
 #' Domain-coded strings, one per TALE array
@@ -163,7 +163,7 @@ tales_rvd_strings <- function(x, sep = "-", rvd_only = TRUE) {
   if (!"dom_code" %in% names(x)) {
     cli::cli_abort(
       c("{.fn {fn}} needs a {.field dom_code} column.",
-        "i" = "{.fn tales_compare} mints one."),
+        "i" = "{.fn tales_compare_distal} mints one."),
       class = c("tantale_error_projection_column", "tantale_error")
     )
   }

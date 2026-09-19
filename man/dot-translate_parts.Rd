@@ -13,7 +13,7 @@
 A character vector of amino-acid sequences.
 }
 \description{
-\code{tales_compare()} needs protein sequences, but an object may carry only
+\code{tales_compare_distal()} needs protein sequences, but an object may carry only
 the DNA. TALE part coding sequences are in frame, so translating them
 recovers \code{aa_seq} exactly.
 }

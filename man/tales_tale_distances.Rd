@@ -16,7 +16,7 @@ returned by \code{\link[=tales_domain_distances]{tales_domain_distances()}}.}
 A \link{tale_distances} object, keyed by \code{array_id}.
 }
 \description{
-Step 3 of \code{\link[=tales_compare]{tales_compare()}}. Aligns the arrays against each other as
+Step 3 of \code{\link[=tales_compare_distal]{tales_compare_distal()}}. Aligns the arrays against each other as
 strings of domain codes, using the domain distances from step 2 as the
 cost of substituting one domain for another.
 }
@@ -49,7 +49,7 @@ dd <- tales_domain_distances(xa)
 tales_tale_distances(xa, dd)
 }
 \seealso{
-\code{\link[=tales_compare]{tales_compare()}}, which runs all three steps.
+\code{\link[=tales_compare_distal]{tales_compare_distal()}}, which runs all three steps.
 
 Other pairwise distances:
 \code{\link[=as.matrix.pairwise_distances]{as.matrix.pairwise_distances()}},
@@ -58,7 +58,7 @@ Other pairwise distances:
 \code{\link[=is_pairwise_distances]{is_pairwise_distances()}},
 \code{\link[=pairwise_distances]{pairwise_distances()}},
 \code{\link[=tales_assign_domain_codes]{tales_assign_domain_codes()}},
-\code{\link[=tales_compare]{tales_compare()}},
+\code{\link[=tales_compare_distal]{tales_compare_distal()}},
 \code{\link[=tales_domain_distances]{tales_domain_distances()}},
 \code{\link[=tales_group_hclust]{tales_group_hclust()}},
 \code{\link[=tales_group_kmedoids]{tales_group_kmedoids()}},

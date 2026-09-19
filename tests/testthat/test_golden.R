@@ -59,11 +59,11 @@ test_that("golden: projections of a tales onto strings and maps", {
 
 #### the expensive paths ####
 
-test_that("golden: tales_compare() on four arrays", {
+test_that("golden: tales_compare_distal() on four arrays", {
   d <- fx()
   x <- tales(d$tale_parts)
   sub <- x[x$array_id %in% unique(x$array_id)[1:4], ]
-  out <- suppressWarnings(suppressMessages(tales_compare(sub)))
+  out <- suppressWarnings(suppressMessages(tales_compare_distal(sub)))
 
   expect_named(out, c("tales", "domain_distances", "tale_distances"))
   expect_golden(fingerprint(out$tales))

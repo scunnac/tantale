@@ -61,7 +61,7 @@ test_that(".as_mafft_score_table() refuses a table it cannot read", {
 
 test_that("tales_align() accepts a domain_distances for repeat_sims", {
   # Regression: .build_repeat_msa() hardcoded RepU1/RepU2/Sim, so the
-  # documented path -- handing it the typed object tales_compare() returns --
+  # documented path -- handing it the typed object tales_compare_distal() returns --
   # failed with "Can't subset columns that don't exist".
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))

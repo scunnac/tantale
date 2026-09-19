@@ -13,7 +13,7 @@ tales_assign_domain_codes(x)
 \code{x} with a \code{dom_code} column and a \code{dom_code_namespace} stamp.
 }
 \description{
-Step 1 of \code{\link[=tales_compare]{tales_compare()}}. Gives each distinct \code{aa_seq} in \code{x} an
+Step 1 of \code{\link[=tales_compare_distal]{tales_compare_distal()}}. Gives each distinct \code{aa_seq} in \code{x} an
 integer code, recorded in a \code{dom_code} column, so that the parts can be
 compared once each rather than once per occurrence.
 
@@ -48,7 +48,7 @@ xa <- tales_assign_domain_codes(x)
 tales_namespace(xa)
 }
 \seealso{
-\code{\link[=tales_compare]{tales_compare()}}, which runs all three steps;
+\code{\link[=tales_compare_distal]{tales_compare_distal()}}, which runs all three steps;
 \code{\link[=tales_domain_codes]{tales_domain_codes()}}, which reads the code-to-sequence table back out
 of an object that already has codes.
 
@@ -58,7 +58,7 @@ Other pairwise distances:
 \code{\link[=distances_restrict]{distances_restrict()}},
 \code{\link[=is_pairwise_distances]{is_pairwise_distances()}},
 \code{\link[=pairwise_distances]{pairwise_distances()}},
-\code{\link[=tales_compare]{tales_compare()}},
+\code{\link[=tales_compare_distal]{tales_compare_distal()}},
 \code{\link[=tales_domain_distances]{tales_domain_distances()}},
 \code{\link[=tales_group_hclust]{tales_group_hclust()}},
 \code{\link[=tales_group_kmedoids]{tales_group_kmedoids()}},

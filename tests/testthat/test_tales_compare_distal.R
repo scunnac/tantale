@@ -1,4 +1,4 @@
-# Tests for tales_compare(). See dev/class-design.md §1.2 and
+# Tests for tales_compare_distal(). See dev/class-design.md §1.2 and
 # dev/restructuring-notes.md §1 (what the returned list shrank to, and why).
 #
 # These run the real pipeline (pairwise protein alignment + ARLEM), so they are
@@ -15,7 +15,7 @@ relatedness_once <- local({
   function() {
     if (is.null(cached)) {
       cached <<- suppressWarnings(suppressMessages(
-        tales_compare(example_tales())
+        tales_compare_distal(example_tales())
       ))
     }
     cached
@@ -23,7 +23,7 @@ relatedness_once <- local({
 })
 
 
-test_that("tales_compare() returns exactly three typed objects", {
+test_that("tales_compare_distal() returns exactly three typed objects", {
   res <- relatedness_once()
   expect_named(res, c("tales", "domain_distances", "tale_distances"))
   expect_s3_class(res$tales, "tales")
@@ -106,21 +106,21 @@ test_that("self-comparison is distance 0", {
 #### Preconditions and guards ####
 
 test_that("a plain data frame is refused", {
-  expect_error(tales_compare(data.frame(a = 1)),
+  expect_error(tales_compare_distal(data.frame(a = 1)),
                class = "tantale_error_tales_type")
 })
 
 test_that("a tales without aa_seq is refused", {
   x <- as_tales(test_path("data_for_tests", "tellTaleExampleOutput",
                           "rvd_sequences.fas"), sep = "-")
-  expect_error(tales_compare(x),
+  expect_error(tales_compare_distal(x),
                class = "tantale_error_compare_no_aa")
 })
 
 test_that("re-minting over an existing dom_code warns", {
   res <- relatedness_once()
   expect_warning(
-    suppressMessages(tales_compare(res$tales)),
+    suppressMessages(tales_compare_distal(res$tales)),
     class = "tantale_warning_relatedness_remint"
   )
 })
@@ -152,12 +152,12 @@ test_that("an out-of-frame sequence is refused rather than silently truncated", 
                class = "tantale_error_translate_frame")
 })
 
-test_that("tales_compare() falls back to dna_seq and keeps the derived column", {
+test_that("tales_compare_distal() falls back to dna_seq and keeps the derived column", {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
   x <- tales(d$tale_parts)
   noAa <- x[, setdiff(names(x), "aa_seq")]
-  expect_warning(res <- suppressMessages(tales_compare(noAa)),
+  expect_warning(res <- suppressMessages(tales_compare_distal(noAa)),
                  class = "tantale_warning_translated_aa")
   expect_true("aa_seq" %in% names(res$tales))
 })
@@ -166,9 +166,9 @@ test_that("the dna_seq path gives the same distances as the aa_seq path", {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
   x <- tales(d$tale_parts)
-  viaAa  <- suppressWarnings(suppressMessages(tales_compare(x)))
+  viaAa  <- suppressWarnings(suppressMessages(tales_compare_distal(x)))
   viaDna <- suppressWarnings(suppressMessages(
-    tales_compare(x[, setdiff(names(x), "aa_seq")])))
+    tales_compare_distal(x[, setdiff(names(x), "aa_seq")])))
   expect_equal(as.data.frame(viaDna$domain_distances),
                as.data.frame(viaAa$domain_distances))
   expect_equal(as.data.frame(viaDna$tale_distances),
@@ -179,6 +179,6 @@ test_that("neither aa_seq nor dna_seq is still an error", {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
   x <- tales(d$tale_parts)
-  expect_error(tales_compare(x[, setdiff(names(x), c("aa_seq", "dna_seq"))]),
+  expect_error(tales_compare_distal(x[, setdiff(names(x), c("aa_seq", "dna_seq"))]),
                class = "tantale_error_compare_no_aa")
 })

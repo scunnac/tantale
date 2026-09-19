@@ -44,13 +44,13 @@ what you want.
 \code{group} is dropped from the result whenever present on any input, not
 reconciled: it is a clustering result over one specific distance matrix
 and one specific set of arrays, so two "group 1"s from separate
-\code{\link{tales_group}} calls are not comparable, not merely at risk of
-colliding. Recompute it with \code{\link{tales_group}} after
-\code{\link{tales_compare}} on the bound result.
+\code{\link{tales_group_hclust}}/\code{\link{tales_group_kmedoids}} calls
+are not comparable, not merely at risk of colliding. Recompute it with
+either on the bound result, after re-running \code{\link{tales_compare_distal}}.
 
 \code{tale_distances}/\code{domain_distances} are untouched: this function
 only binds \code{tales} data. A companion distance table from either input
-does not describe the bound object -- re-run \code{\link{tales_compare}}
+does not describe the bound object -- re-run \code{\link{tales_compare_distal}}
 if you need one.
 }
 \examples{

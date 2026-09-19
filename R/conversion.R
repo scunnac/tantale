@@ -169,10 +169,10 @@ repeat_to_rvd_map <- function(repeat_vecs, rvd_vecs) {
 #' Generate a mapping between Distal repeat IDs and their cognate RVD.
 #'
 #' Uses Distal repeat sequences and RVD sequences from a set of TALEs 
-#' analyzed with the \code{\link{tales_compare}} function to return
+#' analyzed with the \code{\link{tales_compare_distal}} function to return
 #' the association between repeat ID and RVD.
 #'
-#' @param tale_parts The tale_parts object in a \code{\link{tales_compare}} output.
+#' @param tale_parts The tale_parts object in a \code{\link{tales_compare_distal}} output.
 #' @return A two columns repeatID - RVD data frame.
 #' @export
 #' @family tales projections
@@ -210,7 +210,7 @@ repeat_to_rvd_map_distalr <- function(tale_parts) {
 
 #' Generates a RVD sequences set from a tale_parts object
 #'
-#' Uses a tale_parts object in a \code{\link{tales_compare}} output
+#' Uses a tale_parts object in a \code{\link{tales_compare_distal}} output
 #' to return a \code{\link[Biostrings]{BStringSet}} of RVD sequences.
 #' RVDs are separated by the character specified in the \code{sep} parameter.
 #' 
@@ -218,10 +218,10 @@ repeat_to_rvd_map_distalr <- function(tale_parts) {
 #'
 #'
 #' Uses Distal repeat sequences and RVD sequences from a set of TALEs 
-#' analyzed with the \code{\link{tales_compare}} function to return
+#' analyzed with the \code{\link{tales_compare_distal}} function to return
 #' the association between repeat ID and RVD.
 #'
-#' @param tale_parts The tale_parts object in a \code{\link{tales_compare}} output.
+#' @param tale_parts The tale_parts object in a \code{\link{tales_compare_distal}} output.
 #' @param sep Used as a RVD separatator
 #' @param rvd_only Retrun only RVDs and ommit N- and C- terminal domains 
 #' @return A two columns repeatID - RVD data frame.

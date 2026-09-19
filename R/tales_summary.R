@@ -37,7 +37,7 @@
 #'
 #' The ratio to parts is a property of the biology: TALEs reuse repeats
 #' heavily, within an array and between arrays. It is also what decides the
-#' cost of \code{\link{tales_compare}}, whose pairwise comparison runs over
+#' cost of \code{\link{tales_compare_distal}}, whose pairwise comparison runs over
 #' distinct domains rather than over parts.
 #'
 #' \strong{Repeats per array} counts repeats only, excluding the termini, so

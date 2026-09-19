@@ -139,7 +139,7 @@ test_that("two all-NULL namespaces agree and never trigger a recode", {
 
 test_that("tales_bind() never touches tale_distances/domain_distances", {
   # No distance-table argument to feed or reconcile -- a caller who needs one
-  # re-runs tales_compare() on the bound result (documented, not enforced).
+  # re-runs tales_compare_distal() on the bound result (documented, not enforced).
   expect_false("tal_sim" %in% names(formals(tales_bind)))
 })
 

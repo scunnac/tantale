@@ -22,7 +22,7 @@ Other pairwise distances:
 \code{\link[=distances_restrict]{distances_restrict()}},
 \code{\link[=pairwise_distances]{pairwise_distances()}},
 \code{\link[=tales_assign_domain_codes]{tales_assign_domain_codes()}},
-\code{\link[=tales_compare]{tales_compare()}},
+\code{\link[=tales_compare_distal]{tales_compare_distal()}},
 \code{\link[=tales_domain_distances]{tales_domain_distances()}},
 \code{\link[=tales_group_hclust]{tales_group_hclust()}},
 \code{\link[=tales_group_kmedoids]{tales_group_kmedoids()}},

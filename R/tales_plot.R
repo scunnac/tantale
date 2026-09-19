@@ -27,7 +27,7 @@
 #'
 #' @param x A \code{\link{tales}} object, as returned by
 #'   \code{\link{tales_from_telltale}} or in the \code{tales} element of
-#'   \code{\link{tales_compare}}'s output. A legacy \code{tale_parts} data
+#'   \code{\link{tales_compare_distal}}'s output. A legacy \code{tale_parts} data
 #'   frame is accepted and converted.
 #' @param position Which coordinate to lay the parts out on. \code{"array"}
 #'   (default) uses \code{position_in_array}, so each array starts at 1 and runs
@@ -160,10 +160,10 @@ plot.tales <- function(x, position = c("array", "alignment"), ...) {
 #'   defaults to \code{"rvd"} when that is not already the \code{fill}; pass
 #'   \code{NULL} explicitly for an unlabelled heatmap.
 #' @param tal_sim Pairwise distances between whole TALEs, as the
-#'   \code{tale_distances} element of a \code{\link{tales_compare}} result.
+#'   \code{tale_distances} element of a \code{\link{tales_compare_distal}} result.
 #'   Used to build the tree panel that orders the alignment rows.
 #' @param domain_sim Pairwise distances between repeat units, as the
-#'   \code{domain_distances} element of a \code{\link{tales_compare}}
+#'   \code{domain_distances} element of a \code{\link{tales_compare_distal}}
 #'   result. Used to group repeats into clusters, and to score each repeat
 #'   against the reference TALE\'s repeat at the same alignment column.
 #' @param h_cut Height at which the repeat tree is cut to define clusters.
@@ -646,7 +646,7 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
 
 #' Convert repeat alignment to clusterID alignment
 #'
-#' @param repeat_sim A long, three columns data frame with pairwise similarity scores between repeats as available in the \code{domain_distances} element of the object returned by the \code{\link{tales_compare}} function.
+#' @param repeat_sim A long, three columns data frame with pairwise similarity scores between repeats as available in the \code{domain_distances} element of the object returned by the \code{\link{tales_compare_distal}} function.
 #' @param repeat_align a multiple Tal repeat sequences alignment in the form of a matrix as returned by \code{\link{tales_align}}.
 #' @param h_cut a numeric value indicating the height at which to cut the hclust tree of repeats. Interpreted on a distance scale (0 = identical).
 #' @return a matrix with exactly the same dimension as the input \code{repeat_sim} but containing clusterID instead of

@@ -13,29 +13,29 @@ test_that("every error the package raises carries the tantale_error parent", {
   # a representative sample across the different subsystems
   expect_error(tales(data.frame(nope = 1)), class = "tantale_error")
   expect_error(pairwise_distances(data.frame(id1 = "a")), class = "tantale_error")
-  expect_error(tales_compare(data.frame(a = 1)), class = "tantale_error")
+  expect_error(tales_compare_distal(data.frame(a = 1)), class = "tantale_error")
 })
 
 
-#### tales_compare() guards ####
+#### tales_compare_distal() guards ####
 
 test_that("an unknown aln_method is rejected by name", {
   x <- fixture_tales()
   # This guard was unreachable before: logger::log_errors() && stop(...) short
   # circuited, so the user saw a complaint about calling handlers instead.
-  expect_error(tales_compare(x, aln_method = "not_a_method"),
+  expect_error(tales_compare_distal(x, aln_method = "not_a_method"),
                class = "tantale_error_aln_method")
-  expect_error(tales_compare(x, aln_method = "not_a_method"), "not_a_method")
+  expect_error(tales_compare_distal(x, aln_method = "not_a_method"), "not_a_method")
 })
 
-test_that("tales_compare() refuses a tales with neither aa_seq nor dna_seq", {
+test_that("tales_compare_distal() refuses a tales with neither aa_seq nor dna_seq", {
   # dropping aa_seq alone is no longer an error: dna_seq is translated instead
   x <- fixture_tales()
   x$aa_seq <- NULL
-  expect_warning(suppressMessages(tales_compare(x)),
+  expect_warning(suppressMessages(tales_compare_distal(x)),
                  class = "tantale_warning_translated_aa")
   x$dna_seq <- NULL
-  expect_error(tales_compare(x), class = "tantale_error_compare_no_aa")
+  expect_error(tales_compare_distal(x), class = "tantale_error_compare_no_aa")
 })
 
 
@@ -127,10 +127,10 @@ test_that("a part with no amino acid sequence is reported with its array", {
   x <- fixture_tales()
   bad <- unique(x$array_id)[1]
   x$aa_seq[x$array_id == bad][1] <- NA_character_
-  expect_error(suppressWarnings(tales_compare(x)),
+  expect_error(suppressWarnings(tales_compare_distal(x)),
                class = "tantale_error_parts_no_aa")
   # the offending array must be named, not just counted
-  expect_error(suppressWarnings(tales_compare(x)), bad, fixed = TRUE)
+  expect_error(suppressWarnings(tales_compare_distal(x)), bad, fixed = TRUE)
 })
 
 test_that("an empty-string aa_seq is reported too, not just NA", {
@@ -140,5 +140,5 @@ test_that("an empty-string aa_seq is reported too, not just NA", {
   x <- fixture_tales()
   bad <- unique(x$array_id)[1]
   x$aa_seq[x$array_id == bad][1] <- ""
-  expect_error(suppressWarnings(tales_compare(x)), bad, fixed = TRUE)
+  expect_error(suppressWarnings(tales_compare_distal(x)), bad, fixed = TRUE)
 })

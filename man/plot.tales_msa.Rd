@@ -29,11 +29,11 @@ defaults to \code{"rvd"} when that is not already the \code{fill}; pass
 \code{NULL} explicitly for an unlabelled heatmap.}
 
 \item{tal_sim}{Pairwise distances between whole TALEs, as the
-\code{tale_distances} element of a \code{\link{tales_compare}} result.
+\code{tale_distances} element of a \code{\link{tales_compare_distal}} result.
 Used to build the tree panel that orders the alignment rows.}
 
 \item{domain_sim}{Pairwise distances between repeat units, as the
-\code{domain_distances} element of a \code{\link{tales_compare}}
+\code{domain_distances} element of a \code{\link{tales_compare_distal}}
 result. Used to group repeats into clusters, and to score each repeat
 against the reference TALE\'s repeat at the same alignment column.}
 

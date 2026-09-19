@@ -140,7 +140,7 @@
         {
           "type": "character",
           "attributes": {},
-          "value": ["plot.tales", "plot.tales", "repeat_to_rvd_map_distalr", "tale_parts_to_rvd", "tales_align", "tales_coded_strings", "tales_compare", "tales_domain_codes", "tales_domain_codes", "tales_rvd_strings"]
+          "value": ["plot.tales", "plot.tales", "repeat_to_rvd_map_distalr", "tale_parts_to_rvd", "tales_align", "tales_coded_strings", "tales_compare_distal", "tales_domain_codes", "tales_domain_codes", "tales_rvd_strings"]
         },
         {
           "type": "character",
@@ -430,7 +430,7 @@
       ]
     }
 
-# golden: tales_compare() on four arrays
+# golden: tales_compare_distal() on four arrays
 
     {
       "type": "list",

@@ -55,7 +55,7 @@
 #' height-based cut ambiguous.
 #'
 #' @param x A [tales] object -- the one whose comparison produced `tal_sim`.
-#' @param tal_sim A [tale_distances] object, as returned by [tales_compare()].
+#' @param tal_sim A [tale_distances] object, as returned by [tales_compare_distal()].
 #'   A plain data frame using the legacy `TAL1`/`TAL2`/`Sim` column names is
 #'   also accepted and coerced.
 #' @param k Integer, the number of groups to cut the tree into.
@@ -64,13 +64,13 @@
 #'   `ggtree`/`tidytree` machinery only runs when a plot is actually wanted.
 #' @return `x` with an added (or replaced) `group` column.
 #' @seealso [tales_group_kmedoids()], the alternative method;
-#'   [tales_compare()], which produces both inputs.
+#'   [tales_compare_distal()], which produces both inputs.
 #' @export
 #' @family pairwise distances
 #' @examples
 #' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
 #'                                      package = "tantale"))
-#' cmp <- tales_compare(x)
+#' cmp <- tales_compare_distal(x)
 #' grouped <- tales_group_hclust(cmp$tales, cmp$tale_distances, k = 2)
 #' unique(grouped[c("array_id", "group")])
 tales_group_hclust <- function(x, tal_sim, k = NULL, plot_tree = FALSE) {
@@ -168,13 +168,13 @@ tales_group_hclust <- function(x, tal_sim, k = NULL, plot_tree = FALSE) {
 #' @param plot_silhouette Logical, whether to draw the silhouette-vs-k plot.
 #' @return `x` with an added (or replaced) `group` column.
 #' @seealso [tales_group_hclust()], the alternative method;
-#'   [tales_compare()], which produces both inputs.
+#'   [tales_compare_distal()], which produces both inputs.
 #' @export
 #' @family pairwise distances
 #' @examples
 #' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
 #'                                      package = "tantale"))
-#' cmp <- tales_compare(x)
+#' cmp <- tales_compare_distal(x)
 #' grouped <- tales_group_kmedoids(cmp$tales, cmp$tale_distances,
 #'                                 k_range = 2:4, k = 2)
 #' unique(grouped[c("array_id", "group")])

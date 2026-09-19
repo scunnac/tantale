@@ -1,4 +1,4 @@
-# The three steps tales_compare() composes (ledger 8.5b).
+# The three steps tales_compare_distal() composes (ledger 8.5b).
 #
 # The golden baseline already pins that the composition produces what the
 # monolith produced. These test the properties that only matter now that the
@@ -137,12 +137,12 @@ test_that("tales_tale_distances() needs codes assigned first", {
 
 #### the composition ####
 
-test_that("the three steps reproduce tales_compare()", {
+test_that("the three steps reproduce tales_compare_distal()", {
   # The claim the decomposition rests on. The golden baseline pins the
   # values; this pins that the wrapper is exactly its parts.
   x <- cmp_fixture()
 
-  whole <- suppressWarnings(suppressMessages(tales_compare(x)))
+  whole <- suppressWarnings(suppressMessages(tales_compare_distal(x)))
 
   coded <- tales_assign_domain_codes(x)
   dd <- suppressMessages(tales_domain_distances(coded))

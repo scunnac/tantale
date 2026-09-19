@@ -4,7 +4,7 @@
 # This table answers a different question: "what does *this operation* need of
 # one?". The two are not the same, and the gap between them is real -- aa_seq is
 # optional in the contract, because a tales built from RVD strings has none,
-# yet tales_compare() cannot work without it (or dna_seq to translate).
+# yet tales_compare_distal() cannot work without it (or dna_seq to translate).
 #
 # Before this existed, every function invented its own guard. Two of them
 # checked columns they never read, one reported an "output tibble" it was about
@@ -16,7 +16,7 @@
 # optional: used when present, never required -- documented so it is a promise
 
 TALES_REQUIREMENTS <- list(
-  tales_compare = list(
+  tales_compare_distal = list(
     any_of = c("aa_seq", "dna_seq"),
     note   = "dna_seq is translated to aa_seq when aa_seq is absent"
   ),
@@ -77,7 +77,7 @@ TALES_REQUIREMENTS <- list(
 #'
 #' @details
 #' \describe{
-#'   \item{\code{tales_compare()}}{\code{aa_seq} or \code{dna_seq} (translated)}
+#'   \item{\code{tales_compare_distal()}}{\code{aa_seq} or \code{dna_seq} (translated)}
 #'   \item{\code{tales_align()}}{whichever of \code{rvd} / \code{dom_code} \code{residue_col} names}
 #'   \item{\code{tales_rvd_strings()}}{\code{rvd}}
 #'   \item{\code{tales_coded_strings()}}{\code{dom_code}}

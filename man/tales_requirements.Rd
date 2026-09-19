@@ -16,7 +16,7 @@ from the class's own column contract, which says what makes an object
 }
 \details{
 \describe{
-\item{\code{tales_compare()}}{\code{aa_seq} or \code{dna_seq} (translated)}
+\item{\code{tales_compare_distal()}}{\code{aa_seq} or \code{dna_seq} (translated)}
 \item{\code{tales_align()}}{whichever of \code{rvd} / \code{dom_code} \code{residue_col} names}
 \item{\code{tales_rvd_strings()}}{\code{rvd}}
 \item{\code{tales_coded_strings()}}{\code{dom_code}}

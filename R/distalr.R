@@ -1,8 +1,8 @@
 
 
-#### The three steps of tales_compare() ####
+#### The three steps of tales_compare_distal() ####
 #
-# tales_compare() used to be one call around a ~200 line internal. The three
+# tales_compare_distal() used to be one call around a ~200 line internal. The three
 # things it does are separable and each independently useful, so they are
 # exported separately and the wrapper composes them (restructuring-notes.md
 # 8.5b).
@@ -24,7 +24,7 @@
 #' Assign a domain code to every distinct part sequence
 #'
 #' @description
-#' Step 1 of [tales_compare()]. Gives each distinct `aa_seq` in `x` an
+#' Step 1 of [tales_compare_distal()]. Gives each distinct `aa_seq` in `x` an
 #' integer code, recorded in a `dom_code` column, so that the parts can be
 #' compared once each rather than once per occurrence.
 #'
@@ -52,7 +52,7 @@
 #'
 #' @param x A [tales] object carrying an `aa_seq` column.
 #' @return `x` with a `dom_code` column and a `dom_code_namespace` stamp.
-#' @seealso [tales_compare()], which runs all three steps;
+#' @seealso [tales_compare_distal()], which runs all three steps;
 #'   [tales_domain_codes()], which reads the code-to-sequence table back out
 #'   of an object that already has codes.
 #' @export
@@ -84,7 +84,7 @@ tales_assign_domain_codes <- function(x) {
 #' Pairwise distances between distinct TALE domains
 #'
 #' @description
-#' Step 2 of [tales_compare()]. Aligns every distinct domain sequence against
+#' Step 2 of [tales_compare_distal()]. Aligns every distinct domain sequence against
 #' every other and returns their pairwise dissimilarity.
 #'
 #' @details
@@ -142,7 +142,7 @@ tales_domain_distances <- function(x, aln_method = "DECIPHER", ncores = 1,
 #' Pairwise distances between TALE arrays
 #'
 #' @description
-#' Step 3 of [tales_compare()]. Aligns the arrays against each other as
+#' Step 3 of [tales_compare_distal()]. Aligns the arrays against each other as
 #' strings of domain codes, using the domain distances from step 2 as the
 #' cost of substituting one domain for another.
 #'
@@ -169,7 +169,7 @@ tales_domain_distances <- function(x, aln_method = "DECIPHER", ncores = 1,
 #' @param domain_distances A [domain_distances] object for the same `x`, as
 #'   returned by [tales_domain_distances()].
 #' @return A [tale_distances] object, keyed by `array_id`.
-#' @seealso [tales_compare()], which runs all three steps.
+#' @seealso [tales_compare_distal()], which runs all three steps.
 #' @export
 #' @family pairwise distances
 #' @examples
@@ -578,7 +578,7 @@ diag(identSubMat) <- 1
 
 #' Derive aa_seq from dna_seq by translation
 #'
-#' \code{tales_compare()} needs protein sequences, but an object may carry only
+#' \code{tales_compare_distal()} needs protein sequences, but an object may carry only
 #' the DNA. TALE part coding sequences are in frame, so translating them
 #' recovers \code{aa_seq} exactly.
 #'
@@ -615,18 +615,26 @@ diag(identSubMat) <- 1
 }
 
 
-#' Compute TALE and repeat relatedness
+#' Compute TALE and repeat relatedness by repeat-sequence alignment (DisTAL)
 #'
-#' Quantifies how TALE arrays, and the individual repeat units they are built
-#' from, relate to one another. An R re-implementation of the original DisTAL
-#' Perl program: it still uses the ARLEM binary for the repeat-array alignment
-#' step, but performs the rest with R support and parallelization, which makes
-#' it much faster (the exact speedup depends on \code{aln_method}).
+#' Quantifies how TALE arrays, and the individual domains they are built
+#' from -- repeats and the two termini alike -- relate to one another by
+#' aligning their domain sequences. An R re-implementation of the original
+#' DisTAL Perl program: it still uses the
+#' ARLEM binary for the repeat-array alignment step, but performs the rest
+#' with R support and parallelization, which makes it much faster (the exact
+#' speedup depends on \code{aln_method}).
+#'
+#' Named for the algorithm, not just historically: \code{\link{tales_compare_functal}}
+#' answers a related but different question -- relatedness by predicted DNA-binding
+#' specificity rather than by repeat sequence -- so both need a name that says
+#' which.
 #'
 #' Two products are irreducible and expensive — the pairwise protein alignment
 #' between repeat units, and ARLEM on the coded arrays. Everything else the
-#' former \code{tales_compare()} returned was a projection of its inputs, so this
-#' function returns only what cannot be recomputed cheaply.
+#' former \code{tales_compare()} (this function's name before the DisTAL/FuncTAL
+#' split) returned was a projection of its inputs, so this function returns
+#' only what cannot be recomputed cheaply.
 #'
 #' This is where \code{dom_code} is minted, over the whole set of parts
 #' supplied, and where the resulting objects are stamped with a namespace
@@ -662,17 +670,19 @@ diag(identSubMat) <- 1
 #' \emph{Journal of Bioinformatics and Computational Biology} \strong{7}(2),
 #' 287--308. \doi{10.1142/S0219720009004060}
 #'
-#' @seealso \code{\link{tales_group}} to cluster arrays from the returned
-#'   \code{tale_distances}.
+#' @seealso \code{\link{tales_group_hclust}}/\code{\link{tales_group_kmedoids}}
+#'   to cluster arrays from the returned \code{tale_distances};
+#'   \code{\link{tales_compare_functal}}, comparing TALEs by predicted DNA-binding
+#'   specificity instead of repeat-sequence relatedness.
 #' @export
 #' @family pairwise distances
 #' @examples
 #' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
 #'                                      package = "tantale"))
-#' cmp <- tales_compare(x)
+#' cmp <- tales_compare_distal(x)
 #' names(cmp)
 #' cmp$tale_distances
-tales_compare <- function(x, ncores = 1, aln_method = "DECIPHER",
+tales_compare_distal <- function(x, ncores = 1, aln_method = "DECIPHER",
                               conda_bin = "auto") {
   if (!is_tales(x)) {
     cli::cli_abort("{.arg x} must be a {.cls tales} object.",

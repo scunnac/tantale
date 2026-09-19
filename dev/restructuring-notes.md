@@ -321,6 +321,9 @@ implementable, not just closed. As of 2026-09-19, the actual picture:
 - **§14** `reshape2` -> `tidyr` migration -- a real but substantially
   bigger sibling to the `plyr` removal (18 call sites vs. 3), scoped
   but not started.
+- **§7.8** audit docs/website for "repeat" used where "domain" is meant --
+  one instance found and fixed by inspection 2026-09-19, the in-depth
+  sweep it implies not yet done. A dedicated read-through, not a grep.
 
 **Parked deliberately, not urgent:**
 
@@ -2585,6 +2588,42 @@ choice cannot decide it by side effect again. Whoever next changes
 `Version:` in `DESCRIPTION` should re-run
 `pkgdown:::dev_mode_auto(package_version(new_version))` and confirm it
 still says `"devel"`, the same check that caught this.
+
+### 7.8 Audit docs and website for "repeat" used where "domain" is meant **[P]**
+
+Caught by the maintainer proofreading a rename's diff, in a sentence this
+session had just written: `tales_compare_distal()`'s roxygen description
+said TALE arrays are built from "the individual repeat units", which
+elides the two termini -- exactly the conflation §9.0 exists to prevent.
+The package is explicit and enforced about this distinction elsewhere: a
+`dom_code` names a distinct **domain**, not a repeat, precisely *because*
+the N-/C-termini are parts like the repeats are and get codes too
+(`tales_assign_domain_codes()`'s own docs; CLAUDE.md's API conventions
+section). `tales_domain_distances()`/ARLEM operate on `dom_code`-keyed
+domains -- repeats and termini alike -- never on repeats alone, so prose
+that says "repeat" where the mechanism is really domain-general is not
+just imprecise, it describes different biology than the code does.
+
+**Fixed on sight, in the one sentence found:** `R/distalr.R`'s
+`tales_compare_distal()` description now says "domains ... repeats and the
+two termini alike". **Not yet done: the in-depth sweep this one instance
+implies.** Likely fertile ground, not yet checked instance by instance:
+- Every `@description`/`@details` block that talks about "repeats" in a
+  context that actually means all domains (`R/distalr.R`'s three
+  `tales_compare_distal()` steps are the most likely other offenders, given
+  they share authorship and phrasing with the sentence just fixed).
+- The pkgdown articles, especially `tale_classification.qmd` and
+  `tales_msa_class.qmd`, which talk at length about alignment and
+  relatedness in prose aimed at biologist readers (§7's own "readers are
+  biologists too" rule) -- exactly the audience for whom this conflation
+  would actually mislead, not just read informally.
+- README.md and the package-level `tantale.R` `@section` docs.
+
+Not scoped further than that -- a dedicated read-through is needed, not a
+grep (the word "repeat" is also correct in plenty of places: an actual
+repeat-type domain is still a repeat). Do this as its own pass, not folded
+into unrelated work, so it gets the attention a biology-correctness issue
+needs rather than being caught opportunistically one sentence at a time.
 
 ## 8. Tests — error conditions now covered **[V]**
 

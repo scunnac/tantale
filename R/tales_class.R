@@ -288,13 +288,13 @@ as_tales.default <- function(x, sep = "-", residue_col = c("rvd", "dom_code"), .
 #' \code{group} is dropped from the result whenever present on any input, not
 #' reconciled: it is a clustering result over one specific distance matrix
 #' and one specific set of arrays, so two "group 1"s from separate
-#' \code{\link{tales_group}} calls are not comparable, not merely at risk of
-#' colliding. Recompute it with \code{\link{tales_group}} after
-#' \code{\link{tales_compare}} on the bound result.
+#' \code{\link{tales_group_hclust}}/\code{\link{tales_group_kmedoids}} calls
+#' are not comparable, not merely at risk of colliding. Recompute it with
+#' either on the bound result, after re-running \code{\link{tales_compare_distal}}.
 #'
 #' \code{tale_distances}/\code{domain_distances} are untouched: this function
 #' only binds \code{tales} data. A companion distance table from either input
-#' does not describe the bound object -- re-run \code{\link{tales_compare}}
+#' does not describe the bound object -- re-run \code{\link{tales_compare_distal}}
 #' if you need one.
 #'
 #' @param ... Two or more \code{\link{tales}} objects (not \code{tales_msa}).
@@ -351,7 +351,7 @@ tales_bind <- function(..., on_namespace_mismatch = c("recode", "error"), saniti
   if (has_group) {
     cli::cli_inform(
       c("Dropping {.field group} from the bound result.",
-        "i" = "It is a clustering result over each input's own distances, not a comparable label. Recompute with {.fn tales_group} after {.fn tales_compare}."),
+        "i" = "It is a clustering result over each input's own distances, not a comparable label. Recompute with {.fn tales_group_hclust}/{.fn tales_group_kmedoids} after {.fn tales_compare_distal}."),
       class = c("tantale_message_bind_group_dropped", "tantale_message")
     )
     inputs <- lapply(inputs, function(x) {

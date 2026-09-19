@@ -16,7 +16,7 @@ callers <- list(
   tales_domain_codes     = function(x) tales_domain_codes(x),
   tales_rvd_strings      = function(x) tales_rvd_strings(x),
   plot.tales = function(x) plot(x),
-  tales_compare          = function(x) tales_compare(x)
+  tales_compare_distal   = function(x) tales_compare_distal(x)
 )
 
 test_that("every all_of column really is required", {

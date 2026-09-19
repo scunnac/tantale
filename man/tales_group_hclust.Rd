@@ -9,7 +9,7 @@ tales_group_hclust(x, tal_sim, k = NULL, plot_tree = FALSE)
 \arguments{
 \item{x}{A \link{tales} object -- the one whose comparison produced \code{tal_sim}.}
 
-\item{tal_sim}{A \link{tale_distances} object, as returned by \code{\link[=tales_compare]{tales_compare()}}.
+\item{tal_sim}{A \link{tale_distances} object, as returned by \code{\link[=tales_compare_distal]{tales_compare_distal()}}.
 A plain data frame using the legacy \code{TAL1}/\code{TAL2}/\code{Sim} column names is
 also accepted and coerced.}
 
@@ -55,13 +55,13 @@ height-based cut ambiguous.
 \examples{
 x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
                                      package = "tantale"))
-cmp <- tales_compare(x)
+cmp <- tales_compare_distal(x)
 grouped <- tales_group_hclust(cmp$tales, cmp$tale_distances, k = 2)
 unique(grouped[c("array_id", "group")])
 }
 \seealso{
 \code{\link[=tales_group_kmedoids]{tales_group_kmedoids()}}, the alternative method;
-\code{\link[=tales_compare]{tales_compare()}}, which produces both inputs.
+\code{\link[=tales_compare_distal]{tales_compare_distal()}}, which produces both inputs.
 
 Other pairwise distances:
 \code{\link[=as.matrix.pairwise_distances]{as.matrix.pairwise_distances()}},
@@ -70,7 +70,7 @@ Other pairwise distances:
 \code{\link[=is_pairwise_distances]{is_pairwise_distances()}},
 \code{\link[=pairwise_distances]{pairwise_distances()}},
 \code{\link[=tales_assign_domain_codes]{tales_assign_domain_codes()}},
-\code{\link[=tales_compare]{tales_compare()}},
+\code{\link[=tales_compare_distal]{tales_compare_distal()}},
 \code{\link[=tales_domain_distances]{tales_domain_distances()}},
 \code{\link[=tales_group_kmedoids]{tales_group_kmedoids()}},
 \code{\link[=tales_tale_distances]{tales_tale_distances()}},

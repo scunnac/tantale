@@ -7,14 +7,14 @@
 repeat_to_rvd_map_distalr(tale_parts)
 }
 \arguments{
-\item{tale_parts}{The tale_parts object in a \code{\link{tales_compare}} output.}
+\item{tale_parts}{The tale_parts object in a \code{\link{tales_compare_distal}} output.}
 }
 \value{
 A two columns repeatID - RVD data frame.
 }
 \description{
 Uses Distal repeat sequences and RVD sequences from a set of TALEs
-analyzed with the \code{\link{tales_compare}} function to return
+analyzed with the \code{\link{tales_compare_distal}} function to return
 the association between repeat ID and RVD.
 }
 \seealso{
