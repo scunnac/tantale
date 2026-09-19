@@ -837,14 +837,21 @@ makes the two operations below behave so differently:
     exactly the failure mode `dom_code_namespace` exists to catch, just
     reintroduced through the back door of an unreconciled companion table.
 
-**Implementation caveat, not yet checked against the code:** the cheap
-version of the bind case assumes `tales_compare()`'s backends
-(DECIPHER/Biostrings/mmseq2) can be asked to compare only two disjoint
-sets against each other (a rectangular run), reusing the within-input
-blocks unchanged. If they cannot today, an honest first implementation
-would recompute both distance tables fresh post-bind instead -- simpler,
-always correct, just not the cheap version. Worth checking before
-promising the optimisation in any doc this note ends up informing.
+**Decided, 2026-09-19: take the honest first cut.** Rather than the
+rectangular/reuse-the-within-input-blocks optimisation, `tales_bind()`
+does not touch `tale_distances`/`domain_distances` at all -- it binds
+the `tales` data only (`array_id`, `dom_code_namespace`, `group`
+invariants), and a caller who needs distances afterward just calls
+`tales_compare()` again on the bound result. Simpler, always correct by
+construction (it is the same code path as any other `tales_compare()`
+call, not a new incremental-merge code path to get right), and it
+sidesteps the rekey-then-fill complexity for `domain_distances` above
+entirely -- a fresh `tales_compare()` run naturally produces correctly
+numbered `dom_code`s and a complete distance table, so there is no
+rekeying step to implement or to get wrong. The optimisation (asking a
+backend for only the new cross-pairs, reusing the rest) stays a
+documented possibility for later, not something `tales_bind()`'s first
+version needs to attempt.
 
 **A related idea floated and rejected in the same conversation, recorded
 so it is not re-proposed identically later:** attaching `tale_distances`/
