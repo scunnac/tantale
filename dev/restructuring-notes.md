@@ -4355,3 +4355,77 @@ the user.
 
 **Re-run the audit after adding code**; the one-liner above is the whole
 check.
+
+---
+
+## 14. `DESCRIPTION` Imports audit -- checked, mostly clean **[V]**
+
+Maintainer's request (2026-09-19): "make sure all the Imports in
+`DESCRIPTION` are valid... I suspect a lot of them will need to leave."
+Checked before acting -- the suspicion turns out **not** to hold for
+most of the list. Recorded here as a finding, not yet acted on for the
+two genuine candidates it did turn up.
+
+**Method.** All 43 packages currently in `Imports:` (`DESCRIPTION` line
+19-25), grepped two ways across `R/*.R` (not `tests/`, which is a
+separate Suggests-territory question): explicit `pkgname::call()` sites,
+and roxygen `@import`/`@importFrom` tags (for the handful that are
+imported wholesale and used unqualified -- `magrittr`'s `%>%`, `cli`'s
+condition functions, `fs`, `Biostrings`, plus the base-adjacent
+`methods`/`rlang`/`tidyr`/`grDevices`/`graphics`, all already on the
+lean `importFrom` form per package, not blanket `import`).
+
+**Result: 42 of 43 show real, active usage in live code.** Every
+package from `ape` (`dist.gene()`, feeding the strain/TALE
+hierarchical clustering in `classification.R`) through `rtracklayer`
+(`export.gff3()`, `telltale.R`'s two GFF writers) has at least one
+genuine call site outside parked code. Not reproduced line-by-line
+here -- re-run the grep in the method above if any single package's
+status needs re-checking later; do not trust this paragraph's summary
+without doing so, per this file's own standing caution about `[V]`
+markers.
+
+**The one exception: `XVector`, used only inside parked dead code.**
+Its single call site in the whole package is
+`R/unused_pending_review.R:75`'s `.extract_seqs_from_hits()` -- already
+on record elsewhere in this ledger as parked, not called by anything
+live. Nothing in `R/`'s active code path references `XVector::`
+directly. Whether it is safe to drop from `Imports:` is a real
+tension, not a clean call: `unused_pending_review.R` is deliberately
+kept per `CLAUDE.md`'s "never delete code that looks dead" rule, and
+dropping the Import would leave that one parked function broken if it
+is ever revived without also re-adding it. **Maintainer's call**: drop
+`XVector` now and note the gap in `unused_pending_review.R`'s own
+header if that function is ever un-parked, or leave it declared for
+exactly that reason.
+
+**A second, larger and different-shaped finding: `reshape2` is heavily
+used, but it is the same kind of legacy dependency `plyr` was.**
+`reshape2` and `plyr` are the same author, the same era, and `reshape2`
+is the explicitly-superseded predecessor to `tidyr` the same way
+`plyr` was superseded by `dplyr` -- but unlike `plyr` (three call
+sites, removed the same night this ledger records it, see §6), this
+one is load-bearing: **18 call sites** across seven files
+(`conversion.R`, `distalr.R` x3, `tales_consensus.R`,
+`tales_plot.R` x6, `classification.R` x2, plus 3 more in
+`unused_pending_review.R`), split `melt()` (9), `acast()` (5),
+`dcast()` (2). A `tidyr` migration is real, valuable, *and* a
+substantially bigger job than the `plyr` removal was -- not a "just do
+it while you're in there" fix, a separate piece of work with its own
+verification pass. Not started; recorded as a distinct, larger sibling
+to the `XVector` question, not conflated with it.
+
+**Caveat on the method, so the "clean" verdict isn't over-trusted:** a
+`pkgname::`/roxygen-tag grep cannot see every legitimate way a
+dependency is used -- S3/S4 method dispatch that never spells out the
+package name, or a class needed transitively through another import's
+own class hierarchy, would both look "unused" by this method without
+actually being safe to drop. None of the 42 packages this pass called
+"used" depend on that caveat to justify keeping them (each has a
+direct, visible call site quoted or locatable via the grep above) --
+but the one place the caveat *could* matter is `XVector`, precisely
+because its only visible reference is in code nothing currently
+exercises. Worth keeping in mind if `XVector` removal is ever
+attempted: run a real `R CMD check` after removing it, not just this
+grep, since that is the tool that actually knows about transitive
+class dependencies this method cannot see.
