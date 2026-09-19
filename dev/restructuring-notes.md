@@ -2085,11 +2085,12 @@ maintainer pick by eye rather than by description. First picked
 `_pkgdown.yml`'s `template.bootswatch` is `sandstone`.
 `build_site()` re-run to apply it everywhere, not just the home page.
 
-### 7.6 README/index/docs follow-ups **[V]** three of four done
+### 7.6 README/index/docs follow-ups **[V]** three of five done
 
-Four items from the maintainer (2026-09-18). Three resolved fast in a
-follow-up pass the same night; the index page is genuinely not fast and
-stays parked.
+Five items from the maintainer, four on 2026-09-18 and a fifth
+(coverage badge) the next day. Three resolved fast in a follow-up pass
+the same night; the index page is genuine content-authoring and the
+coverage badge needs an infrastructure decision first -- both parked.
 
 - **A "use of large language models" section for `README.md` -- DONE.**
   Added, naming Claude/Anthropic and Sonnet 5 specifically (this ledger
@@ -2161,6 +2162,48 @@ stays parked.
   interfaces may still change" -- in tension with "stable" by
   lifecycle's own definition, not fixed since the maintainer's
   instruction was about the badge specifically.
+
+- **A test coverage badge for `README.md` -- requested 2026-09-19, not
+  started.** Checked before recording rather than assumed: there is
+  **no CI at all** in this repo (`.github/workflows/` does not exist),
+  `covr` is not in `DESCRIPTION`'s `Suggests`, and there is no
+  `codecov`/coverage config of any kind. `covr` itself is installed on
+  this machine, but that is a local fact about this development
+  environment, not something the repo can rely on. So "insert a badge"
+  is really two different jobs depending on what the maintainer wants,
+  and the choice needs making before either is worth starting:
+
+  - **A live badge** (the normal thing a coverage badge means: it
+    updates itself as the code changes) needs a CI workflow that runs
+    on push/PR, computes coverage with `covr::package_coverage()`, and
+    reports it somewhere a badge can read -- typically
+    `r-lib/actions`' `test-coverage.yaml` uploading to codecov.io (free
+    for open source, gives a `https://codecov.io/.../branch/main/graph/badge.svg`
+    URL), or a self-hosted equivalent. This means standing up GitHub
+    Actions for this repo for the first time, not just editing
+    `README.md` -- a real, if fairly standard, infrastructure task, and
+    worth asking whether the maintainer wants CI running tantale's
+    slower tests (real `mafft`/`nhmmer`/`mmseqs2`/AnnoTALE calls, per
+    the timings already on record throughout this ledger) on every
+    push, or a coverage-only workflow that skips those.
+  - **A static badge** (a number computed once locally and hand-edited
+    into a shields.io URL) is the fast version, but it goes stale the
+    moment the code changes and nothing in the repo would ever flag
+    that -- actively worse than no badge if it sits there reporting a
+    number nobody has checked in months, which is exactly the kind of
+    thing this whole pre-publication pass has been cleaning up
+    elsewhere (stale `[V]` markers, stale doc claims, §6/§7 generally).
+
+  Current coverage percentage is genuinely unknown -- deliberately not
+  run tonight, since `covr::package_coverage()` re-executes the full
+  suite under instrumentation and this package's slower tests (real
+  external-tool calls) make that a multi-minute-or-more operation, not
+  something to kick off just to fill in a ledger number. **Recommend
+  the live-badge route** if the maintainer is going to set up CI at all
+  before publication (worth having independent of the badge), otherwise
+  the static route with an explicit note in `README.md` of the date it
+  was measured, so a stale number is at least honestly labelled as
+  such.
 
 ### 7.7 Version scheme decided: 0.9.x pre-publication, 1.0.0 at release — DONE **[V]**
 
