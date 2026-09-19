@@ -295,7 +295,6 @@ implementable, not just closed. As of 2026-09-19, the actual picture:
 
 | § | what | options |
 |---|---|---|
-| **12b** | `functal()` cannot run; `Bio::Perl` is unobtainable | four options on record, none clearly best |
 | **7.5c** | package ships no traditional vignette (`VignetteBuilder` removed) | keep it this way, or reinstate a real vignette alongside the pkgdown articles |
 | **7.7** | the tracked release `docs/` is frozen at a 2023-10-04 build, now visibly stale next to a "stable" lifecycle badge | rebuild it before `1.0.0`, or leave it frozen deliberately until then |
 | **14** | `XVector` is imported but referenced only inside parked dead code | drop it (breaks `unused_pending_review.R`'s one parked function if ever revived without re-adding it) or keep it |
@@ -4688,7 +4687,7 @@ one match wins silently; several warn and name the choice; none is an error
 rather than a guess, since guessing means alignments from an unpinned MAFFT.
 `options(tantale.env_prefix = )` overrides everything.
 
-### 12b `functal()` cannot work, and cannot be fixed with a package **[A]**
+### 12b `functal()` cannot work, and cannot be fixed with a package -- REBUILT ON `universalmotif`, NOT PATCHED **[V]**
 
 Found while adding the Perl dependencies to the yaml.
 `FuncTAL_v.1.1.pl` does `use Bio::Perl` and calls `translate_as_string()`.
@@ -4708,6 +4707,169 @@ Options, all maintainer decisions: patch the one `translate_as_string()`
 call in the bundled script to use `Bio::PrimarySeq`; ship a vendored
 `Bio/Perl.pm`; document `functal()` as needing a hand-built perl; or retire
 it.
+
+**Decided and built, 2026-09-19: a new function, reimplemented in R -- not
+a port.** (The old `functal()`/vendored Perl tool itself was not touched or
+retired -- see the open question at the end of this section.) A fifth
+option, not on the list above: the vendored script
+already skips `Bio::Perl` entirely when handed a protein fasta rather than
+DNA (checked in the script itself, `FuncTAL_v.1.1.pl:148-158`), and the
+package already has a trusted DNA->protein translator
+(`.translate_parts()`, Biostrings-based). But once inside the script for
+this reason, a second question came up: what would it cost to port the
+*rest* of it? Read in full (816 lines) plus its bundled `Statistics.pm`
+(1094 lines, of which exactly one function, `Statistics::correlation()`,
+is ever called). Findings, before any code moved:
+
+- **~150 lines of fasta-parsing/RVD-extraction-by-motif-scanning is not
+  worth porting at all.** It exists only because the original tool has no
+  typed RVD representation to start from. `tales_rvd_strings()` is a
+  strictly better, already-tested replacement.
+- **The real algorithmic core** (`compareMotifs()`/`scoreComparison()`,
+  ~100 lines): slides two PWMs across every offset, zero-pads the
+  non-overlapping ends, Pearson-correlates the *whole padded, flattened*
+  matrix, keeps the best. Found a near-exact match in
+  `universalmotif::compare_motifs()` (Bioconductor, actively maintained,
+  `min.overlap` = the offset search, `tryRC` = the reverse-complement
+  comparison FuncTAL computes but -- checked -- never actually scores
+  against, dead code inherited from HOMER's original motif-comparer).
+- **Checked empirically, not assumed: `compare_motifs()`'s PCC does not
+  reproduce FuncTAL's numbers, and no parameter combination will.**
+  `compare_motifs()` correlates matched columns individually and combines
+  the per-column scores (`score.strat`); FuncTAL flattens the entire
+  padded region -- positions and the four bases together -- into one
+  vector and takes a single correlation over that. Reproduced on two real
+  RVD-derived PWMs: `0.360` (`compare_motifs()`) vs `0.489` (hand-rolled
+  FuncTAL-style). Different statistics, not two settings of one.
+- **FuncTAL computed a p-value (`Statistics::correlation()`'s second
+  return value) and threw it away**, never using or printing it --
+  significance was never actually surfaced by the original tool.
+- The tree step (`Statistics::R` shelling out to a real `R` process to run
+  `library(ape); bionj(); plot(); write.tree()`) already does in a
+  subprocess exactly what this package can do in-process.
+
+**Maintainer's call, given the numeric divergence: adopt
+`universalmotif`'s standard PCC rather than hand-replicate FuncTAL's own
+formula.** A modernised reimplementation, not a bug-for-bug port --
+`tales_compare_functal()`'s docs say so explicitly, since a user who
+remembers the original tool's numbers should not expect this one to
+reproduce them.
+
+**What shipped**, in `R/functal.R`:
+
+- `tales_compare_functal(x, method = "PCC", tryRC = FALSE, min.overlap = 1,
+  normalise.scores = TRUE, score.strat = "a.mean", nthreads = 1)`. Builds
+  one PWM per array from `tales_rvd_strings(x)` (repeat RVDs only, in
+  order -- termini were never scored by FuncTAL either, since its
+  RVD-extraction only ever found repeats), compares with
+  `universalmotif::compare_motifs()`, returns a
+  `tale_distances` object -- interchangeable with
+  `tales_compare_distal()`'s, so it plugs directly into
+  `tales_group_hclust()`/`tales_group_kmedoids()` without any adapter.
+  Handles both similarity-type and distance-type `method`s correctly
+  (`dissim = 1 - score` only for the six similarity metrics
+  `compare_motifs()` itself lists as such).
+- Deliberately narrow interface: of `compare_motifs()`'s ~15 parameters,
+  six are exposed, chosen for what actually varies across TALE arrays
+  (wildly differing repeat counts) --
+  `min.overlap = 1` (not the upstream default of 6, which would silently
+  refuse to compare short arrays) and `normalise.scores = TRUE` (arrays
+  differ enough in length that an unnormalised score would favour a short
+  array mostly overhanging a long one) are the two departures from
+  `compare_motifs()`'s own defaults, each documented with why. `tryRC`
+  defaults to `FALSE`: an RVD array's specificity code has a fixed
+  reading direction, so reverse-complement comparison asks a different,
+  narrower question (do these two TALEs target opposite strands) worth
+  asking on purpose, not folded in silently.
+- **A real bug caught while building the "no repeats" guard**:
+  `tales_rvd_strings()` silently *omits* an array with zero repeats (all
+  termini) from its output rather than erroring, since it has nothing
+  left to render for that one array but plenty for the object as a whole
+  -- fine for a projection, not fine for a comparison that must cover
+  every array it was given. `tales_compare_functal()` now checks
+  `setdiff(unique(x$array_id), names(rvd_strings))` explicitly and aborts
+  naming the dropped array(s) (`tantale_error_functal_empty`) rather than
+  silently comparing over fewer arrays than it was handed. Worth
+  rechecking whether any other `tales_rvd_strings()`/`tales_coded_strings()`
+  consumer has the same silent-drop exposure -- not audited beyond this
+  one call site.
+- **`rvd_dna_specificity`, a new exported, documented package dataset**
+  (`R/data.R`, built by `data-raw/rvd_dna_specificity.R` from QueTAL's own
+  `Info/2014mat18`, values unchanged) -- `tales_compare_functal()`'s only
+  consumer. Exported rather than kept as internal `sysdata.rda` (the
+  precedent `rvdSimDf`/`rvdToNtAssocMat` set): a maintainer's call, made
+  because this table is more central to interpreting
+  `tales_compare_functal()`'s results than `rvdSimDf` is to
+  `tales_align()`'s, and worth being inspectable/citable rather than a
+  hidden implementation detail. Prompted by the maintainer noticing the
+  conceptual overlap with `rvdSimDf` mid-review -- checked, not assumed,
+  that they are genuinely different objects: `rvdSimDf` is a *derived*
+  RVD-vs-RVD similarity (Spearman correlation between two RVDs' base
+  profiles, from TALVEZ's 17-RVD `mat1`) used to score repeat
+  *substitutions* during alignment; `rvd_dna_specificity` is the *raw*
+  per-RVD base preference (404 RVDs, from QueTAL FuncTAL, a different,
+  larger, independently-curated table -- the two agree closely but not
+  exactly where they overlap, e.g. `HD`: TALVEZ `10 50 0 5` vs QueTAL
+  `15 50 5 5`) used to build a whole array's PWM for comparison. Not
+  interchangeable, one level apart in the pipeline.
+- Tests: `tests/testthat/test_tales_compare_functal.R`, 17 cases,
+  including one that reproduces the `0.360` vs `0.489` divergence finding
+  directly rather than only asserting it in prose, and one pinning the
+  silent-array-drop fix. All passing.
+
+**Follow-up tasks worth scoping separately** (from reading
+`?compare_motifs` and its "Motif comparisons and P-values" vignette in
+full while building this -- not investigated further, recorded so they
+are not lost):
+
+- **`motif_tree()`** -- a one-line `ggtree`-based visualisation straight
+  from a list of motifs, using every `compare_motifs()` option. Could
+  give `tales_compare_functal()` a plotting convenience the way
+  `tales_group_hclust()` has one for DisTAL distances, without
+  reimplementing tree-drawing.
+- **`view_motifs()`** -- renders a classic sequence-logo-style plot of a
+  PWM. FuncTAL never visualised the specificity model itself, only the
+  resulting distance tree; this would be a genuinely new capability, not
+  a replacement for anything.
+- **Significance testing** (`compare.to`, `max.p`/`max.e`,
+  `motif_pvalue()`, `make_DBscores()`): FuncTAL computed a p-value and
+  discarded it; `universalmotif` has a real, usable pipeline for this,
+  but its default precomputed null distributions are calibrated on real
+  JASPAR transcription-factor motifs, not TALE-RVD-derived PWMs -- using
+  them as-is would be a plausible-looking but uncalibrated significance
+  claim. `make_DBscores()` could build a TALE-specific null distribution
+  instead; worth scoping as its own piece of work, not assumed safe to
+  turn on by default.
+- **`scan_sequences()` for target prediction.** These are genuine
+  DNA-binding PWMs, so `universalmotif::scan_sequences()` could search a
+  promoter/genomic sequence for predicted TALE binding sites directly
+  from the same PWM this function already builds -- a modern,
+  statistically-grounded angle on what `tales_predict_targets()`
+  (`R/target_predictions.R`) does today. Worth a dedicated look at
+  whether it complements or could eventually replace part of that
+  pipeline, not decided here.
+- **`merge_motifs()`** -- also built on `compare_motifs()`. Could produce
+  a consensus binding-specificity model for a group of related TALEs
+  (from `tales_group_hclust()`/`tales_group_kmedoids()`), complementing
+  what `tales_consensus()` already does at the RVD/`dom_code` sequence
+  layer, but at the PWM/binding-site layer instead.
+- **`average_ic()`** -- the vignette's own recommended guard against
+  `min.mean.ic`-driven comparison failures on low-information-content
+  motifs (an array whose PWM is dominated by `"XX"` unknown-RVD rows,
+  which are flat/zero-information by construction). Not currently
+  checked for; worth a diagnostic warning at minimum.
+
+**Genuinely still open, not decided this session:** what happens to the
+old `functal()` R wrapper (`R/AnnoTALE_QueTAL_functions_library.R:132`)
+and the vendored Perl tool it calls
+(`inst/tools/QueTAL_v1.1/FuncTAL/`). Neither was touched -- `functal()`
+still exists, still exported, and will still fail the moment it hits
+`Bio::Perl` on a DNA input. The maintainer agreed to build
+`tales_compare_functal()` as the new path; retiring the old one (removed
+outright per this project's no-alias convention, parked in
+`unused_pending_review.R`/`inst/legacy/` per the standing rule, or kept
+as a documented "needs your own perl+BioPerl" escape hatch) is a separate
+call nobody has made yet.
 
 Also corrected while here: the commented module list at the bottom of
 `R/tantale_conda_env.R` names `Algorithm::NeedlemanWunsch` and

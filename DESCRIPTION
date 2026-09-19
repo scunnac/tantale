@@ -19,7 +19,7 @@ Imports:
     magrittr, fs, dplyr, ggplot2, tibble, stringr, readr, glue, reshape2, XVector,
     biovizBase, IRanges, Biostrings, pwalign, GenomicRanges, BSgenome, plyranges,
     Rsamtools, systemPipeR, DECIPHER,
-    ape, ggtree, tidytree, aplot,
+    ape, ggtree, tidytree, aplot, universalmotif,
     gplots, cluster, viridis, ggnewscale,
     reticulate, cli, digest, methods, rlang, tidyr, stats, utils, grDevices, graphics,
     BiocGenerics, BiocParallel, GenomeInfoDb, S4Vectors, rtracklayer
@@ -39,3 +39,4 @@ OS_type: unix
 biocViews: Software
 Config/roxygen2/version: 8.0.0
 Roxygen: list(markdown = TRUE)
+LazyData: true
