@@ -798,6 +798,78 @@ union. Wrap it with the two invariant checks that matter:
   "group 1"s from different runs colliding once combined. Worth requiring
   disjoint labels, or a relabel option, same spirit as the `array_id` check.
 
+#### Conceptual note: which operations invalidate a `tales`'s distance tables
+
+Maintainer's reasoning (2026-09-19), worked through together and agreed --
+recorded because it is general, not specific to `tales_bind()`, and
+worth surfacing somewhere a user would find it (website article or a
+`@details` block), not just buried in this ledger. Applies to
+`tale_distances` and `domain_distances` wherever a `tales` object and a
+companion distance table are being kept around together -- `tales_compare()`'s
+return list today, or any future container that bundles them.
+
+A companion distance table is keyed by *identity* (which `array_id`, which
+`dom_code`), not by row position, and a distance value is a property of
+that identity, not of the `tales` object's current shape. That is what
+makes the two operations below behave so differently:
+
+- **Subsetting -- cheap, no recomputation.** Dropping rows only changes
+  what is *in scope*; it does not change the distance between two survivors.
+  Filtering the companion table to pairs where both sides still exist in
+  the subsetted object is sufficient and exact, for both `tale_distances`
+  and `domain_distances`.
+- **Binding -- genuinely needs new computation, and the two tables are not
+  symmetric.** Filed as a refinement to "recompute the missing
+  comparisons," not a disagreement with it:
+  - `tale_distances`: `array_id` is never renumbered across a bind (its
+    uniqueness is enforced, not reassigned -- see the invariant above), so
+    every within-input distance stays valid under its existing key.
+    Binding genuinely is "add the array-A-vs-array-B pairs that were never
+    computed" and nothing more.
+  - `domain_distances` is not the same shape of problem. Reconciling the
+    `dom_code_namespace` mismatch (see the bullet above) by recoding via
+    `tales_assign_domain_codes()` over the *unioned* `aa_seq` reassigns
+    `dom_code` wholesale -- a domain that was `5` in one input is not
+    reliably still `5` afterwards. So every *existing* `domain_distances`
+    row from both inputs needs **rekeying to the new numbering first**,
+    and only then do the new cross-pairs get unioned in. Skipping the
+    rekey step would silently corrupt the table against the new codes --
+    exactly the failure mode `dom_code_namespace` exists to catch, just
+    reintroduced through the back door of an unreconciled companion table.
+
+**Implementation caveat, not yet checked against the code:** the cheap
+version of the bind case assumes `tales_compare()`'s backends
+(DECIPHER/Biostrings/mmseq2) can be asked to compare only two disjoint
+sets against each other (a rectangular run), reusing the within-input
+blocks unchanged. If they cannot today, an honest first implementation
+would recompute both distance tables fresh post-bind instead -- simpler,
+always correct, just not the cheap version. Worth checking before
+promising the optimisation in any doc this note ends up informing.
+
+**A related idea floated and rejected in the same conversation, recorded
+so it is not re-proposed identically later:** attaching `tale_distances`/
+`domain_distances` as slots directly on the `tales` object (so
+`tales_group()`/`plot()` would not need them passed separately) was
+suggested, and the counter-argument that won was exactly the reasoning
+above -- a slot like that would need every tibble verb (subsetting,
+`mutate()`, `tales_bind()`) to know how to keep it honest, which none of
+them do today, and the existing design already has a deliberate
+checkpoint for this (`tales_group(x, tal_sim)` takes the distances
+as an explicit argument specifically so the correspondence between `x`
+and the distances can be checked once, at the call). A lighter
+alternative -- giving `tales_compare()`'s existing return value (already
+`list(tales=, tale_distances=, domain_distances=)`) a real class, e.g.
+`tales_comparison`, so it reads better without teaching `tales` itself to
+carry cached derived data -- was also raised, but **does not solve
+`tales_bind()`**: bundling the three together does not make reconciling
+two objects' worth of distance data any easier, it only relocates the
+same rekey-then-fill problem to a differently-named function. The two
+ideas are orthogonal: `tales_comparison` (if ever built) is a display/
+ergonomics convenience over `tales_compare()`'s output; `tales_bind()`
+(if ever built) is what would still have to do the rekey-then-fill work
+above, on bare `tales` objects, regardless of whether `tales_comparison`
+exists.
+
 **Naming: `tales_bind()`, not `c.tales()`.** Two reasons, independent of the
 namespace question above. First, base `c()` S3 dispatch is leaky -- it only
 fires cleanly when every argument shares the class, and mixing a `tales`
