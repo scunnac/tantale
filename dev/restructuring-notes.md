@@ -656,7 +656,7 @@ cases.
 
 ---
 
-### 5.2 Talome-wide MSA summary plot **[P]**
+### 5.2 Talome-wide MSA summary plot **[P]** — parked for much later, leaning A
 
 The idea: show every group's alignment in one figure, faceted by group, using
 `plot_tales_composition(position = "alignment")`. That layout puts domain type
@@ -691,6 +691,16 @@ B is reachable today: demoting a `tales_msa` with `as_tales()` keeps
 currently uses `scales = "free_y", space = "free"`, which **shares** the x
 axis -- per-group alignments need `free_x` too, or the narrower group is padded
 out to the wider one's width.
+
+**Maintainer's read, 2026-09-19: the arguments for A are quite strong.**
+Not a formal decision to build A -- a leaning, recorded so the next
+person to pick this up starts from it rather than re-litigating A vs B
+from scratch. **Whole thing parked for much later**, not next in line;
+§11 (`tales_group()` rework) is the actual next §5-adjacent item. One
+concrete consequence of leaning A, already noted below: if A is what
+gets built, the group-aware `tales_align()` idea's dependency on a
+`tales`-level bind method evaporates -- "if A wins ... no bind method
+is needed at all."
 
 #### Decided: how `group` gets populated **[V]**
 
