@@ -32,6 +32,7 @@ Other tales projections:
 \code{\link[=repeat_to_rvd_map_distalr]{repeat_to_rvd_map_distalr()}},
 \code{\link[=tales_coded_strings]{tales_coded_strings()}},
 \code{\link[=tales_domain_codes]{tales_domain_codes()}},
-\code{\link[=tales_rvd_strings]{tales_rvd_strings()}}
+\code{\link[=tales_rvd_strings]{tales_rvd_strings()}},
+\code{\link[=tales_to_universalmotif]{tales_to_universalmotif()}}
 }
 \concept{tales projections}

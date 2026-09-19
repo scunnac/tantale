@@ -1,13 +1,65 @@
-# Tests for tales_compare_functal(). See ledger §12b: a reimplementation of
-# QueTAL's FuncTAL on universalmotif, not a port -- results are expected to
-# differ from the original Perl tool, verified empirically before writing
-# the function, not assumed.
+# Tests for tales_compare_functal() and tales_to_universalmotif(). See
+# ledger §12b: a reimplementation of QueTAL's FuncTAL on universalmotif, not
+# a port -- results are expected to differ from the original Perl tool,
+# verified empirically before writing the function, not assumed.
 
 example_tales <- function() {
   suppressWarnings(
     tales_from_telltale(test_path("data_for_tests", "tellTaleExampleOutput"))
   )
 }
+
+
+#### tales_to_universalmotif() ####
+
+test_that("one motif per array, named by array_id", {
+  x <- example_tales()
+  motifs <- tales_to_universalmotif(x)
+  expect_type(motifs, "list")
+  expect_setequal(names(motifs), unique(x$array_id))
+  expect_true(all(vapply(motifs, methods::is, logical(1), "universalmotif")))
+})
+
+test_that("PWM width matches the array's repeat count, termini excluded", {
+  x <- example_tales()
+  motifs <- tales_to_universalmotif(x)
+  rvd <- tales_rvd_strings(x) # rvd_only = TRUE default: repeats only
+  for (id in names(motifs)) {
+    n_repeats <- length(strsplit(as.character(rvd[id]), "-", fixed = TRUE)[[1]])
+    expect_equal(ncol(motifs[[id]]["motif"]), n_repeats, info = id)
+  }
+})
+
+test_that("needs a tales object", {
+  expect_error(tales_to_universalmotif(data.frame(a = 1)),
+               class = "tantale_error_tales_type")
+})
+
+test_that("an all-terminus array errors naming which one, rather than being dropped", {
+  df <- data.frame(
+    array_id = c("A1", "A1", "A2"), position_in_array = c(1L, 2L, 1L),
+    domain_type = c("N-terminus", "repeat", "N-terminus"),
+    rvd = c("NTERM", "NI", "NTERM")
+  )
+  x <- suppressWarnings(tales(df))
+  err <- expect_error(tales_to_universalmotif(x), class = "tantale_error_no_repeats")
+  expect_match(conditionMessage(err), "A2")
+})
+
+test_that("tales_compare_functal() is exactly compare_motifs() on this conversion's output", {
+  # Pins the refactor: tales_compare_functal() must compose
+  # tales_to_universalmotif() rather than duplicate PWM-building inline.
+  x <- example_tales()
+  motifs <- tales_to_universalmotif(x)
+  sim <- universalmotif::compare_motifs(motifs, method = "PCC", tryRC = FALSE,
+                                        min.overlap = 1, normalise.scores = TRUE,
+                                        score.strat = "a.mean", nthreads = 1)
+  out <- tales_compare_functal(x)
+  expected <- 1 - as.vector(sim)
+  actual <- out$dissim[match(paste(rownames(sim)[row(sim)], rownames(sim)[col(sim)]),
+                             paste(out$id1, out$id2))]
+  expect_equal(actual, expected)
+})
 
 
 #### shape ####
@@ -79,7 +131,7 @@ test_that("an all-terminus array (no repeats) errors rather than being silently 
     rvd = c("NTERM", "NI", "NTERM")
   )
   x <- suppressWarnings(tales(df))
-  err <- expect_error(tales_compare_functal(x), class = "tantale_error_functal_empty")
+  err <- expect_error(tales_compare_functal(x), class = "tantale_error_no_repeats")
   expect_match(conditionMessage(err), "A2")
 })
 

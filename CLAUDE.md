@@ -125,19 +125,24 @@ stamp exists to catch cross-run mixing, and is enforced, not advisory.
 
 ## Where things stand
 
-`dev/restructuring-notes.md` is ~4700 lines. **Read its `START HERE` block,
-not the whole file.** As of 2026-09-19 (later in the day) it lists four
-items needing the maintainer's decision (§12b, §7.5c, §7.7, §14).
-`tales_bind()` (§5.2) and `tales_group()`'s split into
-`tales_group_hclust()`/`tales_group_kmedoids()` (§11) are both now built.
+`dev/restructuring-notes.md` is ~5080 lines. **Read its `START HERE` block,
+not the whole file.** As of 2026-09-19 (later in the day) it lists three
+items needing the maintainer's decision (§7.5c, §7.7, §14 the `XVector`
+import). `tales_bind()` (§5.2), `tales_group()`'s split into
+`tales_group_hclust()`/`tales_group_kmedoids()` (§11), `tales_compare()`'s
+rename to `tales_compare_distal()`, and a new
+`tales_compare_functal()`/`tales_to_universalmotif()` pair replacing the
+unfixable Perl `functal()` for that one path (§12b) are all now built.
 
 **The website/vignette work (§7.5) is *not* still fully done** despite
-earlier notes saying so: §11's split broke the runnable code in three
-articles (`tale_classification.qmd` most substantially -- a whole section
-needs rewriting, not a rename) that were thoroughly rewritten just the
-session before. "Done" in this file always means "done for the API as it
-stood that session," never "still current" -- see §11's "Blast radius" note
-for the specifics before touching those articles.
+earlier notes saying so: the same five articles, thoroughly rewritten on
+2026-09-18, now call **two** retired names --
+`tales_group()` (§11) and `tales_compare()` (§12b) -- with
+`tale_classification.qmd` hit worst on both (real runnable chunks, plus a
+whole section whose prose no longer matches the API). "Done" in this file
+always means "done for the API as it stood that session," never "still
+current" -- see the "Vignette breakage" note in `START HERE` for the
+consolidated specifics before touching those articles.
 
 Sections are kept in ascending numeric order within each chapter (fixed
 2026-09-17, after §7 and §8 had drifted into add-order). Content only, never

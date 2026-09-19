@@ -33,6 +33,72 @@
   m
 }
 
+#' Convert a tales object to a list of predicted DNA-binding-specificity PWMs
+#'
+#' One \code{\link[universalmotif:motif-class]{universalmotif}} position
+#' weight matrix per array, built by looking up each repeat's RVD in
+#' \code{\link{rvd_dna_specificity}} and stacking the rows in repeat order.
+#' The conversion \code{\link{tales_compare_functal}} is built on, exposed on
+#' its own so any \code{universalmotif} function -- \code{compare_motifs()},
+#' \code{motif_tree()}, \code{view_motifs()}, \code{scan_sequences()},
+#' \code{merge_motifs()}, ... -- can be run directly on real TALE binding
+#' models, not just the one comparison \code{tales_compare_functal()} does
+#' with them. Ledger §12b lists several of these as concrete follow-ups.
+#'
+#' @details
+#' Only \code{rvd}, in repeat order, is used (via
+#' \code{\link{tales_rvd_strings}}, which drops the two termini by default --
+#' DNA-binding specificity is a property of the repeat region; QueTAL
+#' FuncTAL, the tool this table comes from, never scored termini either,
+#' since its own RVD extraction only ever found repeats). An RVD absent from
+#' \code{\link{rvd_dna_specificity}} is scored with a flat, uninformative row
+#' rather than dropped, so an unusual RVD costs a comparison specificity
+#' rather than an error.
+#'
+#' @param x A \code{\link{tales}} object carrying an \code{rvd} column.
+#' @return A named list of \code{universalmotif} objects, one per array,
+#'   named by \code{array_id} -- a plain list, since that is what
+#'   \code{compare_motifs()}/\code{motif_tree()} themselves accept.
+#' @seealso [tales_compare_functal()], the one comparison built on this;
+#'   [tales_rvd_strings()], the sibling projection at the string layer.
+#' @export
+#' @family tales projections
+#' @examples
+#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
+#'                                      package = "tantale"))
+#' motifs <- tales_to_universalmotif(x)
+#' motifs[[1]]
+tales_to_universalmotif <- function(x) {
+  if (!is_tales(x)) {
+    cli::cli_abort("{.arg x} must be a {.cls tales} object.",
+                   class = c("tantale_error_tales_type", "tantale_error"))
+  }
+
+  rvd_strings <- tales_rvd_strings(x)
+  # tales_rvd_strings() silently drops an array with zero repeats (all
+  # termini) rather than erroring -- it has nothing left to render for that
+  # one array, but plenty for the object as a whole. A caller must not
+  # silently get back fewer motifs than arrays it gave.
+  missing_arrays <- setdiff(unique(x$array_id), names(rvd_strings))
+  if (length(missing_arrays) > 0L) {
+    cli::cli_abort(
+      c("Every array needs at least one repeat to build a specificity PWM.",
+        "x" = "No repeats found for {.val {utils::head(missing_arrays, 5)}}."),
+      class = c("tantale_error_no_repeats", "tantale_error")
+    )
+  }
+  rvd_list <- strsplit(as.character(rvd_strings), "-", fixed = TRUE)
+  names(rvd_list) <- names(rvd_strings)
+
+  stats::setNames(
+    lapply(names(rvd_list), function(id) {
+      universalmotif::create_motif(.functal_pwm(rvd_list[[id]]),
+                                   alphabet = "DNA", type = "PCM", name = id)
+    }),
+    names(rvd_list)
+  )
+}
+
 # Metrics compare_motifs() reports as similarities (higher = more similar);
 # everything else it reports as a distance already (closer to zero = more
 # similar) -- see ?compare_motifs. Needed to build a `dissim` column that
@@ -63,13 +129,11 @@
 #' Verified empirically to disagree on real data before writing this
 #' function, not assumed to differ only in magnitude.
 #'
-#' Only \code{rvd}, in repeat order, drives the comparison (via
-#' \code{\link{tales_rvd_strings}}, which drops the two termini by default --
-#' DNA-binding specificity is a property of the repeat region, and FuncTAL
-#' itself never scored termini either, since its RVD extraction only ever
-#' found repeats). An RVD absent from \code{\link{rvd_dna_specificity}} is
-#' scored with a flat, uninformative row rather than dropped, so an unusual
-#' RVD costs a comparison specificity rather than an error.
+#' The PWMs themselves are built by \code{\link{tales_to_universalmotif}} --
+#' see its docs for exactly what drives them (only \code{rvd}, in repeat
+#' order, termini dropped) and how an RVD outside
+#' \code{\link{rvd_dna_specificity}} is handled. That conversion is exposed
+#' on its own precisely so it is not locked inside this one comparison.
 #'
 #' Only a handful of \code{\link[universalmotif]{compare_motifs}}'s many
 #' options are exposed here, chosen for what actually varies across TALE
@@ -110,7 +174,11 @@
 #'   \code{\link{tales_group_hclust}}/\code{\link{tales_group_kmedoids}}.
 #'   No tree is built here, matching \code{tales_compare_distal()}'s own
 #'   division of labour: compare here, cluster/tree there.
-#' @seealso [tales_compare_distal()], comparing by repeat sequence instead.
+#' @seealso [tales_compare_distal()], comparing by repeat sequence instead;
+#'   [tales_to_universalmotif()], the conversion step this composes --
+#'   called directly, any other \code{universalmotif} function (
+#'   \code{motif_tree()}, \code{view_motifs()}, \code{scan_sequences()},
+#'   \code{merge_motifs()}, ...) can be run on the same PWMs.
 #' @export
 #' @family pairwise distances
 #' @examples
@@ -121,31 +189,7 @@
 tales_compare_functal <- function(x, method = "PCC", tryRC = FALSE,
                                   min.overlap = 1, normalise.scores = TRUE,
                                   score.strat = "a.mean", nthreads = 1) {
-  if (!is_tales(x)) {
-    cli::cli_abort("{.arg x} must be a {.cls tales} object.",
-                   class = c("tantale_error_tales_type", "tantale_error"))
-  }
-
-  rvd_strings <- tales_rvd_strings(x)
-  # tales_rvd_strings() silently drops an array with zero repeats (all
-  # termini) rather than erroring -- it has nothing left to render for that
-  # one array, but plenty for the object as a whole. A comparison must not
-  # silently proceed over fewer arrays than it was given.
-  missing_arrays <- setdiff(unique(x$array_id), names(rvd_strings))
-  if (length(missing_arrays) > 0L) {
-    cli::cli_abort(
-      c("Every array needs at least one repeat to build a specificity PWM.",
-        "x" = "No repeats found for {.val {utils::head(missing_arrays, 5)}}."),
-      class = c("tantale_error_functal_empty", "tantale_error")
-    )
-  }
-  rvd_list <- strsplit(as.character(rvd_strings), "-", fixed = TRUE)
-  names(rvd_list) <- names(rvd_strings)
-
-  motifs <- lapply(names(rvd_list), function(id) {
-    universalmotif::create_motif(.functal_pwm(rvd_list[[id]]),
-                                 alphabet = "DNA", type = "PCM", name = id)
-  })
+  motifs <- tales_to_universalmotif(x)
 
   sim <- universalmotif::compare_motifs(
     motifs, method = method, tryRC = tryRC, min.overlap = min.overlap,

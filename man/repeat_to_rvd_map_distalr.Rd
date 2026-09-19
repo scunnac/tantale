@@ -23,6 +23,7 @@ Other tales projections:
 \code{\link[=tale_parts_to_rvd]{tale_parts_to_rvd()}},
 \code{\link[=tales_coded_strings]{tales_coded_strings()}},
 \code{\link[=tales_domain_codes]{tales_domain_codes()}},
-\code{\link[=tales_rvd_strings]{tales_rvd_strings()}}
+\code{\link[=tales_rvd_strings]{tales_rvd_strings()}},
+\code{\link[=tales_to_universalmotif]{tales_to_universalmotif()}}
 }
 \concept{tales projections}

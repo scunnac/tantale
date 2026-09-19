@@ -78,13 +78,11 @@ columns individually and combines the column scores (\code{score.strat}).
 Verified empirically to disagree on real data before writing this
 function, not assumed to differ only in magnitude.
 
-Only \code{rvd}, in repeat order, drives the comparison (via
-\code{\link{tales_rvd_strings}}, which drops the two termini by default --
-DNA-binding specificity is a property of the repeat region, and FuncTAL
-itself never scored termini either, since its RVD extraction only ever
-found repeats). An RVD absent from \code{\link{rvd_dna_specificity}} is
-scored with a flat, uninformative row rather than dropped, so an unusual
-RVD costs a comparison specificity rather than an error.
+The PWMs themselves are built by \code{\link{tales_to_universalmotif}} --
+see its docs for exactly what drives them (only \code{rvd}, in repeat
+order, termini dropped) and how an RVD outside
+\code{\link{rvd_dna_specificity}} is handled. That conversion is exposed
+on its own precisely so it is not locked inside this one comparison.
 
 Only a handful of \code{\link[universalmotif]{compare_motifs}}'s many
 options are exposed here, chosen for what actually varies across TALE
@@ -99,7 +97,11 @@ fn <- tales_compare_functal(x)
 fn
 }
 \seealso{
-\code{\link[=tales_compare_distal]{tales_compare_distal()}}, comparing by repeat sequence instead.
+\code{\link[=tales_compare_distal]{tales_compare_distal()}}, comparing by repeat sequence instead;
+\code{\link[=tales_to_universalmotif]{tales_to_universalmotif()}}, the conversion step this composes --
+called directly, any other \code{universalmotif} function (
+\code{motif_tree()}, \code{view_motifs()}, \code{scan_sequences()},
+\code{merge_motifs()}, ...) can be run on the same PWMs.
 
 Other pairwise distances:
 \code{\link[=as.matrix.pairwise_distances]{as.matrix.pairwise_distances()}},

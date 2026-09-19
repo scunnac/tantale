@@ -3,9 +3,11 @@
 Working document for the pre-publication overhaul. Records findings, agreed
 actions and deferred questions so they don't live only in conversation.
 
-Branch: `dev`. Last updated: 2026-09-19. Pushed as of commit `464e1fd`;
-six further commits since then (design/ledger only, no code) not yet
-pushed -- see the 2026-09-19 session summary below.
+Branch: `dev`. Last updated: 2026-09-19 (later in the day). Pushed as of
+commit `2d01208` (the `tales_group()` split, §11); two further commits
+since then -- `69def0e` (the `tales_compare_distal()` rename, §12b) and
+`383e5b3` (`tales_compare_functal()`/`tales_to_universalmotif()`, §12b) --
+not yet pushed.
 
 Status markers used below:
 
@@ -18,7 +20,7 @@ Status markers used below:
 
 ## START HERE
 
-This file is ~4640 lines and is a record, not a reading list. **Do not
+This file is ~5080 lines and is a record, not a reading list. **Do not
 read it end to end.** Read `CLAUDE.md` (it loads automatically), then
 only the sections below that bear on the task in hand.
 
@@ -299,18 +301,27 @@ implementable, not just closed. As of 2026-09-19, the actual picture:
 | **7.7** | the tracked release `docs/` is frozen at a 2023-10-04 build, now visibly stale next to a "stable" lifecycle badge | rebuild it before `1.0.0`, or leave it frozen deliberately until then |
 | **14** | `XVector` is imported but referenced only inside parked dead code | drop it (breaks `unused_pending_review.R`'s one parked function if ever revived without re-adding it) or keep it |
 
+**Done this session, no longer scoped work:** `tales_bind()` (§5.2),
+`tales_group()` split into `tales_group_hclust()`/`tales_group_kmedoids()`
+(§11), `tales_compare()` renamed to `tales_compare_distal()`, and
+`tales_compare_functal()`/`tales_to_universalmotif()` built (§12b). See
+each section for its as-built record -- not reproduced again here.
+
 **Scoped work, ready to pick up, no decision blocking it:**
 
-- ~~**`tales_bind()`** (§5.2's "Implementation plan")~~ -- **built
-  2026-09-19, see §5.2's "Implementation plan" for the as-built record.**
-  §11 is next in line now.
-- **§11** rework `tales_group()` -- flagged "next" once §7.5's articles
-  (the prerequisite) landed, which they have.
-- **§6** `tales_group()`'s hclust dendrogram still spams an
-  `ape`/`ggtree` "Invalid edge matrix" warning on some tree shapes --
-  dodged in the articles by dropping the outgroup genome, never fixed
-  at the source. Needs a reproduction with a small hclust object, then
-  a decision: guard or suppress.
+- **§6** `tales_group_hclust()`'s dendrogram still spams an `ape`/`ggtree`
+  "Invalid edge matrix" warning on some tree shapes -- dodged in the
+  articles by dropping the outgroup genome, never fixed at the source.
+  Needs a reproduction with a small hclust object, then a decision: guard
+  or suppress. (Likely *less* urgent now than when first flagged: §11's
+  split made `plot_tree`/`plot_silhouette` both default to `FALSE` and
+  fully skip the plotting machinery when off, so most call sites should
+  no longer trigger this warning at all -- worth re-checking whether it
+  still reproduces before spending time on it.)
+- **`tales_to_universalmotif()` follow-ups** (§12b): `motif_tree()`,
+  `view_motifs()`, significance testing (`make_DBscores()`), `scan_sequences()`
+  for target prediction, `merge_motifs()`, `average_ic()`. All listed in
+  full under §12b with the reasoning for each; none started.
 - **§9.2d** inventory `inst/extdata/` (41MB, 27 top-level files) and
   park what nothing uses in `extra/` -- not started.
 - **§5.4** `tales_get_protein_seq()`/`tales_get_dna_seq()` converters --
@@ -323,6 +334,29 @@ implementable, not just closed. As of 2026-09-19, the actual picture:
 - **§7.8** audit docs/website for "repeat" used where "domain" is meant --
   one instance found and fixed by inspection 2026-09-19, the in-depth
   sweep it implies not yet done. A dedicated read-through, not a grep.
+- **Retiring the old `functal()`/vendored Perl tool** (§12b's closing
+  question) -- not a decision anyone has made; `functal()` still exists,
+  still exported, and will still fail on a DNA input.
+
+**Vignette breakage, consolidated in one place** (scattered across §11 and
+§12b individually until this refresh): the five articles rewritten from a
+blank slate on 2026-09-18 (`tale_mining.qmd`, `tale_classification.qmd`,
+`tale_msa.qmd`, `tales_msa_class.qmd`, `tale_target_prediction.qmd`) now
+call **two** retired names -- `tales_group()` (split into
+`tales_group_hclust()`/`tales_group_kmedoids()`, §11) and `tales_compare()`
+(renamed to `tales_compare_distal()`, §12b). `tale_classification.qmd` is
+the worst-hit: real runnable chunks for both, plus a whole section whose
+prose teaches `tales_group()` as one function with a `method=` switch,
+which no longer matches the API at all. Per the standing "vignettes come
+last" rule these stay broken until a dedicated rewrite pass -- see §11's
+"Blast radius" note for the exact line numbers of every real code-chunk
+call site (prose-only mentions are lower priority). Two maintainer content
+notes already banked for that rewrite (§11): feature
+`tales_group_kmedoids()` deliberately (tantale-specific, like `tales_msa`),
+and give the `tales`/`tale_distances`/`domain_distances` interdependence a
+reader-facing explanation. A third, from §12b: `tales_to_universalmotif()`
++ `motif_tree()`/`view_motifs()` would be the first place the site shows
+what a TALE's predicted binding specificity actually looks like.
 
 **Parked deliberately, not urgent:**
 
@@ -4858,6 +4892,85 @@ are not lost):
   motifs (an array whose PWM is dominated by `"XX"` unknown-RVD rows,
   which are flat/zero-information by construction). Not currently
   checked for; worth a diagnostic warning at minimum.
+
+**The output side of the same question, missed in the first pass through
+the vignette and caught by the maintainer re-reading the request that
+prompted this whole section** -- `?compare_motifs`'s `Value` section
+matters as much as its arguments:
+
+- **The raw `score` column is currently discarded.**
+  `tales_compare_functal()` computes `dissim` (inverting it for the six
+  similarity-type methods) and returns only that. Keeping the
+  method-native `score` alongside `dissim` costs nothing --
+  `pairwise_distances`'s own constructor already preserves arbitrary
+  extra columns (`arlem_score`/`max_length` are exactly this pattern on
+  `tale_distances` from the DisTAL side) -- and is real information a
+  caller comparing runs across `method`s would otherwise have to
+  recompute by hand.
+- **Nothing on the returned object records which `method`/`tryRC`/
+  `min.overlap` produced it.** Two `tales_compare_functal()` calls with
+  different `method=` return objects identical in shape but not in
+  meaning, with no way to tell them apart after the fact. The package
+  already has a precedent for exactly this problem --
+  `dom_code_namespace`/`tales_namespace()` stamp a `tales` object with
+  the provenance that produced its codes -- an analogous attribute here
+  (or a documented column) would close the same gap.
+- **`compare.to`'s `DataFrame`-with-`Pval`/`Eval` output mode was
+  considered, not overlooked, and deliberately not built** -- it is the
+  same significance-testing question already listed above
+  (`make_DBscores()`, TALE-specific calibration), just visible from the
+  output side instead of the argument side. One follow-up, two entry
+  points into the same missing piece of work.
+
+**`tales_to_universalmotif()`, from the maintainer reviewing the first
+implementation -- BUILT the same session [V].** Exposes the PWM-building
+step (previously the internal, unexported `.functal_pwm()`) as a
+first-class, reusable projection -- `tales_rvd_strings()`/
+`tales_coded_strings()`'s sibling, at the PWM layer instead of the string
+layer. Built as sketched:
+
+- `R/functal.R`, beside `tales_compare_functal()`. `tales_to_universalmotif(x)`
+  -- data-first, no other argument; `.functal_pwm()`'s RVD-to-
+  `rvd_dna_specificity` lookup is the only construction rule there is.
+  Returns a plain named list of `universalmotif` objects, one per array --
+  not a special container class, since `compare_motifs()`/`motif_tree()`
+  themselves accept a bare list, confirmed rather than assumed before
+  choosing not to build one.
+- **The array-coverage guard moved here from `tales_compare_functal()`**,
+  since this is now where PWMs actually get built: the check that
+  `tales_rvd_strings()` did not silently drop an all-terminus array is
+  `tales_to_universalmotif()`'s job now. Its error class was renamed from
+  `tantale_error_functal_empty` to the more general
+  `tantale_error_no_repeats` in the move -- the condition it names
+  ("this array has no repeats to build a PWM from") is not specific to
+  FuncTAL, now that a general-purpose converter raises it.
+- **`tales_compare_functal()` refactored to call it**, exactly the
+  decomposition already applied on the DisTAL side (§8.5b:
+  `tales_compare_distal()` composes three separately exported,
+  independently useful steps rather than hiding them in one ~200-line
+  internal). It no longer duplicates PWM-construction or the empty-array
+  check. A new test (`test_tales_compare_functal.R`) pins the refactor
+  directly -- `tales_compare_functal()`'s output must equal
+  `compare_motifs()` run on `tales_to_universalmotif()`'s own output,
+  not just look right by inspection.
+- Every follow-up listed above (`motif_tree()`, `view_motifs()`,
+  `scan_sequences()`, `merge_motifs()`, `average_ic()`) is now a one-line
+  call on `tales_to_universalmotif(x)`'s output -- not yet done, but no
+  longer blocked on refactoring anything first.
+- Tests: 11 new cases in `test_tales_compare_functal.R` (28 total in that
+  file now) -- one-motif-per-array shape, PWM width matches repeat count
+  with termini excluded, the moved empty-array guard names the array,
+  and the compose-not-duplicate pin above. All passing; full suite
+  unaffected.
+- **Worth illustrating on the website, not just in `@examples`:** the
+  maintainer's own framing -- once a `tales` object can become a list of
+  real `universalmotif` motifs, `motif_tree()`/`view_motifs()` become a
+  few lines of real, runnable demonstration of what a TALE's predicted
+  binding specificity actually looks like, something no article currently
+  shows (the existing articles cover repeat/domain relatedness and
+  alignment, never the specificity model itself). A candidate for a new
+  pkgdown article once §7.5's rewrite (already needed post-§11, see the
+  "Blast radius" note above) is underway anyway.
 
 **Genuinely still open, not decided this session:** what happens to the
 old `functal()` R wrapper (`R/AnnoTALE_QueTAL_functions_library.R:132`)
