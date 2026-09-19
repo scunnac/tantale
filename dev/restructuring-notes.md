@@ -794,9 +794,27 @@ union. Wrap it with the two invariant checks that matter:
   the second as the default -- refusing unconditionally makes the function
   useless in the one case people actually reach for it -- but this is the
   maintainer's call, not a settled design.
-- `group`, if present on either side: nothing currently stops two unrelated
-  "group 1"s from different runs colliding once combined. Worth requiring
-  disjoint labels, or a relabel option, same spirit as the `array_id` check.
+- `group`, if present on either side -- **decided 2026-09-19: drop it, do
+  not try to reconcile it.** First guess here (checking label
+  disjointness, same spirit as `array_id`) turned out wrong: `array_id`
+  is an identity, but `group` is a *derived* result of clustering one
+  specific `tale_distances` matrix over one specific set of arrays. Two
+  "group 1"s from separate runs are not at risk of colliding, they are
+  not comparable at all -- nothing ever clustered them against each
+  other. A disjointness check would have produced an object that looks
+  validated (each array still agrees with itself, per the existing
+  "`group` is constant within an array" invariant) while silently
+  carrying meaningless grouping information. This is the same shape as
+  the distances question one level further downstream: `group` is
+  computed *from* `tale_distances`, so if `tales_bind()` already
+  correctly declines to reconcile the distance tables themselves (the
+  honest-first-cut decision above), it has even less business trying to
+  reconcile something derived from them. So: if `group` is present on
+  any input, `tales_bind()` strips it from the bound result entirely --
+  not just the colliding labels, all of them, since every group is
+  equally invalidated by the object's shape changing -- and
+  `cli_inform()`s why, pointing at a fresh `tales_group()` call (after a
+  fresh `tales_compare()`) as how to get real groups back.
 
 #### Conceptual note: which operations invalidate a `tales`'s distance tables
 
@@ -897,6 +915,74 @@ different genomes) into one object before comparing them is a normal
 workflow need, not just a §5.2 dependency. A `tales_msa`-level bind should
 stay unbuilt until something concrete needs the narrow same-run-subset
 case.
+
+#### Implementation plan, as of 2026-09-19 -- design complete, not yet built
+
+Everything above worked through to a concrete, ready-to-implement shape.
+Consolidated here as one procedure rather than left scattered across the
+bullets above, since that is what an implementer actually needs.
+
+- **Where:** `R/tales_class.R`, beside `tales()`/`as_tales()`/
+  `tales_namespace()` -- a class-level verb, not a `distalr.R` concern.
+- **Signature:** `tales_bind(..., on_namespace_mismatch = c("recode",
+  "error"), sanitize = FALSE)` -- variadic like `dplyr::bind_rows(...)`,
+  not a fixed two-argument pair.
+1. **Reject wrong types up front.** Every argument must satisfy
+   `is_tales()`. Separately -- `is_tales()` alone will not catch this,
+   `tales_msa` inherits `tales` -- explicitly check `is_tales_msa()` on
+   each input and refuse, pointing at `as_tales()`, if any is a
+   `tales_msa`. The caller demotes explicitly; `tales_bind()` does not do
+   it for them, per "everything else should refuse rather than silently
+   demote" above.
+2. **Check `array_id` disjointness across all inputs, before touching
+   rows.** Not "no duplicate rows" -- one array has many rows. Collect
+   each input's `unique(array_id)`, check the combined multiset for any
+   value appearing in more than one input, hard-error naming the
+   colliding ids. This is exactly the gap the articles currently
+   paper over by hand (`mutate(array_id = paste0(strain, "_",
+   array_id))` before combining genomes); that workaround stops being
+   necessary once this check exists and names what collided.
+3. **`group`: drop it, do not reconcile it.** See the corrected bullet
+   above -- strip the column entirely if present on any input (not just
+   colliding labels), `cli_inform()` why, point at
+   `tales_group()`+`tales_compare()` as how to get it back.
+4. **Bind rows:** `dplyr::bind_rows(...)`. Steps 2-3 already cleared the
+   only invariants row-binding itself could violate.
+5. **Reconcile `dom_code_namespace`.** Read `tales_namespace()` off every
+   input. All `identical()` (including all-`NULL`) -> keep as-is, no
+   recoding -- the namespace is a content hash of sorted-unique `aa_seq`
+   (`.tales_dom_code_namespace()`), so equal hashes already guarantee
+   compatible codes. Any differ -> drop the stale `dom_code` column from
+   the bound tibble and call `tales_assign_domain_codes()` on it, which
+   recomputes `dom_code` via `cur_group_id()` over the *unioned* `aa_seq`
+   and stamps a fresh namespace in one call. `cli_inform()` that codes
+   were reassigned and any distance table from either original input is
+   now stale. `on_namespace_mismatch = "error"` skips the recode and
+   aborts instead, for callers who want that stricter behaviour.
+6. **Construct via the existing constructor, not hand-rolled checks:**
+   `tales(bound, dom_code_namespace = <resolved>, sanitize = sanitize)` --
+   reuses `validate_tales()`/`.tales_report_anomalies()` rather than
+   duplicating them. The only work `tales_bind()` does beyond the
+   constructor is steps 2-3 and the namespace reconciliation in step 5.
+7. **Distances untouched, by design (the honest-first-cut decision
+   above).** `tales_bind()` never reads or writes `tale_distances`/
+   `domain_distances`. Documented as: re-run `tales_compare()` on the
+   bound result if you need them.
+
+**Tests to write:** `array_id` collision (error, names the ids); `group`
+present on one or both inputs is dropped with a message on both the
+colliding- and disjoint-label cases (it is *always* dropped, so both
+should behave the same way -- a good test of the "not just collisions"
+point); shared-namespace bind (no recode, codes unchanged); mismatched-
+namespace bind (recode happens, message fires, codes differ from either
+input); `tales_msa` input rejected, message names `as_tales()`; a
+round-trip check against the manual `paste0(strain, "_", array_id)`
+workaround the articles use today -- `tales_bind()` on three genomes
+should match `bind_rows()` + manual prefixing, modulo `dom_code`.
+
+**Docs:** `@family tales objects`; an example binding two small fixtures
+with genuinely distinct `array_id`s; a `_pkgdown.yml` entry under the
+existing "tales objects" reference group.
 
 ---
 
