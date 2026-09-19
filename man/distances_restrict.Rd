@@ -35,7 +35,8 @@ Other pairwise distances:
 \code{\link[=tales_assign_domain_codes]{tales_assign_domain_codes()}},
 \code{\link[=tales_compare]{tales_compare()}},
 \code{\link[=tales_domain_distances]{tales_domain_distances()}},
-\code{\link[=tales_group]{tales_group()}},
+\code{\link[=tales_group_hclust]{tales_group_hclust()}},
+\code{\link[=tales_group_kmedoids]{tales_group_kmedoids()}},
 \code{\link[=tales_tale_distances]{tales_tale_distances()}},
 \code{\link[=validate_pairwise_distances]{validate_pairwise_distances()}}
 }

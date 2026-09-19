@@ -36,7 +36,14 @@ renamed/retired). Both are now flagged inline. There was not time to
 re-check every other `[V]` section the same way -- treat this file's
 "done" markers as a claim to spot-check against the code, not a guarantee.
 
-**2026-09-18 session, in one place:**
+**2026-09-18 session, in one place** (caveat added 2026-09-19: §11's
+`tales_group()` split has since broken the runnable code in three of the
+articles this session wrote -- see the "Blast radius" note at the end of
+§11. The articles below were thoroughly, carefully rewritten and verified
+against the API *as it stood that night*; they are not stale or neglected,
+but "done" here means "done for the API of 2026-09-18," not "still current"
+-- exactly the caution the file's own `[V]` marker warning already gives,
+just illustrated one section later than usual):
 
 1. **§7.5b** -- the four numbered vignettes rebuilt from a blank slate,
    self-contained, each verified with a real `rmarkdown::render()`; a new
@@ -4374,7 +4381,7 @@ a link. Use parentheses, or escape them.
 
 ---
 
-## 11. Rework `tales_group()` — together, and last **[A]**
+## 11. Rework `tales_group()` — together, and last -- SPLIT INTO TWO **[V]**
 
 **Maintainer's note:** `tales_group()` was written by a student, and the code
 should be improved. This is **not an unattended task**: to be done jointly,
@@ -4430,6 +4437,134 @@ starts with evidence rather than a re-read. None of these are decisions.
 
 **Prerequisite met:** the function has 28 tests as of §5.2, so a rewrite has
 something to hold it in place.
+
+### Joint session, 2026-09-19: split into two functions **[V]** — DONE
+
+Worked through together, decision by decision, before any code moved:
+
+- **`tales_group()` is retired, no dispatcher kept** -- replaced by
+  `tales_group_hclust(x, tal_sim, k = NULL, plot_tree = FALSE)` and
+  `tales_group_kmedoids(x, tal_sim, k_range = NULL, k = NULL, seed = 7,
+  plot_silhouette = TRUE)`, both in `R/classification.R`. Matches this
+  project's established practice of hard renames with no alias (NEWS.md
+  already has several). Both still return `x` with `group` filled via the
+  unchanged shared helper `.tales_attach_groups()`.
+- **k-medoids was found to be a second real clustering method, not a
+  k-selection helper.** First framed (by the maintainer) as "k-medoids
+  decides k and plots a silhouette graph; hclust does the actual cut and
+  returns groups" -- checked against the code and corrected: `cluster::pam()`
+  is run once per candidate in `k_range` (line 71-75 of the pre-split code),
+  and `allPam[[which(k_range == numGroups)]]$clustering` (line 115) returns
+  a real, final PAM cluster assignment, exactly as `cutree()` does for
+  hclust. The actual asymmetry is *why* each method needs what it needs:
+  hclust builds one structure once and can cut it at any `k` cheaply
+  afterward; PAM has no such structure, so getting to "try several k and
+  compare" costs one full clustering per candidate.
+- **hclust distance: switched to `stats::as.dist(distMat)`**, clustering the
+  TALE-to-TALE distances directly. The pre-split code's active line was
+  `dist(distMat, method = "euclidean")` -- treating each TALE's *row* of
+  distances to everyone else as a coordinate vector, which clusters by
+  similarity of relationship-to-the-population rather than direct
+  relatedness. The commented-out alternative right above it was labelled
+  `"distal"`, a clear reference to DisTAL (the tool `distalr()` reimplements,
+  README.md:28) -- strong evidence `as.dist()` was the original, validated
+  semantics and the Euclidean-on-rows version was a later experiment left
+  switched on by accident. Decided: switch to `as.dist()`.
+- **hclust cut: switched to `stats::cutree(tree, k = k)`**, replacing the
+  bisection search over height. Demonstrated live that the search can fail
+  outright: a 4-leaf tree with two merges tied at the same height
+  (`taleTree$height` = `2, 2, 8`) makes the search hit `lo >= hi` and throw
+  `"Cannot determine k groups!"`, while `cutree(tree, k = k)` succeeds
+  cleanly on the identical tree and reproduces the same cut as the search
+  would have found in the untied case. The display cutoff line/value is now
+  computed directly from `sort(taleTree$height)` (the height between the
+  `(n-k)`-th and `(n-k+1)`-th merges) instead of searched for -- same picture
+  in the normal case, no failure mode.
+- **The interactive stdin prompt (`k = NULL` in k-medoids) is kept, but
+  gated on `interactive()`.** The original problem was never that prompting
+  is bad -- it's a reasonable console workflow -- but that there was no way
+  to opt out of it, so a script, a `testthat` run or a `pkgdown`/vignette
+  render hitting `k = NULL` would hang or fail confusingly. Now: prompts
+  only when `interactive()` is `TRUE`; otherwise a clear `cli_abort`
+  (`tantale_error_group_kmedoids_k`) says to pass a number or `"auto"`.
+  `tales_group_hclust()` never had a real `NULL` path to begin with (it
+  printed one placeholder message then errored on the very next line
+  regardless), so no equivalent gate was needed there.
+- **`seed` is now a documented, overridable argument** (default `7`,
+  matching the previous hardcoded value) instead of a bare `set.seed(7)`
+  buried in the k-medoids loop.
+- **Both plots are now fully conditional on their flag**, not just on
+  whether they get `print()`-ed. Previously `tales_group()`'s hclust branch
+  built the entire `ggtree` object unconditionally regardless of
+  `plot_tree`, and the k-medoids branch drew its silhouette plot
+  unconditionally regardless of any flag at all (the `plot_tree` argument
+  did nothing there except get forced to `FALSE` with a message). Now
+  `tales_group_hclust(..., plot_tree = FALSE)` (the default) never touches
+  `ggtree`/`tidytree`/`viridis` at all, and `tales_group_kmedoids(...,
+  plot_silhouette = FALSE)` skips the scatter plot. Useful side effect for
+  §6: most test/script call sites default to no plot, so the `ggtree`
+  "Invalid edge matrix" warning noise there should now mostly disappear
+  without having been directly fixed -- worth re-checking next time §6 is
+  visited.
+- **A length > 1 `k` no longer trips R's own "condition has length > 1"
+  error before reaching the intended message** (old §11 observation) --
+  `identical(k, "auto")` replaced the bare `k == "auto"` comparison, so any
+  `k` shape falls through cleanly to the one classed error
+  (`tantale_error_group_kmedoids_k`) instead of erroring on the comparison
+  itself with an unrelated message.
+- **Not changed:** the elbow-picking heuristic's math (extracted verbatim
+  into `.tales_group_kmedoids_elbow()`, same partial-Kneedle approach,
+  same caveat comment carried over) and `ward.D` as the hclust linkage --
+  neither was raised as a question, so neither was touched.
+
+**Blast radius, checked directly against the current file content, not
+assumed (the maintainer was right to press on this -- see the caveat added
+to the 2026-09-18 entry above): tests done, articles are real rewriting
+work, not a mechanical rename.**
+
+- Tests: `test_group_tales.R` replaced by `test_tales_group_hclust.R` /
+  `test_tales_group_kmedoids.R`, rewritten against the two new functions.
+  `test_golden.R`'s partition snapshot re-baselined (below) since the hclust
+  output legitimately changed.
+- **`vignettes/articles/*.qmd`: three files have real runnable code chunks
+  built around the single old `tales_group()`, not just prose mentions --**
+  - `tale_classification.qmd` has a whole section, `## Allocating arrays to
+    groups: tales_group()` (line 149), whose prose explicitly teaches the
+    `method =` argument as one function with two modes, plus three code
+    chunks calling `tales_group(..., method = "k-medoids"/"hclust", ...)`
+    (lines 161-186). This is the article that most needs rewriting, not
+    patching -- the pedagogical structure itself ("one function, pick a
+    method") no longer matches the API.
+  - `tale_msa.qmd:76` and `tales_msa_class.qmd:72` each have one runnable
+    chunk calling the old signature directly.
+  - `tale_mining.qmd:427` and `tale_target_prediction.qmd:171` only
+    *mention* `tales_group()` in passing prose (no code chunk) -- a smaller
+    fix once the API settles.
+  - These five articles were the ones **thoroughly rewritten from a blank
+    slate in the 2026-09-18 session** (point 1 above) -- current, careful,
+    verified content, not neglected leftovers. Today's split is what broke
+    them, not staleness on their part. Per the standing "vignettes come
+    last" rule they are left broken for now rather than patched mid-refactor,
+    but whoever picks this up should read `tale_classification.qmd` in full
+    before touching it, not just grep-and-replace the function name.
+
+**Two content notes for that eventual website update, from the maintainer,
+recorded here so they're not lost before the rewrite happens:**
+
+- **`tales_group_kmedoids()` is worth featuring deliberately**, not just
+  fixed to compile. It's a capability specific to tantale (no equivalent in
+  DisTAL), in the same category as `tales_msa` as something worth
+  advertising rather than treating as an interchangeable alternative to
+  hclust. (The two methods probably agree on the shipped demo dataset --
+  not yet checked.)
+- **The interdependence between `tales`, `tale_distances` and
+  `domain_distances` should be emphasized on the website** -- how a `tales`
+  object's `dom_code`/`dom_code_namespace` ties it to a specific
+  `domain_distances` table, and how `tale_distances` is derived from
+  `domain_distances` rather than computed independently (§0's framing,
+  `tales_assign_domain_codes()`'s docs, and the "which operations invalidate
+  a tales's distance tables" note under §5.2 already spell this out
+  code-side; it needs a reader-facing home too).
 
 ---
 

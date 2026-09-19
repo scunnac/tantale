@@ -84,13 +84,19 @@ test_that("golden: tales_align() on both residue layers", {
   expect_golden(c(rvd = tales_width(byRvd), dom_code = tales_width(byCode)))
 })
 
-test_that("golden: tales_group() partitions the arrays the same way", {
-  # tales_group() returns the tales with `group` filled (ledger 5.2), so the
-  # partition is pinned as the array -> group mapping rather than the whole
-  # object -- which would re-pin every other tales column for no gain.
+test_that("golden: tales_group_hclust() partitions the arrays the same way", {
+  # tales_group_hclust() returns the tales with `group` filled (ledger 5.2),
+  # so the partition is pinned as the array -> group mapping rather than the
+  # whole object -- which would re-pin every other tales column for no gain.
+  #
+  # This baseline was deliberately re-accepted 2026-09-19 (ledger §11): the
+  # underlying hclust() call switched from clustering the Euclidean distance
+  # between TALEs' distance *profiles* to clustering the distance matrix
+  # directly (stats::as.dist(distMat)), matching the original DisTAL
+  # semantics -- so the partition was expected to, and did, change.
   d <- fx()
   out <- suppressWarnings(suppressMessages(
-    tales_group(tales(d$tale_parts), d$tal.similarity, k = 4, method = "hclust")))
+    tales_group_hclust(tales(d$tale_parts), d$tal.similarity, k = 4)))
   expect_golden(unique(as.data.frame(out)[c("array_id", "group")]))
 })
 

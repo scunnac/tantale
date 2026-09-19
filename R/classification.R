@@ -1,12 +1,34 @@
 
 ##### Tale classification ####
+# tales_group() (the joint student-code rework, ledger §11) split into two
+# functions, one per clustering algorithm, because the two never shared much
+# beyond "cluster distMat and attach the result": k_range/seed only ever
+# meant anything for k-medoids, hclust's plot_tree only ever meant anything
+# for hclust, and cramming both under one `method` switch is what made the
+# original hard to read. Both still return `x` with `group` filled, via the
+# shared correspondence check in .tales_attach_groups() below.
 
 
-#' Group TALEs by similarity
+#' Validate x and build the pairwise distance matrix both grouping methods share
+#' @return A square numeric matrix.
+#' @noRd
+.tales_group_distmat <- function(x, tal_sim) {
+  if (!is_tales(x)) {
+    cli::cli_abort("{.arg x} must be a {.cls tales} object.",
+                   class = c("tantale_error_tales_type", "tantale_error"))
+  }
+  # Coercing accepts both a tale_distances and a legacy table; as.matrix() then
+  # replaces the hand-written acast() and asserts squareness on the way.
+  as.matrix(tale_distances(tal_sim))
+}
+
+
+#' Group TALEs by hierarchical clustering of their pairwise distance
 #'
-#' Classifies TALE arrays into groups by hierarchical or k-medoids clustering
-#' of their pairwise similarity, and returns the [tales] object with the
-#' result attached as its `group` column.
+#' Clusters TALE arrays with \code{\link[stats:hclust]{hclust}} on their
+#' pairwise distance, cuts the tree into exactly \code{k} groups, and returns
+#' the \code{\link{tales}} object the distances were computed from with the
+#' result attached as its \code{group} column.
 #'
 #' @details
 #' The clustering is computed from `tal_sim`, but the result belongs on the
@@ -23,156 +45,211 @@
 #' The bare mapping is still one line away if you want it:
 #' `unique(out[c("array_id", "group")])`.
 #'
+#' The tree is built directly on the distances
+#' (\code{stats::hclust(stats::as.dist(distMat))}), matching the original
+#' DisTAL clustering this package reimplements -- not the Euclidean distance
+#' between TALEs' distance *profiles*, which groups arrays that relate to the
+#' rest of the population similarly rather than arrays that are directly
+#' close to each other. Cut with \code{stats::cutree(tree, k = k)}, which
+#' always succeeds, including when a tie in merge heights would make a
+#' height-based cut ambiguous.
+#'
 #' @param x A [tales] object -- the one whose comparison produced `tal_sim`.
 #' @param tal_sim A [tale_distances] object, as returned by [tales_compare()].
 #'   A plain data frame using the legacy `TAL1`/`TAL2`/`Sim` column names is
 #'   also accepted and coerced.
-#' @param plot_tree Logical, whether to plot the hclust tree. With
-#'   \code{method = "k-medoids"} no tree is drawn; a silhouette-value plot is
-#'   produced instead.
-#' @param k Integer, the number of groups to classify arrays into. With
-#'   \code{method = "k-medoids"}, \code{k = "auto"} picks the optimum
-#'   automatically and \code{k = NULL} prompts for it interactively. The
-#'   automatic pick is worth checking rather than trusting.
-#' @param k_range Integer vector of length 2 giving the range of \code{k} to
-#'   test. Only used when \code{method = "k-medoids"}; the minimum is 2.
-#' @param method One of \code{"hclust"} (see \code{\link[stats:cutree]{cutree}})
-#'   or \code{"k-medoids"} (see \code{\link[cluster:pam]{pam}}).
+#' @param k Integer, the number of groups to cut the tree into.
+#' @param plot_tree Logical, whether to draw the dendrogram: colored by
+#'   group, with a dashed line at the cut height. `FALSE` by default, so the
+#'   `ggtree`/`tidytree` machinery only runs when a plot is actually wanted.
 #' @return `x` with an added (or replaced) `group` column.
-#' @seealso [tales_compare()], which produces both inputs.
+#' @seealso [tales_group_kmedoids()], the alternative method;
+#'   [tales_compare()], which produces both inputs.
 #' @export
 #' @family pairwise distances
 #' @examples
 #' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
 #'                                      package = "tantale"))
 #' cmp <- tales_compare(x)
-#' grouped <- tales_group(cmp$tales, cmp$tale_distances, method = "hclust", k = 2)
+#' grouped <- tales_group_hclust(cmp$tales, cmp$tale_distances, k = 2)
 #' unique(grouped[c("array_id", "group")])
-tales_group <- function(x, tal_sim, plot_tree = FALSE, k = NULL, k_range = NULL, method = "k-medoids") {
-  if (!is_tales(x)) {
-    cli::cli_abort("{.arg x} must be a {.cls tales} object.",
-                   class = c("tantale_error_tales_type", "tantale_error"))
+tales_group_hclust <- function(x, tal_sim, k = NULL, plot_tree = FALSE) {
+  distMat <- .tales_group_distmat(x, tal_sim)
+
+  if (!is.numeric(k) || length(k) != 1L || is.na(k)) {
+    cli::cli_abort(
+      "{.arg k} must be a single number, the number of groups to cut the tree into.",
+      class = c("tantale_error_group_hclust_k", "tantale_error")
+    )
   }
 
-  # For alternative methods for cluster definition:
-  # -  Expectation Maximization (EM): https://en.wikibooks.org/wiki/Data_Mining_Algorithms_In_R/Clustering/Expectation_Maximization_(EM)
-  # For other ideas : https://en.wikibooks.org/wiki/Data_Mining_Algorithms_In_R/Clustering
+  taleTree <- stats::hclust(stats::as.dist(distMat), method = "ward.D")
+  treeCuts <- stats::cutree(taleTree, k = k)
+  taleGroups <- data.frame(name = names(treeCuts), group = treeCuts, row.names = NULL)
 
-  # Coercing accepts both a tale_distances and a legacy table; as.matrix() then
-  # replaces the hand-written acast() and asserts squareness on the way.
-  distMat <- as.matrix(tale_distances(tal_sim))
-
-  if (method == "k-medoids") {
-    if (is.null(k_range) || !is.numeric(k_range)) stop("invalid k values!")
-    if (plot_tree) {
-      plot_tree <- FALSE
-      message("tale tree will not be plotted!")
-    }
-    allPam <- lapply(k_range, function(kpam) {
-      set.seed(7)
-      kmeanClust <- cluster::pam(as.dist(distMat), kpam)
-      return(as.list(kmeanClust))
-    })
-    
-    silhVals <- sapply(allPam, function(a) a$silinfo$avg.width)
-    
-    if (is.null(k)) {
-      plot(k_range, pch = 19, col = "cornflowerblue", silhVals, xlab = "number of groups", ylab = "average silhouette values")
-      cat("Choose a number of groups:\t")
-      numGroups <- as.numeric(readLines(con = stdin(), 1))
-    } else if (k == "auto") {
-      # numGroups <- k_range[which.max(silhVals)]
-      ## I tried applying the Kneedle algorithm to find the elbow point of the curve
-      ## the algorithm is in this paper: https://raghavan.usc.edu//papers/kneedle-simplex11.pdf
-      ## but my knowledge in linear algebra is all gone, so I have just applied the first step 
-      ## however, the result is already quite good so far for the silhoutte curve as I tested.
-      ## I will go back to this if interested...
-      find_elbow <- function(v, k) {
-        stopifnot(length(v) == length(k))
-        n <- length(v)
-        a <- (v[n] - v[1])/(k[n] - k[1])
-        b <- -1
-        c <- (v[1]*k[n] - v[n]*k[1])/(k[n]-k[1])
-        d <- sapply(1:n, function(i) abs(a*i + b*v[i] + c)/sqrt(a*a + b*b))
-        return(k[which.max(d)])
-      }
-      numGroups <- find_elbow(silhVals, k_range)
-      point_col <- sapply(k_range,
-                          function(v) ifelse(v != numGroups, "cornflowerblue", "red"),
-                          simplify = T)
-      plot(k_range, pch = 19, col = point_col, silhVals, xlab = "number of groups", ylab = "average silhouette values")
-      message(paste("The number of groups is automatically decided based on the silhoutte value:", numGroups))
-    } else if (length(k) == 1 && is.numeric(k)) {
-      numGroups <- k
-      message(paste("Number of groups is decided based on the provided value of k:", numGroups))
-      point_col <- sapply(k_range,
-                          function(v) ifelse(v != numGroups, "cornflowerblue", "red"),
-                          simplify = T)
-      plot(k_range, pch = 19, col = point_col, silhVals, xlab = "number of groups", ylab = "average silhouette values")
-    } else {
-      stop("invalid k value!")
-    }
-    group <- allPam[[which(k_range == numGroups)]]$clustering
-    taleGroups <- data.frame(name = names(group), group = group, row.names = NULL)
-  } else if (method == "hclust") {
-    numGroups <- k
-    if (is.null(k)) message("WE SHOULD BE DOING SOMETHING")
-    if (!is.numeric(numGroups) || length(numGroups) != 1) stop("'k' must be specified as a number!")
-    # if (method == "euclidean") {
-    #   taleTree <- hclust(d = dist(distMat, method = "euclidean"), method = "ward.D")
-    # } else if (method == "distal") {
-    #   taleTree <- hclust(as.dist(distMat), method = "ward.D")
-    # }
-    
-    taleTree <- hclust(d = dist(distMat, method = "euclidean"), method = "ward.D")
-    
-    hi <- max(taleTree$height)
-    lo <- min(taleTree$height)
-    repeat {
-      if (lo >= hi) stop(glue::glue("Cannot determine {numGroups} groups!"))
-      cutOff <- mean(c(lo, hi))
-      treeCuts <- cutree(taleTree, h = cutOff)
-      if (max(treeCuts) < numGroups) {
-        hi <- cutOff
-      } else if (max(treeCuts) > numGroups) {
-        lo <- cutOff
-      } else break()
-    }
-    # treeCuts <- cutree(taleTree, h = cutOff)
-    taleGroups <- data.frame(name = names(treeCuts), group = treeCuts, row.names = NULL)
-    
-    # plot(taleTree, xlab = "TALEs", main = )
-    # abline(h = cutOff, lty = 2)
-    g <- split(names(treeCuts), treeCuts)
-    p <- taleTree  %>% ggtree::ggtree()
-    clades <- sapply(g, function(n) tidytree::MRCA(p, n))
-    p <- tidytree::groupClade(p, clades, group_name='subtree') + ggtree::aes(color=subtree)
-    p <- p + ggtree::layout_dendrogram() +
-      ggtree::geom_tiplab(ggtree::aes(label = label),
-                          hjust = 1,
-                          angle = 90,
-                          align = FALSE,
-                          color='black',
-                          offset = -2,
-                          
-      ) +
-      # ggplot2::scale_color_brewer("Groups", palette="BrBG") + # allowed maximum for palette BrBG is 11
-      viridis::scale_color_viridis(discrete = T, option = "C", breaks = 1:numGroups) +
-      ggplot2::geom_vline(xintercept = -cutOff, linetype = 2) +
-      ggtree::geom_text(x = (cutOff - max(taleTree$height)/50),
-                        y = 8, label = paste("cutOff value: ", sprintf("%.2f", cutOff)),
-                        color = "darkgrey", fontface = "plain") +
-      ggplot2::xlab("Height") +
-      ggtree::theme_dendrogram(plot.margin = ggplot2::margin(6,6,150,6))
-  }
-  
-  
-  
-  
-  
-  if(plot_tree == TRUE) {print(p)}
+  if (isTRUE(plot_tree)) print(.tales_group_hclust_plot(taleTree, treeCuts, k))
 
   .tales_attach_groups(x, taleGroups)
+}
+
+#' The dendrogram plot for tales_group_hclust(), built only when asked for
+#' @noRd
+.tales_group_hclust_plot <- function(taleTree, treeCuts, k) {
+  # The display cutoff: a height between the (n-k)-th and (n-k+1)-th merges,
+  # i.e. exactly the height cutree(taleTree, h = cutOff) would need to
+  # reproduce cutree(taleTree, k = k) -- derived directly from the sorted
+  # merge heights rather than searched for.
+  n <- length(taleTree$height) + 1L
+  h <- sort(taleTree$height)
+  cutOff <- mean(h[c(n - k, n - k + 1L)])
+
+  g <- split(names(treeCuts), treeCuts)
+  p <- ggtree::ggtree(taleTree)
+  clades <- sapply(g, function(nms) tidytree::MRCA(p, nms))
+  p <- tidytree::groupClade(p, clades, group_name = "subtree") +
+    ggtree::aes(color = subtree)
+  p + ggtree::layout_dendrogram() +
+    ggtree::geom_tiplab(ggtree::aes(label = label),
+                        hjust = 1, angle = 90, align = FALSE,
+                        color = "black", offset = -2) +
+    viridis::scale_color_viridis(discrete = TRUE, option = "C", breaks = seq_len(k)) +
+    ggplot2::geom_vline(xintercept = -cutOff, linetype = 2) +
+    ggtree::geom_text(x = (cutOff - max(taleTree$height) / 50), y = 8,
+                      label = paste("cutOff value: ", sprintf("%.2f", cutOff)),
+                      color = "darkgrey", fontface = "plain") +
+    ggplot2::xlab("Height") +
+    ggtree::theme_dendrogram(plot.margin = ggplot2::margin(6, 6, 150, 6))
+}
+
+
+#' Group TALEs by k-medoids clustering of their pairwise distance
+#'
+#' Clusters TALE arrays with \code{\link[cluster:pam]{pam}} for every
+#' candidate \code{k} in \code{k_range}, then returns the \code{\link{tales}}
+#' object the distances were computed from with the chosen clustering's
+#' result attached as its \code{group} column.
+#'
+#' @details
+#' The clustering is computed from `tal_sim`, but the result belongs on the
+#' `tales` object the distances were computed from, so that is what comes
+#' back. `group` is a recognised `tales` column, validated as constant within
+#' an array -- it is an array-level property, like `seqnames`.
+#'
+#' Taking `x` rather than returning a bare lookup table is what makes the
+#' correspondence checkable: the array names in `tal_sim` must be the array
+#' names in `x`, and this is the only place that can be verified. A mismatch
+#' is an error rather than a silent `NA` group, because a partly-grouped
+#' object is the kind of thing that fails much later and confusingly.
+#'
+#' The bare mapping is still one line away if you want it:
+#' `unique(out[c("array_id", "group")])`.
+#'
+#' Unlike a hierarchical tree, PAM has no single structure that can be cut at
+#' an arbitrary `k` after the fact -- `k` is a parameter to the clustering
+#' itself. So one clustering is computed per candidate in `k_range`, and `k`
+#' picks which of those to keep:
+#'
+#' - `k` a single number uses that candidate directly.
+#' - `k = "auto"` picks the elbow of the silhouette-vs-k curve (a partial,
+#'   first-step application of the Kneedle algorithm -- see
+#'   `.tales_group_kmedoids_elbow()` -- good enough in practice to be worth
+#'   keeping, not a validated implementation of the full method).
+#' - `k = NULL` (the default) shows the silhouette plot and asks for a number
+#'   at the console -- but only when \code{\link{interactive}()} is `TRUE`.
+#'   In a script, a test or a vignette render, `k = NULL` errors instead of
+#'   blocking on input that will never arrive.
+#'
+#' @inheritParams tales_group_hclust
+#' @param k_range Integer vector of candidate values of `k` to evaluate.
+#' @param k See Details.
+#' @param seed Passed to \code{set.seed()} before every \code{cluster::pam()}
+#'   call, so the same candidate always clusters the same way. Previously a
+#'   hardcoded \code{7}; now a documented, overridable default.
+#' @param plot_silhouette Logical, whether to draw the silhouette-vs-k plot.
+#' @return `x` with an added (or replaced) `group` column.
+#' @seealso [tales_group_hclust()], the alternative method;
+#'   [tales_compare()], which produces both inputs.
+#' @export
+#' @family pairwise distances
+#' @examples
+#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
+#'                                      package = "tantale"))
+#' cmp <- tales_compare(x)
+#' grouped <- tales_group_kmedoids(cmp$tales, cmp$tale_distances,
+#'                                 k_range = 2:4, k = 2)
+#' unique(grouped[c("array_id", "group")])
+tales_group_kmedoids <- function(x, tal_sim, k_range = NULL, k = NULL,
+                                 seed = 7, plot_silhouette = TRUE) {
+  distMat <- .tales_group_distmat(x, tal_sim)
+
+  if (is.null(k_range) || !is.numeric(k_range)) {
+    cli::cli_abort(
+      "{.arg k_range} must be a numeric vector of candidate {.arg k} values.",
+      class = c("tantale_error_group_kmedoids_krange", "tantale_error")
+    )
+  }
+
+  allPam <- lapply(k_range, function(kpam) {
+    set.seed(seed)
+    as.list(cluster::pam(stats::as.dist(distMat), kpam))
+  })
+  silhVals <- sapply(allPam, function(a) a$silinfo$avg.width)
+
+  if (is.null(k)) {
+    if (!interactive()) {
+      cli::cli_abort(
+        c("{.arg k} is required outside an interactive session.",
+          "i" = "Pass a number, or {.val auto} to pick one from the silhouette curve."),
+        class = c("tantale_error_group_kmedoids_k", "tantale_error")
+      )
+    }
+    if (isTRUE(plot_silhouette)) .tales_group_kmedoids_plot(k_range, silhVals)
+    cat("Choose a number of groups:\t")
+    numGroups <- as.numeric(readLines(con = stdin(), 1))
+  } else if (identical(k, "auto")) {
+    numGroups <- .tales_group_kmedoids_elbow(silhVals, k_range)
+    if (isTRUE(plot_silhouette)) .tales_group_kmedoids_plot(k_range, silhVals, numGroups)
+    cli::cli_inform("The number of groups is automatically decided based on the silhouette value: {numGroups}")
+  } else if (is.numeric(k) && length(k) == 1L) {
+    numGroups <- k
+    if (isTRUE(plot_silhouette)) .tales_group_kmedoids_plot(k_range, silhVals, numGroups)
+    cli::cli_inform("Number of groups is decided based on the provided value of k: {numGroups}")
+  } else {
+    cli::cli_abort(
+      c("{.arg k} must be {.code NULL}, {.val auto}, or a single number.",
+        "x" = "Got {.obj_type_friendly {k}}."),
+      class = c("tantale_error_group_kmedoids_k", "tantale_error")
+    )
+  }
+
+  group <- allPam[[which(k_range == numGroups)]]$clustering
+  taleGroups <- data.frame(name = names(group), group = group, row.names = NULL)
+  .tales_attach_groups(x, taleGroups)
+}
+
+#' The silhouette-vs-k plot for tales_group_kmedoids(), built only when asked for
+#' @noRd
+.tales_group_kmedoids_plot <- function(k_range, silhVals, highlight = NULL) {
+  col <- if (is.null(highlight)) "cornflowerblue" else
+    ifelse(k_range != highlight, "cornflowerblue", "red")
+  plot(k_range, silhVals, pch = 19, col = col,
+       xlab = "number of groups", ylab = "average silhouette values")
+}
+
+#' The elbow of the silhouette-vs-k curve
+#'
+#' A partial, first-step application of the Kneedle algorithm
+#' (<https://raghavan.usc.edu/papers/kneedle-simplex11.pdf>): good enough on
+#' the silhouette curves this has been tried on, not a full implementation.
+#' @noRd
+.tales_group_kmedoids_elbow <- function(v, k) {
+  stopifnot(length(v) == length(k))
+  n <- length(v)
+  a <- (v[n] - v[1]) / (k[n] - k[1])
+  b <- -1
+  c <- (v[1] * k[n] - v[n] * k[1]) / (k[n] - k[1])
+  d <- sapply(seq_len(n), function(i) abs(a * i + b * v[i] + c) / sqrt(a * a + b * b))
+  k[which.max(d)]
 }
 
 

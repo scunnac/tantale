@@ -719,7 +719,7 @@
       "value": [29, 28]
     }
 
-# golden: tales_group() partitions the arrays the same way
+# golden: tales_group_hclust() partitions the arrays the same way
 
     {
       "type": "list",
