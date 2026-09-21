@@ -5835,7 +5835,7 @@ this paragraph is that missing record, added retroactively.
 
 ---
 
-## 16. Preserving the early prototype (`v0.1.9553`) ahead of an eventual repo-bloat cleanup **[P]**
+## 16. Preserving the early prototype (`v0.1.9553`) ahead of an eventual repo-bloat cleanup -- DONE, see §26 **[V]**
 
 Maintainer's request, 2026-09-21: copy `master` (this repo's frozen "old
 reference version" -- `dev` was branched off it specifically so `master`
@@ -5884,7 +5884,7 @@ survive a cleanup that is specifically designed to delete what it
 points at does not work; the two goals need to be pursued as separate
 steps, not one action serving both.
 
-### The cleanup itself -- decided 2026-09-22, IN PROGRESS, paused mid-item
+### The cleanup itself -- decided and executed 2026-09-22, see §26 for the full record
 
 **Not a close -- picks up exactly where the "recommended path" above left
 off, and stops partway through on purpose.** Full options were laid out
@@ -5931,21 +5931,24 @@ comparison. Maintainer's decisions, in order:
    left to keep two branches. `main` matches GitHub's own modern default
    naming.
 
-**Status as of this note: bundle created and verified; the bundle is
-being uploaded to the existing `v0.1.9553` GitHub release as an
-attachment (in progress, not yet confirmed complete -- large-file
-uploads over a browser take real time). Nothing else has been touched --
-`dev`, `master`, `v0.1.9553` (branch and tag) and `backup-reword` all
-still exist exactly as before, locally and on GitHub.**
+**Completed the same night -- see §26 for the full step-by-step record,
+including two real deviations from the plan above (`extra/` excluded from
+git entirely, not just history; the surviving branch is `main`, not
+`dev`) and two genuine, unresolved findings surfaced by the post-reset
+`devtools::check()` that are unrelated to the reset itself.** `.git`
+went from 223M to 46M; the working tree from 396M to 115M in a fresh
+clone. Not reproduced again here -- §26 is the record, this section
+stays as the original decision and reasoning.
 
-**Explicitly not done yet, and not to be started without confirming the
-upload first:** the orphan commit, force-pushing `main`, switching
-GitHub's default branch, deleting `master`/`dev`/`v0.1.9553`/
-`backup-reword`, local `git gc --prune=now --aggressive`, re-cloning to a
-fresh working copy, and the post-reset `devtools::check()`/golden-baseline
-verification. All of it is spelled out step-by-step in the plan file
-above -- follow it directly rather than re-deriving the sequence, and do
-not skip the "switch the default branch before deleting anything" step,
+For reference, this is what "not yet done" looked like at the pause
+point, now entirely superseded by §26: the orphan commit,
+force-pushing `main`, switching GitHub's default branch, deleting
+`master`/`dev`/`v0.1.9553`/`backup-reword`, local `git gc
+--prune=now --aggressive`, re-cloning to a fresh working copy, and the
+post-reset `devtools::check()`/golden-baseline verification. All of it
+was spelled out step-by-step in the plan file above, and followed
+directly rather than re-derived, including not skipping the "switch the
+default branch before deleting anything" step,
 since GitHub refuses to delete whichever branch is currently set as
 default.
 
@@ -6510,6 +6513,32 @@ maintainer's own standing instruction for this item, the version bump
 everything from this whole stretch (§17/§18/§19/§20 and this closing
 note) still needs to be committed -- nothing in this multi-session item
 has been committed yet.
+
+**Correction/follow-up, 2026-09-22 -- a live consequence of the
+`correct_tales()` flag-swap fix, not caught until now.**
+`vignettes/articles/tale_mining.qmd`'s "Correcting frameshifts, two ways"
+section (rendered at
+https://scunnac.github.io/tantale/articles/tale_mining.html#correcting-frameshifts-two-ways)
+was written and verified against the *pre-fix*, swapped-flags
+`correct_tales()` -- its whole narrative rests on neither correction path
+alone fixing every problem in the BAI3-1-1 talome (per §7.5b: `correct_tales()`
+fixed `ROI_00003` but not `ROI_00005`; `correct_array = TRUE` fixed both but
+broke a third, previously-clean array), which is why the section
+demonstrates running both, sequentially, as a contrast. **Now stale, per the
+maintainer:** with the flags fixed, the correctly-called `correct_tales()`
+alone now fixes every problem in that talome -- the sequential two-method
+demonstration is no longer justified, and the section's prose and structure
+need rewriting to match actual current behaviour. **Also needs re-verification,
+not just the sequencing narrative:** the section's own "How much did either
+correction actually help?" part quantifies each method's benefit, and those
+numbers were computed against the same pre-fix `correct_tales()` -- they need
+re-checking against the corrected tool's real output, not assumed still
+accurate just because the surrounding prose is what's being restructured.
+**Not done -- flagged for a future session, not attempted here.** One
+specific piece confirmed still valid and not to be touched when this is
+revisited: the timing/performance comparison between the two approaches,
+elsewhere in the same section, still
+holds.
 
 ---
 
@@ -7293,3 +7322,159 @@ confirms each points at the semantically correct fixture, not just a
 structurally-plausible one. `test_golden.R` passes unchanged (44/44) --
 none of these fixtures feed a golden snapshot. `dev/restructuring-notes.md`'s
 own two stale references to the old names (§7.2, this section) updated.
+
+---
+
+## 25. Proposed article: how correction handles genuine truncTALEs -- IDEA ONLY, not started **[P]**
+
+Maintainer's proposal, 2026-09-22, for a new, separate pkgdown article (not
+a section folded into an existing one).
+
+**The biology.** Asian *Xoo* strains carry truncTALEs -- TALEs with much
+shorter N- and C-termini than a typical TALE. The short C-terminus is not
+an assembly artefact or a sequencing error: it derives from a genuine,
+real frameshift, i.e. the truncation is the organism's actual biology, not
+noise to be corrected away.
+
+**The problem this article would document, transparently.** The
+maintainer's own prior experimentation with `tell_tales(correct_array =
+TRUE)` (the DECIPHER-based correction) found that it artificially extends
+genuine truncTALE ORFs -- it cannot distinguish a real, evolved
+frameshift from an assembly error, so it "fixes" both the same way,
+producing a longer ORF than the real protein actually has. This is
+already known from experience, not something to re-derive.
+
+**The open question the article would actually investigate:** does
+`correct_tales()` (the Java `TALEcorrection.jar` wrapper, now correctly
+invoked since §17's flag-swap fix) have the same over-correction tendency
+on a genuine truncTALE, or does it correctly preserve a real truncTALE's
+ORF instead of extending it? Not yet checked either way.
+
+**Not started.** No fixture identified, no code written, no article
+drafted. Recorded here so the idea and its framing (illustrate the
+DECIPHER over-extension honestly, then test whether the jar-based
+correction shares the same failure mode) aren't lost before a future
+session picks it up.
+
+---
+
+## 26. §16's history reset, executed -- DONE, with two real findings surfaced along the way **[V]**
+
+Follow-through on §16 and its own in-progress note (2026-09-22, same
+day): the plan recorded there (`~/.claude/plans/let-s-move-to-16-glistening-thacker.md`)
+was carried out in full, with two deviations from the original sketch,
+both maintainer decisions made live rather than assumed.
+
+**Deviation 1: `extra/` excluded from git entirely, not just from
+history.** While the fresh single commit was being pushed, the maintainer
+realised `extra/` (274M) was never meant to be git-tracked at all -- it
+is already excluded from the R build via `.Rbuildignore` (`^extra$`), and
+was assumed to be gitignored too, but had no `.gitignore` entry. Confirmed
+directly (`grep -rln "extra/" R/ tests/testthat/*.R inst/` -- zero hits)
+that nothing in the package's code references it, so removing it from git
+tracking has no functional consequence. `extra/` added to `.gitignore`,
+untracked with `git rm -r --cached` (kept on disk, just no longer part of
+the repository), and the orphan commit amended before it was ever
+successfully pushed -- caught in time to avoid uploading its 274M
+needlessly; a first push attempt (of the version still including `extra/`)
+was killed mid-transfer once this was noticed.
+
+**Deviation 2: the single surviving branch is `main`, not `dev`.**
+Maintainer's call, mid-execution: since `master`'s only job was freezing
+an old reference point for `dev` to build on, and that reference point is
+exactly what's being archived and discarded, there was no reason left to
+keep two branches. `main` replaces `master`/`dev` both, matching GitHub's
+modern default naming.
+
+**Executed, in order, all verified directly rather than assumed:**
+
+1. **Backup.** `git bundle create --all` -- the entire pre-reset
+   repository (327 commits, every branch and tag, including
+   `backup-reword`, a local-only branch never pushed to GitHub at all) in
+   one 185M file. Verified by cloning from the bundle into a scratch
+   folder and confirming 327 commits and all four branches present, not
+   just trusting `git bundle verify`'s own "complete history" claim.
+2. **Archived.** The existing `v0.1.9553` GitHub release (created
+   2026-09-18) was checked directly via GitHub's API first, not assumed
+   sufficient -- its assets array was genuinely empty; what the page
+   showed as "Assets 2" was only GitHub's automatic per-tag source
+   zip/tarball, which holds no git history at all. The bundle was
+   attached to that existing release by hand (no `gh` CLI on this
+   machine). Confirmed after upload, again via the API, that the asset's
+   reported size matched the local file byte-for-byte (193,924,884 bytes
+   both sides) before anything was deleted.
+3. **Reset.** `git checkout --orphan main` from `dev`'s tip, `extra/`
+   excluded per Deviation 1 above, one commit.
+4. **Published.** `git push origin main` -- failed once with a broken
+   pipe on the first, larger (with-`extra/`) attempt; succeeded on retry
+   with SSH keepalive options (`ServerAliveInterval=15`) once `extra/`
+   was dropped, shrinking the push besides. Confirmed the remote SHA
+   matched the local one exactly before proceeding.
+5. **Old refs retired.** Default branch switched to `main` in GitHub's
+   settings first (confirmed via the API's `default_branch` field before
+   touching anything else) -- required, since GitHub refuses to delete
+   whichever branch is currently default. `master`, `dev`, the
+   `v0.1.9553` branch, and the local `v0.1.9553` tag all deleted, plus the
+   equivalent local branches. One hiccup, already on record as a known
+   risk in §16's own original text: `v0.1.9553` the branch and
+   `v0.1.9553` the tag really did collide on short-name deletion
+   (`error: dst refspec v0.1.9553 matches more than one`) -- resolved
+   with an explicit `refs/heads/v0.1.9553` refspec for the branch,
+   `:refs/tags/v0.1.9553` for the tag. `backup-reword` was never on the
+   remote at all (confirmed by the delete attempt's own error), so
+   nothing to remove there; its local branch was still deleted.
+6. **Space reclaimed.** `git reflog expire --expire=now --all` then
+   `git gc --prune=now --aggressive`, measured directly: **`.git` 223M ->
+   46M.**
+7. **Fresh clone.** The old working directory moved aside
+   (`tantale-old-before-reset`, not deleted, kept as a safety margin) and
+   a genuine `git clone` taken from `origin` -- **`.git` 49M, whole
+   working tree 115M**, down from 223M + 396M = 619M total before any of
+   this.
+8. **Verified against the fresh clone, not the old working directory:**
+   `test_golden.R` under `devtools::load_all()` passes clean, no snapshot
+   changes. A full `devtools::check()` was also run, beyond what the plan
+   itself asked for, as extra diligence -- see the findings below, which
+   are real but **not** consequences of this reset.
+
+**Two real findings from that `devtools::check()` run, both confirmed
+unrelated to the reset itself (the reset changes no tracked file's
+content at all, `extra/` excluded per Deviation 1 and confirmed
+unreferenced by any code above) -- both pre-existing, both newly
+surfaced only because this may be the first full, clean `R CMD check` run
+in some time, and neither fixed tonight:**
+
+- **`test_pairwise_distances_class.R` hard-depends on `reshape2`** at two
+  call sites (`expected <- reshape2::acast(...)`, `legacy <- 100 -
+  reshape2::acast(...)`) -- confirmed `reshape2` is not in `DESCRIPTION`
+  at all (dropped in §14's migration off it, days ago) but is still
+  installed on this machine's ambient R library, which is exactly why
+  every `devtools::load_all()`-based check today (including this
+  session's own) never caught it: `R CMD check`'s isolated check library
+  is the only thing that actually enforces declared dependencies. Two
+  tests error with `there is no package called 'reshape2'` under a real
+  check. Not fixed -- these look like leftover "compare the new
+  implementation against the old reshape2 ground truth" regression tests
+  from §14 itself that were never removed once reshape2 was fully retired.
+- **A real golden-baseline mismatch, reproducible only under a true
+  install, not under `load_all()`.** `test_golden.R:206`,
+  "`tell_tales()` with frameshift correction": `n_dropped` changed from 2
+  to 6 (and a related row from 2 to 7), with new digests, under
+  `devtools::check()` -- while the exact same test file, run via
+  `devtools::load_all()` on this exact same commit, both earlier today
+  and again just now on the fresh clone, passes with zero changes. This
+  is a real, unexplained load_all-vs-installed behavioural difference in
+  the correction path specifically, not a cosmetic path-formatting
+  artefact like the `covr`/tempdir issue §8.1d already found and fixed --
+  `n_dropped` is a substantive count, not a string. **Root cause not
+  found tonight; explicitly not rebaselined without one**, per this
+  project's own standing golden-rebaseline discipline ("explain every
+  changed row before accepting" -- an accepted snapshot is
+  indistinguishable from a correct one). Flagged as a real, open,
+  unresolved item for the next session, not swept past because the hour
+  was late.
+
+**Not lost:** `tantale-old-before-reset` (the original working directory,
+pre-`gc`, moved aside rather than deleted) and the GitHub release bundle
+both still exist as full-fidelity fallbacks if anything above needs
+re-examining.
