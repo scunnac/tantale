@@ -1,0 +1,37 @@
+#****************************************
+#**   tellTale analysis done     **
+Current date:	Sat May 28 20:29:48 2022
+#_________Provided I/O parameters __________
+File of subject DNA sequences:	/tmp/RtmpdPtkT2/file1ec1a7d293ba9
+TALE N-term CDS region detection HMM file:	/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Nterm_CDS_profile.hmm
+TALE repeat unit CDS detection HMM file:	/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_repeat_CDS_profile.hmm
+TALE C-term CDS region detection HMM file:	/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Cterm_CDS_profile.hmm
+Output directory:	/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/tellTaleExampleOutput
+#____________Other parameters________________
+TALE_NtermDNAHitMinScore	:	300
+repeatDNAHitMinScore	:	20
+TALE_CtermDNAHitMinScore	:	200
+minDomainHitsPerSubjSeq	:	4
+mergeHits	:	TRUE
+minGapWidth	:	35
+taleArrayStartAnchorCode	:	NTERM
+taleArrayEndAnchorCode	:	CTERM
+extendedLength	:	300
+talArrayCorrection	:	FALSE
+refForTalArrayCorrection	:	/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/decipher_ref_tales_aa.fa.gz
+frameShiftCorrection	:	-11
+#__________Summary measures of TALE search outcome__________
+Number of analysed subject sequences :	2
+Total number of TALE repeat DNA coding sequence motif hits found with the nhmmer approach:	88
+Total number of subject seqs with TALE motif hits after low hit number filtering:	2
+Total number of distinct regions (repeat arrays) with adjacent TALE motifs :	4
+Total number of 'complete' arrays (with both N- and C-term flanking motifs):	4
+Minimum array length (number of TALE domain hits):	16
+Maximum array length:	28
+Median array length:	26
+Number of gaps of size below 500nt between TALE motifs arrays:	1.5
+First quartile of size of gaps (below 500nt) between TALE motifs arrays:	108
+Median size of gaps (below 500nt) between TALE motifs arrays:	108
+Upper quartile of size of gaps (below 500nt) between TALE motifs arrays:	108
+#*************************
+

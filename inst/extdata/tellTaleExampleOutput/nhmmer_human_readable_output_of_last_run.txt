@@ -1,0 +1,2421 @@
+# nhmmer :: search a DNA model, alignment, or sequence against a DNA database
+# HMMER 3.3 (Nov 2019); http://hmmer.org/
+# Copyright (C) 2019 Howard Hughes Medical Institute.
+# Freely distributed under the BSD open source license.
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# query file:                      /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/tellTaleExampleOutput/TALE_CDS_all_diagnostic_regions_hmmfile.out
+# target sequence database:        /tmp/RtmpdPtkT2/file1ec1a7d293ba9
+# hits tabular output:             /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/tellTaleExampleOutput/hmmerSearchOut.txt
+# number of worker threads:        2
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
+Query:       TALE_N-terminus_CDS_aligned_curated  [M=864]
+Scores for complete hits:
+    E-value  score  bias  Sequence  start    end  Description
+    ------- ------ -----  --------  -----  -----  -----------
+          0 1067.0  53.1  seq2      28926  28063 
+          0 1066.1  49.0  seq1      29437  30297 
+          0 1063.2  50.7  seq1      32652  33512 
+          0 1062.6  48.2  seq1      25001  25861 
+
+
+Annotation for each hit  (and alignments):
+>> seq2  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ ! 1067.0  53.1         0         1       864 []     28926     28063 ..     28926     28063 ..     53926    1.00
+
+  Alignment:
+  score: 1067.0 bits
+  TALE_N-terminus_CDS_aligned_curated     1 atggatcccattcgtccgcgcaggccaagtcctgcccgcgagcttctgcccggaccccaaccggataggg 70   
+                                            atggatcccattcgtccgcgc  gccaagtcctgcccgcgag ttctgcccgg ccccaaccggataggg
+                                 seq2 28926 ATGGATCCCATTCGTCCGCGCGCGCCAAGTCCTGCCCGCGAGGTTCTGCCCGGCCCCCAACCGGATAGGG 28857
+                                            79******************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated    71 ttcagccgactgcagatcggggggtgtctgcgcctgctggcggccctctggatggcttgcccgctcggcg 140  
+                                            ttcagccgactgcagatcg+ggggtgtctgcgcctgctggc+gccctctggatggcttgc cgctcggcg
+                                 seq2 28856 TTCAGCCGACTGCAGATCGTGGGGTGTCTGCGCCTGCTGGCAGCCCTCTGGATGGCTTGCACGCTCGGCG 28787
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   141 gacgatgtcccggacccggctgccatctccccctgcgccctcgcctgcgttctcggcgggcagcttcagc 210  
+                                            gacgatgtcccggacccggctgccatctccccctgc ccct+gcctgcgttctcggcgggcagcttcagc
+                                 seq2 28786 GACGATGTCCCGGACCCGGCTGCCATCTCCCCCTGCCCCCTTGCCTGCGTTCTCGGCGGGCAGCTTCAGC 28717
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   211 gatctgctccgtcagttcgatccgtcgcttcttgatacatcgcttcttgattcgatgcctgccgtcggca 280  
+                                            gatctgctccgtcagttcgatccgtcgcttcttgatacatcgctt+ttgattcgatgcctgccgtcggca
+                                 seq2 28716 GATCTGCTCCGTCAGTTCGATCCGTCGCTTCTTGATACATCGCTTTTTGATTCGATGCCTGCCGTCGGCA 28647
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   281 cgccgcatacagcggctgccccagcagagtgggatgaggtgcaatcgggtctgcgtgcagccgatgaccc 350  
+                                            cgcc catacag ggctgccccagcagag gggatgaggtgcaatcgg tctgcgtgcagccgatgaccc
+                                 seq2 28646 CGCCTCATACAGAGGCTGCCCCAGCAGAGGGGGATGAGGTGCAATCGGCTCTGCGTGCAGCCGATGACCC 28577
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   351 gccacccaccgtgcgtgtcgctgtcactgccgcgcggccgccgcgcgccaagccggccccgcgacggcgt 420  
+                                            gccacccaccgtgcgtgtcgctgtcactgccgcgcggc+gccgcgcgccaagccggccccgcgacggcgt
+                                 seq2 28576 GCCACCCACCGTGCGTGTCGCTGTCACTGCCGCGCGGCAGCCGCGCGCCAAGCCGGCCCCGCGACGGCGT 28507
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   421 gcggcgcaaccctccgacgcttcgccggccgcgcaggtggatctacgcacgctcggctacagtcagcagc 490  
+                                            gc+gcgcaaccctccgacgcttcgccggccgcgcaggtggatctacgcacgctcggctacagtcagcagc
+                                 seq2 28506 GCTGCGCAACCCTCCGACGCTTCGCCGGCCGCGCAGGTGGATCTACGCACGCTCGGCTACAGTCAGCAGC 28437
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   491 agcaagagaagatcaaaccgaaggtgcgttcgacagtggcgcagcaccacgaggcactggtgggccatgg 560  
+                                            agcaagagaagatc aaccgaa+gt+cgttcgacagtggcgcagcaccacgaggcactggtgggccatgg
+                                 seq2 28436 AGCAAGAGAAGATCGAACCGAATGTTCGTTCGACAGTGGCGCAGCACCACGAGGCACTGGTGGGCCATGG 28367
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   561 gtttacacacgcgcacatcgttgcgctcagccaacacccggcagcgttagggaccgttgctgtcacgtat 630  
+                                            gtttacacacg gcacatcgttgcgctcagcc acacccggcagcgttagggaccgt+gctgtca+gtat
+                                 seq2 28366 GTTTACACACGAGCACATCGTTGCGCTCAGCCGACACCCGGCAGCGTTAGGGACCGTCGCTGTCAAGTAT 28297
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   631 cagcacataatcacggcgttgccagaggcgacacacgaagacatcgttggcgtcggcaaacagtggtccg 700  
+                                            cag acat atc cggcgtt ccagaggcgacacacgaagacatcgttgg gtcggcaaacagtggtccg
+                                 seq2 28296 CAGGACATGATCGCGGCGTTACCAGAGGCGACACACGAAGACATCGTTGGGGTCGGCAAACAGTGGTCCG 28227
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   701 gcgcacgcgccctggaggccttgctcacggaggcgggggagttgagaggtccgccgttacagttggacac 770  
+                                            gcgcacgcgccctggaggccttgctcacgg+ggcggg gagttgagaggtcc+ccgttacagttggacac
+                                 seq2 28226 GCGCACGCGCCCTGGAGGCCTTGCTCACGGTGGCGGGAGAGTTGAGAGGTCCACCGTTACAGTTGGACAC 28157
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   771 aggccaacttctcaagattgcaaaacgtggcggcgtgaccgcagtggaggcagtgcatgcatcgcgcaat 840  
+                                            aggccaactt tcaagattgcaaaacgtggcggcgtgaccgcagtggaggcagtgcatgcatcgcgcaat
+                                 seq2 28156 AGGCCAACTTGTCAAGATTGCAAAACGTGGCGGCGTGACCGCAGTGGAGGCAGTGCATGCATCGCGCAAT 28087
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   841 gcactgacgggtgcccccctgaac 864  
+                                            gcactgacgggtgcccccctgaac
+                                 seq2 28086 GCACTGACGGGTGCCCCCCTGAAC 28063
+                                            **********************96 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ ! 1066.1  49.0         0         1       864 []     29437     30297 ..     29437     30297 ..     61971    1.00
+
+  Alignment:
+  score: 1066.1 bits
+  TALE_N-terminus_CDS_aligned_curated     1 atggatcccattcgtccgcgcaggccaagtcctgcccgcgagcttctgcccggaccccaaccggataggg 70   
+                                            atggatcccattcgtccgcgc  gccaagtcctgcccgcgagcttctgcccggacc caaccggataggg
+                                 seq1 29437 ATGGATCCCATTCGTCCGCGCGCGCCAAGTCCTGCCCGCGAGCTTCTGCCCGGACCTCAACCGGATAGGG 29506
+                                            79******************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated    71 ttcagccgactgcagatcggggggtgtctgcgcctgctggcggccctctggatggcttgcccgctcggcg 140  
+                                            ttcagccgactgcagatcg+ggggtgtctgcgcctgctggc+gccctctggatggcttgc cgctcggcg
+                                 seq1 29507 TTCAGCCGACTGCAGATCGTGGGGTGTCTGCGCCTGCTGGCAGCCCTCTGGATGGCTTGCACGCTCGGCG 29576
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   141 gacgatgtcccggacccggctgccatctccccctgcgccctcgcctgcgttctcggcgggcagcttcagc 210  
+                                            gacgatgtcccggacccggctgccatctccccctgc ccct+gcctgcgttctcggcgggcagcttcagc
+                                 seq1 29577 GACGATGTCCCGGACCCGGCTGCCATCTCCCCCTGCCCCCTTGCCTGCGTTCTCGGCGGGCAGCTTCAGC 29646
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   211 gatctgctccgtcagttcgatccgtcgcttcttgatacatcgcttcttgattcgatgcctgccgtcggca 280  
+                                            gatctgctccgtcagttcgatccgtcgcttcttgatacatcgctt+ttgattcgatgcctgccgtcggca
+                                 seq1 29647 GATCTGCTCCGTCAGTTCGATCCGTCGCTTCTTGATACATCGCTTTTTGATTCGATGCCTGCCGTCGGCA 29716
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   281 cgccgcatacagcggctgccccagcagagtgggatgaggtgcaatcgggtctgcgtgcagccgatgaccc 350  
+                                            cgcc catacag ggctgccccagcagag gggatgaggtgcaatcgg tctgcgtgcagccgatgaccc
+                                 seq1 29717 CGCCTCATACAGAGGCTGCCCCAGCAGAGGGGGATGAGGTGCAATCGGCTCTGCGTGCAGCCGATGACCC 29786
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   351 gccacccaccgtgcgtgtcgctgtcactgccgcgcggccgccgcgcgccaagccggccccgcgacggcgt 420  
+                                            gccacccaccgtgcgtgtcgctgtcactgccgcgcggc+gccgcgcgccaagccggccccgcgacg   t
+                                 seq1 29787 GCCACCCACCGTGCGTGTCGCTGTCACTGCCGCGCGGCAGCCGCGCGCCAAGCCGGCCCCGCGACG---T 29853
+                                            **************************************************************9975...* PP
+
+  TALE_N-terminus_CDS_aligned_curated   421 gcggcgcaaccctccgacgcttcgccggccgcgcaggtggatctacgcacgctcggctacagtcagcagc 490  
+                                            gc+gcgcaaccctccgacgcttcgccggccgcgcaggtggatctacgcacgctcggctacagtcagcagc
+                                 seq1 29854 GCTGCGCAACCCTCCGACGCTTCGCCGGCCGCGCAGGTGGATCTACGCACGCTCGGCTACAGTCAGCAGC 29923
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   491 agcaagagaagatcaaaccgaaggtgcgttcgacagtggcgcagcaccacgaggcactggtgggccatgg 560  
+                                            agcaagagaagatcaaaccgaa+gt+cgtt gacagtggcgcagcaccacgaggcactggtgggccatgg
+                                 seq1 29924 AGCAAGAGAAGATCAAACCGAATGTTCGTTTGACAGTGGCGCAGCACCACGAGGCACTGGTGGGCCATGG 29993
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   561 gtttacacacgcgcacatcgttgcgctcagccaacacccggcagcgttagggaccgttgctgtcacgtat 630  
+                                            gtttacacacgcgcacatcgttgcgctcagccaacacccggcagcgttagggaccgt+gctgtca+gtat
+                                 seq1 29994 GTTTACACACGCGCACATCGTTGCGCTCAGCCAACACCCGGCAGCGTTAGGGACCGTCGCTGTCAAGTAT 30063
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   631 cagcacataatcacggcgttgccagaggcgacacacgaagacatcgttggcgtcggcaaacagtggtccg 700  
+                                            cag acat atc cggcgtt ccagaggcgacacacgaagacatcgttgg gtcggcaaacagtggtccg
+                                 seq1 30064 CAGGACATGATCGCGGCGTTACCAGAGGCGACACACGAAGACATCGTTGGGGTCGGCAAACAGTGGTCCG 30133
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   701 gcgcacgcgccctggaggccttgctcacggaggcgggggagttgagaggtccgccgttacagttggacac 770  
+                                            gcgcacgcgccctggaggccttgctcacgg+ggcggg gagttgagaggtcc+ccgttacagttggacac
+                                 seq1 30134 GCGCACGCGCCCTGGAGGCCTTGCTCACGGTGGCGGGAGAGTTGAGAGGTCCACCGTTACAGTTGGACAC 30203
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   771 aggccaacttctcaagattgcaaaacgtggcggcgtgaccgcagtggaggcagtgcatgcatcgcgcaat 840  
+                                            aggccaactt tcaagattgcaaaacgtggcggcgtgaccgcagtggaggcagtgcatgcatcgcgcaat
+                                 seq1 30204 AGGCCAACTTGTCAAGATTGCAAAACGTGGCGGCGTGACCGCAGTGGAGGCAGTGCATGCATCGCGCAAT 30273
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   841 gcactgacgggtgcccccctgaac 864  
+                                            gcactgacgggtgcccccctgaac
+                                 seq1 30274 GCACTGACGGGTGCCCCCCTGAAC 30297
+                                            **********************96 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ ! 1063.2  50.7         0         1       864 []     32652     33512 ..     32652     33512 ..     61971    1.00
+
+  Alignment:
+  score: 1063.2 bits
+  TALE_N-terminus_CDS_aligned_curated     1 atggatcccattcgtccgcgcaggccaagtcctgcccgcgagcttctgcccggaccccaaccggataggg 70   
+                                            atggatcccattcgtccgcgc  gccaagtcctgcccgcgag ttctgcccgg ccccaaccggataggg
+                                 seq1 32652 ATGGATCCCATTCGTCCGCGCGCGCCAAGTCCTGCCCGCGAGGTTCTGCCCGGCCCCCAACCGGATAGGG 32721
+                                            79******************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated    71 ttcagccgactgcagatcggggggtgtctgcgcctgctggcggccctctggatggcttgcccgctcggcg 140  
+                                            ttcagccgactgcagatcg+ggggtgtctgcgcctgctggc+gccctctggatggcttgcccgctcggcg
+                                 seq1 32722 TTCAGCCGACTGCAGATCGTGGGGTGTCTGCGCCTGCTGGCAGCCCTCTGGATGGCTTGCCCGCTCGGCG 32791
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   141 gacgatgtcccggacccggctgccatctccccctgcgccctcgcctgcgttctcggcgggcagcttcagc 210  
+                                            gacgatgtcccggacccggctgccatctccccct c ccct+gcctgcgttctcggcgggcagcttcagc
+                                 seq1 32792 GACGATGTCCCGGACCCGGCTGCCATCTCCCCCTTCCCCCTTGCCTGCGTTCTCGGCGGGCAGCTTCAGC 32861
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   211 gatctgctccgtcagttcgatccgtcgcttcttgatacatcgcttcttgattcgatgcctgccgtcggca 280  
+                                            gatctgctccgtcagttcgatccgtcgcttcttgatacatcgctt+ttgattcgatgcctgccgtcggca
+                                 seq1 32862 GATCTGCTCCGTCAGTTCGATCCGTCGCTTCTTGATACATCGCTTTTTGATTCGATGCCTGCCGTCGGCA 32931
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   281 cgccgcatacagcggctgccccagcagagtgggatgaggtgcaatcgggtctgcgtgcagccgatgaccc 350  
+                                            cgcc catacag ggctgccccagcagag gggatgaggtgcaatcgg tctgcgtgcagccgatgaccc
+                                 seq1 32932 CGCCTCATACAGAGGCTGCCCCAGCAGAGGGGGATGAGGTGCAATCGGCTCTGCGTGCAGCCGATGACCC 33001
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   351 gccacccaccgtgcgtgtcgctgtcactgccgcgcggccgccgcgcgccaagccggccccgcgacggcgt 420  
+                                            gccacccaccgtgcgtgtcgctgtcactgccgcgcggc+gccgcgcgccaagccggccccgcgacg   t
+                                 seq1 33002 GCCACCCACCGTGCGTGTCGCTGTCACTGCCGCGCGGCAGCCGCGCGCCAAGCCGGCCCCGCGACG---T 33068
+                                            **************************************************************9975...* PP
+
+  TALE_N-terminus_CDS_aligned_curated   421 gcggcgcaaccctccgacgcttcgccggccgcgcaggtggatctacgcacgctcggctacagtcagcagc 490  
+                                            gc+gcgcaaccctccgacgcttcgccggccgcgcaggtggatctacgcacgctcggctacagtcagcagc
+                                 seq1 33069 GCTGCGCAACCCTCCGACGCTTCGCCGGCCGCGCAGGTGGATCTACGCACGCTCGGCTACAGTCAGCAGC 33138
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   491 agcaagagaagatcaaaccgaaggtgcgttcgacagtggcgcagcaccacgaggcactggtgggccatgg 560  
+                                            agcaagagaagatcaaaccgaa+gt+cgtt gacagtggcgcagcaccacgaggcactggtgggccatgg
+                                 seq1 33139 AGCAAGAGAAGATCAAACCGAATGTTCGTTTGACAGTGGCGCAGCACCACGAGGCACTGGTGGGCCATGG 33208
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   561 gtttacacacgcgcacatcgttgcgctcagccaacacccggcagcgttagggaccgttgctgtcacgtat 630  
+                                            gtttacacacgcgcacatcgttgcgctcagccaacacccggcagcgttagggaccgt+gctgtca+gtat
+                                 seq1 33209 GTTTACACACGCGCACATCGTTGCGCTCAGCCAACACCCGGCAGCGTTAGGGACCGTCGCTGTCAAGTAT 33278
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   631 cagcacataatcacggcgttgccagaggcgacacacgaagacatcgttggcgtcggcaaacagtggtccg 700  
+                                            cag acat atc cggcgtt ccagaggcgacacacgaagacatcgttgg gtcggcaaacagtggtccg
+                                 seq1 33279 CAGGACATGATCGCGGCGTTACCAGAGGCGACACACGAAGACATCGTTGGGGTCGGCAAACAGTGGTCCG 33348
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   701 gcgcacgcgccctggaggccttgctcacggaggcgggggagttgagaggtccgccgttacagttggacac 770  
+                                            gcgcacgcgccctggaggccttgctcacgg+ggcggg gagttgagaggtcc+ccgttacagttggacac
+                                 seq1 33349 GCGCACGCGCCCTGGAGGCCTTGCTCACGGTGGCGGGAGAGTTGAGAGGTCCACCGTTACAGTTGGACAC 33418
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   771 aggccaacttctcaagattgcaaaacgtggcggcgtgaccgcagtggaggcagtgcatgcatcgcgcaat 840  
+                                            aggccaactt tcaagattgcaaaacgtggcggcgtgaccgcagtggaggcagtgcatgcatcgcgcaat
+                                 seq1 33419 AGGCCAACTTGTCAAGATTGCAAAACGTGGCGGCGTGACCGCAGTGGAGGCAGTGCATGCATCGCGCAAT 33488
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   841 gcactgacgggtgcccccctgaac 864  
+                                            gcactgacgggtgcccccctgaac
+                                 seq1 33489 GCACTGACGGGTGCCCCCCTGAAC 33512
+                                            **********************96 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ ! 1062.6  48.2         0         1       864 []     25001     25861 ..     25001     25861 ..     61971    1.00
+
+  Alignment:
+  score: 1062.6 bits
+  TALE_N-terminus_CDS_aligned_curated     1 atggatcccattcgtccgcgcaggccaagtcctgcccgcgagcttctgcccggaccccaaccggataggg 70   
+                                            atggatcccattcgtccgcgcaggccaagtcctgcccgcgag ttctgcc+ggaccccaaccggataggg
+                                 seq1 25001 ATGGATCCCATTCGTCCGCGCAGGCCAAGTCCTGCCCGCGAGATTCTGCCTGGACCCCAACCGGATAGGG 25070
+                                            79******************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated    71 ttcagccgactgcagatcggggggtgtctgcgcctgctggcggccctctggatggcttgcccgctcggcg 140  
+                                            ttcagccgactgcagatcg+ggggtgtct cgcctgctggc+gccctctggatggcttgcccgctcggcg
+                                 seq1 25071 TTCAGCCGACTGCAGATCGTGGGGTGTCTCCGCCTGCTGGCAGCCCTCTGGATGGCTTGCCCGCTCGGCG 25140
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   141 gacgatgtcccggacccggctgccatctccccctgcgccctcgcctgcgttctcggcgggcagcttcagc 210  
+                                            gacgatgtcccggacccggctgccatctccccctgc ccct+gcctgcgttctcggcgggcagcttcagc
+                                 seq1 25141 GACGATGTCCCGGACCCGGCTGCCATCTCCCCCTGCCCCCTTGCCTGCGTTCTCGGCGGGCAGCTTCAGC 25210
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   211 gatctgctccgtcagttcgatccgtcgcttcttgatacatcgcttcttgattcgatgcctgccgtcggca 280  
+                                            gatctgctccgtcagttcgatccgtcgcttcttgatacatcgctt+ttgattcgatgcctgccgtcggca
+                                 seq1 25211 GATCTGCTCCGTCAGTTCGATCCGTCGCTTCTTGATACATCGCTTTTTGATTCGATGCCTGCCGTCGGCA 25280
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   281 cgccgcatacagcggctgccccagcagagtgggatgaggtgcaatcgggtctgcgtgcagccgatgaccc 350  
+                                            cgcc catacag gg tgccccagcagag gggatgaggtgcaatcgg tctgcgtgcagccgatgaccc
+                                 seq1 25281 CGCCTCATACAGAGGTTGCCCCAGCAGAGGGGGATGAGGTGCAATCGGCTCTGCGTGCAGCCGATGACCC 25350
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   351 gccacccaccgtgcgtgtcgctgtcactgccgcgcggccgccgcgcgccaagccggccccgcgacggcgt 420  
+                                            gccacccaccgtgcgtgtcgctgtcactgccgcgcggc+gccgcgcgccaagccggccccgcgacg   t
+                                 seq1 25351 GCCACCCACCGTGCGTGTCGCTGTCACTGCCGCGCGGCAGCCGCGCGCCAAGCCGGCCCCGCGACG---T 25417
+                                            **************************************************************9975...* PP
+
+  TALE_N-terminus_CDS_aligned_curated   421 gcggcgcaaccctccgacgcttcgccggccgcgcaggtggatctacgcacgctcggctacagtcagcagc 490  
+                                            gc+gcgcaaccctccgacgcttcgccggccgcgcaggtggatctacgcacgctcggctacagtcagcagc
+                                 seq1 25418 GCTGCGCAACCCTCCGACGCTTCGCCGGCCGCGCAGGTGGATCTACGCACGCTCGGCTACAGTCAGCAGC 25487
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   491 agcaagagaagatcaaaccgaaggtgcgttcgacagtggcgcagcaccacgaggcactggtgggccatgg 560  
+                                            agcaagagaagatc aaccgaa+gt+cgtt gacagtggcgcagcaccacgaggcactggtgggccatgg
+                                 seq1 25488 AGCAAGAGAAGATCGAACCGAATGTTCGTTTGACAGTGGCGCAGCACCACGAGGCACTGGTGGGCCATGG 25557
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   561 gtttacacacgcgcacatcgttgcgctcagccaacacccggcagcgttagggaccgttgctgtcacgtat 630  
+                                            gtttacacacgcgcacatcgttgcgctcagcc acacccggcagcgttagggaccgt+gctgtca+gtat
+                                 seq1 25558 GTTTACACACGCGCACATCGTTGCGCTCAGCCGACACCCGGCAGCGTTAGGGACCGTCGCTGTCAAGTAT 25627
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   631 cagcacataatcacggcgttgccagaggcgacacacgaagacatcgttggcgtcggcaaacagtggtccg 700  
+                                            cag acat atc cggcgtt ccagaggcgacacacgaagacatcgttgg gtcggcaaacagtg tccg
+                                 seq1 25628 CAGGACATGATCGCGGCGTTACCAGAGGCGACACACGAAGACATCGTTGGGGTCGGCAAACAGTGTTCCG 25697
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   701 gcgcacgcgccctggaggccttgctcacggaggcgggggagttgagaggtccgccgttacagttggacac 770  
+                                            gcgcacgcgccctggaggccttgctcacgg+ggcggg gagttgagaggtcc+ccgttacagttggacac
+                                 seq1 25698 GCGCACGCGCCCTGGAGGCCTTGCTCACGGTGGCGGGAGAGTTGAGAGGTCCACCGTTACAGTTGGACAC 25767
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   771 aggccaacttctcaagattgcaaaacgtggcggcgtgaccgcagtggaggcagtgcatgcatcgcgcaat 840  
+                                            aggccaactt tcaagattgcaaaacgtggcggcgtgaccgcagtggaggcagtgcatgcatcgcgcaat
+                                 seq1 25768 AGGCCAACTTGTCAAGATTGCAAAACGTGGCGGCGTGACCGCAGTGGAGGCAGTGCATGCATCGCGCAAT 25837
+                                            ********************************************************************** PP
+
+  TALE_N-terminus_CDS_aligned_curated   841 gcactgacgggtgcccccctgaac 864  
+                                            gcactgacgggtgcccccctgaac
+                                 seq1 25838 GCACTGACGGGTGCCCCCCTGAAC 25861
+                                            **********************96 PP
+
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (864 nodes)
+Target sequences:                          2  (231794 residues searched)
+Residues passing SSV filter:           40048  (0.173); expected (0.02)
+Residues passing bias filter:          16557  (0.0714); expected (0.02)
+Residues passing Vit filter:            5382  (0.0232); expected (0.003)
+Residues passing Fwd filter:            5382  (0.0232); expected (3e-05)
+Total number of hits:                      4  (0.0149)
+# CPU time: 0.13u 0.00s 00:00:00.13 Elapsed: 00:00:00.12
+# Mc/sec: 1607.99
+//
+Query:       TALE_repeat_CDS_aligned_curated  [M=102]
+Scores for complete hits:
+    E-value  score  bias  Sequence  start    end  Description
+    ------- ------ -----  --------  -----  -----  -----------
+    7.1e-33  109.8  10.1  seq1      26777  26878 
+    7.1e-33  109.8  10.1  seq1      31318  31419 
+    7.1e-33  109.8  10.1  seq1      33819  33920 
+    1.4e-32  108.9  11.2  seq1      28307  28408 
+    1.4e-32  108.9  11.2  seq1      33717  33818 
+    3.4e-32  107.7  11.6  seq1      30604  30705 
+    3.4e-32  107.7  11.6  seq1      34227  34328 
+    4.8e-32  107.2  10.9  seq1      33921  34022 
+    5.6e-32  107.0  11.4  seq2      26532  26431 
+    6.2e-32  106.8  11.2  seq1      25862  25963 
+    6.6e-32  106.7  13.7  seq1      26879  26980 
+    6.6e-32  106.7  13.7  seq1      31216  31317 
+    6.6e-32  106.7  13.7  seq1      31420  31521 
+    6.6e-32  106.7  13.7  seq2      27552  27451 
+    6.7e-32  106.7  10.9  seq1      27899  27999 
+    6.7e-32  106.7  10.9  seq1      34935  35035 
+    7.2e-32  106.6  13.1  seq1      35241  35341 
+    8.9e-32  106.3   9.0  seq2      28062  27961 
+    9.5e-32  106.2  13.4  seq1      26168  26268 
+    9.5e-32  106.2  13.4  seq1      26675  26775 
+    9.5e-32  106.2  13.4  seq1      30706  30806 
+    9.5e-32  106.2  13.4  seq1      31012  31112 
+    9.5e-32  106.2  13.4  seq1      34833  34933 
+      1e-31  106.1  12.7  seq1      35853  35953 
+      1e-31  106.1  12.4  seq1      26066  26167 
+      1e-31  106.1  12.4  seq1      27593  27694 
+      1e-31  106.1  12.4  seq1      35037  35138 
+      1e-31  106.1  12.4  seq1      35751  35852 
+    1.1e-31  106.0  10.5  seq2      27654  27553 
+    1.4e-31  105.7  12.7  seq2      27144  27043 
+    1.6e-31  105.5  11.3  seq1      26372  26473 
+    1.6e-31  105.5  10.1  seq1      30502  30603 
+    1.6e-31  105.5  10.1  seq1      31522  31623 
+    1.7e-31  105.4  14.1  seq1      27695  27796 
+    1.7e-31  105.4  14.1  seq1      34329  34430 
+    1.7e-31  105.4  14.1  seq2      26430  26329 
+    1.7e-31  105.4  14.1  seq2      26940  26839 
+    2.1e-31  105.1   9.9  seq1      30298  30399 
+    2.2e-31  105.1  12.4  seq2      27042  26941 
+    2.3e-31  105.0  13.7  seq1      26270  26371 
+    2.3e-31  105.0  13.7  seq1      34125  34226 
+    2.3e-31  105.0  13.7  seq2      26226  26125 
+    2.3e-31  105.0  13.7  seq2      26328  26227 
+    2.3e-31  105.0  13.7  seq2      26634  26533 
+    2.3e-31  105.0  13.7  seq2      26838  26737 
+    2.8e-31  104.7  13.7  seq1      33615  33716 
+    2.9e-31  104.6  13.7  seq2      26736  26635 
+    3.6e-31  104.4  12.7  seq1      35343  35444 
+    3.6e-31  104.4  12.7  seq1      35445  35546 
+    3.6e-31  104.4  12.7  seq1      35955  36056 
+    5.3e-31  103.8  12.7  seq1      26981  27081 
+    5.4e-31  103.8  11.3  seq2      26124  26023 
+    5.5e-31  103.8  12.3  seq1      27185  27286 
+    5.8e-31  103.7  15.1  seq1      25964  26064 
+    5.8e-31  103.7  15.1  seq1      27287  27387 
+    5.8e-31  103.7  15.1  seq1      27491  27591 
+    5.8e-31  103.7  15.1  seq1      28103  28203 
+    5.8e-31  103.7  15.1  seq1      31114  31214 
+    5.8e-31  103.7  15.1  seq1      35649  35749 
+    5.8e-31  103.7  15.1  seq2      27348  27248 
+    6.3e-31  103.6  13.7  seq1      27797  27898 
+    6.5e-31  103.5   9.5  seq1      27389  27490 
+    6.5e-31  103.5  14.6  seq1      26573  26673 
+    6.5e-31  103.5  14.6  seq1      30808  30908 
+    6.8e-31  103.5  11.6  seq1      33513  33614 
+    8.1e-31  103.2  14.7  seq1      30910  31010 
+    8.1e-31  103.2  14.7  seq2      26022  25922 
+    8.8e-31  103.1  14.1  seq1      27083  27183 
+    1.7e-30  102.2  14.6  seq1      34632  34732 
+    1.7e-30  102.2  14.4  seq2      27960  27860 
+    1.8e-30  102.1  13.7  seq2      27450  27350 
+      2e-30  102.0  13.7  seq1      35139  35240 
+      2e-30  102.0  13.7  seq1      28205  28306 
+    2.4e-30  101.7  13.4  seq1      30400  30500 
+    2.8e-30  101.5  12.1  seq1      34533  34631 
+    3.7e-30  101.1  12.4  seq1      34023  34124 
+    5.3e-30  100.6  12.8  seq2      27246  27145 
+      6e-30  100.4  13.5  seq2      27858  27758 
+    9.6e-30   99.8  15.9  seq1      35547  35647 
+    1.5e-29   99.1  10.7  seq1      28001  28102 
+    2.3e-29   98.5  13.5  seq1      26474  26572 
+    2.6e-29   98.4  15.5  seq1      34431  34531 
+    6.9e-29   97.0  12.0  seq1      34734  34831 
+    9.9e-29   96.5  16.2  seq2      27756  27656 
+    2.8e-16   56.5   6.3  seq2      25920  25860 
+    8.8e-16   54.9   8.2  seq1      28409  28469 
+    8.8e-16   54.9   8.2  seq1      31624  31684 
+    8.8e-16   54.9   8.2  seq1      36057  36117 
+  ------ inclusion threshold ------
+       0.23    8.5   3.8  seq1      46150  46112 
+       0.37    7.8   6.0  seq1      22361  22300 
+       0.47    7.5   1.2  seq1      14601  14578 
+       0.58    7.2   3.1  seq2       8861   8897 
+       0.77    6.8   7.4  seq2      32325  32268 
+       0.97    6.5   4.7  seq1      59383  59356 
+          1    6.4   1.1  seq1      18031  17995 
+        1.2    6.2   7.4  seq2      32968  32932 
+        1.3    6.1   1.8  seq1      46266  46240 
+        1.4    5.9   2.6  seq1       7181   7207 
+        2.6    5.1   2.0  seq1      17916  17898 
+        4.8    4.2   6.9  seq2      10291  10313 
+        6.3    3.9   6.0  seq1      49090  49123 
+        9.9    3.2   6.5  seq2      42583  42548 
+
+
+Annotation for each hit  (and alignments):
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  109.8  10.1   7.1e-33         1       102 []     26777     26878 ..     26777     26878 ..     61971    0.99
+
+  Alignment:
+  score: 109.8 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccggaccaggtggtggccatcgccagcaat++tggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 26777 CTGACCCCGGACCAGGTGGTGGCCATCGCCAGCAATATTGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 26850
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 26851 GTTGCCGGTGCTGTGCCAGGCCCATGGC 26878
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  109.8  10.1   7.1e-33         1       102 []     31318     31419 ..     31318     31419 ..     61971    0.99
+
+  Alignment:
+  score: 109.8 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccggaccaggtggtggccatcgccagcaat++tggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 31318 CTGACCCCGGACCAGGTGGTGGCCATCGCCAGCAATATTGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 31391
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 31392 GTTGCCGGTGCTGTGCCAGGCCCATGGC 31419
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  109.8  10.1   7.1e-33         1       102 []     33819     33920 ..     33819     33920 ..     61971    0.99
+
+  Alignment:
+  score: 109.8 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccggaccaggtggtggccatcgccagcaat++tggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 33819 CTGACCCCGGACCAGGTGGTGGCCATCGCCAGCAATATTGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 33892
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 33893 GTTGCCGGTGCTGTGCCAGGCCCATGGC 33920
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  108.9  11.2   1.4e-32         1       102 []     28307     28408 ..     28307     28408 ..     61971    0.99
+
+  Alignment:
+  score: 108.9 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccggaccaggtggtggccatcgccagcaat+a+ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 28307 CTGACCCCGGACCAGGTGGTGGCCATCGCCAGCAATAACGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 28380
+                                        69************************************************************************ PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 28381 GTTGCCGGTGCTGTGCCAGGCCCATGGC 28408
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  108.9  11.2   1.4e-32         1       102 []     33717     33818 ..     33717     33818 ..     61971    0.99
+
+  Alignment:
+  score: 108.9 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccggaccaggtggtggccatcgccagcaat+a+ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 33717 CTGACCCCGGACCAGGTGGTGGCCATCGCCAGCAATAACGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 33790
+                                        69************************************************************************ PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 33791 GTTGCCGGTGCTGTGCCAGGCCCATGGC 33818
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  107.7  11.6   3.4e-32         1       102 []     30604     30705 ..     30604     30705 ..     61971    0.99
+
+  Alignment:
+  score: 107.7 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgga caggtggtggccatcgccagcaat+a+ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 30604 CTGACCCCGGAGCAGGTGGTGGCCATCGCCAGCAATAACGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 30677
+                                        69************************************************************************ PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 30678 GTTGCCGGTGCTGTGCCAGGCCCATGGC 30705
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  107.7  11.6   3.4e-32         1       102 []     34227     34328 ..     34227     34328 ..     61971    0.99
+
+  Alignment:
+  score: 107.7 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgga caggtggtggccatcgccagcaat+a+ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 34227 CTGACCCCGGAGCAGGTGGTGGCCATCGCCAGCAATAACGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 34300
+                                        69************************************************************************ PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 34301 GTTGCCGGTGCTGTGCCAGGCCCATGGC 34328
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  107.2  10.9   4.8e-32         1       102 []     33921     34022 ..     33921     34022 ..     61971    0.99
+
+  Alignment:
+  score: 107.2 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgga caggtggtggccatcgccagcaat+a ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 33921 CTGACCCCGGAGCAGGTGGTGGCCATCGCCAGCAATAAAGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 33994
+                                        69************************************************************************ PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 33995 GTTGCCGGTGCTGTGCCAGGCCCATGGC 34022
+                                        *************************985 PP
+
+>> seq2  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  107.0  11.4   5.6e-32         1       102 []     26532     26431 ..     26532     26431 ..     53926    0.99
+
+  Alignment:
+  score: 107.0 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagcaat++tggcggcaagcaggcgctggagacggtgcagcggct
+                             seq2 26532 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCAATATTGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 26459
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq2 26458 GTTGCCGGTGCTGTGCCAGGCCCATGGC 26431
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  106.8  11.2   6.2e-32         1       102 []     25862     25963 ..     25862     25963 ..     61971    0.99
+
+  Alignment:
+  score: 106.8 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagcaat+a+ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 25862 CTGACCCCGGCACAGGTGGTGGCCATCGCCAGCAATAACGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 25935
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 25936 GTTGCCGGTGCTGTGCCAGGCCCATGGC 25963
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  106.7  13.7   6.6e-32         1       102 []     26879     26980 ..     26879     26980 ..     61971    0.99
+
+  Alignment:
+  score: 106.7 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccggaccaggtggtggccatcgccagcaatg +ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 26879 CTGACCCCGGACCAGGTGGTGGCCATCGCCAGCAATGGCGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 26952
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 26953 GTTGCCGGTGCTGTGCCAGGCCCATGGC 26980
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  106.7  13.7   6.6e-32         1       102 []     31216     31317 ..     31216     31317 ..     61971    0.99
+
+  Alignment:
+  score: 106.7 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccggaccaggtggtggccatcgccagcaatg +ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 31216 CTGACCCCGGACCAGGTGGTGGCCATCGCCAGCAATGGCGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 31289
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 31290 GTTGCCGGTGCTGTGCCAGGCCCATGGC 31317
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  106.7  13.7   6.6e-32         1       102 []     31420     31521 ..     31420     31521 ..     61971    0.99
+
+  Alignment:
+  score: 106.7 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccggaccaggtggtggccatcgccagcaatg +ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 31420 CTGACCCCGGACCAGGTGGTGGCCATCGCCAGCAATGGCGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 31493
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 31494 GTTGCCGGTGCTGTGCCAGGCCCATGGC 31521
+                                        *************************985 PP
+
+>> seq2  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  106.7  13.7   6.6e-32         1       102 []     27552     27451 ..     27552     27451 ..     53926    0.99
+
+  Alignment:
+  score: 106.7 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccggaccaggtggtggccatcgccagcaatg +ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq2 27552 CTGACCCCGGACCAGGTGGTGGCCATCGCCAGCAATGGCGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 27479
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq2 27478 GTTGCCGGTGCTGTGCCAGGCCCATGGC 27451
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  106.7  10.9   6.7e-32         1       101 [.     27899     27999 ..     27899     28000 ..     61971    0.99
+
+  Alignment:
+  score: 106.7 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagcaat++tggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 27899 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCAATATTGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 27972
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgtgccagg+ccatgg
+                             seq1 27973 GTTGCCGGTGCTGTGCCAGGCCCATGG 27999
+                                        *************************97 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  106.7  10.9   6.7e-32         1       101 [.     34935     35035 ..     34935     35036 ..     61971    0.99
+
+  Alignment:
+  score: 106.7 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagcaat++tggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 34935 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCAATATTGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 35008
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgtgccagg+ccatgg
+                             seq1 35009 GTTGCCGGTGCTGTGCCAGGCCCATGG 35035
+                                        *************************97 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  106.6  13.1   7.2e-32         1       101 [.     35241     35341 ..     35241     35342 ..     61971    0.99
+
+  Alignment:
+  score: 106.6 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccggaccaggtggtggccatcgccagcaatg +ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 35241 CTGACCCCGGACCAGGTGGTGGCCATCGCCAGCAATGGCGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 35314
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgtgccagg+ccatgg
+                             seq1 35315 GTTGCCGGTGCTGTGCCAGGCCCATGG 35341
+                                        *************************97 PP
+
+>> seq2  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  106.3   9.0   8.9e-32         1       102 []     28062     27961 ..     28062     27961 ..     53926    0.99
+
+  Alignment:
+  score: 106.3 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  ca gtggtggccatcgccagcaat++tggcggcaagcaggcgctggagacggtgcagcggct
+                             seq2 28062 CTGACCCCGGCACATGTGGTGGCCATCGCCAGCAATATTGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 27989
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq2 27988 GTTGCCGGTGCTGTGCCAGGCCCATGGC 27961
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  106.2  13.4   9.5e-32         1       101 [.     26168     26268 ..     26168     26269 ..     61971    0.99
+
+  Alignment:
+  score: 106.2 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccggaccaggtggtggccatcgccagc a gatggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 26168 CTGACCCCGGACCAGGTGGTGGCCATCGCCAGCCACGATGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 26241
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgtgccagg ccatgg
+                             seq1 26242 GTTGCCGGTGCTGTGCCAGGCCCATGG 26268
+                                        *************************98 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  106.2  13.4   9.5e-32         1       101 [.     26675     26775 ..     26675     26776 ..     61971    0.99
+
+  Alignment:
+  score: 106.2 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccggaccaggtggtggccatcgccagc a gatggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 26675 CTGACCCCGGACCAGGTGGTGGCCATCGCCAGCCACGATGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 26748
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgtgccagg ccatgg
+                             seq1 26749 GTTGCCGGTGCTGTGCCAGGCCCATGG 26775
+                                        *************************98 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  106.2  13.4   9.5e-32         1       101 [.     30706     30806 ..     30706     30807 ..     61971    0.99
+
+  Alignment:
+  score: 106.2 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccggaccaggtggtggccatcgccagc a gatggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 30706 CTGACCCCGGACCAGGTGGTGGCCATCGCCAGCCACGATGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 30779
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgtgccagg ccatgg
+                             seq1 30780 GTTGCCGGTGCTGTGCCAGGCCCATGG 30806
+                                        *************************98 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  106.2  13.4   9.5e-32         1       101 [.     31012     31112 ..     31012     31113 ..     61971    0.99
+
+  Alignment:
+  score: 106.2 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccggaccaggtggtggccatcgccagc a gatggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 31012 CTGACCCCGGACCAGGTGGTGGCCATCGCCAGCCACGATGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 31085
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgtgccagg ccatgg
+                             seq1 31086 GTTGCCGGTGCTGTGCCAGGCCCATGG 31112
+                                        *************************98 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  106.2  13.4   9.5e-32         1       101 [.     34833     34933 ..     34833     34934 ..     61971    0.99
+
+  Alignment:
+  score: 106.2 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccggaccaggtggtggccatcgccagc a gatggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 34833 CTGACCCCGGACCAGGTGGTGGCCATCGCCAGCCACGATGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 34906
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgtgccagg ccatgg
+                             seq1 34907 GTTGCCGGTGCTGTGCCAGGCCCATGG 34933
+                                        *************************98 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  106.1  12.7     1e-31         1       101 [.     35853     35953 ..     35853     35954 ..     61971    0.99
+
+  Alignment:
+  score: 106.1 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccggaccaggtggtggccatcgccagc a gatggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 35853 CTGACCCCGGACCAGGTGGTGGCCATCGCCAGCCACGATGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 35926
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgtgccagg+ccatgg
+                             seq1 35927 GTTGCCGGTGCTGTGCCAGGCCCATGG 35953
+                                        *************************97 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  106.1  12.4     1e-31         1       102 []     26066     26167 ..     26066     26167 ..     61971    0.99
+
+  Alignment:
+  score: 106.1 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagcaat+a+ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 26066 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCAATAACGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 26139
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 26140 GTTGCCGGTGCTGTGCCAGGCCCATGGC 26167
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  106.1  12.4     1e-31         1       102 []     27593     27694 ..     27593     27694 ..     61971    0.99
+
+  Alignment:
+  score: 106.1 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagcaat+a+ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 27593 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCAATAACGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 27666
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 27667 GTTGCCGGTGCTGTGCCAGGCCCATGGC 27694
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  106.1  12.4     1e-31         1       102 []     35037     35138 ..     35037     35138 ..     61971    0.99
+
+  Alignment:
+  score: 106.1 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagcaat+a+ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 35037 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCAATAACGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 35110
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 35111 GTTGCCGGTGCTGTGCCAGGCCCATGGC 35138
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  106.1  12.4     1e-31         1       102 []     35751     35852 ..     35751     35852 ..     61971    0.99
+
+  Alignment:
+  score: 106.1 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagcaat+a+ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 35751 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCAATAACGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 35824
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 35825 GTTGCCGGTGCTGTGCCAGGCCCATGGC 35852
+                                        *************************985 PP
+
+>> seq2  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  106.0  10.5   1.1e-31         1       102 []     27654     27553 ..     27654     27553 ..     53926    0.99
+
+  Alignment:
+  score: 106.0 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgga caggtggtggccatcgccagcaat+a+ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq2 27654 CTGACCCCGGAGCAGGTGGTGGCCATCGCCAGCAATAACGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 27581
+                                        69************************************************************************ PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgcc gtgctgtgccagg+ccatggc
+                             seq2 27580 GTTGCCAGTGCTGTGCCAGGCCCATGGC 27553
+                                        *************************985 PP
+
+>> seq2  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  105.7  12.7   1.4e-31         1       102 []     27144     27043 ..     27144     27043 ..     53926    0.99
+
+  Alignment:
+  score: 105.7 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccggaccaggtggtggccat gccagcaatg +ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq2 27144 CTGACCCCGGACCAGGTGGTGGCCATTGCCAGCAATGGCGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 27071
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq2 27070 GTTGCCGGTGCTGTGCCAGGCCCATGGC 27043
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  105.5  11.3   1.6e-31         1       102 []     26372     26473 ..     26372     26473 ..     61971    0.98
+
+  Alignment:
+  score: 105.5 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctg ccccgga caggtggtggccatcgccagcaat++tggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 26372 CTGCCCCCGGAGCAGGTGGTGGCCATCGCCAGCAATATTGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 26445
+                                        58899********************************************************************* PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 26446 GTTGCCGGTGCTGTGCCAGGCCCATGGC 26473
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  105.5  10.1   1.6e-31         1       102 []     30502     30603 ..     30502     30603 ..     61971    0.99
+
+  Alignment:
+  score: 105.5 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgacccc g  caggtggtggccatcgccagcaat++tggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 30502 CTGACCCCAGCGCAGGTGGTGGCCATCGCCAGCAATATTGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 30575
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 30576 GTTGCCGGTGCTGTGCCAGGCCCATGGC 30603
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  105.5  10.1   1.6e-31         1       102 []     31522     31623 ..     31522     31623 ..     61971    0.99
+
+  Alignment:
+  score: 105.5 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgacccc g  caggtggtggccatcgccagcaat++tggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 31522 CTGACCCCAGCGCAGGTGGTGGCCATCGCCAGCAATATTGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 31595
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 31596 GTTGCCGGTGCTGTGCCAGGCCCATGGC 31623
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  105.4  14.1   1.7e-31         1       102 []     27695     27796 ..     27695     27796 ..     61971    0.99
+
+  Alignment:
+  score: 105.4 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgga caggtggtggccatcgccagcaatg +ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 27695 CTGACCCCGGAGCAGGTGGTGGCCATCGCCAGCAATGGCGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 27768
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 27769 GTTGCCGGTGCTGTGCCAGGCCCATGGC 27796
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  105.4  14.1   1.7e-31         1       102 []     34329     34430 ..     34329     34430 ..     61971    0.99
+
+  Alignment:
+  score: 105.4 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgga caggtggtggccatcgccagcaatg +ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 34329 CTGACCCCGGAGCAGGTGGTGGCCATCGCCAGCAATGGCGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 34402
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 34403 GTTGCCGGTGCTGTGCCAGGCCCATGGC 34430
+                                        *************************985 PP
+
+>> seq2  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  105.4  14.1   1.7e-31         1       102 []     26430     26329 ..     26430     26329 ..     53926    0.99
+
+  Alignment:
+  score: 105.4 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgga caggtggtggccatcgccagcaatg +ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq2 26430 CTGACCCCGGAGCAGGTGGTGGCCATCGCCAGCAATGGCGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 26357
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq2 26356 GTTGCCGGTGCTGTGCCAGGCCCATGGC 26329
+                                        *************************985 PP
+
+>> seq2  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  105.4  14.1   1.7e-31         1       102 []     26940     26839 ..     26940     26839 ..     53926    0.99
+
+  Alignment:
+  score: 105.4 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgga caggtggtggccatcgccagcaatg +ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq2 26940 CTGACCCCGGAGCAGGTGGTGGCCATCGCCAGCAATGGCGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 26867
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq2 26866 GTTGCCGGTGCTGTGCCAGGCCCATGGC 26839
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  105.1   9.9   2.1e-31         1       102 []     30298     30399 ..     30298     30399 ..     61971    0.99
+
+  Alignment:
+  score: 105.1 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagcaat+a+ggcggcaagcaggc ctggagacggtgcagcggct
+                             seq1 30298 CTGACCCCGGCACAGGTGGTGGCCATCGCCAGCAATAACGGCGGCAAGCAGGCTCTGGAGACGGTGCAGCGGCT 30371
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 30372 GTTGCCGGTGCTGTGCCAGGCCCATGGC 30399
+                                        *************************985 PP
+
+>> seq2  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  105.1  12.4   2.2e-31         1       102 []     27042     26941 ..     27042     26941 ..     53926    0.99
+
+  Alignment:
+  score: 105.1 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccggaccaggtggtggccatcgccagcaat+a+ggcggcaagcaggcgctggagacggtgc gcggct
+                             seq2 27042 CTGACCCCGGACCAGGTGGTGGCCATCGCCAGCAATAACGGCGGCAAGCAGGCGCTGGAGACGGTGCGGCGGCT 26969
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq2 26968 GTTGCCGGTGCTGTGCCAGGCCCATGGC 26941
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  105.0  13.7   2.3e-31         1       102 []     26270     26371 ..     26270     26371 ..     61971    0.99
+
+  Alignment:
+  score: 105.0 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgga caggtggtggccatcgccagc a gatggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 26270 CTGACCCCGGAGCAGGTGGTGGCCATCGCCAGCCACGATGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 26343
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 26344 GTTGCCGGTGCTGTGCCAGGCCCATGGC 26371
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  105.0  13.7   2.3e-31         1       102 []     34125     34226 ..     34125     34226 ..     61971    0.99
+
+  Alignment:
+  score: 105.0 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgga caggtggtggccatcgccagc a gatggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 34125 CTGACCCCGGAGCAGGTGGTGGCCATCGCCAGCCACGATGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 34198
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 34199 GTTGCCGGTGCTGTGCCAGGCCCATGGC 34226
+                                        *************************985 PP
+
+>> seq2  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  105.0  13.7   2.3e-31         1       102 []     26226     26125 ..     26226     26125 ..     53926    0.99
+
+  Alignment:
+  score: 105.0 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgga caggtggtggccatcgccagc a gatggcggcaagcaggcgctggagacggtgcagcggct
+                             seq2 26226 CTGACCCCGGAGCAGGTGGTGGCCATCGCCAGCCACGATGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 26153
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq2 26152 GTTGCCGGTGCTGTGCCAGGCCCATGGC 26125
+                                        *************************985 PP
+
+>> seq2  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  105.0  13.7   2.3e-31         1       102 []     26328     26227 ..     26328     26227 ..     53926    0.99
+
+  Alignment:
+  score: 105.0 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgga caggtggtggccatcgccagc a gatggcggcaagcaggcgctggagacggtgcagcggct
+                             seq2 26328 CTGACCCCGGAGCAGGTGGTGGCCATCGCCAGCCACGATGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 26255
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq2 26254 GTTGCCGGTGCTGTGCCAGGCCCATGGC 26227
+                                        *************************985 PP
+
+>> seq2  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  105.0  13.7   2.3e-31         1       102 []     26634     26533 ..     26634     26533 ..     53926    0.99
+
+  Alignment:
+  score: 105.0 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgga caggtggtggccatcgccagc a gatggcggcaagcaggcgctggagacggtgcagcggct
+                             seq2 26634 CTGACCCCGGAGCAGGTGGTGGCCATCGCCAGCCACGATGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 26561
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq2 26560 GTTGCCGGTGCTGTGCCAGGCCCATGGC 26533
+                                        *************************985 PP
+
+>> seq2  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  105.0  13.7   2.3e-31         1       102 []     26838     26737 ..     26838     26737 ..     53926    0.99
+
+  Alignment:
+  score: 105.0 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgga caggtggtggccatcgccagc a gatggcggcaagcaggcgctggagacggtgcagcggct
+                             seq2 26838 CTGACCCCGGAGCAGGTGGTGGCCATCGCCAGCCACGATGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 26765
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq2 26764 GTTGCCGGTGCTGTGCCAGGCCCATGGC 26737
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  104.7  13.7   2.8e-31         1       102 []     33615     33716 ..     33615     33716 ..     61971    0.99
+
+  Alignment:
+  score: 104.7 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagcaa gatggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 33615 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCAACGATGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 33688
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 33689 GTTGCCGGTGCTGTGCCAGGCCCATGGC 33716
+                                        *************************985 PP
+
+>> seq2  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  104.6  13.7   2.9e-31         1       102 []     26736     26635 ..     26736     26635 ..     53926    0.99
+
+  Alignment:
+  score: 104.6 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagcaat+ +ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq2 26736 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCAATAGCGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 26663
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq2 26662 GTTGCCGGTGCTGTGCCAGGCCCATGGC 26635
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  104.4  12.7   3.6e-31         1       102 []     35343     35444 ..     35343     35444 ..     61971    0.99
+
+  Alignment:
+  score: 104.4 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccc+gga caggtggtggccatcgccagc a gatggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 35343 CTGACCCTGGAGCAGGTGGTGGCCATCGCCAGCCACGATGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 35416
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 35417 GTTGCCGGTGCTGTGCCAGGCCCATGGC 35444
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  104.4  12.7   3.6e-31         1       102 []     35445     35546 ..     35445     35546 ..     61971    0.99
+
+  Alignment:
+  score: 104.4 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccc+gga caggtggtggccatcgccagc a gatggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 35445 CTGACCCTGGAGCAGGTGGTGGCCATCGCCAGCCACGATGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 35518
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 35519 GTTGCCGGTGCTGTGCCAGGCCCATGGC 35546
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  104.4  12.7   3.6e-31         1       102 []     35955     36056 ..     35955     36056 ..     61971    0.99
+
+  Alignment:
+  score: 104.4 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccc+gga caggtggtggccatcgccagc a gatggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 35955 CTGACCCTGGAGCAGGTGGTGGCCATCGCCAGCCACGATGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 36028
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 36029 GTTGCCGGTGCTGTGCCAGGCCCATGGC 36056
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  103.8  12.7   5.3e-31         1       101 [.     26981     27081 ..     26981     27082 ..     61971    0.98
+
+  Alignment:
+  score: 103.8 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgga caggtggtggccatcgccagcaat+a+ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 26981 CTGACCCCGGAGCAGGTGGTGGCCATCGCCAGCAATAACGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 27054
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgtgccagg+cc tgg
+                             seq1 27055 GTTGCCGGTGCTGTGCCAGGCCCGTGG 27081
+                                        **********************99987 PP
+
+>> seq2  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  103.8  11.3   5.4e-31         1       102 []     26124     26023 ..     26124     26023 ..     53926    0.99
+
+  Alignment:
+  score: 103.8 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccggaccaggtggt gcca cgccagcaat+a+ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq2 26124 CTGACCCCGGACCAGGTGGTAGCCACCGCCAGCAATAACGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 26051
+                                        69************************************************************************ PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg ccatggc
+                             seq2 26050 GTTGCCGGTGCTGTGCCAGGCCCATGGC 26023
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  103.8  12.3   5.5e-31         1       102 []     27185     27286 ..     27185     27286 ..     61971    0.99
+
+  Alignment:
+  score: 103.8 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagcaat++tggcggcaagcaggcgctggagacgg gcagcggct
+                             seq1 27185 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCAATATTGGCGGCAAGCAGGCGCTGGAGACGGCGCAGCGGCT 27258
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 27259 GTTGCCGGTGCTGTGCCAGGCCCATGGC 27286
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  103.7  15.1   5.8e-31         1       101 [.     25964     26064 ..     25964     26065 ..     61971    0.99
+
+  Alignment:
+  score: 103.7 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagcaatg +ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 25964 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCAATGGCGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 26037
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgtgccagg+ccatgg
+                             seq1 26038 GTTGCCGGTGCTGTGCCAGGCCCATGG 26064
+                                        *************************98 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  103.7  15.1   5.8e-31         1       101 [.     27287     27387 ..     27287     27388 ..     61971    0.99
+
+  Alignment:
+  score: 103.7 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagcaatg +ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 27287 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCAATGGCGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 27360
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgtgccagg+ccatgg
+                             seq1 27361 GTTGCCGGTGCTGTGCCAGGCCCATGG 27387
+                                        *************************98 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  103.7  15.1   5.8e-31         1       101 [.     27491     27591 ..     27491     27592 ..     61971    0.99
+
+  Alignment:
+  score: 103.7 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagcaatg +ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 27491 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCAATGGCGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 27564
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgtgccagg+ccatgg
+                             seq1 27565 GTTGCCGGTGCTGTGCCAGGCCCATGG 27591
+                                        *************************98 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  103.7  15.1   5.8e-31         1       101 [.     28103     28203 ..     28103     28204 ..     61971    0.99
+
+  Alignment:
+  score: 103.7 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagcaatg +ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 28103 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCAATGGCGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 28176
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgtgccagg+ccatgg
+                             seq1 28177 GTTGCCGGTGCTGTGCCAGGCCCATGG 28203
+                                        *************************98 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  103.7  15.1   5.8e-31         1       101 [.     31114     31214 ..     31114     31215 ..     61971    0.99
+
+  Alignment:
+  score: 103.7 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagcaatg +ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 31114 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCAATGGCGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 31187
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgtgccagg+ccatgg
+                             seq1 31188 GTTGCCGGTGCTGTGCCAGGCCCATGG 31214
+                                        *************************98 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  103.7  15.1   5.8e-31         1       101 [.     35649     35749 ..     35649     35750 ..     61971    0.99
+
+  Alignment:
+  score: 103.7 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagcaatg +ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 35649 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCAATGGCGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 35722
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgtgccagg+ccatgg
+                             seq1 35723 GTTGCCGGTGCTGTGCCAGGCCCATGG 35749
+                                        *************************98 PP
+
+>> seq2  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  103.7  15.1   5.8e-31         1       101 [.     27348     27248 ..     27348     27247 ..     53926    0.99
+
+  Alignment:
+  score: 103.7 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagcaatg +ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq2 27348 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCAATGGCGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 27275
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgtgccagg+ccatgg
+                             seq2 27274 GTTGCCGGTGCTGTGCCAGGCCCATGG 27248
+                                        *************************98 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  103.6  13.7   6.3e-31         1       102 []     27797     27898 ..     27797     27898 ..     61971    0.99
+
+  Alignment:
+  score: 103.6 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagc a gatggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 27797 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCCACGATGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 27870
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 27871 GTTGCCGGTGCTGTGCCAGGTCCATGGC 27898
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  103.5   9.5   6.5e-31         1       102 []     27389     27490 ..     27389     27490 ..     61971    0.99
+
+  Alignment:
+  score: 103.5 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggt gccatcgccagcaat++tgg ggcaagcaggcgctggagacggtgcagcggct
+                             seq1 27389 CTGACCCCGGCGCAGGTGGTTGCCATCGCCAGCAATATTGGTGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 27462
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 27463 GTTGCCGGTGCTGTGCCAGGCCCATGGC 27490
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  103.5  14.6   6.5e-31         1       101 [.     26573     26673 ..     26573     26674 ..     61971    0.98
+
+  Alignment:
+  score: 103.5 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctg ccccggaccaggtggtggccatcgccagcaatg +ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 26573 CTGCCCCCGGACCAGGTGGTGGCCATCGCCAGCAATGGCGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 26646
+                                        58889********************************************************************* PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgtgccagg ccatgg
+                             seq1 26647 GTTGCCGGTGCTGTGCCAGGCCCATGG 26673
+                                        *************************98 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  103.5  14.6   6.5e-31         1       101 [.     30808     30908 ..     30808     30909 ..     61971    0.98
+
+  Alignment:
+  score: 103.5 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctg ccccggaccaggtggtggccatcgccagcaatg +ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 30808 CTGCCCCCGGACCAGGTGGTGGCCATCGCCAGCAATGGCGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 30881
+                                        58889********************************************************************* PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgtgccagg ccatgg
+                             seq1 30882 GTTGCCGGTGCTGTGCCAGGCCCATGG 30908
+                                        *************************98 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  103.5  11.6   6.8e-31         1       102 []     33513     33614 ..     33513     33614 ..     61971    0.99
+
+  Alignment:
+  score: 103.5 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagcaat+a+ggcggcaagcaggcgctggaga ggtgcagcggct
+                             seq1 33513 CTGACCCCGGCACAGGTGGTGGCCATCGCCAGCAATAACGGCGGCAAGCAGGCGCTGGAGAGGGTGCAGCGGCT 33586
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 33587 GTTGCCGGTGCTGTGCCAGGCCCATGGC 33614
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  103.2  14.7   8.1e-31         1       101 [.     30910     31010 ..     30910     31011 ..     61971    0.99
+
+  Alignment:
+  score: 103.2 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagc a gatggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 30910 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCCACGATGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 30983
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgtgccagg ccatgg
+                             seq1 30984 GTTGCCGGTGCTGTGCCAGGCCCATGG 31010
+                                        *************************98 PP
+
+>> seq2  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  103.2  14.7   8.1e-31         1       101 [.     26022     25922 ..     26022     25921 ..     53926    0.99
+
+  Alignment:
+  score: 103.2 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagc a gatggcggcaagcaggcgctggagacggtgcagcggct
+                             seq2 26022 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCCACGATGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 25949
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgtgccagg ccatgg
+                             seq2 25948 GTTGCCGGTGCTGTGCCAGGCCCATGG 25922
+                                        *************************98 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  103.1  14.1   8.8e-31         1       101 [.     27083     27183 ..     27083     27184 ..     61971    0.99
+
+  Alignment:
+  score: 103.1 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagc a gatggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 27083 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCCACGATGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 27156
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgtgccagg+ccatgg
+                             seq1 27157 GTTGCCGGTGCTGTGCCAGGCCCATGG 27183
+                                        *************************97 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  102.2  14.6   1.7e-30         1       101 [.     34632     34732 ..     34632     34733 ..     61971    0.98
+
+  Alignment:
+  score: 102.2 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccggaccaggtggtggccatcgccagc a gatggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 34632 CTGACCCCGGACCAGGTGGTGGCCATCGCCAGCCACGATGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 34705
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgtgccagg cc tgg
+                             seq1 34706 GTTGCCGGTGCTGTGCCAGGCCCGTGG 34732
+                                        **********************99887 PP
+
+>> seq2  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  102.2  14.4   1.7e-30         1       101 [.     27960     27860 ..     27960     27859 ..     53926    0.99
+
+  Alignment:
+  score: 102.2 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccggaccaggtggtggccatcgccagc a gatggcggcaagc ggcgctggagacggtgcagcggct
+                             seq2 27960 CTGACCCCGGACCAGGTGGTGGCCATCGCCAGCCACGATGGCGGCAAGCCGGCGCTGGAGACGGTGCAGCGGCT 27887
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgtgccagg ccatgg
+                             seq2 27886 GTTGCCGGTGCTGTGCCAGGCCCATGG 27860
+                                        *************************98 PP
+
+>> seq2  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  102.1  13.7   1.8e-30         1       101 [.     27450     27350 ..     27450     27349 ..     53926    0.98
+
+  Alignment:
+  score: 102.1 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagc a gatggcggcaagcaggcgctggagacggtgcagcggct
+                             seq2 27450 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCCACGATGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 27377
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgtgccagg+ catgg
+                             seq2 27376 GTTGCCGGTGCTGTGCCAGGCTCATGG 27350
+                                        *************************98 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  102.0  13.7     2e-30         1       102 []     35139     35240 ..     35139     35240 ..     61971    0.98
+
+  Alignment:
+  score: 102.0 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgacc cgg  caggtggtggccatcgccagc a gatggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 35139 CTGACCTCGGCGCAGGTGGTGGCCATCGCCAGCCACGATGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 35212
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 35213 GTTGCCGGTGCTGTGCCAGGCCCATGGC 35240
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  102.0  13.7     2e-30         1       102 []     28205     28306 ..     28205     28306 ..     61971    0.99
+
+  Alignment:
+  score: 102.0 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagc a gatggcggcaagcaggcg tggagacggtgcagcggct
+                             seq1 28205 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCCACGATGGCGGCAAGCAGGCGTTGGAGACGGTGCAGCGGCT 28278
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 28279 GTTGCCGGTGCTGTGCCAGGCCCATGGC 28306
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  101.7  13.4   2.4e-30         1       101 [.     30400     30500 ..     30400     30501 ..     61971    0.99
+
+  Alignment:
+  score: 101.7 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagc a gatggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 30400 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCCACGATGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 30473
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgt ccagg ccatgg
+                             seq1 30474 GTTGCCGGTGCTGTACCAGGCCCATGG 30500
+                                        *************************98 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  101.5  12.1   2.8e-30         1       102 []     34533     34631 ..     34533     34631 ..     61971    0.97
+
+  Alignment:
+  score: 101.5 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccggaccaggtggtggccatcgccagcaat   ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 34533 CTGACCCCGGACCAGGTGGTGGCCATCGCCAGCAAT---GGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 34603
+                                        699******************************987...8999******************************* PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 34604 GTTGCCGGTGCTGTGCCAGGCCCATGGC 34631
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  101.1  12.4   3.7e-30         1       102 []     34023     34124 ..     34023     34124 ..     61971    0.99
+
+  Alignment:
+  score: 101.1 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggt gcca cgccagcaat+a+ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 34023 CTGACCCCGGCGCAGGTGGTAGCCACCGCCAGCAATAACGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 34096
+                                        69************************************************************************ PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg ccatggc
+                             seq1 34097 GTTGCCGGTGCTGTGCCAGGCCCATGGC 34124
+                                        *************************985 PP
+
+>> seq2  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  100.6  12.8   5.3e-30         1       102 []     27246     27145 ..     27246     27145 ..     53926    0.99
+
+  Alignment:
+  score: 100.6 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagc a gatggcggcaagcaggcg tggagacggtgcagcggct
+                             seq2 27246 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCCACGATGGCGGCAAGCAGGCGTTGGAGACGGTGCAGCGGCT 27173
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtg tgtgccagg+ccatggc
+                             seq2 27172 GTTGCCGGTGTTGTGCCAGGCCCATGGC 27145
+                                        *************************985 PP
+
+>> seq2  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !  100.4  13.5     6e-30         1       101 [.     27858     27758 ..     27858     27757 ..     53926    0.99
+
+  Alignment:
+  score: 100.4 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgga caggtggtggccatcgccagcaat+a+ggcggcaagc ggcgctggagacggtgcagcggct
+                             seq2 27858 CTGACCCCGGAGCAGGTGGTGGCCATCGCCAGCAATAACGGCGGCAAGCCGGCGCTGGAGACGGTGCAGCGGCT 27785
+                                        69************************************************************************ PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccgg gctgtgccagg ccatgg
+                             seq2 27784 GTTGCCGGCGCTGTGCCAGGCCCATGG 27758
+                                        *************************98 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !   99.8  15.9   9.6e-30         1       101 [.     35547     35647 ..     35547     35648 ..     61971    0.99
+
+  Alignment:
+  score: 99.8 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagc a gatggcggcaagcaggcgctggagacgg gcagcggct
+                             seq1 35547 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCCACGATGGCGGCAAGCAGGCGCTGGAGACGGCGCAGCGGCT 35620
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgtgccagg ccatgg
+                             seq1 35621 GTTGCCGGTGCTGTGCCAGGCCCATGG 35647
+                                        *************************98 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !   99.1  10.7   1.5e-29         1       102 []     28001     28102 ..     28001     28102 ..     61971    0.99
+
+  Alignment:
+  score: 99.1 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccc gga caggtggtggccatcgcc gcaat++tggcggca gcaggcgctggagacggtgcagcggct
+                             seq1 28001 CTGACCCTGGAGCAGGTGGTGGCCATCGCCTGCAATATTGGCGGCAGGCAGGCGCTGGAGACGGTGCAGCGGCT 28074
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ catggc
+                             seq1 28075 GTTGCCGGTGCTGTGCCAGGCTCATGGC 28102
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !   98.5  13.5   2.3e-29         1       102 []     26474     26572 ..     26474     26572 ..     61971    0.97
+
+  Alignment:
+  score: 98.5 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagcaat   ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 26474 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCAAT---GGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 26544
+                                        699******************************987...8999******************************* PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatggc 102  
+                                        gttgccggtgctgtgccagg+ccatggc
+                             seq1 26545 GTTGCCGGTGCTGTGCCAGGCCCATGGC 26572
+                                        *************************985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !   98.4  15.5   2.6e-29         1       101 [.     34431     34531 ..     34431     34532 ..     61971    0.98
+
+  Alignment:
+  score: 98.4 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagcaatg +gg ggcaagcaggcgctggagacggtgcagcggct
+                             seq1 34431 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCAATGGCGGTGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 34504
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgtgccagg+cc tgg
+                             seq1 34505 GTTGCCGGTGCTGTGCCAGGCCCGTGG 34531
+                                        **********************99887 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !   97.0  12.0   6.9e-29         1       101 [.     34734     34831 ..     34734     34832 ..     61971    0.97
+
+  Alignment:
+  score: 97.0 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgacc cgg  caggtggtggccatcgccagcaat   ggcggcaagcaggcgctggagacggtgcagcggct
+                             seq1 34734 CTGACCTCGGCGCAGGTGGTGGCCATCGCCAGCAAT---GGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCT 34804
+                                        699******************************987...8999******************************* PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgtgccagg+ccatgg
+                             seq1 34805 GTTGCCGGTGCTGTGCCAGGCCCATGG 34831
+                                        *************************97 PP
+
+>> seq2  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !   96.5  16.2   9.9e-29         1       101 [.     27756     27656 ..     27756     27655 ..     53926    0.99
+
+  Alignment:
+  score: 96.5 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        ctgaccccgg  caggtggtggccatcgccagcaat+ +ggcggcaagc ggcgctggagacggtgc gcggct
+                             seq2 27756 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCAATAGCGGCGGCAAGCCGGCGCTGGAGACGGTGCGGCGGCT 27683
+                                        699*********************************************************************** PP
+
+  TALE_repeat_CDS_aligned_curated    75 gttgccggtgctgtgccaggaccatgg 101  
+                                        gttgccggtgctgtgccagg ccatgg
+                             seq2 27682 GTTGCCGGTGCTGTGCCAGGCCCATGG 27656
+                                        *************************98 PP
+
+>> seq2  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !   56.5   6.3   2.8e-16         1        61 [.     25920     25860 ..     25920     25845 ..     53926    0.90
+
+  Alignment:
+  score: 56.5 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggaga 61   
+                                        ctgaccccgg  caggtggtggccatcgccagcaat+a+ggcggcaagcaggcgctggaga
+                             seq2 25920 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCAATAACGGCGGCAAGCAGGCGCTGGAGA 25860
+                                        69*********************************************************98 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !   54.9   8.2   8.8e-16         1        61 [.     28409     28469 ..     28409     28484 ..     61971    0.90
+
+  Alignment:
+  score: 54.9 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggaga 61   
+                                        ctgaccccgg  caggtggtggccatcgccagcaatg +ggcggcaagcaggcgctggaga
+                             seq1 28409 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCAATGGCGGCGGCAAGCAGGCGCTGGAGA 28469
+                                        69*********************************************************98 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !   54.9   8.2   8.8e-16         1        61 [.     31624     31684 ..     31624     31699 ..     61971    0.90
+
+  Alignment:
+  score: 54.9 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggaga 61   
+                                        ctgaccccgg  caggtggtggccatcgccagcaatg +ggcggcaagcaggcgctggaga
+                             seq1 31624 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCAATGGCGGCGGCAAGCAGGCGCTGGAGA 31684
+                                        69*********************************************************98 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ !   54.9   8.2   8.8e-16         1        61 [.     36057     36117 ..     36057     36132 ..     61971    0.90
+
+  Alignment:
+  score: 54.9 bits
+  TALE_repeat_CDS_aligned_curated     1 ctgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctggaga 61   
+                                        ctgaccccgg  caggtggtggccatcgccagcaatg +ggcggcaagcaggcgctggaga
+                             seq1 36057 CTGACCCCGGCGCAGGTGGTGGCCATCGCCAGCAATGGCGGCGGCAAGCAGGCGCTGGAGA 36117
+                                        69*********************************************************98 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ ?    8.5   3.8      0.23        26        68 ..     46150     46112 ..     46170     46092 ..     61971    0.82
+
+  Alignment:
+  score: 8.5 bits
+  TALE_repeat_CDS_aligned_curated    26 tcgccagcaatgatggcggcaagcaggcgctggagacggtgca 68   
+                                        tc    gc a g++g c gcaa caggcg  gga acg tgc 
+                             seq1 46150 TC----GCCACGTCGCCAGCAACCAGGCGTCGGACACGCTGCC 46112
+                                        44....45678999999********************999874 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ ?    7.8   6.0      0.37        27        87 ..     22361     22300 ..     22381     22285 ..     61971    0.81
+
+  Alignment:
+  score: 7.8 bits
+  TALE_repeat_CDS_aligned_curated    27 cgccagcaatgatggcggcaagcaggcg.ctggagacggtgcagcggctgttgccggtgctg 87   
+                                        cgcc + aat  + gcggca gcaggcg c  g   cg tgcag gg t t gccg tgctg
+                             seq1 22361 CGCCGAAAATTCCTGCGGCACGCAGGCGaCCCGCCGCGCTGCAGTGGATCTGGCCGCTGCTG 22300
+                                        57777889999999***********9863222333478899999999999999999888875 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ ?    7.5   1.2      0.47        53        76 ..     14601     14578 ..     14621     14558 ..     61971    0.78
+
+  Alignment:
+  score: 7.5 bits
+  TALE_repeat_CDS_aligned_curated    53 cgctggagacggtgcagcggctgt 76   
+                                        cgctggagacg tgcagc  c g 
+                             seq1 14601 CGCTGGAGACGCTGCAGCTTCCGG 14578
+                                        799*************98655444 PP
+
+>> seq2  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ ?    7.2   3.1      0.58         9        45 ..      8861      8897 ..      8853      8917 ..     53926    0.84
+
+  Alignment:
+  score: 7.2 bits
+  TALE_repeat_CDS_aligned_curated    9 ggaccaggtggtggccatcgccagcaatgatggcggc 45  
+                                       gg cc g t  t gccat+gcca c a +a ggcggc
+                             seq2 8861 GGCCCGGATCATCGCCATTGCCAACCAGAAAGGCGGC 8897
+                                       5666777788899**************9999999875 PP
+
+>> seq2  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ ?    6.8   7.4      0.77         2        59 ..     32325     32268 ..     32326     32248 ..     53926    0.89
+
+  Alignment:
+  score: 6.8 bits
+  TALE_repeat_CDS_aligned_curated     2 tgaccccggaccaggtggtggccatcgccagcaatgatggcggcaagcaggcgctgga 59   
+                                        tgacc cg acca g ggtg   atcgcca c   + +g  g   agcaggcgc gga
+                             seq2 32325 TGACCGCGCACCACGCGGTGCTGATCGCCAACGTCTCCGAAGTGGAGCAGGCGCCGGA 32268
+                                        7899999999*********************999999988888889*******99887 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ ?    6.5   4.7      0.97        46        73 ..     59383     59356 ..     59403     59335 ..     61971    0.87
+
+  Alignment:
+  score: 6.5 bits
+  TALE_repeat_CDS_aligned_curated    46 aagcaggcgctggagacggtgcagcggc 73   
+                                         agcagg g tggag  ggtgcagc gc
+                             seq1 59383 GAGCAGGTGGTGGAGCTGGTGCAGCCGC 59356
+                                        589********************98665 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ ?    6.4   1.1         1         9        45 ..     18031     17995 ..     18038     17975 ..     61971    0.92
+
+  Alignment:
+  score: 6.4 bits
+  TALE_repeat_CDS_aligned_curated     9 ggaccaggtggtggccatcgccagcaatgatggcggc 45   
+                                        gg  ca g  gtggcc   g ca caa  ++ggcggc
+                             seq1 18031 GGTGCAAGGCGTGGCCGATGTCACCAACTTCGGCGGC 17995
+                                        6788999999************************997 PP
+
+>> seq2  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ ?    6.2   7.4       1.2        40        76 ..     32968     32932 ..     32989     32912 ..     53926    0.86
+
+  Alignment:
+  score: 6.2 bits
+  TALE_repeat_CDS_aligned_curated    40 ggcggcaagcaggcgctggagacggtgcagcggctgt 76   
+                                        ggc gcaagc gg gctg  g cggtgc g  gct t
+                             seq2 32968 GGCAGCAAGCCGGAGCTGATGGCGGTGCTGGCGCTTT 32932
+                                        68999********************999876666655 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ ?    6.1   1.8       1.3        61        87 ..     46266     46240 ..     46286     46220 ..     61971    0.86
+
+  Alignment:
+  score: 6.1 bits
+  TALE_repeat_CDS_aligned_curated    61 acggtgcagcggctgttgccggtgctg 87   
+                                        acggtgcag g  tgttg cg tgct 
+                             seq1 46266 ACGGTGCAGGGCTTGTTGGCGATGCTC 46240
+                                        799********************9985 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ ?    5.9   2.6       1.4        17        43 ..      7181      7207 ..      7162      7227 ..     61971    0.77
+
+  Alignment:
+  score: 5.9 bits
+  TALE_repeat_CDS_aligned_curated   17 tggtggccatcgccagcaatgatggcg 43  
+                                         gtggccatc cc gca  g tggcg
+                             seq1 7181 GTGTGGCCATCACCGGCATCGGTGGCG 7207
+                                       347999999999999999988888876 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ ?    5.1   2.0       2.6        22        40 ..     17916     17898 ..     17936     17878 ..     61971    0.66
+
+  Alignment:
+  score: 5.1 bits
+  TALE_repeat_CDS_aligned_curated    22 gccatcgccagcaatgatg 40   
+                                        gccatc ccagcaat+a+g
+                             seq1 17916 GCCATCACCAGCAATAACG 17898
+                                        79***********997653 PP
+
+>> seq2  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ ?    4.2   6.9       4.8        42        64 ..     10291     10313 ..     10271     10334 ..     53926    0.77
+
+  Alignment:
+  score: 4.2 bits
+  TALE_repeat_CDS_aligned_curated    42 cggcaagcaggcgctggagacgg 64   
+                                        c gcaagc ggcgc ggag cgg
+                             seq2 10291 CAGCAAGCTGGCGCAGGAGGCGG 10313
+                                        6799*************998876 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ ?    3.9   6.0       6.3        51        85 ..     49090     49123 ..     49069     49136 ..     61971    0.79
+
+  Alignment:
+  score: 3.9 bits
+  TALE_repeat_CDS_aligned_curated    51 ggcgctggagacggtgcagcggctgttgccggtgc 85   
+                                        ggcg tg ag c gtgcagc gctg t  cg tgc
+                             seq1 49090 GGCGTTGAAGTC-GTGCAGCAGCTGCTCGCGCTGC 49123
+                                        688999999988.59*******9998765555554 PP
+
+>> seq2  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ ?    3.2   6.5       9.9        32        74 ..     42583     42548 ..     42603     42530 ..     53926    0.54
+
+  Alignment:
+  score: 3.2 bits
+  TALE_repeat_CDS_aligned_curated    32 gcaatgatggcggcaagcaggcgctggagacggtgcagcggct 74   
+                                        gc at+ +ggcgg a g      ctg  g  g tgcagcggc 
+                             seq2 42583 GCGATAGCGGCGG-ATG------CTGTCGTTGCTGCAGCGGCA 42548
+                                        4444444444443.233......33333333444455544444 PP
+
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (102 nodes)
+Target sequences:                          2  (231794 residues searched)
+Residues passing SSV filter:           61075  (0.263); expected (0.02)
+Residues passing bias filter:          47609  (0.205); expected (0.02)
+Residues passing Vit filter:           19387  (0.0836); expected (0.003)
+Residues passing Fwd filter:           13236  (0.0571); expected (3e-05)
+Total number of hits:                    102  (0.0399)
+# CPU time: 0.06u 0.00s 00:00:00.06 Elapsed: 00:00:00.06
+# Mc/sec: 349.49
+//
+Query:       TALE_C-terminus_CDS_aligned_curated_long  [M=861]
+Scores for complete hits:
+    E-value  score  bias  Sequence  start    end  Description
+    ------- ------ -----  --------  -----  -----  -----------
+          0 1043.3  30.1  seq2      25860  25001 
+          0 1042.4  27.6  seq1      31684  32543 
+          0 1040.0  30.0  seq1      28469  29328 
+          0 1020.9  29.3  seq1      36117  36954 
+
+
+Annotation for each hit  (and alignments):
+>> seq2  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ ! 1043.3  30.1         0         1       861 []     25860     25001 ..     25860     25001 ..     53926    1.00
+
+  Alignment:
+  score: 1043.3 bits
+  TALE_C-terminus_CDS_aligned_curated_long     1 agcattgttgcccagttatctcgccctgatccggcgttggccgcgttgaccaacgaccacctcgt 65   
+                                                 agcattgttgcccagttatctcgccctgatccggcgttggccgcgttgaccaacgaccacctcgt
+                                      seq2 25860 AGCATTGTTGCCCAGTTATCTCGCCCTGATCCGGCGTTGGCCGCGTTGACCAACGACCACCTCGT 25796
+                                                 799************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long    66 cgccttggcctgcctcggcggacgtcctgccctggatgcagtgaaaaagggattgccgcacgcgc 130  
+                                                 cgccttggcctgcctcggcggacgtcctgccctggatgcagtgaaaaagggattgccgcacgcgc
+                                      seq2 25795 CGCCTTGGCCTGCCTCGGCGGACGTCCTGCCCTGGATGCAGTGAAAAAGGGATTGCCGCACGCGC 25731
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   131 cggaattgatcagaagaatcaatcgccgtattcccgaacgcacgtcccatcgcgttgccgacctc 195  
+                                                 cggaattgatcagaa a tcaat gccgtatt ccgaacgcacgtcccatcgcgttgccgac++c
+                                      seq2 25730 CGGAATTGATCAGAAAAGTCAATAGCCGTATTGCCGAACGCACGTCCCATCGCGTTGCCGACTAC 25666
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   196 gcgcacgtggttcgcgtgcttggttttttccagagccactcccacccagcgcaagcattcgatga 260  
+                                                 gcgca+gtggttcgcgtgct+g++tttttccag+gccactcccacccagcgc +gcatt+gatga
+                                      seq2 25665 GCGCAAGTGGTTCGCGTGCTGGAGTTTTTCCAGTGCCACTCCCACCCAGCGCGCGCATTTGATGA 25601
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   261 cgccatgacgcagttcgggatgagcaggcacgggttggtacagctctttcgcagagtgggcgtca 325  
+                                                 +gccatgacgcagttcgggatgagcagg+acgg ttg tacagctctttcgcagagtgggcgtca
+                                      seq2 25600 GGCCATGACGCAGTTCGGGATGAGCAGGAACGGATTGTTACAGCTCTTTCGCAGAGTGGGCGTCA 25536
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   326 ccgaactcgaagcccgctgcggaacgctccccccagcctcgcagcgttgggaccgtatcctccag 390  
+                                                 ccgaactcgaagcccgc+g+ggaacgctccccccagcctcgcagcgttgg a cgtatcctcca 
+                                      seq2 25535 CCGAACTCGAAGCCCGCGGTGGAACGCTCCCCCCAGCCTCGCAGCGTTGGCAACGTATCCTCCAA 25471
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   391 gcatcagggatgaaaagggccaaaccgtcccctacttcagctcaaacaccggatcaggcgtcttt 455  
+                                                 gcatcagggatgaaaag gccaaaccgtcc  t cttc gctcaaac ccggatcaggcgtcttt
+                                      seq2 25470 GCATCAGGGATGAAAAGCGCCAAACCGTCCTGTGCTTCGGCTCAAACGCCGGATCAGGCGTCTTT 25406
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   456 gcatgcattcgccgattcgctggagcgtgaccttgatgcgcccagcccaatgcacgagggagatc 520  
+                                                 gcatgcattcgccgattcgctggagcgtgaccttgatgcgcccagcccaatgcacgagggagatc
+                                      seq2 25405 GCATGCATTCGCCGATTCGCTGGAGCGTGACCTTGATGCGCCCAGCCCAATGCACGAGGGAGATC 25341
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   521 agacgcgggcaagcagccgtaaacggtcccgatcggatcgtgctgtcaccggcccctccgcacag 585  
+                                                 agacgcgggcaagcagccgtaaacggtcccgatcggatcgtgctgtcaccggcccctccgcacag
+                                      seq2 25340 AGACGCGGGCAAGCAGCCGTAAACGGTCCCGATCGGATCGTGCTGTCACCGGCCCCTCCGCACAG 25276
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   586 caatctttcgaggtgcgcgttcccgaacagcgcgatgcgctgcatttgcccctcagctggagggt 650  
+                                                 ca  ct tcgaggtgcgcgttcccgaacagcgcgatgcgctgcatttgcccctcagctggag gt
+                                      seq2 25275 CAGGCTGTCGAGGTGCGCGTTCCCGAACAGCGCGATGCGCTGCATTTGCCCCTCAGCTGGAGTGT 25211
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   651 aaaacgcccgcgtaccaggatcgggggcggcctcccggatcctggtacgcccatcgctgccgacc 715  
+                                                 aaaacgcccgcgtaccaggatcgggggcggcctcccggatcctggtacgcccat gct ccgacc
+                                      seq2 25210 AAAACGCCCGCGTACCAGGATCGGGGGCGGCCTCCCGGATCCTGGTACGCCCATGGCTACCGACC 25146
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   716 tggcagcgtccagcaccgtgatgtgggaacaagatgcggcccccttcgcaggggcagcggatgat 780  
+                                                 tggcagcgtccagcacc tgatgtgggaacaagatg gg cc cttcgcaggggcagcggatgat
+                                      seq2 25145 TGGCAGCGTCCAGCACCCTGATGTGGGAACAAGATGTGGACCACTTCGCAGGGGCAGCGGATGAT 25081
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   781 ttcccggcattcaacgaagaggagctcgcatggttgatggagctattgcctcagtcaggctcagt 845  
+                                                 ttcccggcattcaacgaagagga ctcgcatggttga ggagctattgcctcagt aggctcagt
+                                      seq2 25080 TTCCCGGCATTCAACGAAGAGGAACTCGCATGGTTGAGGGAGCTATTGCCTCAGTGAGGCTCAGT 25016
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   846 cggagggacgatctga 861  
+                                                 cgg gggac atctga
+                                      seq2 25015 CGG-GGGACTATCTGA 25001
+                                                 *98.789******986 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ ! 1042.4  27.6         0         1       861 []     31684     32543 ..     31684     32543 ..     61971    1.00
+
+  Alignment:
+  score: 1042.4 bits
+  TALE_C-terminus_CDS_aligned_curated_long     1 agcattgttgcccagttatctcgccctgatccggcgttggccgcgttgaccaacgaccacctcgt 65   
+                                                 agcattgttgcccagttatctcgccctgatccggcgttggccgcgttgaccaacgaccacctcgt
+                                      seq1 31684 AGCATTGTTGCCCAGTTATCTCGCCCTGATCCGGCGTTGGCCGCGTTGACCAACGACCACCTCGT 31748
+                                                 799************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long    66 cgccttggcctgcctcggcggacgtcctgccctggatgcagtgaaaaagggattgccgcacgcgc 130  
+                                                 cgccttggcctgcctcggcggacgtcctgccctggatgcagtgaaaaagggattgccgcacgcgc
+                                      seq1 31749 CGCCTTGGCCTGCCTCGGCGGACGTCCTGCCCTGGATGCAGTGAAAAAGGGATTGCCGCACGCGC 31813
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   131 cggaattgatcagaagaatcaatcgccgtattcccgaacgcacgtcccatcgcgttgccgacctc 195  
+                                                 cggaattgatcagaaga tcaat gccgtatt ccgaacgcacgtcc atcgcgtt ccgac++c
+                                      seq1 31814 CGGAATTGATCAGAAGAGTCAATAGCCGTATTGCCGAACGCACGTCCGATCGCGTTACCGACTAC 31878
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   196 gcgcacgtggttcgcgtgcttggttttttccagagccactcccacccagcgcaagcattcgatga 260  
+                                                 gcgca+gtggttcgcgtgct+g++tttttccag+gccactcccacccagcgca+gcatt+gatga
+                                      seq1 31879 GCGCAAGTGGTTCGCGTGCTGGAGTTTTTCCAGTGCCACTCCCACCCAGCGCACGCATTTGATGA 31943
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   261 cgccatgacgcagttcgggatgagcaggcacgggttggtacagctctttcgcagagtgggcgtca 325  
+                                                 +gccatgacgcagttcgggatgagcagg+acgg ttg tacagctctttcgcagagtgggcgtca
+                                      seq1 31944 GGCCATGACGCAGTTCGGGATGAGCAGGAACGGATTGTTACAGCTCTTTCGCAGAGTGGGCGTCA 32008
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   326 ccgaactcgaagcccgctgcggaacgctccccccagcctcgcagcgttgggaccgtatcctccag 390  
+                                                 ccgaactcgaagcc gc+g+ggaacgctccccccagcctcgcagcgttgg accgtatcctcca 
+                                      seq1 32009 CCGAACTCGAAGCCTGCGGTGGAACGCTCCCCCCAGCCTCGCAGCGTTGGCACCGTATCCTCCAA 32073
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   391 gcatcagggatgaaaagggccaaaccgtcccctacttcagctcaaacaccggatcaggcgtcttt 455  
+                                                 gcatcagggatgaaaag gccaaaccgtcc  t cttc gctcaaac+ccggatcaggcgtcttt
+                                      seq1 32074 GCATCAGGGATGAAAAGTGCCAAACCGTCCTGTGCTTCGGCTCAAACGCCGGATCAGGCGTCTTT 32138
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   456 gcatgcattcgccgattcgctggagcgtgaccttgatgcgcccagcccaatgcacgagggagatc 520  
+                                                 gcatgcattcgccgattcgctggagcgtgaccttgatgcgcccagcccaatgcacgagg agatc
+                                      seq1 32139 GCATGCATTCGCCGATTCGCTGGAGCGTGACCTTGATGCGCCCAGCCCAATGCACGAGGAAGATC 32203
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   521 agacgcgggcaagcagccgtaaacggtcccgatcggatcgtgctgtcaccggcccctccgcacag 585  
+                                                 agacgcgggcaagcagccgtaaacggtcccgatcggatcgtgctgtcaccggcccctccgcacag
+                                      seq1 32204 AGACGCGGGCAAGCAGCCGTAAACGGTCCCGATCGGATCGTGCTGTCACCGGCCCCTCCGCACAG 32268
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   586 caatctttcgaggtgcgcgttcccgaacagcgcgatgcgctgcatttgcccctcagctggagggt 650  
+                                                 ca  ct tcgaggtgcgcgttcccgaacagcgcgatgcgctgcatttgcccctcagctggag gt
+                                      seq1 32269 CAGGCTGTCGAGGTGCGCGTTCCCGAACAGCGCGATGCGCTGCATTTGCCCCTCAGCTGGAGTGT 32333
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   651 aaaacgcccgcgtaccaggatcgggggcggcctcccggatcctggtacgcccatcgctgccgacc 715  
+                                                 aaaacgcccgcgtaccaggatcgggggcggcctcccggatcctggtacgcccat gct ccgacc
+                                      seq1 32334 AAAACGCCCGCGTACCAGGATCGGGGGCGGCCTCCCGGATCCTGGTACGCCCATGGCTACCGACC 32398
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   716 tggcagcgtccagcaccgtgatgtgggaacaagatgcggcccccttcgcaggggcagcggatgat 780  
+                                                 tggcagcgtccag acc tgatgtgggaacaagatg gg cc cttcgcaggggcagcggatgat
+                                      seq1 32399 TGGCAGCGTCCAGTACCCTGATGTGGGAACAAGATGTGGACCACTTCGCAGGGGCAGCGGATGAT 32463
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   781 ttcccggcattcaacgaagaggagctcgcatggttgatggagctattgcctcagtcaggctcagt 845  
+                                                 ttcccggcattcaacgaagagga ctcgcatggttga ggagctattgcctcagt aggctcagt
+                                      seq1 32464 TTCCCGGCATTCAACGAAGAGGAACTCGCATGGTTGAGGGAGCTATTGCCTCAGTGAGGCTCAGT 32528
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   846 cggagggacgatctga 861  
+                                                 cgg gggac atctga
+                                      seq1 32529 CGG-GGGACTATCTGA 32543
+                                                 *98.789******986 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ ! 1040.0  30.0         0         1       861 []     28469     29328 ..     28469     29328 ..     61971    1.00
+
+  Alignment:
+  score: 1040.0 bits
+  TALE_C-terminus_CDS_aligned_curated_long     1 agcattgttgcccagttatctcgccctgatccggcgttggccgcgttgaccaacgaccacctcgt 65   
+                                                 agcattgttgcccagttatctcgccctgatccggcgttggccgcgttgaccaacgaccacctcgt
+                                      seq1 28469 AGCATTGTTGCCCAGTTATCTCGCCCTGATCCGGCGTTGGCCGCGTTGACCAACGACCACCTCGT 28533
+                                                 799************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long    66 cgccttggcctgcctcggcggacgtcctgccctggatgcagtgaaaaagggattgccgcacgcgc 130  
+                                                 cgccttggcctgcctcggcggacgtcctgccctggatgcagtgaaaaagggattgccgcacgcgc
+                                      seq1 28534 CGCCTTGGCCTGCCTCGGCGGACGTCCTGCCCTGGATGCAGTGAAAAAGGGATTGCCGCACGCGC 28598
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   131 cggaattgatcagaagaatcaatcgccgtattcccgaacgcacgtcccatcgcgttgccgacctc 195  
+                                                 cggaattgatcagaaga tcaat+gccgtatt ccgaacgcacgtcc atcgcgtt ccgac++c
+                                      seq1 28599 CGGAATTGATCAGAAGAGTCAATAGCCGTATTGCCGAACGCACGTCCGATCGCGTTACCGACTAC 28663
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   196 gcgcacgtggttcgcgtgcttggttttttccagagccactcccacccagcgcaagcattcgatga 260  
+                                                 gcgca+gtggttcgcgtgct+g++tttttccag+gccactcccacccagcgca+gcatt+gatga
+                                      seq1 28664 GCGCAAGTGGTTCGCGTGCTGGAGTTTTTCCAGTGCCACTCCCACCCAGCGCACGCATTTGATGA 28728
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   261 cgccatgacgcagttcgggatgagcaggcacgggttggtacagctctttcgcagagtgggcgtca 325  
+                                                 +gccatgacgcagttcgggatgagcagg+acgg ttg tacagctctttcgcagagtgggcgtca
+                                      seq1 28729 GGCCATGACGCAGTTCGGGATGAGCAGGAACGGATTGTTACAGCTCTTTCGCAGAGTGGGCGTCA 28793
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   326 ccgaactcgaagcccgctgcggaacgctccccccagcctcgcagcgttgggaccgtatcctccag 390  
+                                                 ccgaactcgaagcc gc+g+ggaacgctccccccagcctcgcagcgttgg accgt tcctcca 
+                                      seq1 28794 CCGAACTCGAAGCCTGCGGTGGAACGCTCCCCCCAGCCTCGCAGCGTTGGCACCGTGTCCTCCAA 28858
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   391 gcatcagggatgaaaagggccaaaccgtcccctacttcagctcaaacaccggatcaggcgtcttt 455  
+                                                 gcatcagggatgaaaag gccaaaccgtcc  t cttc gctcaaac ccggatcaggcgtcttt
+                                      seq1 28859 GCATCAGGGATGAAAAGTGCCAAACCGTCCTGTGCTTCGGCTCAAACGCCGGATCAGGCGTCTTT 28923
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   456 gcatgcattcgccgattcgctggagcgtgaccttgatgcgcccagcccaatgcacgagggagatc 520  
+                                                 gcatgcattcgccgattcgctggagcgtgaccttgatgcgcccagcccaatgcacgagg agatc
+                                      seq1 28924 GCATGCATTCGCCGATTCGCTGGAGCGTGACCTTGATGCGCCCAGCCCAATGCACGAGGAAGATC 28988
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   521 agacgcgggcaagcagccgtaaacggtcccgatcggatcgtgctgtcaccggcccctccgcacag 585  
+                                                 agacgcgggcaagcagccgtaaacggtcccgatcggatcgtgctgtcaccggcccctccgcacag
+                                      seq1 28989 AGACGCGGGCAAGCAGCCGTAAACGGTCCCGATCGGATCGTGCTGTCACCGGCCCCTCCGCACAG 29053
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   586 caatctttcgaggtgcgcgttcccgaacagcgcgatgcgctgcatttgcccctcagctggagggt 650  
+                                                 ca  ct tcgaggtgcgcgttcccgaacagcgcgatgcgctgcatt gcccctcagctggag gt
+                                      seq1 29054 CAGGCTGTCGAGGTGCGCGTTCCCGAACAGCGCGATGCGCTGCATTCGCCCCTCAGCTGGAGTGT 29118
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   651 aaaacgcccgcgtaccaggatcgggggcggcctcccggatcctggtacgcccatcgctgccgacc 715  
+                                                 aaaacgcccgcgtaccaggatcgggggcggcctcccggatcctggtacgcccat gctgccgacc
+                                      seq1 29119 AAAACGCCCGCGTACCAGGATCGGGGGCGGCCTCCCGGATCCTGGTACGCCCATGGCTGCCGACC 29183
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   716 tggcagcgtccagcaccgtgatgtgggaacaagatgcggcccccttcgcaggggcagcggatgat 780  
+                                                 tggcagcgtccagcacc tgatgtgggaacaagatg gg cc cttcgcaggggcagcggatgat
+                                      seq1 29184 TGGCAGCGTCCAGCACCCTGATGTGGGAACAAGATGTGGACCACTTCGCAGGGGCAGCGGATGAT 29248
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   781 ttcccggcattcaacgaagaggagctcgcatggttgatggagctattgcctcagtcaggctcagt 845  
+                                                 ttcccggcattcaacgaagagga ctcgcatggttga ggagctattgcctcagt aggctcagt
+                                      seq1 29249 TTCCCGGCATTCAACGAAGAGGAACTCGCATGGTTGAGGGAGCTATTGCCTCAGTGAGGCTCAGT 29313
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   846 cggagggacgatctga 861  
+                                                 cgg gggac atctga
+                                      seq1 29314 CGG-GGGACTATCTGA 29328
+                                                 *98.789******986 PP
+
+>> seq1  
+    score  bias    Evalue   hmmfrom    hmm to     alifrom    ali to      envfrom    env to       sq len      acc
+   ------ ----- ---------   -------   -------    --------- ---------    --------- ---------    ---------    ----
+ ! 1020.9  29.3         0         1       838 [.     36117     36954 ..     36117     36971 ..     61971    1.00
+
+  Alignment:
+  score: 1020.9 bits
+  TALE_C-terminus_CDS_aligned_curated_long     1 agcattgttgcccagttatctcgccctgatccggcgttggccgcgttgaccaacgaccacctcgt 65   
+                                                 agcattgttgcccagttatctcgccctgatccggcgttggccgcgttgaccaacgaccacctcgt
+                                      seq1 36117 AGCATTGTTGCCCAGTTATCTCGCCCTGATCCGGCGTTGGCCGCGTTGACCAACGACCACCTCGT 36181
+                                                 799************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long    66 cgccttggcctgcctcggcggacgtcctgccctggatgcagtgaaaaagggattgccgcacgcgc 130  
+                                                 cgccttggcctgcctcggcggacgtcctgccctggatgcagtgaaaaagggattgccgcacgcgc
+                                      seq1 36182 CGCCTTGGCCTGCCTCGGCGGACGTCCTGCCCTGGATGCAGTGAAAAAGGGATTGCCGCACGCGC 36246
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   131 cggaattgatcagaagaatcaatcgccgtattcccgaacgcacgtcccatcgcgttgccgacctc 195  
+                                                 cggaattgatcagaa a+tcaat+gccgtatt ccgaacgcacgtcccatcgcgttgccgac++c
+                                      seq1 36247 CGGAATTGATCAGAAAAGTCAATAGCCGTATTGCCGAACGCACGTCCCATCGCGTTGCCGACTAC 36311
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   196 gcgcacgtggttcgcgtgcttggttttttccagagccactcccacccagcgcaagcattcgatga 260  
+                                                 gcgca+gtggttcgcgtgct+g++tttttccag+gccactcccacccagcgca+gcatt+gatga
+                                      seq1 36312 GCGCAAGTGGTTCGCGTGCTGGAGTTTTTCCAGTGCCACTCCCACCCAGCGCACGCATTTGATGA 36376
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   261 cgccatgacgcagttcgggatgagcaggcacgggttggtacagctctttcgcagagtgggcgtca 325  
+                                                 +gccatgacgcagttcgggatgagcagg+acgg ttg tacagctctttcgcagagtgggcgtca
+                                      seq1 36377 GGCCATGACGCAGTTCGGGATGAGCAGGAACGGATTGTTACAGCTCTTTCGCAGAGTGGGCGTCA 36441
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   326 ccgaactcgaagcccgctgcggaacgctccccccagcctcgcagcgttgggaccgtatcctccag 390  
+                                                 ccgaactcgaagcccgc+g+ggaac ctccccccagcctcgcagcgttgg accgtatcctcca 
+                                      seq1 36442 CCGAACTCGAAGCCCGCGGTGGAACTCTCCCCCCAGCCTCGCAGCGTTGGCACCGTATCCTCCAA 36506
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   391 gcatcagggatgaaaagggccaaaccgtcccctacttcagctcaaacaccggatcaggcgtcttt 455  
+                                                 gcatcagggatgaaaag gccaaaccgtcc  t cttc gctcaaac+ccggatcaggcgtcttt
+                                      seq1 36507 GCATCAGGGATGAAAAGCGCCAAACCGTCCTGTGCTTCGGCTCAAACGCCGGATCAGGCGTCTTT 36571
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   456 gcatgcattcgccgattcgctggagcgtgaccttgatgcgcccagcccaatgcacgagggagatc 520  
+                                                 gcatgcattcgccgattcgctggagcgtgaccttgatgcgcccagcccaatgcacgagg agatc
+                                      seq1 36572 GCATGCATTCGCCGATTCGCTGGAGCGTGACCTTGATGCGCCCAGCCCAATGCACGAGGAAGATC 36636
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   521 agacgcgggcaagcagccgtaaacggtcccgatcggatcgtgctgtcaccggcccctccgcacag 585  
+                                                 agacgcgggcaagcagccgtaaacggtcccgatcggatcgtgctgtcaccggcccctccgcacag
+                                      seq1 36637 AGACGCGGGCAAGCAGCCGTAAACGGTCCCGATCGGATCGTGCTGTCACCGGCCCCTCCGCACAG 36701
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   586 caatctttcgaggtgcgcgttcccgaacagcgcgatgcgctgcatttgcccctcagctggagggt 650  
+                                                 ca  ct tcgaggtgcgcgttcccgaacagcgcgatgcgctgcatttgcccctcagctggag gt
+                                      seq1 36702 CAGGCTGTCGAGGTGCGCGTTCCCGAACAGCGCGATGCGCTGCATTTGCCCCTCAGCTGGAGTGT 36766
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   651 aaaacgcccgcgtaccaggatcgggggcggcctcccggatcctggtacgcccatcgctgccgacc 715  
+                                                 aaaacgcccgcgtaccaggatcgggggcggcctcccggatcctggtacgccc t gctgccgacc
+                                      seq1 36767 AAAACGCCCGCGTACCAGGATCGGGGGCGGCCTCCCGGATCCTGGTACGCCCGTGGCTGCCGACC 36831
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   716 tggcagcgtccagcaccgtgatgtgggaacaagatgcggcccccttcgcaggggcagcggatgat 780  
+                                                 tggcagcgtccagcacc tgatgtgggaacaagatg gg cc cttcgcaggggcagcggatgat
+                                      seq1 36832 TGGCAGCGTCCAGCACCCTGATGTGGGAACAAGATGTGGACCACTTCGCAGGGGCAGCGGATGAT 36896
+                                                 ***************************************************************** PP
+
+  TALE_C-terminus_CDS_aligned_curated_long   781 ttcccggcattcaacgaagaggagctcgcatggttgatggagctattgcctcagtcag 838  
+                                                 ttcccggcattcaacgaagagga ctcgcatggttga ggagctattg ctcagt ag
+                                      seq1 36897 TTCCCGGCATTCAACGAAGAGGAACTCGCATGGTTGAGGGAGCTATTGACTCAGTGAG 36954
+                                                 ******************************************************9775 PP
+
+
+
+Internal pipeline statistics summary:
+-------------------------------------
+Query model(s):                            1  (861 nodes)
+Target sequences:                          2  (231794 residues searched)
+Residues passing SSV filter:           22897  (0.0988); expected (0.02)
+Residues passing bias filter:          11049  (0.0477); expected (0.02)
+Residues passing Vit filter:           10263  (0.0443); expected (0.003)
+Residues passing Fwd filter:            4457  (0.0192); expected (3e-05)
+Total number of hits:                      4  (0.0147)
+# CPU time: 0.07u 0.00s 00:00:00.07 Elapsed: 00:00:00.08
+# Mc/sec: 2341.38
+//
+[ok]

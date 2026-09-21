@@ -1,0 +1,184 @@
+---
+title: "TellTale notebook 2"
+author: "Tram"
+date: "11/4/2019"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(eval = FALSE)
+
+devtools::load_all(path = "./tantale")
+```
+
+
+# telltales vs. annotale
+## genomes 
+PXO86, BAI3 and BAI3-1-1
+```{r}
+db_link <- "./talomes_analysis/xanthomonas_ref.db"
+ref_db <- DBI::dbConnect(RSQLite::SQLite(), db_link)
+genomes <- RSQLite::dbReadTable(ref_db, "Seqs")
+genomes <-  genomes[genomes$Strain_ID %in% c("PXO86", "BAI3"),]
+
+test_folder <- file.path(system.file("test", package = "tantale", mustWork = T), "telltale_vs_annotale")
+telltale_outdir <- file.path(test_folder, "telltale")
+annotale_outdir <- file.path(test_folder, "annotale")
+genome_dir <- file.path(test_folder, "genomes")
+dir.create(telltale_outdir, recursive = T)
+dir.create(annotale_outdir)
+dir.create(genome_dir)
+
+lapply(1:nrow(genomes), function(i) {
+  ref_file <- glue("{genome_dir}/{genomes[i,]$Strain_ID}.fa")
+  DB2Seqs(ref_file, dbFile = ref_db, identifier =  genomes[i,]$identifier, type = "DNAStringSet", tblName = "Seqs", append = T)
+})
+dbDisconnect(ref_db)
+
+file.copy("/home/baotram/tal/hmmprofile/control_Xo_genomes_for_annotale/BAI3-1-1_flye_fixstart_nanopolished_scaffolds.fasta", glue("{genome_dir}/BAI3-1-1.fa"))
+input_fa <- list.files(genome_dir, "*.fa$", full.names = T)
+```
+
+## run telltale 
+```{r}
+
+run_telltale <- function(input, msa) {
+  outname <- gsub(".fa$", glue("_{msa}"), basename(input))
+  outdir <- file.path(telltale_outdir, outname)
+  dir.create(outdir)
+  tellTale(subjectFile = input,
+           outputDir = outdir,
+           minRatioOfGapForColMasking = 0.8,
+           TALE_NtermDNAHitMinScore = 300,
+           repeatDNAHitMinScore = 20,
+           TALE_CtermDNAHitMinScore = 200,
+           minDomainHitsPerSubjSeq = 4,
+           mergeHits = TRUE,
+           repMsaMethod = msa,
+           minGapWidth = 35,
+           minDomainHitsPerArrayForAssembl  = 5,
+           taleArrayStartAnchorCode = "",
+           taleArrayEndAnchorCode = "",
+           appendExtremityCodes = FALSE,
+           rvdSep = "-")
+}
+
+lapply(input_fa, function(i) {
+  lapply(c("hmmalign", "decipher"), function(j) {
+   run_telltale(i, j)
+  })
+
+run_telltale(input_fa[3], "hmmalign")
+run_telltale(input_fa[2], "hmmalign")
+```
+
+## run annotale
+
+```{r}
+registerDoFuture()
+plan(multisession(workers = 2))
+foreach(i = input_fa, o = rep(annotale_outdir, length(input_fa))) %dopar% {
+  outname <- gsub(".fa$", "", basename(i))
+  outdir <- file.path(o, outname)
+  dir.create(outdir)
+  tantale::analyzeAnnoTALE(i, outdir)
+}
+```
+
+## annotale build for RVDs and ORFs
+```{r}
+anno_build_dir <- file.path(test_folder, "annotale_build")
+
+annotale <- system.file("inst", "tools", "AnnoTALEcli-1.4.1.jar", package = "tantale", mustWork = T)
+
+```
+
+
+```{r}
+
+
+merge_anno_tell <- function(strain, pattern, annotale_outdir, telltale_outdir, outdir) {
+  if (pattern == "orf") {
+    annofile <- glue("Predict/TALE_DNA_sequences_({strain}).fasta")
+    tellfile <- "arrayOrfs.fas"
+  } else if (pattern == "rvd") {
+    annofile <- "Analyze/TALE_RVDs.fasta"
+    tellfile <- "rvdSequences.fas"
+  }
+  
+  build_dir <- file.path(outdir, strain)
+  dir.create(build_dir, recursive = T)
+  input_file <- file.path(build_dir, glue("{strain}.fa"))
+  if (file.exists(input_file)) {unlink(input_file)}
+
+  annotale_out <- file.path(annotale_outdir, strain, annofile)
+  file.copy(annotale_out, input_file)
+
+  telltale_out <- list.files(telltale_outdir, strain)
+  lapply(telltale_out, function(t) {
+    rvdseq_file <- file.path(telltale_outdir, t, tellfile)
+    rvdseq <- readBStringSet(rvdseq_file)
+    names(rvdseq) <-  paste(t, names(rvdseq), sep = "-")
+    writeXStringSet(rvdseq, input_file, append = T)
+  })
+  return(input_file)
+}
+
+pxo86_orf <- merge_anno_tell("PXO86", "orf", anno_build_dir, telltale_outdir, anno_build_dir)
+buildAnnoTALE(pxo86_orf, dirname(pxo86_orf))
+
+buildAnnoTALE("/home/baotram/tal/rvdArrayReader_test/compare/BAI3_vs_BAI3-1-1/TALE_RVDs.fasta", "/home/baotram/tal/xanthopore-scripts/tantale/docs_temp/bai3")
+```
+PXO86: all outputs are identical
+
+BAI3-1-1: Error with AnnoTALE build from RVD seqs
+```
+Exception in thread "main" java.lang.StringIndexOutOfBoundsException: String index out of range: 44
+	at java.lang.String.charAt(String.java:658)
+	at projects.xanthogenomes.TALEAligner.align(TALEAligner.java:42)
+	at projects.xanthogenomes.TALEFamilyBuilder.computeDistMatrix(TALEFamilyBuilder.java:1166)
+	at projects.xanthogenomes.TALEFamilyBuilder.cluster(TALEFamilyBuilder.java:1177)
+	at projects.xanthogenomes.TALEFamilyBuilder.<init>(TALEFamilyBuilder.java:848)
+	at projects.xanthogenomes.BuildFamilies.build(BuildFamilies.java:229)
+	at projects.xanthogenomes.tools.ClassBuilderTool.run(ClassBuilderTool.java:163)
+	at de.jstacs.tools.ui.cli.CLI.run(CLI.java:376)
+	at projects.xanthogenomes.AnnoTALEcli.main(AnnoTALEcli.java:37)
+```
+
+## run distal
+
+```{r}
+distal_dir <- file.path(test_folder, "distal")
+
+# concatenate AA Seqs
+
+
+pxo86_orf <- merge_anno_tell("PXO86", "orf", anno_build_dir, telltale_outdir, distal_dir)
+
+# from input fasta file to distal to plots
+input_file <- list.files(distal_dir, "BAI3-1-1", recursive = T, full.names = T)
+anno_output <- readBStringSet(input_file)
+names(anno_output) <- gsub(" \\[.*\\]", "", names(anno_output))
+names(anno_output) <- gsub("\\(Pseudo\\)", "", names(anno_output))
+names(anno_output) <- stringr::str_trim(names(anno_output))
+Biostrings::writeXStringSet(anno_output, input_file)
+out <- dirname(input_file)
+distal_output <- runDistal(input_file, outdir = out, overwrite = F)
+distal_group <- buildDisTalGroups(out, num.groups = 8, overwrite = F)
+
+plot_name <- unlist(strsplit(basename(input_file), "\\."))[1]
+for (i in names(distal_group$SeqOfRepsAlignments)) {
+  tantale::heatmap_msa(talsim = distal_output$tal.similarity, forMatrix = distal_group$SeqOfDistancesAlignments[[i]], forCellNote = distal_group$SeqOfRvdAlignment[[i]], plot.type = "repeat.similarity", main = paste(plot_name, i , sep = "-")) 
+}
+
+
+```
+
+# BAI3 vs BAI3-1-1
+
+## annotale result
+
+

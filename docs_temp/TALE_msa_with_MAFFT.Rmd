@@ -1,0 +1,73 @@
+---
+title: "TALE multiple aligments mith MAFFT?"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(eval = TRUE)
+library(tantale)
+```
+
+# Forewords
+
+
+Fortitiuosly found out that MAFFT can generate mutliple alignment of character sequences : https://mafft.cbrc.jp/alignment/software/textcomparison.html
+
+MAFFT `--text` mode actually accepts characters 0x01 – 0xFF excluding > (0x3E), = (0x3D), < (0x3C), - (0x2D), Space (0x20), Carriage Return (0x0d) and Line Feed (0x0a).  So the maximum size of alphabet is 248.
+
+So this should in principle be possible to convert RVD sequences or repeat unit sequences in single characters strings and run it...
+
+
+RVD seq -> hexadecimal code -> ASCII
+
+
+# [Ascii code table in R](https://www.r-bloggers.com/ascii-code-table-in-r/)
+
+accept an ascii character and return the decimal value
+
+```{r}
+asc <- function(x) { strtoi(charToRaw(x),16L) }
+```
+
+return the ascii character given it’s decimal code value
+
+```{r}
+chr <- function(n) { rawToChar(as.raw(n)) }
+```
+
+
+# Testing `buildRepeatMsa` 
+
+```{r}
+#taleRvdSeqsFile <- system.file("extdata", "TalF_RVDSeqs_AnnoTALE.fasta", package = "tantale")
+taleRvdSeqsFile <- system.file("extdata", "TalA_RVDSeqs_AnnoTALE.fasta", package = "tantale")
+
+#taleRepeatSeqsFile <- system.file("extdata", "Out_CodedRepeats.fa", package = "tantale")
+taleRepeatSeqsFile <- system.file("extdata", "small_Out_CodedRepeats.fa", package = "tantale")
+
+#distalRepeatDistMatFile <- system.file("extdata", "BigRepDist.mat", package = "tantale")
+distalRepeatDistMatFile <- system.file("extdata", "Out_Repeatmatrix.mat", package = "tantale")
+
+buildRepeatMsa(inputSeqs=taleRvdSeqsFile)
+buildRepeatMsa(inputSeqs=taleRvdSeqsFile, mafftOpts = "--quiet")
+buildRepeatMsa(inputSeqs=taleRvdSeqsFile, distalRepeatSims=distalRepeatDistMatFile)
+buildRepeatMsa(inputSeqs=taleRepeatSeqsFile, distalRepeatSims=distalRepeatDistMatFile)
+buildRepeatMsa(inputSeqs=taleRepeatSeqsFile)
+```
+
+
+# Testing `pickRefName` 
+
+```{r}
+rvdAlign <- buildRepeatMsa(inputFile=taleRvdSeqsFile)
+repeatAlign <- buildRepeatMsa(inputFile=taleRepeatSeqsFile, distalRepeatDistMatFile=distalRepeatDistMatFile)
+
+pickRefName(rvdAlign[ c(5, 4, 3, 2, 1), ])
+pickRefName(rvdAlign[ c(5, 4, 3, 2, 1), ], refTag = "MAI")
+pickRefName(rvdAlign[ c(5, 4, 3, 2, 1), ], refTag = "CFBP1947")
+
+```
+

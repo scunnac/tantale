@@ -1,0 +1,112 @@
+---
+title: "Showcase functions for predicting TALE DNA-binding sites on target sequences"
+author: "Seb"
+date: "`r Sys.time()`"
+output:
+  html_document:
+    theme: cerulean
+    highlight: tango
+    toc: true
+    toc_float:
+      collapsed: true
+      smooth_scroll: true
+    number_sections: true
+    code_folding: show
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tantale)
+library(magrittr)
+```
+
+# Common parameters values for testing
+
+```{r Common parameters}
+rvdSeqsFile= system.file("extdata", "cladeIII_sweet_targeting_control_TALEs.fa", package = "tantale", mustWork = T)
+rvdSeqsXstrings= Biostrings::readBStringSet(system.file("extdata", "cladeIII_sweet_targeting_control_TALEs.fa", package = "tantale", mustWork = T))
+subjDnaSeqFile= system.file("extdata", "cladeIII_sweet_promoters.fasta", package = "tantale", mustWork = T)
+```
+
+# Testing latest version of Talvez (3.2) that can run searches on both strands
+
+```{r Testing Talvez}
+outDir = tempfile(); dir.create(outDir)
+
+talvezPreds <- talvez(rvdSeqs = rvdSeqsFile, subjDnaSeqFile = subjDnaSeqFile, outDir = NULL)
+talvezPreds <- talvez(rvdSeqs = rvdSeqsXstrings, subjDnaSeqFile = subjDnaSeqFile, optParam = "-t 1 -l 20", outDir = outDir)
+talvezPreds <- talvez(rvdSeqs = rvdSeqsXstrings, subjDnaSeqFile = subjDnaSeqFile, optParam = "-t 0 -l 19", outDir = NULL)
+knitr::kable(head(talvezPreds))
+```
+
+Checking that positions are correct:
+
+```{r}
+predsGr <- talvezPreds %>% #dplyr::filter(strand == "-") %>%
+  GenomicRanges::makeGRangesFromDataFrame(seqnames.field = "subjSeqId", keep.extra.columns = TRUE)
+stopifnot(as.character(BSgenome::getSeq(Biostrings::readDNAStringSet(subjDnaSeqFile), predsGr)) == predsGr$ebeSeq)
+```
+
+
+# Testing preditale
+
+```{r Testing preditale}
+outDir = tempfile(); dir.create(outDir)
+optParam = "Strand=\"forward strand\""
+
+preditalePreds <- preditale(rvdSeqs = rvdSeqsFile, subjDnaSeqFile = subjDnaSeqFile, optParam = optParam, outDir = outDir)
+try(preditalePreds <- preditale(rvdSeqs = rvdSeqsFile, subjDnaSeqFile = subjDnaSeqFile, optParam = optParam, outDir = outDir))
+preditalePreds <- preditale(rvdSeqs = rvdSeqsXstrings, subjDnaSeqFile = subjDnaSeqFile, outDir = NULL)
+knitr::kable(head(preditalePreds))
+```
+
+Checking that positions are correct:
+
+```{r check positions}
+predsGr <- preditalePreds %>% #dplyr::filter(strand == "-") %>%
+  GenomicRanges::makeGRangesFromDataFrame(seqnames.field = "subjSeqId", keep.extra.columns = TRUE)
+stopifnot(as.character(BSgenome::getSeq(Biostrings::readDNAStringSet(subjDnaSeqFile), predsGr)) == predsGr$ebeSeq)
+```
+
+
+
+# Easily plot rvd seqs alingments to predicted EBEs along a single subject DNA sequence.
+
+
+```{r testing plotTaleTargetPred, eval = TRUE}
+
+talvezPreds <- talvez(rvdSeqs = rvdSeqsXstrings, subjDnaSeqFile = subjDnaSeqFile, optParam = "-t 10 -l 19", outDir = outDir)
+preditalePreds <- preditale(rvdSeqs = rvdSeqsXstrings, subjDnaSeqFile = subjDnaSeqFile, outDir = NULL) %>% print(n=Inf)
+
+grFilter1 <- "SWEET14p_BT07_Sense:340-448" # Functionally Validated 
+grFilter2 <- "SWEET13p_BT7_Sense:360-490"
+
+
+```
+
+Let's first plot a region on the promoter of OsSWEET14 where all predictions were previously functionnaly validated 
+
+```{r plotTaleTargetPred on pSWEET14 with preditale, fig.width = 15, fig.height=4, eval = TRUE}
+sw14PrediPlot <- plotTaleTargetPred(predResults = preditalePreds, subjDnaSeqFile = subjDnaSeqFile, filterRange = grFilter1)
+class(sw14PrediPlot)
+sw14PrediPlot
+```
+
+Here is the same region and set of TALE RVD sequences but with `talvez()` predictions.
+
+```{r plotTaleTargetPred on pSWEET14 with talvez, fig.width = 15, fig.height=4, eval = TRUE}
+plotTaleTargetPred(predResults = talvezPreds, subjDnaSeqFile = subjDnaSeqFile, filterRange = grFilter1)
+```
+
+Now, a more speculative situation but that has the merit to showcase a region with a set of TALEs that are predicted to bind on either strand of the DNA sequence.
+
+```{r plotTaleTargetPred on pSWEET14, fig.width = 15, fig.height=4, eval = TRUE}
+plotTaleTargetPred(predResults = talvezPreds, subjDnaSeqFile = subjDnaSeqFile, filterRange = grFilter2)
+```
+
+
+
+

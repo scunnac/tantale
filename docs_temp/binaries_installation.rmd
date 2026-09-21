@@ -1,0 +1,46 @@
+---
+title: "TellTales_notebook"
+author: "Tram"
+date: "11/4/2019"
+output: html_document
+---
+
+Following recommendation from: https://cran.r-project.org/doc/manuals/r-patched/R-exts.html#Package-subdirectories
+
+A bit tricky... So they also mention that we can have binaries in the /bin dir. To do that, we need a small script in the src dir:
+
+# Compilation of HMMER-3.3 in tantale/accessory_bins/hmmer-3.3
+
+```{bash}
+installDir="/home/cunnac/Lab-Related/MyScripts/xanthopore-scripts/tantale/inst/tools/hmmer-3.3"
+
+cd /home/cunnac/Downloads
+wget http://eddylab.org/software/hmmer/hmmer.tar.gz
+tar zxf hmmer.tar.gz
+cd hmmer-3.3
+./configure --prefix $installDir
+make
+make check
+make install
+cd easel; make install
+```
+
+
+# Installation of MAFFT in tantale/accessory_bins/mafft-7.450-linux
+
+
+```{bash}
+installDir="/home/cunnac/Lab-Related/MyScripts/xanthopore-scripts/tantale/inst/tools/mafft-7.450-linux"
+cd /home/cunnac/Downloads
+mkdir $installDir
+wget https://mafft.cbrc.jp/alignment/software/mafft-7.450-linux.tgz
+tar -C $installDir -xvf mafft-7.450-linux.tgz
+mv $installDir/mafft-linux64/* $installDir
+rm -r $installDir/mafft-linux64
+```
+
+
+
+
+
+

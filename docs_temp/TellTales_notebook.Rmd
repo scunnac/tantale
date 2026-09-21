@@ -1,0 +1,791 @@
+---
+title: "TellTales_notebook"
+author: "Tram"
+date: "11/4/2019"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(eval = FALSE)
+
+devtools::load_all(path = "./tantale")
+library(DECIPHER)
+library(Biostrings)
+library(dplyr)
+```
+
+
+# Run wrapped telltales R code
+```{bash run tellTale.R}
+tal/scripts/rvdreader_wrap.R # default subject PXO99A
+```
+
+#  what to do next
+  * ~~extract sequences with IGV -> blast -> is tellTale annotation consistent with ncbi annotation~~
+  * ~~align tellTale output (convert to annoTale input format) and annoTale output by annoTale~~
+  * modify tellTale R code "rvdreader_wrap.R"
+    * min cut off score for hmmer search for N-term and C-term CDS
+    * ~~change extension of hitsReport.txt to csv/tsv~~
+    * output fasta file with clean repeat translation before substitution * -> X
+    * output number of maksed in/del positions
+    * output N-term and C-term CDS translation
+    * ~~output number of maksed in/del positions~~
+    * ~~output N-term and C-term CDS translation~~
+
+__WHY N-term and C-term hits are splited sometimes????__
+
+# evaluating tellTale vs annoTale : does this perform better?
+## formulatation of problem
+we need to make sure tellTale is better than annoTale at inferring tale rvd sequences in indel prone genome
+
+to this end we will need to do the following tests:
+
+* compare the quality of tal rvd sequences inferred from indel prone genome (ont) relative to those inferred from gold standard genome
+* compare the capacity of annotale and telltale in inferring tal rvd sequences of gold standard genome
+* compare the capacity of annotale and telltale in inferring tal rvd sequences of indel genome
+
+how wil we proceed exactly?
+
+* run annoTale and tellTale on gold standard genome `/home/baotram/tal/hmmprofile/control_Xo_genomes_for_annotale/BAI3_revcom_circular_final.fasta` and compare the outputs
+* run annoTale and tellTale on indel genome `/home/baotram/tal/hmmprofile/control_Xo_genomes_for_annotale/BAI3-1-1_flye_fixstart_nanopolished_scaffolds.fasta`
+* compare the outputs of annoTale on the gold vs indel genome
+* compare the outputs of tellTale on the gold vs indel genome
+
+if tellTale is of any value it should be as good as annoTale on the gold standard genome and outperform annoTale on the indel genome
+
+
+## test on BAI3 genome
+
+
+Using function definition from a library file `/home/baotram/tal/scripts/AnnoTALE_QueTAL_functions_library.R`
+```{r AnnoTALE_QueTAL_functions_library.R}
+source("/home/baotram/tal/scripts/AnnoTALE_QueTAL_functions_library.R")
+```
+
+```{r setting directory}
+indir = "/home/baotram/tal/hmmprofile/control_Xo_genomes_for_annotale"
+bai3_input = file.path(indir,"BAI3_revcom_circular_final.fasta")
+bai3_1_1_input = file.path(indir, "BAI3-1-1_flye_fixstart_nanopolished_scaffolds.fasta")
+
+anno_outdir = "/home/baotram/tal/rvdArrayReader_test/annoTale_test"
+bai3_anno_outdir = file.path(anno_outdir, "BAI3_final")
+bai3_1_1_anno_outdir = file.path(anno_outdir, "BAI3-1-1")
+
+tell_outdir = "/home/baotram/tal/rvdArrayReader_test/tellTale_test"
+bai3_tell_outdir = file.path(tell_outdir, "BAI3_final")
+bai3_1_1_tell_outdir = file.path(tell_outdir, "BAI3-1-1")
+```
+
+### run annoTale and tellTale on gold standard genome and compare the outputs
+```{r annoTale on BAI3}
+# annoTale
+analyzeAnnoTALE(bai3_input, bai3_anno_outdir)
+```
+
+
+```{r tellTale on BAI3}
+# arguments for tellTale
+bai3_tellTale_args <- list(
+subjectFile = bai3_input,
+outputDir = bai3_tell_outdir,
+hmmFilesDir = "/home/baotram/tal/taleRepeatArraySolverPipeline_v1/inputHMMFiles",
+minRatioOfGapForColMasking = 0.8, # columns of the tale repeat CDS alignment that contain a gap in a fraction of sequence higher than this value (betwen 0 and 1) will be masked from the alignment when translating the DNA sequences to protein.
+TALE_NtermDNAHitMinScore = 40, # nhmmer score cut_off value
+repeatDNAHitMinScore = 20, # nhmmer score cut_off value
+TALE_CtermDNAHitMinScore = 30, # nhmmer score cut_off value
+minDomainHitsPerSubjSeq = 4, # Minimum number of nhmmer hits for a subject sequence to be reported as having TALE diagnostic regions. This is a way to simplify output a little by getting ride of uninformative sequences
+minGapWidth = 35, # minimum gap between two tale domain hits for them to be considered "contiguous" and grouped in the same array.
+minDomainHitsPerArrayForAssembl = 5, # Minimum number of repeat in an array for its seq of RVD to be considered for assembly. This is a way to get ride of sequences that are too short reasonably be of any help for assembly
+taleArrayStartAnchorCode = "BBB",
+taleArrayEndAnchorCode = "ZZZ",
+hmmerpath= "/home/baotram/miniconda3/envs/telltales/bin/"
+)
+# tellTale
+do.call(rvdArrayReader, bai3_tellTale_args)
+```
+
+
+### run annoTale and tellTale on indel genome
+
+```{r annoTale on BAI3-1-1}
+# annoTale
+analyzeAnnoTALE(bai3_1_1_input, bai3_1_1_anno_outdir)
+```
+
+
+```{r tellTale on BAI3-1-1}
+# arguments for tellTale
+bai3_1_1_tellTale_args <- list(
+subjectFile = bai3_1_1_input,
+outputDir = bai3_1_1_tell_outdir,
+hmmFilesDir = "/home/baotram/tal/taleRepeatArraySolverPipeline_v1/inputHMMFiles",
+minRatioOfGapForColMasking = 0.8, # columns of the tale repeat CDS alignment that contain a gap in a fraction of sequence higher than this value (betwen 0 and 1) will be masked from the alignment when translating the DNA sequences to protein.
+TALE_NtermDNAHitMinScore = 40, # nhmmer score cut_off value
+repeatDNAHitMinScore = 20, # nhmmer score cut_off value
+TALE_CtermDNAHitMinScore = 30, # nhmmer score cut_off value
+minDomainHitsPerSubjSeq = 4, # Minimum number of nhmmer hits for a subject sequence to be reported as having TALE diagnostic regions. This is a way to simplify output a little by getting ride of uninformative sequences
+minGapWidth = 35, # minimum gap between two tale domain hits for them to be considered "contiguous" and grouped in the same array.
+minDomainHitsPerArrayForAssembl = 5, # Minimum number of repeat in an array for its seq of RVD to be considered for assembly. This is a way to get ride of sequences that are too short reasonably be of any help for assembly
+taleArrayStartAnchorCode = "BBB",
+taleArrayEndAnchorCode = "ZZZ",
+hmmerpath= "/home/baotram/miniconda3/envs/telltales/bin/"
+)
+
+# tellTale
+do.call(rvdArrayReader, bai3_1_1_tellTale_args)
+```
+
+### compare tellTale and annoTale outputs
+```{r reformat tellTale output bai3}
+# reformat BAI3 tellTale output
+bai3_ArrayReportFile = file.path(bai3_tell_outdir, "arrayReport.txt")
+bai3_reformatTALES = reformatTALEsFromArrayReportFile(bai3_ArrayReportFile, namePrefix = "tellTale_bai3")
+bai3_reformatFile = file.path(bai3_tell_outdir, "bai3_reformatTALES.txt")
+writeLines(bai3_reformatTALES, con = bai3_reformatFile)
+
+# reformat BAI3-1-1 tellTale output
+bai3_1_1_ArrayReportFile = file.path(bai3_1_1_tell_outdir, "arrayReport.txt")
+bai3_1_1_reformatTALES = reformatTALEsFromArrayReportFile(bai3_1_1_ArrayReportFile, namePrefix = "tellTale_bai3_1_1")
+bai3_1_1_reformatFile = file.path(bai3_1_1_tell_outdir, "bai3_1_1_reformatTALES.txt")
+writeLines(bai3_1_1_reformatTALES, con = bai3_1_1_reformatFile)
+
+# convert to annoTale input format
+bai3_RVD_tell <- file.path(bai3_tell_outdir, "TALE_RVDs.fasta")
+bai3_1_1_RVD_tell <- file.path(bai3_1_1_tell_outdir, "TALE_RVDs.fasta")
+
+QueTALRVD2AnnoTALE(inputFile = bai3_reformatFile, outputFile = bai3_RVD_tell)
+QueTALRVD2AnnoTALE(inputFile = bai3_1_1_reformatFile, outputFile = bai3_1_1_RVD_tell)
+
+# concatenate annoTale input files
+# system("mkdir /home/baotram/tal/rvdArrayReader_test/compare")
+compare_dir = "/home/baotram/tal/rvdArrayReader_test/compare/"
+bai3_compare = file.path(compare_dir, "BAI3_vs_BAI3-1-1")
+tellAndanno = file.path(bai3_compare, "TALE_RVDs.fasta")
+
+bai3_RVD_anno <- file.path(bai3_anno_outdir, "Analyze/TALE_RVDs.fasta")
+bai3_1_1_RVD_anno <- file.path(bai3_1_1_anno_outdir, "Analyze/TALE_RVDs.fasta")
+
+combine_cmd <- paste("cat", bai3_RVD_anno, bai3_RVD_tell, bai3_1_1_RVD_anno, bai3_1_1_RVD_tell, ">", tellAndanno, sep = " ")
+system(command = combine_cmd)
+```
+
+
+there are sequences lacking of RVD sequences (inferred by annoTale). i have to remove these sequences to be able to align all the outputs by Annotale Class Builder
+```{r remove empty sequences bai3}
+total_RVD <- readBStringSet(tellAndanno, format = "fasta")
+total_RVD <- total_RVD[width(total_RVD) > 0]
+corrected_RVD <- file.path(bai3_compare, "corrected_TALE_RVDs.fasta")
+writeXStringSet(total_RVD, corrected_RVD, format = "fasta")
+```
+
+```{r compare outputs bai3}
+buildAnnoTALE(corrected_RVD, bai3_compare)
+```
+Here is the summary of the output
+
+Compare sequences detected by annoTale and tellTale to the published Tale sequences of bai3 (i lost the paper and forgot the title :( ),
+we have the following comparision table
+
+|              |             | bai3       |   bai3     | bai3-1-1   | bai3-1-1   |
+|   :------:   | :--------:  |   :------: | :-----:    |  :-------: | :-----:    |
+|  TALE class  |  TALE name  |  annoTale  |  tellTale  |  annoTale  |  tellTale  |
+|Class 1       |TalE         |ok          |ok          |bad^        |ok          |
+|Class 2       |TalH         |ok          |ok          |miss 2rvds  |ok          |
+|Class 3       |TalG         |ok          |ok          |bad         |ok          |
+|Class 4       |TalB         |ok          |ok          |ok          |ok          |
+|Class 5       |TalI         |ok          |ok          |ok          |ok
+        |
+|Class 6       |TalF         |ok          |ok          |miss 2rvds  |ok          |
+|Class 7       |TalD         |miss 1rvd   |miss 1rvd   |miss 3rvds  |ok          |
+|Class 8       |TalC         |ok          |ok*         |absent      |absent      |
+|Class 9       |TalA         |ok          |ok          |absent      |ok          |
+|              |             |9           |9           |7           |8           |
+\* splited N-term
+^ short and mismatched sequence
+
+## test on PXO99A genome
+
+```{r setting directories PXO99A}
+pxo99a_input = file.path(indir,"PXO99A.fasta")
+pxo99a_anno_outdir = file.path(anno_outdir, "PXO99A")
+pxo99a_tell_outdir = file.path(tell_outdir, "PXO99A")
+```
+
+
+```{r annoTale on PXO99A}
+analyzeAnnoTALE(pxo99a_input, pxo99a_anno_outdir)
+```
+
+
+```{r tellTale on PXO99A}
+# arguments for tellTale
+pxo99a_tellTale_args <- list(
+subjectFile = pxo99a_input,
+outputDir = pxo99a_tell_outdir,
+hmmFilesDir = "/home/baotram/tal/taleRepeatArraySolverPipeline_v1/inputHMMFiles",
+minRatioOfGapForColMasking = 0.8, # columns of the tale repeat CDS alignment that contain a gap in a fraction of sequence higher than this value (betwen 0 and 1) will be masked from the alignment when translating the DNA sequences to protein.
+TALE_NtermDNAHitMinScore = 40, # nhmmer score cut_off value
+repeatDNAHitMinScore = 20, # nhmmer score cut_off value
+TALE_CtermDNAHitMinScore = 30, # nhmmer score cut_off value
+minDomainHitsPerSubjSeq = 4, # Minimum number of nhmmer hits for a subject sequence to be reported as having TALE diagnostic regions. This is a way to simplify output a little by getting ride of uninformative sequences
+minGapWidth = 35, # minimum gap between two tale domain hits for them to be considered "contiguous" and grouped in the same array.
+minDomainHitsPerArrayForAssembl = 5, # Minimum number of repeat in an array for its seq of RVD to be considered for assembly. This is a way to get ride of sequences that are too short reasonably be of any help for assembly
+taleArrayStartAnchorCode = "BBB",
+taleArrayEndAnchorCode = "ZZZ",
+hmmerpath= "/home/baotram/miniconda3/envs/telltales/bin/"
+)
+# tellTale
+do.call(rvdArrayReader, pxo99a_tellTale_args)
+```
+
+
+```{r reformat tellTale output PXO99A}
+# reformat BAI3 tellTale output
+pxo99a_ArrayReportFile = file.path(pxo99a_tell_outdir, "arrayReport.txt")
+pxo99a_reformatTALES = reformatTALEsFromArrayReportFile(pxo99a_ArrayReportFile, namePrefix = "tellTale_pxo99a")
+pxo99a_reformatFile = file.path(pxo99a_tell_outdir, "pxo99a_reformatTALES.txt")
+writeLines(pxo99a_reformatTALES, con = pxo99a_reformatFile)
+
+# convert to annoTale input format
+pxo99a_RVD_tell <- file.path(pxo99a_tell_outdir, "TALE_RVDs.fasta")
+QueTALRVD2AnnoTALE(inputFile = pxo99a_reformatFile, outputFile = pxo99a_RVD_tell)
+```
+
+
+
+```{r compare outputs PXO99A}
+compare_dir = "/home/baotram/tal/rvdArrayReader_test/compare"
+pxo99a_compare = file.path(compare_dir, "PXO99A_compare")
+pxo99a_tellAndanno = file.path(pxo99a_compare, "TALE_RVDs.fasta")
+
+pxo99a_RVD_anno <- file.path(pxo99a_anno_outdir, "Analyze/TALE_RVDs.fasta")
+
+combine_cmd <- paste("cat", pxo99a_RVD_anno, pxo99a_RVD_tell, ">", pxo99a_tellAndanno, sep = " ")
+system(command = combine_cmd)
+
+buildAnnoTALE(pxo99a_tellAndanno, pxo99a_compare)
+```
+
+17 classes, identical outputs
+
+## test on BLS256 genome
+
+```{r setting directories BLS256}
+bls256_input = file.path(indir,"BLS256.fasta")
+bls256_anno_outdir = file.path(anno_outdir, "BLS256")
+bls256_tell_outdir = file.path(tell_outdir, "BLS256")
+```
+
+
+```{r annoTale on BLS256}
+analyzeAnnoTALE(bls256_input, bls256_anno_outdir)
+```
+
+
+```{r tellTale on BLS256}
+# arguments for tellTale
+bls256_tellTale_args <- list(
+subjectFile = bls256_input,
+outputDir = bls256_tell_outdir,
+hmmFilesDir = "/home/baotram/tal/taleRepeatArraySolverPipeline_v1/inputHMMFiles",
+minRatioOfGapForColMasking = 0.8, # columns of the tale repeat CDS alignment that contain a gap in a fraction of sequence higher than this value (betwen 0 and 1) will be masked from the alignment when translating the DNA sequences to protein.
+TALE_NtermDNAHitMinScore = 40, # nhmmer score cut_off value
+repeatDNAHitMinScore = 20, # nhmmer score cut_off value
+TALE_CtermDNAHitMinScore = 30, # nhmmer score cut_off value
+minDomainHitsPerSubjSeq = 4, # Minimum number of nhmmer hits for a subject sequence to be reported as having TALE diagnostic regions. This is a way to simplify output a little by getting ride of uninformative sequences
+minGapWidth = 35, # minimum gap between two tale domain hits for them to be considered "contiguous" and grouped in the same array.
+minDomainHitsPerArrayForAssembl = 5, # Minimum number of repeat in an array for its seq of RVD to be considered for assembly. This is a way to get ride of sequences that are too short reasonably be of any help for assembly
+taleArrayStartAnchorCode = "BBB",
+taleArrayEndAnchorCode = "ZZZ",
+hmmerpath= "/home/baotram/miniconda3/envs/telltales/bin/"
+)
+# tellTale
+do.call(rvdArrayReader, bls256_tellTale_args)
+```
+
+
+```{r reformat tellTale output BLS256}
+# reformat BAI3 tellTale output
+bls256_ArrayReportFile = file.path(bls256_tell_outdir, "arrayReport.txt")
+bls256_reformatTALES = reformatTALEsFromArrayReportFile(bls256_ArrayReportFile, namePrefix = "tellTale_bls256")
+bls256_reformatFile = file.path(bls256_tell_outdir, "reformatTALES.txt")
+writeLines(bls256_reformatTALES, con = bls256_reformatFile)
+
+# convert to annoTale input format
+bls256_RVD_tell <- file.path(bls256_tell_outdir, "TALE_RVDs.fasta")
+QueTALRVD2AnnoTALE(inputFile = bls256_reformatFile, outputFile = bls256_RVD_tell)
+```
+
+
+```{r compare outputs BLS256}
+compare_dir = "/home/baotram/tal/rvdArrayReader_test/compare"
+bls256_compare = file.path(compare_dir, "BLS256_compare")
+bls256_tellAndanno = file.path(bls256_compare, "TALE_RVDs.fasta")
+
+bls256_RVD_anno <- file.path(bls256_anno_outdir, "Analyze/TALE_RVDs.fasta")
+
+combine_cmd <- paste("cat", bls256_RVD_anno, bls256_RVD_tell, ">", bls256_tellAndanno, sep = " ")
+system(command = combine_cmd)
+
+buildAnnoTALE(bls256_tellAndanno, bls256_compare)
+```
+
+Output: 28 classes, identical outputs
+
+# compare bai3-1-1 assembled by Canu vs assembled by flye
+
+
+
+
+```{r reformat tellTale output bai3_by_canu}
+# reformat tellTale output
+bai3_1_1_canu_tell_outdir = "/home/baotram/tal/rvdArrayReader_test/tellTale_test/BAI3-1-1_by_Canu"
+bai3_1_1_canu_ArrayReportFile = file.path(bai3_1_1_canu_tell_outdir, "arrayReport.txt")
+bai3_1_1_canu_reformatTALES = reformatTALEsFromArrayReportFile(bai3_1_1_canu_ArrayReportFile, namePrefix = "bai3_1_1_canu")
+bai3_1_1_canu_reformatFile = file.path(bai3_1_1_canu_tell_outdir, "reformatTALES.txt")
+writeLines(bai3_1_1_canu_reformatTALES, con = bai3_1_1_canu_reformatFile)
+
+# convert to annoTale input format
+bai3_1_1_canu_RVD_tell <- file.path(bai3_1_1_canu_tell_outdir, "TALE_RVDs.fasta")
+QueTALRVD2AnnoTALE(inputFile = bai3_1_1_canu_reformatFile, outputFile = bai3_1_1_canu_RVD_tell)
+```
+
+
+```{r compare outputs bai3-1-1 by canu vs by flye}
+compare_dir = "/home/baotram/tal/rvdArrayReader_test/compare"
+bai3_1_1_canu_flye_compare = file.path(compare_dir, "bai3_1_1_canu_flye_compare")
+bai3_1_1_canu_flye_RVD_tell = file.path(bai3_1_1_canu_flye_compare, "TALE_RVDs.fasta")
+
+combine_cmd <- paste("cat", bai3_1_1_canu_RVD_tell, bai3_1_1_RVD_tell, ">", bai3_1_1_canu_flye_RVD_tell, sep = " ")
+system(command = combine_cmd)
+
+buildAnnoTALE(bai3_1_1_canu_flye_RVD_tell, bai3_1_1_canu_flye_compare)
+```
+8 classes, identical outputs
+
+
+
+# remove trim
+
+```{bash }
+tal/scripts/rvdreader_wrap.R -S /home/baotram/tal/rvdArrayReader_test/test/samples/inserted_talc.fasta -O /home/baotram/tal/rvdArrayReader_test/test/insert
+tal/scripts/rvdreader_wrap.R -S /home/baotram/tal/rvdArrayReader_test/test/samples/deleted_talc.fasta -O /home/baotram/tal/rvdArrayReader_test/test/delete
+tal/scripts/rvdreader_wrap.R -S /home/baotram/tal/rvdArrayReader_test/test/samples/talc.fasta -O /home/baotram/tal/rvdArrayReader_test/test/wildtype
+
+```
+
+
+# install UGene
+```{bash ugene}
+# online installer (only this way can work)
+wget http://ugene.net/downloads/ugeneInstaller_64bit.tar
+tar -xf ugeneInstaller_64bit.tar
+chmod +x ugeneInstaller_64bit
+./ugeneInstaller_64bit
+```
+
+
+# coverage plot
+```{bash install weeSAM}
+# download weeSAM zip file
+wget https://github.com/centre-for-virus-research/weeSAM/archive/master.zip
+# install dependencies
+pip3 install matplotlib
+pip3 install seaborn
+# test
+./weeSAM -v
+```
+
+
+```{bash plot}
+cd /home/baotram/tal/coverage_plot
+weeSAM-master/weeSAM --bam VXO11_readsMappingOnDraftAssembly.bam --out output_VXO11_readsMappingOnDraftAssembly.txt --html output_VXO11_readsMappingOnDraftAssembly.html
+weeSAM-master/weeSAM --bam VXO65_readsMappingOnDraftAssembly.bam --out output_VXO65_readsMappingOnDraftAssembly.txt --html output_VXO65_readsMappingOnDraftAssembly.html
+```
+
+# IGV installation for gff visualization
+```{bash}
+wget https://data.broadinstitute.org/igv/projects/downloads/2.7/IGV_Linux_2.7.2.zip
+gunzip IGV_Linux_2.7.2.zip
+cd IGV_Linux_2.7.2/
+chmod a+x igv.sh
+sh igv.sh
+```
+
+
+# Generating multiple align
+## install perl and dependencies
+```{bash}
+conda create --name perly_env
+conda activate perly_env
+conda install -c anaconda perl # Installing perl
+conda install -c conda-forge perl-app-cpanminus
+cpanm Statistics::R
+cpanm List::MoreUtils
+cpanm Algorithm::NeedlemanWunsch
+# cpanm Bio::Perl  <!-- # not working, cpanm doesn't install dependencies -->
+conda install -c bioconda perl-bioperl-core  # use this instead
+cpanm List::UtilsBy
+```
+
+R packages: ape, reshape2
+
+## running scripts
+```{bash}
+perl DisTAL_v1.2_matest.pl -m T -n p SampleTALSaa.fa Out
+perl DisTAL_v1.2_matest.pl -m T -n p /home/baotram/tal/rvdArrayReader_test/tellTale_test/BAI3-1-1/correctedRepeatAASeqs.fas Out
+
+perl /home/baotram/tal/DisTAL1.2_MultipleAlignment/DisTAL_and_Additionalscripts/DisTAL_v1.2_matest_M.pl -m T -n p -o /home/baotram/tal/DisTAL_results/BAI3-1-1 /home/baotram/tal/rvdArrayReader_test/tellTale_test/BAI3-1-1/correctedRepeatAASeqs.fas correctedSeqs
+```
+[Output](/home/baotram/tal/DisTAL1.2_MultipleAlignment/DisTAL_and_Additionalscripts/Outputs/Out.pdf)
+
+```{bash}
+perl Analyze_TALs1.pl Outputs/Out.mat 4.5 Outputs/Out_CodedRepeats.fa T
+
+perl /home/baotram/tal/DisTAL1.2_MultipleAlignment/DisTAL_and_Additionalscripts/Analyze_TALs1_M.pl /home/baotram/tal/DisTAL_results/BAI3-1-1/correctedSeqs.mat 4.5 /home/baotram/tal/DisTAL_results/BAI3-1-1/correctedSeqs_CodedRepeats.fa T
+
+```
+stdout: Still going
+
+```{bash}
+perl Analyze_TALs2.pl Aligned_TEV_ALL Coded_Reps_withgroups_4.5.fa
+
+perl /home/baotram/tal/DisTAL1.2_MultipleAlignment/DisTAL_and_Additionalscripts/Analyze_TALs2_M.pl /home/baotram/tal/DisTAL_results/BAI3-1-1/Aligned_TEV_ALL /home/baotram/tal/DisTAL_results/BAI3-1-1/Coded_Reps_withgroups_4.5.fa
+```
+stdout:
+Maximum for group G1 are Xoo_BAI3|Xoo|BAI3|Seq1_+_585938_589760_21.5|G1 and MAI1|MAI1_chr1_+_624136_627958_21.5|G1, total members are 2, non max members are 0
+ Maximum for group G2 are Xoo_CFBP1947|Xoo|CFBP1947|Seq1_-_2480624_2484926_25.5|G2 and MAI1|MAI1_chr1_+_2218220_2222519_25.5|G2, total members are 2, non max members are 0
+ Maximum for group G3 are Xoo_CFBP1947|Xoo|CFBP1947|Seq1_-_2477409_2480490_13.5|G3 and Xoo_BAI3|Xoo|BAI3|Seq1_+_2232055_2235136_13.5|G3, total members are 2, non max members are 0
+ Maximum for group G4 are Xoo_CFBP1947|Xoo|CFBP1947|Seq1_-_2472976_2477275_25.5|G4 and Xoo_BAI3|Xoo|BAI3|Seq1_+_2235270_2239569_25.5|G4, total members are 2, non max members are 0
+ Maximum for group G5 are Xoo_BAI3|Xoo|BAI3|Seq1_-_4277256_4280742_17.5|G5 and MAI1|MAI1_chr1_-_4275066_4278555_17.5|G5, total members are 2, non max members are 0
+ Maximum for group G6 are MAI1|MAI1_chr1_-_4200427_4204327_21.5|G6 and Xoo_CFBP1947|Xoo|CFBP1947|Seq1_+_516799_520699_21.5|G6, total members are 2, non max members are 0
+ Maximum for group G7 are Xoo_CFBP1947|Xoo|CFBP1947|Seq1_+_2945843_2949434_18.5|G7 and MAI1|MAI1_chr1_-_1752431_1756022_18.5|G7, total members are 2, non max members are 0
+ Maximum for group G8 are MAI1|MAI1_chr1_-_266930_270215_15.5|G8 and Xoo_BAI3|Xoo|BAI3|Seq1_-_266889_269766_11.5|G8, total members are 2, non max members are 0
+ Maximum for group G9 are Xoo_CFBP1947|Xoo|CFBP1947|Seq1_-_206196_209583_16.5|G9 and Xoo_BAI3|Xoo|BAI3|Seq1_-_206130_209517_16.5|G9, total members are 2, non max members are 0
+
+
+```{bash}
+perl Generate_Bigmat.pl Outputs/Out_Repeatmatrix.mat BigRepDist.mat
+
+perl /home/baotram/tal/DisTAL1.2_MultipleAlignment/DisTAL_and_Additionalscripts/Generate_Bigmat.pl /home/baotram/tal/DisTAL_results/BAI3-1-1/correctedSeqs_Repeatmatrix.mat /home/baotram/tal/DisTAL_results/BAI3-1-1/BigRepDist.mat
+```
+nothing
+
+```{bash}
+perl Alignement_files.pl Outputs/Out_Repeatscode.txt Multiple_align
+
+perl /home/baotram/tal/DisTAL1.2_MultipleAlignment/DisTAL_and_Additionalscripts/Alignement_files_M.pl /home/baotram/tal/DisTAL_results/BAI3-1-1/correctedSeqs_Repeatscode.txt /home/baotram/tal/DisTAL_results/BAI3-1-1/Multiple_align
+```
+warnings:
+Use of uninitialized value in concatenation (.) or string at Alignement_files.pl line 96, <$IN1> line 36.
+Use of uninitialized value in concatenation (.) or string at Alignement_files.pl line 96, <$IN1> line 36.
+
+
+## Possible tools for unsupervised group classification (Seb)
+
+[dynamicTreeCut](https://cran.r-project.org/web/packages/dynamicTreeCut/index.html) : Contains methods for detection of clusters in hierarchical clustering dendrograms
+
+# correct frameshift
+```{r}
+# seqs to corrections
+outdir_telltale <- system.file("test", "telltale_vs_annotale", "telltale", "PXO86_hmmalign", package = "tantale", mustWork = T)
+hitsReport <- read.csv(file.path(outdir_telltale, "hitsReport.tsv"), sep = "\t")
+
+
+uncorrected_seqs <- DNAStringSet(hitsReport[hitsReport$query_name == "TALE_repeat_CDS_aligned_curated", "seq"], use.names = T)
+
+names(uncorrected_seqs) <- hitsReport[hitsReport$query_name == "TALE_repeat_CDS_aligned_curated", "nhmmerHitID"]
+
+# uncorrected_seq <- DNAStringSet(x = "CTGCCCCCCGGACCAGGTGGTGGCCATCGCCAGCAATGTTGGCGGCAAGCAGGCGCTGGAGACGGTGCAGCGGCTGTTGCCGGTGCTGTGCCAGGCCCATGGC")
+
+# ref seqs
+accurate_ref_file <- system.file("docs_temp", "hmm_build", "ref_alignment", "TALE_repeat_AA_aligned_curated.fa", package = "tantale", mustWork = T)
+accurate_ref <- readAAStringSet(accurate_ref_file)
+accurate_ref <- gsub("-", "", accurate_ref)
+accurate_ref <- AAStringSet(accurate_ref)
+
+# correction
+corrected_seqs <- DECIPHER::CorrectFrameshifts(myXStringSet = uncorrected_seqs, myAAStringSet = accurate_ref, type = "sequences", maxComparisons = length(accurate_ref), frameShift = 0) # how to optimize frameShift value
+
+
+### SEB:
+# NOTE: look at the example section of CorrectFrameshifts for code to generate random indels in sequences.
+otherCorrected <- DECIPHER::CorrectFrameshifts(myXStringSet = sample(uncorrected_seqs, 20), myAAStringSet = accurate_ref, type = "both", maxComparisons = length(accurate_ref), frameShift = 0) # how to optimize frameShift value
+otherCorrectedSeqs <- otherCorrected$sequences
+indelsTble <- lapply(otherCorrected$indels, function(lst) {
+  info <- tibble::tibble()
+  colnames(info) <- c("variable","value")
+  for (i in 1:length(lst)) {
+    element <- lst[i]
+    if (length(unlist(element)) == 0L) {
+      next()
+    } else {
+      info %<>% dplyr::bind_rows(tibble::tibble(variable = names(element), value = as.numeric(unlist(element))))
+    }
+  }
+  return(info)
+  }
+  ) %>% dplyr::bind_rows(.id = "correctedSeqIdx")
+
+# BTW, I tested with several processors, it fails all the time with my machine...
+###
+
+
+otherCorrected$indels %>% purrr::flatten()
+
+
+corrected_aa <- translate(corrected_seqs, if.fuzzy.codon = "solve", no.init.codon = T)
+corrected_aa <- DECIPHER::AlignSeqs(corrected_aa)
+corrected_aa <- AAMultipleAlignment(corrected_aa)
+
+corrected_rvd <- corrected_aa
+
+consensus_aa <- consensusString(as(corrected_aa, "AAStringSet"))
+clean_consensus_aa <- gsub("-", "", consensus_aa)
+rvd1 <- substr(clean_consensus_aa, start = 12, stop = 12)
+rvd2 <- substr(clean_consensus_aa, start = 13, stop = 13)
+start_rvd <- regexpr(rvd1, consensus_aa, fixed = T)[1]
+stop_rvd <- regexpr(rvd2, consensus_aa, fixed = T)[1]
+colmask(corrected_rvd, invert = T) <- IRanges(start = start_rvd, end = stop_rvd)
+
+cor <- data.frame("nhmmerHitID" =names(corrected_seqs), "cor_seq" = as.character(corrected_seqs), "cor_aa" = as.character(corrected_aa), "cor_rvd" = as.character(corrected_rvd))
+hitsReport <- plyr::join(hitsReport[,c("nhmmerHitID", "seq", "corrected_seq", "corrected_AA_seq", "RVD")], cor, by = "nhmmerHitID")
+write.table(hitsReport, file.path(outdir_telltale, "hitsReport_add.tsv"), na = "NA", sep = "\t", quote = F, row.names = F)
+```
+
+
+```{r functions for test}
+correction_tible <- function(indels) {
+  indelsTble <- lapply(indels, function(lst) {
+  info <- tibble::tibble()
+  colnames(info) <- c("variable","value")
+  for (i in 1:length(lst)) {
+    element <- lst[i]
+    if (length(unlist(element)) == 0L) {
+      next()
+    } else {
+      info %<>% dplyr::bind_rows(tibble::tibble(variable = names(element), value = as.numeric(unlist(element))))
+    }
+  }
+  return(info)
+  }
+  ) %>% dplyr::bind_rows(.id = "Seq")
+  return(indelsTble)
+} 
+
+
+test_correction <- function(DNA_seqs, AA_ref = NULL, n_sample, n_mut, frameshift, test_dir, seq_to_mut = NULL, ...) {
+  for (n in sample(1:length(DNA_seqs), n_sample, replace = T)) {
+    loop <- 0
+    if (is.numeric(seq_to_mut)) {
+      loop <- loop + 1
+      n <- seq_to_mut[loop]
+    }
+    correct_seq <- DNA_seqs[n]
+    new_DNA_seq <- DNA_seqs[-n]
+    test_seq_file <- file.path(test_dir, "test.fa")
+    unlink(test_seq_file)
+    writeXStringSet(correct_seq, test_seq_file)
+    if (is.null(AA_ref)) {
+      AA_ref <- translate(DNA_seqs[-n])
+    }
+    n_mut = n_mut
+    sum <- tibble()
+    seqs_for_msa <- correct_seq
+    
+    mutates <- list()
+    for (i in 0:n_mut) {
+      n_ins <- i # insertions per sequence
+      mut_seq <- replaceAt(correct_seq,
+                           lapply(width(mut_seq),
+                                  sample,
+                                  n_ins),
+                           sample(DNA_BASES,
+                                  n_ins,
+                                  replace=TRUE))
+    
+      n_dels <- n_mut - n_ins # deletions per sequence
+      mut_seq <- replaceAt(mut_seq,
+                           as(lapply(width(mut_seq), 
+                                     function(x) {
+                                       IRanges(sample(x, n_dels), width=1)
+                                       }), 
+                              "IRangesList"))
+      mutates <- c(mutates, mut_seq)
+      correction <- CorrectFrameshifts(mut_seq, AA_ref, type = "both", maxComparisons = length(AA_ref), frameShift = frameshift, ...)
+      
+      corrected_seq <- correction$sequences
+      names(corrected_seq) <- paste(names(correct_seq), n_ins, n_dels, sep = "_")
+      writeXStringSet(corrected_seq, test_seq_file, append = T)
+      
+      identical <- pairwiseAlignment(corrected_seq, correct_seq, type = "global", scoreOnly = T)/pairwiseAlignment(correct_seq, correct_seq, type = "global", scoreOnly = T) * 100
+      
+      # n_ins_correction <-  length(unlist(correction$indels, recursive = F, use.names = F)[1] %>% unlist)
+      # n_del_correction <- length(unlist(correction$indels, recursive = F, use.names = F)[2] %>% unlist)
+      
+      sum_1 <- tibble(Seq = names(DNA_seqs)[n], variable = c("n_ins", "n_dels", "identical"), value = c(n_ins, n_dels, identical))
+      sum_2 <- correction_tible(correction$indels)
+      # sum_1 <- data.frame("seq" = names(DNA_seqs)[n], "n_ins" = n_ins, "n_ins_correction" = n_ins_correction, "n_del" = n_dels, "n_del_correction" = n_del_correction, "identical" = identical)
+      # sum <- rbind(sum, sum_1)
+      sum <- bind_rows(sum_1, sum_2)
+      seqs_for_msa <- c(seqs_for_msa, corrected_seq)
+      }
+    }
+    
+    correction_align <- DECIPHER::AlignSeqs(seqs_for_msa)
+    DECIPHER::BrowseSeqs(correction_align)
+    write.csv(sum, file.path(test_dir, "summary.csv"))
+    return(list("sum" = sum, "fasta" = test_seq_file, "mutated_seqs" = mutates, "alignment" = correction_align))
+}
+
+check_correction <- function(fasta, test_dir) {
+  annotale_test_seq <- file.path(test_dir, "annotale")
+  unlink(annotale_test_seq, recursive = T)
+  analyzeAnnoTALE(fasta, annotale_test_seq)
+  
+  build_annotale_test_seq <- file.path(test_dir, "annotale_build")
+  unlink(build_annotale_test_seq, recursive = T)
+  buildAnnoTALE(file.path(annotale_test_seq, "Analyze/TALE_RVDs.fasta"), build_annotale_test_seq)
+}
+```
+
+### correct PXO86 by its full-legth AA seqs
+```{r}
+test_dir <- file.path(system.file("test", package = "tantale", mustWork = T), "correct_frameshift")
+dir.create(test_dir)
+
+test_pxo86_dir <- file.path(test_dir, "PXO86")
+dir.create(test_pxo86_dir)
+
+test_pxo86 <- "/home/baotram/tal/xanthopore-scripts/tantale/test/telltale_vs_annotale/annotale/PXO86/Predict/TALE_DNA_sequences_(PXO86).fasta"
+
+orf_PXO86 <- readDNAStringSet(test_pxo86, seek.first.rec = T, use.names = T)
+
+for (i in sample(c(2:12, 14:18), 4, replace = T)){
+  name <- paste("PXO86", i, sep = "-")
+  test_pxo86_dir <- file.path(test_dir, name)
+  dir.create(test_pxo86_dir)
+  test1 <- test_correction(DNA_seqs = orf_PXO86, n_sample = 1, n_mut = 2, frameshift = -15, test_dir = test_pxo86_dir, seq_to_mut = i)
+  check_correction(test1$fasta, test_pxo86_dir)
+}
+```
+
+### correct PXO86 by full-legth AA seqs from other strains
+```{r}
+# creating AA_ref for PXO86 from full AA seqs
+ref_dir <- "/home/baotram/tal/xanthopore-scripts/tantale/docs_temp/hmm_build/tal_predict"
+
+AAref_list <- list.files(ref_dir, "^TALE_protein_sequences_(.*).fasta$", recursive = T, full.names = T)
+AAref_list <- AAref_list[!grepl("PXO86", AAref_list, fixed = T)]
+
+AAref_forPXO86 <- AAStringSet()
+for (f in AAref_list) {
+  AAref1 <- readAAStringSet(f, format = "fasta", seek.first.rec = T, use.names = T)
+  AAref_forPXO86 <- c(AAref_forPXO86, AAref1)
+}
+
+# correct PXO86 with the big ref
+for (i in sample(c(2:12, 14:18), 4, replace = T)){
+  name <- paste("PXO86", i, "withref", sep = "-")
+  test_pxo86_dir <- file.path(test_dir, name)
+  dir.create(test_pxo86_dir)
+  test1 <- test_correction(DNA_seqs = orf_PXO86, AA_ref = AAref_forPXO86, n_sample = 1, n_mut = 3, frameshift = -10, test_dir = test_pxo86_dir, seq_to_mut = i)
+  check_correction(test1$fasta, test_pxo86_dir)
+}
+```
+Most of corrected seqs are pseudo or truncated and cannot be predicted by AnnoTALE. But maybe I should have tested the correction with higher frameShift value (> -10). So I am going to try it later (below) with domain AA seqs from 70 database strains.
+
+
+### correct PXO86 by domain AA seqs from other strains
+```{r}
+# creating AA_ref for PXO86 from domain AA seqs
+ref_dir <- "/home/baotram/tal/xanthopore-scripts/tantale/docs_temp/hmm_build/tal_predict"
+
+part_AAref_list <- list.files(ref_dir, "^TALE_Protein_parts.fasta$", recursive = T, full.names = T)
+part_AAref_list <- part_AAref_list[!grepl("PXO86", part_AAref_list, fixed = T)]
+part_AAref_list <- part_AAref_list[!grepl("final", part_AAref_list, fixed = T)]
+
+part_AAref_forPXO86 <- AAStringSet()
+for (f in part_AAref_list) {
+  part_AAref1 <- readAAStringSet(f, format = "fasta", seek.first.rec = T, use.names = T)
+  part_AAref_forPXO86 <- c(part_AAref_forPXO86, part_AAref1)
+}
+
+# correct PXO86 with the domain ref
+for (i in sample(c(2:12, 14:18), 4, replace = T)){
+  name <- paste("PXO86", i, "withpartref", sep = "-")
+  test_pxo86_dir <- file.path(test_dir, name)
+  dir.create(test_pxo86_dir)
+  test1 <- test_correction(DNA_seqs = orf_PXO86, AA_ref = part_AAref_forPXO86, n_sample = 1, n_mut = 2, frameshift = -10, test_dir = test_pxo86_dir, seq_to_mut = i)
+  check_correction(test1$fasta, test_pxo86_dir)
+}
+```
+
+### correct PXO86 with full-length AA from 70 strains
+
+```{r}
+AA_bigref <- readAAStringSet("/home/baotram/tal/xanthopore-scripts/talomes_analysis/correctframshift_ref/AA_ref.fa.gz", seek.first.rec = T, use.names = T)
+
+for (i in sample(c(2:12, 14:18), 1, replace = T)){
+  for (j in -11) {
+  name <- paste("PXO86", i, "bigref", j, sep = "-")
+  test_pxo86_dir <- file.path(test_dir, name)
+  dir.create(test_pxo86_dir, showWarnings = F)
+  test4 <- test_correction(DNA_seqs = orf_PXO86, AA_ref = AA_bigref, n_sample = 1, n_mut = 3, frameshift = j, test_dir = test_pxo86_dir, seq_to_mut = i)
+  check_correction(test4$fasta, test_pxo86_dir)
+    
+  }
+}
+```
+
+
+### correct PXO86 with domain AA from 70 strains
+
+```{r}
+
+AApart_ref <- readAAStringSet("/home/baotram/tal/xanthopore-scripts/talomes_analysis/correctframshift_ref/AApart_ref.fa.gz", seek.first.rec = T, use.names = T)
+
+for (i in sample(c(2:12, 14:18), 1, replace = T)){
+  for (j in 0) {
+  name <- paste("PXO86", i, "partref", j, sep = "-")
+  test_pxo86_dir <- file.path(test_dir, name)
+  dir.create(test_pxo86_dir, showWarnings = F)
+  test5 <- test_correction(DNA_seqs = orf_PXO86, AA_ref = AApart_ref, n_sample = 1, n_mut = 3, frameshift = j, test_dir = test_pxo86_dir, seq_to_mut = i)
+  check_correction(test4$fasta, test_pxo86_dir)
+    
+  }
+}
+```
+the results are still too bad to run AnnoTALE build
+
+### correct BAI3 with full-length AA from 70 strains
+
+```{r}
+test_bai3_dir <- file.path(test_dir, "BAI3")
+dir.create(test_pxo86_dir)
+
+test_bai3 <- "/home/baotram/tal/xanthopore-scripts/tantale/test/telltale_vs_annotale/annotale/BAI3/Predict/TALE_DNA_sequences_(BAI3).fasta"
+
+orf_bai3 <- readDNAStringSet(test_bai3, seek.first.rec = T, use.names = T)
+
+AA_bigref <- readAAStringSet("/home/baotram/tal/xanthopore-scripts/talomes_analysis/cor rectframshift_ref/AA_ref.fa.gz", seek.first.rec = T, use.names = T)
+
+for (i in sample(9, 6, replace = T)){
+  for (j in -11) {
+  name <- paste("BAI3", i, "bigref", j, sep = "-")
+  test_BAI3_dir <- file.path(test_dir, name)
+  dir.create(test_BAI3_dir, showWarnings = F)
+  test6 <- test_correction(DNA_seqs = orf_bai3, AA_ref = AA_bigref, n_sample = 1, n_mut = 3, frameshift = j, test_dir = test_BAI3_dir, seq_to_mut = i)
+  check_correction(test6$fasta, test_BAI3_dir)
+    
+  }
+}
+```
+
+## Notes
+  - frameShift value affects the RVD prediction a lot: too high --> truncated RVDs, too low --> strange RVDs. In my experience, frameShift should be around -10 or -11 for full-length tal correction and around 0 for repeats correction. Other parameters of CorrectFrameshifts don't have much weight.
+
+

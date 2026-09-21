@@ -1,0 +1,181 @@
+---
+title: "tantale dev notes"
+output: html_document
+---
+
+Personal scratchpad: reminders and copy-paste-able code for solo dev
+sessions. Not a vignette, not built by `R CMD build`/`check`/pkgdown
+(`dev/` is in `.Rbuildignore`), not meant to be knit start to finish --
+run chunks one at a time, in whichever order the task needs. `eval =
+FALSE` everywhere on purpose, so an accidental knit does nothing.
+
+For the *why* behind any of this, see `dev/CLAUDE.md` (standing rules)
+and `dev/restructuring-notes.md` (the ledger, full history -- read its
+`START HERE` block, not the whole file).
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(eval = FALSE)
+```
+
+## Before touching anything
+
+```{r env-check}
+library(tantale)
+tantale_setup() # confirms conda binary/root/env and every external tool + pinned version
+```
+
+```{r clean-check}
+# Uncommitted work? Anything unexpected lying around?
+system("git status --short")
+```
+
+## Load, document, install
+
+```{r load-all}
+devtools::load_all() # fast, in-session only -- what you use while editing R/
+```
+
+```{r document}
+devtools::document() # regenerate roxygen docs + NAMESPACE after changing @-tags
+```
+
+```{r install}
+# Required before ANY pkgdown/docs rebuild that follows a change to R/ --
+# quarto's article rendering spawns a separate R session that does
+# library(tantale) against the INSTALLED copy, not devtools::load_all()'s
+# patched session. Skipping this costs a confusing "could not find
+# function" buried in a generic "Error running quarto CLI" (see ledger
+# START HERE, 2026-09-20).
+devtools::install(quick = TRUE, upgrade = FALSE)
+```
+
+```{r install-confirm}
+# Confirm the install actually took, in a FRESH session -- not this one.
+system('Rscript -e \'exists("tales_compare_distal", where = asNamespace("tantale"))\'')
+```
+
+## Tests
+
+```{r test-one}
+# Targeted run -- the default. Full suite only if the change ripples broadly.
+devtools::load_all()
+testthat::test_file("tests/testthat/test_tales_class.R")
+```
+
+```{r test-all}
+# Whole suite -- slow (several minutes), only when a change could plausibly
+# reach broadly (e.g. touching tales_class.R, the anomaly checks, or a
+# residue-type change).
+devtools::test()
+```
+
+```{r golden-rebaseline-reminder}
+# If a golden-baseline test reports a diff: use the `golden-rebaseline`
+# skill, not a manual accept. Explain every changed row BEFORE accepting --
+# an accepted-but-unexplained snapshot is indistinguishable from a correct
+# one (ledger §8.1d/§8.3).
+```
+
+## R CMD check
+
+```{r check}
+devtools::check()
+```
+
+```{r pkgdown-check}
+# After adding or retiring an exported topic -- a dangling _pkgdown.yml
+# entry is a hard error in build_site(), and R CMD check does not look at
+# that file at all.
+pkgdown::check_pkgdown()
+```
+
+## Building the docs site
+
+```{r about-release-mode}
+# `docs/` is published in RELEASE mode directly -- there is no docs/dev/
+# any more (dropped 2026-09-20, ledger §15). `_pkgdown.yml`'s
+# `development: mode:` is hardcoded to "release" (since 2026-09-21,
+# tested directly first) for exactly this reason, so every build_*
+# call below is a bare call -- no override needed, no docs/dev/ risk.
+```
+
+```{r cache-clear}
+# Only needed after actually changing tell_tales()/tales_compare_distal()/
+# tales_group_kmedoids() -- the shared article cache is NOT content-hashed
+# (ledger §15), so a stale cache silently keeps serving old results
+# otherwise.
+unlink("vignettes/articles/_cache", recursive = TRUE)
+```
+
+```{r build-one-article}
+# Iterating on a single article -- the normal case while writing/editing one.
+pkgdown::build_article("articles/tale_msa")
+```
+
+```{r build-home-reference-news}
+# The non-article parts of the site. Cheap, safe to run any time.
+pkgdown::build_home()
+pkgdown::build_reference()
+pkgdown::build_news()
+```
+
+```{r build-all-articles}
+# The full articles rebuild. Do NOT use pkgdown::build_articles()/
+# build_site() for this -- both funnel every .qmd under vignettes/
+# through ONE `quarto render` project pass whose internal order is not
+# alphabetical, not _pkgdown.yml's navbar order, and not controllable via
+# a committed vignettes/_quarto.yaml (all three tried and falsified,
+# ledger §15). tale_classification.qmd MUST render before the other
+# three, since it's the only one that computes the shared pipeline; a
+# whole-project pass gives no such guarantee (tale_target_prediction.qmd
+# was observed rendering second, right after getting_started.qmd).
+#
+# This loop instead renders each file exactly once, in an order you
+# control -- classification first, everything else after -- with no
+# double-rendering and no dependence on quarto's own ordering at all.
+article_names <- c(
+  "articles/tale_classification", # MUST be first -- computes + caches the pipeline
+  "articles/tale_mining",
+  "articles/tales_class",
+  "articles/tale_msa",
+  "articles/tales_msa_class",
+  "articles/tale_target_prediction",
+  "getting_started"
+)
+for (nm in article_names) {
+  pkgdown::build_article(nm)
+}
+pkgdown::build_articles_index()
+```
+
+```{r build-everything}
+# A true from-scratch full rebuild, in the same order build_site_local()
+# itself uses internally, but with the article step swapped for the loop
+# above. Confirm `docs/` is clean in git status before AND after.
+pkgdown::init_site()
+pkgdown::build_home()
+pkgdown::build_reference()
+for (nm in c(
+  "articles/tale_classification", "articles/tale_mining", "articles/tales_class",
+  "articles/tale_msa", "articles/tales_msa_class", "articles/tale_target_prediction",
+  "getting_started"
+)) {
+  pkgdown::build_article(nm)
+}
+pkgdown::build_articles_index()
+pkgdown::build_news()
+```
+
+## Version bump
+
+```{r version-bump}
+# Pre-publication scheme: 0.9.x, bumping the 4th digit (0.9.9NNN) for
+# routine work -- 1.0.0 at actual release. Keep the third component
+# >= 9000 -- not because docs/ builds need it any more (mode: release
+# in _pkgdown.yml forces release publishing regardless of version), but
+# because a value below 9000 changes what pkgdown considers a
+# "development version" in other contexts too (e.g. its own
+# version-comparison logic), and nothing has re-checked that this still
+# doesn't matter now that docs/dev/ is gone.
+usethis::use_version("dev") # bumps the 4th digit; confirm DESCRIPTION after
+```

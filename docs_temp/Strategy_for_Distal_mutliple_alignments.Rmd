@@ -1,0 +1,83 @@
+---
+title: "TODO"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+# In distal.R
+
+We need to write two separate functions:  
+  
+  * One for distal itself (`runDistal()`). Should ouput the path to the output folder at least, possibly a list with (outDirPath and other stuff)  
+  * another one (`buildDistalGroups()`) that will wrap up all the rest and take as argument the path of the distal output and at least the value for cutting the tree  
+
+The reason for splitting the operations is that we may want to look at the effect of using different values for splitting the distal tree without to rerunning distal each time.
+
+
+## `runDistal()`
+
+Ideatlly would load all output except the pdf into a `DistalResult` list, including outputDirPath.
+
+
+## `buildDistalGroups()`
+
+Will take the path to a `runDistal()` output PATH and run the perlscripts in a temp dir.
+
+
+The output of `buildDistalGroups()` needs to be taillored to what is needed for plotting multiple alignments and beyond. For now, it should be a list with different slots. Let's agree that this kind of list is a `buildDistalGroupsResult` object.
+
+This is where we are going to aggregate, simplify, rationalize the content of the output files and load them all as R objects that will be wrapped in a `buildDistalGroupsResult`. Then the files could be trashed because it is a mess.  
+
+The exact nature of the slots needs to be discussed/tested but here are some guidelines:  
+
+- the equivalent of `meltMAT`: the content of distal_Output/Out.mat should probably be transformed to a long data frame with the following columns: c("ID1","ID2","Distance","Group1","Group2"). I do not know if we absolutely need group information in there.  
+
+- SeqOfRvdAlignments : load all the ".RVDs" in a tibble and document group in a supplementary column  
+
+- SeqOfDistancesAlignments : load all the ".Dists" in a tibble and document group in a supplementary column.
+
+- repeatUnitsDistanceMatrix : Corresponding to `Distalmat` object and buildt from the content of "BigRepDist.mat".
+
+- the grouping of the TALEs from "TALgroups.txt" loaded as a tibble, even if it could be parsed from the names of the TALES in the files because their group is appended to their original name like this {name in fasta file given to Distal}|G{group number}. I do not think it is desirable and it should even be removed from the names (the reason is that as some point we want to use group labels other than '1', '2',...) 
+--> what happens if there are more than 9 groups
+--> content of "TALgroups.txt" %in% content of SeqOfRvdAlignments/SeqOfDistancesAlignments
+
+- possibly the content of "Aligned_TEV_ALL", "Coded_Reps_withgroups_4.5.fa", "Coded_Reps_withgroups_nolast_4.5.fa", "Multiple_align" in different list elements. I do not see why we would need them at the moment but just in case.
+
+
+
+
+# In Alignement_heatmaps_AfTALs_SC_20200402.R
+
+
+## `rvdSeqGroupMsa()`
+
+Input params:  
+
+- the `DistalGroupsResult` object
+- The ID of the group to be ploted
+- optionally a metadata table about TALEs (tale group label [otionally provided], genome, position, origin of strain, ...)  
+- choice about plotting (file, X11, none)  
+
+Output:  
+
+- a plot on screen or a file  
+- possibly the alignment on stdouput  
+
+
+
+## `repeatSeqGroupMsa()`
+
+idem
+
+
+# Misc.
+
+I am not completely clear right now on how to have the option of transparently/internally using the group labels defined by Alvaro's perl scripts while being able to provide our own labels. The reason is that once we have a stable grouping, we will quickly want to name the groups with meaningfull names (like TalC or TalF group) and have plots and downstream analyzis that use this labelling rather than '1', '2', ... The TALEs metadata table would be a way to do that.
+
+We will build this table from the beginning (fetching TALEs in genomes, like the arrayReportTAble from TellTale) and this is going to be a central object in our efforts.
+
+
+BTY, try `glue::glue()` (it is automatically loaded with tidiverse), it is magical and works like python f strings...
+

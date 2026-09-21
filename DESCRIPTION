@@ -1,0 +1,44 @@
+Package: tantale
+Title: Transcription Activator-Like Effectors (TALEs) tools
+Version: 0.9.9004
+Authors@R: c(
+    person(given = c("Bao", "Tram"), family ="Vi",
+    email = "vbt576@gmail.com", role = c("aut")),
+    person(given = "Sebastien", family = "Cunnac",
+    email = "sebastien.cunnac@ird.fr", role = c("aut", "cre"),
+    comment = c(ORCID = "0000-0002-3695-491X"))
+          )
+Maintainer: Sebastien Cunnac <sebastien.cunnac@ird.fr>
+Description: An integrated collection of functions for TALE mining and analysis in R.
+License: MIT + file LICENSE
+URL: https://scunnac.github.io/tantale, https://github.com/scunnac/tantale
+BugReports: https://github.com/scunnac/tantale/issues
+Depends:
+    R (>= 3.6.3)
+Imports:
+    magrittr, fs, dplyr, ggplot2, tibble, stringr, readr, glue,
+    biovizBase, IRanges, Biostrings, pwalign, GenomicRanges, BSgenome, plyranges,
+    Rsamtools, systemPipeR, DECIPHER,
+    ape, ggtree, tidytree, aplot, universalmotif,
+    gplots, cluster, viridis, ggnewscale,
+    reticulate, cli, digest, methods, rlang, tidyr, stats, utils, grDevices, graphics,
+    BiocGenerics, BiocParallel, GenomeInfoDb, S4Vectors, rtracklayer
+Suggests:
+    knitr, DT, sessioninfo,
+    biomartr,
+    rmarkdown,
+    quarto,
+    covr,
+    testthat (>= 3.0.0), withr
+VignetteBuilder: quarto
+Config/Needs/website:
+    pkgdown,
+    tidyverse/tidytemplate
+Config/testthat/edition: 3
+Config/testthat/parallel: false
+Encoding: UTF-8
+OS_type: unix
+biocViews: Software
+Config/roxygen2/version: 8.0.0
+Roxygen: list(markdown = TRUE)
+LazyData: true

@@ -1,0 +1,111 @@
+---
+title: "Getting started with tantale"
+format:
+  html:
+    toc: true
+    code-fold: show
+vignette: >
+  %\VignetteIndexEntry{Getting started with tantale}
+  %\VignetteEngine{quarto::html}
+  %\VignetteEncoding{UTF-8}
+editor_options:
+  chunk_output_type: console
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE)
+```
+
+A TALE (transcription activator-like effector) gene, once translated, is
+a modular protein: a central array of near-identical ~34-residue repeats,
+each one specifying a single DNA base through two variable residues (its
+RVD), flanked by an N- and a C-terminal region. tantale's job is to find
+these arrays in genomic sequence, and to represent them as data you can
+subset, compare and plot like any other tibble -- one row per repeat or
+terminus, not one opaque object per TALE.
+
+This article is a two-minute tour, not a walkthrough: it loads a small
+result already sitting on disk rather than running discovery live, so it
+has no external tools to install first. The [package
+website](https://scunnac.github.io/tantale) has the real thing -- a set of
+articles that start from raw genomic FASTA and carry a handful of real
+*Xanthomonas oryzae* genomes all the way through discovery, classification,
+alignment and target prediction.
+
+```{r package, message = FALSE}
+library(tantale)
+```
+
+## A `tales` object
+
+`tell_tales()` searches a genome for TALE-coding regions and writes its
+findings to a directory of reports and FASTA files;
+`tales_from_telltale()` reads that directory back into R. The package
+ships one such directory already computed -- four arrays found across two
+short input sequences -- so this tour can start from the object rather
+than from a multi-minute search:
+
+```{r load}
+example_dir <- system.file("extdata", "tellTaleExampleOutput", package = "tantale")
+x <- tales_from_telltale(example_dir)
+x
+```
+
+Every row is one *part* of one array -- a repeat, or a terminus -- not one
+row per TALE. `summary()` gives the array-level view:
+
+```{r summary}
+summary(x)
+```
+
+## Checking for trouble
+
+Real assemblies are not always clean: a frameshift can leave AnnoTALE
+unable to parse a repeat structure out of a candidate array, or a terminus
+can go missing. `tales_anomalies()` reports which arrays, if any, need a
+second look:
+
+```{r anomalies}
+tales_anomalies(x)
+```
+
+Zero rows means none did, here. The [mining
+article](https://scunnac.github.io/tantale/articles/tale_mining.html)
+covers what to do when this table is not empty -- tantale has two
+different ways to correct a frameshifted array, and they do not always
+agree with each other.
+
+## Looking at the arrays
+
+`plot()` on a `tales` object lays out every array's parts in order,
+coloured by domain type, with each repeat's RVD printed on it:
+
+```{r}
+#| label: fig-composition
+#| fig-cap: "Domain composition of the four TALE arrays in the bundled example."
+#| fig-width: 8
+#| fig-height: 3
+plot(x)
+```
+
+## Where to next
+
+This is deliberately the smallest possible slice of tantale. From here,
+the package website walks through the full pipeline on real genomes:
+
+- [Mining TALE sequences in genomes](https://scunnac.github.io/tantale/articles/tale_mining.html) -- discovery from raw FASTA, and correcting the frameshifts real assemblies produce
+- [The `tales` class](https://scunnac.github.io/tantale/articles/tales_class.html) -- what the object built above actually is, in depth
+- [Classifying TALE sequences from genomes](https://scunnac.github.io/tantale/articles/tale_classification.html) -- grouping arrays across several genomes by relatedness
+- [Multiple alignment of TALE arrays](https://scunnac.github.io/tantale/articles/tale_msa.html) and [the `tales_msa` class](https://scunnac.github.io/tantale/articles/tales_msa_class.html)
+- [Predicting TALE targets](https://scunnac.github.io/tantale/articles/tale_target_prediction.html) -- from an aligned group to a predicted DNA binding site
+
+::: {.callout-note}
+## These four articles are one analysis, not four
+Classification, both alignment articles, and target prediction all work
+over the same three genomes, and the discovery/comparison/grouping result
+is shared rather than recomputed four times: the classification article
+computes it and caches the result (`vignettes/articles/_cache/`, not part
+of the installed package); the other three read that cache. If you are
+rendering one of those three in isolation from a clean checkout, rather
+than through a full site build, render the classification article first.
+:::

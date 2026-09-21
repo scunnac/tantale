@@ -1,0 +1,122 @@
+# target name        accession  query name                          accession  hmmfrom hmm to alifrom  ali to envfrom  env to  sq len strand   E-value  score  bias  description of target
+#------------------- ----------                -------------------- ---------- ------- ------- ------- ------- ------- ------- ------- ------ --------- ------ ----- ---------------------
+seq2                 -          TALE_N-terminus_CDS_aligned_curated -                1     864   28926   28063   28926   28063   53926    -           0 1067.0  53.1  -
+seq1                 -          TALE_N-terminus_CDS_aligned_curated -                1     864   29437   30297   29437   30297   61971    +           0 1066.1  49.0  -
+seq1                 -          TALE_N-terminus_CDS_aligned_curated -                1     864   32652   33512   32652   33512   61971    +           0 1063.2  50.7  -
+seq1                 -          TALE_N-terminus_CDS_aligned_curated -                1     864   25001   25861   25001   25861   61971    +           0 1062.6  48.2  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   26777   26878   26777   26878   61971    +     7.1e-33  109.8  10.1  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   31318   31419   31318   31419   61971    +     7.1e-33  109.8  10.1  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   33819   33920   33819   33920   61971    +     7.1e-33  109.8  10.1  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   28307   28408   28307   28408   61971    +     1.4e-32  108.9  11.2  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   33717   33818   33717   33818   61971    +     1.4e-32  108.9  11.2  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   30604   30705   30604   30705   61971    +     3.4e-32  107.7  11.6  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   34227   34328   34227   34328   61971    +     3.4e-32  107.7  11.6  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   33921   34022   33921   34022   61971    +     4.8e-32  107.2  10.9  -
+seq2                 -          TALE_repeat_CDS_aligned_curated -                1     102   26532   26431   26532   26431   53926    -     5.6e-32  107.0  11.4  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   25862   25963   25862   25963   61971    +     6.2e-32  106.8  11.2  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   26879   26980   26879   26980   61971    +     6.6e-32  106.7  13.7  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   31216   31317   31216   31317   61971    +     6.6e-32  106.7  13.7  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   31420   31521   31420   31521   61971    +     6.6e-32  106.7  13.7  -
+seq2                 -          TALE_repeat_CDS_aligned_curated -                1     102   27552   27451   27552   27451   53926    -     6.6e-32  106.7  13.7  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     101   27899   27999   27899   28000   61971    +     6.7e-32  106.7  10.9  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     101   34935   35035   34935   35036   61971    +     6.7e-32  106.7  10.9  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     101   35241   35341   35241   35342   61971    +     7.2e-32  106.6  13.1  -
+seq2                 -          TALE_repeat_CDS_aligned_curated -                1     102   28062   27961   28062   27961   53926    -     8.9e-32  106.3   9.0  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     101   26168   26268   26168   26269   61971    +     9.5e-32  106.2  13.4  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     101   26675   26775   26675   26776   61971    +     9.5e-32  106.2  13.4  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     101   30706   30806   30706   30807   61971    +     9.5e-32  106.2  13.4  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     101   31012   31112   31012   31113   61971    +     9.5e-32  106.2  13.4  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     101   34833   34933   34833   34934   61971    +     9.5e-32  106.2  13.4  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     101   35853   35953   35853   35954   61971    +       1e-31  106.1  12.7  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   26066   26167   26066   26167   61971    +       1e-31  106.1  12.4  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   27593   27694   27593   27694   61971    +       1e-31  106.1  12.4  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   35037   35138   35037   35138   61971    +       1e-31  106.1  12.4  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   35751   35852   35751   35852   61971    +       1e-31  106.1  12.4  -
+seq2                 -          TALE_repeat_CDS_aligned_curated -                1     102   27654   27553   27654   27553   53926    -     1.1e-31  106.0  10.5  -
+seq2                 -          TALE_repeat_CDS_aligned_curated -                1     102   27144   27043   27144   27043   53926    -     1.4e-31  105.7  12.7  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   26372   26473   26372   26473   61971    +     1.6e-31  105.5  11.3  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   30502   30603   30502   30603   61971    +     1.6e-31  105.5  10.1  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   31522   31623   31522   31623   61971    +     1.6e-31  105.5  10.1  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   27695   27796   27695   27796   61971    +     1.7e-31  105.4  14.1  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   34329   34430   34329   34430   61971    +     1.7e-31  105.4  14.1  -
+seq2                 -          TALE_repeat_CDS_aligned_curated -                1     102   26430   26329   26430   26329   53926    -     1.7e-31  105.4  14.1  -
+seq2                 -          TALE_repeat_CDS_aligned_curated -                1     102   26940   26839   26940   26839   53926    -     1.7e-31  105.4  14.1  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   30298   30399   30298   30399   61971    +     2.1e-31  105.1   9.9  -
+seq2                 -          TALE_repeat_CDS_aligned_curated -                1     102   27042   26941   27042   26941   53926    -     2.2e-31  105.1  12.4  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   26270   26371   26270   26371   61971    +     2.3e-31  105.0  13.7  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   34125   34226   34125   34226   61971    +     2.3e-31  105.0  13.7  -
+seq2                 -          TALE_repeat_CDS_aligned_curated -                1     102   26226   26125   26226   26125   53926    -     2.3e-31  105.0  13.7  -
+seq2                 -          TALE_repeat_CDS_aligned_curated -                1     102   26328   26227   26328   26227   53926    -     2.3e-31  105.0  13.7  -
+seq2                 -          TALE_repeat_CDS_aligned_curated -                1     102   26634   26533   26634   26533   53926    -     2.3e-31  105.0  13.7  -
+seq2                 -          TALE_repeat_CDS_aligned_curated -                1     102   26838   26737   26838   26737   53926    -     2.3e-31  105.0  13.7  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   33615   33716   33615   33716   61971    +     2.8e-31  104.7  13.7  -
+seq2                 -          TALE_repeat_CDS_aligned_curated -                1     102   26736   26635   26736   26635   53926    -     2.9e-31  104.6  13.7  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   35343   35444   35343   35444   61971    +     3.6e-31  104.4  12.7  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   35445   35546   35445   35546   61971    +     3.6e-31  104.4  12.7  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   35955   36056   35955   36056   61971    +     3.6e-31  104.4  12.7  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     101   26981   27081   26981   27082   61971    +     5.3e-31  103.8  12.7  -
+seq2                 -          TALE_repeat_CDS_aligned_curated -                1     102   26124   26023   26124   26023   53926    -     5.4e-31  103.8  11.3  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   27185   27286   27185   27286   61971    +     5.5e-31  103.8  12.3  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     101   25964   26064   25964   26065   61971    +     5.8e-31  103.7  15.1  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     101   27287   27387   27287   27388   61971    +     5.8e-31  103.7  15.1  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     101   27491   27591   27491   27592   61971    +     5.8e-31  103.7  15.1  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     101   28103   28203   28103   28204   61971    +     5.8e-31  103.7  15.1  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     101   31114   31214   31114   31215   61971    +     5.8e-31  103.7  15.1  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     101   35649   35749   35649   35750   61971    +     5.8e-31  103.7  15.1  -
+seq2                 -          TALE_repeat_CDS_aligned_curated -                1     101   27348   27248   27348   27247   53926    -     5.8e-31  103.7  15.1  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   27797   27898   27797   27898   61971    +     6.3e-31  103.6  13.7  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   27389   27490   27389   27490   61971    +     6.5e-31  103.5   9.5  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     101   26573   26673   26573   26674   61971    +     6.5e-31  103.5  14.6  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     101   30808   30908   30808   30909   61971    +     6.5e-31  103.5  14.6  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   33513   33614   33513   33614   61971    +     6.8e-31  103.5  11.6  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     101   30910   31010   30910   31011   61971    +     8.1e-31  103.2  14.7  -
+seq2                 -          TALE_repeat_CDS_aligned_curated -                1     101   26022   25922   26022   25921   53926    -     8.1e-31  103.2  14.7  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     101   27083   27183   27083   27184   61971    +     8.8e-31  103.1  14.1  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     101   34632   34732   34632   34733   61971    +     1.7e-30  102.2  14.6  -
+seq2                 -          TALE_repeat_CDS_aligned_curated -                1     101   27960   27860   27960   27859   53926    -     1.7e-30  102.2  14.4  -
+seq2                 -          TALE_repeat_CDS_aligned_curated -                1     101   27450   27350   27450   27349   53926    -     1.8e-30  102.1  13.7  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   35139   35240   35139   35240   61971    +       2e-30  102.0  13.7  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   28205   28306   28205   28306   61971    +       2e-30  102.0  13.7  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     101   30400   30500   30400   30501   61971    +     2.4e-30  101.7  13.4  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   34533   34631   34533   34631   61971    +     2.8e-30  101.5  12.1  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   34023   34124   34023   34124   61971    +     3.7e-30  101.1  12.4  -
+seq2                 -          TALE_repeat_CDS_aligned_curated -                1     102   27246   27145   27246   27145   53926    -     5.3e-30  100.6  12.8  -
+seq2                 -          TALE_repeat_CDS_aligned_curated -                1     101   27858   27758   27858   27757   53926    -       6e-30  100.4  13.5  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     101   35547   35647   35547   35648   61971    +     9.6e-30   99.8  15.9  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   28001   28102   28001   28102   61971    +     1.5e-29   99.1  10.7  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     102   26474   26572   26474   26572   61971    +     2.3e-29   98.5  13.5  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     101   34431   34531   34431   34532   61971    +     2.6e-29   98.4  15.5  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1     101   34734   34831   34734   34832   61971    +     6.9e-29   97.0  12.0  -
+seq2                 -          TALE_repeat_CDS_aligned_curated -                1     101   27756   27656   27756   27655   53926    -     9.9e-29   96.5  16.2  -
+seq2                 -          TALE_repeat_CDS_aligned_curated -                1      61   25920   25860   25920   25845   53926    -     2.8e-16   56.5   6.3  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1      61   28409   28469   28409   28484   61971    +     8.8e-16   54.9   8.2  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1      61   31624   31684   31624   31699   61971    +     8.8e-16   54.9   8.2  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                1      61   36057   36117   36057   36132   61971    +     8.8e-16   54.9   8.2  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -               26      68   46150   46112   46170   46092   61971    -        0.23    8.5   3.8  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -               27      87   22361   22300   22381   22285   61971    -        0.37    7.8   6.0  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -               53      76   14601   14578   14621   14558   61971    -        0.47    7.5   1.2  -
+seq2                 -          TALE_repeat_CDS_aligned_curated -                9      45    8861    8897    8853    8917   53926    +        0.58    7.2   3.1  -
+seq2                 -          TALE_repeat_CDS_aligned_curated -                2      59   32325   32268   32326   32248   53926    -        0.77    6.8   7.4  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -               46      73   59383   59356   59403   59335   61971    -        0.97    6.5   4.7  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -                9      45   18031   17995   18038   17975   61971    -           1    6.4   1.1  -
+seq2                 -          TALE_repeat_CDS_aligned_curated -               40      76   32968   32932   32989   32912   53926    -         1.2    6.2   7.4  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -               61      87   46266   46240   46286   46220   61971    -         1.3    6.1   1.8  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -               17      43    7181    7207    7162    7227   61971    +         1.4    5.9   2.6  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -               22      40   17916   17898   17936   17878   61971    -         2.6    5.1   2.0  -
+seq2                 -          TALE_repeat_CDS_aligned_curated -               42      64   10291   10313   10271   10334   53926    +         4.8    4.2   6.9  -
+seq1                 -          TALE_repeat_CDS_aligned_curated -               51      85   49090   49123   49069   49136   61971    +         6.3    3.9   6.0  -
+seq2                 -          TALE_repeat_CDS_aligned_curated -               32      74   42583   42548   42603   42530   53926    -         9.9    3.2   6.5  -
+seq2                 -          TALE_C-terminus_CDS_aligned_curated_long -                1     861   25860   25001   25860   25001   53926    -           0 1043.3  30.1  -
+seq1                 -          TALE_C-terminus_CDS_aligned_curated_long -                1     861   31684   32543   31684   32543   61971    +           0 1042.4  27.6  -
+seq1                 -          TALE_C-terminus_CDS_aligned_curated_long -                1     861   28469   29328   28469   29328   61971    +           0 1040.0  30.0  -
+seq1                 -          TALE_C-terminus_CDS_aligned_curated_long -                1     838   36117   36954   36117   36971   61971    +           0 1020.9  29.3  -
+#
+# Program:         nhmmer
+# Version:         3.3 (Nov 2019)
+# Pipeline mode:   SEARCH
+# Query file:      /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/tellTaleExampleOutput/TALE_CDS_all_diagnostic_regions_hmmfile.out
+# Target file:     /tmp/RtmpdPtkT2/file1ec1a7d293ba9
+# Option settings: /home/cunnac/Lab-Related/MyScripts/tantale/inst/tools/hmmer-3.3/bin/nhmmer --tblout /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/tellTaleExampleOutput/hmmerSearchOut.txt /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/tellTaleExampleOutput/TALE_CDS_all_diagnostic_regions_hmmfile.out /tmp/RtmpdPtkT2/file1ec1a7d293ba9 
+# Current dir:     /home/cunnac/Lab-Related/MyScripts/tantale
+# Date:            Sat May 28 20:27:15 2022
+# [ok]
