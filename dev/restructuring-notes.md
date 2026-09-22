@@ -7819,6 +7819,35 @@ left for the maintainer's call, not decided here:**
   is an older academic tool) -- that alone may rule some options out
   before the maintainer needs to weigh in on the rest.
 
+**Maintainer decision (2026-09-22): explicitly deferred, not decided now.**
+Distribution strategy (GitHub-only vs. CRAN vs. Bioconductor) is a
+prerequisite question this bundling decision depends on, and that has not
+been settled yet -- correctly parked rather than guessed at. Two things
+worth having on record for whoever picks this back up:
+
+- **This is not merely peripheral.** `.run_arlem()` is what
+  `tales_tale_distances()` calls, which is what `tales_compare_distal()`
+  (one of `test_golden.R`'s own "expensive paths") returns as
+  `tale_distances`, which both `tales_group_kmedoids()` and
+  `tales_group_hclust()` cluster on. If ARLEM cannot run on a given
+  machine, a large share of the package's actual analytical value goes
+  with it -- this is not a rarely-used corner.
+- **A second, independent risk surfaced while reading `.run_arlem()` for
+  this question, not previously on record anywhere:** it invokes the
+  binary via a bare `system(cmd, intern = TRUE)` with **no exit-status
+  check** -- unlike MAFFT/HMMER, which go through `.tantale_exec()`
+  (ledger §12) specifically because it checks. If `arlem` fails to
+  execute on some machine (wrong architecture, lost execute bit, ...),
+  `system()` will not necessarily throw; `scores` (the parsed
+  `"Score of aligning Seq:"` lines) can simply come back empty, and that
+  propagates into `.normalise_arlem_scores()` as silent bad output or a
+  confusing downstream error, not a clear message naming the real cause.
+  This is independent of the bundling/portability question above and of
+  low cost to fix on its own (wrap the call the same way
+  `.tantale_exec()` does) whenever this is picked up -- flagged here so
+  it is not lost before the bigger distribution-strategy question is
+  settled.
+
 ### `tales_group_kmedoids()`'s fix, extended: validate `k_range` against `n`, not just type
 
 Maintainer's instruction, on seeing the fix above: don't stop at fixing the
