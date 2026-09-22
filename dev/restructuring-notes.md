@@ -7524,13 +7524,13 @@ re-examining.
 
 ---
 
-## 27. Chasing "a clean, entire test suite" -- two of three real bugs fixed and verified, one narrowed but still open **[P]**
+## 27. Chasing "a clean, entire test suite" -- all three real bugs fixed and verified **[V]**
 
-Direct follow-through on §26's two findings, same night. **Session paused
-here on purpose, not a close** -- read this whole section before touching
-`test_golden.R`/`helper-golden.R` again, since it records a real
-methodology (and its pitfalls) that cost real time to work out, not just
-a status.
+Direct follow-through on §26's two findings. Started one night, resumed a
+later session (2026-09-22) that closed out Finding 3 -- read this whole
+section before touching `test_golden.R`/`helper-golden.R` again, since it
+records a real methodology (and its pitfalls) that cost real time to work
+out, not just a status.
 
 ### Finding 1, `reshape2` -- FIXED, verified **[V]**
 
@@ -7568,8 +7568,8 @@ real multi-worker code path (the point of hardcoding a number at all,
 `.pairwise_align_biostrings()`'s own default is `ncores = 1`), just within
 the CRAN-safe limit. Verified passing under `load_all()`.
 
-### Finding 3, the golden-baseline mismatch -- one real root cause found and
-fixed, a second, narrower one still open **[P]**
+### Finding 3, the golden-baseline mismatch -- root cause fixed, residual
+narrowed and closed, baseline accepted **[V]**
 
 **The investigation, in enough detail that it does not need repeating.**
 Every attempt to reproduce the original `devtools::check()` failure via a
@@ -7665,3 +7665,90 @@ Anyone picking this up should re-run `devtools::check()` once (or the
 raw `R CMD check --no-clean-on-error` + fixed-path methodology above, for
 faster iteration) to confirm current status before assuming anything
 above is stale.
+
+### Finding 3, resumed and closed (2026-09-22 session)
+
+**The "residual, isolated-vs-whole-file" difference above does not
+reproduce.** Re-ran the exact comparison five separate ways -- two
+`testthat::test_file(desc = ...)` isolated runs, two whole-file
+`test_file()` runs, and one genuine `R CMD check` on a fresh `R CMD
+build` tarball (`_R_CHECK_LIMIT_CORES_` and all, the same isolated-library
+environment Finding 1 needed to surface in) -- and all five produced a
+**byte-identical** `telltale_fingerprint()` for the correction test. No
+session/test-order state leakage exists in the current code; the
+`telltale_run()` memoisation hypothesis from the previous session's
+closing note was never confirmed and is not the cause.
+
+**What the previous session actually saw, root-caused this time:** the
+diagnostic methodology itself. Reproducing this bug needs the failing
+output to survive past `testthat`'s `on.exit()` cleanup, so both that
+session and this one repointed the correction test's `out` to a fixed
+path *outside* `tempdir()`. That fixed path is not neutral --
+`.run_specific_pattern()` (`helper-golden.R`) drops any line containing
+*this session's own* `tempdir()` value, and several files in the
+correction output (`annotale/*/protocol_analyze.txt`,
+`hmmer_search_out.txt`, `nhmmer_human_readable_output_of_last_run.txt`)
+echo `out` itself verbatim. Moving `out` off `tempdir()` stops those
+echoed-`out` lines from matching that drop pattern, so they switch from
+"dropped" to "kept-but-path-normalised" -- changing `n_dropped` and the
+digest on exactly the files/rows the previous session flagged (4 rows:
+two `protocol_analyze.txt` files, `hmmer_search_out.txt`,
+`nhmmer_human_readable_output_of_last_run.txt`), **independently of
+whether the run is isolated or whole-file**. Confirmed directly: with the
+diagnostic `out` still off-`tempdir()`, isolated and whole-file matched
+each other exactly, digest for digest -- proving even the earlier
+session's own "isolated" and "whole" runs would have agreed, had they
+been compared against each other rather than against the pre-fix
+baseline. (Whether the *previous* session's specific two runs really did
+disagree, or whether that too was a same-shaped artefact, is not
+recoverable now -- no raw output from that session survives to check. It
+does not matter either way: the current code has no reproducible
+isolated-vs-whole difference, checked five independent ways.)
+
+**Switched back to the real, committed `out <- file.path(tempdir(), ...)`
++ `on.exit()` cleanup** (the diagnostic-only fixed path was never
+committed) and re-ran the comparison once more under standard conditions,
+this time also capturing the raw fingerprint object (not just the printed
+snapshot diff) to compare precisely. Isolated and whole-file **still
+identical**, and now only **one** row differs from the accepted baseline,
+not four: `tell_tales.log`, digest only, `n_lines` unchanged (39 both
+sides) -- a single existing line's *content* changed, not a line added or
+removed. Read directly: `correction_ref:` now prints
+`<path>/correction_ref_20.fa.gz` (`.normalise_paths()` redacting an
+absolute path) where the old baseline has the raw, unredacted relative
+string `tests/testthat/data_for_tests/correction_ref_20.fa.gz` --
+precisely, and only, the intended effect of this section's own Root
+Cause 1 fix (`correction_ref = normalizePath(test_path(...))`), not yet
+carried into `_snaps/golden.md` until now.
+
+**Accepted, via the `golden-rebaseline` skill's own procedure** (run
+uncached, identify the row, explain it, `snapshot_accept()`, re-run to
+confirm) -- `tests/testthat/_snaps/golden.md` now has exactly one digest
+changed (the last entry in the correction test's fingerprint array),
+verified with a line-level `git diff` showing nothing else moved.
+Re-confirmed clean (`FAIL 0 | WARN 0 | SKIP 0 | PASS 44`) both under
+`devtools::load_all()` and under `library(tantale)` against a freshly
+`devtools::install()`ed copy, whole file. **`test_golden.R` now passes
+clean.** This closes §27 -- all three findings from §26 are fixed and
+verified; nothing from this section remains open.
+
+**Two unrelated findings surfaced by the same `R CMD check` run, not part
+of §27's scope, not investigated further -- flagged for later triage:**
+
+- **`checking examples ... ERROR`**: `tales_group_kmedoids()`'s own
+  `@examples` fails under a real check --
+  `tales_group_kmedoids(cmp$tales, cmp$tale_distances, k_range = 2:4, k =
+  2)` errors with `Number of clusters 'k' must be in {1,2, .., n-1}; hence
+  n >= 2`, from inside `pam()`/`as.list`. Did not reproduce under
+  `devtools::load_all()`-based interactive checks this whole project has
+  run (same blind spot Finding 1 exploited) -- worth checking whether
+  `cmp$tales`/`cmp$tale_distances` resolve to fewer arrays under a real
+  check than expected, same general shape as the reshape2 finding (an
+  isolated-library-only difference), but not yet looked into.
+- **`checking for executable files ... WARNING`**: `inst/tools/arlem/arlem`
+  flagged as an undeclared executable ("Source packages should not
+  contain undeclared executable files"). Plausibly a known, accepted
+  consequence of bundling a compiled third-party binary (ledger §12
+  covers running these tools by absolute path, not whether `R CMD check`
+  is happy about their presence) rather than a new problem -- not
+  checked against CRAN policy or `.Rbuildignore` options either way.

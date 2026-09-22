@@ -200,10 +200,28 @@ stamp exists to catch cross-run mixing, and is enforced, not advisory.
 
 ## Where things stand
 
-`dev/restructuring-notes.md` is ~7170 lines. **Read its `START HERE`
-block for the pre-2026-09-21 history; for everything since, read §17-§24
+**Branch is `main`, not `dev`.** A full repository history reset was
+executed 2026-09-22 (ledger §26): `master`/`dev` and all pre-reset history
+are retired, replaced by a single orphan commit on `main`. Old history
+(327 commits, all branches/tags) survives as a `git bundle` attached to
+the `v0.1.9553` GitHub release, and the pre-reset working directory was
+kept on disk as `tantale-old-before-reset`, not deleted. Nothing about
+any tracked file's *content* changed in the reset itself.
+
+`dev/restructuring-notes.md` is ~7750 lines. **Read its `START HERE`
+block for the pre-2026-09-21 history; for everything since, read §17-§27
 directly** (numbered, in order, at the end of the file) -- this note is
-the short pointer, not a re-summary of either.
+the short pointer, not a re-summary of either. §27 (2026-09-22) closed
+clean: all three test-suite findings from §26's post-reset `R CMD check`
+(`reshape2` leftover dependency, a hardcoded `ncores`, and a golden-
+baseline mismatch in the frameshift-correction test) are fixed and
+verified; `test_golden.R` passes clean under both `load_all()` and a real
+install. Two unrelated findings surfaced by that same check run and are
+flagged, not yet investigated: `tales_group_kmedoids()`'s own `@examples`
+fails under a real check (does not reproduce under `load_all()`), and
+`inst/tools/arlem/arlem` triggers an "undeclared executable file"
+`R CMD check` warning (plausibly an accepted cost of bundling a
+third-party binary, not confirmed).
 
 **§24 is a maintainer triage of the whole open-items list, 2026-09-21,
 same day as §17-23 but a later session -- read it before assuming any
