@@ -363,6 +363,12 @@ out wrong on re-count; `dev/class-design.md` §4.6 sat stale for over a
 week). Spot-check against the actual code before trusting a closed
 section, especially before building on top of it.
 
+**TOP PRIORITY: ledger §32.1** -- `as_tales()` on a `tales_msa` keeps a
+stale `alignment_width` attribute (maintainer: a bug, fix first). §32
+also holds three other triaged findings (`rvdSimDf` coverage, the scoring
+matrix displacing an identical half-repeat, the `*` counted in
+`cterm_aa_length`), with the mechanism and options for each.
+
 **§30, 2026-09-23 -- website prose review, articles half DONE.** All 8
 articles, `README.md` and `pkgdown/index.md` re-read against their own
 rendered output (`docs/articles/<name>.md` holds prose *and* chunk

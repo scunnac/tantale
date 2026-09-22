@@ -62,6 +62,11 @@ Status markers used below:
 
 ## START HERE
 
+> **TOP PRIORITY (maintainer, 2026-09-23): §32.1.** `as_tales()` on a
+> `tales_msa` leaves a stale `alignment_width` attribute on the demoted
+> `tales`, so `tales_width()` keeps answering. Confirmed *not* intended.
+> Fix before anything else in §32.
+
 This file is ~5080 lines and is a record, not a reading list. **Do not
 read it end to end.** Read `CLAUDE.md` (it loads automatically), then
 only the sections below that bear on the task in hand.
@@ -8593,7 +8598,7 @@ habit 2; also in `dev/CLAUDE.md`'s Documentation rules). This pass only
 targeted the "A, not B" contrast; an attempted parallel-phrasing edit
 batch was reverted on the maintainer's instruction ("for future work").
 
-**Open questions for the maintainer, surfaced by this pass, not acted on:**
+**Open questions for the maintainer, surfaced by this pass** (items 1-4 triaged 2026-09-23, now tracked in §32):
 
 1. `as_tales()` on a `tales_msa` goes through `tales()`, which drops the
    class but keeps the `alignment_width` attribute; the `select()`
@@ -8687,3 +8692,148 @@ removes. This is the concrete case the maintainer's 2026-09-22 instruction
 **Committed and pushed, 2026-09-23**, maintainer's explicit request for
 both. `dev/CLAUDE.md`'s "Where things stand" updated in the same commit
 to fold in §25/§25b/§31 for a clean handoff to a fresh session.
+
+---
+
+## 32. Four findings from §30's render check -- triaged by the maintainer, 2026-09-23
+
+Surfaced while checking the articles against their rendered output (§30,
+"open questions"). Maintainer's triage below; none acted on yet.
+
+### 32.1 `as_tales()` keeps `alignment_width` on a demoted object -- **TOP PRIORITY, a bug** **[A]**
+
+Maintainer: "not intended and an issue to flag as top priority".
+
+What happens: `as_tales()` on a `tales_msa` dispatches to
+`as_tales.data.frame()` (`R/tales_class.R:237`), which calls `tales(x)`.
+That drops the `tales_msa` class but leaves the `alignment_width`
+attribute in place, so `tales_width(as_tales(msa))` still returns the
+width (18 in `tales_msa_class.qmd`'s render). The other demotion path is
+correct: `select(-alignment_position)` goes through `.tales_regrade()`
+(`R/tales_class.R:~880`), which removes the attribute when the
+`tales_msa` contract no longer holds; `.tales_declass()` removes it too.
+
+Likely fix: have `tales()` (or a dedicated `as_tales.tales_msa()` method)
+drop `alignment_width` whenever the result is not a `tales_msa`. Then:
+add a test (`tales_width(as_tales(msa))` is `NULL`); update
+`tales_msa_class.qmd`'s demotion paragraph, which currently describes the
+buggy behaviour ("The stored width travels along with the demoted object,
+so `tales_width()` still answers") and restore the original intent (the
+width claim goes away on demotion); re-render that article.
+
+### 32.2 `rvdSimDf` covers 17 RVDs, `rvd_dna_specificity` covers 404 -- **undecided, options below** **[P]**
+
+Maintainer: known; unsure what is best; describe the options so a
+decision can be made later.
+
+Facts: internal `rvdSimDf` (289 rows = 17 x 17 RVDs, columns
+`rvd1`/`rvd2`/`Cor`; derived from TALVEZ's `mat1`, see the
+`.rvd_score_table()` docs in `R/tales_msa_class.R`) is the only source
+for two things: `plot.tales_msa(fill_type = "rvd_sim")` via
+`.rvd_to_match_align()` (`R/tales_plot.R`), and -- per its own docs -- the
+MAFFT matrix behind `tales_align(domain_distances = "rvd")` (not
+re-checked for this note). Exported `rvd_dna_specificity` has 404 RVDs
+with A/C/G/T preference counts. Any RVD outside the 17 gets `NA`: in the
+plot it is grey even when identical to the reference (`NV` in group 6).
+Worth checking what `.build_repeat_msa()` does with it: it
+`stopifnot()`s that every residue is in the table for a *custom* matrix;
+the `"rvd"` branch was not read for this note.
+
+Options, not evaluated:
+1. **Recompute the similarity from `rvd_dna_specificity`**: Spearman
+   (as now) or Pearson correlation of each pair's A/C/G/T profile, for
+   all 404 RVDs (~163k pairs, or on demand for the RVDs present). Pro:
+   one source of truth, full coverage. Con: rare RVDs have few
+   observations, so their profiles (and any correlation) are noisy; a
+   4-point correlation is crude in any case; values for the current 17
+   would change, which changes existing `rvd_sim` plots and `"rvd"`
+   alignments (golden baseline impact to check).
+2. **Keep the 17, fall back for the rest**: score identical RVDs as 1
+   (a self-match is certain, whatever the table says), leave other
+   unknown pairs `NA`. Smallest change; fixes the misleading grey on
+   identical RVDs; does nothing for comparisons between rare RVDs.
+3. **Hybrid**: the 17 from `rvdSimDf` as now, the rest computed from
+   `rvd_dna_specificity` with a minimum-count threshold below which the
+   pair stays `NA`.
+4. **A different similarity measure** (e.g. 1 - Jensen-Shannon
+   divergence between normalised base-preference profiles): arguably
+   better suited to probability profiles than a correlation of four
+   numbers; would change existing values as in option 1.
+
+Whatever is chosen, the plot legend and the `rvd_sim` docs should say
+what an `NA` (grey) cell means.
+
+### 32.3 The `domain_distances` matrix displaced an identical half-repeat -- **mechanism found, fix not decided** **[P]**
+
+Maintainer: "good catch", elaborate so we can figure out what is going on.
+
+Observation (`tale_msa.qmd`, group 6 = `MAI1_ROI_00007`,
+`BAI3_ROI_00007`, `BAI3-1-1_ROI_00006`): BAI3/BAI3-1-1 lack four repeats
+MAI1 has. All three arrays end with the same 20-aa half-repeat,
+`dom_code` 29 (`LTPAQVVAIASNIGGKQALE`, RVD `NI`). Without a matrix, MAFFT
+aligns BAI3's 29 with MAI1's 29 (column 17) and puts the 4-column gap at
+13-16. With `domain_distances = cmp$domain_distances`, it aligns BAI3's
+29 against MAI1's code 31 (column 13) -- a *full-length* `NI` repeat,
+`LTPAQVVAIASNIGGKQALETVQRLLPVLCQAHG` -- and moves the gap to 14-17,
+against the C-terminus. Same width (18), same gap count.
+
+**Mechanism: `dissim(29, 31) = 0`.** The half-repeat is an exact prefix of
+repeat 31, and the domain distance evidently normalises by the *shorter*
+sequence (or scores a local/overlap alignment), so a 14-residue length
+difference costs nothing. `.as_mafft_score_table()` turns this into
+`sim = 100 - dissim = 100`, the same score as 29-vs-29. MAFFT therefore
+sees two equally good placements for BAI3's half-repeat and the tie is
+broken by gap placement (`--op 0 --ep 5`, so opening a gap is free and
+the two placements cost the same). Other values from the same table, for
+scale: 29 vs 24/49 = 5 (one mismatch in 20), 29 vs 45 = 10, 29 vs 40 = 20;
+full repeats differing by one residue are 2.94 (1/34).
+
+Where to look: the `dissim` formulas in `R/distalr.R`
+(`tales_domain_distances()`): line ~455 for the Biostrings backend
+(`100 - 100 * (max_length - score) / max_length`, then inverted), ~529
+for mmseq2 (`100 - pident * min(qcov, tcov)` -- note `min` of the
+coverages, which *should* penalise a length difference, so check whether
+that backend gives 29-vs-31 a non-zero distance), ~563-569 for DECIPHER
+(`DistanceMatrix(msa, method = "longest", ...)` on a multiple alignment --
+the likely culprit if the default backend's "longest" treats terminal
+gaps as non-informative; the cached run used DECIPHER).
+
+Questions to settle:
+1. Is a zero distance between a half-repeat and the full repeat it is a
+   prefix of intended? For ARLEM's array-level distances (DisTAL), a
+   terminal half-repeat matching a full repeat cheaply may be the
+   intended DisTAL behaviour -- check against the QueTAL paper before
+   changing anything.
+2. If the domain distance stays as is, should `tales_align()`'s matrix
+   still use it unchanged? A length-aware adjustment only for the MAFFT
+   matrix (e.g. penalise pairs whose lengths differ) would keep
+   half-repeats matched to half-repeats without touching DisTAL.
+3. Separately: `sim` runs 10-100 here, all positive. Check how MAFFT's
+   `--textmatrix` treats an all-positive matrix (whether it rescales or
+   expects negative mismatch scores); that affects every scored
+   alignment, not just this tie.
+4. `R/tales_msa_class.R:536` already notes there is no evidence the
+   matrix makes alignments biologically better. This case is a
+   concrete counter-example worth turning into a test fixture.
+
+### 32.4 C-terminus length differs by one between `tales` and `array_report.tsv` -- **explained, nothing to fix yet** **[V]**
+
+Maintainer's guess ("maybe the array report counts aa differently") is
+right. Checked 2026-09-23 on a fresh PXO86 run:
+`array_report.tsv`'s `cterm_aa_length` is the width of AnnoTALE's
+C-terminus record in `TALE_Protein_parts.fasta`
+(`.telltale_add_array_measures()`, `R/telltale.R:~966`, fed by
+`.telltale_align_termini()`), and that record **includes the stop codon
+as `*` when the stop falls inside the C-terminal part**: `ROI_00001`
+184 (`...RRKRS*`), `ROI_00019` 43 (`...RKSHD*`). For a full-length
+C-terminus the part ends before the stop, so no `*`: `ROI_00002` 286
+(`...SVGGTI`). The `tales` object's `aa_seq` has no `*` (183, 42, 286).
+So the two agree on normal arrays and differ by exactly one on truncated
+ones.
+
+Open, for later: whether `cterm_aa_length` should exclude the `*` (it is
+not a residue), or whether the difference is useful as a signal (a `*`
+inside the C-terminal part marks a truncated C-terminus). Either way,
+worth one line in `tell_tales()`'s docs for `array_report.tsv`.
+`trunctale_correction.qmd` already cites each number with its source,
+so it stays correct either way.
