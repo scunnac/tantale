@@ -74,6 +74,10 @@ tales_anchor_codes <- function() {
 new_tales <- function(x, dom_code_namespace = NULL) {
   stopifnot(is.data.frame(x))
   x <- tibble::as_tibble(x)
+  # as_tibble() drops a tales_msa class but keeps its attributes. The width is
+  # a claim only a tales_msa can make (new_tales_msa() sets it after this), so
+  # a stale one would let tales_width() answer on a demoted object (§32.1).
+  attr(x, "alignment_width") <- NULL
   if (!is.null(dom_code_namespace)) {
     attr(x, "dom_code_namespace") <- dom_code_namespace
   }

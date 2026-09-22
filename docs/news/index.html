@@ -46,6 +46,10 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="tantale-development-version">tantale (development version)<a class="anchor" aria-label="anchor" href="#tantale-development-version"></a></h2>
 <div class="section level3">
+<h3 id="bug-fix-demoting-a-tales_msa-now-drops-its-alignment-width-development-version">Bug fix: demoting a <code>tales_msa</code> now drops its alignment width<a class="anchor" aria-label="anchor" href="#bug-fix-demoting-a-tales_msa-now-drops-its-alignment-width-development-version"></a></h3>
+<p><code><a href="../reference/as_tales.html">as_tales()</a></code> (and <code><a href="../reference/tales.html">tales()</a></code>) on a <code>tales_msa</code> returned a plain <code>tales</code> that still carried the alignment’s width, so <code><a href="../reference/tales_width.html">tales_width()</a></code> kept answering on an object that no longer claims to be an alignment. The width is now removed on demotion, as it already was when <code>alignment_position</code> is dropped with <code>select()</code>.</p>
+</div>
+<div class="section level3">
 <h3 id="articles-checked-against-their-own-output-development-version">Articles checked against their own output<a class="anchor" aria-label="anchor" href="#articles-checked-against-their-own-output-development-version"></a></h3>
 <p>Every article, the README and the home page were re-read against what their code actually renders. Statements that disagreed with a table or a figure are corrected, notably: the truncTALE article (<code>ROI_00001</code>’s N-terminus is reduced like <code>ROI_00019</code>’s; <code><a href="../reference/correct_tales.html">correct_tales()</a></code> leaves <code>ROI_00001</code>’s C-terminus length unchanged), the alignment article (a <code>domain_distances</code> scoring matrix does not make this group’s alignment more compact; it moves the final half-repeat away from its identical match), and the home-page dendrogram description (it shows nine groups). The classification article’s motif tree now has tip labels, and its silhouette plot is described and drawn on every build.</p>
 </div>

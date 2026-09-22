@@ -1,5 +1,13 @@
 # tantale (development version)
 
+## Bug fix: demoting a `tales_msa` now drops its alignment width
+
+`as_tales()` (and `tales()`) on a `tales_msa` returned a plain `tales`
+that still carried the alignment's width, so `tales_width()` kept
+answering on an object that no longer claims to be an alignment. The
+width is now removed on demotion, as it already was when
+`alignment_position` is dropped with `select()`.
+
 ## Articles checked against their own output
 
 Every article, the README and the home page were re-read against what

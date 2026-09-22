@@ -152,9 +152,8 @@ is_tales_msa(demoted)
 ```
 
 `alignment_position` survives as an ordinary column, so demoting keeps
-where things were aligned; the object just stops *claiming*, through its
-class, to be a single coherent alignment. The stored width travels along
-with the demoted object, so `tales_width()` still answers:
+where things were aligned. What goes is the object's claim to be a single
+coherent alignment, and the stored width goes with it:
 
 ```{r demote_width}
 tales_width(demoted)

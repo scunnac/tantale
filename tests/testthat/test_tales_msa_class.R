@@ -111,6 +111,16 @@ test_that("dropping alignment_position demotes to tales, not to a tibble", {
   expect_null(tales_width(out))
 })
 
+test_that("as_tales() and tales() demote a tales_msa without its width (§32.1)", {
+  x <- tales_msa(minimal_msa_df(), alignment_width = 10L)
+  for (out in list(as_tales(x), tales(x))) {
+    expect_false(is_tales_msa(out))
+    expect_true(is_tales(out))
+    expect_true("alignment_position" %in% names(out))
+    expect_null(tales_width(out))
+  }
+})
+
 test_that("dropping a tales key column degrades all the way to a tibble", {
   x <- tales_msa(minimal_msa_df())
   out <- dplyr::select(x, -array_id)

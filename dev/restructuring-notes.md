@@ -62,11 +62,6 @@ Status markers used below:
 
 ## START HERE
 
-> **TOP PRIORITY (maintainer, 2026-09-23): §32.1.** `as_tales()` on a
-> `tales_msa` leaves a stale `alignment_width` attribute on the demoted
-> `tales`, so `tales_width()` keeps answering. Confirmed *not* intended.
-> Fix before anything else in §32.
-
 This file is ~5080 lines and is a record, not a reading list. **Do not
 read it end to end.** Read `CLAUDE.md` (it loads automatically), then
 only the sections below that bear on the task in hand.
@@ -8700,7 +8695,7 @@ to fold in §25/§25b/§31 for a clean handoff to a fresh session.
 Surfaced while checking the articles against their rendered output (§30,
 "open questions"). Maintainer's triage below; none acted on yet.
 
-### 32.1 `as_tales()` keeps `alignment_width` on a demoted object -- **TOP PRIORITY, a bug** **[A]**
+### 32.1 `as_tales()` keeps `alignment_width` on a demoted object -- **FIXED 2026-09-23** **[V]**
 
 Maintainer: "not intended and an issue to flag as top priority".
 
@@ -8720,6 +8715,27 @@ add a test (`tales_width(as_tales(msa))` is `NULL`); update
 buggy behaviour ("The stored width travels along with the demoted object,
 so `tales_width()` still answers") and restore the original intent (the
 width claim goes away on demotion); re-render that article.
+
+**Fixed, 2026-09-23.** The cause sat one level lower than `tales()`:
+`new_tales()` calls `tibble::as_tibble()`, which drops a `tales_msa`
+class but keeps its attributes. `new_tales()` now removes
+`alignment_width` (its output is always a plain `tales`;
+`new_tales_msa()` sets the width after it runs). Safe for the one
+`tales_msa()` caller, `tales_align()`, which passes the width explicitly;
+a `tales_msa()` call without a width already derived it from
+`max(alignment_position)`, unchanged. `dom_code_namespace` still survives
+demotion, as intended.
+
+Verified: new test in `test_tales_msa_class.R` ("as_tales() and tales()
+demote a tales_msa without its width") fails twice on the unfixed code
+and passes on the fix; `test_tales_msa_class.R` 26/26,
+`test_tales_class.R` 45/45, `test_print.R` 13/13, `test_golden.R` 16/16
+(no baseline change). Tests were run from a scratchpad copy of HEAD plus
+the fix, because the working tree held another session's uncommitted
+ARLEM work (`R/arlem.R`, `R/distalr.R`) that `load_all()` would have
+picked up. `tales_msa_class.qmd`'s demotion paragraph now says the width
+goes with the class.
+
 
 ### 32.2 `rvdSimDf` covers 17 RVDs, `rvd_dna_specificity` covers 404 -- **undecided, options below** **[P]**
 
