@@ -75,7 +75,7 @@ x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
                                      package = "tantale"))
 cmp <- tales_compare_distal(x)
 grouped <- tales_group_kmedoids(cmp$tales, cmp$tale_distances,
-                                k_range = 2:4, k = 2)
+                                k_range = 2:3, k = 2)
 unique(grouped[c("array_id", "group")])
 }
 \seealso{

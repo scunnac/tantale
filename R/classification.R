@@ -183,7 +183,7 @@ tales_group_hclust <- function(x, tale_distances, k = NULL, plot_tree = FALSE) {
 #'                                      package = "tantale"))
 #' cmp <- tales_compare_distal(x)
 #' grouped <- tales_group_kmedoids(cmp$tales, cmp$tale_distances,
-#'                                 k_range = 2:4, k = 2)
+#'                                 k_range = 2:3, k = 2)
 #' unique(grouped[c("array_id", "group")])
 tales_group_kmedoids <- function(x, tale_distances, k_range = NULL, k = NULL,
                                  seed = 7, plot_silhouette = TRUE) {

@@ -7752,3 +7752,69 @@ of §27's scope, not investigated further -- flagged for later triage:**
   covers running these tools by absolute path, not whether `R CMD check`
   is happy about their presence) rather than a new problem -- not
   checked against CRAN policy or `.Rbuildignore` options either way.
+
+---
+
+## 28. The two §27 follow-up findings, triaged
+
+### `tales_group_kmedoids()` example -- FIXED, verified **[V]**
+
+**Not what §27's closing note guessed.** Not an isolated-library
+blind spot like Finding 1 -- reproduces identically under a bare
+`devtools::load_all()`, no `R CMD check` needed. Root cause: a plain
+off-by-one, unrelated to anything else in this session. The example's
+fixture (`inst/extdata/tellTaleExampleOutput`, via
+`tales_from_telltale()` -> `tales_compare_distal()`) has **4** arrays;
+`cluster::pam()` requires `k <= n - 1`, i.e. `k <= 3` here. The example's
+own `k_range = 2:4` tries `k = 4` as one of its candidates and
+`cluster::pam()` throws on that call, inside `lapply()`, before
+`tales_group_kmedoids()` ever reaches its own `k` selection logic.
+
+This example was apparently never actually executed end-to-end before
+being written/kept -- `devtools::check()`/`R CMD check`'s "checking
+examples" step is exactly what would have caught it, and per this whole
+investigation's premise, that step has evidently not run clean in some
+time. Not a regression from anything in this session.
+
+**Fixed:** `R/classification.R`'s `@examples` block, `k_range = 2:4` ->
+`k_range = 2:3` (still exercises the multi-candidate path the example is
+there to demonstrate, just without the invalid `k = 4`). `man/tales_group_kmedoids.Rd`
+regenerated (`devtools::document()`, one-line diff, matches). Verified
+three ways: the example body run directly under `load_all()`; the
+targeted test file (`test_tales_group_kmedoids.R`, 26/26 pass); and the
+actual `.Rd` extracted via `tools::Rd2ex()` and sourced, matching exactly
+what `R CMD check`'s examples step runs.
+
+### `inst/tools/arlem/arlem` executable warning -- investigated, **flagged for
+the maintainer, not fixed [P]**
+
+Confirmed real, not a fluke: `file inst/tools/arlem/arlem` ->
+`ELF 64-bit LSB executable, x86-64 ... for GNU/Linux 2.6.8, with
+debug_info, not stripped`. A genuine precompiled third-party binary
+(ARLEM, Abouelhoda/Giegerich/Behzadi/Steyaert), shipped under `inst/`
+and invoked via `system.file("tools", "arlem", "arlem", package =
+"tantale")` in `.run_arlem()` (`R/distalr.R`) -- unlike MAFFT/HMMER
+(ledger §12), which come from the conda environment rather than being
+bundled in the package itself.
+
+**This is a real portability/policy question, not a mechanical bug --
+left for the maintainer's call, not decided here:**
+- The binary is Linux-x86-64-only; it will not run on macOS or an ARM
+  build, `OS_type: unix` in `DESCRIPTION` notwithstanding (that field
+  covers Unix-family in general, not this specific architecture
+  constraint).
+- `DESCRIPTION` sets `biocViews: Software`, which CRAN ignores but
+  Bioconductor requires -- a signal (not confirmed elsewhere) that
+  Bioconductor, not CRAN, may be the intended distribution channel; the
+  two have different (both restrictive) policies on bundling
+  precompiled binaries.
+- Options not evaluated in any depth yet: document the warning as an
+  accepted exception (some domain-specific packages do ship
+  platform-specific binaries with justification); build `arlem` from
+  source via `src/` + a `Makevars`/`configure` at install time instead of
+  shipping the binary; or find/request an existing conda-forge/bioconda
+  build of ARLEM and switch to the same absolute-path-via-conda-env
+  pattern §12 already established for MAFFT/HMMER.
+- Not investigated: whether ARLEM's own source is available at all (it
+  is an older academic tool) -- that alone may rule some options out
+  before the maintainer needs to weigh in on the rest.
