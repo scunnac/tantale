@@ -5,7 +5,7 @@
 
 *Transcription activator-like effector* (TALE) genes, found in plant-pathogenic
 *Xanthomonas* bacteria, encode proteins built around a central array of
-near-identical ~34-residue repeats. Two residues in each repeat -- its RVD --
+near-identical ~34-residue repeats. Two residues in each repeat, its RVD,
 specify a single base of the DNA sequence the whole array binds, so an
 array's repeat sequence is effectively a readable code for its target site.
 That modularity makes TALEs a favourite tool for genome engineering, and a
@@ -19,35 +19,35 @@ external tools ([AnnoTALE](https://doi.org/10.1038/srep21077),
 [PrediTALE](https://doi.org/10.1371/journal.pcbi.1007206)) and reimplements
 others in R ([DisTAL](https://doi.org/10.3389/fpls.2015.00545) and
 [functal](https://doi.org/10.3389/fpls.2015.00545)) behind a single,
-consistent set of R objects, so that a whole study -- discovery, correction,
-classification, alignment, target prediction -- can be scripted and
+consistent set of R objects, so that a whole study (discovery, correction,
+classification, alignment, target prediction) can be scripted and
 reproduced without switching tools or file formats along the way.
 
 ## A typical study, in one figure
 
-Grouping arrays into related TALEs shows the same underlying question the
-package is built around: not "what TALEs does this genome carry" but "which
-TALEs, across genomes, are versions of the same thing."
+Grouping arrays into related TALEs answers the question the package is
+built around: "which TALEs, across genomes, are versions of the same
+thing?"
 
 <img src="articles/tale_classification_files/figure-html/fig-tale-dendrogram-1.png"
-     alt="Hierarchical clustering of TALE arrays from three related Xanthomonas oryzae strains, showing three clean per-strain groups"
+     alt="Hierarchical clustering of 26 TALE arrays from three related Xanthomonas oryzae strains into nine groups, eight of them with one member per strain"
      style="max-width: 100%; height: auto;"/>
 
-Three related genomes, clustered by predicted relatedness: three clean
-groups, one member per strain -- the pattern a set of TALE alleles related by
-descent is expected to produce. See
+Three related genomes, clustered by relatedness: nine groups, eight of them
+with exactly one member per strain, the pattern a set of TALE alleles related
+by descent is expected to produce. See
 [Classifying TALE sequences from genomes](articles/tale_classification.html)
 for how this is built, from raw genomic FASTA to this tree.
 
 ## Getting started
 
 [Getting started with tantale](articles/getting_started.html) is a
-two-minute tour using data already bundled with the package -- no external
-tools to install first. From there, [Learn tantale](articles/index.html)
-walks through the full pipeline on real genomes: discovery and frameshift
+two-minute tour using data already bundled with the package, with no
+external tools to install first. From there, [Learn tantale](articles/index.html)
+walks through the full pipeline on real genomes (discovery and frameshift
 correction, classification into groups, multiple alignment, and target
-prediction -- plus deep dives into the two central object classes,
-`tales`/`tales_msa`.
+prediction), with deep dives into the two central object classes,
+`tales`/`tales_msa`, and a case study on naturally truncated TALEs.
 
 See the [README](https://github.com/scunnac/tantale#readme) for
 installation instructions, including the conda environment tantale builds

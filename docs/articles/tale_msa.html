@@ -79,7 +79,7 @@
 
 
 
-    <p>The <a href="tale_classification.html">previous article</a> grouped TALE arrays by overall similarity. Grouping says arrays are related; it does not say <em>how</em> – which repeats correspond, where one array has an insertion or a deletion relative to another. That needs an alignment.</p>
+    <p>The <a href="tale_classification.html">previous article</a> grouped TALE arrays by overall similarity. Grouping says arrays are related. Saying <em>how</em> (which repeats correspond, where one array has an insertion or a deletion relative to another) needs an alignment.</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://scunnac.github.io/tantale">tantale</a></span><span class="op">)</span></span>
@@ -89,15 +89,15 @@
 <div>
 <blockquote>
 <p><strong>Where this fits</strong></p>
-<p>This article is a walkthrough: pick one real classification group and align it. The mechanics – what a <code>tales_msa</code> actually is, coercion between <code>tales</code> and <code>tales_msa</code>, and the plotting options in full – are a deep dive in <a href="tales_msa_class.html">the <code>tales_msa</code> class article</a>, which continues directly from the alignment built here rather than starting over.</p>
+<p>This article is a walkthrough: pick one real classification group and align it. The mechanics (what a <code>tales_msa</code> actually is, coercion between <code>tales</code> and <code>tales_msa</code>, and the plotting options in full) are a deep dive in <a href="tales_msa_class.html">the <code>tales_msa</code> class article</a>, which continues directly from the alignment built here.</p>
 </blockquote>
 </div>
-<p>The AnnoTALE tool this package builds on can assign TALEs to classes, but cannot insert gaps while doing so – and TALE arrays evolve substantially by whole-repeat duplication and deletion, so a method that cannot represent a gap is blind to exactly the events that matter most (see the <a href="https://doi.org/10.3389/fpls.2015.00545" class="external-link">QueTAL paper</a>). <code><a href="../reference/tales_align.html">tales_align()</a></code> drives MAFFT in text mode instead, treating each distinct repeat as one alignable symbol, which lets it open and close gaps freely.</p>
+<p>The AnnoTALE tool this package builds on can assign TALEs to classes, but cannot insert gaps while doing so. TALE arrays evolve substantially by whole-repeat duplication and deletion, so a method that cannot represent a gap is blind to exactly the events that matter most (see the <a href="https://doi.org/10.3389/fpls.2015.00545" class="external-link">QueTAL paper</a>). <code><a href="../reference/tales_align.html">tales_align()</a></code> drives MAFFT in text mode instead, treating each distinct domain as one alignable symbol, which lets it open and close gaps freely.</p>
 <section class="level2" data-number="1"><h2 data-number="1" id="the-same-group-from-the-previous-article">
 <span class="header-section-number">1</span> The same group, from the previous article<a class="anchor" aria-label="anchor" href="#the-same-group-from-the-previous-article"></a>
 </h2>
-<p>Same three genomes (MAI1, BAI3, BAI3-1-1), same correction settings, and the same comparison and grouping as <a href="tale_classification.html#sec-backends">the classification article</a> – reused here from its cached result rather than recomputed; see <a href="getting_started.html">the getting-started article</a> for how these four articles are linked, and the classification article for the full discovery/comparison/grouping walkthrough.</p>
-<p>One group holds a member from each of MAI1, BAI3 and BAI3-1-1 – the same locus, present in all three related African strains – and, usefully for this article, its three copies are not identical:</p>
+<p>Same three genomes (MAI1, BAI3, BAI3-1-1), same correction settings, and the same comparison and grouping as <a href="tale_classification.html">the classification article</a>, reused here from its cached result; see <a href="getting_started.html">the getting-started article</a> for how these four articles are linked.</p>
+<p>This group holds one member from each of MAI1, BAI3 and BAI3-1-1 (the same locus, present in all three related African strains) and, usefully for this article, its three copies are not identical:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">picked_group</span> <span class="op">&lt;-</span> <span class="va">grouped</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">group</span> <span class="op">==</span> <span class="fl">6</span><span class="op">)</span></span>
@@ -131,31 +131,31 @@
 </details><div class="cell-output-display">
 <div id="fig-msa-default" class="quarto-float quarto-figure quarto-figure-center">
 <figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-msa-default-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<a href="tale_msa_files/figure-html/fig-msa-default-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure 1: Alignment of one TALE locus across three related strains, coloured by repeat cluster."><img src="tale_msa_files/figure-html/fig-msa-default-1.png" width="864"></a>
+<a href="tale_msa_files/figure-html/fig-msa-default-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure 1: Alignment of one TALE locus across three related strains, coloured by domain cluster. MAI1’s array (marked #) is the reference."><img src="tale_msa_files/figure-html/fig-msa-default-1.png" width="864"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-msa-default-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure 1: Alignment of one TALE locus across three related strains, coloured by repeat cluster.
+Figure 1: Alignment of one TALE locus across three related strains, coloured by domain cluster. MAI1’s array (marked #) is the reference.
 </figcaption></figure>
 </div>
 </div>
 </div>
-<p><a href="#fig-msa-default" class="quarto-xref">Figure 1</a> already shows something <code><a href="../reference/tales_group_kmedoids.html">tales_group_kmedoids()</a></code>’s single distance number could not: <strong>BAI3 and BAI3-1-1 are both missing four repeats that MAI1 has</strong>, at alignment positions 13-16 – a real internal gap, not one at either end of the array. Because BAI3-1-1 is the same genomic background as BAI3 with <em>talC</em> deleted, the two sharing this exact deletion is consistent with it being inherited from their common background rather than independent events in each.</p>
+<p><a href="#fig-msa-default" class="quarto-xref">Figure 1</a> already shows something <code><a href="../reference/tales_group_kmedoids.html">tales_group_kmedoids()</a></code>’s single distance number could not: <strong>BAI3 and BAI3-1-1 both lack four repeats that MAI1 has</strong>, at alignment positions 13-16. The gap is internal: all three arrays end with the same 20-residue half-repeat (column 17), which lines up across the gap. BAI3-1-1 derives from BAI3, so the two share this difference.</p>
 </section><section class="level2" data-number="3"><h2 data-number="3" id="does-a-scoring-matrix-change-the-alignment">
 <span class="header-section-number">3</span> Does a scoring matrix change the alignment?<a class="anchor" aria-label="anchor" href="#does-a-scoring-matrix-change-the-alignment"></a>
 </h2>
-<p><code><a href="../reference/tales_align.html">tales_align()</a></code> accepts a <code>domain_distances</code> argument: a substitution cost matrix MAFFT uses when scoring which repeats to match against each other, rather than treating every mismatch as equally bad. Passing one is optional, and it is worth checking what it actually changes rather than assuming.</p>
+<p><code><a href="../reference/tales_align.html">tales_align()</a></code> accepts a <code>domain_distances</code> argument: a substitution cost matrix MAFFT uses when scoring which repeats to match against each other. Without it, every mismatch counts as equally bad. Passing one is optional, and it is worth checking what it actually changes.</p>
 <section class="level3" data-number="3.1"><h3 data-number="3.1" id="aligning-on-dom_code">
 <span class="header-section-number">3.1</span> Aligning on <code>dom_code</code>
 <a class="anchor" aria-label="anchor" href="#aligning-on-dom_code"></a>
 </h3>
-<p>Without one, every distinct repeat is as different from every other as any other pair – MAFFT has no notion that two repeats might be more or less alike:</p>
+<p>Without one, every distinct domain is as different from every other as any other pair, and MAFFT has no notion that two repeats might be more or less alike:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">msa_plain</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tales_align.html">tales_align</a></span><span class="op">(</span><span class="va">picked_group</span>, residue_col <span class="op">=</span> <span class="st">"dom_code"</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Now running MAFFT (Copyright 2002-2007 Kazutaka Katoh) on TALE array sequences.</span></span></code></pre></div>
 </details>
 </div>
-<p>With one, <code>domain_distances</code> – the domain-level protein similarity already computed by <code><a href="../reference/tales_compare_distal.html">tales_compare_distal()</a></code> – tells MAFFT how alike two repeats actually are:</p>
+<p>With one, <code>domain_distances</code>, the domain-level protein similarity already computed by <code><a href="../reference/tales_compare_distal.html">tales_compare_distal()</a></code>, tells MAFFT how alike two repeats actually are:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">msa_scored</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tales_align.html">tales_align</a></span><span class="op">(</span><span class="va">picked_group</span>, residue_col <span class="op">=</span> <span class="st">"dom_code"</span>,</span>
@@ -183,12 +183,12 @@ Figure 1: Alignment of one TALE locus across three related strains, coloured by
 <span><span class="co">#&gt; scored    NA NA NA NA   "CTERM"</span></span></code></pre></div>
 </details>
 </div>
-<p>Scored, the gap this array carries is one column narrower – MAFFT could place its real repeats slightly more compactly once it knew which substitutions were cheap. This matches what the package documentation already claims about <code>domain_distances</code>: more compact alignments, fewer gap columns, on data where it has something to work with.</p>
+<p>Both alignments are 18 columns wide and give this array the same four gap columns. What moves is its final half-repeat (<code>NI</code>). Without the matrix it sits in column 17, matched with MAI1’s identical half-repeat. With the matrix it moves to column 13, opposite MAI1’s full-length <code>NI</code> repeat, and the gap shifts to the end of the repeat region. On this group, the unscored alignment is the one that keeps identical sequences together. A scoring matrix changes which substitutions look cheap. It does not guarantee a biologically better alignment, so check the result on your own data.</p>
 </section><section class="level3" data-number="3.2"><h3 data-number="3.2" id="aligning-on-rvd">
 <span class="header-section-number">3.2</span> Aligning on <code>rvd</code>
 <a class="anchor" aria-label="anchor" href="#aligning-on-rvd"></a>
 </h3>
-<p>The built-in RVD similarity matrix works the same way, opted into with <code>domain_distances = "rvd"</code> rather than an actual distance table – but scores DNA-binding specificity instead of protein sequence, so it is worth checking separately rather than assuming it behaves like the <code>dom_code</code> case:</p>
+<p>The built-in RVD similarity matrix works the same way, opted into with <code>domain_distances = "rvd"</code> instead of a distance table. It scores DNA-binding specificity instead of protein sequence, so it is worth checking separately:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">msa_rvd_plain</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tales_align.html">tales_align</a></span><span class="op">(</span><span class="va">picked_group</span>, residue_col <span class="op">=</span> <span class="st">"rvd"</span><span class="op">)</span></span>
@@ -197,11 +197,11 @@ Figure 1: Alignment of one TALE locus across three related strains, coloured by
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 </details>
 </div>
-<p>On this group, aligning on RVDs gives the <em>same</em> alignment whether or not the matrix is supplied. That is a real result, not a shortcut taken here: the RVD alphabet is much smaller than the repeat-code one (a handful of distinct RVDs against a handful of distinct repeats, for three arrays this closely related), so there was little room for a scoring matrix to change anything. The lesson is not “the RVD matrix never matters” – it is that whether either matrix matters depends on the data, which is exactly why this section checked rather than asserted it.</p>
+<p>On this group, aligning on RVDs gives the <em>same</em> alignment whether or not the matrix is supplied. The RVD alphabet is smaller than the domain-code one (6 distinct RVDs against 12 distinct repeat codes here), and these three arrays are closely related, so there was little room for a scoring matrix to change anything. Whether either matrix matters depends on the data.</p>
 </section></section><section class="level2" data-number="4"><h2 data-number="4" id="other-views-of-the-same-alignment">
 <span class="header-section-number">4</span> Other views of the same alignment<a class="anchor" aria-label="anchor" href="#other-views-of-the-same-alignment"></a>
 </h2>
-<p>Colouring by similarity to a reference instead of by cluster membership makes graded divergence visible where cluster identity would only say “different”:</p>
+<p>Colouring by similarity to the reference array instead of by cluster membership makes graded divergence visible where cluster identity would only say “different”:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">msa</span>, fill_type <span class="op">=</span> <span class="st">"domain_sim"</span>,</span>
@@ -217,7 +217,8 @@ Figure 2: The same alignment, coloured by protein-sequence similarity to the re
 </div>
 </div>
 </div>
-<p>And with a consensus panel attached, the column-by-column question “does this array agree with the group” is answered directly above the alignment itself:</p>
+<p>In <a href="#fig-msa-sim" class="quarto-xref">Figure 2</a>, every domain is identical to MAI1’s except BAI3-1-1’s N-terminus, which has its own <code>dom_code</code> at about 99.7% similarity. The cluster colouring of <a href="#fig-msa-default" class="quarto-xref">Figure 1</a> groups it with the other two N-termini, so the difference only shows here.</p>
+<p>With a consensus panel attached, the column-by-column question “does this array agree with the group” is answered directly above the alignment itself:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">msa</span>, consensus <span class="op">=</span> <span class="cn">TRUE</span>,</span>
@@ -236,7 +237,7 @@ Figure 3: The same alignment again, with a consensus row attached above it.
 </section><section class="level2" data-number="5"><h2 data-number="5" id="next">
 <span class="header-section-number">5</span> Next<a class="anchor" aria-label="anchor" href="#next"></a>
 </h2>
-<p>Once related arrays are aligned, the biologically motivated next question is what DNA sequence their RVDs are predicted to bind – covered in <a href="tale_target_prediction.html">the final article</a> of this series. To go deeper on the alignment mechanics used here first, see <a href="tales_msa_class.html">the <code>tales_msa</code> class article</a>.</p>
+<p>Once related arrays are aligned, the biologically motivated next question is what DNA sequence their RVDs are predicted to bind, covered in <a href="tale_target_prediction.html">the final article</a> of this series. To go deeper on the alignment mechanics used here first, see <a href="tales_msa_class.html">the <code>tales_msa</code> class article</a>.</p>
 </section><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
@@ -338,7 +339,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script><script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","selector":".lightbox","loop":false,"descPosition":"bottom","openEffect":"zoom"});
+</script><script>var lightboxQuarto = GLightbox({"selector":".lightbox","descPosition":"bottom","openEffect":"zoom","closeEffect":"zoom","loop":false});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

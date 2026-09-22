@@ -1,5 +1,18 @@
 # tantale (development version)
 
+## Articles checked against their own output
+
+Every article, the README and the home page were re-read against what
+their code actually renders. Statements that disagreed with a table or a
+figure are corrected, notably: the truncTALE article (`ROI_00001`'s
+N-terminus is reduced like `ROI_00019`'s; `correct_tales()` leaves
+`ROI_00001`'s C-terminus length unchanged), the alignment article (a
+`domain_distances` scoring matrix does not make this group's alignment
+more compact; it moves the final half-repeat away from its identical
+match), and the home-page dendrogram description (it shows nine groups). The
+classification article's motif tree now has tip labels, and its
+silhouette plot is described and drawn on every build.
+
 ## New article: genuine truncTALEs and frameshift correction
 
 TALEs are not always broken when they are short. `PXO86` carries two

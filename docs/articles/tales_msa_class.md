@@ -4,16 +4,16 @@
 article](https://scunnac.github.io/tantale/articles/tales_class.md)
 covered `tales`: one row per part, with `dom_code` as the identity layer
 that makes an array alignable. This one is a deep dive into what happens
-once several arrays *are* aligned – the `tales_msa` class – and about
-the traffic between the two classes: how a `tales` is promoted into one,
-how it demotes back, and what each class draws when plotted.
+once several arrays *are* aligned (the `tales_msa` class) and into the
+traffic between the two classes: how a `tales` is promoted into one, how
+it demotes back, and what each class draws when plotted.
 
 > **Where this fits**
 >
 > This picks up directly from [the alignment built in the
-> walkthrough](https://scunnac.github.io/tantale/articles/tale_msa.html#aligning-the-group)
-> – same three arrays, same real internal gap – and goes further into
-> the mechanics than that article needed to.
+> walkthrough](https://scunnac.github.io/tantale/articles/tale_msa.html#aligning-the-group),
+> with the same three arrays and the same internal gap, and goes further
+> into the mechanics than that article needed to.
 
 Code
 
@@ -27,17 +27,17 @@ library(dplyr)
 Same three genomes and the same group as [the
 walkthrough](https://scunnac.github.io/tantale/articles/tale_msa.md),
 reused here from the cached result of [the classification
-article](https://scunnac.github.io/tantale/articles/tale_classification.html#sec-backends)
-rather than recomputed; see [the getting-started
+article](https://scunnac.github.io/tantale/articles/tale_classification.md);
+see [the getting-started
 article](https://scunnac.github.io/tantale/articles/getting_started.md)
 for how these four articles are linked.
 
 [`tales_align()`](https://scunnac.github.io/tantale/reference/tales_align.md)
 takes a `tales` and returns a `tales_msa`: the same rows, plus one new
-column, `alignment_position`. Nothing else changes – every column the
+column, `alignment_position`. Nothing else changes: every column the
 input carried, `rvd` and `dom_code` both included, survives the trip,
 because the alignment is computed on *one* residue layer (`residue_col`)
-but the object it returns is still the whole table.
+and the object it returns is still the whole table.
 
 Code
 
@@ -57,14 +57,13 @@ msa
 A `tales_msa` is a `tales` with one extra column and one extra stored
 number:
 
-- **`alignment_position`** – where this part sits in the alignment,
-  which is not the same coordinate as `position_in_array`. The two agree
-  up to the first gap and diverge after it.
-- **[`tales_width()`](https://scunnac.github.io/tantale/reference/tales_width.md)**
-  – the alignment’s total column count, stored rather than derived,
-  because `max(alignment_position)` over a *subset* of arrays can
-  under-report a width whose last columns happen to be all gaps in that
-  subset.
+- **`alignment_position`**: where this part sits in the alignment. It
+  agrees with `position_in_array` up to the first gap and diverges after
+  it.
+- **[`tales_width()`](https://scunnac.github.io/tantale/reference/tales_width.md)**:
+  the alignment’s total column count. It is stored, because
+  `max(alignment_position)` over a *subset* of arrays can under-report a
+  width whose last columns happen to be all gaps in that subset.
 
 Code
 
@@ -73,9 +72,9 @@ tales_width(msa)
 #> [1] 18
 ```
 
-The array with the internal deletion shows the divergence directly:
-`position_in_array` counts its 14 real parts contiguously, while
-`alignment_position` jumps by five across the gap.
+An array on the short side of the internal gap shows the divergence
+directly: `position_in_array` counts its 14 real parts contiguously,
+while `alignment_position` jumps from 12 to 17 across the gap.
 
 Code
 
@@ -102,16 +101,16 @@ msa |>
 #> 14 BAI3_ROI_00007                14                 18 C-terminus
 ```
 
-> **Gaps are implicit, not stored**
+> **Gaps are implicit**
 >
-> There is no row, anywhere, whose `alignment_position` is a gap – a gap
+> There is no row, anywhere, whose `alignment_position` is a gap: a gap
 > is simply a column with no row for that array. This is why the class
 > validates cheaply and why every `tales` invariant (the key, the
 > residue columns, the `dom_code` bijection) keeps holding unchanged on
-> a `tales_msa`: nothing new was added to *rows*, only a new column that
-> says where each existing row lands.
+> a `tales_msa`. No rows were added, only a new column that says where
+> each existing row lands.
 
-What the alignment adds on top is its own, narrower, set of rules –
+What the alignment adds on top is its own, narrower set of rules,
 checked by
 [`validate_tales_msa()`](https://scunnac.github.io/tantale/reference/validate_tales_msa.md)
 in addition to everything
@@ -121,13 +120,13 @@ every row; unique within an array; ordered like `position_in_array` (an
 alignment may insert gaps, it may never reorder parts); and never beyond
 the declared width.
 
-## 3 Views: matrices are computed, not stored
+## 3 Views: matrices are computed on request
 
 The long table is the only thing actually stored. A rectangular
-alignment – the picture most people have in mind, one row per array, one
-column per position – is a *view*, built on request by
-[`as.matrix()`](https://rdrr.io/r/base/matrix.html), and it has to be
-asked which layer to render:
+alignment (the picture most people have in mind, one row per array, one
+column per position) is a *view*, built on request by
+[`as.matrix()`](https://rdrr.io/r/base/matrix.html), which takes the
+layer to render:
 
 Code
 
@@ -157,13 +156,12 @@ as.matrix(msa, value = "rvd")
 #> BAI3-1-1_ROI_00006 "HD" NA   NA   NA   NA   "NI" "CTERM"
 ```
 
-Both matrices have the same shape and the same gaps – they are two
-readings of one geometry, not two independent alignments. That
-equivalence is exactly what lets
+Both matrices have the same shape and the same gaps, because both read
+the same alignment. This is what lets
 [`plot.tales_msa()`](https://scunnac.github.io/tantale/reference/plot.tales_msa.md)
 (below) show a domain’s identity as a colour and its RVD as a label on
-the same cell – a terminus included, since termini carry an RVD-string
-entry (their `NTERM`/`CTERM` marker) just as repeats do.
+the same cell, termini included, since termini carry an RVD-string entry
+(their `NTERM`/`CTERM` marker) just as repeats do.
 
 ## 4 Coercion between `tales` and `tales_msa`
 
@@ -171,11 +169,10 @@ entry (their `NTERM`/`CTERM` marker) just as repeats do.
 [`tales_align()`](https://scunnac.github.io/tantale/reference/tales_align.md):
 give it a complete `tales`, get back a `tales_msa`. There is no other
 route, because the alignment column has to come from an actual alignment
-run – nothing else could populate it honestly.
+run.
 
 **Demotion** is
-[`as_tales()`](https://scunnac.github.io/tantale/reference/as_tales.md),
-and it is a real operation, not a formality:
+[`as_tales()`](https://scunnac.github.io/tantale/reference/as_tales.md):
 
 Code
 
@@ -194,11 +191,12 @@ is_tales_msa(demoted)
 #> [1] TRUE
 ```
 
-`alignment_position` survives as an ordinary column – demoting does not
-erase where things were aligned, it only stops the object *claiming* to
-be a coherent single alignment. That claim is exactly what
+`alignment_position` survives as an ordinary column, so demoting keeps
+where things were aligned; the object just stops *claiming*, through its
+class, to be a single coherent alignment. The stored width travels along
+with the demoted object, so
 [`tales_width()`](https://scunnac.github.io/tantale/reference/tales_width.md)
-encodes, and it is gone:
+still answers:
 
 Code
 
@@ -207,22 +205,21 @@ tales_width(demoted)
 #> [1] 18
 ```
 
-> **Why this distinction is not pedantic**
+> **Why the distinction matters**
 >
 > A talome-wide summary spanning several *independently* aligned groups
-> cannot honestly be one `tales_msa` – each group has its own width and
-> its own coordinate system, so `alignment_position = 5` would mean
-> unrelated things in two different groups. Demoting to a plain `tales`
-> and carrying `alignment_position` as an ordinary column (per group) is
-> the honest shape for that case; the class is not stretched to cover
-> something it cannot actually guarantee.
+> cannot be one `tales_msa`: each group has its own width and its own
+> coordinate system, so `alignment_position = 5` would mean unrelated
+> things in two different groups. The right shape for that case is a
+> plain `tales` carrying `alignment_position` as an ordinary column,
+> meaningful within each group.
 
 **Subsetting degrades the same way, automatically, one step at a time.**
 Row subsetting never touches the alignment contract, since every check
-above is closed under keeping a subset of rows. Column subsetting can:
-dropping `alignment_position` itself leaves something that is still a
-valid `tales` (everything else about a part is unaffected) but can no
-longer be a `tales_msa`, and the class notices without being told:
+above still holds on a subset of rows. Column subsetting can: dropping
+`alignment_position` itself leaves something that is still a valid
+`tales` (everything else about a part is unaffected) but can no longer
+be a `tales_msa`, and the class notices without being told:
 
 Code
 
@@ -234,11 +231,10 @@ class(no_alignment)
 
 This is the same graded-degradation mechanism from [the `tales` class
 article’s](https://scunnac.github.io/tantale/articles/tales_class.html#sec-subsetting)
-`[.tales` method, just visible one level up: a `tales_msa` that loses
-what makes it an alignment steps down to a `tales` rather than lying
-about still being one, and a `tales` that loses its key steps down to a
-bare tibble for the same reason. Losing an *optional* column –
-`seqnames`, `aa_seq` – costs nothing at either level.
+`[.tales` method, one level up: a `tales_msa` that loses what makes it
+an alignment steps down to a `tales`, and a `tales` that loses its key
+steps down to a bare tibble, for the same reason. Losing an *optional*
+column (`seqnames`, `aa_seq`) costs nothing at either level.
 
 ## 5 Plotting: two methods, one generic
 
@@ -248,10 +244,12 @@ class, so the two objects draw different things from the same call.
 ### 5.1 `plot.tales()` before and after alignment
 
 A `tales` without an alignment can only be laid out on
-`position_in_array`: every array starts its own count at 1, so an
-aberrant repeat scatters to wherever it happens to sit in each array.
+`position_in_array`: every array starts its own count at 1, so a feature
+shared by all arrays sits wherever it happens to fall in each.
 `position = "alignment"` needs the column that only an aligned (or
-demoted-from-aligned) object carries, and lines features up instead:
+demoted-from-aligned) object carries, and lines features up instead. The
+final half-repeat shows it: at position 13 in BAI3 and BAI3-1-1 and 17
+in MAI1 before alignment, in column 17 for all three after.
 
 Code
 
@@ -259,9 +257,9 @@ Code
 plot(group6, position = "array")
 ```
 
-[![](tales_msa_class_files/figure-html/fig-plot-before-1.png)](https://scunnac.github.io/tantale/articles/tales_msa_class_files/figure-html/fig-plot-before-1.png "Figure 1: The same three arrays laid out by position_in_array – no gaps, because nothing has been aligned.")
+[![](tales_msa_class_files/figure-html/fig-plot-before-1.png)](https://scunnac.github.io/tantale/articles/tales_msa_class_files/figure-html/fig-plot-before-1.png "Figure 1: The same three arrays laid out by position_in_array: no gaps, because nothing has been aligned.")
 
-Figure 1: The same three arrays laid out by position_in_array – no gaps,
+Figure 1: The same three arrays laid out by position_in_array: no gaps,
 because nothing has been aligned.
 
 Code
@@ -270,23 +268,24 @@ Code
 plot(demoted, position = "alignment")
 ```
 
-[![](tales_msa_class_files/figure-html/fig-plot-after-1.png)](https://scunnac.github.io/tantale/articles/tales_msa_class_files/figure-html/fig-plot-after-1.png "Figure 2: The same three arrays laid out by alignment_position – the shared deletion now lines up as a column.")
+[![](tales_msa_class_files/figure-html/fig-plot-after-1.png)](https://scunnac.github.io/tantale/articles/tales_msa_class_files/figure-html/fig-plot-after-1.png "Figure 2: The same three arrays laid out by alignment_position: the four-repeat gap now shows as columns 13-16.")
 
-Figure 2: The same three arrays laid out by alignment_position – the
-shared deletion now lines up as a column.
+Figure 2: The same three arrays laid out by alignment_position: the
+four-repeat gap now shows as columns 13-16.
 
 ### 5.2 `plot.tales_msa()`: three things decided independently
 
-The alignment plot draws a heatmap – one row per array, one column per
-position – and three questions about it are answered separately:
+The alignment plot draws a heatmap (one row per array, one column per
+position) and three questions about it are answered separately:
 
-- **what each cell *says*** – `label`, defaulting to `rvd` whenever that
+- **what each cell *says***: `label`, defaulting to `rvd` whenever that
   is not also the fill layer;
-- **what colour that text is** – always whether the cell matches the
+- **what colour that text is**: always whether the cell matches the
   consensus of its column
   ([`tales_consensus()`](https://scunnac.github.io/tantale/reference/tales_consensus.md)),
-  cyan for yes, pink for no, regardless of what `fill_type` is showing;
-- **what colour the block behind it is** – `fill_type`, the only one of
+  cyan for yes, pink for no, grey where the consensus is a gap,
+  regardless of what `fill_type` is showing;
+- **what colour the block behind it is**: `fill_type`, the only one of
   the three that can be unavailable.
 
 | fill_type        | shows                                                                       | needs              |
@@ -295,7 +294,7 @@ position – and three questions about it are answered separately:
 | `"domain_sim"`   | protein-sequence similarity to the reference, 0-100                         | `domain_distances` |
 | `"rvd_sim"`      | how alike the RVD’s *DNA-binding preference* is to the reference’s, -1 to 1 | a `label` layer    |
 
-The `domain_distances` argument takes exactly that – the
+The `domain_distances` argument takes exactly that: the
 `domain_distances` element of
 [`tales_compare_distal()`](https://scunnac.github.io/tantale/reference/tales_compare_distal.md)’s
 result. Passing `tale_distances` (the `tale_distances` element) in
@@ -312,9 +311,8 @@ plot(msa, tale_distances = cmp$tale_distances, domain_distances = cmp$domain_dis
 Figure 3: Default plot.tales_msa() view: domain-cluster fill, RVD
 labels, and a tree from tale_distances.
 
-`"rvd_sim"` asks a different question at a different layer: not “which
-cluster” or “how similar a protein”, but how alike each RVD’s
-DNA-binding specificity is to the reference’s. It needs no
+`"rvd_sim"` asks a different question at a different layer: how alike
+each RVD’s DNA-binding specificity is to the reference’s. It needs no
 `domain_distances` at all, only the RVDs themselves:
 
 Code
@@ -323,16 +321,21 @@ Code
 plot(msa, fill_type = "rvd_sim")
 ```
 
-[![](tales_msa_class_files/figure-html/fig-msa-plot-rvdsim-1.png)](https://scunnac.github.io/tantale/articles/tales_msa_class_files/figure-html/fig-msa-plot-rvdsim-1.png "Figure 4: The same alignment, coloured by RVD specificity relative to the reference rather than by repeat identity.")
+[![](tales_msa_class_files/figure-html/fig-msa-plot-rvdsim-1.png)](https://scunnac.github.io/tantale/articles/tales_msa_class_files/figure-html/fig-msa-plot-rvdsim-1.png "Figure 4: The same alignment, coloured by RVD specificity relative to the reference.")
 
 Figure 4: The same alignment, coloured by RVD specificity relative to
-the reference rather than by repeat identity.
+the reference.
 
-The domain- and RVD-level views genuinely differ: `HD` and `ND` are
-distinct domains with identical specificity, while domains differing
-only at positions 12-13 are near-identical proteins with opposite target
-bases – so `"domain_sim"` and `"rvd_sim"` are not two colour schemes for
-the same fact, they are answers to two different questions.
+Here every repeat carries the same RVD as the reference’s at its
+position, so all score 1. Termini have no DNA-binding preference and
+stay grey, as do RVDs the built-in similarity table does not cover (here
+`NV`).
+
+The domain- and RVD-level views genuinely differ: repeats carrying `HD`
+and `ND` differ in sequence yet both favour cytosine, while repeats
+differing only at positions 12-13 are near-identical proteins that
+target different bases. `"domain_sim"` and `"rvd_sim"` answer two
+different questions.
 
 ## 6 Next
 

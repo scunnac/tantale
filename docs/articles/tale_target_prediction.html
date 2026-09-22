@@ -79,18 +79,18 @@
 
 
 
-    <p>The previous articles found TALE arrays, grouped them, and aligned related ones. This last article asks the question a TALE’s RVD sequence exists to answer: what DNA sequence does it bind? Each RVD contacts one base of the target through a well-characterised, largely one-to-one code (<code>NI</code> prefers A, <code>HD</code> prefers C, <code>NG</code> prefers T, <code>NN</code> prefers G or A, and so on), so a whole RVD sequence predicts an <em>EBE</em> – an Effector Binding Element – as a short DNA motif with one position per RVD.</p>
+    <p>The previous articles found TALE arrays, grouped them, and aligned related ones. This last article asks the question a TALE’s RVD sequence exists to answer: what DNA sequence does it bind? Each RVD contacts one base of the target through a well-characterised, largely one-to-one code (<code>NI</code> prefers A, <code>HD</code> prefers C, <code>NG</code> prefers T, <code>NN</code> prefers G or A, and so on), so a whole RVD sequence predicts an <em>EBE</em> (Effector Binding Element) as a short DNA motif with one position per RVD.</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://scunnac.github.io/tantale">tantale</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></code></pre></div>
 </details>
 </div>
-<p>tantale wraps two independent predictors that use this code differently enough to be worth contrasting: <a href="https://doi.org/10.1371/journal.pone.0068464" class="external-link">TALVEZ</a>, a position-weight-matrix scan, and <a href="https://doi.org/10.1371/journal.pcbi.1007206" class="external-link">PrediTALE</a>, which also models where a real EBE tends to sit relative to a transcription start site. Both are wrapped as <code><a href="../reference/talvez.html">talvez()</a></code> and <code><a href="../reference/preditale.html">preditale()</a></code>, taking the same inputs and returning the same column layout, so their predictions can be compared directly rather than translated by hand.</p>
+<p>tantale wraps two independent predictors that use this code differently enough to be worth contrasting: <a href="https://doi.org/10.1371/journal.pone.0068464" class="external-link">TALVEZ</a>, a position-weight-matrix scan, and <a href="https://doi.org/10.1371/journal.pcbi.1007206" class="external-link">PrediTALE</a>, which also models where a real EBE tends to sit relative to a transcription start site. Both are wrapped as <code><a href="../reference/talvez.html">talvez()</a></code> and <code><a href="../reference/preditale.html">preditale()</a></code>, which take the same inputs and share their core columns (<code>taleId</code>, <code>subjSeqId</code>, <code>start</code>, <code>end</code>, <code>strand</code>, <code>score</code>, <code>ebeSeq</code>), so their predictions can be compared directly. Their scores are on different scales, though, and each adds its own column: <code>rank</code> for TALVEZ, <code>pval</code> for PrediTALE.</p>
 <section class="level2" data-number="1"><h2 data-number="1" id="getting-rvd-sequences-to-predict-with">
 <span class="header-section-number">1</span> Getting RVD sequences to predict with<a class="anchor" aria-label="anchor" href="#getting-rvd-sequences-to-predict-with"></a>
 </h2>
-<p>RVD sequences come straight from a <code>tales</code> object via <code><a href="../reference/tales_rvd_strings.html">tales_rvd_strings()</a></code> – the same projection used for alignment input, just with the termini dropped by default, since prediction concerns the repeat domain only. This reuses the same three genomes as <a href="tale_classification.html">the classification</a> and <a href="tale_msa.html">alignment</a> articles, from that first article’s cached discovery result rather than recomputed here (see <a href="getting_started.html">the getting-started article</a> for how these four articles are linked).</p>
+<p>RVD sequences come straight from a <code>tales</code> object via <code><a href="../reference/tales_rvd_strings.html">tales_rvd_strings()</a></code>, with the termini dropped by default, since only the repeats bind DNA. This reuses the same three genomes as <a href="tale_classification.html">the classification</a> and <a href="tale_msa.html">alignment</a> articles, from the classification article’s cached discovery result (see <a href="getting_started.html">the getting-started article</a> for how these four articles are linked).</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">rvds</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tales_rvd_strings.html">tales_rvd_strings</a></span><span class="op">(</span><span class="va">all_tales</span><span class="op">)</span></span>
@@ -98,7 +98,7 @@
 <span><span class="co">#&gt; [1] 26</span></span></code></pre></div>
 </details>
 </div>
-<p>The target sequences are promoter regions of three clade III <em>SWEET</em> genes – a well-studied class of rice susceptibility genes that TALEs from <em>Xanthomonas oryzae</em> are known to target – from several rice varieties:</p>
+<p>The target sequences are promoter regions of three clade III <em>SWEET</em> genes, a well-studied class of rice susceptibility genes that TALEs from <em>Xanthomonas oryzae</em> are known to target, from several rice varieties:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">subj_file</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"cladeIII_sweet_promoters.fasta"</span>,</span>
@@ -159,21 +159,21 @@
 </div>
 <div>
 <blockquote>
-<p><strong><code>pval</code>, not just a score</strong></p>
-<p>PrediTALE additionally reports a <code>pval</code> per prediction, since it models the null distribution of scores directly rather than only ranking candidates against each other – worth using when the question is “is this a credible site at all” rather than only “which of these is the best”.</p>
+<p><strong>PrediTALE’s <code>pval</code></strong></p>
+<p>PrediTALE additionally reports a <code>pval</code> per prediction, since it models the null distribution of scores directly. It is the column to use when the question is “is this a credible site at all”, beyond “which of these is the best”.</p>
 </blockquote>
 </div>
 </section><section class="level2" data-number="4"><h2 data-number="4" id="visualising-predictions-against-the-target-sequence">
 <span class="header-section-number">4</span> Visualising predictions against the target sequence<a class="anchor" aria-label="anchor" href="#visualising-predictions-against-the-target-sequence"></a>
 </h2>
-<p><code><a href="../reference/plot_target_preds.html">plot_target_preds()</a></code> draws predicted RVD-to-base correspondences directly against the target DNA, coloured by how well each RVD’s known base preference matches the base actually predicted underneath it – so a “good” prediction is visually distinguishable from one held up by only one or two well-matching RVDs.</p>
+<p><code><a href="../reference/plot_target_preds.html">plot_target_preds()</a></code> draws predicted RVD-to-base correspondences directly against the target DNA, coloured by how well each RVD’s known base preference matches the base underneath it, so a prediction supported along its whole length is visually distinguishable from one held up by only one or two well-matching RVDs.</p>
 <div>
 <blockquote>
 <p><strong>Keep the plotted window narrow</strong></p>
-<p>Every RVD gets its own box, one per base of the target. A window wide enough to span several unrelated predictions squeezes every box down to a sliver too narrow for its own label. Pick a window around <em>one</em> region of interest – here, where two orthologous TALEs from different strains converge on the same site – rather than the whole promoter at once.</p>
+<p>Every RVD gets its own box, one per base of the target. A window wide enough to span several unrelated predictions squeezes every box down to a sliver too narrow for its own label. Pick a window around <em>one</em> region of interest (here, a site where TALEs from different strains converge) instead of the whole promoter at once.</p>
 </blockquote>
 </div>
-<p>The same locus turns up more than once across strains – unsurprising, since <a href="tale_classification.html">the classification article</a> already found this comparison to be dominated by one-locus-per-strain groups. Three arrays, one from each strain, all predict the <em>same</em> site:</p>
+<p>The same locus turns up more than once across strains, as expected, since <a href="tale_classification.html">the classification article</a> found this comparison dominated by one-locus-per-strain groups. Three arrays, one from each strain and all members of the same classification group, predict the <em>same</em> site:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">converging</span> <span class="op">&lt;-</span> <span class="va">preditale_preds</span> <span class="op">|&gt;</span></span>
@@ -203,11 +203,11 @@ Figure 1: Three orthologous TALEs, one from each strain, predicted to bind the 
 </div>
 </div>
 </div>
-<p>Each RVD is printed in a box over the base it is predicted to contact; predictions on the sense strand are drawn above the sequence and those on the antisense strand below it, since a TALE can bind either strand of its target. All three predictions in <a href="#fig-target-preds" class="quarto-xref">Figure 1</a> land on the exact same site, from the same locus in three different strains, with identical scores – exactly the kind of convergence <a href="tale_msa.html">the alignment article</a> would call conserved rather than coincidental.</p>
+<p>Each RVD is printed in a box over the base it is predicted to contact; predictions on the sense strand are drawn above the sequence and those on the antisense strand below it, since a TALE can bind either strand of its target. The first box, <code>OO</code>, marks position 0: the base just before the first repeat’s target, where TALEs strongly prefer a T. All three predictions in <a href="#fig-target-preds" class="quarto-xref">Figure 1</a> land on the same site with identical scores, as expected of one locus conserved across the three strains.</p>
 </section><section class="level2" data-number="5"><h2 data-number="5" id="closing-the-loop">
 <span class="header-section-number">5</span> Closing the loop<a class="anchor" aria-label="anchor" href="#closing-the-loop"></a>
 </h2>
-<p>This set of articles followed one path through a TALE study: <code><a href="../reference/tell_tales.html">tell_tales()</a></code> to find arrays (correcting them, and checking for what correction could not fix, along the way), <code><a href="../reference/tales_compare_distal.html">tales_compare_distal()</a></code> and <code><a href="../reference/tales_group_hclust.html">tales_group_hclust()</a></code>/<code><a href="../reference/tales_group_kmedoids.html">tales_group_kmedoids()</a></code> to relate them, <code><a href="../reference/tales_align.html">tales_align()</a></code> to see that relatedness directly, and <code><a href="../reference/talvez.html">talvez()</a></code>/<code><a href="../reference/preditale.html">preditale()</a></code> to ask what they do. None of these steps requires the ones before it in code – each function documented here takes ordinary <code>tales</code> objects or plain sequences – but together they cover most of what a study of TALE diversity in a set of genomes actually needs.</p>
+<p>This set of articles followed one path through a TALE study: <code><a href="../reference/tell_tales.html">tell_tales()</a></code> to find arrays (correcting them, and checking for what correction could not fix, along the way), <code><a href="../reference/tales_compare_distal.html">tales_compare_distal()</a></code> and <code><a href="../reference/tales_group_hclust.html">tales_group_hclust()</a></code>/<code><a href="../reference/tales_group_kmedoids.html">tales_group_kmedoids()</a></code> to relate them, <code><a href="../reference/tales_align.html">tales_align()</a></code> to see that relatedness directly, and <code><a href="../reference/talvez.html">talvez()</a></code>/<code><a href="../reference/preditale.html">preditale()</a></code> to ask what they do. None of these steps requires the ones before it in code (each function documented here takes ordinary <code>tales</code> objects or plain sequences), but together they cover most of what a study of TALE diversity in a set of genomes actually needs.</p>
 </section><script id="quarto-html-after-body" type="application/javascript">
 window.document.addEventListener("DOMContentLoaded", function (event) {
   const toggleBodyColorMode = (bsSheetEl) => {
@@ -309,7 +309,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script><script>var lightboxQuarto = GLightbox({"loop":false,"selector":".lightbox","descPosition":"bottom","closeEffect":"zoom","openEffect":"zoom"});
+</script><script>var lightboxQuarto = GLightbox({"selector":".lightbox","openEffect":"zoom","descPosition":"bottom","closeEffect":"zoom","loop":false});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

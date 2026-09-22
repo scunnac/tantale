@@ -77,11 +77,11 @@
 
 
 
-    <p>Every function in tantale that describes, compares or plots a set of TALEs takes or returns a <code>tales</code> object. This article is a deep dive into what that object is, how to build one, and what its most important column – <code>dom_code</code> – actually means.</p>
+    <p>Every function in tantale that describes, compares or plots a set of TALEs takes or returns a <code>tales</code> object. This article is a deep dive into what that object is, how to build one, and what its most important column, <code>dom_code</code>, actually means.</p>
 <div>
 <blockquote>
 <p><strong>Where this fits</strong></p>
-<p>This article extends <a href="tale_mining.html">Mining TALE sequences</a>: read it once that walkthrough has given you a <code>tales</code> object to look at, and return there afterwards to continue with classification. It is not itself a numbered step – its sibling deep dive, on the <code>tales_msa</code> class, comes later.</p>
+<p>This article extends <a href="tale_mining.html">Mining TALE sequences</a>: read it once that walkthrough has given you a <code>tales</code> object to look at, and return there afterwards to continue with classification. Its sibling deep dive, on the <code>tales_msa</code> class, comes later in the walkthrough.</p>
 </blockquote>
 </div>
 <div class="cell">
@@ -91,10 +91,10 @@
 </details>
 </div>
 <section class="section level2" data-number="1"><h2 data-number="1" id="sec-one-row-per-part">
-<span class="header-section-number">1</span> One row per part, not per TALE<a class="anchor" aria-label="anchor" href="#sec-one-row-per-part"></a>
+<span class="header-section-number">1</span> One row per part<a class="anchor" aria-label="anchor" href="#sec-one-row-per-part"></a>
 </h2>
-<p>A <code>tales</code> object is a long table with <strong>one row per part</strong> of a TALE array: one row for the N-terminus, one for each central repeat, one for the C-terminus. It is not one row per TALE.</p>
-<p>That shape is forced by the biology. A TALE array is built from a variable number of repeats – as few as a handful, more than thirty in some natural alleles – so “one row per TALE” would need a ragged number of columns, one per possible repeat position. A long table sidesteps that entirely: an array with 12 repeats and one with 27 are both just more rows, distinguished by <code>array_id</code>.</p>
+<p>A <code>tales</code> object is a long table with <strong>one row per part</strong> of a TALE array: one row for the N-terminus, one for each central repeat, one for the C-terminus.</p>
+<p>That shape is forced by the biology. A TALE array is built from a variable number of repeats (as few as a handful, more than thirty in some natural alleles), so “one row per TALE” would need a ragged number of columns, one per possible repeat position. In a long table, an array with 12 repeats and one with 27 are both just more rows, distinguished by <code>array_id</code>.</p>
 <p>Building one from a real <code><a href="../reference/tell_tales.html">tell_tales()</a></code> run looks like this. The example below uses the small sequence set shipped with the package, so it runs in a few seconds without any correction step:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
@@ -125,13 +125,17 @@
 <li>
 <code>position_in_crd</code> numbers only the <strong>repeats</strong>, starting at 1 for the first one, and is <code>NA</code> on the two termini.</li>
 </ul>
-<p>They agree wherever there is no N-terminus to offset them, and differ by exactly the number of non-repeat parts that come before a given position otherwise. This is also why keeping only the repeats of an array (<code>filter(x, domain_type == "repeat")</code>) is a perfectly valid <code>tales</code> and not a broken one: <code>position_in_crd</code> stays contiguous from 1 even though <code>position_in_array</code> no longer starts there. Completeness – every part present, <code>position_in_array</code> running <code>1:n</code> – is a precondition some functions need (alignment, chiefly, checked by <code><a href="../reference/tales_assert_complete.html">tales_assert_complete()</a></code>), not an invariant of the class itself.</p>
+<p>On a repeat, <code>position_in_array</code> is one ahead of <code>position_in_crd</code> when the array has an N-terminus, and equal to it when it does not. Keeping only the repeats of an array (<code>filter(x, domain_type == "repeat")</code>) therefore still gives a valid <code>tales</code>: <code>position_in_crd</code> stays contiguous from 1 even though <code>position_in_array</code> no longer starts there. Completeness (every part present, <code>position_in_array</code> running <code>1:n</code>) is a precondition some functions need, alignment chiefly, and is checked by <code><a href="../reference/tales_assert_complete.html">tales_assert_complete()</a></code>. The class itself does not require it.</p>
 </section><section class="section level2" data-number="2"><h2 data-number="2" id="the-column-contract">
 <span class="header-section-number">2</span> The column contract<a class="anchor" aria-label="anchor" href="#the-column-contract"></a>
 </h2>
-<p>Two columns are required outright, because without them a row cannot be located at all: <code>array_id</code> and <code>position_in_array</code>. A third requirement is looser – at least one of <code>rvd</code> or <code>dom_code</code> must be present, since a <code>tales</code> with neither has no residues to describe.</p>
+<p>Two columns are required outright, because without them a row cannot be located at all: <code>array_id</code> and <code>position_in_array</code>. A third requirement is looser: at least one of <code>rvd</code> or <code>dom_code</code> must be present, since a <code>tales</code> with neither has no residues to describe.</p>
 <p>Everything else is optional, but validated for shape when it is there:</p>
 <table class="table caption-top">
+<colgroup>
+<col style="width: 50%">
+<col style="width: 50%">
+</colgroup>
 <thead><tr class="header">
 <th>column</th>
 <th>holds</th>
@@ -159,7 +163,7 @@
 </tr>
 <tr class="odd">
 <td><code>dom_code</code></td>
-<td>see below – minted by comparison, not by discovery</td>
+<td>an identifier per distinct domain sequence, added by <code><a href="../reference/tales_assign_domain_codes.html">tales_assign_domain_codes()</a></code> (see below)</td>
 </tr>
 <tr class="even">
 <td><code>source_directory</code></td>
@@ -167,12 +171,12 @@
 </tr>
 </tbody>
 </table>
-<p>A <code>tales</code> built straight from a fasta of RVD sequences (below) has none of these beyond <code>rvd</code> itself, and that is a legitimate, if minimal, object. Any further column – a strain name, a clade, a host range – is preserved untouched and never warned about: metadata is expected to accumulate on this table via ordinary <code><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate()</a></code> calls.</p>
+<p>A <code>tales</code> built straight from a fasta of RVD sequences (below) has none of these beyond <code>rvd</code> itself, and that is a legitimate, if minimal, object. Any further column (a strain name, a clade, a host range) is preserved untouched and never warned about: metadata is expected to accumulate on this table via ordinary <code><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate()</a></code> calls.</p>
 </section><section class="section level2" data-number="3"><h2 data-number="3" id="three-ways-to-build-one">
 <span class="header-section-number">3</span> Three ways to build one<a class="anchor" aria-label="anchor" href="#three-ways-to-build-one"></a>
 </h2>
 <p><strong>From a <code><a href="../reference/tell_tales.html">tell_tales()</a></code> run</strong>, as above, with <code><a href="../reference/tales_from_telltale.html">tales_from_telltale()</a></code>. This is the richest route: it carries sequences, source coordinates and both position columns.</p>
-<p><strong>From bare sequences</strong>, with <code><a href="../reference/as_tales.html">as_tales()</a></code> – a fasta of RVD or repeat-code strings, sequence names becoming <code>array_id</code>:</p>
+<p><strong>From bare sequences</strong>, with <code><a href="../reference/as_tales.html">as_tales()</a></code>: a fasta of RVD or repeat-code strings, sequence names becoming <code>array_id</code>:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">rvd_fasta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"TalA_RVDSeqs_AnnoTALE.fasta"</span>,</span>
@@ -192,13 +196,13 @@
 <span><span class="co">#&gt;   TalA_MAI99     NN N* NN HD HD NI NG NN HD NS NG NI N* NN NG HD NI NI NG  ...</span></span></code></pre></div>
 </details>
 </div>
-<p>This result is deliberately column-poor – <code>array_id</code>, <code>position_in_array</code> and <code>rvd</code>, nothing else – because that is all a bare sequence file can supply. It is still a complete, valid <code>tales</code>.</p>
+<p>This result has only <code>array_id</code>, <code>position_in_array</code> and <code>rvd</code>, because that is all a bare sequence file can supply. It is still a complete, valid <code>tales</code>.</p>
 <p><strong>From a comparison</strong>, with <code><a href="../reference/tales_assign_domain_codes.html">tales_assign_domain_codes()</a></code> (see below): the same object, given back with a <code>dom_code</code> column added.</p>
 <p>All three produce the same class, checked by the same <code><a href="../reference/validate_tales.html">validate_tales()</a></code>, usable with the same functions afterwards.</p>
 </section><section class="section level2" data-number="4"><h2 data-number="4" id="it-is-a-tibble">
 <span class="header-section-number">4</span> It is a tibble<a class="anchor" aria-label="anchor" href="#it-is-a-tibble"></a>
 </h2>
-<p>A <code>tales</code> is a tibble with extra structure layered on top, not a different kind of thing. Ordinary dplyr verbs work on it directly:</p>
+<p>A <code>tales</code> is a tibble with extra structure layered on top. Ordinary dplyr verbs work on it directly:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">x</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
@@ -213,8 +217,8 @@
 <span><span class="co">#&gt; 4 ROI_00004    22</span></span></code></pre></div>
 </details>
 </div>
-<p>Subsetting that would break the class – dropping <code>array_id</code>, say – quietly degrades the result to a plain tibble rather than erroring, so a <code>tales</code> never lies about what it is. The mechanics of that degradation are worth a closer look once <code>dom_code</code> is in the picture – see below.</p>
-<p><code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> and <code><a href="https://rdrr.io/r/base/format.html" class="external-link">format()</a></code> follow the same idea Biostrings uses for sequence sets: a header with the essentials (arrays, parts, which residue columns are present), then the first and last arrays rendered as sequences, eliding the middle. <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> adds the slower numbers – how redundant the domains are, how many repeats per array, whether every array has both termini – and folds in <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code>:</p>
+<p>Subsetting that would break the class, such as dropping <code>array_id</code>, quietly degrades the result to a plain tibble instead of raising an error, so a <code>tales</code> never claims more than it is. <a href="#sec-subsetting" class="quarto-xref">Section 9</a> looks at that degradation more closely, once <code>dom_code</code> is in the picture.</p>
+<p><code><a href="https://rdrr.io/r/base/print.html" class="external-link">print()</a></code> and <code><a href="https://rdrr.io/r/base/format.html" class="external-link">format()</a></code> follow the same idea Biostrings uses for sequence sets: a header with the essentials (arrays, parts, which residue columns are present), then the first and last arrays rendered as sequences, eliding the middle. <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> adds the slower numbers (how many distinct RVDs, how many repeats per array, whether every array has both termini, and, once <code>dom_code</code> is present, how many distinct domains) and folds in <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code>:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
@@ -227,11 +231,11 @@
 <span><span class="co">#&gt;   anomalies                 none</span></span></code></pre></div>
 </details>
 </div>
-</section><section class="section level2" data-number="5"><h2 data-number="5" id="anomalies-are-reported-not-refused">
-<span class="header-section-number">5</span> Anomalies are reported, not refused<a class="anchor" aria-label="anchor" href="#anomalies-are-reported-not-refused"></a>
+</section><section class="section level2" data-number="5"><h2 data-number="5" id="anomalies-are-reported-and-kept">
+<span class="header-section-number">5</span> Anomalies are reported and kept<a class="anchor" aria-label="anchor" href="#anomalies-are-reported-and-kept"></a>
 </h2>
-<p>Real TALE predictions are messy: a terminus can be duplicated, misplaced, or simply not found. <code><a href="../reference/tales.html">tales()</a></code> loads such arrays anyway rather than refusing them – a class that insists on clean input forces cleaning outside the package and throws away exactly the signal a user would want to inspect.</p>
-<p>“Anomalous” is deliberately a narrower category than “wrong”. An array missing a terminus, for instance, is not flagged here at all: it may genuinely sit at the edge of a contig. What <em>is</em> flagged is a part arrangement that cannot be biologically real – two N-termini in one array, say, or one that is not at the start:</p>
+<p>Real TALE predictions are messy: a terminus can be duplicated, misplaced, or simply not found. <code><a href="../reference/tales.html">tales()</a></code> loads such arrays anyway, with a warning. A class that insisted on clean input would force cleaning outside the package and throw away exactly the signal a user would want to inspect.</p>
+<p>“Anomalous” is deliberately a narrower category than “wrong”. An array missing a terminus, for instance, is not flagged here at all: it may genuinely sit at the edge of a contig. What <em>is</em> flagged is a part arrangement that cannot be biologically real (two N-termini in one array, say, or one that is not at the start), a part missing the sequence data it should carry, one amino acid sequence paired with two different RVDs, and position columns that disagree with each other:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">odd</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
@@ -263,18 +267,18 @@
 <span><span class="co">#&gt;   a2  NTERM HD CTERM</span></span></code></pre></div>
 </details>
 </div>
-<p>Structural problems – a duplicated key, an <code>NA</code> where one is not allowed – are a different matter and remain hard errors either way: the table cannot be interpreted at all, rather than merely describing something odd.</p>
+<p>Structural problems, such as a duplicated key or an <code>NA</code> where one is not allowed, remain hard errors either way, because the table cannot be interpreted at all.</p>
 </section><section class="section level2" data-number="6"><h2 data-number="6" id="projections-turning-parts-back-into-sequences">
 <span class="header-section-number">6</span> Projections: turning parts back into sequences<a class="anchor" aria-label="anchor" href="#projections-turning-parts-back-into-sequences"></a>
 </h2>
 <p>Some consumers want a <code>tales</code> as a table; others want each array back as a single string. Three functions bridge the gap:</p>
 <ul>
 <li>
-<code><a href="../reference/tales_rvd_strings.html">tales_rvd_strings()</a></code> – one RVD string per array, the form target-prediction tools consume. Drops the termini by default (<code>rvd_only = TRUE</code>), since prediction concerns the repeat domain only.</li>
+<code><a href="../reference/tales_rvd_strings.html">tales_rvd_strings()</a></code>: one RVD string per array, the form target-prediction tools consume. Drops the termini by default (<code>rvd_only = TRUE</code>), since only the repeats bind DNA.</li>
 <li>
-<code><a href="../reference/tales_coded_strings.html">tales_coded_strings()</a></code> – the <code>dom_code</code> sibling, for ARLEM and MAFFT’s text mode. Keeps the termini by default, since alignment wants them as anchors, and separates codes with a space rather than a dash, because that is what those tools split on.</li>
+<code><a href="../reference/tales_coded_strings.html">tales_coded_strings()</a></code>: the <code>dom_code</code> equivalent, for ARLEM and MAFFT’s text mode. Keeps the termini by default, since alignment uses them as anchors, and separates codes with a space, which is what those tools split on.</li>
 <li>
-<code><a href="../reference/tales_domain_codes.html">tales_domain_codes()</a></code> – not a per-array string but the lookup table itself: one row per distinct <code>dom_code</code>, with the amino acid sequence and RVD it stands for.</li>
+<code><a href="../reference/tales_domain_codes.html">tales_domain_codes()</a></code>: the lookup table itself, with one row per distinct <code>dom_code</code> and the amino acid sequence and RVD it stands for.</li>
 </ul>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
@@ -297,11 +301,11 @@
 <span class="header-section-number">7</span> What a <code>dom_code</code> is<a class="anchor" aria-label="anchor" href="#sec-dom-code"></a>
 </h2>
 <p>This is the column the rest of the comparison machinery is built on, and it is worth being precise about.</p>
-<section class="level2" data-number="7.1"><h3 data-number="7.1" id="it-names-a-domain-not-a-repeat">
-<span class="header-section-number">7.1</span> It names a domain, not a repeat<a class="anchor" aria-label="anchor" href="#it-names-a-domain-not-a-repeat"></a>
+<section class="level2" data-number="7.1"><h3 data-number="7.1" id="it-names-a-domain-repeats-and-termini-alike">
+<span class="header-section-number">7.1</span> It names a domain, repeats and termini alike<a class="anchor" aria-label="anchor" href="#it-names-a-domain-repeats-and-termini-alike"></a>
 </h3>
-<p>A TALE part is an N-terminus, a repeat, or a C-terminus, and <strong>all three get <code>dom_code</code>s on the same footing</strong>. “Domain” is the word used here specifically because it has to cover a repeat and a terminus indiscriminately – “repeat code” would be the wrong name for a column that also numbers C-termini. Two parts with identical amino acid sequences get the same code, whatever kind of part they are.</p>
-<p>The distinction is not pedantic. In the small example used throughout this article:</p>
+<p>A TALE part is an N-terminus, a repeat, or a C-terminus, and <strong>all three get <code>dom_code</code>s on the same footing</strong>. “Domain” is the word used here because it covers a repeat and a terminus alike; a column that also numbers C-termini cannot be called a repeat code. Two parts with identical amino acid sequences get the same code, whatever kind of part they are.</p>
+<p>The distinction matters in practice. In the small example used throughout this article:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">xa</span><span class="op">$</span><span class="va">dom_code</span><span class="op">)</span></span>
@@ -312,22 +316,16 @@
 <span><span class="co">#&gt;          4          4         39</span></span></code></pre></div>
 </details>
 </div>
-<p>47 distinct codes, and only 39 of them are repeats – the rest are distinct N- and C-termini.</p>
-<div>
-<blockquote>
-<p><strong>Not a repeat count</strong></p>
-<p>Describing the total as a repeat count would overstate the repeat diversity by a substantial margin – this exact error was made, and caught, while writing <code><a href="../reference/summary.tales.html">summary.tales()</a></code>.</p>
-</blockquote>
-</div>
+<p>47 distinct codes, and only 39 of them are repeats; the rest are distinct N- and C-termini. Reading the total as a count of distinct repeats would overstate repeat diversity.</p>
 </section><section class="level2" data-number="7.2"><h3 data-number="7.2" id="it-is-what-makes-a-tale-alignable">
 <span class="header-section-number">7.2</span> It is what makes a TALE alignable<a class="anchor" aria-label="anchor" href="#it-is-what-makes-a-tale-alignable"></a>
 </h3>
-<p>Aligning TALE arrays residue by residue is meaningless: the repeats are near-identical (~34 amino acids, differing mainly at two positions), so almost anything matches almost anything else. Giving each distinct repeat a symbol turns an array into a <em>sequence of repeat units</em> instead, which can be aligned the way a protein sequence is – with insertions and deletions of whole repeats rather than of individual residues. This is why <code><a href="../reference/tales_align.html">tales_align()</a></code> works on <code>dom_code</code> (or <code>rvd</code>), never on <code>aa_seq</code> directly.</p>
+<p>Aligning TALE arrays residue by residue is meaningless: the repeats are near-identical (~34 amino acids, differing mainly at two positions), so almost anything matches almost anything else. Giving each distinct domain a symbol turns an array into a <em>sequence of domains</em>, which can be aligned the way a protein sequence is, with insertions and deletions of whole repeats instead of individual residues. This is why <code><a href="../reference/tales_align.html">tales_align()</a></code> works on <code>dom_code</code> (or <code>rvd</code>), never on <code>aa_seq</code> directly.</p>
 </section><section class="level2" data-number="7.3"><h3 data-number="7.3" id="it-is-finer-than-an-rvd">
 <span class="header-section-number">7.3</span> It is finer than an RVD<a class="anchor" aria-label="anchor" href="#it-is-finer-than-an-rvd"></a>
 </h3>
 <p>The RVD is residues 12-13 of a repeat, and it is what determines which DNA base the repeat binds. Two repeats can share an RVD – the same binding specificity – while differing elsewhere in the protein, and they get <strong>different</strong> <code>dom_code</code>s. So <code>rvd</code> is the functional layer and <code>dom_code</code> the identity layer, and the class carries both because they answer different questions.</p>
-<p>In this example, the RVD <code>HD</code> (the code for cytosine) is shared by several distinct repeat proteins:</p>
+<p>In this example, the RVD <code>HD</code> (which binds cytosine) is shared by several distinct repeat sequences:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">reps</span> <span class="op">&lt;-</span> <span class="va">xa</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">domain_type</span> <span class="op">==</span> <span class="st">"repeat"</span><span class="op">)</span></span>
@@ -341,23 +339,23 @@
 <span><span class="co">#&gt; 4 8        LTPAQVVAIASHDGGKQALETVQRLLPVLCQVHG</span></span></code></pre></div>
 </details>
 </div>
-<p>A terminus, meanwhile, has no RVD at all: its <code>rvd</code> column holds a placeholder – <code>"NTERM"</code>, <code>"CTERM"</code>, or <code>"XXXXX"</code> for a terminus whose CDS was detected but not identified (see <code><a href="../reference/tales_anchor_codes.html">tales_anchor_codes()</a></code>) – while its <code>dom_code</code> is a real identifier of a real sequence. Another reason the two layers are not interchangeable.</p>
+<p>A terminus, meanwhile, has no RVD at all: its <code>rvd</code> column holds a placeholder (<code>"NTERM"</code>, <code>"CTERM"</code>, or <code>"XXXXX"</code> for a terminus whose CDS was detected but not identified; see <code><a href="../reference/tales_anchor_codes.html">tales_anchor_codes()</a></code>), while its <code>dom_code</code> identifies a real sequence.</p>
 </section><section class="level2" data-number="7.4"><h3 data-number="7.4" id="how-they-are-computed">
 <span class="header-section-number">7.4</span> How they are computed<a class="anchor" aria-label="anchor" href="#how-they-are-computed"></a>
 </h3>
-<p>Plainly: group the parts by <code>aa_seq</code>, number the groups. <code><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">dplyr::cur_group_id()</a></code>, nothing cleverer, done by <code><a href="../reference/tales_assign_domain_codes.html">tales_assign_domain_codes()</a></code>.</p>
+<p><code><a href="../reference/tales_assign_domain_codes.html">tales_assign_domain_codes()</a></code> groups the parts by <code>aa_seq</code> and numbers the groups (<code><a href="https://dplyr.tidyverse.org/reference/context.html" class="external-link">dplyr::cur_group_id()</a></code>).</p>
 </section><section class="level2" data-number="7.5"><h3 data-number="7.5" id="the-numbers-are-only-meaningful-within-one-call">
 <span class="header-section-number">7.5</span> The numbers are only meaningful within one call<a class="anchor" aria-label="anchor" href="#the-numbers-are-only-meaningful-within-one-call"></a>
 </h3>
-<p>Because the numbering depends on which distinct sequences are present, code <code>42</code> from one comparison is not code <code>42</code> from another – add an array, remove one, or run it on a different day’s data, and the same protein can land on a different number. This is not a wart to work around; it is a fact to know before using <code>dom_code</code> for anything, and the package enforces it rather than merely documenting it.</p>
-<p>Every object <code><a href="../reference/tales_assign_domain_codes.html">tales_assign_domain_codes()</a></code> produces carries a namespace stamp, readable with <code><a href="../reference/tales_namespace.html">tales_namespace()</a></code>, derived from the exact set of sequences that produced it:</p>
+<p>Because the numbering depends on which distinct sequences are present, code <code>42</code> from one comparison is not code <code>42</code> from another: add an array, remove one, or run it on a different day’s data, and the same protein can land on a different number. The package enforces this.</p>
+<p>Every object <code><a href="../reference/tales_assign_domain_codes.html">tales_assign_domain_codes()</a></code> produces carries a namespace stamp, readable with <code><a href="../reference/tales_namespace.html">tales_namespace()</a></code>, derived from the exact set of distinct sequences that produced it:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/tales_namespace.html">tales_namespace</a></span><span class="op">(</span><span class="va">xa</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] "7377e3f80aa36898"</span></span></code></pre></div>
 </details>
 </div>
-<p>Mixing codes from two different calls is refused rather than silently computing a wrong answer. The rest of this section demonstrates that, one step at a time.</p>
+<p>Functions that combine codes from two different calls refuse to run. The rest of this section demonstrates that, one step at a time.</p>
 <p>Domain distances over the whole example set are the baseline to mix in something incompatible with:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
@@ -376,8 +374,8 @@
 </div>
 <div>
 <blockquote>
-<p><strong>Mixing namespaces is a caught error, not a silent one</strong></p>
-<p>Using <code>xa_sub</code>’s codes against <code>dd_all</code> – distances keyed by the other namespace – does not compute a plausible-looking wrong answer. It refuses outright:</p>
+<p><strong>Mixing namespaces is an error</strong></p>
+<p>Using <code>xa_sub</code>’s codes against <code>dd_all</code>, distances keyed by the other namespace, would compute a plausible-looking wrong answer. The function refuses instead:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/tales_tale_distances.html">tales_tale_distances</a></span><span class="op">(</span><span class="va">xa_sub</span>, <span class="va">dd_all</span><span class="op">)</span></span>
@@ -393,7 +391,7 @@
 </section></section><section class="section level2" data-number="8"><h2 data-number="8" id="where-dom_code-leads-comparing-tales">
 <span class="header-section-number">8</span> Where <code>dom_code</code> leads: comparing TALEs<a class="anchor" aria-label="anchor" href="#where-dom_code-leads-comparing-tales"></a>
 </h2>
-<p>Minting codes is the first of three steps that together compare a set of TALEs – <code><a href="../reference/tales_assign_domain_codes.html">tales_assign_domain_codes()</a></code> first, then <code><a href="../reference/tales_domain_distances.html">tales_domain_distances()</a></code> (how different the distinct domains are from each other, pairwise), then <code><a href="../reference/tales_tale_distances.html">tales_tale_distances()</a></code> (how different the <em>arrays</em> are, aligning their domain-code sequences using the domain distances as the substitution cost). <code><a href="../reference/tales_compare_distal.html">tales_compare_distal()</a></code> runs all three and returns the corresponding <code>tales</code>, <code>domain_distances</code> and <code>tale_distances</code> objects together:</p>
+<p>Minting codes is the first of three steps that together compare a set of TALEs: <code><a href="../reference/tales_assign_domain_codes.html">tales_assign_domain_codes()</a></code> first, then <code><a href="../reference/tales_domain_distances.html">tales_domain_distances()</a></code> (how different the distinct domains are from each other, pairwise), then <code><a href="../reference/tales_tale_distances.html">tales_tale_distances()</a></code> (how different the <em>arrays</em> are, aligning their domain-code sequences using the domain distances as the substitution cost). <code><a href="../reference/tales_compare_distal.html">tales_compare_distal()</a></code> runs all three and returns the corresponding <code>tales</code>, <code>domain_distances</code> and <code>tale_distances</code> objects together:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">cmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tales_compare_distal.html">tales_compare_distal</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
@@ -401,12 +399,12 @@
 <span><span class="co">#&gt; [1] "tales"            "domain_distances" "tale_distances"</span></span></code></pre></div>
 </details>
 </div>
-<p>Each step is independently useful – the domain-level distances alone answer questions about domain diversity, without ever running the array-level alignment – and each is documented in its own right; see <code><a href="../reference/tales_compare_distal.html">tales_compare_distal()</a></code> for the full chain.</p>
+<p>Each step is independently useful (the domain-level distances alone answer questions about domain diversity, without running the array-level alignment) and each is documented in its own right; see <code><a href="../reference/tales_compare_distal.html">tales_compare_distal()</a></code> for the full chain.</p>
 </section><section class="section level2" data-number="9"><h2 data-number="9" id="sec-subsetting">
 <span class="header-section-number">9</span> Subsetting keeps the class only while the contract holds<a class="anchor" aria-label="anchor" href="#sec-subsetting"></a>
 </h2>
 <p>A <code>tales</code> is a tibble, so every subsetting route a tibble supports works on it too: <code>[</code>, <code><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter()</a></code>, <code><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select()</a></code>, <code><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange()</a></code>, <code><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate()</a></code>. What differs from a plain tibble is what happens to the <em>class</em> along the way.</p>
-<p><strong>Row subsetting never breaks anything.</strong> Every invariant a <code>tales</code> checks is closed under keeping a subset of rows – which is exactly why completeness (<a href="#sec-one-row-per-part" class="quarto-xref">Section 1</a>, above) is a <em>precondition</em> of specific functions rather than part of the class itself. Filtering to one array, or to its repeats only, is still a valid <code>tales</code>:</p>
+<p><strong>Row subsetting never breaks anything.</strong> Every invariant a <code>tales</code> checks still holds on any subset of its rows. This is why completeness (<a href="#sec-one-row-per-part" class="quarto-xref">Section 1</a>, above) is checked only by the functions that need it. Filtering to one array, or to its repeats only, is still a valid <code>tales</code>:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">one_array</span> <span class="op">&lt;-</span> <span class="va">xa</span><span class="op">[</span><span class="va">xa</span><span class="op">$</span><span class="va">array_id</span> <span class="op">==</span> <span class="st">"ROI_00002"</span>, <span class="op">]</span></span>
@@ -416,7 +414,7 @@
 <span><span class="co">#&gt; [1] 16</span></span></code></pre></div>
 </details>
 </div>
-<p><strong>Column subsetting is where it gets interesting.</strong> Dropping a column the contract needs – <code>array_id</code>, or both residue columns at once – leaves something that can no longer be described as a <code>tales</code>, and the class says so by quietly stepping out of the way rather than by erroring:</p>
+<p><strong>Column subsetting is where it gets interesting.</strong> Dropping a column the contract needs (<code>array_id</code>, or both residue columns at once) leaves something that can no longer be described as a <code>tales</code>. The class then quietly steps out of the way, without an error:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">no_id</span> <span class="op">&lt;-</span> <span class="va">xa</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">array_id</span><span class="op">)</span></span>
@@ -426,7 +424,7 @@
 <span><span class="co">#&gt; [1] "tbl_df"     "tbl"        "data.frame"</span></span></code></pre></div>
 </details>
 </div>
-<p>The same happens whichever route removes the load-bearing column – <code><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select()</a></code>, <code><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate()</a></code>, or plain <code>[, j]</code>. This is deliberate: a <code>tales</code> object that kept claiming to be one after losing its key would let every downstream function trust a promise the object could no longer keep. Dropping an optional column (<code>seqnames</code>, <code>aa_seq</code>, …) has no such consequence, and the class survives untouched.</p>
+<p>The same happens whichever route removes the load-bearing column: <code><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select()</a></code>, <code><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate()</a></code>, or plain <code>[, j]</code>. This is deliberate: a <code>tales</code> object that kept claiming to be one after losing its key would let every downstream function trust a promise the object could no longer keep. Dropping an optional column (<code>seqnames</code>, <code>aa_seq</code>, …) has no such consequence, and the class survives untouched.</p>
 <p><code><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate()</a></code> earns one extra check the others do not need: it can overwrite <code>array_id</code> or <code>position_in_array</code> <em>in place</em>, which plain subsetting cannot do, so the result could keep every contract column while no longer being a valid key. That case is caught separately, immediately after the mutate:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb19"><pre class="downlit sourceCode r">
@@ -437,16 +435,16 @@
 <span><span class="co">#&gt;   "ROI_00004"</span></span></code></pre></div>
 </details>
 </div>
-<p>What is <strong>not</strong> re-checked on every verb is the row-level biology – <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> does not run again on each <code><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter()</a></code> call, because anomalies are a property to inspect deliberately (see above), not a cost to pay on every pipe.</p>
-<p><strong>Attributes travel with a valid subset</strong>, which matters most for <code>dom_code_namespace</code>. Cutting <code>xa</code> down to one array with <code>[</code> keeps its namespace, because the namespace describes <em>the run the codes came from</em>, not which rows happen to be kept right now:</p>
+<p>The row-level biology is <strong>not</strong> re-checked on every verb: <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> does not run again on each <code><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter()</a></code> call. Anomalies are a property to inspect deliberately (see above).</p>
+<p><strong>Attributes travel with a valid subset</strong>, which matters most for <code>dom_code_namespace</code>. Cutting <code>xa</code> down to one array with <code>[</code> keeps its namespace, because the namespace describes <em>the run the codes came from</em>:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/tales_namespace.html">tales_namespace</a></span><span class="op">(</span><span class="va">one_array</span><span class="op">)</span> <span class="op">==</span> <span class="fu"><a href="../reference/tales_namespace.html">tales_namespace</a></span><span class="op">(</span><span class="va">xa</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 </details>
 </div>
-<p>That is only true because <code>one_array</code> was cut with <code>[</code>, not re-coded – <code><a href="../reference/tales_assign_domain_codes.html">tales_assign_domain_codes()</a></code> on a subset mints a <em>different</em> namespace, as the mismatch example above already showed.</p>
-<p>A <code>tales_msa</code> carries one further attribute this way, <code>alignment_position</code>, and losing <em>that</em> while keeping everything else degrades it by exactly one step – to a plain <code>tales</code>, not all the way to a tibble. <a href="tales_msa_class.html">The <code>tales_msa</code> class article</a> covers that graded degradation in full, together with the reverse direction: how a <code>tales</code> is promoted into an alignment in the first place.</p>
+<p>That holds because <code>one_array</code> was cut with <code>[</code> and kept its codes; <code><a href="../reference/tales_assign_domain_codes.html">tales_assign_domain_codes()</a></code> on a subset mints a <em>different</em> namespace, as the mismatch example above showed.</p>
+<p>A <code>tales_msa</code> carries one further column, <code>alignment_position</code>. Losing <em>that</em> while keeping everything else degrades it by exactly one step, to a plain <code>tales</code>. <a href="tales_msa_class.html">The <code>tales_msa</code> class article</a> covers that graded degradation in full, together with the reverse direction: how a <code>tales</code> is promoted into an alignment in the first place.</p>
 </section><section class="section level2" data-number="10"><h2 data-number="10" id="next">
 <span class="header-section-number">10</span> Next<a class="anchor" aria-label="anchor" href="#next"></a>
 </h2>

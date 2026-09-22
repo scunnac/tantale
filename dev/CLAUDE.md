@@ -201,6 +201,19 @@ stamp exists to catch cross-run mixing, and is enforced, not advisory.
 
 - **Readers are biologists too.** Embed the TALE biology in the docs, not
   just the R mechanics.
+- **Writing tone (maintainer's repeated correction).** "Try to have a
+  neutral, scientific tone. Humour is not discouraged if relevant." Two
+  separate habits to cut: (1) the "A, not B" contrast in any position;
+  (2) parallel/paired phrasing in general, with or without a "not"
+  (balanced doublets, rhetorical pairs and triplets). Both show in "two
+  readings of one geometry, not two independent alignments". State the
+  fact once; if a contrast really matters, give it its own plain
+  sentence. Factual enumerations are fine. Check all prose, ledger
+  entries and commit messages included, before calling it done.
+- **Every statement must match the rendered output.** Claims about a
+  table, figure or return value in an article are checked against the
+  render (`docs/articles/<name>.md` carries prose plus chunk output;
+  figures read as images). §30 found several that did not match.
 - **No implementation archaeology in user docs.** What changed and why
   belongs in code comments or the ledger, not in `@details`.
 - **Put user-facing prose in the exported function's block**, not in an
@@ -349,6 +362,20 @@ Repeatedly confirmed again this session (§17's own "49 exports" turned
 out wrong on re-count; `dev/class-design.md` §4.6 sat stale for over a
 week). Spot-check against the actual code before trusting a closed
 section, especially before building on top of it.
+
+**§30, 2026-09-23 -- website prose review, articles half DONE.** All 8
+articles, `README.md` and `pkgdown/index.md` re-read against their own
+rendered output (`docs/articles/<name>.md` holds prose *and* chunk
+output; figures read as PNGs), plus the tone checklist in memory
+`feedback_tantale_doc_language`. Several real content errors fixed as
+well as tone (full list in §30). **Still open under §30: the reference-page
+(roxygen) prose sweep**, and six maintainer questions §30 lists (e.g.
+`as_tales()` keeping `alignment_width`, `rvdSimDf` covering only 17 RVDs,
+the scoring matrix displacing an identical half-repeat) -- none acted on.
+`tale_classification.qmd`'s `tales_group` chunk now always recomputes
+(cheap) instead of reading `_cache/group.rds`, so its silhouette plot is
+drawn on every render; it still writes the cache for the other three
+articles.
 
 **§25/§25b, 2026-09-22/23 -- both DONE, published.** A new pkgdown
 article, `vignettes/articles/trunctale_correction.qmd`, compares both

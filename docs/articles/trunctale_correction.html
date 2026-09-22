@@ -77,15 +77,15 @@
 
 
 
-    <p>Some TALEs are naturally short. <a href="https://doi.org/10.1038/ncomms13435" class="external-link">Ji et al. (2016)</a> and <a href="https://doi.org/10.3389/fpls.2016.01516" class="external-link">Read et al. (2016)</a> independently characterised truncated TAL effectors in <em>Xanthomonas oryzae</em> – “interfering TALEs” (iTALEs) in the first paper, “truncTALEs” in the second, for what both describe as the same underlying phenomenon. Both report loss of the C-terminal transcription activation domain while the central repeat region is retained; Read et al. additionally describe loss of part of the N-terminal region and the second nuclear localisation signal in most examples, and a novel 28-amino-acid repeat length not otherwise seen in TALEs. Functionally, the characterised examples suppress the rice resistance gene <em>Xa1</em> – Read et al.’s Tal2h did not bind any tested candidate DNA target, consistent with a decoy or dominant-negative role for the plant immune receptor rather than DNA-binding transactivation. Both papers document truncTALEs directly in PXO86 (named <code>Tal3</code>/<code>Tal6</code> in Ji et al.), the genome used throughout this article.</p>
+    <p>Some TALEs are naturally short. <a href="https://doi.org/10.1038/ncomms13435" class="external-link">Ji et al. (2016)</a> and <a href="https://doi.org/10.3389/fpls.2016.01516" class="external-link">Read et al. (2016)</a> independently characterised truncated TAL effectors in <em>Xanthomonas oryzae</em>: “interfering TALEs” (iTALEs) in the first paper, “truncTALEs” in the second, for what both describe as the same underlying phenomenon. Both report loss of the C-terminal transcription activation domain while the central repeat region is retained; Read et al. additionally describe loss of part of the N-terminal region and the second nuclear localisation signal in most examples, and a novel 28-amino-acid repeat length not otherwise seen in TALEs. Functionally, the characterised examples suppress the rice resistance gene <em>Xa1</em>. Read et al.’s Tal2h did not bind any tested candidate DNA target, consistent with a decoy or dominant-negative role for the plant immune receptor rather than DNA-binding transactivation. Both papers document truncTALEs directly in PXO86 (named <code>Tal3</code>/<code>Tal6</code> in Ji et al.), the genome used throughout this article.</p>
 <p>That biology creates a hazard for automatic frameshift correction. <a href="tale_mining.html">Mining TALE sequences</a> already shows that neither of tantale’s two correction paths is a silver bullet against real assembly errors. This article asks a different question: what do they do to a TALE that is short for real biological reasons, with nothing wrong to fix?</p>
 <div>
 <blockquote>
 <p><strong>Where this fits</strong></p>
-<p>This article extends the correction methods introduced in <a href="tale_mining.html#correcting-frameshifts-two-ways">Mining TALE sequences</a>: read that section first. It sits outside that walkthrough’s numbered sequence – come here once you need to reason about a genuinely short TALE rather than a broken one.</p>
+<p>This article extends the correction methods introduced in <a href="tale_mining.html#correcting-frameshifts-two-ways">Mining TALE sequences</a>: read that section first. This article is a side branch of that walkthrough, for when you need to reason about a TALE that is genuinely short.</p>
 </blockquote>
 </div>
-<p>Two concrete questions follow from the hazard above. Does <code>tell_tales(correct_array = TRUE)</code> treat a genuine truncTALE the way it is already known to treat a genuine assembly error, extending it regardless of whether extension reflects real biology? And does <code><a href="../reference/correct_tales.html">correct_tales()</a></code>, the genome-wide correction route, behave any differently? PXO86 – documented in the literature as carrying truncTALEs, and already shipped with the package – answers both directly, on real discovered arrays rather than a constructed example.</p>
+<p>Two concrete questions follow from the hazard above. Does <code>tell_tales(correct_array = TRUE)</code> treat a genuine truncTALE the way it is already known to treat a genuine assembly error, extending it regardless of whether extension reflects real biology? And does <code><a href="../reference/correct_tales.html">correct_tales()</a></code>, the genome-wide correction route, behave any differently? PXO86, documented in the literature as carrying truncTALEs and shipped with the package, answers both directly on real discovered arrays.</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://scunnac.github.io/tantale">tantale</a></span><span class="op">)</span></span>
@@ -100,7 +100,7 @@
 <section class="section level2" data-number="1"><h2 data-number="1" id="sec-two-trunctales">
 <span class="header-section-number">1</span> Two genuine truncTALEs in one genome<a class="anchor" aria-label="anchor" href="#sec-two-trunctales"></a>
 </h2>
-<p>PXO86 is one of the good-quality assemblies used throughout this set of articles; BAI3-1-1, used elsewhere, is the deliberately error-prone one. PXO86 also carries two documented truncTALEs, which makes it the right genome to answer the questions above. <strong>On a good assembly, a short array deserves to be taken at face value.</strong></p>
+<p>PXO86 is one of the good-quality assemblies shipped with the package; BAI3-1-1, used in the mining article, is the deliberately error-prone one. PXO86 also carries two documented truncTALEs, which makes it the right genome to answer the questions above. <strong>On a good assembly, a short array deserves to be taken at face value.</strong></p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pxo86_fa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"PXO86.fa"</span>, package <span class="op">=</span> <span class="st">"tantale"</span>, mustWork <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -113,7 +113,7 @@
 <span><span class="va">pxo86</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="../reference/tales_from_telltale.html">tales_from_telltale</a></span><span class="op">(</span><span class="va">pxo86_raw_dir</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </details>
 </div>
-<p>Comparing the amino-acid length of every array’s N- and C-terminus finds them immediately – two arrays with a dramatically shortened C-terminus, one of which also has a reduced N-terminus:</p>
+<p>Comparing the amino-acid length of every array’s N- and C-terminus finds them immediately: two arrays with a shortened C-terminus and a reduced N-terminus:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pxo86</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
@@ -145,7 +145,7 @@
 <span><span class="co">#&gt; 18 ROI_00017          288          297</span></span></code></pre></div>
 </details>
 </div>
-<p><code>ROI_00019</code>’s C-terminus is barely a seventh of the ~286 aa every other array carries, and its N-terminus is reduced too. <code>ROI_00001</code>’s C-terminus is shorter than normal but far less drastically so, and its N-terminus is unaffected. Neither shows up in <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code>:</p>
+<p><code>ROI_00019</code>’s C-terminus is barely a seventh of the 286-297 aa every other array carries. <code>ROI_00001</code>’s is shorter than normal, at 183 aa, but far less drastically so. Both arrays share the same reduced N-terminus, 230 aa against 283-288 aa elsewhere, in line with the partial N-terminal loss Read et al. describe. Neither shows up in <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code>:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/tales_anomalies.html">tales_anomalies</a></span><span class="op">(</span><span class="va">pxo86</span><span class="op">)</span></span>
@@ -153,7 +153,7 @@
 <span><span class="co">#&gt; # ℹ 3 variables: array_id &lt;chr&gt;, check &lt;chr&gt;, detail &lt;chr&gt;</span></span></code></pre></div>
 </details>
 </div>
-<p>That absence is informative. <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> looks for <em>impossible</em> structure – missing sequence data, coordinate disagreements, termini arrangements that cannot be real. It reports nothing for either array here: both are short, coherent proteins.</p>
+<p>That absence is informative. <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> looks for <em>impossible</em> structure: missing sequence data, coordinate disagreements, termini arrangements that cannot be real. It reports nothing for either array here: both are short, coherent proteins.</p>
 </section><section class="section level2" data-number="2"><h2 data-number="2" id="sec-mechanism">
 <span class="header-section-number">2</span> Not the same kind of short<a class="anchor" aria-label="anchor" href="#sec-mechanism"></a>
 </h2>
@@ -173,7 +173,7 @@
 <span><span class="co">#&gt; 2 ROI_00001 TRUE                        230             184           83</span></span></code></pre></div>
 </details>
 </div>
-<p><code><a href="../reference/tell_tales.html">tell_tales()</a></code> finds TALE loci with three separate profile HMMs – one each for the N-terminus, the repeat unit, and the C-terminus – and <code>has_all_domains</code> records whether every one of the three matched somewhere in an array’s merged hits, independently of how the final protein turns out. <code>hits_report.tsv</code>, one of the three reports <code><a href="../reference/tell_tales.html">tell_tales()</a></code> always writes (the other two are <code>domains_report.tsv</code> and <code>array_report.tsv</code> itself), carries every individual hit with its profile name and <code>frameshift_count</code>, and shows exactly what happened downstream of each array’s last complete repeat:</p>
+<p><code><a href="../reference/tell_tales.html">tell_tales()</a></code> finds TALE loci with three separate profile HMMs (one each for the N-terminus, the repeat unit, and the C-terminus), and <code>has_all_domains</code> records whether every one of the three matched somewhere in an array’s merged hits, independently of how the final protein turns out. <code>hits_report.tsv</code>, one of the three reports <code><a href="../reference/tell_tales.html">tell_tales()</a></code> always writes (the other two are <code>domains_report.tsv</code> and <code>array_report.tsv</code> itself), carries every individual hit with its profile name and <code>frameshift_count</code>, and shows exactly what happened downstream of each array’s last complete repeat:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">hits</span> <span class="op">&lt;-</span> <span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_tsv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">pxo86_raw_dir</span>, <span class="st">"hits_report.tsv"</span><span class="op">)</span>, show_col_types <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
@@ -193,8 +193,8 @@
 <span><span class="co">#&gt; 2 ROI_00019 FALSE                                   NA</span></span></code></pre></div>
 </details>
 </div>
-<p><code>ROI_00001</code> has a real C-terminus hit – full length, ~286 codons – but the nhmmer alignment needed two internal reframings to call it at all. The repeat immediately before it is short and frameshifted the same way. A C-terminus-shaped signal is there, just out of frame. <code>ROI_00019</code> has no C-terminus hit at any frameshift count: nothing downstream of its last repeat resembles a TALE C-terminus to any of the three profiles.</p>
-<p>That difference carries forward into correction. Frameshift correction – either path – acts on the DNA span <code><a href="../reference/tell_tales.html">tell_tales()</a></code> merges from these hits. <code>ROI_00001</code>’s span already contains a full-length, C-terminus-shaped template, out of frame; <code>ROI_00019</code>’s span never acquired one. Only one array gives a correction tool material to reframe into.</p>
+<p><code>ROI_00001</code> has a real C-terminus hit, full length at ~286 codons, but the nhmmer alignment needed two internal reframings to call it at all. The repeat immediately before it is short and frameshifted the same way. A C-terminus-shaped signal is there, just out of frame. <code>ROI_00019</code> has no C-terminus hit at any frameshift count: nothing downstream of its last repeat resembles a TALE C-terminus to any of the three profiles.</p>
+<p>That difference carries forward into correction. Frameshift correction, by either path, acts on the DNA span <code><a href="../reference/tell_tales.html">tell_tales()</a></code> merges from these hits. <code>ROI_00001</code>’s span already contains a full-length, C-terminus-shaped template, out of frame; <code>ROI_00019</code>’s span never acquired one. Only one array gives a correction tool material to reframe into.</p>
 </section><section class="section level2" data-number="3"><h2 data-number="3" id="sec-does-correction-respect-it">
 <span class="header-section-number">3</span> Does correction respect that difference?<a class="anchor" aria-label="anchor" href="#sec-does-correction-respect-it"></a>
 </h2>
@@ -216,10 +216,10 @@
 <span><span class="co">#&gt; Finding the closest reference amino acid sequences:</span></span>
 <span><span class="co">#&gt; ================================================================================</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Time difference of 5.86 secs</span></span>
+<span><span class="co">#&gt; Time difference of 6.2 secs</span></span>
 <span><span class="co">#&gt; ================================================================================</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Time difference of 35.22 secs</span></span></code></pre></div>
+<span><span class="co">#&gt; Time difference of 37.67 secs</span></span></code></pre></div>
 </details>
 </div>
 <div class="cell">
@@ -237,11 +237,11 @@
 <span><span class="co">#&gt; 2 ROI_00001 TRUE                        230             217           86</span></span></code></pre></div>
 </details>
 </div>
-<p><code>ROI_00001</code> is extended – its C-terminus grows from 183 to 217 aa, and <code>orf_coverage</code> improves from 83% to 86%. <code>ROI_00019</code> is untouched. This is <a href="#sec-mechanism" class="quarto-xref">Section 2</a>’s distinction playing out directly: <code><a href="https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html" class="external-link">DECIPHER::CorrectFrameshifts()</a></code> reframes <code>ROI_00001</code> into the C-terminus-shaped template nhmmer already found, and has no comparable template to work with for <code>ROI_00019</code>.</p>
+<p><code>ROI_00001</code> is extended: in <code>array_report.tsv</code>, its C-terminus grows from 184 to 217 aa, and <code>orf_coverage</code> improves from 83% to 86%. <code>ROI_00019</code> is untouched. This is <a href="#sec-mechanism" class="quarto-xref">Section 2</a>’s distinction playing out directly: <code><a href="https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html" class="external-link">DECIPHER::CorrectFrameshifts()</a></code> reframes <code>ROI_00001</code> into the C-terminus-shaped template nhmmer already found, and has no comparable template to work with for <code>ROI_00019</code>.</p>
 <div>
 <blockquote>
 <p><strong><code>max_comparisons</code> does not change this</strong></p>
-<p><code>max_comparisons = 20</code> is used above to keep this article’s build time reasonable. The outcome is identical at every value tried, including the full default reference set (measured, not re-run live here – ~22 minutes against 1057 references):</p>
+<p><code>max_comparisons = 20</code> is used above to keep this article’s build time reasonable. The outcome is identical at every value tried, including the full default reference set of 494 sequences (measured once, about 22 minutes, and not re-run here):</p>
 <table class="table caption-top">
 <thead><tr class="header">
 <th><code>max_comparisons</code></th>
@@ -262,7 +262,7 @@
 <td>43 aa</td>
 </tr>
 <tr class="odd">
-<td>1057 (default)</td>
+<td>all 494 (default)</td>
 <td>217 aa</td>
 <td>43 aa</td>
 </tr>
@@ -321,7 +321,7 @@
 <span><span class="co">#&gt; 2 ROI_00001 TRUE                        230             184           83</span></span></code></pre></div>
 </details>
 </div>
-<p>A single-base insertion, and it lands inside <code>ROI_00001</code>’s own span – consistent with <a href="#sec-mechanism" class="quarto-xref">Section 2</a>, since that is the array with frameshifted hits for the correction to act on. The effect is trivial, though: <code>orf_coverage</code> does not move, and the C-terminus grows by a single amino acid, against the 34 <code>correct_array = TRUE</code> adds. <code>ROI_00019</code> is unaffected, as before.</p>
+<p>A single-base insertion, and it lands inside <code>ROI_00001</code>’s own span, consistent with <a href="#sec-mechanism" class="quarto-xref">Section 2</a>, since that is the array with frameshifted hits for the correction to act on. It has no visible effect: <code>ROI_00001</code>’s C-terminus stays at 184 aa and its <code>orf_coverage</code> at 83%, against the 33 amino acids <code>correct_array = TRUE</code> adds. <code>ROI_00019</code> is unaffected, as before.</p>
 </section></section><section class="section level2" data-number="4"><h2 data-number="4" id="sec-summary">
 <span class="header-section-number">4</span> Summary<a class="anchor" aria-label="anchor" href="#sec-summary"></a>
 </h2>
@@ -329,10 +329,10 @@
 <div class="cell-output-display">
 <table class="table caption-top">
 <colgroup>
-<col style="width: 8%">
-<col style="width: 47%">
-<col style="width: 19%">
-<col style="width: 24%">
+<col style="width: 9%">
+<col style="width: 53%">
+<col style="width: 22%">
+<col style="width: 14%">
 </colgroup>
 <thead><tr class="header">
 <th style="text-align: left;">Array</th>
@@ -350,18 +350,18 @@
 <tr class="even">
 <td style="text-align: left;">ROI_00001</td>
 <td style="text-align: left;">genuine frameshift, C-terminus hit present (out of frame)</td>
-<td style="text-align: left;">over-corrected (+34 aa)</td>
-<td style="text-align: left;">essentially unchanged (+1 aa)</td>
+<td style="text-align: left;">over-corrected (+33 aa)</td>
+<td style="text-align: left;">unchanged</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
-<p>Two genuine truncTALEs in the same genome respond differently to the same correction tool, because they arose from different underlying DNA-level events. A clean early stop leaves nothing downstream that resembles a C-terminus, so a frameshift corrector has nothing to reframe into. A genuine, evolved frameshift leaves exactly the kind of disrupted-but-recognisable signal these tools exist to fix, and neither tool distinguishes that signal from a real sequencing error – so it gets “fixed” regardless of whether fixing it reflects real biology.</p>
-<p><strong>On this evidence, <code><a href="../reference/correct_tales.html">correct_tales()</a></code> is the more transparent choice for a genome suspected of carrying real truncTALEs.</strong> It left both arrays’ sequence alone, where <code>tell_tales(correct_array = TRUE)</code> rewrote the genuine frameshift’s C-terminus as though it were an assembly error. One genome and two arrays is a narrow base for a general rule, so the practical takeaway is procedural rather than a blanket preference: check <code>has_all_domains</code> and <code>orf_coverage</code> in <code>array_report.tsv</code> before correcting, and treat any change to a documented or suspected truncTALE’s sequence as something to verify, not assume.</p>
+<p>Two genuine truncTALEs in the same genome respond differently to the same correction tool, because they arose from different underlying DNA-level events. A clean early stop leaves nothing downstream that resembles a C-terminus, so a frameshift corrector has nothing to reframe into. A genuine, evolved frameshift leaves exactly the kind of disrupted-but-recognisable signal these tools exist to fix. <code>correct_array = TRUE</code> cannot tell that signal from a sequencing error, and “fixes” it.</p>
+<p><strong>On this evidence, <code><a href="../reference/correct_tales.html">correct_tales()</a></code> is the more transparent choice for a genome suspected of carrying real truncTALEs.</strong> It left both arrays’ sequence alone, where <code>tell_tales(correct_array = TRUE)</code> rewrote the genuine frameshift’s C-terminus as though it were an assembly error. One genome and two arrays is a narrow base for a general rule. In practice: check <code>has_all_domains</code> and <code>orf_coverage</code> in <code>array_report.tsv</code> before correcting, and verify any change a correction makes to a documented or suspected truncTALE’s sequence.</p>
 <ul>
-<li>A short array with <code>has_all_domains = FALSE</code> and <code>orf_coverage</code> in the normal range is very likely a genuine short protein. Correcting it fabricates sequence that was never there.</li>
-<li>A short array with <code>has_all_domains = TRUE</code> but reduced <code>orf_coverage</code> may be a genuine, fixed frameshift. <code>correct_array = TRUE</code> will extend it regardless of whether that is what your analysis needs.</li>
+<li>A short array with <code>has_all_domains = FALSE</code> and <code>orf_coverage</code> in the normal range is very likely a genuine short protein. Any sequence a correction adds to it was never there.</li>
+<li>A short array with <code>has_all_domains = TRUE</code> but reduced <code>orf_coverage</code> may carry a genuine frameshift that is part of the strain’s biology. <code>correct_array = TRUE</code> will extend it regardless of whether that is what your analysis needs.</li>
 </ul>
 <p>Neither correction path can make the underlying biological judgement call for you.</p>
 </section><section class="section level2" data-number="5"><h2 data-number="5" id="next">

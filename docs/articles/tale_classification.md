@@ -3,11 +3,9 @@
 The [previous
 article](https://scunnac.github.io/tantale/articles/tale_mining.md)
 covered finding TALE loci in one genome at a time. A real study usually
-has several genomes, and the interesting question is not “what TALEs
-does this strain carry” but “which TALEs, across strains, are versions
-of the same thing” – alleles of one locus, related by descent, rather
-than unrelated proteins that happen to both be TALEs. This article
-covers that comparison:
+has several genomes, and the interesting question becomes “which TALEs,
+across strains, are versions of the same thing”: alleles of one locus,
+related by descent. This article covers that comparison:
 [`tales_compare_distal()`](https://scunnac.github.io/tantale/reference/tales_compare_distal.md)
 to quantify how alike every pair of arrays and domains is, and
 [`tales_group_hclust()`](https://scunnac.github.io/tantale/reference/tales_group_hclust.md)/[`tales_group_kmedoids()`](https://scunnac.github.io/tantale/reference/tales_group_kmedoids.md)
@@ -27,16 +25,14 @@ three related genomes: MAI1, BAI3, and the best-corrected version of
 BAI3-1-1 from [the correction section of the mining
 article](https://scunnac.github.io/tantale/articles/tale_mining.html#sec-best-correction).
 
-> **Why only three genomes, not the fourth**
+> **Why only three genomes**
 >
 > tantale ships a fourth sample genome, PXO86, a distantly related Asian
 > outgroup strain. It is left out here deliberately: its TALE repertoire
 > barely overlaps the African strains’ at all, so including it turns a
 > clean set of one-locus-per-strain groups into a mix of real
-> cross-strain groups and PXO86-only paralog clusters that illustrate a
-> different question than the one this article is asking. Grouping three
-> related genomes, below, is a considerably better demonstration of what
-> it does than the same call over four genomes spanning two continents.
+> cross-strain groups and PXO86-only paralog clusters, which illustrate
+> a different question from the one this article is asking.
 
 Discovery runs independently per genome, so it is written as one
 function applied to each genome name in turn:
@@ -68,8 +64,8 @@ discover_strain <- function(strain) {
 `correct_array = TRUE` with `max_comparisons = 50` is the route [the
 mining
 article](https://scunnac.github.io/tantale/articles/tale_mining.html#sec-best-correction)
-found clean for BAI3-1-1; run on MAI1 and BAI3 too, it costs a little
-extra time for no change, since neither needed correcting.
+found clean for BAI3-1-1. Run on MAI1 and BAI3 too, it costs a little
+extra time; neither needed correcting.
 
 Code
 
@@ -81,33 +77,12 @@ if (fs::file_exists(discovery_cache)) {
     suppressWarnings() |>
     bind_rows()
 }
-#> Finding the closest reference amino acid sequences:
-#> ================================================================================
-#> 
-#> Time difference of 2.65 secs
-#> ================================================================================
-#> 
-#> Time difference of 52.63 secs
-#> Finding the closest reference amino acid sequences:
-#> ================================================================================
-#> 
-#> Time difference of 2.66 secs
-#> ================================================================================
-#> 
-#> Time difference of 55.13 secs
-#> Finding the closest reference amino acid sequences:
-#> ================================================================================
-#> 
-#> Time difference of 0.43 secs
-#> ================================================================================
-#> 
-#> Time difference of 44.01 secs
 ```
 
 `array_id` is prefixed by strain before the three objects are combined,
 since
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
-numbers regions independently within each genome – without the prefix,
+numbers regions independently within each genome: without the prefix,
 `MAI1`’s `ROI_00001` and `BAI3`’s `ROI_00001` would collide.
 
 Code
@@ -118,6 +93,8 @@ saveRDS(all_tales, discovery_cache)
 n_distinct(all_tales$array_id)
 #> [1] 26
 ```
+
+Nine arrays each come from MAI1 and BAI3, and eight from BAI3-1-1.
 
 ## 2 Quantifying relatedness: `tales_compare_distal()`
 
@@ -164,13 +141,13 @@ cmp$tale_distances
 
 ### 2.1 Does the choice of backend matter?
 
-Comparing domain sequences – the step just run – is the expensive part,
-and three backends can do it: `"DECIPHER"` (the default, and by far the
-fastest, which is why it was used above), `"Biostrings"`, and
-`"mmseq2"`. They implement the same pairwise protein alignment, so which
-one to pick is a question of what is installed and how large the dataset
-is, not of which answer is right. Checking that claim, rather than
-trusting it, on a small independent fixture so all three run quickly:
+Comparing domain sequences, the step just run, is the expensive part,
+and three backends can do it: `"DECIPHER"` (the default, used above),
+`"Biostrings"`, and `"mmseq2"`. All three score pairwise protein
+alignments between domains, so the choice should depend on what is
+installed and how large the dataset is, and should not change the
+answer. A small independent fixture, on which all three run quickly,
+checks that:
 
 Code
 
@@ -303,41 +280,37 @@ cor(backend_dists)
 #> mmseq2     0.9860172  0.9994692 1.0000000
 ```
 
-All three agree closely on this fixture, which is the point: the fast
-default is not a shortcut that trades accuracy for speed here, at least
-not on data this size.
+All three agree closely on this fixture (correlations of 0.986 and
+above), so the default gives up nothing in accuracy here, at least on
+data this size.
 
 ## 3 Allocating arrays to groups: `tales_group_hclust()` and `tales_group_kmedoids()`
 
 Two clustering methods turn `tale_distances` into discrete groups. Both
-take the `tales` object the distances were computed from – which is what
-lets each check that the two actually correspond – and both return it
-back with the result attached as a `group` column. They are separate
-functions, not two modes of one function, because each carries its own
-methodology-specific arguments (`k_range`/`seed` for k-medoids,
-`plot_tree` for hclust) that do not transfer to the other.
+take the `tales` object the distances were computed from, which lets
+each check that the two actually correspond, and both return it with the
+result attached as a `group` column. Each carries its own
+method-specific arguments (`k_range`/`seed` for k-medoids, `plot_tree`
+for hclust).
 
 [`tales_group_kmedoids()`](https://scunnac.github.io/tantale/reference/tales_group_kmedoids.md)
-fits [`cluster::pam()`](https://rdrr.io/pkg/cluster/man/pam.html) across
-a range of candidate group counts and picks one by its silhouette value;
-`k = "auto"` accepts that automatic pick, feature tantale adds on top of
-what DisTAL itself offers:
+fits [`cluster::pam()`](https://rdrr.io/pkg/cluster/man/pam.html) for
+each candidate group count in `k_range` and plots the average silhouette
+value of each fit. `k = "auto"` picks the elbow of that curve, the point
+after which adding groups stops paying off, a feature tantale adds on
+top of what DisTAL itself offers:
 
 Code
 
 ``` r
-if (fs::file_exists(group_cache)) {
-  grouped <- readRDS(group_cache)
-} else {
-  grouped <- tales_group_kmedoids(cmp$tales, cmp$tale_distances,
-                                  k_range = 2:20, k = "auto")
-  saveRDS(grouped, group_cache)
-}
+grouped <- tales_group_kmedoids(cmp$tales, cmp$tale_distances,
+                                k_range = 2:20, k = "auto")
 ```
 
 [![](tale_classification_files/figure-html/tales_group-1.png)](https://scunnac.github.io/tantale/articles/tale_classification_files/figure-html/tales_group-1.png)
 
     #> The number of groups is automatically decided based on the silhouette value: 9
+    saveRDS(grouped, group_cache)
 
 Code
 
@@ -358,15 +331,18 @@ group_sizes
 #> 9     1     2
 ```
 
-With PXO86 out of the picture, this is a clean result: 8 of 9 groups
-have exactly three members, one from each strain – the
-one-locus-per-strain pattern this comparison is meant to recover.
+The automatic pick, in red on the silhouette plot, is 9 groups. The
+curve is nearly flat just past it, so a few more groups would fit about
+as well; the elbow takes the smallest of those. The result is clean: 8
+of 9 groups have exactly three members, one from each strain, the
+one-locus-per-strain pattern this comparison is meant to recover. The
+remaining group has only a MAI1 and a BAI3 member, matching BAI3-1-1’s
+one fewer array.
 
 [`tales_group_hclust()`](https://scunnac.github.io/tantale/reference/tales_group_hclust.md)
-cuts a dendrogram at a height chosen to yield exactly `k` groups
-instead, and with `plot_tree = TRUE` draws it – useful for judging
-whether the chosen `k` looks reasonable rather than trusting the
-silhouette value blindly:
+instead cuts a dendrogram at a height chosen to yield exactly `k`
+groups, and with `plot_tree = TRUE` draws it. The tree is a useful check
+on whether the chosen `k` looks reasonable:
 
 Code
 
@@ -384,9 +360,8 @@ cut at the k tales_group_kmedoids() picked automatically above.
 ## 4 An overview across strains: `talomes_heatmap()`
 
 With arrays assigned to groups, one natural summary is which RVD
-sequence variant each strain carries in each group – a *talome*, by
-analogy to a genome, being the whole complement of TALEs a strain
-carries.
+sequence variant each strain carries in each group. A strain’s *talome*,
+by analogy to its genome, is the whole complement of TALEs it carries.
 
 Code
 
@@ -411,13 +386,17 @@ Figure 2: RVD sequence variant carried by each strain, in each
 classification group.
 
 Each cell in [Figure 2](#fig-talomes-heatmap) is one strain’s RVD
-sequence variant in one group; a strain missing from a group carries no
-member of it, and a cell with more than one colour means that strain
-carries more than one distinct variant in that group.
+sequence variant in one group, coloured by the variant’s rank within
+that group (the darkest is the most common); the `#` after each group
+name counts its distinct variants. A grey cell means the strain has no
+member in that group, and a cell split into several colours would mean a
+strain carries more than one variant in the group. Here, BAI3 and
+BAI3-1-1 carry the same variant in every group they share. MAI1 carries
+that same variant in four groups and a different one in the other five.
 
 ## 5 A different lens: comparing predicted binding specificity
 
-Everything above compares TALEs by their *sequence* – domain by domain,
+Everything above compares TALEs by their *sequence*, domain by domain,
 via DisTAL. A TALE’s RVDs also predict, base by base, the DNA sequence
 it binds, and two arrays can be compared on that prediction directly
 instead:
@@ -450,34 +429,38 @@ functal_dissim
 #> 9 MAI1_ROI_00007     MAI1_ROI_00007       0
 ```
 
-BAI3 and BAI3-1-1 – the same genomic background, with *talC* deleted in
-the latter – predict the *identical* binding specificity for this array,
-while MAI1’s differs slightly: a result about DNA-binding prediction,
-not sequence identity, arrived at independently of the DisTAL comparison
-above, and one it happens to agree with.
+BAI3 and BAI3-1-1 (the same genomic background, with *talC* deleted in
+the latter) predict the *identical* binding specificity for this array.
+MAI1’s version carries the same twelve RVDs followed by four more, and
+its dissimilarity of 0.25 reflects those four extra positions. This
+result comes from DNA-binding prediction alone, independently of the
+DisTAL comparison above, and agrees with it.
 
 Once arrays are a list of real `universalmotif` motifs, that package’s
-own plotting functions apply directly – no tantale-specific plotting
-code needed. `motif_tree()` draws the same kind of relatedness tree as
+own plotting functions apply directly. `motif_tree()` draws the same
+kind of relatedness tree as
 [`tales_group_hclust()`](https://scunnac.github.io/tantale/reference/tales_group_hclust.md),
-but built from binding-specificity distance instead of protein-domain
+built from binding-specificity distance instead of protein-domain
 distance:
 
 Code
 
 ``` r
 motifs <- tales_to_universalmotif(picked_group)
-universalmotif::motif_tree(motifs)
+universalmotif::motif_tree(motifs, layout = "rectangular", linecol = "none",
+                           labels = "name", legend = FALSE) +
+  ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult = c(0.02, 0.6)))
 ```
 
-[![](tale_classification_files/figure-html/fig-functal-tree-1.png)](https://scunnac.github.io/tantale/articles/tale_classification_files/figure-html/fig-functal-tree-1.png "Figure 3: Predicted-binding-specificity relatedness tree for the same three arrays, from universalmotif::motif_tree().")
+[![](tale_classification_files/figure-html/fig-functal-tree-1.png)](https://scunnac.github.io/tantale/articles/tale_classification_files/figure-html/fig-functal-tree-1.png "Figure 3: Predicted-binding-specificity relatedness tree for the same three arrays, from universalmotif::motif_tree(). Topology only: branch lengths are not drawn to scale.")
 
 Figure 3: Predicted-binding-specificity relatedness tree for the same
-three arrays, from universalmotif::motif_tree().
+three arrays, from universalmotif::motif_tree(). Topology only: branch
+lengths are not drawn to scale.
 
-`view_motifs()` renders the PWMs themselves as sequence logos –
-something no article so far has shown, since DisTAL never visualises the
-specificity model, only the distance it implies:
+`view_motifs()` renders the PWMs themselves as sequence logos, showing
+the specificity model behind the distances. MAI1’s four extra positions
+are visible at the end:
 
 Code
 
@@ -507,18 +490,17 @@ already does at the RVD/`dom_code` layer; and
 [`universalmotif::average_ic()`](https://rdrr.io/pkg/universalmotif/man/utils-motif.html)
 is worth checking before comparing motifs at all, since a PWM built from
 an array with many unresolved RVDs carries little real information and
-can distort a comparison (0.59 bits, here, well above the package’s own
-low-information warning threshold). Statistical significance testing for
-these comparisons (`compare_motifs()`’s `compare.to`/`max.p` arguments)
-is deliberately not shown here: `universalmotif`’s default null
-distributions are calibrated on real transcription-factor motifs, not
-TALE-derived PWMs, and using them as-is would be a plausible-looking but
-uncalibrated claim – a TALE-specific calibration is real, separate work,
-not a one-line addition.
+can distort a comparison (0.59 bits here, above the 0.25-bit minimum
+`compare_motifs()` applies by default). Statistical significance testing
+for these comparisons (`compare_motifs()`’s `compare.to`/`max.p`
+arguments) is deliberately not shown here: `universalmotif`’s default
+null distributions are calibrated on real transcription-factor motifs,
+and applying them to TALE-derived PWMs would give uncalibrated p-values.
+A TALE-specific calibration is separate work.
 
 ## 6 Next
 
-Grouping tells you *which* arrays are related. Seeing exactly *how* –
-which repeats match, which are inserted or deleted relative to one
-another – needs an alignment, which is the subject of [the next
+Grouping tells you *which* arrays are related. Seeing exactly *how*
+(which repeats match, which are inserted or deleted relative to one
+another) needs an alignment, which is the subject of [the next
 article](https://scunnac.github.io/tantale/articles/tale_msa.md).

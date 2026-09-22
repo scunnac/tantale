@@ -5,8 +5,8 @@ related ones. This last article asks the question a TALE’s RVD sequence
 exists to answer: what DNA sequence does it bind? Each RVD contacts one
 base of the target through a well-characterised, largely one-to-one code
 (`NI` prefers A, `HD` prefers C, `NG` prefers T, `NN` prefers G or A,
-and so on), so a whole RVD sequence predicts an *EBE* – an Effector
-Binding Element – as a short DNA motif with one position per RVD.
+and so on), so a whole RVD sequence predicts an *EBE* (Effector Binding
+Element) as a short DNA motif with one position per RVD.
 
 Code
 
@@ -24,20 +24,22 @@ models where a real EBE tends to sit relative to a transcription start
 site. Both are wrapped as
 [`talvez()`](https://scunnac.github.io/tantale/reference/talvez.md) and
 [`preditale()`](https://scunnac.github.io/tantale/reference/preditale.md),
-taking the same inputs and returning the same column layout, so their
-predictions can be compared directly rather than translated by hand.
+which take the same inputs and share their core columns (`taleId`,
+`subjSeqId`, `start`, `end`, `strand`, `score`, `ebeSeq`), so their
+predictions can be compared directly. Their scores are on different
+scales, though, and each adds its own column: `rank` for TALVEZ, `pval`
+for PrediTALE.
 
 ## 1 Getting RVD sequences to predict with
 
 RVD sequences come straight from a `tales` object via
-[`tales_rvd_strings()`](https://scunnac.github.io/tantale/reference/tales_rvd_strings.md)
-– the same projection used for alignment input, just with the termini
-dropped by default, since prediction concerns the repeat domain only.
+[`tales_rvd_strings()`](https://scunnac.github.io/tantale/reference/tales_rvd_strings.md),
+with the termini dropped by default, since only the repeats bind DNA.
 This reuses the same three genomes as [the
 classification](https://scunnac.github.io/tantale/articles/tale_classification.md)
 and [alignment](https://scunnac.github.io/tantale/articles/tale_msa.md)
-articles, from that first article’s cached discovery result rather than
-recomputed here (see [the getting-started
+articles, from the classification article’s cached discovery result (see
+[the getting-started
 article](https://scunnac.github.io/tantale/articles/getting_started.md)
 for how these four articles are linked).
 
@@ -50,9 +52,8 @@ length(rvds)
 ```
 
 The target sequences are promoter regions of three clade III *SWEET*
-genes – a well-studied class of rice susceptibility genes that TALEs
-from *Xanthomonas oryzae* are known to target – from several rice
-varieties:
+genes, a well-studied class of rice susceptibility genes that TALEs from
+*Xanthomonas oryzae* are known to target, from several rice varieties:
 
 Code
 
@@ -115,20 +116,19 @@ preditale_preds |> arrange(desc(score)) |> head(5)
 #> 5 SWEET14p_BT07_Sense         346   368 +      0.476 CATGC… 5.44e-9 NS-N… MAI1_…
 ```
 
-> **`pval`, not just a score**
+> **PrediTALE’s `pval`**
 >
 > PrediTALE additionally reports a `pval` per prediction, since it
-> models the null distribution of scores directly rather than only
-> ranking candidates against each other – worth using when the question
-> is “is this a credible site at all” rather than only “which of these
-> is the best”.
+> models the null distribution of scores directly. It is the column to
+> use when the question is “is this a credible site at all”, beyond
+> “which of these is the best”.
 
 ## 4 Visualising predictions against the target sequence
 
 [`plot_target_preds()`](https://scunnac.github.io/tantale/reference/plot_target_preds.md)
 draws predicted RVD-to-base correspondences directly against the target
 DNA, coloured by how well each RVD’s known base preference matches the
-base actually predicted underneath it – so a “good” prediction is
+base underneath it, so a prediction supported along its whole length is
 visually distinguishable from one held up by only one or two
 well-matching RVDs.
 
@@ -137,15 +137,15 @@ well-matching RVDs.
 > Every RVD gets its own box, one per base of the target. A window wide
 > enough to span several unrelated predictions squeezes every box down
 > to a sliver too narrow for its own label. Pick a window around *one*
-> region of interest – here, where two orthologous TALEs from different
-> strains converge on the same site – rather than the whole promoter at
-> once.
+> region of interest (here, a site where TALEs from different strains
+> converge) instead of the whole promoter at once.
 
-The same locus turns up more than once across strains – unsurprising,
+The same locus turns up more than once across strains, as expected,
 since [the classification
 article](https://scunnac.github.io/tantale/articles/tale_classification.md)
-already found this comparison to be dominated by one-locus-per-strain
-groups. Three arrays, one from each strain, all predict the *same* site:
+found this comparison dominated by one-locus-per-strain groups. Three
+arrays, one from each strain and all members of the same classification
+group, predict the *same* site:
 
 Code
 
@@ -177,11 +177,11 @@ bind the exact same site in the SWEET14 promoter.
 Each RVD is printed in a box over the base it is predicted to contact;
 predictions on the sense strand are drawn above the sequence and those
 on the antisense strand below it, since a TALE can bind either strand of
-its target. All three predictions in [Figure 1](#fig-target-preds) land
-on the exact same site, from the same locus in three different strains,
-with identical scores – exactly the kind of convergence [the alignment
-article](https://scunnac.github.io/tantale/articles/tale_msa.md) would
-call conserved rather than coincidental.
+its target. The first box, `OO`, marks position 0: the base just before
+the first repeat’s target, where TALEs strongly prefer a T. All three
+predictions in [Figure 1](#fig-target-preds) land on the same site with
+identical scores, as expected of one locus conserved across the three
+strains.
 
 ## 5 Closing the loop
 
@@ -197,6 +197,6 @@ to relate them,
 to see that relatedness directly, and
 [`talvez()`](https://scunnac.github.io/tantale/reference/talvez.md)/[`preditale()`](https://scunnac.github.io/tantale/reference/preditale.md)
 to ask what they do. None of these steps requires the ones before it in
-code – each function documented here takes ordinary `tales` objects or
-plain sequences – but together they cover most of what a study of TALE
+code (each function documented here takes ordinary `tales` objects or
+plain sequences), but together they cover most of what a study of TALE
 diversity in a set of genomes actually needs.

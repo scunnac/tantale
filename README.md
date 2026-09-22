@@ -4,8 +4,7 @@
 <!-- badges: end -->
 
 Test coverage measured locally with `covr::package_coverage()` on
-2026-09-21; this repo has no CI yet, so the badge is a manual snapshot,
-not a live number.
+2026-09-21; this repo has no CI yet, so the badge is a manual snapshot.
 <p align="right">
   <img src="./man/figures/tantale_logo_small.gif">
 
@@ -26,13 +25,13 @@ Here is a snapshot of the topics that are or will (hopefully) be covered in the 
 - TALE mining in bacterial sequences:
     - Wrapper around [AnnoTALE](https://doi.org/10.1038/srep21077) and [correcTALE](https://doi.org/10.1186/s12864-023-09228-1)
     - tell_tales, an R function similar to AnnoTALE
-    - Analysis tools for RVD inventory, repeat lenght
+    - Analysis tools for RVD inventory, repeat length
 
 
 - TALEs classification, phylogeny:
     - R reimplementations of [DisTAL](https://doi.org/10.3389/fpls.2015.00545) and [functal](https://doi.org/10.3389/fpls.2015.00545) comparisons, plus a wrapper around AnnoTALE
     - TALE groups inference
-    - Easily build Multiple alignments and generate nice plots
+    - Easily build multiple alignments and generate nice plots
 
 
 - TALE targets predictions:
@@ -59,7 +58,7 @@ pak::pkg_install("scunnac/tantale", dependencies = TRUE, upgrade = FALSE)
 tantale does not bundle the programs it drives. MAFFT, HMMER, mmseqs2 and the
 Perl dependencies of the target predictors come from a conda environment the
 package builds for itself, so **conda (or mamba, or micromamba) is a
-prerequisite of the main workflow**, not just of optional extras.
+prerequisite of the main workflow**.
 
 You do not have to install it by hand or know anything about it. If you have
 no conda at all, `reticulate` will install one from inside R:
@@ -71,7 +70,7 @@ reticulate::install_miniconda()
 
 Note this installs **miniconda**, not mamba. If you already have conda, mamba
 or micromamba, tantale finds it through `reticulate::conda_binary()` and uses
-that instead -- nothing else to do.
+that instead, with nothing else to do.
 
 ### 3. Check everything is in place
 
@@ -82,13 +81,13 @@ tantale::tantale_setup()
 This reports what is present and what is missing, and changes nothing.
 `tantale_setup(install = TRUE)` then builds or repairs the environment.
 
-Running it is optional -- the environment is built on first use if it is
-absent -- but it is worth doing once, for two reasons:
+Running it is optional, since the environment is built on first use if it
+is absent, but it is worth doing once, for two reasons:
 
 - **The first real call would otherwise be the slow one.** The environment is
-  built on first use rather than at install time, so it needs the network and
-  takes a few minutes.
-- **It checks versions, not just presence.** MAFFT changed its `--text` mode
+  built on first use, so that first call needs the network and takes a few
+  minutes.
+- **It checks versions as well as presence.** MAFFT changed its `--text` mode
   gap handling after 7.4x, and later versions align TALE repeat strings
   differently. An environment left over from an older version of tantale
   produces different alignments from the same input, and nothing else would

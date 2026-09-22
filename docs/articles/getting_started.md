@@ -5,16 +5,15 @@ a modular protein: a central array of near-identical ~34-residue
 repeats, each one specifying a single DNA base through two variable
 residues (its RVD), flanked by an N- and a C-terminal region. tantale’s
 job is to find these arrays in genomic sequence, and to represent them
-as data you can subset, compare and plot like any other tibble – one row
-per repeat or terminus, not one opaque object per TALE.
+as data you can subset, compare and plot like any other tibble, with one
+row per repeat or terminus.
 
-This article is a two-minute tour, not a walkthrough: it loads a small
-result already sitting on disk rather than running discovery live, so it
-has no external tools to install first. The [package
-website](https://scunnac.github.io/tantale) has the real thing – a set
-of articles that start from raw genomic FASTA and carry a handful of
-real *Xanthomonas oryzae* genomes all the way through discovery,
-classification, alignment and target prediction.
+This article is a two-minute tour. It loads a small result already
+sitting on disk, so there are no external tools to install first. The
+[package website](https://scunnac.github.io/tantale) has the full set of
+articles, which start from raw genomic FASTA and carry a handful of real
+*Xanthomonas oryzae* genomes through discovery, classification,
+alignment and target prediction.
 
 Code
 
@@ -29,9 +28,8 @@ searches a genome for TALE-coding regions and writes its findings to a
 directory of reports and FASTA files;
 [`tales_from_telltale()`](https://scunnac.github.io/tantale/reference/tales_from_telltale.md)
 reads that directory back into R. The package ships one such directory
-already computed – four arrays found across two short input sequences –
-so this tour can start from the object rather than from a multi-minute
-search:
+already computed (four arrays found across two short input sequences),
+so this tour can start from the object and skip a multi-minute search:
 
 Code
 
@@ -48,9 +46,9 @@ x
 #>   ROI_00004  NTERM NI HD NN NS NN NG HD NG HD NG NN NG HD NS HD NI NG HD H ...
 ```
 
-Every row is one *part* of one array – a repeat, or a terminus – not one
-row per TALE. [`summary()`](https://rdrr.io/r/base/summary.html) gives
-the array-level view:
+Every row is one *part* of one array: a repeat or a terminus.
+[`summary()`](https://rdrr.io/r/base/summary.html) gives the array-level
+view:
 
 Code
 
@@ -90,8 +88,11 @@ agree with each other.
 ## Looking at the arrays
 
 [`plot()`](https://rdrr.io/r/graphics/plot.default.html) on a `tales`
-object lays out every array’s parts in order, coloured by domain type,
-with each repeat’s RVD printed on it:
+object lays out every array’s parts in order. The outline of each circle
+gives the domain type, its fill the part’s length in amino acids, and
+each repeat carries its RVD. The last repeat of each array is shorter
+(20 residues here): it is the half-repeat that ends every TALE repeat
+region:
 
 Code
 
@@ -116,6 +117,10 @@ the package website walks through the full pipeline on real genomes:
 - [The `tales`
   class](https://scunnac.github.io/tantale/articles/tales_class.html) –
   what the object built above actually is, in depth
+- [Genuine truncTALEs and frameshift
+  correction](https://scunnac.github.io/tantale/articles/trunctale_correction.html)
+  – how the two frameshift-correction methods treat naturally truncated
+  TALEs
 - [Classifying TALE sequences from
   genomes](https://scunnac.github.io/tantale/articles/tale_classification.html)
   – grouping arrays across several genomes by relatedness
@@ -127,13 +132,12 @@ the package website walks through the full pipeline on real genomes:
   targets](https://scunnac.github.io/tantale/articles/tale_target_prediction.html)
   – from an aligned group to a predicted DNA binding site
 
-> **These four articles are one analysis, not four**
+> **These four articles form one analysis**
 >
 > Classification, both alignment articles, and target prediction all
-> work over the same three genomes, and the
-> discovery/comparison/grouping result is shared rather than recomputed
-> four times: the classification article computes it and caches the
-> result (`vignettes/articles/_cache/`, not part of the installed
-> package); the other three read that cache. If you are rendering one of
-> those three in isolation from a clean checkout, rather than through a
-> full site build, render the classification article first.
+> work over the same three genomes and share one
+> discovery/comparison/grouping result. The classification article
+> computes it and caches it in `vignettes/articles/_cache/`, outside the
+> installed package; the other three read that cache. To render one of
+> those three on its own from a clean checkout, render the
+> classification article first.

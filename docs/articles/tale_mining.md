@@ -3,21 +3,20 @@
 This is the first of a set of articles walking through a typical study
 of TALE diversity: finding TALE genes in a genome (here), classifying
 the arrays found into groups of related sequences, aligning those
-groups, and predicting the DNA targets of the TALEs they contain. Two of
-the articles in the set are deep dives into a single class (`tales`,
-`tales_msa`) rather than the next step in the walkthrough; they are
-linked from the point where they become relevant, not numbered into the
-sequence.
+groups, and predicting the DNA targets of the TALEs they contain. The
+other articles in the set are side branches: deep dives into a single
+class (`tales`, `tales_msa`) and one case study on naturally truncated
+TALEs. Each is linked from the point where it becomes relevant.
 
 This article covers TALE discovery with
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md),
 and something discovery cannot avoid: real assemblies are not always
-clean,
+clean, and
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
-can sometimes be fooled, and tantale offers two ways to fix that which
-are not interchangeable and neither of which is guaranteed to work.
+can sometimes be fooled. tantale offers two ways to correct frameshifts.
+They work differently, neither is guaranteed to succeed, and
 [`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
-is the tool that tells you which.
+tells you which arrays still need attention after either one.
 
 Code
 
@@ -28,14 +27,13 @@ library(dplyr)
 
 > **The genomes used throughout**
 >
-> Four *Xanthomonas oryzae* genomes appear across this whole set of
-> articles: **MAI1**, **BAI3** and **PXO86** are “clean” assemblies, and
-> **BAI3-1-1** is a deliberately error-prone one – an assembly of the
+> Four *Xanthomonas oryzae* genomes appear across this set of articles:
+> **MAI1**, **BAI3** and **PXO86** are “clean” assemblies, and
+> **BAI3-1-1** is a deliberately error-prone one: an assembly of the
 > same BAI3 background with *talC* deleted, carrying real
-> sequencing/assembly artefacts in its TALE loci. That last kind is not
-> a corner case: it is exactly the kind of input a mining pipeline has
-> to cope with in practice, and it is what the second half of this
-> article is about.
+> sequencing/assembly artefacts in its TALE loci. A mining pipeline
+> meets this kind of input routinely in practice, and it is what the
+> second half of this article is about.
 
 ## 1 Finding TALE loci in genomic DNA
 
@@ -44,9 +42,9 @@ searches a genome with `nhmmer`, using three profile HMMs tuned to the
 N-terminus, the repeat unit, and the C-terminus of a TALE CDS. Hits are
 merged, grouped into candidate arrays by proximity, and each array’s
 longest ORF is handed to AnnoTALE to split into parts and call its RVD
-sequence. `NTERM`/`CTERM` markers are appended to the RVD string
-wherever a terminus was identified this way, so a downstream alignment
-knows where an array actually starts and ends.
+sequence. `NTERM`/`CTERM` markers are added at either end of the RVD
+string wherever a terminus was identified this way, so a downstream
+alignment knows where an array actually starts and ends.
 
 A scratch directory holds everything this set of articles builds:
 
@@ -73,7 +71,7 @@ invisible(tell_tales(subject_file = mai1_fa, output_dir = mai1_dir))
 ```
 
 The result on disk is a directory of reports and fasta files. The result
-in R is a `tales` object – one row per part, not per TALE:
+in R is a `tales` object, with one row per part (repeat or terminus):
 
 Code
 
@@ -99,7 +97,7 @@ mai1
 
 [`plot()`](https://rdrr.io/r/graphics/plot.default.html) on a `tales`
 gives a compact overview of what was found: every array’s parts,
-positioned within the array, coloured by domain type and filled by
+positioned within the array, outlined by domain type and filled by
 amino-acid length, with the RVD printed on each repeat.
 
 Code
@@ -113,9 +111,10 @@ plot(mai1)
 Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 
 [Figure 1](#fig-mai1-composition) already shows something worth
-noticing: array lengths vary, and every array here runs the full width
-of its row – there are no gaps, because nothing has been aligned yet.
-`position_in_array` just counts parts within each array independently.
+noticing: array lengths vary, from 14 to 26 repeats (counting the final
+half-repeat), and each array’s parts sit side by side with no gaps,
+because nothing has been aligned yet. `position_in_array` just counts
+parts within each array independently.
 
 ## 2 What `tell_tales()` writes to disk
 
@@ -133,7 +132,7 @@ directly, since they carry a few things the `tales` object does not.
 | `array_report.tsv`   | candidate array        | `has_all_domains`, `has_aberrant_repeat`, `orf_coverage`, and (with correction) `predicted_ins_count`/`predicted_dels_count` |
 
 `array_report.tsv` is the one this article leans on most, so it is worth
-reading directly rather than only through the `tales` object:
+reading directly:
 
 Code
 
@@ -158,14 +157,20 @@ array_report %>%
 ```
 
 `orf_coverage` is the longest ORF found, as a percentage of the whole
-candidate array region – a clean array covers nearly all of it. That
-number is about to matter a great deal.
+candidate array region; a clean array’s ORF covers 91-93% of it here.
+That number is about to matter a great deal.
+
+The report has one more row than the `tales` object has arrays.
+`ROI_00005` is a candidate region with `has_all_domains` `FALSE` and no
+ORF length; it yields no parts, so it is absent from the object and from
+[Figure 1](#fig-mai1-composition).
 
 ## 3 When discovery goes wrong: detecting anomalies
 
-MAI1 is a good assembly, and every array above came back complete. That
-is not guaranteed. Running the same search on BAI3-1-1 – deliberately
-error-prone – shows what an assembly artefact does to the pipeline.
+MAI1 is a good assembly, and every array in the `tales` object above
+came back complete. That is not guaranteed. Running the same search on
+BAI3-1-1, the deliberately error-prone assembly, shows what an assembly
+artefact does to the pipeline.
 
 Code
 
@@ -188,9 +193,8 @@ bai311_raw <- suppressWarnings(tales_from_telltale(bai311_raw_dir))
 ```
 
 [`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
-reports the arrays that are odd rather than merely absent – missing
-sequence data, impossible terminus arrangements, coordinate
-disagreements:
+reports arrays whose content is inconsistent: missing sequence data,
+impossible terminus arrangements, coordinate disagreements:
 
 Code
 
@@ -204,8 +208,7 @@ tales_anomalies(bai311_raw)
 ```
 
 Two arrays have no `rvd` at all: AnnoTALE could not parse a repeat-array
-structure out of their ORF. This is a frameshift, not a truncation –
-compare their `orf_coverage` to a complete array:
+structure out of their ORF. Their `orf_coverage` shows why:
 
 Code
 
@@ -227,23 +230,28 @@ readr::read_tsv(file.path(bai311_raw_dir, "array_report.tsv"),
 #> 9 ROI_00003 TRUE                           864           19
 ```
 
-`ROI_00003` and `ROI_00005` cover barely a fifth and a quarter of their
-candidate region – a single inserted or deleted base early in the array
-shifts every codon downstream of it, and the ORF finder simply stops at
-the first premature stop codon it meets. Nothing here is a bug: this is
-exactly the situation frameshift correction exists for.
+`ROI_00003` and `ROI_00005` cover 19% and 23% of their candidate region.
+A single inserted or deleted base early in the array shifts every codon
+downstream of it, and the ORF finder stops at the first premature stop
+codon it meets. No array in this assembly reaches MAI1’s 91-93%: the
+others fall between 38% and 70%, short but long enough for AnnoTALE to
+parse, while these two break too early. A premature stop could also be
+genuine: some strains carry naturally truncated TALEs (see [Genuine
+truncTALEs and frameshift
+correction](https://scunnac.github.io/tantale/articles/trunctale_correction.md)).
+In BAI3-1-1 the corrections below settle it: once repaired, both arrays
+recover the coverage of a clean MAI1 array, as expected of assembly
+frameshifts.
 
 ## 4 Correcting frameshifts, two ways
 
-tantale offers two distinct routes to a corrected sequence, and they are
-not interchangeable: one corrects candidate *arrays* after they have
-already been found, from inside
+tantale offers two distinct routes to a corrected sequence: one corrects
+candidate *arrays* after they have been found, from inside
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md);
-the other corrects the *genome* before discovery even starts. Both can
-fail, in different ways, which is exactly why
-[Section 3](#sec-anomalies)’s check is worth repeating after either one
-– and, run on the same genome, they will turn out to disagree with each
-other about which array still needs help.
+the other corrects the *genome* before discovery starts. Both can fail,
+in different ways, so [Section 3](#sec-anomalies)’s check is worth
+repeating after either one. Run on the same genome below, they disagree
+about which array still needs help.
 
 ### 4.1 Correcting inside `tell_tales()`
 
@@ -259,12 +267,12 @@ stops.
 > against, and is the main control on how long correction takes. The
 > full docs on
 > [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
-> measure the trade-off directly: at the default (all references) a set
-> of four arrays took 252 seconds; capped to 20, 10 seconds – but at a
-> cap of 2, the aligner cannot reach a good reference and invents indels
-> wholesale. Capped to 20 is normally ample, and is used below to keep
-> this article fast to build – but the section it fixes also shows
-> exactly what “ample, not certain” means in practice.
+> measure the trade-off directly: four arrays aligned against a
+> 1057-sequence reference set took 252 seconds uncapped and 10 seconds
+> capped to 20. At a cap of 2, the aligner cannot reach a good reference
+> and invents indels wholesale. A cap of 20 is usually ample, and is
+> used below to keep this article fast to build; the next section shows
+> a case where it is not enough.
 
 Code
 
@@ -281,10 +289,10 @@ invisible(tell_tales(subject_file = bai311_fa, output_dir = bai311_corr_dir,
 #> Finding the closest reference amino acid sequences:
 #> ================================================================================
 #> 
-#> Time difference of 0.52 secs
+#> Time difference of 0.46 secs
 #> ================================================================================
 #> 
-#> Time difference of 18.57 secs
+#> Time difference of 18.26 secs
 bai311_corr <- suppressWarnings(tales_from_telltale(bai311_corr_dir))
 ```
 
@@ -301,35 +309,31 @@ tales_anomalies(bai311_corr)
 
 Correction did fix the two frameshifted arrays – `ROI_00003` and
 `ROI_00005` are no longer flagged. But a *different* array, `ROI_00001`,
-now is: it was clean in the uncorrected run above, and correcting
-against only 20 references was, for this particular array, not enough to
-find a good match. The correction did not fail by leaving the array
-alone; it failed by aligning it against a poor reference, which is
-worse, because the output still looks like a corrected ORF right up
-until AnnoTALE tries to parse domains out of it and cannot.
+now is: it was clean in the uncorrected run above, and 20 references
+were, for this particular array, not enough to find a good match. The
+aligner corrected it against a poor reference instead. That is worse
+than leaving it alone, because the output still looks like a corrected
+ORF right up until AnnoTALE tries to parse domains out of it and cannot.
 
-Spending the full search on this same genome – all ~500 shipped
-references rather than 20, about eight minutes instead of ten seconds –
-clears every anomaly, `ROI_00001` included, because the aligner can then
-actually reach a reference close enough to it. There is no shortcut
-around that trade-off: a small `max_comparisons` is a real risk, not a
-rounding error, and checking
+Running the full search on this same genome, against all ~500 shipped
+references, takes about eight minutes instead of twenty seconds and
+clears every anomaly, `ROI_00001` included: the aligner can then reach a
+reference close enough to it. A small `max_comparisons` is a real risk,
+and checking
 [`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
-after correcting is how that risk gets caught rather than silently
-shipped downstream.
+after correcting is how it gets caught before it reaches downstream
+analyses.
 
 ### 4.2 Correcting the genome, before discovery
 
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
-takes a different, faster route: rather than aligning already-found
-candidate arrays against reference proteins, it wraps the Java
-`TALEcorrection` tool to scan the *whole input genome* directly against
-profile HMMs and repair frameshifts it finds, before
+takes a different, faster route. It wraps the Java `TALEcorrection`
+tool, which scans the *whole input genome* against profile HMMs and
+repairs the frameshifts it finds, before
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
-ever runs. That makes it a genome-wide pre-processing step rather than a
-per-array one – worth trying first on a large or especially error-prone
-assembly (an ONT-sequenced genome, say), precisely because it does not
-need candidate arrays to already exist.
+ever runs. As a genome-wide pre-processing step that needs no candidate
+arrays, it is worth trying first on a large or especially error-prone
+assembly (an ONT-sequenced genome, say).
 
 Code
 
@@ -346,8 +350,8 @@ corrections <- correct_tales(uncorrected_path = bai311_fa,
 ```
 
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
-reports every substitution it made, genome-wide, as a table – this
-genome needed 70:
+reports every edit it made, genome-wide, as a table of positions and
+inserted or deleted bases. This genome needed 70:
 
 Code
 
@@ -363,9 +367,8 @@ head(corrections, 4)
 ```
 
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
-then runs on the corrected genome exactly as it would on any other – no
-`correct_array` needed, because the correction already happened
-upstream:
+then runs on the corrected genome exactly as it would on any other, with
+no `correct_array`, because the correction already happened upstream:
 
 Code
 
@@ -389,23 +392,17 @@ tales_anomalies(bai311_java)
 #> # ℹ 3 variables: array_id <chr>, check <chr>, detail <chr>
 ```
 
-Zero anomalies here too, reached by a different route than the
-`max_comparisons = 50` run below:
+Zero anomalies:
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
 fixes both `ROI_00003` and `ROI_00005` on this genome, without touching
-any candidate array individually. A genome-wide pass and a per-array one
-can land on the same outcome through different means. Checking
-[`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
-after either one is the way to find out which method a given array
-actually needed.
+any candidate array individually, and does not break `ROI_00001`.
 
 ### 4.3 A clean correction without an eight-minute wait
 
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
 above already reached zero anomalies in under a minute.
 `max_comparisons = 50` is a second, independent route to the same
-outcome, worth knowing about since it does not depend on the Java
-correction tool being available:
+outcome, useful when the Java correction tool is not available:
 
 Code
 
@@ -425,7 +422,7 @@ invisible(tell_tales(subject_file = bai311_fa, output_dir = bai311_best_dir,
 #> Time difference of 0.42 secs
 #> ================================================================================
 #> 
-#> Time difference of 46.38 secs
+#> Time difference of 44.57 secs
 bai311_best <- suppressWarnings(tales_from_telltale(bai311_best_dir))
 ```
 
@@ -437,9 +434,8 @@ tales_anomalies(bai311_best)
 #> # ℹ 3 variables: array_id <chr>, check <chr>, detail <chr>
 ```
 
-Zero anomalies – raising the cap from 20 to 50 references was enough for
-every array in this genome, in a little over a minute. Either this run
-or
+Zero anomalies: raising the cap from 20 to 50 references was enough for
+every array in this genome, in about a minute. Either this run or
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)’s
 own result above is a reasonable choice for the rest of this set of
 articles; `bai311_best` (built here) is the one used from here on.
@@ -451,8 +447,8 @@ articles; `bai311_best` (built here) is the one used from here on.
 > first and feeding its output into `tell_tales(correct_array = TRUE)`
 > also reaches zero anomalies, and lets the per-array step use a smaller
 > `max_comparisons`, since most of the damage is already gone before it
-> runs. Measured on this same genome (not re-run live here, to keep this
-> article’s build time down):
+> runs. Measured on this same genome, and not re-run here, to keep this
+> article’s build time down:
 >
 > | route                                                                                                                         | time           | anomalies |
 > |-------------------------------------------------------------------------------------------------------------------------------|----------------|-----------|
@@ -525,33 +521,31 @@ ggplot2::ggplot(coverage, ggplot2::aes(x = method, y = orf_coverage, fill = meth
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 30, hjust = 1))
 ```
 
-[![](tale_mining_files/figure-html/fig-coverage-improvement-1.png)](https://scunnac.github.io/tantale/articles/tale_mining_files/figure-html/fig-coverage-improvement-1.png "Figure 2: ORF coverage of the two frameshifted BAI3-1-1 arrays, before and after each correction attempt. All three corrected routes recover both arrays fully.")
+[![](tale_mining_files/figure-html/fig-coverage-improvement-1.png)](https://scunnac.github.io/tantale/articles/tale_mining_files/figure-html/fig-coverage-improvement-1.png "Figure 2: ORF coverage of the two frameshifted BAI3-1-1 arrays, before and after each correction attempt. All three routes bring both arrays to the 91-93% of a clean MAI1 array.")
 
 Figure 2: ORF coverage of the two frameshifted BAI3-1-1 arrays, before
-and after each correction attempt. All three corrected routes recover
-both arrays fully.
+and after each correction attempt. All three routes bring both arrays to
+the 91-93% of a clean MAI1 array.
 
-[Figure 2](#fig-coverage-improvement) is the honest version of “did
-correction help”: all three routes bring `ROI_00003` and `ROI_00005`
-back to comparable, near-complete coverage. On these two numbers alone
-the three routes look interchangeable.
-[Section 4.3](#sec-best-correction)’s finding is what actually separates
-them, and coverage does not show it: `max_comparisons = 20` reaches this
-same recovery while introducing a new anomaly in a different array,
-`ROI_00001`.
+In [Figure 2](#fig-coverage-improvement), all three routes bring
+`ROI_00003` and `ROI_00005` to identical coverage, 93% and 91%. On these
+two numbers alone the three routes look interchangeable. What separates
+them is the new anomaly `max_comparisons = 20` introduced in a different
+array, `ROI_00001`, and coverage of these two arrays cannot show it;
+only
 [`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
-is what catches that; the `orf_coverage` column here does not.
+catches it.
 
 ## 6 Moving on with what you have
 
-`bai311_best` needs none of this – it is already clean, and so is
+`bai311_best` needs none of this: it is already clean, and so is
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)’s
 own result above. A route that stops short of that, such as
 `bai311_corr` (the `max_comparisons = 20` run, which fixed the two
 original frameshifts but broke `ROI_00001`), still needs a decision
 about what to do with what remains flagged. `tales(x, sanitize = TRUE)`
-drops it so an analysis can proceed on what is clean, while keeping a
-clear record of what and why:
+drops it so an analysis can proceed on what is clean, with a warning
+naming each dropped array and the reason:
 
 Code
 
@@ -563,9 +557,9 @@ n_distinct(bai311_corr$array_id) - n_distinct(bai311_clean$array_id)
 
 > **What the rest of this set of articles uses**
 >
-> From here on, “BAI3-1-1” means `bai311_best` – the
+> From here on, “BAI3-1-1” means `bai311_best`, the
 > `max_comparisons = 50` correction from
-> [Section 4.3](#sec-best-correction) – alongside MAI1 and BAI3. PXO86,
+> [Section 4.3](#sec-best-correction), alongside MAI1 and BAI3. PXO86,
 > the fourth genome shipped with the package, is left out of the
 > classification and alignment articles that follow: it is a distant
 > Asian outgroup whose TALE repertoire barely overlaps the African
@@ -577,8 +571,8 @@ n_distinct(bai311_corr$array_id) - n_distinct(bai311_clean$array_id)
 
 The [next
 article](https://scunnac.github.io/tantale/articles/tale_classification.md)
-picks up from a set of `tales` objects like the ones built here – across
-several genomes this time – and classifies their arrays into groups of
+picks up from a set of `tales` objects like the ones built here, across
+several genomes this time, and classifies their arrays into groups of
 related sequences with
 [`tales_compare_distal()`](https://scunnac.github.io/tantale/reference/tales_compare_distal.md)
 and

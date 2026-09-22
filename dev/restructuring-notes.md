@@ -8347,6 +8347,25 @@ worth having on record for whoever picks this back up:
   it is not lost before the bigger distribution-strategy question is
   settled.
 
+**Third finding, 2026-09-23 -- the binary's own licence terms.** Read
+straight out of the binary (`strings inst/tools/arlem/arlem`), since
+nothing in the repo records them: "Copyright by Mohamed I. Abouelhoda (C)
+2007. Unauthorized commercial usage and distribution of this program is
+prohibited. Contact the author for a license." (contact address printed:
+`mohamed.ibrahim@uni-ulm.de`). The package is `License: MIT + file
+LICENSE`, and neither `LICENSE`, `LICENSE.md` nor `DESCRIPTION` mentions
+ARLEM, so the MIT label currently appears to cover a file it cannot
+cover. The sentence is ambiguous: "commercial" may qualify only "usage"
+or "usage and distribution" both. Under either reading, redistributing
+the binary inside tantale needs either a licence from the author or a
+documented exception. This question comes before the choice between
+GitHub, CRAN and Bioconductor: even GitHub-only distribution is still
+distribution. Also checked: a web search found no public ARLEM source
+and no conda/bioconda package, so "build from `src/`" and "take it from
+the conda env" (the options listed above) both depend on obtaining the
+source from the authors. Build info in the binary: C++, GCC 4.3.2
+(Ubuntu, ~2008), dynamically linked against the system libstdc++.
+
 ### `tales_group_kmedoids()`'s fix, extended: validate `k_range` against `n`, not just type
 
 Maintainer's instruction, on seeing the fix above: don't stop at fixing the
@@ -8459,7 +8478,7 @@ go-ahead first**, website work included.
 
 ---
 
-## 30. Full website prose review against `feedback_writing_tone` -- proposed, not started **[P]**
+## 30. Full website prose review against `feedback_writing_tone` -- articles/README/index DONE, reference pages not started **[A]**
 
 Maintainer's suggestion, 2026-09-22, tentative ("may be worth it") --
 recorded so it isn't lost, not committed to as a scheduled task.
@@ -8478,6 +8497,125 @@ pattern in mind yet. Whenever it is picked up, it is a read-and-edit pass
 per file, not something to automate by search-and-replace -- the pattern
 is a rhetorical habit, not a fixed string, and most existing prose
 predates the memory that names it.
+
+
+### Executed 2026-09-23: articles, README, `pkgdown/index.md`
+
+Maintainer's go-ahead, with an added requirement: **every statement must
+agree with what the render code actually produces** (tables, figures,
+return values), on top of the tone rules. Method: each `.qmd` read side by
+side with its rendered `docs/articles/<name>.md` (pkgdown's LLM docs carry
+the prose *and* every chunk output) plus every figure PNG looked at
+directly; any claim not visible in the render checked against the code,
+the cached `_cache/*.rds` objects, or a fresh run. Checklist: memory
+`feedback_tantale_doc_language` (domain vs repeat, no "A, not B", no
+archaeology, biology embedded, plain conclusions). Scope: all 8 articles,
+`README.md`, `pkgdown/index.md`. **Not done: reference-page (roxygen)
+prose** -- the other half of this item's original scope.
+
+**Content mismatches found and fixed** (tone edits, made throughout, are not itemised):
+
+- `getting_started.qmd`: plot said "coloured by domain type" -- fill is
+  `aa_length`, only the outline is `domain_type` (`R/tales_plot.R:67`).
+  "Where to next" was missing the truncTALE article.
+- `tale_mining.qmd`: MAI1 plot described as "every array runs the full
+  width of its row" (lengths vary, 14-26 repeats); `array_report.tsv` has
+  10 rows vs 9 arrays (`ROI_00005`, `has_all_domains` FALSE, no ORF) --
+  now explained. Callout attributed the 252 s timing to "the default" --
+  it was measured against the 1057-sequence source set, the shipped
+  default is 494 (`R/telltale.R:1251`). "Ten seconds" for the 20-cap run
+  -> ~20 s (render: 18.6 s). ROI_00001's failure was cross-referenced to
+  the wrong section. "This is a frameshift, not a truncation -- compare
+  orf_coverage" did not follow from coverage alone (a truncTALE also has
+  low coverage); now grounded in the corrections restoring 91-93%, links
+  the truncTALE article, and notes every BAI3-1-1 array is at 38-70%.
+  Caption "recover both arrays fully" -> "to 91-93%". `correct_tales()`'s
+  table called "substitutions" (they are insertions).
+- `tales_class.qmd`: anomalies described as arrangement-only (the checks
+  also cover missing data, aa_seq->rvd consistency, coordinates);
+  `summary()` said to show domain redundancy (only once `dom_code`
+  exists -- the rendered call precedes it); `alignment_position` called an
+  attribute (it is a column). Archaeology callout ("this exact error was
+  made ... while writing `summary.tales()`") removed.
+- `trunctale_correction.qmd`: **said `ROI_00001`'s N-terminus is
+  "unaffected" -- it is 230 aa, same as `ROI_00019`** (283-288
+  elsewhere); fixed, and tied to Read et al.'s partial N-terminal loss.
+  **`correct_tales()`'s "+1 aa" was a cross-source artefact**: the
+  `tales` table gives 183, `array_report.tsv` 184 before and 184 after
+  (`orf_coverage` 83 -> 83) -- `correct_tales()` changed neither. Summary
+  table now "+33 aa" / "unchanged". Callout row "1057 (default)" -> "all
+  494 (default)": §25's "default full-1057-reference run" was the
+  default, i.e. 494 (this ledger's §25 wording is the error). Summary
+  said "neither tool distinguishes" the frameshift signal, contradicting
+  its own `correct_tales()` result.
+- `tale_classification.qmd`: silhouette plot rendered but never
+  mentioned; `k = "auto"` picks the elbow (k = 9); k = 11-13 have a
+  marginally higher average silhouette -- now said. Ninth group (MAI1 + BAI3
+  only) now noted. Backend claims "by far the fastest" and "implement the
+  same pairwise alignment" unsupported anywhere -- softened. Heatmap
+  encoding described from the code (colour = variant rank, `#` = variant
+  count); BAI3 = BAI3-1-1 everywhere, MAI1 differs in 5 of 9. **Motif tree
+  figure was broken** (no tip labels, legend "character(0)": defaults
+  `labels = "none"`, `linecol = "family"`) -- chunk now passes
+  `labels = "name"`, rectangular, no legend, widened x expansion. Functal
+  result stated concretely (MAI1 = same 12 RVDs + `NG-NI-NG-NI`; 0.25).
+  `average_ic` threshold named (0.25, `compare_motifs()` default).
+  **`tales_group` chunk now always recomputes** (cheap; still writes the
+  cache) so the silhouette plot appears on every render, warm cache
+  included.
+- `tale_msa.qmd`: **"Scored, the gap is one column narrower ... more
+  compact" was false.** Both alignments are 18 wide with 4 gap columns;
+  the matrix moves BAI3/BAI3-1-1's final half-repeat (`dom_code` 29,
+  20 aa) from column 17 -- matched with MAI1's *identical* half-repeat --
+  to column 13, opposite MAI1's full `NI` repeat (code 31). Rewritten to
+  say so; `R/tales_msa_class.R:536`'s own comment already says there is no
+  evidence the matrix makes alignments biologically better. "Deletion"
+  (assumes direction, no outgroup) -> "lack four repeats". Similarity plot
+  now pointed at its one visible difference (BAI3-1-1's N-terminus, own
+  `dom_code` 85, ~99.7%).
+- `tales_msa_class.qmd`: **"`tales_width()` ... is gone" after
+  `as_tales()` -- render prints 18.** Prose now describes current
+  behaviour (see open question 1). Label colours: grey for gap-consensus
+  added. `rvd_sim` figure's grey `NV` cells explained (see open
+  question 2).
+- `tale_target_prediction.qmd`: "same column layout" (different order,
+  `rank` vs `pval`, different score scales); the `OO` box (position 0)
+  explained; closing sentence credited the alignment article with a
+  claim it does not make.
+- `pkgdown/index.md`: **dendrogram described as "three clean groups" --
+  it shows nine** (8 one-per-strain + 1 pair), caption and alt text fixed.
+- README: typo ("lenght"), minor tone. Both LLM-use statements untouched.
+
+**Future work under this item (maintainer, 2026-09-23): a second tone
+sweep for parallel/paired phrasing** -- balanced doublets and rhetorical
+pairs/triplets, with or without a "not" (memory `feedback-writing-tone`,
+habit 2; also in `dev/CLAUDE.md`'s Documentation rules). This pass only
+targeted the "A, not B" contrast; an attempted parallel-phrasing edit
+batch was reverted on the maintainer's instruction ("for future work").
+
+**Open questions for the maintainer, surfaced by this pass, not acted on:**
+
+1. `as_tales()` on a `tales_msa` goes through `tales()`, which drops the
+   class but keeps the `alignment_width` attribute; the `select()`
+   demotion path (`.tales_regrade()`) removes it. Intended?
+2. `fill_type = "rvd_sim"` reads internal `rvdSimDf`, which covers 17
+   RVDs; `rvd_dna_specificity` has 404. Any other RVD (here `NV`) plots as
+   no-score grey even when identical to the reference. Possibly the same
+   gap in the MAFFT `domain_distances = "rvd"` matrix -- not checked.
+   (§21 territory, maintainer's.)
+3. The `domain_distances` scoring matrix displaced an identical
+   half-repeat match (above). Worth checking whether identical codes
+   actually score best in the recoded MAFFT matrix.
+4. `tales` C-terminus `nchar(aa_seq)` vs `array_report.tsv`
+   `cterm_aa_length` differ by one on PXO86's two truncated arrays only
+   (183/184, 42/43; normal arrays agree at 286). Cause not investigated.
+5. Rendered error messages show a source path ("at
+   tantale/R/tales_class.R:818:3") -- install keeps srcrefs; cosmetic.
+6. Seen in passing for the reference-page sweep: `tales_group_kmedoids()`
+   `@param seed` ("Previously a hardcoded 7" -- archaeology);
+   `tell_tales()` `@param frameshift` ("fiddle with this at your own
+   risk..."), `@return` ("This functions"); `talomes_heatmap()`
+   description style.
 
 ---
 

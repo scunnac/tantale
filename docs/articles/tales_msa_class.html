@@ -79,11 +79,11 @@
 
 
 
-    <p><a href="tales_class.html">The <code>tales</code> class article</a> covered <code>tales</code>: one row per part, with <code>dom_code</code> as the identity layer that makes an array alignable. This one is a deep dive into what happens once several arrays <em>are</em> aligned – the <code>tales_msa</code> class – and about the traffic between the two classes: how a <code>tales</code> is promoted into one, how it demotes back, and what each class draws when plotted.</p>
+    <p><a href="tales_class.html">The <code>tales</code> class article</a> covered <code>tales</code>: one row per part, with <code>dom_code</code> as the identity layer that makes an array alignable. This one is a deep dive into what happens once several arrays <em>are</em> aligned (the <code>tales_msa</code> class) and into the traffic between the two classes: how a <code>tales</code> is promoted into one, how it demotes back, and what each class draws when plotted.</p>
 <div>
 <blockquote>
 <p><strong>Where this fits</strong></p>
-<p>This picks up directly from <a href="tale_msa.html#aligning-the-group">the alignment built in the walkthrough</a> – same three arrays, same real internal gap – and goes further into the mechanics than that article needed to.</p>
+<p>This picks up directly from <a href="tale_msa.html#aligning-the-group">the alignment built in the walkthrough</a>, with the same three arrays and the same internal gap, and goes further into the mechanics than that article needed to.</p>
 </blockquote>
 </div>
 <div class="cell">
@@ -95,8 +95,8 @@
 <section class="level2" data-number="1"><h2 data-number="1" id="building-the-alignment-this-article-examines">
 <span class="header-section-number">1</span> Building the alignment this article examines<a class="anchor" aria-label="anchor" href="#building-the-alignment-this-article-examines"></a>
 </h2>
-<p>Same three genomes and the same group as <a href="tale_msa.html">the walkthrough</a>, reused here from the cached result of <a href="tale_classification.html#sec-backends">the classification article</a> rather than recomputed; see <a href="getting_started.html">the getting-started article</a> for how these four articles are linked.</p>
-<p><code><a href="../reference/tales_align.html">tales_align()</a></code> takes a <code>tales</code> and returns a <code>tales_msa</code>: the same rows, plus one new column, <code>alignment_position</code>. Nothing else changes – every column the input carried, <code>rvd</code> and <code>dom_code</code> both included, survives the trip, because the alignment is computed on <em>one</em> residue layer (<code>residue_col</code>) but the object it returns is still the whole table.</p>
+<p>Same three genomes and the same group as <a href="tale_msa.html">the walkthrough</a>, reused here from the cached result of <a href="tale_classification.html">the classification article</a>; see <a href="getting_started.html">the getting-started article</a> for how these four articles are linked.</p>
+<p><code><a href="../reference/tales_align.html">tales_align()</a></code> takes a <code>tales</code> and returns a <code>tales_msa</code>: the same rows, plus one new column, <code>alignment_position</code>. Nothing else changes: every column the input carried, <code>rvd</code> and <code>dom_code</code> both included, survives the trip, because the alignment is computed on <em>one</em> residue layer (<code>residue_col</code>) and the object it returns is still the whole table.</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">msa</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tales_align.html">tales_align</a></span><span class="op">(</span><span class="va">group6</span>, residue_col <span class="op">=</span> <span class="st">"dom_code"</span><span class="op">)</span></span>
@@ -116,9 +116,9 @@
 <p>A <code>tales_msa</code> is a <code>tales</code> with one extra column and one extra stored number:</p>
 <ul>
 <li>
-<strong><code>alignment_position</code></strong> – where this part sits in the alignment, which is not the same coordinate as <code>position_in_array</code>. The two agree up to the first gap and diverge after it.</li>
+<strong><code>alignment_position</code></strong>: where this part sits in the alignment. It agrees with <code>position_in_array</code> up to the first gap and diverges after it.</li>
 <li>
-<strong><code><a href="../reference/tales_width.html">tales_width()</a></code></strong> – the alignment’s total column count, stored rather than derived, because <code>max(alignment_position)</code> over a <em>subset</em> of arrays can under-report a width whose last columns happen to be all gaps in that subset.</li>
+<strong><code><a href="../reference/tales_width.html">tales_width()</a></code></strong>: the alignment’s total column count. It is stored, because <code>max(alignment_position)</code> over a <em>subset</em> of arrays can under-report a width whose last columns happen to be all gaps in that subset.</li>
 </ul>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
@@ -126,7 +126,7 @@
 <span><span class="co">#&gt; [1] 18</span></span></code></pre></div>
 </details>
 </div>
-<p>The array with the internal deletion shows the divergence directly: <code>position_in_array</code> counts its 14 real parts contiguously, while <code>alignment_position</code> jumps by five across the gap.</p>
+<p>An array on the short side of the internal gap shows the divergence directly: <code>position_in_array</code> counts its 14 real parts contiguously, while <code>alignment_position</code> jumps from 12 to 17 across the gap.</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">msa</span> <span class="op">|&gt;</span></span>
@@ -153,15 +153,15 @@
 </div>
 <div>
 <blockquote>
-<p><strong>Gaps are implicit, not stored</strong></p>
-<p>There is no row, anywhere, whose <code>alignment_position</code> is a gap – a gap is simply a column with no row for that array. This is why the class validates cheaply and why every <code>tales</code> invariant (the key, the residue columns, the <code>dom_code</code> bijection) keeps holding unchanged on a <code>tales_msa</code>: nothing new was added to <em>rows</em>, only a new column that says where each existing row lands.</p>
+<p><strong>Gaps are implicit</strong></p>
+<p>There is no row, anywhere, whose <code>alignment_position</code> is a gap: a gap is simply a column with no row for that array. This is why the class validates cheaply and why every <code>tales</code> invariant (the key, the residue columns, the <code>dom_code</code> bijection) keeps holding unchanged on a <code>tales_msa</code>. No rows were added, only a new column that says where each existing row lands.</p>
 </blockquote>
 </div>
-<p>What the alignment adds on top is its own, narrower, set of rules – checked by <code><a href="../reference/validate_tales_msa.html">validate_tales_msa()</a></code> in addition to everything <code><a href="../reference/validate_tales.html">validate_tales()</a></code> already checks: <code>alignment_position</code> is a positive integer, present on every row; unique within an array; ordered like <code>position_in_array</code> (an alignment may insert gaps, it may never reorder parts); and never beyond the declared width.</p>
-</section><section class="level2" data-number="3"><h2 data-number="3" id="views-matrices-are-computed-not-stored">
-<span class="header-section-number">3</span> Views: matrices are computed, not stored<a class="anchor" aria-label="anchor" href="#views-matrices-are-computed-not-stored"></a>
+<p>What the alignment adds on top is its own, narrower set of rules, checked by <code><a href="../reference/validate_tales_msa.html">validate_tales_msa()</a></code> in addition to everything <code><a href="../reference/validate_tales.html">validate_tales()</a></code> already checks: <code>alignment_position</code> is a positive integer, present on every row; unique within an array; ordered like <code>position_in_array</code> (an alignment may insert gaps, it may never reorder parts); and never beyond the declared width.</p>
+</section><section class="level2" data-number="3"><h2 data-number="3" id="views-matrices-are-computed-on-request">
+<span class="header-section-number">3</span> Views: matrices are computed on request<a class="anchor" aria-label="anchor" href="#views-matrices-are-computed-on-request"></a>
 </h2>
-<p>The long table is the only thing actually stored. A rectangular alignment – the picture most people have in mind, one row per array, one column per position – is a <em>view</em>, built on request by <code><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix()</a></code>, and it has to be asked which layer to render:</p>
+<p>The long table is the only thing actually stored. A rectangular alignment (the picture most people have in mind, one row per array, one column per position) is a <em>view</em>, built on request by <code><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix()</a></code>, which takes the layer to render:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">msa</span>, value <span class="op">=</span> <span class="st">"dom_code"</span><span class="op">)</span></span>
@@ -188,13 +188,13 @@
 <span><span class="co">#&gt; BAI3-1-1_ROI_00006 "HD" NA   NA   NA   NA   "NI" "CTERM"</span></span></code></pre></div>
 </details>
 </div>
-<p>Both matrices have the same shape and the same gaps – they are two readings of one geometry, not two independent alignments. That equivalence is exactly what lets <code><a href="../reference/plot.tales_msa.html">plot.tales_msa()</a></code> (below) show a domain’s identity as a colour and its RVD as a label on the same cell – a terminus included, since termini carry an RVD-string entry (their <code>NTERM</code>/<code>CTERM</code> marker) just as repeats do.</p>
+<p>Both matrices have the same shape and the same gaps, because both read the same alignment. This is what lets <code><a href="../reference/plot.tales_msa.html">plot.tales_msa()</a></code> (below) show a domain’s identity as a colour and its RVD as a label on the same cell, termini included, since termini carry an RVD-string entry (their <code>NTERM</code>/<code>CTERM</code> marker) just as repeats do.</p>
 </section><section class="level2" data-number="4"><h2 data-number="4" id="coercion-between-tales-and-tales_msa">
 <span class="header-section-number">4</span> Coercion between <code>tales</code> and <code>tales_msa</code>
 <a class="anchor" aria-label="anchor" href="#coercion-between-tales-and-tales_msa"></a>
 </h2>
-<p><strong>Promotion</strong> is <code><a href="../reference/tales_align.html">tales_align()</a></code>: give it a complete <code>tales</code>, get back a <code>tales_msa</code>. There is no other route, because the alignment column has to come from an actual alignment run – nothing else could populate it honestly.</p>
-<p><strong>Demotion</strong> is <code><a href="../reference/as_tales.html">as_tales()</a></code>, and it is a real operation, not a formality:</p>
+<p><strong>Promotion</strong> is <code><a href="../reference/tales_align.html">tales_align()</a></code>: give it a complete <code>tales</code>, get back a <code>tales_msa</code>. There is no other route, because the alignment column has to come from an actual alignment run.</p>
+<p><strong>Demotion</strong> is <code><a href="../reference/as_tales.html">as_tales()</a></code>:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">demoted</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/as_tales.html">as_tales</a></span><span class="op">(</span><span class="va">msa</span><span class="op">)</span></span>
@@ -210,7 +210,7 @@
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 </details>
 </div>
-<p><code>alignment_position</code> survives as an ordinary column – demoting does not erase where things were aligned, it only stops the object <em>claiming</em> to be a coherent single alignment. That claim is exactly what <code><a href="../reference/tales_width.html">tales_width()</a></code> encodes, and it is gone:</p>
+<p><code>alignment_position</code> survives as an ordinary column, so demoting keeps where things were aligned; the object just stops <em>claiming</em>, through its class, to be a single coherent alignment. The stored width travels along with the demoted object, so <code><a href="../reference/tales_width.html">tales_width()</a></code> still answers:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/tales_width.html">tales_width</a></span><span class="op">(</span><span class="va">demoted</span><span class="op">)</span></span>
@@ -219,11 +219,11 @@
 </div>
 <div>
 <blockquote>
-<p><strong>Why this distinction is not pedantic</strong></p>
-<p>A talome-wide summary spanning several <em>independently</em> aligned groups cannot honestly be one <code>tales_msa</code> – each group has its own width and its own coordinate system, so <code>alignment_position = 5</code> would mean unrelated things in two different groups. Demoting to a plain <code>tales</code> and carrying <code>alignment_position</code> as an ordinary column (per group) is the honest shape for that case; the class is not stretched to cover something it cannot actually guarantee.</p>
+<p><strong>Why the distinction matters</strong></p>
+<p>A talome-wide summary spanning several <em>independently</em> aligned groups cannot be one <code>tales_msa</code>: each group has its own width and its own coordinate system, so <code>alignment_position = 5</code> would mean unrelated things in two different groups. The right shape for that case is a plain <code>tales</code> carrying <code>alignment_position</code> as an ordinary column, meaningful within each group.</p>
 </blockquote>
 </div>
-<p><strong>Subsetting degrades the same way, automatically, one step at a time.</strong> Row subsetting never touches the alignment contract, since every check above is closed under keeping a subset of rows. Column subsetting can: dropping <code>alignment_position</code> itself leaves something that is still a valid <code>tales</code> (everything else about a part is unaffected) but can no longer be a <code>tales_msa</code>, and the class notices without being told:</p>
+<p><strong>Subsetting degrades the same way, automatically, one step at a time.</strong> Row subsetting never touches the alignment contract, since every check above still holds on a subset of rows. Column subsetting can: dropping <code>alignment_position</code> itself leaves something that is still a valid <code>tales</code> (everything else about a part is unaffected) but can no longer be a <code>tales_msa</code>, and the class notices without being told:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">no_alignment</span> <span class="op">&lt;-</span> <span class="va">msa</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="op">-</span><span class="va">alignment_position</span><span class="op">)</span></span>
@@ -231,7 +231,7 @@
 <span><span class="co">#&gt; [1] "tales"      "tbl_df"     "tbl"        "data.frame"</span></span></code></pre></div>
 </details>
 </div>
-<p>This is the same graded-degradation mechanism from <a href="tales_class.html#sec-subsetting">the <code>tales</code> class article’s</a> <code>[.tales</code> method, just visible one level up: a <code>tales_msa</code> that loses what makes it an alignment steps down to a <code>tales</code> rather than lying about still being one, and a <code>tales</code> that loses its key steps down to a bare tibble for the same reason. Losing an <em>optional</em> column – <code>seqnames</code>, <code>aa_seq</code> – costs nothing at either level.</p>
+<p>This is the same graded-degradation mechanism from <a href="tales_class.html#sec-subsetting">the <code>tales</code> class article’s</a> <code>[.tales</code> method, one level up: a <code>tales_msa</code> that loses what makes it an alignment steps down to a <code>tales</code>, and a <code>tales</code> that loses its key steps down to a bare tibble, for the same reason. Losing an <em>optional</em> column (<code>seqnames</code>, <code>aa_seq</code>) costs nothing at either level.</p>
 </section><section class="level2" data-number="5"><h2 data-number="5" id="plotting-two-methods-one-generic">
 <span class="header-section-number">5</span> Plotting: two methods, one generic<a class="anchor" aria-label="anchor" href="#plotting-two-methods-one-generic"></a>
 </h2>
@@ -239,17 +239,17 @@
 <section class="level3" data-number="5.1"><h3 data-number="5.1" id="plot-tales-before-and-after-alignment">
 <span class="header-section-number">5.1</span> <code>plot.tales()</code> before and after alignment<a class="anchor" aria-label="anchor" href="#plot-tales-before-and-after-alignment"></a>
 </h3>
-<p>A <code>tales</code> without an alignment can only be laid out on <code>position_in_array</code>: every array starts its own count at 1, so an aberrant repeat scatters to wherever it happens to sit in each array. <code>position = "alignment"</code> needs the column that only an aligned (or demoted-from-aligned) object carries, and lines features up instead:</p>
+<p>A <code>tales</code> without an alignment can only be laid out on <code>position_in_array</code>: every array starts its own count at 1, so a feature shared by all arrays sits wherever it happens to fall in each. <code>position = "alignment"</code> needs the column that only an aligned (or demoted-from-aligned) object carries, and lines features up instead. The final half-repeat shows it: at position 13 in BAI3 and BAI3-1-1 and 17 in MAI1 before alignment, in column 17 for all three after.</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">group6</span>, position <span class="op">=</span> <span class="st">"array"</span><span class="op">)</span></span></code></pre></div>
 </details><div class="cell-output-display">
 <div id="fig-plot-before" class="quarto-float quarto-figure quarto-figure-center">
 <figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-plot-before-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<a href="tales_msa_class_files/figure-html/fig-plot-before-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure 1: The same three arrays laid out by position_in_array – no gaps, because nothing has been aligned."><img src="tales_msa_class_files/figure-html/fig-plot-before-1.png" width="768"></a>
+<a href="tales_msa_class_files/figure-html/fig-plot-before-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-1" title="Figure 1: The same three arrays laid out by position_in_array: no gaps, because nothing has been aligned."><img src="tales_msa_class_files/figure-html/fig-plot-before-1.png" width="768"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-plot-before-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure 1: The same three arrays laid out by position_in_array – no gaps, because nothing has been aligned.
+Figure 1: The same three arrays laid out by position_in_array: no gaps, because nothing has been aligned.
 </figcaption></figure>
 </div>
 </div>
@@ -260,10 +260,10 @@ Figure 1: The same three arrays laid out by position_in_array – no gaps, beca
 </details><div class="cell-output-display">
 <div id="fig-plot-after" class="quarto-float quarto-figure quarto-figure-center">
 <figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-plot-after-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<a href="tales_msa_class_files/figure-html/fig-plot-after-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Figure 2: The same three arrays laid out by alignment_position – the shared deletion now lines up as a column."><img src="tales_msa_class_files/figure-html/fig-plot-after-1.png" width="768"></a>
+<a href="tales_msa_class_files/figure-html/fig-plot-after-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Figure 2: The same three arrays laid out by alignment_position: the four-repeat gap now shows as columns 13-16."><img src="tales_msa_class_files/figure-html/fig-plot-after-1.png" width="768"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-plot-after-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure 2: The same three arrays laid out by alignment_position – the shared deletion now lines up as a column.
+Figure 2: The same three arrays laid out by alignment_position: the four-repeat gap now shows as columns 13-16.
 </figcaption></figure>
 </div>
 </div>
@@ -271,14 +271,14 @@ Figure 2: The same three arrays laid out by alignment_position – the shared d
 </section><section class="level3" data-number="5.2"><h3 data-number="5.2" id="plot-tales_msa-three-things-decided-independently">
 <span class="header-section-number">5.2</span> <code>plot.tales_msa()</code>: three things decided independently<a class="anchor" aria-label="anchor" href="#plot-tales_msa-three-things-decided-independently"></a>
 </h3>
-<p>The alignment plot draws a heatmap – one row per array, one column per position – and three questions about it are answered separately:</p>
+<p>The alignment plot draws a heatmap (one row per array, one column per position) and three questions about it are answered separately:</p>
 <ul>
 <li>
-<strong>what each cell <em>says</em></strong> – <code>label</code>, defaulting to <code>rvd</code> whenever that is not also the fill layer;</li>
+<strong>what each cell <em>says</em></strong>: <code>label</code>, defaulting to <code>rvd</code> whenever that is not also the fill layer;</li>
 <li>
-<strong>what colour that text is</strong> – always whether the cell matches the consensus of its column (<code><a href="../reference/tales_consensus.html">tales_consensus()</a></code>), cyan for yes, pink for no, regardless of what <code>fill_type</code> is showing;</li>
+<strong>what colour that text is</strong>: always whether the cell matches the consensus of its column (<code><a href="../reference/tales_consensus.html">tales_consensus()</a></code>), cyan for yes, pink for no, grey where the consensus is a gap, regardless of what <code>fill_type</code> is showing;</li>
 <li>
-<strong>what colour the block behind it is</strong> – <code>fill_type</code>, the only one of the three that can be unavailable.</li>
+<strong>what colour the block behind it is</strong>: <code>fill_type</code>, the only one of the three that can be unavailable.</li>
 </ul>
 <div class="cell">
 <div class="cell-output-display">
@@ -314,7 +314,7 @@ Figure 2: The same three arrays laid out by alignment_position – the shared d
 </table>
 </div>
 </div>
-<p>The <code>domain_distances</code> argument takes exactly that – the <code>domain_distances</code> element of <code><a href="../reference/tales_compare_distal.html">tales_compare_distal()</a></code>’s result. Passing <code>tale_distances</code> (the <code>tale_distances</code> element) in addition adds a dendrogram panel ordering the rows by relatedness:</p>
+<p>The <code>domain_distances</code> argument takes exactly that: the <code>domain_distances</code> element of <code><a href="../reference/tales_compare_distal.html">tales_compare_distal()</a></code>’s result. Passing <code>tale_distances</code> (the <code>tale_distances</code> element) in addition adds a dendrogram panel ordering the rows by relatedness:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">msa</span>, tale_distances <span class="op">=</span> <span class="va">cmp</span><span class="op">$</span><span class="va">tale_distances</span>, domain_distances <span class="op">=</span> <span class="va">cmp</span><span class="op">$</span><span class="va">domain_distances</span><span class="op">)</span></span></code></pre></div>
@@ -329,22 +329,23 @@ Figure 3: Default plot.tales_msa() view: domain-cluster fill, RVD labels, and a
 </div>
 </div>
 </div>
-<p><code>"rvd_sim"</code> asks a different question at a different layer: not “which cluster” or “how similar a protein”, but how alike each RVD’s DNA-binding specificity is to the reference’s. It needs no <code>domain_distances</code> at all, only the RVDs themselves:</p>
+<p><code>"rvd_sim"</code> asks a different question at a different layer: how alike each RVD’s DNA-binding specificity is to the reference’s. It needs no <code>domain_distances</code> at all, only the RVDs themselves:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">msa</span>, fill_type <span class="op">=</span> <span class="st">"rvd_sim"</span><span class="op">)</span></span></code></pre></div>
 </details><div class="cell-output-display">
 <div id="fig-msa-plot-rvdsim" class="quarto-float quarto-figure quarto-figure-center">
 <figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-msa-plot-rvdsim-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<a href="tales_msa_class_files/figure-html/fig-msa-plot-rvdsim-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4" title="Figure 4: The same alignment, coloured by RVD specificity relative to the reference rather than by repeat identity."><img src="tales_msa_class_files/figure-html/fig-msa-plot-rvdsim-1.png" width="864"></a>
+<a href="tales_msa_class_files/figure-html/fig-msa-plot-rvdsim-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-4" title="Figure 4: The same alignment, coloured by RVD specificity relative to the reference."><img src="tales_msa_class_files/figure-html/fig-msa-plot-rvdsim-1.png" width="864"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-msa-plot-rvdsim-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure 4: The same alignment, coloured by RVD specificity relative to the reference rather than by repeat identity.
+Figure 4: The same alignment, coloured by RVD specificity relative to the reference.
 </figcaption></figure>
 </div>
 </div>
 </div>
-<p>The domain- and RVD-level views genuinely differ: <code>HD</code> and <code>ND</code> are distinct domains with identical specificity, while domains differing only at positions 12-13 are near-identical proteins with opposite target bases – so <code>"domain_sim"</code> and <code>"rvd_sim"</code> are not two colour schemes for the same fact, they are answers to two different questions.</p>
+<p>Here every repeat carries the same RVD as the reference’s at its position, so all score 1. Termini have no DNA-binding preference and stay grey, as do RVDs the built-in similarity table does not cover (here <code>NV</code>).</p>
+<p>The domain- and RVD-level views genuinely differ: repeats carrying <code>HD</code> and <code>ND</code> differ in sequence yet both favour cytosine, while repeats differing only at positions 12-13 are near-identical proteins that target different bases. <code>"domain_sim"</code> and <code>"rvd_sim"</code> answer two different questions.</p>
 </section></section><section class="level2" data-number="6"><h2 data-number="6" id="next">
 <span class="header-section-number">6</span> Next<a class="anchor" aria-label="anchor" href="#next"></a>
 </h2>
@@ -450,7 +451,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script><script>var lightboxQuarto = GLightbox({"descPosition":"bottom","selector":".lightbox","closeEffect":"zoom","openEffect":"zoom","loop":false});
+</script><script>var lightboxQuarto = GLightbox({"openEffect":"zoom","closeEffect":"zoom","descPosition":"bottom","selector":".lightbox","loop":false});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {
