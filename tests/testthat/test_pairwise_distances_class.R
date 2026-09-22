@@ -139,7 +139,12 @@ test_that("as.matrix() builds the square matrix with sorted dimnames", {
 
 test_that("as.matrix() matches the acast() call it replaces", {
   x <- pairwise_distances(minimal_distances_df())
-  expected <- reshape2::acast(as.data.frame(x), id1 ~ id2, value.var = "dissim")
+  # reshape2 is gone (ledger 14); minimal_distances_df() is small and fixed
+  # enough to hand-compute the expected matrix directly rather than lean on
+  # any reshaping library at all -- 0 on the diagonal, 50 off it, per its
+  # own definition above.
+  expected <- matrix(c(0, 50, 50, 50, 0, 50, 50, 50, 0), nrow = 3,
+                      dimnames = list(c("a", "b", "c"), c("a", "b", "c")))
   expect_equal(as.matrix(x), expected)
 })
 
@@ -213,8 +218,14 @@ test_that("as.matrix() reproduces what the existing call sites compute", {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   out <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
 
-  # classification.R:24 does 100 - acast(tal_sim, TAL1 ~ TAL2, value.var = "Sim")
-  legacy <- 100 - reshape2::acast(out$tal.similarity, TAL1 ~ TAL2, value.var = "Sim")
+  # classification.R:24 used to do 100 - acast(tal_sim, TAL1 ~ TAL2, value.var
+  # = "Sim"). reshape2 is gone (ledger 14); .pairwise_long_to_matrix() is its
+  # already-verified replacement (identical() to real acast() output on real
+  # data, per that migration) -- an independent implementation from
+  # as.matrix.pairwise_distances() itself, so this is still a real
+  # cross-check, not a tautology.
+  renamed <- dplyr::rename(out$tal.similarity, id1 = "TAL1", id2 = "TAL2")
+  legacy <- 100 - tantale:::.pairwise_long_to_matrix(renamed, "Sim")
   # as.matrix() now yields the distance directly, so no inversion is needed
   viaClass <- as.matrix(tale_distances(out$tal.similarity))
   expect_equal(viaClass, legacy)

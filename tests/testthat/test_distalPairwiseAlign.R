@@ -5,7 +5,11 @@ part_aa_set <-  Biostrings::AAStringSet(tale_parts$aa_seq)
 names(part_aa_set) <- tale_parts$partId
 
 test_that(".pairwise_align_biostrings output a tibble with the expected dims", {
-  pair_align_scores <- .pairwise_align_biostrings(part_aa_set, ncores = 4)
+  # 2, not 4: R CMD check sets _R_CHECK_LIMIT_CORES_, which BiocParallel
+  # enforces (workers must be <= 2). Still exercises the actual multi-worker
+  # path, just within the CRAN-safe limit, rather than dropping to the
+  # single-worker default and testing nothing about parallelism at all.
+  pair_align_scores <- .pairwise_align_biostrings(part_aa_set, ncores = 2)
   expect_true(identical(dim(pair_align_scores), c(9216L,5L)))
 })
 

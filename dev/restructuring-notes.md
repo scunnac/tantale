@@ -6983,6 +6983,43 @@ sequence:**
   2026-09-13, marked `[A]` (agreed, not executed) and never revisited
   since -- this is not a new idea, it is a known-but-stale item this
   session rediscovered independently before finding the older record.
+- **Maintainer's question, 2026-09-22: is `.pairwise_long_to_matrix()`
+  (`R/distalr.R`) redundant with `as.matrix.pairwise_distances()`
+  (`R/pairwise_distances_class.R`)?** Checked all four call sites, not
+  assumed either way. **Not simply redundant -- two genuinely need it,
+  two are the same unresolved question as this section's own items 1-4
+  above, not a new one.**
+  - `R/distalr.R`'s `.arlem_cost_file()` and `.run_arlem()`'s own melt
+    step both operate on data that either isn't a validated
+    `pairwise_distances` object yet (`.arlem_cost_file()` explicitly
+    strips the class first, via `tibble::as_tibble(dd)`) or is raw ARLEM
+    output that never was one (`scores`, before any class wraps it), and
+    both need **numeric-order** row/column handling afterward (`domain
+    codes are integers rendered as text -- alphabetical sort, which is
+    what both `as.matrix.pairwise_distances()`'s `sort(union(...))` and
+    `.pairwise_long_to_matrix()`'s own internal ordering give, puts "10"
+    before "2"`) -- `.arlem_cost_file()` compensates with its own
+    `order(as.numeric(rownames(mat)))` afterward, something
+    `as.matrix.pairwise_distances()` has no hook for. Genuinely justified,
+    not redundant.
+  - **`R/tales_plot.R`'s two call sites (`.domain_to_cluster_align()` line
+    687, the hclust dendrogram builder line 378) are less clearly
+    justified** -- neither needs `.pairwise_long_to_matrix()`'s specific
+    behaviour: the dendrogram one re-subsets and reorders its matrix by
+    explicit array name immediately afterward regardless of the input's
+    own row order, and the cluster one feeds straight into
+    `hclust(as.dist(...))`, which doesn't care about row/column order at
+    all as long as it's square and consistent. Both operate on what looks
+    like an already-valid `domain_distances`/`tale_distances` object at
+    that point in the call chain (not independently confirmed with
+    certainty here) -- if so, `as.matrix()` could replace
+    `.pairwise_long_to_matrix()` at both sites, gaining its squareness
+    check as a free correctness net rather than losing anything. **This is
+    the exact same ground as §21's own reserved items 1-4 above**
+    (`.domain_to_cluster_align()` is literally item 1) -- not a new
+    finding to act on separately, folded in here rather than opened as its
+    own question. Still the maintainer's own to do, not to be started
+    without being asked.
 
 ## 22. `plot.tales_msa()`'s `position_in_array` mislabel -- fixed **[V]**
 
@@ -7442,7 +7479,13 @@ unrelated to the reset itself (the reset changes no tracked file's
 content at all, `extra/` excluded per Deviation 1 and confirmed
 unreferenced by any code above) -- both pre-existing, both newly
 surfaced only because this may be the first full, clean `R CMD check` run
-in some time, and neither fixed tonight:**
+in some time. (**Picked up the same night, see §27 for the full
+investigation: the `reshape2` one is fully fixed; the golden mismatch
+turned out to actually be three separate issues bundled together in this
+paragraph's first telling -- a third, a hardcoded `ncores` value, wasn't
+even visible yet when this was written -- one is fixed and verified, one
+is narrowed to a specific, not-yet-isolated cause. Treat what follows as
+the state at the moment of discovery, not the current state.**)
 
 - **`test_pairwise_distances_class.R` hard-depends on `reshape2`** at two
   call sites (`expected <- reshape2::acast(...)`, `legacy <- 100 -
@@ -7478,3 +7521,147 @@ in some time, and neither fixed tonight:**
 pre-`gc`, moved aside rather than deleted) and the GitHub release bundle
 both still exist as full-fidelity fallbacks if anything above needs
 re-examining.
+
+---
+
+## 27. Chasing "a clean, entire test suite" -- two of three real bugs fixed and verified, one narrowed but still open **[P]**
+
+Direct follow-through on §26's two findings, same night. **Session paused
+here on purpose, not a close** -- read this whole section before touching
+`test_golden.R`/`helper-golden.R` again, since it records a real
+methodology (and its pitfalls) that cost real time to work out, not just
+a status.
+
+### Finding 1, `reshape2` -- FIXED, verified **[V]**
+
+`test_pairwise_distances_class.R` had two tests using `reshape2::acast()`
+as independent "legacy" ground truth to check `as.matrix.pairwise_distances()`
+against -- harmless in spirit, but `reshape2` was dropped from
+`DESCRIPTION` weeks ago (§14) and only kept working because it happens to
+still be installed on this machine's ambient library, invisible to every
+`devtools::load_all()`-based check this whole project has run since.
+
+Fixed by removing the dependency entirely, not by re-adding it as a guarded
+`Suggests:`:
+- The small, fixed 3x3 fixture (`minimal_distances_df()`) test now compares
+  against a **hand-computed, hardcoded expected matrix** -- simplest
+  possible, no reshaping library needed at all.
+- The real-data test now compares against **`.pairwise_long_to_matrix()`**
+  (`R/distalr.R`), itself already an independently-verified, already-shipped
+  `reshape2::acast()` replacement from §14's own migration -- a genuine
+  cross-check against `as.matrix.pairwise_distances()`'s own, separate
+  implementation, not a tautology (confirmed the two functions really are
+  independent -- see §21's addendum on that exact question, prompted by
+  writing this fix).
+
+Verified: `test_pairwise_distances_class.R` passes clean under `load_all()`;
+`grep -rn "reshape2" R/ tests/` now returns only explanatory comments, zero
+live calls.
+
+### Finding 2, hardcoded `ncores = 4` -- FIXED, verified **[V]**
+
+`test_distalPairwiseAlign.R` called `.pairwise_align_biostrings(..., ncores
+= 4)`. `R CMD check` sets `_R_CHECK_LIMIT_CORES_`, which `BiocParallel`
+enforces (workers must be `<= 2`) -- confirmed directly from the check's own
+error message, not inferred. Changed to `ncores = 2`: still exercises the
+real multi-worker code path (the point of hardcoding a number at all,
+`.pairwise_align_biostrings()`'s own default is `ncores = 1`), just within
+the CRAN-safe limit. Verified passing under `load_all()`.
+
+### Finding 3, the golden-baseline mismatch -- one real root cause found and
+fixed, a second, narrower one still open **[P]**
+
+**The investigation, in enough detail that it does not need repeating.**
+Every attempt to reproduce the original `devtools::check()` failure via a
+quick `devtools::install()` or a tarball-install into a fresh library
+**passed clean** -- load_all vs. installed was not, by itself, the
+trigger. Two full `devtools::check()` runs (not `--quiet`) confirmed the
+failure is **reliably reproducible**, not a flake -- both showed the exact
+same two rows (`test_golden.R:143`, the plain `tell_tales()` run, and
+`:206`, the frameshift-correction run) failing with `n_dropped` jumping
+(2->6/7) and a new digest, `n_lines` unchanged both times (same file, same
+line *count*, different line *content* -- not a different file landing at
+the same sorted position).
+
+**The methodology that actually worked, once found:** `testthat`'s own
+`on.exit(unlink(out, ...))` cleanup deletes the real output the instant a
+golden test finishes, pass or fail, so nothing survives to inspect
+afterward by default. Fix: temporarily repoint the test's output
+directory from a `tempdir()`-based path to a **fixed, absolute path
+outside any tempdir**, and temporarily remove the `on.exit()` cleanup, so
+a real `R CMD check` run (via raw `R CMD check ... --no-clean-on-error`,
+which -- unlike `devtools::check()` -- never deletes its own check
+directory by default) leaves the actual failing output sitting on disk to
+`diff` directly. **One real methodology trap, cost real time twice:**
+comparing two runs' `tell_tales.log` naively is not enough -- the log's
+own "Output directory:" line keeps its *basename* even after path
+normalisation (deliberately -- see the file's own comment on why), so two
+diagnostic runs using two *different* directory names for the "known
+good" and "under test" copies will always show a spurious difference
+there, however carefully everything else is controlled. **Always give the
+control run the exact same output-directory basename as the run being
+diagnosed**, or the comparison is worthless from the first line.
+
+**Root cause found and fixed for the correction test specifically:**
+`correction_ref = test_path("data_for_tests", "correction_ref_20.fa.gz")`
+-- confirmed directly, byte for byte, in the captured output:
+`testthat::test_path()` resolves to a **relative** path under a real `R
+CMD check` (the working directory is already `tests/testthat/`) but an
+**absolute** one under `devtools::load_all()`. `tell_tales.log` echoes
+`correction_ref` verbatim, and the golden fingerprint's own path-
+normalisation regex (`.PATH_PREFIX`) only strips **absolute** paths --
+deliberately narrow, per §8.1d's own "anything between two slashes
+over-matches" lesson, so it was never going to be broadened casually to
+also catch bare relative fragments. A relative path therefore survives
+untouched into the digest, and a baseline captured under one context
+(load_all, always absolute) can never match a run under the other
+(check, sometimes relative) -- **exactly the same failure shape §8.1d
+already fixed once, for a different path, not a new class of bug.**
+Fixed narrowly, at the one call site (`correction_ref =
+normalizePath(test_path(...))`), not by broadening the shared regex --
+confirmed by an isolated, matched-basename reproduction that this
+eliminates the `n_dropped` jump **entirely** (down to zero rows differing
+at all, not just a smaller difference).
+
+**What is still open, confirmed narrower but not closed:** running
+`test_golden.R` as a **whole file** (`testthat::test_file()`, the same
+way `R CMD check`/`test_check()` runs it -- every `test_that()` block in
+one shared R session) still shows one residual digest difference on the
+correction test's row, even with the fix above applied -- while an
+**isolated** reproduction of the exact same scenario (fresh session,
+matched basename, the fix in place) shows **zero** difference. The
+plain, uncorrected `tell_tales()` test (`:143`) shows the identical
+pattern: zero difference in a controlled, isolated, matched-basename
+reproduction, but still fails when the whole file runs together. **This
+rules out the dependency-version hypothesis floated in §26** (a
+freshly-resolved `R CMD check` library pinning a different `DECIPHER`
+version than the ambient one) -- if that were the cause, an isolated
+run against the real installed library would show it too, and it does
+not. **What remains is session/test-order state leakage**: something
+that happens earlier in `test_golden.R`'s own run (there are several
+other golden tests before both failing ones, all sharing one R session
+under `test_check()`) leaves the session in a state that changes what a
+later `tell_tales()` call produces. Not yet isolated to a specific
+earlier test or mechanism.
+
+**Concrete next step, not yet attempted:** bisect `test_golden.R` by
+commenting out its earlier `test_that()` blocks in groups and re-running
+the file as a whole each time (not in isolation -- isolation is exactly
+what makes the difference disappear) until the residual difference stops
+reproducing, which will name the actual interfering test. Worth checking
+first, since it is the most obviously stateful thing in the file:
+`telltale_run()`'s own `local({ cache <- NULL; ... })` memoisation --
+plausible that some interaction between it being called by an earlier
+test and the correction test's own separate `tell_tales()` call is
+involved, though this is a hypothesis to test, not a finding.
+
+**Explicit status, not to be read as more resolved than it is:** the
+golden snapshot file (`tests/testthat/_snaps/golden.md`) has **not** been
+touched or re-baselined at any point tonight -- it still reflects the
+original, pre-existing accepted baseline. The `normalizePath()` fix is
+real, verified, and committed regardless of the residual issue, but
+**`test_golden.R` does not yet pass clean under a real `R CMD check`**.
+Anyone picking this up should re-run `devtools::check()` once (or the
+raw `R CMD check --no-clean-on-error` + fixed-path methodology above, for
+faster iteration) to confirm current status before assuming anything
+above is stale.

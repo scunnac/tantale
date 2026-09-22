@@ -194,7 +194,18 @@ test_that("golden: tell_tales() with frameshift correction", {
                                package = "tantale", mustWork = TRUE),
     output_dir = out,
     correct_array = TRUE,
-    correction_ref = test_path("data_for_tests", "correction_ref_20.fa.gz"))))
+    # normalizePath(), not a bare test_path(): testthat::test_path() resolves
+    # *relatively* under a real R CMD check (the working directory is already
+    # tests/testthat/) but *absolutely* under devtools::load_all() -- and
+    # tell_tales.log echoes this path verbatim. The golden fingerprint's own
+    # path-normalisation regex (.PATH_PREFIX) only strips absolute paths (it
+    # requires a leading "/", deliberately narrow per ledger 8.1d's own
+    # "anything between two slashes over-matches" lesson) -- so a relative
+    # path survives untouched into the digest, and a baseline that only
+    # reproduces under one of the two contexts is exactly the failure mode
+    # 8.1d already fixed once for a different path. Forcing absolute here
+    # is the narrow fix: one call site, not a broadened shared regex.
+    correction_ref = normalizePath(test_path("data_for_tests", "correction_ref_20.fa.gz")))))
 
   # the correction branch writes two directories the uncorrected run does not
   expect_true(dir.exists(file.path(out, "correction_alignment_dna")))
