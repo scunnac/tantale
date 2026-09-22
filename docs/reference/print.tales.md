@@ -34,6 +34,7 @@ print(x, n = 2L, ...)
 ## See also
 
 Other tales objects:
+[`[.tales()`](https://scunnac.github.io/tantale/reference/sub-.tales.md),
 [`as_tales()`](https://scunnac.github.io/tantale/reference/as_tales.md),
 [`format.tales()`](https://scunnac.github.io/tantale/reference/format.tales.md),
 [`format.tales_msa()`](https://scunnac.github.io/tantale/reference/format.tales_msa.md),
@@ -50,3 +51,22 @@ Other tales objects:
 [`tales_namespace()`](https://scunnac.github.io/tantale/reference/tales_namespace.md),
 [`tales_requirements()`](https://scunnac.github.io/tantale/reference/tales_requirements.md),
 [`validate_tales()`](https://scunnac.github.io/tantale/reference/validate_tales.md)
+
+## Examples
+
+``` r
+parts <- data.frame(
+  array_id = c("A1", "A1", "A1", "A2", "A2", "A2"),
+  position_in_array = c(1L, 2L, 3L, 1L, 2L, 3L),
+  domain_type = c("N-terminus", "repeat", "C-terminus",
+                  "N-terminus", "repeat", "C-terminus"),
+  rvd = c("NTERM", "HD", "CTERM", "NTERM", "NI", "CTERM")
+)
+x <- tales(parts)
+print(x)
+#> <tales> 2 arrays, 6 parts
+#>   layers: rvd   |   1 other column
+#>       rvd
+#>   A1  NTERM HD CTERM
+#>   A2  NTERM NI CTERM
+```

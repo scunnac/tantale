@@ -36,6 +36,7 @@ aligned residue is the k-th part fed in.
 ## See also
 
 Other tales objects:
+[`[.tales()`](https://scunnac.github.io/tantale/reference/sub-.tales.md),
 [`as_tales()`](https://scunnac.github.io/tantale/reference/as_tales.md),
 [`format.tales()`](https://scunnac.github.io/tantale/reference/format.tales.md),
 [`format.tales_msa()`](https://scunnac.github.io/tantale/reference/format.tales_msa.md),
@@ -61,9 +62,12 @@ rvd_fasta <- system.file("extdata", "TalA_RVDSeqs_AnnoTALE.fasta",
 x <- as_tales(rvd_fasta, sep = "-")
 tales_assert_complete(x) # every array is 1..n already -- no error
 
-if (FALSE) { # \dontrun{
 # Keeping only the repeats breaks completeness, which tales_align() needs.
 repeats_only <- x[x$position_in_array > 1, ]
-tales_assert_complete(repeats_only)
-} # }
+try(tales_assert_complete(repeats_only))
+#> Error in tales_assert_complete(repeats_only) : 
+#>   `x` must hold complete arrays.
+#> ✖ position_in_array is not 1..n in "TalA_BAI3", "TalA_CFBP1947", "TalA_MAI1",
+#>   "TalA_MAI106", and "TalA_MAI129".
+#> ℹ Subsetting parts (e.g. keeping only repeats) breaks completeness.
 ```

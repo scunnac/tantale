@@ -145,6 +145,17 @@ end-to-end: identical `docs/articles/*.html` output to a normal build,
 §15 for the full record, including the `_quarto.yaml` experiment so it
 is not retried.
 
+**Delete `docs/`'s entire contents before a full site build, every time
+-- maintainer's explicit instruction, 2026-09-22.** Building article by
+article (above) only ever writes or overwrites the files a given render
+produces; it never removes a file that source no longer accounts for --
+a renamed or retired article's old `.html`/`.md` (and duplicated/stale
+paths like an old `docs/articles/articles/...` nesting) simply stays on
+disk otherwise, silently shipped alongside the real site. `rm -rf docs/*`
+(or equivalent) first, then rebuild from an empty directory, every time a
+*full* site build is done -- not needed for a single `build_article()`
+check of one file while drafting.
+
 **`docs/` publishes in release mode directly -- `docs/dev/` no longer
 exists (dropped 2026-09-20).** `_pkgdown.yml`'s `development: mode:` is
 hardcoded to `release` (changed from `auto` on 2026-09-21, after testing
@@ -208,8 +219,8 @@ the `v0.1.9553` GitHub release, and the pre-reset working directory was
 kept on disk as `tantale-old-before-reset`, not deleted. Nothing about
 any tracked file's *content* changed in the reset itself.
 
-`dev/restructuring-notes.md` is ~7750 lines. **Read its `START HERE`
-block for the pre-2026-09-21 history; for everything since, read §17-§27
+`dev/restructuring-notes.md` is ~8500 lines. **Read its `START HERE`
+block for the pre-2026-09-21 history; for everything since, read §17-§31
 directly** (numbered, in order, at the end of the file) -- this note is
 the short pointer, not a re-summary of either. §27 (2026-09-22) closed
 clean: all three test-suite findings from §26's post-reset `R CMD check`
@@ -338,6 +349,59 @@ Repeatedly confirmed again this session (§17's own "49 exports" turned
 out wrong on re-count; `dev/class-design.md` §4.6 sat stale for over a
 week). Spot-check against the actual code before trusting a closed
 section, especially before building on top of it.
+
+**§25/§25b, 2026-09-22/23 -- both DONE, published.** A new pkgdown
+article, `vignettes/articles/trunctale_correction.qmd`, compares both
+correction methods against PXO86's two genuine truncTALEs (confirmed by
+the maintainer): `tell_tales(correct_array = TRUE)` over-extends the
+frameshift-type one (`ROI_00001`) but leaves the clean-early-stop one
+(`ROI_00019`) alone; `correct_tales()` leaves both alone. Grounded in
+[Ji et al. 2016](https://doi.org/10.1038/ncomms13435) and
+[Read et al. 2016](https://doi.org/10.3389/fpls.2016.01516), both of
+which name PXO86 directly. `tale_mining.qmd`'s "Correcting frameshifts,
+two ways" and "How much did either correction actually help?" sections
+were stale against §17's `correct_tales()` flag-swap fix and are rewritten
+to match a real re-run (it now fixes both of BAI3-1-1's frameshifted
+arrays, not one). Both articles registered in `_pkgdown.yml`, `NEWS.md`
+updated, version bumped to `0.9.9005`. Full detail, including the
+mechanism (`hits_report.tsv`'s `frameshift_count` per hit, not the GFF --
+see §25's own note on why) and every number's provenance, is in §25/§25b.
+
+**A full site rebuild was done from a clean `docs/`, 2026-09-22/23 --
+the working recipe is now proven and worth reusing as-is next time.**
+`pkgdown::build_site()`/`build_articles()` still must not be called
+directly (§15's ordering bug). The full, faithful replacement, read
+directly out of `pkgdown:::build_site_local()`'s own source so nothing
+it normally does is skipped:
+
+```r
+pkgdown::init_site(".")
+pkgdown::build_home(".")
+pkgdown::build_reference(".")           # no `quiet` argument
+pkgdown::build_articles_index(".")
+# then pkgdown::build_article(name, pkg = ".") once per article,
+# "articles/tale_classification" first to prime the shared cache
+pkgdown::build_tutorials(".")
+pkgdown::build_news(".")                # no `quiet` argument either
+pkgdown:::build_sitemap(pkgdown::as_pkgdown("."))
+pkgdown::build_llm_docs(".")            # bs_version 5; skip if bs3
+pkgdown::build_redirects(".")
+pkgdown::build_search(".")              # bs_version 5; build_docsearch_json() if bs3
+pkgdown:::check_built_site(pkgdown::as_pkgdown("."))
+```
+
+Deleting `docs/` first (this file's own rule, added 2026-09-22) is not
+just hygiene: the wipe surfaced real, long-stale content that the
+per-article `build_article()` loop had never been removing on its own --
+whole old numbered-vignette-era articles (`1_tale_mining.html`,
+`2_tale_classification.html`, `p2_multiple_alignments.html` and their
+figure/dependency folders, predating §7.5c's restructuring) were still
+sitting in `docs/` and only disappeared once the directory was emptied
+before rebuilding. `docs/articles/articles/<name>.html` paths are not the
+same kind of leftover -- confirmed this session by reading the
+`build_redirects()` output directly: they are single-file redirect stubs
+pkgdown creates on purpose, regenerated by the recipe above, not cruft to
+chase.
 
 ## Commits
 

@@ -1,9 +1,9 @@
-# Compute TALE and repeat relatedness by repeat-sequence alignment (DisTAL)
+# Compute TALE and domain relatedness by domain-sequence alignment (DisTAL)
 
 Quantifies how TALE arrays, and the individual domains they are built
 from – repeats and the two termini alike – relate to one another by
 aligning their domain sequences. An R re-implementation of the original
-DisTAL Perl program: it still uses the ARLEM binary for the repeat-array
+DisTAL Perl program: it still uses the ARLEM binary for the array
 alignment step, but performs the rest with R support and
 parallelization, which makes it much faster (the exact speedup depends
 on `aln_method`).
@@ -47,7 +47,7 @@ A list of three objects, all describing the same run:
 
 - `domain_distances`: a
   [`domain_distances`](https://scunnac.github.io/tantale/reference/pairwise_distances.md)
-  between repeat units, keyed by `dom_code`.
+  between distinct domains, keyed by `dom_code`.
 
 - `tale_distances`: a
   [`tale_distances`](https://scunnac.github.io/tantale/reference/pairwise_distances.md)
@@ -58,22 +58,24 @@ A list of three objects, all describing the same run:
 Named for the algorithm, not just historically:
 [`tales_compare_functal`](https://scunnac.github.io/tantale/reference/tales_compare_functal.md)
 answers a related but different question – relatedness by predicted
-DNA-binding specificity rather than by repeat sequence – so both need a
+DNA-binding specificity rather than by domain sequence – so both need a
 name that says which.
 
 Two products are irreducible and expensive — the pairwise protein
-alignment between repeat units, and ARLEM on the coded arrays.
+alignment between distinct domains, and ARLEM on the coded arrays.
 Everything else the former `tales_compare()` (this function's name
 before the DisTAL/FuncTAL split) returned was a projection of its
 inputs, so this function returns only what cannot be recomputed cheaply.
 
 This is where `dom_code` is minted, over the whole set of parts
-supplied, and where the resulting objects are stamped with a namespace
-identifying that set — see
+supplied, and where `tales`/`domain_distances` are stamped with a
+namespace identifying that set — see
 [`tales_namespace`](https://scunnac.github.io/tantale/reference/tales_namespace.md).
 Passing a subset later is safe; re-running on a different part set mints
 different codes, and the differing namespace is what stops the two being
-joined by mistake.
+joined by mistake. `tale_distances` carries no such stamp: it is keyed
+by `array_id`, a meaningful name that does not silently collide across
+runs the way a `dom_code` does.
 
 ## References
 
@@ -93,9 +95,10 @@ Alignment of minisatellite maps based on run-length encoding scheme.
 to cluster arrays from the returned `tale_distances`;
 [`tales_compare_functal`](https://scunnac.github.io/tantale/reference/tales_compare_functal.md),
 comparing TALEs by predicted DNA-binding specificity instead of
-repeat-sequence relatedness.
+domain-sequence relatedness.
 
 Other pairwise distances:
+[`[.pairwise_distances()`](https://scunnac.github.io/tantale/reference/sub-.pairwise_distances.md),
 [`as.matrix.pairwise_distances()`](https://scunnac.github.io/tantale/reference/as.matrix.pairwise_distances.md),
 [`distances_assert_square()`](https://scunnac.github.io/tantale/reference/distances_assert_square.md),
 [`distances_restrict()`](https://scunnac.github.io/tantale/reference/distances_restrict.md),

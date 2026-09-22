@@ -21,8 +21,9 @@ run_annotale_build(
 
 - fasta_file:
 
-  Path to a fasta file containing TALE sequences as returned by AnnoTALE
-  (?) to be classified into groups.
+  Path to a `TALE_DNA_sequences_*` fasta file, as written by
+  [`run_annotale_predict`](https://scunnac.github.io/tantale/reference/run_annotale_predict.md)'s
+  "predict" stage, to be classified into groups.
 
 - output_dir:
 
@@ -42,3 +43,41 @@ successful).
 
 Other external TALE tools:
 [`run_annotale_predict()`](https://scunnac.github.io/tantale/reference/run_annotale_predict.md)
+
+## Examples
+
+``` r
+# \donttest{
+# Needs a Java runtime. Chained from run_annotale_predict()'s own output,
+# since that is the file build normally classifies.
+fasta <- system.file("extdata", "MAI1.fa", package = "tantale")
+predict_out <- file.path(tempdir(), "annotale_build_example", "predict")
+run_annotale_predict(fasta, output_dir = predict_out)
+#> Running AnnoTALE predict for "MAI1"
+#>   java -jar
+#>   /home/cunnac/Lab-Related/MyScripts/tantale/inst/tools/AnnoTALEcli-1.5.jar
+#>   predict g=/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/MAI1.fa
+#>   s=MAI1 outdir=/tmp/RtmpeG3cBo/annotale_build_example/predict/Predict
+#> Running AnnoTALE analyze for "MAI1"
+#>   java -jar
+#>   /home/cunnac/Lab-Related/MyScripts/tantale/inst/tools/AnnoTALEcli-1.5.jar
+#>   analyze
+#>   t='/tmp/RtmpeG3cBo/annotale_build_example/predict/Predict/TALE_DNA_sequences_(MAI1).fasta'
+#>   outdir='/tmp/RtmpeG3cBo/annotale_build_example/predict/Analyze'
+predicted <- list.files(file.path(predict_out, "Predict"),
+                        pattern = "^TALE_DNA_sequences_", full.names = TRUE)
+build_out <- file.path(tempdir(), "annotale_build_example", "build")
+run_annotale_build(predicted, output_dir = build_out)
+#> Running AnnoTALE build
+#>   java -Xms512M -Xmx6G -jar
+#>   /home/cunnac/Lab-Related/MyScripts/tantale/inst/tools/AnnoTALEcli-1.5.jar
+#>   build
+#>   t='/tmp/RtmpeG3cBo/annotale_build_example/predict/Predict/TALE_DNA_sequences_(MAI1).fasta'
+#>   outdir='/tmp/RtmpeG3cBo/annotale_build_example/build'
+list.files(build_out)
+#>  [1] "Class_1"             "Class_2"             "Class_3"            
+#>  [4] "Class_4"             "Class_5"             "Class_6"            
+#>  [7] "Class_7"             "Class_8"             "Class_9"            
+#> [10] "Class_builder.xml"   "Tree_of_classes.pdf" "protocol_build.txt" 
+# }
+```

@@ -12,12 +12,12 @@ plot(
   x,
   fill = NULL,
   label = NULL,
-  tal_sim = NULL,
-  domain_sim = NULL,
+  tale_distances = NULL,
+  domain_distances = NULL,
   h_cut = 10,
   ref_pattern = NULL,
   consensus = FALSE,
-  fill_type = "repeat_clust",
+  fill_type = "domain_clust",
   ...
 )
 ```
@@ -41,24 +41,24 @@ plot(
   `"rvd"` when that is not already the `fill`; pass `NULL` explicitly
   for an unlabelled heatmap.
 
-- tal_sim:
+- tale_distances:
 
   Pairwise distances between whole TALEs, as the `tale_distances`
   element of a
   [`tales_compare_distal`](https://scunnac.github.io/tantale/reference/tales_compare_distal.md)
   result. Used to build the tree panel that orders the alignment rows.
 
-- domain_sim:
+- domain_distances:
 
-  Pairwise distances between repeat units, as the `domain_distances`
+  Pairwise distances between distinct domains, as the `domain_distances`
   element of a
   [`tales_compare_distal`](https://scunnac.github.io/tantale/reference/tales_compare_distal.md)
-  result. Used to group repeats into clusters, and to score each repeat
-  against the reference TALE\\s repeat at the same alignment column.
+  result. Used to group domains into clusters, and to score each domain
+  against the reference TALE\\s domain at the same alignment column.
 
 - h_cut:
 
-  Height at which the repeat tree is cut to define clusters. Interpreted
+  Height at which the domain tree is cut to define clusters. Interpreted
   on a distance scale, so 0 means identical.
 
 - ref_pattern:
@@ -74,14 +74,16 @@ plot(
 
 - fill_type:
 
-  One of `"repeat_clust"`, `"repeat_sim"` or `"rvd_sim"`. The first two
-  colour cells by repeat cluster or by protein-sequence similarity to
-  the reference. `"rvd_sim"` colours them instead by how alike each
-  RVD's *DNA-binding preference* is to the reference TALE's RVD at that
-  position, on a diverging scale over `[-1, 1]`. The repeat- and
-  RVD-level views genuinely differ: `HD` and `ND` are distinct repeats
-  with identical specificity, while repeats differing only at positions
-  12-13 are near-identical proteins targeting different bases.
+  One of `"domain_clust"`, `"domain_sim"` or `"rvd_sim"`. The first two
+  colour cells by domain cluster or by protein-sequence similarity to
+  the reference – across every distinct part, termini included, not
+  repeats specifically (see Details). `"rvd_sim"` colours them instead
+  by how alike each RVD's *DNA-binding preference* is to the reference
+  TALE's RVD at that position, on a diverging scale over `[-1, 1]`. The
+  domain- and RVD-level views genuinely differ: `HD` and `ND` are
+  distinct domains with identical specificity, while domains differing
+  only at positions 12-13 are near-identical proteins targeting
+  different bases.
 
 - ...:
 
@@ -89,7 +91,11 @@ plot(
 
 ## Value
 
-An [`aplot`](https://rdrr.io/pkg/aplot/man/plot-insertion.html) object.
+The alignment plot, returned invisibly after being printed as a side
+effect: a `ggplot` normally, or, when `tale_distances` and/or
+`consensus` add extra panels, an
+[`aplot`](https://rdrr.io/pkg/aplot/man/plot-insertion.html) composition
+– see Details.
 
 ## Details
 
@@ -116,16 +122,21 @@ always describe the same thing.
 **Block fill** is what `fill_type` selects, and it is the only part that
 can be unavailable:
 
-|                  |                                                                           |                 |
-|------------------|---------------------------------------------------------------------------|-----------------|
-| **fill_type**    | **shows**                                                                 | **needs**       |
-| `"repeat_clust"` | which cluster the repeat falls in, cut at `h_cut`                         | `domain_sim`    |
-| `"repeat_sim"`   | protein-sequence similarity to the reference, 0-100                       | `domain_sim`    |
-| `"rvd_sim"`      | how alike the RVD's DNA-binding preference is to the reference's, -1 to 1 | a `label` layer |
+|                  |                                                                           |                    |
+|------------------|---------------------------------------------------------------------------|--------------------|
+| **fill_type**    | **shows**                                                                 | **needs**          |
+| `"domain_clust"` | which cluster the domain falls in, cut at `h_cut`                         | `domain_distances` |
+| `"domain_sim"`   | protein-sequence similarity to the reference, 0-100                       | `domain_distances` |
+| `"rvd_sim"`      | how alike the RVD's DNA-binding preference is to the reference's, -1 to 1 | a `label` layer    |
 
-With no `domain_sim` and no `label`, every block is flat grey: the text
-still carries the consensus comparison, but there is nothing to colour
-blocks by.
+Every value here scores across the whole `tales_msa`, termini included:
+`domain_distances` covers every distinct part sequence, not repeats
+specifically, and `"domain_clust"`/`"domain_sim"` colour a terminus cell
+exactly like a repeat cell.
+
+With no `domain_distances` and no `label`, every block is flat grey: the
+text still carries the consensus comparison, but there is nothing to
+colour blocks by.
 
 A cell with no value for the chosen layer keeps its text and loses its
 colour. In `"rvd_sim"` that is the termini, which have no DNA-binding
@@ -137,12 +148,12 @@ the default is used with a warning; by default it is the array with the
 most non-gap parts, ties broken alphabetically. The reference row is
 marked with a trailing `_#`.
 
-**Two panels may be attached.** Supplying `tal_sim` with more than one
-array adds a dendrogram panel on the left; `consensus = TRUE` adds a
-consensus panel on top. When either is present the return value is an
-`aplot` composition rather than a single ggplot, so modify the alignment
-through its `plotlist` element rather than adding layers to the result
-directly.
+**Two panels may be attached.** Supplying `tale_distances` with more
+than one array adds a dendrogram panel on the left; `consensus = TRUE`
+adds a consensus panel on top. When either is present the return value
+is an `aplot` composition rather than a single ggplot, so modify the
+alignment through its `plotlist` element rather than adding layers to
+the result directly.
 
 ## See also
 

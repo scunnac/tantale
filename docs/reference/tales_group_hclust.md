@@ -10,7 +10,7 @@ column.
 ## Usage
 
 ``` r
-tales_group_hclust(x, tal_sim, k = NULL, plot_tree = FALSE)
+tales_group_hclust(x, tale_distances, k = NULL, plot_tree = FALSE)
 ```
 
 ## Arguments
@@ -18,9 +18,9 @@ tales_group_hclust(x, tal_sim, k = NULL, plot_tree = FALSE)
 - x:
 
   A [tales](https://scunnac.github.io/tantale/reference/tales.md) object
-  – the one whose comparison produced `tal_sim`.
+  – the one whose comparison produced `tale_distances`.
 
-- tal_sim:
+- tale_distances:
 
   A
   [tale_distances](https://scunnac.github.io/tantale/reference/pairwise_distances.md)
@@ -46,15 +46,16 @@ tales_group_hclust(x, tal_sim, k = NULL, plot_tree = FALSE)
 
 ## Details
 
-The clustering is computed from `tal_sim`, but the result belongs on the
-`tales` object the distances were computed from, so that is what comes
-back. `group` is a recognised `tales` column, validated as constant
-within an array – it is an array-level property, like `seqnames`.
+The clustering is computed from `tale_distances`, but the result belongs
+on the `tales` object the distances were computed from, so that is what
+comes back. `group` is a recognised `tales` column, validated as
+constant within an array – it is an array-level property, like
+`seqnames`.
 
 Taking `x` rather than returning a bare lookup table is what makes the
-correspondence checkable: the array names in `tal_sim` must be the array
-names in `x`, and this is the only place that can be verified. A
-mismatch is an error rather than a silent `NA` group, because a
+correspondence checkable: the array names in `tale_distances` must be
+the array names in `x`, and this is the only place that can be verified.
+A mismatch is an error rather than a silent `NA` group, because a
 partly-grouped object is the kind of thing that fails much later and
 confusingly.
 
@@ -78,6 +79,7 @@ the alternative method;
 which produces both inputs.
 
 Other pairwise distances:
+[`[.pairwise_distances()`](https://scunnac.github.io/tantale/reference/sub-.pairwise_distances.md),
 [`as.matrix.pairwise_distances()`](https://scunnac.github.io/tantale/reference/as.matrix.pairwise_distances.md),
 [`distances_assert_square()`](https://scunnac.github.io/tantale/reference/distances_assert_square.md),
 [`distances_restrict()`](https://scunnac.github.io/tantale/reference/distances_restrict.md),

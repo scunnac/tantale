@@ -1,7 +1,7 @@
 # Compare TALEs by predicted DNA-binding specificity (FuncTAL)
 
 Quantifies how TALE arrays relate by the DNA sequence their repeats are
-predicted to bind, rather than by repeat sequence identity
+predicted to bind, rather than by domain sequence identity
 ([`tales_compare_distal`](https://scunnac.github.io/tantale/reference/tales_compare_distal.md)).
 Each array's repeats are turned into a position weight matrix (PWM) over
 the RVD-to-base specificity code, and PWMs are compared pairwise with
@@ -116,13 +116,14 @@ worth revisiting – ledger §12b lists them as follow-ups.
 ## See also
 
 [`tales_compare_distal()`](https://scunnac.github.io/tantale/reference/tales_compare_distal.md),
-comparing by repeat sequence instead;
+comparing by domain sequence instead;
 [`tales_to_universalmotif()`](https://scunnac.github.io/tantale/reference/tales_to_universalmotif.md),
 the conversion step this composes – called directly, any other
 `universalmotif` function ( `motif_tree()`, `view_motifs()`,
 `scan_sequences()`, `merge_motifs()`, ...) can be run on the same PWMs.
 
 Other pairwise distances:
+[`[.pairwise_distances()`](https://scunnac.github.io/tantale/reference/sub-.pairwise_distances.md),
 [`as.matrix.pairwise_distances()`](https://scunnac.github.io/tantale/reference/as.matrix.pairwise_distances.md),
 [`distances_assert_square()`](https://scunnac.github.io/tantale/reference/distances_assert_square.md),
 [`distances_restrict()`](https://scunnac.github.io/tantale/reference/distances_restrict.md),

@@ -13,7 +13,7 @@ and runs Talvez"><meta property="og:image" content="https://scunnac.github.io/ta
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9004</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9005</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -27,6 +27,7 @@ and runs Talvez"><meta property="og:image" content="https://scunnac.github.io/ta
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/getting_started.html">Getting started with tantale</a></li>
     <li><a class="dropdown-item" href="../articles/tale_mining.html">Mining TALE sequences in genomes</a></li>
     <li><a class="dropdown-item" href="../articles/tales_class.html">The tales class</a></li>
+    <li><a class="dropdown-item" href="../articles/trunctale_correction.html">Genuine truncTALEs and frameshift correction</a></li>
     <li><a class="dropdown-item" href="../articles/tale_classification.html">Classifying TALE sequences from genomes</a></li>
     <li><a class="dropdown-item" href="../articles/tale_msa.html">Multiple alignment of TALE arrays</a></li>
     <li><a class="dropdown-item" href="../articles/tales_msa_class.html">The tales_msa class</a></li>
@@ -146,7 +147,7 @@ necessary.</p>
 <span class="r-in"><span><span class="va">preds</span> <span class="op">&lt;-</span> <span class="fu">talvez</span><span class="op">(</span>rvd_seqs <span class="op">=</span> <span class="va">rvds</span>, subj_file <span class="op">=</span> <span class="va">subj</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Invoking Talvez using the following command:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> '/home/cunnac/mamba/envs/tantale/bin/perl' TALVEZ_3.2.pl -t 0 -l 19 -e mat1 -z</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> mat2 'rvdSeqsTalvez_34b8bb51148feb.tsv' 'cladeIII_sweet_promoters.fasta'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> mat2 'rvdSeqsTalvez_22079cc4a5a.tsv' 'cladeIII_sweet_promoters.fasta'</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">preds</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 6 × 9</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   taleId    rvds                 subjSeqId score strand start   end ebeSeq  rank</span>

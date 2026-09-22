@@ -66,7 +66,7 @@ talomes_heatmap(
 
 - x_lab, y_lab, title:
 
-  character for x axix, y axis names and title
+  character for x axis, y axis names and title
 
 - plot_type:
 
@@ -100,6 +100,11 @@ talomes_heatmap(
   (optional) file path to save the plot, format of the image depends on
   the file extension. If save_path is NULL, the heatmap will be printed.
   If save_path is specified, the image file will be created.
+
+## Value
+
+`NULL`, invisibly. Called for the side effect of drawing the heatmap
+(or, if `save_path` is given, writing it to a file).
 
 ## See also
 

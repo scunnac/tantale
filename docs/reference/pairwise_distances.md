@@ -38,9 +38,9 @@ A validated `pairwise_distances` object.
 ## Details
 
 `tale_distances()` and `domain_distances()` are the entity-specific
-flavours: similarity between whole TALE arrays, and between individual
-repeat units. They add no structure, only semantics — every method is
-written once on the parent.
+flavours: similarity between whole TALE arrays, and between distinct
+domains – repeats and the two termini alike. They add no structure, only
+semantics — every method is written once on the parent.
 
 Legacy column spellings (`TAL1`/`TAL2`, `RepU1`/`RepU2`, `Sim`,
 `Dissim`, `arlemScore`, ...) are renamed on the way in.
@@ -48,6 +48,7 @@ Legacy column spellings (`TAL1`/`TAL2`, `RepU1`/`RepU2`, `Sim`,
 ## See also
 
 Other pairwise distances:
+[`[.pairwise_distances()`](https://scunnac.github.io/tantale/reference/sub-.pairwise_distances.md),
 [`as.matrix.pairwise_distances()`](https://scunnac.github.io/tantale/reference/as.matrix.pairwise_distances.md),
 [`distances_assert_square()`](https://scunnac.github.io/tantale/reference/distances_assert_square.md),
 [`distances_restrict()`](https://scunnac.github.io/tantale/reference/distances_restrict.md),
@@ -71,6 +72,7 @@ d <- data.frame(
   dissim = c(0, 35, 35, 0)
 )
 pairwise_distances(d)
+domain_distances(d, dom_code_namespace = "example")
 
 # Legacy spellings are recognised and folded in.
 legacy <- data.frame(TAL1 = "A1", TAL2 = "A2", Sim = 65)

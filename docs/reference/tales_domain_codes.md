@@ -19,7 +19,8 @@ tales_domain_codes(x)
 ## Value
 
 A [`tibble`](https://tibble.tidyverse.org/reference/tibble.html) with
-`dom_code`, `aa_seq` and `rvd` columns, one row per code.
+`dom_code` and `aa_seq` columns, plus `rvd` when `x` carries one, one
+row per code.
 
 ## See also
 
@@ -30,6 +31,8 @@ Other tales projections:
 [`repeat_to_rvd_map_distalr()`](https://scunnac.github.io/tantale/reference/repeat_to_rvd_map_distalr.md),
 [`tale_parts_to_rvd()`](https://scunnac.github.io/tantale/reference/tale_parts_to_rvd.md),
 [`tales_coded_strings()`](https://scunnac.github.io/tantale/reference/tales_coded_strings.md),
+[`tales_get_dna_seq()`](https://scunnac.github.io/tantale/reference/tales_get_dna_seq.md),
+[`tales_get_protein_seq()`](https://scunnac.github.io/tantale/reference/tales_get_protein_seq.md),
 [`tales_rvd_strings()`](https://scunnac.github.io/tantale/reference/tales_rvd_strings.md),
 [`tales_to_universalmotif()`](https://scunnac.github.io/tantale/reference/tales_to_universalmotif.md)
 

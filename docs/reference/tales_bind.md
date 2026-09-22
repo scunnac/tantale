@@ -1,11 +1,13 @@
 # Combine tales objects
 
-Row-binds two or more
+Row-binds one or more
 [`tales`](https://scunnac.github.io/tantale/reference/tales.md) objects
 into one, reconciling the invariants that a plain
 [`bind_rows`](https://dplyr.tidyverse.org/reference/bind_rows.html)
 would not check: `array_id` uniqueness across inputs, the `dom_code`
-namespace, and the `group` column.
+namespace, and the `group` column. A single input is accepted – it
+round-trips through the same reconciliation and re-validation,
+harmlessly, rather than being rejected as too few to "bind".
 
 ## Usage
 
@@ -17,7 +19,7 @@ tales_bind(..., on_namespace_mismatch = c("recode", "error"), sanitize = FALSE)
 
 - ...:
 
-  Two or more
+  One or more
   [`tales`](https://scunnac.github.io/tantale/reference/tales.md)
   objects (not `tales_msa`).
 
@@ -76,6 +78,7 @@ if you need one.
 ## See also
 
 Other tales objects:
+[`[.tales()`](https://scunnac.github.io/tantale/reference/sub-.tales.md),
 [`as_tales()`](https://scunnac.github.io/tantale/reference/as_tales.md),
 [`format.tales()`](https://scunnac.github.io/tantale/reference/format.tales.md),
 [`format.tales_msa()`](https://scunnac.github.io/tantale/reference/format.tales_msa.md),

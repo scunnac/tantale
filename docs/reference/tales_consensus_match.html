@@ -15,7 +15,7 @@ there is nothing there to match."><meta property="og:image" content="https://scu
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9004</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9005</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -29,6 +29,7 @@ there is nothing there to match."><meta property="og:image" content="https://scu
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/getting_started.html">Getting started with tantale</a></li>
     <li><a class="dropdown-item" href="../articles/tale_mining.html">Mining TALE sequences in genomes</a></li>
     <li><a class="dropdown-item" href="../articles/tales_class.html">The tales class</a></li>
+    <li><a class="dropdown-item" href="../articles/trunctale_correction.html">Genuine truncTALEs and frameshift correction</a></li>
     <li><a class="dropdown-item" href="../articles/tale_classification.html">Classifying TALE sequences from genomes</a></li>
     <li><a class="dropdown-item" href="../articles/tale_msa.html">Multiple alignment of TALE arrays</a></li>
     <li><a class="dropdown-item" href="../articles/tales_msa_class.html">The tales_msa class</a></li>
@@ -109,14 +110,14 @@ a long tibble representing the original alignment otherwise (default).</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> A3 FALSE   NA</span>
 <span class="r-in"><span><span class="fu">tales_consensus_match</span><span class="op">(</span><span class="va">aln</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 6 × 3</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   array_id position_in_array tales_consensus_match</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>             <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> A1       A                 TRUE                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> A2       A                 TRUE                 </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> A3       A                 FALSE                </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> A1       B                 <span style="color: #BB0000;">NA</span>                   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> A2       B                 <span style="color: #BB0000;">NA</span>                   </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> A3       B                 <span style="color: #BB0000;">NA</span>                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   array_id alignment_position tales_consensus_match</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;fct&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;lgl&gt;</span>                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> A1       A                  TRUE                 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> A2       A                  TRUE                 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> A3       A                  FALSE                </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> A1       B                  <span style="color: #BB0000;">NA</span>                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> A2       B                  <span style="color: #BB0000;">NA</span>                   </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> A3       B                  <span style="color: #BB0000;">NA</span>                   </span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

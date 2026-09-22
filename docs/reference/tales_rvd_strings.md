@@ -45,6 +45,8 @@ Other tales projections:
 [`tale_parts_to_rvd()`](https://scunnac.github.io/tantale/reference/tale_parts_to_rvd.md),
 [`tales_coded_strings()`](https://scunnac.github.io/tantale/reference/tales_coded_strings.md),
 [`tales_domain_codes()`](https://scunnac.github.io/tantale/reference/tales_domain_codes.md),
+[`tales_get_dna_seq()`](https://scunnac.github.io/tantale/reference/tales_get_dna_seq.md),
+[`tales_get_protein_seq()`](https://scunnac.github.io/tantale/reference/tales_get_protein_seq.md),
 [`tales_to_universalmotif()`](https://scunnac.github.io/tantale/reference/tales_to_universalmotif.md)
 
 ## Examples

@@ -53,12 +53,12 @@ tales_consensus_match(aln, long = FALSE)
 #> A3 FALSE   NA
 tales_consensus_match(aln)
 #> # A tibble: 6 × 3
-#>   array_id position_in_array tales_consensus_match
-#>   <fct>    <fct>             <lgl>                
-#> 1 A1       A                 TRUE                 
-#> 2 A2       A                 TRUE                 
-#> 3 A3       A                 FALSE                
-#> 4 A1       B                 NA                   
-#> 5 A2       B                 NA                   
-#> 6 A3       B                 NA                   
+#>   array_id alignment_position tales_consensus_match
+#>   <fct>    <fct>              <lgl>                
+#> 1 A1       A                  TRUE                 
+#> 2 A2       A                  TRUE                 
+#> 3 A3       A                  FALSE                
+#> 4 A1       B                  NA                   
+#> 5 A2       B                  NA                   
+#> 6 A3       B                  NA                   
 ```

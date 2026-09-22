@@ -36,55 +36,10 @@ dropped by default, since prediction concerns the repeat domain only.
 This reuses the same three genomes as [the
 classification](https://scunnac.github.io/tantale/articles/tale_classification.md)
 and [alignment](https://scunnac.github.io/tantale/articles/tale_msa.md)
-articles.
-
-Code
-
-``` r
-out <- fs::dir_create(file.path(tempdir(), "tale_target_prediction"))
-genome_files <- c(
-  MAI1       = system.file("extdata", "MAI1.fa",     package = "tantale", mustWork = TRUE),
-  BAI3       = system.file("extdata", "BAI3.fa",     package = "tantale", mustWork = TRUE),
-  `BAI3-1-1` = system.file("extdata", "BAI3-1-1.fa", package = "tantale", mustWork = TRUE)
-)
-```
-
-Code
-
-``` r
-all_tales <- lapply(names(genome_files), function(strain) {
-  strain_dir <- file.path(out, strain)
-  invisible(tell_tales(subject_file = genome_files[strain], output_dir = strain_dir,
-                       cterm_min_score = 300,
-                       correct_array = TRUE, max_comparisons = 50))
-  tales_from_telltale(strain_dir) |>
-    mutate(array_id = paste0(strain, "_", array_id))
-}) |>
-  suppressWarnings() |>
-  bind_rows() |>
-  tales(sanitize = TRUE)
-#> Finding the closest reference amino acid sequences:
-#> ================================================================================
-#> 
-#> Time difference of 2.71 secs
-#> ================================================================================
-#> 
-#> Time difference of 53.41 secs
-#> Finding the closest reference amino acid sequences:
-#> ================================================================================
-#> 
-#> Time difference of 2.8 secs
-#> ================================================================================
-#> 
-#> Time difference of 53.09 secs
-#> Finding the closest reference amino acid sequences:
-#> ================================================================================
-#> 
-#> Time difference of 0.44 secs
-#> ================================================================================
-#> 
-#> Time difference of 44.85 secs
-```
+articles, from that first article’s cached discovery result rather than
+recomputed here (see [the getting-started
+article](https://scunnac.github.io/tantale/articles/getting_started.md)
+for how these four articles are linked).
 
 Code
 

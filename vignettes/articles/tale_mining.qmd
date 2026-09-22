@@ -285,17 +285,20 @@ bai311_java <- suppressWarnings(tales_from_telltale(bai311_java_dir))
 tales_anomalies(bai311_java)
 ```
 
-A third outcome again: `ROI_00003` is fixed, but `ROI_00005` still is not
--- the opposite pattern from the `max_comparisons = 20` run above, which
-fixed both original frameshifts but broke a third array instead. Neither
-correction path is a silver bullet, and which one a given array needs is
-not predictable in advance.
+Zero anomalies here too, reached by a different route than the
+`max_comparisons = 50` run below: `correct_tales()` fixes both
+`ROI_00003` and `ROI_00005` on this genome, without touching any
+candidate array individually. A genome-wide pass and a per-array one can
+land on the same outcome through different means. Checking
+`tales_anomalies()` after either one is the way to find out which
+method a given array actually needed.
 
 ### A clean correction without an eight-minute wait {#sec-best-correction}
 
-Three results so far, none of them fully clean: `max_comparisons = 20`
-trades a fix for a new break; `correct_tales()` alone leaves one array
-short. Two ways forward, both measured rather than assumed:
+`correct_tales()` above already reached zero anomalies in under a minute.
+`max_comparisons = 50` is a second, independent route to the same
+outcome, worth knowing about since it does not depend on the Java
+correction tool being available:
 
 ```{r correct_moderate_path}
 bai311_best_dir <- file.path(out, "BAI3-1-1_best")
@@ -313,28 +316,30 @@ tales_anomalies(bai311_best)
 ```
 
 Zero anomalies -- raising the cap from 20 to 50 references was enough for
-every array in this genome, in a little over a minute rather than eight.
-`bai311_best` is the version the rest of this set of articles builds on.
+every array in this genome, in a little over a minute. Either this run or
+`correct_tales()`'s own result above is a reasonable choice for the rest
+of this set of articles; `bai311_best` (built here) is the one used from
+here on.
 
 ::: {.callout-tip}
-## A second way there: chain both correction paths
-Running `correct_tales()` first and feeding *its* output into
+## Chaining both correction paths
+Running `correct_tales()` first and feeding its output into
 `tell_tales(correct_array = TRUE)` also reaches zero anomalies, and lets
-the per-array step use a smaller `max_comparisons` again, because the
-genome-wide pass has already removed most of the damage `tell_tales()`
-would otherwise have to correct for on its own. Measured on this same
-genome (not re-run live here, to keep this article's build time down):
+the per-array step use a smaller `max_comparisons`, since most of the
+damage is already gone before it runs. Measured on this same genome (not
+re-run live here, to keep this article's build time down):
 
 | route | time | anomalies |
 |---|---|---|
-| `max_comparisons = 50` alone | ~79 s | 0 |
-| `correct_tales()` (~29 s) then `max_comparisons = 20` (~50 s) | ~79 s combined | still 1 (`ROI_00001`) |
-| `correct_tales()` (~29 s) then `max_comparisons = 50` (~66 s) | ~95 s combined | 0 |
+| `correct_tales()` alone | ~41 s | 0 |
+| `max_comparisons = 50` alone | ~66-79 s | 0 |
+| `correct_tales()` (~27 s) then `max_comparisons = 20` (~40 s) | ~67 s combined | 0 |
+| `correct_tales()` (~27 s) then `max_comparisons = 50` (~66 s) | ~93 s combined | 0 |
 
-For this genome the two routes land at about the same cost. The chained
-route is worth reaching for on a genome messy enough that neither
-correction alone gets close: each pass only has to clean up what the
-other left behind, rather than solving the whole problem itself.
+On this genome `correct_tales()` alone already gets to zero anomalies, so
+chaining does not add anything beyond confirming the combination still
+works. The technique remains available for a genome where a single pass
+falls short.
 :::
 
 ## How much did either correction actually help? {#sec-improvement}
@@ -373,7 +378,7 @@ coverage |>
 
 ```{r}
 #| label: fig-coverage-improvement
-#| fig-cap: "ORF coverage of the two frameshifted BAI3-1-1 arrays, before and after each correction attempt. max_comparisons = 50 is the only one of the three that recovers both arrays fully."
+#| fig-cap: "ORF coverage of the two frameshifted BAI3-1-1 arrays, before and after each correction attempt. All three corrected routes recover both arrays fully."
 #| fig-width: 8
 #| fig-height: 4
 ggplot2::ggplot(coverage, ggplot2::aes(x = method, y = orf_coverage, fill = method)) +
@@ -386,25 +391,27 @@ ggplot2::ggplot(coverage, ggplot2::aes(x = method, y = orf_coverage, fill = meth
 ```
 
 @fig-coverage-improvement is the honest version of "did correction help":
-`max_comparisons = 20` and `correct_tales()` both recover most of
-`ROI_00003`'s coding sequence outright, but only partly help
-`ROI_00005` -- and only `max_comparisons = 50` reaches full coverage on
-both, which is exactly why @sec-best-correction settled on it. What is
-true of every attempted route is that `tales_anomalies()`, not a coverage
-number by itself, is what actually says whether AnnoTALE could use the
-result.
+all three routes bring `ROI_00003` and `ROI_00005` back to comparable,
+near-complete coverage. On these two numbers alone the three routes look
+interchangeable. @sec-best-correction's finding is what actually separates
+them, and coverage does not show it: `max_comparisons = 20` reaches this
+same recovery while introducing a new anomaly in a different array,
+`ROI_00001`. `tales_anomalies()` is what catches that; the `orf_coverage`
+column here does not.
 
 ## Moving on with what you have
 
-`bai311_best` needs none of this -- it is already clean -- but a route
-that stops short of that, such as the `correct_tales()`-only run above,
-still needs a decision about what to do with what remains flagged.
-`tales(x, sanitize = TRUE)` drops it so an analysis can proceed on what is
-clean, while keeping a clear record of what and why:
+`bai311_best` needs none of this -- it is already clean, and so is
+`correct_tales()`'s own result above. A route that stops short of that,
+such as `bai311_corr` (the `max_comparisons = 20` run, which fixed the
+two original frameshifts but broke `ROI_00001`), still needs a decision
+about what to do with what remains flagged. `tales(x, sanitize = TRUE)`
+drops it so an analysis can proceed on what is clean, while keeping a
+clear record of what and why:
 
 ```{r sanitize}
-bai311_clean <- tales(bai311_java, sanitize = TRUE)
-n_distinct(bai311_java$array_id) - n_distinct(bai311_clean$array_id)
+bai311_clean <- tales(bai311_corr, sanitize = TRUE)
+n_distinct(bai311_corr$array_id) - n_distinct(bai311_clean$array_id)
 ```
 
 ::: {.callout-note}

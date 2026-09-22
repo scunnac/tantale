@@ -32,7 +32,7 @@ CAUTIONARY NOTES:
 
 - tell_tales, an R function similar to annotale_jar
 
-- Analysis tools for RVD inventory, repeat lenght
+- Analysis tools for RVD inventory, repeat length
 
 ## TALEs classification, phylogeny
 

@@ -33,7 +33,10 @@ tantale_setup(install = FALSE, conda = FALSE, conda_bin = "auto")
 ## Value
 
 Invisibly, a list with `conda` and `system` data frames of the checks,
-and `prefix`, so the result can be tested as well as read.
+and `prefix`, so the result can be tested as well as read. `conda` is
+`NULL` and `prefix` is `NA` when no conda/mamba installation, or no
+`tantale` environment, was found at all – `system` is always a real data
+frame, since Java and Perl are checked regardless.
 
 ## Details
 
@@ -71,7 +74,31 @@ not mamba.
 
 ## See also
 
-[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
-and
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md),
 [`tales_align()`](https://scunnac.github.io/tantale/reference/tales_align.md),
-the two entry points that need these tools.
+[`tales_compare_distal()`](https://scunnac.github.io/tantale/reference/tales_compare_distal.md),
+[`talvez()`](https://scunnac.github.io/tantale/reference/talvez.md) and
+[`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md),
+the entry points that need these tools.
+
+## Examples
+
+``` r
+# \donttest{
+# A read-only diagnostic report; nothing is installed or changed.
+tantale_setup()
+#> ✔ conda binary    /home/cunnac/bin/micromamba
+#> ℹ default root    /home/cunnac/micromamba
+#> ✔ tantale env     /home/cunnac/mamba/envs/tantale
+#> ✔ mmseqs2             14.7e284
+#> ✔ perl-statistics-r   0.34
+#> ✔ hmmer               3.3.2
+#> ✔ clustalo            1.2.4
+#> ✔ igvtools            2.16.2
+#> ✔ mafft               7.453
+#> ✔ perl-list-moreutils 0.430
+#> ✔ java                /usr/bin/java
+#> ✔ perl                /usr/bin/perl
+#> ✔ Everything tantale needs is present.
+# }
+```

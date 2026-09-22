@@ -50,6 +50,7 @@ The reverse is rarer and more interesting.
 ## See also
 
 Other tales objects:
+[`[.tales()`](https://scunnac.github.io/tantale/reference/sub-.tales.md),
 [`as_tales()`](https://scunnac.github.io/tantale/reference/as_tales.md),
 [`format.tales()`](https://scunnac.github.io/tantale/reference/format.tales.md),
 [`format.tales_msa()`](https://scunnac.github.io/tantale/reference/format.tales_msa.md),
@@ -66,3 +67,23 @@ Other tales objects:
 [`tales_namespace()`](https://scunnac.github.io/tantale/reference/tales_namespace.md),
 [`tales_requirements()`](https://scunnac.github.io/tantale/reference/tales_requirements.md),
 [`validate_tales()`](https://scunnac.github.io/tantale/reference/validate_tales.md)
+
+## Examples
+
+``` r
+aligned <- data.frame(
+  array_id = c("A1", "A1", "A1", "A2", "A2"),
+  position_in_array = c(1L, 2L, 3L, 1L, 2L),
+  alignment_position = c(1L, 2L, 3L, 1L, 3L),
+  rvd = c("NTERM", "HD", "CTERM", "NTERM", "CTERM")
+)
+msa <- tales_msa(aligned)
+summary(msa)
+#> <tales_msa> summary
+#>   arrays / width            2 / 3
+#>   gaps                      1 of 6 cells (17%)
+#>   columns with no gap       2 of 3
+#>   no consensus (rvd)        1 of 3 columns
+#>   matching consensus (rvd)  4 of 4 scorable cells
+#>   anomalies                 none
+```

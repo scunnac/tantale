@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9002</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9005</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -21,6 +21,7 @@
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/getting_started.html">Getting started with tantale</a></li>
     <li><a class="dropdown-item" href="../articles/tale_mining.html">Mining TALE sequences in genomes</a></li>
     <li><a class="dropdown-item" href="../articles/tales_class.html">The tales class</a></li>
+    <li><a class="dropdown-item" href="../articles/trunctale_correction.html">Genuine truncTALEs and frameshift correction</a></li>
     <li><a class="dropdown-item" href="../articles/tale_classification.html">Classifying TALE sequences from genomes</a></li>
     <li><a class="dropdown-item" href="../articles/tale_msa.html">Multiple alignment of TALE arrays</a></li>
     <li><a class="dropdown-item" href="../articles/tales_msa_class.html">The tales_msa class</a></li>
@@ -44,6 +45,28 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="tantale-development-version">tantale (development version)<a class="anchor" aria-label="anchor" href="#tantale-development-version"></a></h2>
+<div class="section level3">
+<h3 id="new-article-genuine-trunctales-and-frameshift-correction-development-version">New article: genuine truncTALEs and frameshift correction<a class="anchor" aria-label="anchor" href="#new-article-genuine-trunctales-and-frameshift-correction-development-version"></a></h3>
+<p>TALEs are not always broken when they are short. <code>PXO86</code> carries two naturally truncated TAL effectors (truncTALEs), documented in <a href="https://doi.org/10.1038/ncomms13435" class="external-link">Ji et al. 2016</a> and <a href="https://doi.org/10.3389/fpls.2016.01516" class="external-link">Read et al. 2016</a>, and the two differ enough at the DNA level that they respond differently to automatic frameshift correction: <code>tell_tales(correct_array = TRUE)</code> extends one of them as if it were an assembly error, while <code><a href="../reference/correct_tales.html">correct_tales()</a></code> leaves both alone. See the new <a href="articles/trunctale_correction.html">Genuine truncTALEs and frameshift correction</a> article for the full comparison.</p>
+</div>
+<div class="section level3">
+<h3 id="tale_miningqmds-correction-sections-updated-for-the-correct_tales-fix-development-version">
+<code>tale_mining.qmd</code>’s correction sections updated for the <code>correct_tales()</code> fix<a class="anchor" aria-label="anchor" href="#tale_miningqmds-correction-sections-updated-for-the-correct_tales-fix-development-version"></a></h3>
+<p>The “Correcting frameshifts, two ways” and “How much did either correction actually help?” sections were written against the pre-fix, swapped-flags <code><a href="../reference/correct_tales.html">correct_tales()</a></code> (see the bug fix entry below) and described it as fixing only one of BAI3-1-1’s two frameshifted arrays. With the flags corrected, <code><a href="../reference/correct_tales.html">correct_tales()</a></code> fixes both on its own; the article’s prose, timing table and coverage figure are updated to match, verified against a real re-run rather than assumed.</p>
+</div>
+<div class="section level3">
+<h3 id="plottales_msa-internal-column-names-corrected-consensus-computation-simplified-development-version">
+<code>plot.tales_msa()</code>: internal column names corrected, consensus computation simplified<a class="anchor" aria-label="anchor" href="#plottales_msa-internal-column-names-corrected-consensus-computation-simplified-development-version"></a></h3>
+<p>Some of <code><a href="../reference/plot.tales_msa.html">plot.tales_msa()</a></code>’s internal column names claimed a repeat-specificity the underlying computation never had (termini are scored identically to repeats) – <code>matchConsensusRepeat</code>, <code>repeatClusterId</code> and <code>repeatSimVsRef</code> are now <code>matchConsensusDomain</code>, <code>domainClusterId</code> and <code>domainSimVsRef</code>. This only affects code reading <code>plot(msa)</code>’s returned <code>$data</code>/<code>$plotlist[[i]]$data</code> by column name to compose further layers, per its own documented pattern – the figure itself, and every other argument and return value, are unchanged. The consensus/match computation behind the alignment’s text colour no longer round-trips through a matrix internally; not user-visible, part of an ongoing internal simplification (<code>dev/restructuring-notes.md</code> §21, not finished this round).</p>
+</div>
+<div class="section level3">
+<h3 id="bug-fix-correct_tales-had-its-nhmmer-inputs-swapped-development-version">Bug fix: <code>correct_tales()</code> had its nHMMER inputs swapped<a class="anchor" aria-label="anchor" href="#bug-fix-correct_tales-had-its-nhmmer-inputs-swapped-development-version"></a></h3>
+<p><code><a href="../reference/correct_tales.html">correct_tales()</a></code> built its call to <code>TALEcorrection.jar</code> with the repeat- and C-terminus-domain nHMMER search results assigned to the wrong CLI flags – confirmed against the tool’s own printed usage, which documents <code>r=</code> as wanting the repeats file and <code>c=</code> the C-terminus file, exactly backwards from what every prior call supplied. Every correction run has therefore been telling the external tool the wrong domain for those two inputs. Fixed; corrected sequences from <code><a href="../reference/correct_tales.html">correct_tales()</a></code> may now differ from previous runs on the same input.</p>
+</div>
+<div class="section level3">
+<h3 id="in-depth-documentation-review-of-every-exported-function-development-version">In-depth documentation review of every exported function<a class="anchor" aria-label="anchor" href="#in-depth-documentation-review-of-every-exported-function-development-version"></a></h3>
+<p>Every exported function and S3 method’s documentation was checked for accuracy against its actual current behaviour, completeness (arguments, return value, a real runnable example), and consistency of tone – several stale or copy-pasted descriptions, wrong defaults, and missing <code>@examples</code> fixed along the way. See <code>dev/restructuring-notes.md</code> §17 for the full record.</p>
+</div>
 <div class="section level3">
 <h3 id="tale-comparison-by-predicted-binding-specificity-reworked-development-version">TALE comparison by predicted binding specificity, reworked<a class="anchor" aria-label="anchor" href="#tale-comparison-by-predicted-binding-specificity-reworked-development-version"></a></h3>
 <p><code>functal()</code>, the wrapper around QueTAL’s vendored Perl <code>FuncTAL</code> script, is retired: moved to <code>inst/legacy/</code> along with the Perl tool itself (<code>inst/tools/QueTAL_v1.1/</code> -&gt; <code>inst/legacy/QueTAL_v1.1/</code>), unexported, no longer built. It could not be fixed in place – the script needs <code>Bio::Perl</code>, dropped by BioPerl in the 1.7 reorganisation, and no perl/bioperl combination available restores it.</p>

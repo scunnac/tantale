@@ -13,12 +13,15 @@ in plant pathology, where the targets themselves are frequently a plant
 susceptibility gene the pathogen exploits.
 
 **tantale** is an R package for finding, comparing, aligning and
-predicting the targets of TALE genes in genomic sequence. It wraps and
-extends several purpose-built external tools
+predicting the targets of TALE genes in genomic sequence. It wraps
+several purpose-built external tools
 ([AnnoTALE](https://doi.org/10.1038/srep21077),
 [Talvez](https://doi.org/10.1371/journal.pone.0068464),
-[PrediTALE](https://doi.org/10.1371/journal.pcbi.1007206)) behind a
-single, consistent set of R objects, so that a whole study – discovery,
+[PrediTALE](https://doi.org/10.1371/journal.pcbi.1007206)) and
+reimplements others in R
+([DisTAL](https://doi.org/10.3389/fpls.2015.00545) and
+[functal](https://doi.org/10.3389/fpls.2015.00545)) behind a single,
+consistent set of R objects, so that a whole study – discovery,
 correction, classification, alignment, target prediction – can be
 scripted and reproduced without switching tools or file formats along
 the way.
@@ -99,6 +102,8 @@ validators.
   : Print a tales object
 - [`print(`*`<tales_msa>`*`)`](https://scunnac.github.io/tantale/reference/print.tales_msa.md)
   : Print a tales_msa object
+- [`` `[`( ``*`<tales>`*`)`](https://scunnac.github.io/tantale/reference/sub-.tales.md)
+  : Subset a tales object
 - [`summary(`*`<tales>`*`)`](https://scunnac.github.io/tantale/reference/summary.tales.md)
   [`print(`*`<summary.tales>`*`)`](https://scunnac.github.io/tantale/reference/summary.tales.md)
   : Summarise a tales object
@@ -140,10 +145,12 @@ Comparing TALEs and their domains, and the typed tables that result.
   : Create a pairwise similarity table
 - [`rvd_dna_specificity`](https://scunnac.github.io/tantale/reference/rvd_dna_specificity.md)
   : RVD-to-DNA-binding-specificity weights
+- [`` `[`( ``*`<pairwise_distances>`*`)`](https://scunnac.github.io/tantale/reference/sub-.pairwise_distances.md)
+  : Subset a pairwise_distances object
 - [`tales_assign_domain_codes()`](https://scunnac.github.io/tantale/reference/tales_assign_domain_codes.md)
   : Assign a domain code to every distinct part sequence
 - [`tales_compare_distal()`](https://scunnac.github.io/tantale/reference/tales_compare_distal.md)
-  : Compute TALE and repeat relatedness by repeat-sequence alignment
+  : Compute TALE and domain relatedness by domain-sequence alignment
   (DisTAL)
 - [`tales_compare_functal()`](https://scunnac.github.io/tantale/reference/tales_compare_functal.md)
   : Compare TALEs by predicted DNA-binding specificity (FuncTAL)
@@ -193,6 +200,10 @@ Views derived from a tales object, and format conversions between them.
   : Domain-coded strings, one per TALE array
 - [`tales_domain_codes()`](https://scunnac.github.io/tantale/reference/tales_domain_codes.md)
   : The domain code lookup table
+- [`tales_get_dna_seq()`](https://scunnac.github.io/tantale/reference/tales_get_dna_seq.md)
+  : Whole-array DNA sequence, one per TALE array
+- [`tales_get_protein_seq()`](https://scunnac.github.io/tantale/reference/tales_get_protein_seq.md)
+  : Whole-array protein sequence, one per TALE array
 - [`tales_rvd_strings()`](https://scunnac.github.io/tantale/reference/tales_rvd_strings.md)
   : RVD strings, one per TALE array
 - [`tales_to_universalmotif()`](https://scunnac.github.io/tantale/reference/tales_to_universalmotif.md)
@@ -259,6 +270,8 @@ Wrappers around AnnoTALE and QueTAL.
   genomes](https://scunnac.github.io/tantale/articles/tale_mining.md):
 - [The tales
   class](https://scunnac.github.io/tantale/articles/tales_class.md):
+- [Genuine truncTALEs and frameshift
+  correction](https://scunnac.github.io/tantale/articles/trunctale_correction.md):
 - [Classifying TALE sequences from
   genomes](https://scunnac.github.io/tantale/articles/tale_classification.md):
 - [Multiple alignment of TALE

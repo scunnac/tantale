@@ -12,7 +12,7 @@ attached as its `group` column.
 ``` r
 tales_group_kmedoids(
   x,
-  tal_sim,
+  tale_distances,
   k_range = NULL,
   k = NULL,
   seed = 7,
@@ -25,9 +25,9 @@ tales_group_kmedoids(
 - x:
 
   A [tales](https://scunnac.github.io/tantale/reference/tales.md) object
-  – the one whose comparison produced `tal_sim`.
+  – the one whose comparison produced `tale_distances`.
 
-- tal_sim:
+- tale_distances:
 
   A
   [tale_distances](https://scunnac.github.io/tantale/reference/pairwise_distances.md)
@@ -38,7 +38,10 @@ tales_group_kmedoids(
 
 - k_range:
 
-  Integer vector of candidate values of `k` to evaluate.
+  Integer vector of candidate values of `k` to evaluate. Each must be
+  between 1 and one less than the number of arrays being grouped
+  ([`cluster::pam()`](https://rdrr.io/pkg/cluster/man/pam.html)'s own
+  requirement).
 
 - k:
 
@@ -61,15 +64,16 @@ tales_group_kmedoids(
 
 ## Details
 
-The clustering is computed from `tal_sim`, but the result belongs on the
-`tales` object the distances were computed from, so that is what comes
-back. `group` is a recognised `tales` column, validated as constant
-within an array – it is an array-level property, like `seqnames`.
+The clustering is computed from `tale_distances`, but the result belongs
+on the `tales` object the distances were computed from, so that is what
+comes back. `group` is a recognised `tales` column, validated as
+constant within an array – it is an array-level property, like
+`seqnames`.
 
 Taking `x` rather than returning a bare lookup table is what makes the
-correspondence checkable: the array names in `tal_sim` must be the array
-names in `x`, and this is the only place that can be verified. A
-mismatch is an error rather than a silent `NA` group, because a
+correspondence checkable: the array names in `tale_distances` must be
+the array names in `x`, and this is the only place that can be verified.
+A mismatch is an error rather than a silent `NA` group, because a
 partly-grouped object is the kind of thing that fails much later and
 confusingly.
 
@@ -102,6 +106,7 @@ the alternative method;
 which produces both inputs.
 
 Other pairwise distances:
+[`[.pairwise_distances()`](https://scunnac.github.io/tantale/reference/sub-.pairwise_distances.md),
 [`as.matrix.pairwise_distances()`](https://scunnac.github.io/tantale/reference/as.matrix.pairwise_distances.md),
 [`distances_assert_square()`](https://scunnac.github.io/tantale/reference/distances_assert_square.md),
 [`distances_restrict()`](https://scunnac.github.io/tantale/reference/distances_restrict.md),
@@ -131,8 +136,15 @@ cmp <- tales_compare_distal(x)
 #> Plz. cite Abouelhoda, Giegerich, Behzadi, and Steyaert
 #> Finished computing TALE and repeat relatedness.
 grouped <- tales_group_kmedoids(cmp$tales, cmp$tale_distances,
-                                k_range = 2:4, k = 2)
-#> Error in h(simpleError(msg, call)): error in evaluating the argument 'x' in selecting a method for function 'as.list': Number of clusters 'k' must be in {1,2, .., n-1}; hence n >= 2
+                                k_range = 2:3, k = 2)
+
+#> Number of groups is decided based on the provided value of k: 2
 unique(grouped[c("array_id", "group")])
-#> Error: object 'grouped' not found
+#> # A tibble: 4 × 2
+#>   array_id  group
+#>   <chr>     <int>
+#> 1 ROI_00001     1
+#> 2 ROI_00002     1
+#> 3 ROI_00003     2
+#> 4 ROI_00004     1
 ```

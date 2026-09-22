@@ -1,6 +1,6 @@
 # RVD similarity matrix for aligning RVD sequences
 
-The repeat-level similarity matrix is keyed by `dom_code`, which is
+The domain-level similarity matrix is keyed by `dom_code`, which is
 meaningless for an RVD sequence, so RVD alignments have had no scoring
 matrix at all – MAFFT treated `NI` and `NN` as no more alike than `NI`
 and `HD`. This supplies the missing one, from the Spearman correlation

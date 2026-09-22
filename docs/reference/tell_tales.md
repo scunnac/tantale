@@ -118,7 +118,11 @@ tell_tales(
 
 - correct_array:
 
-  True or False
+  Whether to pass each array through
+  [`CorrectFrameshifts`](https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html)
+  before AnnoTALE sees it. `FALSE` by default; see Details for what
+  turning it on buys (removing artefactual indels) and risks
+  (erroneously "correcting" a genuine frameshift).
 
 - correction_ref:
 
@@ -193,7 +197,7 @@ tell_tales(
 
   This is an internal parameter of the
   [`CorrectFrameshifts`](https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html)
-  function. The default is 11 and fiddle with this at your own risk...
+  function. The default is -11 and fiddle with this at your own risk...
 
 - ...:
 
@@ -238,13 +242,17 @@ List of output files:
   appended to denote that AA sequences outside of the RVD array are
   likely to be atypical.
 
-- c_terminus_aa_alignment.html: protein alignment of all C-termini
+- c_terminus_aa_alignment.html: protein alignment of all C-termini (only
+  written when at least 2 were found; skipped with a warning otherwise)
 
-- c_terminus_dna_alignment.html: DNA alignment of all C-termini
+- c_terminus_dna_alignment.html: DNA alignment of all C-termini (same
+  condition)
 
-- n_terminus_aa_alignment.html: protein alignment of all N-termini
+- n_terminus_aa_alignment.html: protein alignment of all N-termini (same
+  condition)
 
-- n_terminus_dna_alignment.html: DNA alignment of all N-termini
+- n_terminus_dna_alignment.html: DNA alignment of all N-termini (same
+  condition)
 
 - tale_cds_all_diagnostic_regions_hmmfile.out: HMMER profile used for
   tale cds search.
@@ -315,7 +323,7 @@ out <- tempfile("tell_tales_example")
 tell_tales(subject_file = subj, output_dir = out)
 #> HMMER is very picky about forbiden characters in sequence name. Renaming
 #> sequences in
-#> /tmp/RtmpKPiF2L/temp_libpath26f0042d603296/tantale/extdata/bai3_sample_tal_genomic_regions.fasta.
+#> /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/bai3_sample_tal_genomic_regions.fasta.
 #> Original seq names : talRegion5 ; talRegion6
 #> Dummy seq names : seq1 ; seq2
 #> HMMER 3.3.2 (Nov 2020); http://hmmer.org/
@@ -328,21 +336,21 @@ tell_tales(subject_file = subj, output_dir = out)
 #> Now running AnnoTALE analyze for ROI_00003
 #> Now running AnnoTALE analyze for ROI_00004
 #> #**************************************** #** tell_tales analysis done **
-#> Current date: Sun Sep 20 02:01:52 2026 #_________Provided I/O parameters
+#> Current date: Tue Sep 22 23:44:42 2026 #_________Provided I/O parameters
 #> __________ File of subject DNA sequences:
-#> /tmp/RtmpKPiF2L/temp_libpath26f0042d603296/tantale/extdata/bai3_sample_tal_genomic_regions.fasta
+#> /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/bai3_sample_tal_genomic_regions.fasta
 #> TALE N-term CDS region detection HMM file:
-#> /tmp/RtmpKPiF2L/temp_libpath26f0042d603296/tantale/extdata/hmmProfile/Xo_TALE_Nterm_CDS_profile.hmm
+#> /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Nterm_CDS_profile.hmm
 #> TALE repeat unit CDS detection HMM file:
-#> /tmp/RtmpKPiF2L/temp_libpath26f0042d603296/tantale/extdata/hmmProfile/Xo_TALE_repeat_CDS_profile.hmm
+#> /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_repeat_CDS_profile.hmm
 #> TALE C-term CDS region detection HMM file:
-#> /tmp/RtmpKPiF2L/temp_libpath26f0042d603296/tantale/extdata/hmmProfile/Xo_TALE_Cterm_CDS_profile.hmm
-#> Output directory: /tmp/RtmpqdmhJQ/tell_tales_example26f1954ffb66d
+#> /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Cterm_CDS_profile.hmm
+#> Output directory: /tmp/RtmpeG3cBo/tell_tales_example220793f439eb
 #> #____________Other parameters________________ nterm_min_score: 300
 #> repeat_min_score: 20 cterm_min_score: 200 min_domain_hits: 4 min_array_length:
 #> 0 merge_hits: TRUE min_gap: 35 extend_len: 300 correct_array: FALSE
 #> correction_ref:
-#> /tmp/RtmpKPiF2L/temp_libpath26f0042d603296/tantale/extdata/tale_correction_ref.fa.gz
+#> /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/tale_correction_ref.fa.gz
 #> max_comparisons: all frameshift: -11 #__________Summary measures of TALE search
 #> outcome__________ Number of analysed subject sequences : 2 Total number of TALE
 #> repeat DNA coding sequence motif hits found with the nhmmer approach: 88 Total

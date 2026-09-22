@@ -24,6 +24,7 @@ A scalar string, or `NULL` if the object is not stamped.
 ## See also
 
 Other tales objects:
+[`[.tales()`](https://scunnac.github.io/tantale/reference/sub-.tales.md),
 [`as_tales()`](https://scunnac.github.io/tantale/reference/as_tales.md),
 [`format.tales()`](https://scunnac.github.io/tantale/reference/format.tales.md),
 [`format.tales_msa()`](https://scunnac.github.io/tantale/reference/format.tales_msa.md),

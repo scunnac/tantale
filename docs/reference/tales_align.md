@@ -12,7 +12,7 @@ other layer (`rvd`, `dom_code`, `aa_seq`, ...) remains available.
 tales_align(
   x,
   residue_col = c("rvd", "dom_code"),
-  repeat_sims = NULL,
+  domain_distances = NULL,
   mafft_opts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1",
   mafft_path = NULL,
   mafft_verbose = FALSE,
@@ -32,14 +32,15 @@ tales_align(
   Which layer to align on: `"rvd"` (default) or `"dom_code"`. Given
   explicitly rather than guessed from the values.
 
-- repeat_sims:
+- domain_distances:
 
   Scoring matrix for the residues being aligned. `NULL` (default) means
   none. Pass `"rvd"` to opt in to the built-in RVD similarity matrix
-  when aligning RVDs, or a
-  [`domain_distances`](https://scunnac.github.io/tantale/reference/pairwise_distances.md)
-  object when aligning repeat codes. Optional similarity table passed to
-  MAFFT as a scoring matrix, as accepted by `tales_align`.
+  when aligning RVDs, or, when aligning repeat codes, a
+  [`domain_distances`](https://scunnac.github.io/tantale/reference/pairwise_distances.md)-class
+  object (as returned by
+  [`tales_domain_distances`](https://scunnac.github.io/tantale/reference/tales_domain_distances.md))
+  or the path to a `*_Repeatmatrix.mat` file written by Distal.
 
 - mafft_opts:
 

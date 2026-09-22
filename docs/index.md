@@ -13,12 +13,15 @@ in plant pathology, where the targets themselves are frequently a plant
 susceptibility gene the pathogen exploits.
 
 **tantale** is an R package for finding, comparing, aligning and
-predicting the targets of TALE genes in genomic sequence. It wraps and
-extends several purpose-built external tools
+predicting the targets of TALE genes in genomic sequence. It wraps
+several purpose-built external tools
 ([AnnoTALE](https://doi.org/10.1038/srep21077),
 [Talvez](https://doi.org/10.1371/journal.pone.0068464),
-[PrediTALE](https://doi.org/10.1371/journal.pcbi.1007206)) behind a
-single, consistent set of R objects, so that a whole study – discovery,
+[PrediTALE](https://doi.org/10.1371/journal.pcbi.1007206)) and
+reimplements others in R
+([DisTAL](https://doi.org/10.3389/fpls.2015.00545) and
+[functal](https://doi.org/10.3389/fpls.2015.00545)) behind a single,
+consistent set of R objects, so that a whole study – discovery,
 correction, classification, alignment, target prediction – can be
 scripted and reproduced without switching tools or file formats along
 the way.

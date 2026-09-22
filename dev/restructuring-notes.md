@@ -624,10 +624,6 @@ alignment direction) available nowhere else. Real bugs fixed in each:
 against its positional back-mapping's non-gap-count assumption silently
 failing.
 
-**One question from these drafts was never answered and is still open:**
-the provenance of `rvdSimDf$Cor` -- some values looked surprising relative
-to a plain correlation of `rvdToNtAssocMat` rows, and this was never checked.
-
 ---
 
 ## 3. Legacy cemetery (`inst/legacy/`) — DONE **[V]**
@@ -6515,30 +6511,9 @@ note) still needs to be committed -- nothing in this multi-session item
 has been committed yet.
 
 **Correction/follow-up, 2026-09-22 -- a live consequence of the
-`correct_tales()` flag-swap fix, not caught until now.**
-`vignettes/articles/tale_mining.qmd`'s "Correcting frameshifts, two ways"
-section (rendered at
-https://scunnac.github.io/tantale/articles/tale_mining.html#correcting-frameshifts-two-ways)
-was written and verified against the *pre-fix*, swapped-flags
-`correct_tales()` -- its whole narrative rests on neither correction path
-alone fixing every problem in the BAI3-1-1 talome (per §7.5b: `correct_tales()`
-fixed `ROI_00003` but not `ROI_00005`; `correct_array = TRUE` fixed both but
-broke a third, previously-clean array), which is why the section
-demonstrates running both, sequentially, as a contrast. **Now stale, per the
-maintainer:** with the flags fixed, the correctly-called `correct_tales()`
-alone now fixes every problem in that talome -- the sequential two-method
-demonstration is no longer justified, and the section's prose and structure
-need rewriting to match actual current behaviour. **Also needs re-verification,
-not just the sequencing narrative:** the section's own "How much did either
-correction actually help?" part quantifies each method's benefit, and those
-numbers were computed against the same pre-fix `correct_tales()` -- they need
-re-checking against the corrected tool's real output, not assumed still
-accurate just because the surrounding prose is what's being restructured.
-**Not done -- flagged for a future session, not attempted here.** One
-specific piece confirmed still valid and not to be touched when this is
-revisited: the timing/performance comparison between the two approaches,
-elsewhere in the same section, still
-holds.
+`correct_tales()` flag-swap fix, not caught until now.** Tracked at §25b,
+alongside the rest of the website follow-up work this same fix implies --
+not duplicated here.
 
 ---
 
@@ -7209,7 +7184,9 @@ report, so they live in the ledger and not only in chat history.
 **Priorities set, highest first:**
 
 1. **§6** -- top priority. See the new finding below. Done, same session.
-2. **§16** -- repo-bloat/history-preservation tension. Kept high; not started.
+2. **§16** -- repo-bloat/history-preservation tension. Kept high; not started
+   *as of this session* -- executed the very next day, see §26. Confirmed
+   DONE by the maintainer, 2026-09-22.
 3. **§7.2** -- DONE, next session. See its own entry below.
 4. **§2** -- `repeat_to_rvd_map()`'s never-executed retirement. Real, but
    lower priority; not started.
@@ -7295,9 +7272,11 @@ next saying it had already been decided). Rewritten into one clear
 statement: `_pkgdown.yml`'s `development: mode:` is `release`, permanently,
 confirmed against the repo today -- that is the norm now, not a pending call.
 
-**Not yet started, explicitly:** §16's repo-bloat cleanup. Real, prioritised
-work, not decided against -- just not executed this session pending a
-dedicated pass. §7.2 was picked up the same day, see below.
+**Not yet started, explicitly, as of this session:** §16's repo-bloat
+cleanup. Real, prioritised work, not decided against -- just not executed
+this session pending a dedicated pass. §7.2 was picked up the same day,
+see below. (Superseded the next day: executed 2026-09-22, see §26. §16 is
+DONE, confirmed by the maintainer.)
 
 ### §7.2 fixture-path renaming -- DONE **[V]**
 
@@ -7392,6 +7371,526 @@ drafted. Recorded here so the idea and its framing (illustrate the
 DECIPHER over-extension honestly, then test whether the jar-based
 correction shares the same failure mode) aren't lost before a future
 session picks it up.
+
+**Plan firmed up, 2026-09-22, maintainer's own sequencing:**
+
+1. First, honestly document that `tell_tales(correct_array = TRUE)` tends
+   to over-correct genuine truncTALEs (extends the ORF as if the
+   frameshift were an assembly error, per "The problem" above).
+2. Then test and report `correct_tales()`'s own behaviour against the same
+   genuine truncTALEs -- does it share the over-correction tendency, or
+   does it correctly leave the real, shorter ORF alone?
+
+**Fixture: `inst/extdata/PXO86.fa`**, an Asian *Xoo* genome already shipped
+(kept in the package specifically because an article promises it ships --
+§9.2d) and already known, from §7.5c, to be "a distantly related Asian
+outgroup whose TALE repertoire barely overlaps the African strains'" --
+i.e. exactly the kind of strain expected to carry genuine truncTALEs, not
+yet confirmed which specific arrays are truncated.
+
+**Kept as a separate article from the rest of the site on purpose, for
+exactly this reason:** PXO86 was deliberately dropped from the
+classification/alignment/target-prediction articles (§7.5c) because mixing
+it with the African-strain genomes turns a clean signal into a mess of
+singletons and paralog clusters. A dedicated truncTALE deep-dive using
+PXO86 alone avoids re-introducing that problem into the rest of the site.
+
+**Autonomy checkpoint, agreed 2026-09-22, before any of this article gets
+written:** discovery on PXO86 (`tell_tales()`), running `tales_anomalies()`
+to find candidate short/truncated arrays, and testing both correction
+methods against them are all mechanical and can be done unattended. **What
+cannot:** confirming that a specific candidate array is a *genuine*,
+evolved truncTALE rather than an assembly/sequencing artifact is a
+biological call, not a code one -- general truncTALE biology can be
+learned from the literature (per the maintainer's own instruction), but
+identifying *this particular instance* correctly cannot. Candidate
+array(s) found this way are to be flagged to the maintainer for
+confirmation before the article's narrative is written around them, not
+published on the assistant's own judgement.
+
+**Progress, 2026-09-22 -- candidate found, flagged for confirmation, not
+yet acted on further.** Raw (uncorrected) `tell_tales()` on `PXO86.fa`,
+default parameters, 31 s: 19 candidate regions, 17 with both termini
+detected, 18 of the 19 make it into the `tales` object at all (one,
+`ROI_00005`, has zero computable ORF and zero rows in the object -- too
+degenerate to parse, a likely fragment/pseudogene remnant, not pursued as
+the demonstration case).
+
+Identification method: per-array amino-acid width of the N-terminus and
+C-terminus domain rows (`nchar(aa_seq)`, grouped by `array_id`), compared
+across all 18 arrays, plus repeat count per array (to rule out "just a
+short array" per §8.0's `min_array_length` distinction -- that counts
+repeats, a different axis from terminus length).
+
+**`ROI_00019` stands out clearly:**
+- C-terminus: **42 aa**, against 286-297 aa for every other array (~15%
+  of normal) -- by far the largest outlier on this axis.
+- N-terminus: 230 aa, against 283-288 aa elsewhere -- reduced, though not
+  as extreme as the C-terminus.
+- Repeat count: 18 -- squarely inside the normal range (13-27 across the
+  18 arrays), so this is not a short/degenerate array by repeat count,
+  only by terminus length.
+- ORF coverage 93% -- essentially complete, not frameshifted (in the same
+  range as the genuinely clean arrays elsewhere in this genome), so this
+  does not look like an assembly artefact by the frameshift heuristic
+  `tale_mining.qmd` already uses.
+- `tales_anomalies()` reports nothing for it (or for anything else in this
+  genome) -- consistent with "structurally fine, just short," not with
+  "broken."
+- The last repeat (position 19 of 20) is itself shortened (19 aa vs. 34 aa
+  typical) with a non-standard `rvd` code (`H*`), and the terminus itself
+  is coded `XXXXX` rather than the canonical `CTERM` -- both signals that
+  something changes right around that repeat, consistent with a
+  frameshift/stop shortly into what would otherwise be a normal C-terminus,
+  not a hit that merely scored low.
+- **Correction, superseded below: `has_all_domains = FALSE` for this array
+  does mean a genuinely missing hit, not merely a non-canonical code as
+  first written here.** See "The mechanism, precisely" below -- checked
+  directly against `R/telltale.R:373-379` after the maintainer questioned
+  the original framing, not assumed a second time.
+
+**Confirmed by the maintainer, 2026-09-22: `ROI_00019` is the genuine
+truncTALE.** Also confirmed: `ROI_00018`, its near-identical (paralogous)
+full-length counterpart discovered elsewhere in the same genome, N-terminus
+DNA near-identical to `ROI_00019`'s for the first ~700 bp -- consistent
+with a gene duplication where `ROI_00019` is the copy that lost its
+C-terminal activation domain, a real, biologically plausible history for a
+genuine truncTALE (not proof by itself, but a second, independent piece of
+supporting context beyond the domain-width signal alone).
+
+**Testing both correction methods against `ROI_00019` -- in progress,
+first results in, not all consistent yet:**
+
+*Method: isolated-excerpt testing, not the full genome, for speed while
+iterating* -- a ~6.4 kb slice of `PXO86.fa` around `ROI_00019`'s own
+coordinates (`2812633-2815116`, `NZ_CP007166`) plus 2 kb flank each side.
+Verified this reproduces the full-genome numbers exactly for the
+uncorrected baseline (`nterm_aa_length=230`, `cterm_aa_length=43`,
+`longest_orf_length=2592`, `orf_coverage=93`) before trusting any
+correction result off it.
+
+- **`correct_tales()` (the jar, genome-wide, run directly on the
+  excerpt):** made exactly 3 corrections, all at one homopolymer run
+  (`posInOriginSeq` 4137-4139, `HomopolymerChar` vs. `CommonNucl`
+  ambiguity) -- nowhere near the C-terminus. Re-discovery on the corrected
+  excerpt: `cterm_aa_length` unchanged at 43; `nterm_aa_length` 230 -> 231,
+  `longest_orf_length` 2592 -> 2595 (both +1 codon, from the same
+  homopolymer fix). **Reads as: `correct_tales()` leaves the genuine
+  truncation alone.**
+- **`correct_array = TRUE` (DECIPHER) -- inconsistent results, not
+  resolved yet.** First test, `ROI_00019` isolated alone (the only
+  candidate array in the input): every number came back **completely
+  unchanged**, alongside an `R` warning
+  (`recycleSingleBracketReplacementValue`) and "less than 2 putative
+  TALEs" skip-warnings not seen elsewhere -- looked like a single-array
+  testing artifact, not trusted on its own. Re-tested with a second array
+  present (`ROI_00018` + `ROI_00019` excerpts, two sequences, same
+  correction call): `ROI_00019`'s own numbers **again came back
+  completely unchanged** (230/43/2592/93, byte-identical to uncorrected)
+  -- so the "unchanged" result is not a single-array artifact, at least
+  not for this specific array. **But** a third, spurious ~489 nt region
+  appeared in this run that does not exist in the uncorrected genome
+  (confirmed: the whole-genome uncorrected scan found zero inter-array
+  gaps below 500 nt anywhere, so this is not a real neighbouring gene
+  picked up by the wider excerpt) -- broken, `N`-containing after
+  correction, 48% ORF coverage, AnnoTALE could not parse its domains at
+  all. This is the same known failure mode already on record in
+  `tale_mining.qmd` for BAI3-1-1 (`correct_array = TRUE` "breaks a third,
+  previously-clean array") reproducing here as a fabricated fragment
+  rather than a degraded existing one.
+
+**Not yet reconciled with the maintainer's own prior experience** that
+`tell_tales(correct_array = TRUE)` tends to *over-extend* genuine
+truncTALE ORFs -- two independent excerpt tests here instead show it
+leaving `ROI_00019` completely untouched. Possible explanations, none
+checked yet: excerpt testing itself is misleading DECIPHER somehow (a
+full-genome run is in progress specifically to rule this out); this
+particular truncation pattern does not resemble what
+`DECIPHER::CorrectFrameshifts()` is willing to "fix"; or the maintainer's
+prior experience was on a different genome/array where the reference set
+happened to argue for extension and this one does not. **A full-genome
+`correct_array = TRUE` run on `PXO86.fa` (all ~18 arrays, default full
+reference) is running in the background as the authoritative check** --
+not concluded until that returns.
+
+**Full-genome run back, 21.7 min elapsed -- confirms the excerpt result,
+does not resolve the puzzle.** `ROI_00019`'s row in `array_report.tsv` is
+**byte-identical** to the raw, uncorrected run: `nterm_aa_length=230`,
+`cterm_aa_length=43`, `longest_orf_length=2592`, `orf_coverage=93`,
+`has_all_domains=FALSE`. Third independent test (single-array excerpt,
+2-array excerpt, full 19-array genome), same result every time: **`correct_array
+= TRUE` does not touch `ROI_00019` at all.** No fabricated/broken region
+this time either (still exactly 19 distinct regions, 17 complete, matching
+the raw run's own shape) -- the spurious ~489 nt fragment from the 2-array
+excerpt test does not reproduce at full-genome scale, so that was
+excerpt-specific noise, not a real finding about this genome.
+
+**Correction to the read above, maintainer, 2026-09-22: `ROI_00001` is
+not a frameshift artifact -- it is PXO86's *second* genuine truncTALE.**
+The maintainer recalls PXO86 carries two. The reasoning above (lower
+`orf_coverage` -> "probably a real partial frameshift, i.e. noise") was
+wrong on the standing interpretive rule for this project, not on the
+number itself:
+
+**New standing rule, recorded here and worth keeping close at hand for
+any future genome-level finding:** unless a genome is explicitly flagged
+otherwise (as `BAI3-1-1` already is, deliberately, in
+`tale_mining.qmd`'s own genomes callout), **treat it as gold-quality --
+no sequencing error, so any frameshift signal found in it is genuine
+biology, not assembly noise.** `PXO86` is one of the article's own
+"clean" genomes; a lower `orf_coverage` there cannot be waved off as
+noise the way it legitimately can be on `BAI3-1-1`.
+
+**This reframes the whole comparison, and is the real story the article
+should tell:** PXO86's two truncTALEs are not the same molecular kind of
+truncation, and that -- not "some genuine truncTALEs get overcorrected,
+others don't," which would be an unexplained inconsistency -- is exactly
+why they respond differently to `correct_array = TRUE`:
+
+- **`ROI_00019`**: a clean, in-frame early stop.
+- **`ROI_00001`**: a genuine, evolved *frameshift* -- real biology on a
+  gold-quality genome, per the rule above, not an assembly error. Its
+  lower `orf_coverage` (83%, before correction) reflects that. Correction:
+  `cterm_aa_length` 183 -> 217, `longest_orf_length` 3015 -> 3114,
+  `orf_coverage` 83 -> 86%.
+
+**The mechanism, precisely -- corrected after the maintainer pushed back
+on the first framing above as "a bit naive."** The maintainer's own
+description of how `tell_tales()` works: it defines a candidate TAL
+locus's DNA span from *merged nhmmer hits* (N-terminus profile, repeat
+profile, C-terminus profile), and it is *that DNA span* -- not the final
+ORF, not the parsed protein -- that gets handed to
+`DECIPHER::CorrectFrameshifts()`. So the real question is not "does the
+final protein look broken" but "did nhmmer's C-terminus profile find a
+hit downstream of the disruption at all" -- because if it did, that
+downstream sequence is *already part of the span DECIPHER sees*, whether
+or not the real reading frame ever reaches it.
+
+**Checked directly against `all_ranges.gff`'s per-hit records (not
+`array_report.tsv` alone, which only carries the yes/no summary) --
+confirms the maintainer's hypothesis exactly:**
+
+- `ROI_00001`'s hit list ends with a real, full-length
+  `TALE_C-terminus_CDS_aligned_curated_long` hit (`2023350-2024209`, 286
+  codons -- the normal, complete C-terminus length) immediately after the
+  last repeat -- but tagged `frameshift_count=2`: nhmmer's own alignment
+  needed two internal reframings to call it a hit at all. The repeat just
+  before it is also short (24 vs. 34 codons) and itself tagged
+  `frameshift_count=1`. **nhmmer detects a C-terminus-shaped signal right
+  there, just out of frame** -- so `tell_tales()`'s merged span for this
+  array already includes a full, C-terminus-shaped template, and
+  `DECIPHER::CorrectFrameshifts()` has exactly the material it needs to
+  reframe into and extend toward.
+- `ROI_00019`'s hit list has **no C-terminus-profile hit anywhere** --
+  repeats, then the N-terminus hit, nothing else, at any
+  `frameshift_count`. nhmmer's C-terminus profile was run against the
+  downstream sequence (same pipeline, same profile) and simply did not
+  score a hit, frameshifted or not. **The merged span `tell_tales()` builds
+  for this array never includes anything C-terminus-shaped**, so
+  `DECIPHER::CorrectFrameshifts()` has no template to extend into --
+  not "declines to fix a clean stop," but has nothing there to work with
+  in the first place.
+
+**This also corrects the `has_all_domains` claim above:** verified
+against `R/telltale.R:373-379` -- it is
+`all(c(hmm$nterm, hmm$repeats, hmm$cterm) %in% x$query_name)`, i.e. a
+literal check for whether each HMM profile produced at least one hit in
+the array's merged set, computed before any ORF-finding or RVD-parsing
+happens. `ROI_00001` is `TRUE` because a (frameshifted) C-terminus hit
+genuinely exists. `ROI_00019` is `FALSE` because none does -- not a
+non-canonical code, an actually absent hit, exactly as `has_all_domains`'s
+own definition says and nothing subtler.
+
+**Two genuine truncTALEs, two different underlying DNA-level events, and
+`array_report.tsv`/`all_ranges.gff` already show which is which before
+either correction method is even run:** a real internal deletion/early
+stop with nothing TAL-like surviving downstream (`ROI_00019`,
+`has_all_domains = FALSE`, no C-terminus hit at any frameshift count) vs.
+a real frameshift with a since-garbled but still-detectable C-terminus
+sitting right behind it (`ROI_00001`, `has_all_domains = TRUE`, C-terminus
+hit present at `frameshift_count = 2`). Not an inconsistency between the
+two truncTALEs' behaviour under `correct_array = TRUE` -- a direct,
+checkable consequence of what nhmmer did or didn't find before correction
+ever runs.
+
+**`correct_tales()` (the jar) against `ROI_00001` -- done, full genome.**
+Genome-wide, `correct_tales()` made exactly **one** correction on the
+whole of `PXO86.fa`: a single-base insertion at position 2024199 (within
+`ROI_00001`'s own span, 2020887-2024209) -- a trivial homopolymer-type
+nudge, not a meaningful fix. `ROI_00001`'s numbers barely move:
+`cterm_aa_length` 183 -> 184, `orf_coverage` unchanged at 83%. Contrast
+with `correct_array = TRUE` on the same array: `cterm_aa_length` 183 ->
+217, `orf_coverage` 83 -> 86%. **`correct_tales()` leaves both genuine
+truncTALEs' short C-termini essentially intact; `correct_array = TRUE`
+over-corrects only the frameshift-type one (`ROI_00001`), not the
+clean-early-stop one (`ROI_00019`).** Comparison matrix now complete for
+both methods x both arrays.
+
+**Side note on excerpt-testing reliability, `correct_tales()` specifically:**
+the earlier isolated-excerpt test around `ROI_00019` alone found 3
+corrections at that same array (a homopolymer run inside it); the
+full-genome run finds none there at all -- likely an nHMMER e-value
+artifact (significance scales with total search-space size, so a
+marginal signal can clear the bar on a 6.4 kb excerpt and not on the real
+5 Mb genome). Net effect: the full-genome run is *more* conservative than
+the excerpt suggested, not less -- it still supports "leaves `ROI_00019`
+alone," just even more cleanly (zero changes there, not a cosmetic one).
+Noted so excerpt-based `correct_tales()` results are not over-trusted
+either, same caution as already applied to the DECIPHER excerpt tests.
+
+**Follow-up question raised by the maintainer -- answered: `max_comparisons`
+has no effect.** Does `tell_tales()`'s `max_comparisons` argument change
+whether `correct_array = TRUE` over-corrects `ROI_00001`? Maintainer's own
+guess was no. Confirmed directly, full genome, `max_comparisons` in
+`{20, 50}` (the two values `tale_mining.qmd` already uses elsewhere)
+against the default full-1057-reference run already on record above:
+**byte-identical result at all three settings**, for both arrays --
+`ROI_00019` stays at 230/43/2592/93 nt/aa/coverage; `ROI_00001` is
+extended to 230/217/3114/86 the same way every time. Whatever makes
+DECIPHER decide to "fix" `ROI_00001`, it does not depend on how many
+reference sequences it is allowed to consider -- consistent with there
+being at least one adequately-matching full-length reference in even the
+smallest (20-sequence) pool, so trimming the pool further doesn't remove
+the signal that triggers the extension.
+
+**The 2-array excerpt test (`ROI_00018` + `ROI_00019`) that produced a
+spurious, broken ~489 nt fragment under `correct_array = TRUE`** (see
+above) -- kept for later, not thrown away: the exact input sequence is
+saved at `dev/fixtures/pxo86_roi18_19_excerpt.fa` (two records,
+`roi18_region`/`roi19_region`, ~2 kb flank each side of the two arrays'
+real genomic coordinates). Worth returning to on its own terms at some
+point -- a `correct_array = TRUE` run fabricating a region that does not
+exist in the real genome is a separate, real robustness question about
+the DECIPHER wrapper, independent of the truncTALE article, and this
+fixture reproduces it in under a minute rather than the ~22 min a
+full-genome repro costs.
+
+**Mechanism refined once more, maintainer pushed back on the first
+version as "a bit naive," 2026-09-22.** Checked directly against `all_ranges.gff`'s
+per-hit records and `R/telltale.R:373-379`'s actual `has_all_domains`
+definition, not re-guessed: `ROI_00001` carries a real, full-length
+(~286-codon) C-terminus-profile nHMMER hit immediately after its last
+repeat, tagged `frameshift_count=2` -- nhmmer still recognises a
+C-terminus-shaped signal there, just out of frame, so the DNA span
+`tell_tales()` merges and hands to correction already contains a
+C-terminus-shaped template. `ROI_00019` has no C-terminus-profile hit at
+any frameshift count -- nothing downstream of its last repeat resembles a
+TALE C-terminus to nhmmer, so the span it hands to correction never
+contains such a template in the first place. This is a correction to an
+earlier, wrong claim in this same section (`has_all_domains = FALSE` was
+first described as "not a missing terminus, a non-canonical one" -- it
+is, in fact, a literally absent hit; fixed in place above where that claim
+was originally made) and to the first cut of "the mechanism" a few
+paragraphs up, which read as "nothing looks broken" rather than tracing
+the actual reason all the way back to what nhmmer did or didn't find
+before correction ever runs.
+
+**First draft of the article written and verified, 2026-09-22 --
+`vignettes/articles/trunctale_correction.qmd`.** Kept deliberately
+separate from `tale_mining.qmd` (§25b remains its own item). Covers:
+finding the two truncTALEs via termini widths and `tales_anomalies()`
+reporting nothing for either (§ "Two genuine truncTALEs in one genome");
+the `has_all_domains`/nHMMER-hit mechanism above, shown with real code
+against `array_report.tsv` and `all_ranges.gff` rather than asserted (§
+"Not the same kind of short"); both correction methods run for real
+against the full genome, including the `max_comparisons` invariance check
+(§ "Does correction respect that difference?"); a closing summary table
+and practical guidance for a user who suspects their own genome carries
+real truncTALEs.
+
+**Rendered for real before calling it done, per this file's own standing
+rule for quarto articles:** package reinstalled first
+(`devtools::install(quick = TRUE, upgrade = FALSE)`, confirmed against a
+fresh session that the reinstall picked up this same session's other
+fixes, not assumed); built with `pkgdown::build_article("articles/trunctale_correction",
+pkg = ".")` alone, never `build_site()`/`build_articles()`. Clean run,
+all 37 chunks executed, ~2.8 minutes (`max_comparisons = 20` for the live
+`correct_array = TRUE` demo, per the invariance already established
+above -- the full 1057-reference run is reported as a table, not
+re-executed live, same precedent as `tale_mining.qmd`'s own BAI3-1-1
+timing table). Checked the rendered `docs/articles/trunctale_correction.html`
+directly, not just the exit code: no leaked tool/`cli` output, no error
+text, and the hit-level evidence, correction-comparison and summary
+tables all show the same numbers already on record above
+(`ROI_00001`/`ROI_00019` hit-level check: `TRUE`/`2` vs. `FALSE`/`NA`;
+corrections: 183->217/86% vs. 183->184/83%).
+
+**Not yet done, deliberately paused here for the maintainer:** not added
+to `_pkgdown.yml`'s `articles:` `contents:` list or navbar, no
+`build_articles_index()` run, no version bump or `NEWS.md` entry, nothing
+committed. First draft only -- content polish and official-publish steps
+both still to come.
+
+**Maintainer review of the first draft, 2026-09-22 -- content revisions
+requested, second round not yet done.** Sequencing: §25b (below) first,
+then a second pass on this article informed by it.
+
+- **Ground the introduction in the literature, not general knowledge.**
+  Two papers to use, both explicitly documenting truncTALEs/iTALEs in
+  Xoo, and both naming `PXO86` directly as a carrier genome:
+  - [Ji et al. 2016, *Nat. Commun.*](https://doi.org/10.1038/ncomms13435)
+    -- calls them "iTALEs": lack the C-terminal transcription activation
+    domain but retain nuclear localisation motifs; act as gain-of-function
+    suppressors of the rice *Xa1* executor-R-gene resistance normally
+    triggered by full-length TALEs. Names `Tal3`/`Tal6` specifically from
+    `PXO86`.
+  - [Read et al. 2016, *Front. Plant Sci.*](https://doi.org/10.3389/fpls.2016.01516)
+    -- calls them "truncTALEs": lack the activation domain entirely, part
+    of the N-terminal region including the first cryptic repeat, and the
+    second NLS (a candidate NLS sequence remains); most carry a novel
+    28 aa repeat rather than the usual 34 aa. Also suppress *Xa1*-mediated
+    resistance; the characterised example (`Tal2h`) did not bind any
+    tested candidate target site in vitro, supporting a protein-level
+    (dominant-negative ligand) mechanism rather than DNA-binding
+    transactivation. Documents truncTALEs directly in `PXO86` among other
+    Xoo/Xoc strains.
+  - Cite both inline as markdown links with their DOI URLs, matching this
+    package's existing citation style (plain `[Name](doi-url)`, see
+    `README.md`/`tale_target_prediction.qmd` -- no separate bibliography).
+  - The two papers use different terminology (iTALE vs. truncTALE) for
+    apparently the same phenomenon -- keep that distinction visible rather
+    than silently merging their wording into one voice.
+- **Lay out the stakes right after "Where this fits," before the PXO86
+  case study.** State plainly what question this article is actually
+  answering: does `tell_tales(correct_array = TRUE)` mishandle genuine
+  truncTALEs the way it is already known to over-extend genuine assembly-
+  error frameshifts, and does `correct_tales()` do any better -- pulled
+  from this section's own original framing above, not re-invented.
+- **Use `hits_report.tsv` instead of `all_ranges.gff` for the hit-level
+  mechanism section.** `all_ranges.gff` exists so a genome browser can
+  draw domains along the sequence -- a different job. `hits_report.tsv`
+  (confirmed: one row per real nHMMER hit, `array_id`/`query_name`/
+  `codon_count`/`frameshift_count` columns, no GFF attribute-string
+  parsing or hit-vs-summary-row filtering needed) is the right source and
+  makes the code chunk simpler, not just more appropriate.
+- **Sharpen the conclusion.** State the practical, transparent headline
+  directly: on this evidence, `correct_tales()` is not prone to
+  mis-correcting a genuine truncTALE's sequence, while
+  `tell_tales(correct_array = TRUE)` is, for the frameshift-type one.
+  Don't leave the takeaway as even-handed "check both" hedging when the
+  actual result favours one method concretely.
+- **Style, package-wide, not just this article:** stop overusing the
+  "A, not B" antithesis construction (flagged as an immediately-
+  recognisable LLM tic, in both its sentence-initial and mid-sentence
+  forms); neutral, plain, scientific register throughout. Recorded as
+  [[feedback_writing_tone]] in memory, since it applies beyond this one
+  file.
+
+**Second round done, 2026-09-22, after §25b (below).** All five requested
+revisions applied: introduction now cites Ji et al. and Read et al. by
+name with their DOI links, and states the truncTALE/iTALE biology and
+`Xa1`-suppression function from those papers rather than general
+knowledge; a stakes paragraph now sits right after "Where this fits,"
+naming the two concrete questions (does `correct_array = TRUE` extend a
+genuine truncTALE the way it extends a genuine assembly error, and does
+`correct_tales()` differ); the hit-level mechanism section now reads
+`hits_report.tsv` instead of `all_ranges.gff`; the summary states plainly
+that `correct_tales()` left both truncTALEs' sequence alone while
+`correct_array = TRUE` rewrote the genuine frameshift's C-terminus,
+scoped honestly to one genome and two arrays rather than a general
+ranking; the antithesis construction was scrubbed throughout. Re-rendered
+for real with the same procedure as the first draft -- clean, ~2.9
+minutes, both citation links present in the built HTML, hit-level table
+still reads `TRUE`/`2` vs. `FALSE`/`NA`, correction numbers still
+183->217/86% vs. 183->184/83%.
+
+**Still not done, same as after the first draft:** `_pkgdown.yml`
+registration, `build_articles_index()`, version bump, `NEWS.md`, commit.
+
+### §25b, `tale_mining.qmd`'s correction chapters are stale after §17's `correct_tales()` fix -- DONE **[V]**
+
+First surfaced 2026-09-22 as a live consequence of §17's flag-swap fix
+(`correct_tales()`, `R/talecorrection_java.R:44`, was feeding
+`TALEcorrection.jar` its two nHMMER result files on the wrong flags),
+recorded originally as an addendum to §17's own closing note -- moved here,
+where the rest of the website follow-up work this same fix implies is
+tracked, and confirmed again while discussing §25 the same day. Kept a
+separate item from §25 on purpose (see §25's own note above): this is
+about an *existing, published* article going stale, not the new deep-dive.
+
+`vignettes/articles/tale_mining.qmd`'s **"Correcting frameshifts, two
+ways"** section (rendered at
+https://scunnac.github.io/tantale/articles/tale_mining.html#correcting-frameshifts-two-ways)
+was written and verified against the *pre-fix*, swapped-flags
+`correct_tales()`. Its whole narrative rests on neither correction path
+alone fixing every problem in the real **BAI3-1-1** talome fixture used
+there -- not PXO86 -- per §7.5b: `correct_tales()` fixed `ROI_00003` but
+not `ROI_00005`; `correct_array = TRUE` (`tell_tales()`'s own DECIPHER-based
+correction) fixed both but broke a third, previously-clean array,
+`ROI_00001`. That three-way contrast is why the section demonstrates
+running both methods, sequentially.
+
+**Now stale.** With the flags fixed, the correctly-called `correct_tales()`
+alone now fixes every problem in that talome (both `ROI_00003` and
+`ROI_00005`) -- the sequential two-method demonstration is no longer
+justified, and the section's prose and structure need rewriting to match
+the tool's actual current behaviour.
+
+**"How much did either correction actually help?"** (the
+`fig-coverage-improvement` chapter) quantifies each method's benefit from
+numbers computed against the same pre-fix `correct_tales()` -- these need
+recomputing against the fixed tool, not assumed still accurate just
+because the surrounding prose is what's being rewritten.
+
+**One piece confirmed still valid, explicitly not to be touched when this
+is revisited:** the timing/performance comparison between the two
+correction approaches, elsewhere in the same section. That table is about
+`tell_tales()`'s DECIPHER path (§8.1: `correct_array = TRUE` runs at 29x the
+rest of the pipeline, cost scaling with the reference set's size, not the
+subject sequence's) -- unaffected by the `correct_tales()` jar fix.
+
+Not started: no re-render attempted, no check yet on whether the fix
+changes the qualitative story (still worse/better/same relative to
+DECIPHER) or just the numbers.
+
+**When this is picked up, a `docs/` rebuild is required** -- via the
+established decomposed sequence (per this file's own `CLAUDE.md` note and
+§15: one `pkgdown::build_article()` call per file, `tale_classification.qmd`
+first to prime the shared cache, never `build_site()`/`build_articles()`
+directly), package reinstalled first so the quarto subprocess sees the
+change, same as §23's precedent for a cross-article rename.
+
+**Done, 2026-09-22.** Re-ran the whole `BAI3-1-1` correction pipeline for
+real against the reinstalled, fixed `correct_tales()` before writing
+anything. Result: `correct_tales()` alone now clears both `ROI_00003` and
+`ROI_00005` (zero anomalies) -- previously it fixed only one. Four
+sections of `tale_mining.qmd` rewritten to match:
+
+- **"Correcting the genome, before discovery"** -- prose updated from
+  "fixes one, not the other" to both fixed, framed as a genome-wide pass
+  and a per-array pass reaching the same outcome by different routes.
+- **"A clean correction without an eight-minute wait"** -- `correct_tales()`
+  and `max_comparisons = 50` now presented as two independent routes to
+  zero anomalies rather than "three results, none fully clean." The
+  "chaining both paths" tip's numbers re-measured for real (`correct_tales()`
+  alone ~41 s; chained routes unchanged at zero anomalies) and reframed:
+  chaining adds nothing on this genome now that a single pass suffices,
+  though the technique remains available for a messier one.
+- **"How much did either correction actually help?"** -- all three
+  correction routes now bring `ROI_00003`/`ROI_00005` to the same
+  near-complete coverage (91%/93%), verified directly rather than
+  assumed; figure caption and prose updated to say so, and to point out
+  that the real remaining difference between routes (`max_comparisons = 20`
+  breaking a third array, `ROI_00001`) does not show up in a coverage
+  number at all -- only `tales_anomalies()` catches it.
+- **"Moving on with what you have"** -- the `sanitize()` demonstration
+  switched from `bai311_java` (now fully clean, so it dropped nothing) to
+  `bai311_corr` (the `max_comparisons = 20` run, which still has
+  `ROI_00001` flagged), confirmed to still drop exactly one array.
+
+`bai311_best` (the `max_comparisons = 50` result) is left as the
+canonical downstream object the rest of this article set builds on --
+not changed to `correct_tales()`'s own result, since that choice ripples
+into the four-article shared cache (§15) and is not this session's to
+make unilaterally. Flagged, not decided: whether a future session should
+revisit which corrected version is canonical now that `correct_tales()`
+reaches the same outcome.
+
+Re-rendered for real: `pkgdown::build_article("articles/tale_mining", pkg
+= ".")`, clean, all 63 chunks, ~3.6 minutes. Checked the built
+`docs/articles/tale_mining.html` directly: two `A tibble: 0 x 3` results
+(both `bai311_java` and `bai311_best` now anomaly-free), `corrections`
+inline count reads 70, `sanitize` chunk output reads `[1] 1`.
 
 ---
 
@@ -7881,3 +8380,172 @@ now raises `` `k_range` must be between 1 and 3 for 4 arrays. / Got 2, 3,
 and 4. `` with class `tantale_error_group_kmedoids_krange`, catchable and
 readable, where before it was a bare `cluster::pam()` message with no
 class at all.
+
+---
+
+## 29. Function dependency diagram, to rebuild the maintainer's mental map -- BRAINSTORMING, not decided **[P]**
+
+Maintainer's request, 2026-09-22: the package has grown enough (24 `R/`
+files, 9144 lines, 51 exports + 19 S3 methods + **107** internal `.xxx()`
+helpers -- 179 function definitions total, counted directly, not
+estimated) that the maintainer has lost their own mental map of it, and
+wants a function-dependency diagram covering internals too, and input/
+output objects (the `tales`/`tales_msa`/`pairwise_distances`/
+`tale_distances`/`domain_distances` class family) if that does not make it
+too cluttered.
+
+**Related to, but a distinct ask from, the existing `man/figures/pipeline.svg`
+item (§7.6, §7, §9.2a, §0, §10) -- not a duplicate:** that figure is a
+hand-drawn (Inkscape) *conceptual workflow* diagram, already found stale
+twice (pre-rename function names still on it as of §7.6; a refresh
+earlier in §7 didn't hold), and re-exporting it even once already needs a
+manual Inkscape step (librsvg would silently change the typography). §7.6
+left it as "redraw against the current API, or remove if nothing needs
+it" -- explicitly not yet acted on. This new item is about a genuinely
+different thing: not a curated one-page illustration of the main
+discovery→classification→alignment→prediction workflow, but a *complete,
+internals-included* call graph for navigation -- the two could end up
+served by different artifacts, or this one could end up superseding
+`pipeline.svg` if it can do both jobs without becoming unreadable.
+
+**Environment check before brainstorming:** `DiagrammeR`, `DiagrammeRsvg`,
+`igraph`, `visNetwork` and `codetools` are already available on this
+machine; `pkgnet`, `DependenciesGraphs` and `mvbutils` (three CRAN packages
+that generate exactly this kind of call graph off a package namespace) are
+not currently installed.
+
+**Not decided yet -- brainstorming with the maintainer, options on the
+table:**
+1. An automated, regenerable call graph (function calls function, derived
+   from source/namespace rather than hand-drawn) -- fixes the staleness
+   problem that hit `pipeline.svg` twice, and reaches internals for free
+   since it can walk the whole namespace, not just exported symbols.
+2. An interactive graph (zoomable/searchable/collapsible, e.g. `visNetwork`)
+   rather than a static image, specifically to manage the clutter risk from
+   179 functions -- lets the maintainer explore rather than needing
+   everything legible on one static page.
+3. A custom bipartite graph adding the class objects as their own nodes
+   (function -> produces -> class, class -> consumed by -> function,
+   matching the data-first calling convention), which none of the
+   off-the-shelf call-graph tools do out of the box -- more design effort,
+   but the part of the ask a plain call graph does not cover.
+
+Nothing built yet. To be continued once the maintainer and the assistant
+converge on an approach.
+
+**Decisions from the brainstorm, 2026-09-22 -- planning only, still not
+started:**
+
+- **Artifact: a `.qmd` file under `dev/`**, not published to the pkgdown
+  site -- a dev-only navigation tool, not a user-facing figure. Name not
+  yet chosen.
+- **Scope: phase 1 only for now** -- the automated function-call graph
+  (all 179 functions, internals included), interactive (`visNetwork`).
+  **Phase 2, the object-node layer** (`tales`/`tales_msa`/
+  `pairwise_distances`/`tale_distances`/`domain_distances` as graph nodes)
+  **explicitly deferred, not decided against** -- revisit once phase 1 is
+  built and it's clear whether it's legible enough to need it, or wants it.
+- **Grouping strategy for the 107 internals in the initial view --
+  decided: collapsed by file.** The graph opens showing one node per
+  `R/` file (~24 nodes) with edges for cross-file calls; a file node
+  expands on click into its individual functions. Not flat-from-the-start.
+
+**Sequencing, the maintainer's explicit call:** this item is planning
+only. **Actual implementation work starts with the website items instead
+(§25/§25b)**, not this diagram -- §29 stays a documented plan until picked
+up later, not next in line. **Standing instruction, not specific to this
+item: no coding starts on anything without the maintainer's explicit
+go-ahead first**, website work included.
+
+---
+
+## 30. Full website prose review against `feedback_writing_tone` -- proposed, not started **[P]**
+
+Maintainer's suggestion, 2026-09-22, tentative ("may be worth it") --
+recorded so it isn't lost, not committed to as a scheduled task.
+
+The "A, not B" parallel-antithesis writing tic (see the assistant's own
+memory, `feedback_writing_tone`) was caught and fixed in two places this
+same session (`trunctale_correction.qmd`'s first draft, and two spots
+introduced while rewriting `tale_mining.qmd`'s correction sections for
+§25b). Neither the rest of the existing site (`tale_classification.qmd`,
+`tale_msa.qmd`, `tales_class.qmd`, `tales_msa_class.qmd`,
+`tale_target_prediction.qmd`, `getting_started.qmd`, `README.md`,
+`pkgdown/index.md`) nor the reference-page prose has been checked for it.
+
+Not started: no sweep attempted, no article read with this specific
+pattern in mind yet. Whenever it is picked up, it is a read-and-edit pass
+per file, not something to automate by search-and-replace -- the pattern
+is a rhetorical habit, not a fixed string, and most existing prose
+predates the memory that names it.
+
+---
+
+## 31. §25/§25b's official-publish steps, executed -- DONE **[V]**
+
+Maintainer's go-ahead, 2026-09-22, on the whole pending checklist from
+§25/§25b: `_pkgdown.yml` registration, version bump, `NEWS.md`, a full
+site rebuild, and a commit.
+
+**Done so far:**
+- `_pkgdown.yml`: `articles/trunctale_correction` added to the `Learn
+  tantale` `contents:` list, right after `articles/tales_class` (same
+  slot pattern as the other tale_mining-extending deep dive).
+- `NEWS.md`: two new entries at the top -- the new truncTALE article
+  (with both literature links), and `tale_mining.qmd`'s correction
+  sections being brought in line with the `correct_tales()` fix.
+- Version bumped `0.9.9004` -> `0.9.9005`. `usethis::use_version("dev")`
+  refused non-interactively (uncommitted changes, needs a confirmation
+  prompt this session cannot answer) -- bumped `DESCRIPTION`'s `Version`
+  field directly instead, same value that call would have produced.
+  Package reinstalled (`devtools::install(quick = TRUE, upgrade = FALSE)`)
+  before any rebuild.
+- **`docs/` fully deleted before rebuilding**, per the maintainer's own
+  standing instruction (this file's `CLAUDE.md`, added 2026-09-22) --
+  clears whatever stale `.md`/`.html` had accumulated (a duplicated
+  `docs/articles/articles/...` nesting was visible before the wipe).
+
+**Full site rebuild, decomposed, in progress at time of writing --**
+not `pkgdown::build_site()` (would re-trigger §15's quarto-project
+ordering bug across the four cache-sharing articles), but its own call
+sequence read directly out of `pkgdown:::build_site_local()`'s source so
+nothing it normally does is skipped: `init_site()`, `build_home()`,
+`build_reference()`, `build_articles_index()`, then `build_article()`
+once per article -- `tale_classification` first to prime the shared
+cache, matching §15's precedent -- then `build_tutorials()`,
+`build_news()`, `build_sitemap()`, `build_llm_docs()` (this pkgdown's
+bootstrap version is 5, so this step and `build_search()` apply rather
+than their bs3 equivalents), `build_redirects()`, `build_search()`,
+`check_built_site()`.
+
+**Two mechanical mistakes on the first two attempts, both fixed, neither
+a real problem:** `build_reference()` and `build_news()` do not accept a
+`quiet` argument (unlike most other `build_*` functions) -- passing one
+raised `unused argument (quiet = FALSE)` and halted the whole script both
+times. First failure was caught before `build_reference()` ran anything
+(cheap to rerun from the top); second failure was caught only after
+`build_reference()` and all eight articles had already built successfully
+(18 minutes) -- resumed from `build_news()` onward rather than repeating
+that.
+
+**Clean on the third attempt, confirmed:** 9 articles (`docs/articles/*.html`,
+including `trunctale_correction.html`), 83 reference pages, `docs/news/index.html`,
+`docs/search.json` all present; `check_built_site()` printed its "Checking
+for problems" header and nothing else -- no problems reported.
+`build_redirects()`'s own output confirmed `docs/articles/articles/<name>.html`
+paths are deliberate single-file redirect stubs it creates itself, not
+stale cruft (corrects an assumption made earlier in this same item).
+
+**Deleting `docs/` first paid off concretely, not just as a precaution:**
+`git status` after the rebuild shows 228 deletions -- entire old
+numbered-vignette-era articles (`1_tale_mining.html`,
+`2_tale_classification.html`, `p2_multiple_alignments.html`, their
+`_files/` dependency and figure folders, predating §7.5c) that the
+per-article `build_article()` loop had been silently leaving behind on
+every previous rebuild because it only ever writes or overwrites, never
+removes. This is the concrete case the maintainer's 2026-09-22 instruction
+(now in `dev/CLAUDE.md`'s standing rules) was about.
+
+**Committed and pushed, 2026-09-23**, maintainer's explicit request for
+both. `dev/CLAUDE.md`'s "Where things stand" updated in the same commit
+to fold in §25/§25b/§31 for a clean handoff to a fresh session.

@@ -74,30 +74,34 @@ extra time for no change, since neither needed correcting.
 Code
 
 ``` r
-all_tales <- lapply(names(genome_files), discover_strain) |>
-  suppressWarnings() |>
-  bind_rows()
+if (fs::file_exists(discovery_cache)) {
+  all_tales <- readRDS(discovery_cache)
+} else {
+  all_tales <- lapply(names(genome_files), discover_strain) |>
+    suppressWarnings() |>
+    bind_rows()
+}
 #> Finding the closest reference amino acid sequences:
 #> ================================================================================
 #> 
-#> Time difference of 2.77 secs
+#> Time difference of 2.65 secs
 #> ================================================================================
 #> 
-#> Time difference of 53.93 secs
+#> Time difference of 52.63 secs
 #> Finding the closest reference amino acid sequences:
 #> ================================================================================
 #> 
-#> Time difference of 2.79 secs
+#> Time difference of 2.66 secs
 #> ================================================================================
 #> 
-#> Time difference of 52.05 secs
+#> Time difference of 55.13 secs
 #> Finding the closest reference amino acid sequences:
 #> ================================================================================
 #> 
-#> Time difference of 0.45 secs
+#> Time difference of 0.43 secs
 #> ================================================================================
 #> 
-#> Time difference of 44.34 secs
+#> Time difference of 44.01 secs
 ```
 
 `array_id` is prefixed by strain before the three objects are combined,
@@ -110,6 +114,7 @@ Code
 
 ``` r
 all_tales <- tales(all_tales, sanitize = TRUE)
+saveRDS(all_tales, discovery_cache)
 n_distinct(all_tales$array_id)
 #> [1] 26
 ```
@@ -127,7 +132,12 @@ and from those, distances between whole arrays.
 Code
 
 ``` r
-cmp <- tales_compare_distal(all_tales, aln_method = "DECIPHER", ncores = 4)
+if (fs::file_exists(compare_cache)) {
+  cmp <- readRDS(compare_cache)
+} else {
+  cmp <- tales_compare_distal(all_tales, aln_method = "DECIPHER", ncores = 4)
+  saveRDS(cmp, compare_cache)
+}
 names(cmp)
 #> [1] "tales"            "domain_distances" "tale_distances"
 ```
@@ -316,8 +326,13 @@ what DisTAL itself offers:
 Code
 
 ``` r
-grouped <- tales_group_kmedoids(cmp$tales, cmp$tale_distances,
-                                k_range = 2:20, k = "auto")
+if (fs::file_exists(group_cache)) {
+  grouped <- readRDS(group_cache)
+} else {
+  grouped <- tales_group_kmedoids(cmp$tales, cmp$tale_distances,
+                                  k_range = 2:20, k = "auto")
+  saveRDS(grouped, group_cache)
+}
 ```
 
 [![](tale_classification_files/figure-html/tales_group-1.png)](https://scunnac.github.io/tantale/articles/tale_classification_files/figure-html/tales_group-1.png)

@@ -24,74 +24,13 @@ library(dplyr)
 
 ## 1 Building the alignment this article examines
 
-Reproduced rather than carried over, so this article stands alone. The
-three genomes and the group are exactly [the
-walkthrough’s](https://scunnac.github.io/tantale/articles/tale_msa.md).
-
-Code
-
-``` r
-out <- fs::dir_create(file.path(tempdir(), "tales_msa_article"))
-genome_files <- c(
-  MAI1       = system.file("extdata", "MAI1.fa",     package = "tantale", mustWork = TRUE),
-  BAI3       = system.file("extdata", "BAI3.fa",     package = "tantale", mustWork = TRUE),
-  `BAI3-1-1` = system.file("extdata", "BAI3-1-1.fa", package = "tantale", mustWork = TRUE)
-)
-```
-
-Code
-
-``` r
-all_tales <- lapply(names(genome_files), function(strain) {
-  strain_dir <- file.path(out, strain)
-  invisible(tell_tales(subject_file = genome_files[strain], output_dir = strain_dir,
-                       cterm_min_score = 300,
-                       correct_array = TRUE, max_comparisons = 50))
-  tales_from_telltale(strain_dir) |>
-    mutate(array_id = paste0(strain, "_", array_id))
-}) |>
-  suppressWarnings() |>
-  bind_rows() |>
-  tales(sanitize = TRUE)
-#> Finding the closest reference amino acid sequences:
-#> ================================================================================
-#> 
-#> Time difference of 2.86 secs
-#> ================================================================================
-#> 
-#> Time difference of 53.51 secs
-#> Finding the closest reference amino acid sequences:
-#> ================================================================================
-#> 
-#> Time difference of 2.72 secs
-#> ================================================================================
-#> 
-#> Time difference of 53.95 secs
-#> Finding the closest reference amino acid sequences:
-#> ================================================================================
-#> 
-#> Time difference of 0.46 secs
-#> ================================================================================
-#> 
-#> Time difference of 44.57 secs
-```
-
-Code
-
-``` r
-cmp <- tales_compare_distal(all_tales, aln_method = "DECIPHER", ncores = 4)
-```
-
-Code
-
-``` r
-group6 <- suppressMessages(
-  tales_group_kmedoids(cmp$tales, cmp$tale_distances, k_range = 2:20, k = "auto")
-) |>
-  filter(group == 6)
-```
-
-[![](tales_msa_class_files/figure-html/pick_group-1.png)](https://scunnac.github.io/tantale/articles/tales_msa_class_files/figure-html/pick_group-1.png)
+Same three genomes and the same group as [the
+walkthrough](https://scunnac.github.io/tantale/articles/tale_msa.md),
+reused here from the cached result of [the classification
+article](https://scunnac.github.io/tantale/articles/tale_classification.html#sec-backends)
+rather than recomputed; see [the getting-started
+article](https://scunnac.github.io/tantale/articles/getting_started.md)
+for how these four articles are linked.
 
 [`tales_align()`](https://scunnac.github.io/tantale/reference/tales_align.md)
 takes a `tales` and returns a `tales_msa`: the same rows, plus one new
@@ -106,7 +45,7 @@ Code
 msa <- tales_align(group6, residue_col = "dom_code")
 msa
 #> <tales_msa> 3 arrays, 18 alignment positions
-#>   layers: rvd, dom_code   |   namespace: 5d8762602564ac93   |   7 other columns
+#>   layers: rvd, dom_code   |   namespace: 5d8762602564ac93   |   8 other columns
 #>                       dom_code
 #>   MAI1_ROI_00007       84  35  43   5  41  31  24  49  35  54  18  40  31  ...
 #>   BAI3_ROI_00007       84  35  43   5  41  31  24  49  35  54  18  40   -  ...
@@ -350,32 +289,33 @@ position – and three questions about it are answered separately:
 - **what colour the block behind it is** – `fill_type`, the only one of
   the three that can be unavailable.
 
-| fill_type        | shows                                                                       | needs           |
-|:-----------------|:----------------------------------------------------------------------------|:----------------|
-| `"repeat_clust"` | which cluster the repeat falls in, cut at `h_cut`                           | `domain_sim`    |
-| `"repeat_sim"`   | protein-sequence similarity to the reference, 0-100                         | `domain_sim`    |
-| `"rvd_sim"`      | how alike the RVD’s *DNA-binding preference* is to the reference’s, -1 to 1 | a `label` layer |
+| fill_type        | shows                                                                       | needs              |
+|:-----------------|:----------------------------------------------------------------------------|:-------------------|
+| `"domain_clust"` | which cluster the domain falls in, cut at `h_cut`                           | `domain_distances` |
+| `"domain_sim"`   | protein-sequence similarity to the reference, 0-100                         | `domain_distances` |
+| `"rvd_sim"`      | how alike the RVD’s *DNA-binding preference* is to the reference’s, -1 to 1 | a `label` layer    |
 
-`domain_sim` is the `domain_distances` element of
+The `domain_distances` argument takes exactly that – the
+`domain_distances` element of
 [`tales_compare_distal()`](https://scunnac.github.io/tantale/reference/tales_compare_distal.md)’s
-result. Passing `tal_sim` (the `tale_distances` element) in addition
-adds a dendrogram panel ordering the rows by relatedness:
+result. Passing `tale_distances` (the `tale_distances` element) in
+addition adds a dendrogram panel ordering the rows by relatedness:
 
 Code
 
 ``` r
-plot(msa, tal_sim = cmp$tale_distances, domain_sim = cmp$domain_distances)
+plot(msa, tale_distances = cmp$tale_distances, domain_distances = cmp$domain_distances)
 ```
 
-[![](tales_msa_class_files/figure-html/fig-msa-plot-default-1.png)](https://scunnac.github.io/tantale/articles/tales_msa_class_files/figure-html/fig-msa-plot-default-1.png "Figure 3: Default plot.tales_msa() view: repeat-cluster fill, RVD labels, and a tree from tal_sim.")
+[![](tales_msa_class_files/figure-html/fig-msa-plot-default-1.png)](https://scunnac.github.io/tantale/articles/tales_msa_class_files/figure-html/fig-msa-plot-default-1.png "Figure 3: Default plot.tales_msa() view: domain-cluster fill, RVD labels, and a tree from tale_distances.")
 
-Figure 3: Default plot.tales_msa() view: repeat-cluster fill, RVD
-labels, and a tree from tal_sim.
+Figure 3: Default plot.tales_msa() view: domain-cluster fill, RVD
+labels, and a tree from tale_distances.
 
 `"rvd_sim"` asks a different question at a different layer: not “which
 cluster” or “how similar a protein”, but how alike each RVD’s
-DNA-binding specificity is to the reference’s. It needs no `domain_sim`
-at all, only the RVDs themselves:
+DNA-binding specificity is to the reference’s. It needs no
+`domain_distances` at all, only the RVDs themselves:
 
 Code
 
@@ -388,10 +328,10 @@ plot(msa, fill_type = "rvd_sim")
 Figure 4: The same alignment, coloured by RVD specificity relative to
 the reference rather than by repeat identity.
 
-The repeat- and RVD-level views genuinely differ: `HD` and `ND` are
-different repeats with identical specificity, while repeats differing
+The domain- and RVD-level views genuinely differ: `HD` and `ND` are
+distinct domains with identical specificity, while domains differing
 only at positions 12-13 are near-identical proteins with opposite target
-bases – so `"repeat_sim"` and `"rvd_sim"` are not two colour schemes for
+bases – so `"domain_sim"` and `"rvd_sim"` are not two colour schemes for
 the same fact, they are answers to two different questions.
 
 ## 6 Next

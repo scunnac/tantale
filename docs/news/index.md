@@ -2,6 +2,72 @@
 
 ## tantale (development version)
 
+### New article: genuine truncTALEs and frameshift correction
+
+TALEs are not always broken when they are short. `PXO86` carries two
+naturally truncated TAL effectors (truncTALEs), documented in [Ji et
+al. 2016](https://doi.org/10.1038/ncomms13435) and [Read et
+al. 2016](https://doi.org/10.3389/fpls.2016.01516), and the two differ
+enough at the DNA level that they respond differently to automatic
+frameshift correction: `tell_tales(correct_array = TRUE)` extends one of
+them as if it were an assembly error, while
+[`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
+leaves both alone. See the new [Genuine truncTALEs and frameshift
+correction](https://scunnac.github.io/tantale/news/articles/trunctale_correction.md)
+article for the full comparison.
+
+### `tale_mining.qmd`’s correction sections updated for the `correct_tales()` fix
+
+The “Correcting frameshifts, two ways” and “How much did either
+correction actually help?” sections were written against the pre-fix,
+swapped-flags
+[`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
+(see the bug fix entry below) and described it as fixing only one of
+BAI3-1-1’s two frameshifted arrays. With the flags corrected,
+[`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
+fixes both on its own; the article’s prose, timing table and coverage
+figure are updated to match, verified against a real re-run rather than
+assumed.
+
+### `plot.tales_msa()`: internal column names corrected, consensus computation simplified
+
+Some of
+[`plot.tales_msa()`](https://scunnac.github.io/tantale/reference/plot.tales_msa.md)’s
+internal column names claimed a repeat-specificity the underlying
+computation never had (termini are scored identically to repeats) –
+`matchConsensusRepeat`, `repeatClusterId` and `repeatSimVsRef` are now
+`matchConsensusDomain`, `domainClusterId` and `domainSimVsRef`. This
+only affects code reading `plot(msa)`’s returned
+`$data`/`$plotlist[[i]]$data` by column name to compose further layers,
+per its own documented pattern – the figure itself, and every other
+argument and return value, are unchanged. The consensus/match
+computation behind the alignment’s text colour no longer round-trips
+through a matrix internally; not user-visible, part of an ongoing
+internal simplification (`dev/restructuring-notes.md` §21, not finished
+this round).
+
+### Bug fix: `correct_tales()` had its nHMMER inputs swapped
+
+[`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
+built its call to `TALEcorrection.jar` with the repeat- and
+C-terminus-domain nHMMER search results assigned to the wrong CLI flags
+– confirmed against the tool’s own printed usage, which documents `r=`
+as wanting the repeats file and `c=` the C-terminus file, exactly
+backwards from what every prior call supplied. Every correction run has
+therefore been telling the external tool the wrong domain for those two
+inputs. Fixed; corrected sequences from
+[`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
+may now differ from previous runs on the same input.
+
+### In-depth documentation review of every exported function
+
+Every exported function and S3 method’s documentation was checked for
+accuracy against its actual current behaviour, completeness (arguments,
+return value, a real runnable example), and consistency of tone –
+several stale or copy-pasted descriptions, wrong defaults, and missing
+`@examples` fixed along the way. See `dev/restructuring-notes.md` §17
+for the full record.
+
 ### TALE comparison by predicted binding specificity, reworked
 
 `functal()`, the wrapper around QueTAL’s vendored Perl `FuncTAL` script,

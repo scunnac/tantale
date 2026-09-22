@@ -24,8 +24,8 @@ preditale(
 
   Tale RVD sequences are supplied as either a fasta file (atomic
   character vector) with Tale info (name) in title and sequences of RVD
-  as a space or '-' separeted string or as a Biostrings XStringSet with
-  sequences of RVD similarly formated. See the
+  as a space or '-' separated string or as a Biostrings XStringSet with
+  sequences of RVD similarly formatted. See the
   [PrediTale](https://www.jstacs.de/index.php/PrediTALE) man page for
   how to encode RVDs present on aberrant repeats.
 
@@ -36,7 +36,7 @@ preditale(
 
 - opt_param:
 
-  An atomic character vector specifying optionnal parameters for
+  An atomic character vector specifying optional parameters for
   PrediTALE.jar preditale (eg "Strand=\\forward strand\\").
 
 - output_dir:
@@ -52,9 +52,9 @@ preditale(
 ## Value
 
 A tibble with the EBE predictions. **Note that column names have been
-modified** relative to the column names found in the originale
-programs's output in order to homogenize column names across TALE target
-prediction programs in tantale
+modified** relative to the column names found in the original program's
+output in order to homogenize column names across TALE target prediction
+programs in tantale
 
 ## See also
 

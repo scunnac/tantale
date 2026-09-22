@@ -1,5 +1,28 @@
 # tantale (development version)
 
+## New article: genuine truncTALEs and frameshift correction
+
+TALEs are not always broken when they are short. `PXO86` carries two
+naturally truncated TAL effectors (truncTALEs), documented in
+[Ji et al. 2016](https://doi.org/10.1038/ncomms13435) and
+[Read et al. 2016](https://doi.org/10.3389/fpls.2016.01516), and the two
+differ enough at the DNA level that they respond differently to
+automatic frameshift correction: `tell_tales(correct_array = TRUE)`
+extends one of them as if it were an assembly error, while
+`correct_tales()` leaves both alone. See the new
+[Genuine truncTALEs and frameshift correction](articles/trunctale_correction.html)
+article for the full comparison.
+
+## `tale_mining.qmd`'s correction sections updated for the `correct_tales()` fix
+
+The "Correcting frameshifts, two ways" and "How much did either
+correction actually help?" sections were written against the pre-fix,
+swapped-flags `correct_tales()` (see the bug fix entry below) and
+described it as fixing only one of BAI3-1-1's two frameshifted arrays.
+With the flags corrected, `correct_tales()` fixes both on its own; the
+article's prose, timing table and coverage figure are updated to match,
+verified against a real re-run rather than assumed.
+
 ## `plot.tales_msa()`: internal column names corrected, consensus computation simplified
 
 Some of `plot.tales_msa()`'s internal column names claimed a

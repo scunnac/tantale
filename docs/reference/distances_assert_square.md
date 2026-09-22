@@ -35,6 +35,7 @@ Both are correct; enforcing squareness everywhere would outlaw them.
 ## See also
 
 Other pairwise distances:
+[`[.pairwise_distances()`](https://scunnac.github.io/tantale/reference/sub-.pairwise_distances.md),
 [`as.matrix.pairwise_distances()`](https://scunnac.github.io/tantale/reference/as.matrix.pairwise_distances.md),
 [`distances_restrict()`](https://scunnac.github.io/tantale/reference/distances_restrict.md),
 [`is_pairwise_distances()`](https://scunnac.github.io/tantale/reference/is_pairwise_distances.md),
@@ -59,7 +60,9 @@ d <- pairwise_distances(data.frame(
 ))
 distances_assert_square(d)
 
-if (FALSE) { # \dontrun{
-distances_assert_square(d[1:3, ]) # missing the A2-A2 pair -- errors
-} # }
+try(distances_assert_square(d[1:3, ])) # missing the A2-A2 pair -- errors
+#> Error in distances_assert_square(d[1:3, ]) : 
+#>   `x` must hold every pair of the 2 ids it contains (4 rows), but has 3.
+#> ℹ Filtering both id columns to the same entities keeps a table square;
+#>   filtering one does not.
 ```

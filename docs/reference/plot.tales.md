@@ -46,7 +46,8 @@ plot(x, position = c("array", "alignment"), ...)
 
 ## Value
 
-The ggplot object, invisibly printed as a side effect.
+The ggplot object, returned invisibly after being printed as a side
+effect.
 
 ## See also
 

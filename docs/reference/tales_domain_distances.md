@@ -46,7 +46,7 @@ object, stamped with `x`'s namespace.
 ## Details
 
 This is the expensive step, and the one worth having on its own: the
-repeat-level distances answer questions about repeat diversity that need
+domain-level distances answer questions about domain diversity that need
 no TALE-level alignment at all, and computing them does not require
 running ARLEM.
 
@@ -62,6 +62,7 @@ for that ratio on a given object.
 which consumes this.
 
 Other pairwise distances:
+[`[.pairwise_distances()`](https://scunnac.github.io/tantale/reference/sub-.pairwise_distances.md),
 [`as.matrix.pairwise_distances()`](https://scunnac.github.io/tantale/reference/as.matrix.pairwise_distances.md),
 [`distances_assert_square()`](https://scunnac.github.io/tantale/reference/distances_assert_square.md),
 [`distances_restrict()`](https://scunnac.github.io/tantale/reference/distances_restrict.md),

@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9004</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9005</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -42,6 +42,7 @@
 <li><a class="dropdown-item" href="../articles/getting_started.html">Getting started with tantale</a></li>
     <li><a class="dropdown-item" href="../articles/tale_mining.html">Mining TALE sequences in genomes</a></li>
     <li><a class="dropdown-item" href="../articles/tales_class.html">The tales class</a></li>
+    <li><a class="dropdown-item" href="../articles/trunctale_correction.html">Genuine truncTALEs and frameshift correction</a></li>
     <li><a class="dropdown-item" href="../articles/tale_classification.html">Classifying TALE sequences from genomes</a></li>
     <li><a class="dropdown-item" href="../articles/tale_msa.html">Multiple alignment of TALE arrays</a></li>
     <li><a class="dropdown-item" href="../articles/tales_msa_class.html">The tales_msa class</a></li>
@@ -295,10 +296,10 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 <span><span class="co">#&gt; Finding the closest reference amino acid sequences:</span></span>
 <span><span class="co">#&gt; ================================================================================</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Time difference of 0.42 secs</span></span>
+<span><span class="co">#&gt; Time difference of 0.52 secs</span></span>
 <span><span class="co">#&gt; ================================================================================</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Time difference of 18.44 secs</span></span>
+<span><span class="co">#&gt; Time difference of 18.57 secs</span></span>
 <span><span class="va">bai311_corr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="../reference/tales_from_telltale.html">tales_from_telltale</a></span><span class="op">(</span><span class="va">bai311_corr_dir</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </details>
 </div>
@@ -363,11 +364,11 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 <span><span class="co">#&gt; # ℹ 3 variables: array_id &lt;chr&gt;, check &lt;chr&gt;, detail &lt;chr&gt;</span></span></code></pre></div>
 </details>
 </div>
-<p>A third outcome again: <code>ROI_00003</code> is fixed, but <code>ROI_00005</code> still is not – the opposite pattern from the <code>max_comparisons = 20</code> run above, which fixed both original frameshifts but broke a third array instead. Neither correction path is a silver bullet, and which one a given array needs is not predictable in advance.</p>
+<p>Zero anomalies here too, reached by a different route than the <code>max_comparisons = 50</code> run below: <code><a href="../reference/correct_tales.html">correct_tales()</a></code> fixes both <code>ROI_00003</code> and <code>ROI_00005</code> on this genome, without touching any candidate array individually. A genome-wide pass and a per-array one can land on the same outcome through different means. Checking <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> after either one is the way to find out which method a given array actually needed.</p>
 </section><section class="level3" data-number="4.3"><h3 data-number="4.3" id="sec-best-correction">
 <span class="header-section-number">4.3</span> A clean correction without an eight-minute wait<a class="anchor" aria-label="anchor" href="#sec-best-correction"></a>
 </h3>
-<p>Three results so far, none of them fully clean: <code>max_comparisons = 20</code> trades a fix for a new break; <code><a href="../reference/correct_tales.html">correct_tales()</a></code> alone leaves one array short. Two ways forward, both measured rather than assumed:</p>
+<p><code><a href="../reference/correct_tales.html">correct_tales()</a></code> above already reached zero anomalies in under a minute. <code>max_comparisons = 50</code> is a second, independent route to the same outcome, worth knowing about since it does not depend on the Java correction tool being available:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bai311_best_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out</span>, <span class="st">"BAI3-1-1_best"</span><span class="op">)</span></span></code></pre></div>
@@ -381,10 +382,10 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 <span><span class="co">#&gt; Finding the closest reference amino acid sequences:</span></span>
 <span><span class="co">#&gt; ================================================================================</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Time difference of 0.45 secs</span></span>
+<span><span class="co">#&gt; Time difference of 0.42 secs</span></span>
 <span><span class="co">#&gt; ================================================================================</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Time difference of 45.19 secs</span></span>
+<span><span class="co">#&gt; Time difference of 46.38 secs</span></span>
 <span><span class="va">bai311_best</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="../reference/tales_from_telltale.html">tales_from_telltale</a></span><span class="op">(</span><span class="va">bai311_best_dir</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </details>
 </div>
@@ -395,11 +396,11 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 <span><span class="co">#&gt; # ℹ 3 variables: array_id &lt;chr&gt;, check &lt;chr&gt;, detail &lt;chr&gt;</span></span></code></pre></div>
 </details>
 </div>
-<p>Zero anomalies – raising the cap from 20 to 50 references was enough for every array in this genome, in a little over a minute rather than eight. <code>bai311_best</code> is the version the rest of this set of articles builds on.</p>
+<p>Zero anomalies – raising the cap from 20 to 50 references was enough for every array in this genome, in a little over a minute. Either this run or <code><a href="../reference/correct_tales.html">correct_tales()</a></code>’s own result above is a reasonable choice for the rest of this set of articles; <code>bai311_best</code> (built here) is the one used from here on.</p>
 <div>
 <blockquote>
-<p><strong>A second way there: chain both correction paths</strong></p>
-<p>Running <code><a href="../reference/correct_tales.html">correct_tales()</a></code> first and feeding <em>its</em> output into <code>tell_tales(correct_array = TRUE)</code> also reaches zero anomalies, and lets the per-array step use a smaller <code>max_comparisons</code> again, because the genome-wide pass has already removed most of the damage <code><a href="../reference/tell_tales.html">tell_tales()</a></code> would otherwise have to correct for on its own. Measured on this same genome (not re-run live here, to keep this article’s build time down):</p>
+<p><strong>Chaining both correction paths</strong></p>
+<p>Running <code><a href="../reference/correct_tales.html">correct_tales()</a></code> first and feeding its output into <code>tell_tales(correct_array = TRUE)</code> also reaches zero anomalies, and lets the per-array step use a smaller <code>max_comparisons</code>, since most of the damage is already gone before it runs. Measured on this same genome (not re-run live here, to keep this article’s build time down):</p>
 <table class="table caption-top">
 <colgroup>
 <col style="width: 33%">
@@ -414,25 +415,31 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 <tbody>
 <tr class="odd">
 <td>
-<code>max_comparisons = 50</code> alone</td>
-<td>~79 s</td>
+<code><a href="../reference/correct_tales.html">correct_tales()</a></code> alone</td>
+<td>~41 s</td>
 <td>0</td>
 </tr>
 <tr class="even">
 <td>
-<code><a href="../reference/correct_tales.html">correct_tales()</a></code> (~29 s) then <code>max_comparisons = 20</code> (~50 s)</td>
-<td>~79 s combined</td>
-<td>still 1 (<code>ROI_00001</code>)</td>
+<code>max_comparisons = 50</code> alone</td>
+<td>~66-79 s</td>
+<td>0</td>
 </tr>
 <tr class="odd">
 <td>
-<code><a href="../reference/correct_tales.html">correct_tales()</a></code> (~29 s) then <code>max_comparisons = 50</code> (~66 s)</td>
-<td>~95 s combined</td>
+<code><a href="../reference/correct_tales.html">correct_tales()</a></code> (~27 s) then <code>max_comparisons = 20</code> (~40 s)</td>
+<td>~67 s combined</td>
+<td>0</td>
+</tr>
+<tr class="even">
+<td>
+<code><a href="../reference/correct_tales.html">correct_tales()</a></code> (~27 s) then <code>max_comparisons = 50</code> (~66 s)</td>
+<td>~93 s combined</td>
 <td>0</td>
 </tr>
 </tbody>
 </table>
-<p>For this genome the two routes land at about the same cost. The chained route is worth reaching for on a genome messy enough that neither correction alone gets close: each pass only has to clean up what the other left behind, rather than solving the whole problem itself.</p>
+<p>On this genome <code><a href="../reference/correct_tales.html">correct_tales()</a></code> alone already gets to zero anomalies, so chaining does not add anything beyond confirming the combination still works. The technique remains available for a genome where a single pass falls short.</p>
 </blockquote>
 </div>
 </section></section><section class="level2" data-number="5"><h2 data-number="5" id="sec-improvement">
@@ -514,24 +521,24 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 </details><div class="cell-output-display">
 <div id="fig-coverage-improvement" class="quarto-float quarto-figure quarto-figure-center">
 <figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-coverage-improvement-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-<a href="tale_mining_files/figure-html/fig-coverage-improvement-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Figure 2: ORF coverage of the two frameshifted BAI3-1-1 arrays, before and after each correction attempt. max_comparisons = 50 is the only one of the three that recovers both arrays fully."><img src="tale_mining_files/figure-html/fig-coverage-improvement-1.png" width="768"></a>
+<a href="tale_mining_files/figure-html/fig-coverage-improvement-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-2" title="Figure 2: ORF coverage of the two frameshifted BAI3-1-1 arrays, before and after each correction attempt. All three corrected routes recover both arrays fully."><img src="tale_mining_files/figure-html/fig-coverage-improvement-1.png" width="768"></a>
 </div>
 <figcaption class="quarto-float-caption-bottom quarto-float-caption quarto-float-fig" id="fig-coverage-improvement-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
-Figure 2: ORF coverage of the two frameshifted BAI3-1-1 arrays, before and after each correction attempt. max_comparisons = 50 is the only one of the three that recovers both arrays fully.
+Figure 2: ORF coverage of the two frameshifted BAI3-1-1 arrays, before and after each correction attempt. All three corrected routes recover both arrays fully.
 </figcaption></figure>
 </div>
 </div>
 </div>
-<p><a href="#fig-coverage-improvement" class="quarto-xref">Figure 2</a> is the honest version of “did correction help”: <code>max_comparisons = 20</code> and <code><a href="../reference/correct_tales.html">correct_tales()</a></code> both recover most of <code>ROI_00003</code>’s coding sequence outright, but only partly help <code>ROI_00005</code> – and only <code>max_comparisons = 50</code> reaches full coverage on both, which is exactly why <a href="#sec-best-correction" class="quarto-xref">Section 4.3</a> settled on it. What is true of every attempted route is that <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code>, not a coverage number by itself, is what actually says whether AnnoTALE could use the result.</p>
+<p><a href="#fig-coverage-improvement" class="quarto-xref">Figure 2</a> is the honest version of “did correction help”: all three routes bring <code>ROI_00003</code> and <code>ROI_00005</code> back to comparable, near-complete coverage. On these two numbers alone the three routes look interchangeable. <a href="#sec-best-correction" class="quarto-xref">Section 4.3</a>’s finding is what actually separates them, and coverage does not show it: <code>max_comparisons = 20</code> reaches this same recovery while introducing a new anomaly in a different array, <code>ROI_00001</code>. <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> is what catches that; the <code>orf_coverage</code> column here does not.</p>
 </section><section class="level2" data-number="6"><h2 data-number="6" id="moving-on-with-what-you-have">
 <span class="header-section-number">6</span> Moving on with what you have<a class="anchor" aria-label="anchor" href="#moving-on-with-what-you-have"></a>
 </h2>
-<p><code>bai311_best</code> needs none of this – it is already clean – but a route that stops short of that, such as the <code><a href="../reference/correct_tales.html">correct_tales()</a></code>-only run above, still needs a decision about what to do with what remains flagged. <code>tales(x, sanitize = TRUE)</code> drops it so an analysis can proceed on what is clean, while keeping a clear record of what and why:</p>
+<p><code>bai311_best</code> needs none of this – it is already clean, and so is <code><a href="../reference/correct_tales.html">correct_tales()</a></code>’s own result above. A route that stops short of that, such as <code>bai311_corr</code> (the <code>max_comparisons = 20</code> run, which fixed the two original frameshifts but broke <code>ROI_00001</code>), still needs a decision about what to do with what remains flagged. <code>tales(x, sanitize = TRUE)</code> drops it so an analysis can proceed on what is clean, while keeping a clear record of what and why:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb29"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">bai311_clean</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tales.html">tales</a></span><span class="op">(</span><span class="va">bai311_java</span>, sanitize <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">bai311_java</span><span class="op">$</span><span class="va">array_id</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">bai311_clean</span><span class="op">$</span><span class="va">array_id</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 0</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">bai311_clean</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tales.html">tales</a></span><span class="op">(</span><span class="va">bai311_corr</span>, sanitize <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">bai311_corr</span><span class="op">$</span><span class="va">array_id</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">bai311_clean</span><span class="op">$</span><span class="va">array_id</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 1</span></span></code></pre></div>
 </details>
 </div>
 <div>
@@ -645,7 +652,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script><script>var lightboxQuarto = GLightbox({"selector":".lightbox","closeEffect":"zoom","descPosition":"bottom","loop":false,"openEffect":"zoom"});
+</script><script>var lightboxQuarto = GLightbox({"loop":false,"descPosition":"bottom","closeEffect":"zoom","openEffect":"zoom","selector":".lightbox"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

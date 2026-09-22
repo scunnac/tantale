@@ -24,8 +24,8 @@ talvez(
 
   Tale RVD sequences are supplied as either a fasta file (atomic
   character vector) with Tale info (name) in title and sequences of RVD
-  as a space or '-' separeted string or as a Biostrings XStringSet with
-  sequences of RVD similarly formated.
+  as a space or '-' separated string or as a Biostrings XStringSet with
+  sequences of RVD similarly formatted.
 
 - subj_file:
 
@@ -37,7 +37,7 @@ talvez(
 
 - opt_param:
 
-  An atomic character vector specifying optionnal parameters for the
+  An atomic character vector specifying optional parameters for the
   Talvez script (eg "-t 0 -l 19"). **These may not include** the '-e'
   and '-z' options specifying the matrix files.
 
@@ -61,9 +61,9 @@ talvez(
 ## Value
 
 A tibble with the EBE predictions. **Note that column names have been
-modified** relative to the column names found in the originale
-programs's output in order to homogenize column names across TALE target
-prediction programs in tantale.
+modified** relative to the column names found in the original program's
+output in order to homogenize column names across TALE target prediction
+programs in tantale.
 
 ## Details
 
@@ -93,7 +93,7 @@ subj <- system.file("extdata", "cladeIII_sweet_promoters.fasta",
 preds <- talvez(rvd_seqs = rvds, subj_file = subj)
 #> Invoking Talvez using the following command:
 #> '/home/cunnac/mamba/envs/tantale/bin/perl' TALVEZ_3.2.pl -t 0 -l 19 -e mat1 -z
-#> mat2 'rvdSeqsTalvez_26f195186029d7.tsv' 'cladeIII_sweet_promoters.fasta'
+#> mat2 'rvdSeqsTalvez_22079cc4a5a.tsv' 'cladeIII_sweet_promoters.fasta'
 head(preds)
 #> # A tibble: 6 × 9
 #>   taleId    rvds                 subjSeqId score strand start   end ebeSeq  rank

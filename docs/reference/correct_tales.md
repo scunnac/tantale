@@ -33,14 +33,14 @@ correct_tales(
 
 - corrected_path:
 
-  Path of the ouput file
+  Path of the output file
 
 - hmm_path:
 
-  Path the folder containning the profile HMM files. The default value
-  points to the ones build from Xanthomonas oryzae pv. oryzae templates.
-  Xox ones are also available in the parent directory. Please see the
-  gitHub
+  Path to the folder containing the profile HMM files. The default value
+  points to the ones built from Xanthomonas oryzae pv. oryzae (Xoo)
+  templates. Xoc (X. oryzae pv. oryzicola) ones are also available in
+  the parent directory. Please see the gitHub
   [page](https://github.com/Jstacs/Jstacs/tree/master/projects/talecorrect)
   for instructions on building custom profiles.
 
@@ -77,6 +77,6 @@ out_fa <- tempfile(fileext = ".fa")
 correct_tales(uncorrected_path = subj, corrected_path = out_fa)
 #> Running nHMMER
 #> Performing TALEs cds correction on provided sequences.
-#> [1] "/tmp/RtmpqdmhJQ/file26f1952bd43ec4.fa"
+#> [1] "/tmp/RtmpeG3cBo/file22079754292e9.fa"
 # }
 ```

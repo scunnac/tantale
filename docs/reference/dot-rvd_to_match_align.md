@@ -2,8 +2,8 @@
 
 Substitutes each RVD with a score expressing how similar its DNA-binding
 preference is to the RVD of a reference TALE, column by column. This is
-the RVD-level counterpart of `.repeat_to_sim_align()`, which works on
-protein sequence similarity instead: the two come apart, since repeats
+the RVD-level counterpart of `.domain_to_sim_align()`, which works on
+protein sequence similarity instead: the two come apart, since domains
 can be sequence-divergent yet share an RVD, or near-identical yet differ
 at positions 12-13.
 
@@ -34,6 +34,7 @@ A numeric matrix with the dimensions and dimnames of `rvd_align`.
 
 ## Details
 
-Currently unwired: no `fill_type` in either plotting function requests
-an RVD-level layer. It is the only consumer of the internal `rvdSimDf`
-dataset.
+Wired through `fill_type = "rvd_sim"` in
+[`plot.tales_msa`](https://scunnac.github.io/tantale/reference/plot.tales_msa.md)
+– the RVD-level counterpart of `"domain_sim"`. It is the only consumer
+of the internal `rvdSimDf` dataset.

@@ -49,6 +49,7 @@ A character vector, one element per line.
 ## See also
 
 Other tales objects:
+[`[.tales()`](https://scunnac.github.io/tantale/reference/sub-.tales.md),
 [`as_tales()`](https://scunnac.github.io/tantale/reference/as_tales.md),
 [`format.tales_msa()`](https://scunnac.github.io/tantale/reference/format.tales_msa.md),
 [`is_tales()`](https://scunnac.github.io/tantale/reference/is_tales.md),
@@ -65,3 +66,22 @@ Other tales objects:
 [`tales_namespace()`](https://scunnac.github.io/tantale/reference/tales_namespace.md),
 [`tales_requirements()`](https://scunnac.github.io/tantale/reference/tales_requirements.md),
 [`validate_tales()`](https://scunnac.github.io/tantale/reference/validate_tales.md)
+
+## Examples
+
+``` r
+parts <- data.frame(
+  array_id = c("A1", "A1", "A1", "A2", "A2", "A2"),
+  position_in_array = c(1L, 2L, 3L, 1L, 2L, 3L),
+  domain_type = c("N-terminus", "repeat", "C-terminus",
+                  "N-terminus", "repeat", "C-terminus"),
+  rvd = c("NTERM", "HD", "CTERM", "NTERM", "NI", "CTERM")
+)
+x <- tales(parts)
+format(x)
+#> [1] "\033[34m<tales>\033[39m 2 arrays, 6 parts"
+#> [2] "  layers: rvd   |   1 other column"       
+#> [3] "      rvd"                                
+#> [4] "  A1  NTERM HD CTERM"                     
+#> [5] "  A2  NTERM NI CTERM"                     
+```

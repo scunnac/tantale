@@ -126,3 +126,14 @@ the package website walks through the full pipeline on real genomes:
 - [Predicting TALE
   targets](https://scunnac.github.io/tantale/articles/tale_target_prediction.html)
   – from an aligned group to a predicted DNA binding site
+
+> **These four articles are one analysis, not four**
+>
+> Classification, both alignment articles, and target prediction all
+> work over the same three genomes, and the
+> discovery/comparison/grouping result is shared rather than recomputed
+> four times: the classification article computes it and caches the
+> result (`vignettes/articles/_cache/`, not part of the installed
+> package); the other three read that cache. If you are rendering one of
+> those three in isolation from a clean checkout, rather than through a
+> full site build, render the classification article first.

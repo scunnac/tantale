@@ -33,71 +33,16 @@ cannot represent a gap is blind to exactly the events that matter most
 drives MAFFT in text mode instead, treating each distinct repeat as one
 alignable symbol, which lets it open and close gaps freely.
 
-## 1 Re-deriving one group from the previous article
+## 1 The same group, from the previous article
 
-Reproduced here rather than carried over, since each article in this
-series stands alone. The three genomes and the correction settings are
-exactly [the previous
-article’s](https://scunnac.github.io/tantale/articles/tale_classification.md).
-
-Code
-
-``` r
-out <- fs::dir_create(file.path(tempdir(), "tale_msa"))
-genome_files <- c(
-  MAI1       = system.file("extdata", "MAI1.fa",     package = "tantale", mustWork = TRUE),
-  BAI3       = system.file("extdata", "BAI3.fa",     package = "tantale", mustWork = TRUE),
-  `BAI3-1-1` = system.file("extdata", "BAI3-1-1.fa", package = "tantale", mustWork = TRUE)
-)
-```
-
-Code
-
-``` r
-all_tales <- lapply(names(genome_files), function(strain) {
-  strain_dir <- file.path(out, strain)
-  invisible(tell_tales(subject_file = genome_files[strain], output_dir = strain_dir,
-                       cterm_min_score = 300,
-                       correct_array = TRUE, max_comparisons = 50))
-  tales_from_telltale(strain_dir) |>
-    mutate(array_id = paste0(strain, "_", array_id))
-}) |>
-  suppressWarnings() |>
-  bind_rows() |>
-  tales(sanitize = TRUE)
-#> Finding the closest reference amino acid sequences:
-#> ================================================================================
-#> 
-#> Time difference of 2.82 secs
-#> ================================================================================
-#> 
-#> Time difference of 54.06 secs
-#> Finding the closest reference amino acid sequences:
-#> ================================================================================
-#> 
-#> Time difference of 2.84 secs
-#> ================================================================================
-#> 
-#> Time difference of 53.67 secs
-#> Finding the closest reference amino acid sequences:
-#> ================================================================================
-#> 
-#> Time difference of 0.44 secs
-#> ================================================================================
-#> 
-#> Time difference of 43.75 secs
-```
-
-Code
-
-``` r
-cmp <- tales_compare_distal(all_tales, aln_method = "DECIPHER", ncores = 4)
-grouped <- tales_group_kmedoids(cmp$tales, cmp$tale_distances,
-                                k_range = 2:20, k = "auto") |>
-  suppressMessages()
-```
-
-[![](tale_msa_files/figure-html/compare_and_group-1.png)](https://scunnac.github.io/tantale/articles/tale_msa_files/figure-html/compare_and_group-1.png)
+Same three genomes (MAI1, BAI3, BAI3-1-1), same correction settings, and
+the same comparison and grouping as [the classification
+article](https://scunnac.github.io/tantale/articles/tale_classification.html#sec-backends)
+– reused here from its cached result rather than recomputed; see [the
+getting-started
+article](https://scunnac.github.io/tantale/articles/getting_started.md)
+for how these four articles are linked, and the classification article
+for the full discovery/comparison/grouping walkthrough.
 
 One group holds a member from each of MAI1, BAI3 and BAI3-1-1 – the same
 locus, present in all three related African strains – and, usefully for
@@ -124,7 +69,7 @@ Code
 msa <- tales_align(picked_group, residue_col = "dom_code")
 msa
 #> <tales_msa> 3 arrays, 18 alignment positions
-#>   layers: rvd, dom_code   |   namespace: 5d8762602564ac93   |   7 other columns
+#>   layers: rvd, dom_code   |   namespace: 5d8762602564ac93   |   8 other columns
 #>                       dom_code
 #>   MAI1_ROI_00007       84  35  43   5  41  31  24  49  35  54  18  40  31  ...
 #>   BAI3_ROI_00007       84  35  43   5  41  31  24  49  35  54  18  40   -  ...
@@ -134,7 +79,7 @@ msa
 Code
 
 ``` r
-plot(msa, tal_sim = cmp$tale_distances, domain_sim = cmp$domain_distances)
+plot(msa, tale_distances = cmp$tale_distances, domain_distances = cmp$domain_distances)
 ```
 
 [![](tale_msa_files/figure-html/fig-msa-default-1.png)](https://scunnac.github.io/tantale/articles/tale_msa_files/figure-html/fig-msa-default-1.png "Figure 1: Alignment of one TALE locus across three related strains, coloured by repeat cluster.")
@@ -154,8 +99,8 @@ common background rather than independent events in each.
 ## 3 Does a scoring matrix change the alignment?
 
 [`tales_align()`](https://scunnac.github.io/tantale/reference/tales_align.md)
-accepts a `repeat_sims` argument: a substitution cost matrix MAFFT uses
-when scoring which repeats to match against each other, rather than
+accepts a `domain_distances` argument: a substitution cost matrix MAFFT
+uses when scoring which repeats to match against each other, rather than
 treating every mismatch as equally bad. Passing one is optional, and it
 is worth checking what it actually changes rather than assuming.
 
@@ -172,7 +117,7 @@ msa_plain <- tales_align(picked_group, residue_col = "dom_code")
 #> Now running MAFFT (Copyright 2002-2007 Kazutaka Katoh) on TALE array sequences.
 ```
 
-With one, `domain_distances` – the repeat-level protein similarity
+With one, `domain_distances` – the domain-level protein similarity
 already computed by
 [`tales_compare_distal()`](https://scunnac.github.io/tantale/reference/tales_compare_distal.md)
 – tells MAFFT how alike two repeats actually are:
@@ -181,7 +126,7 @@ Code
 
 ``` r
 msa_scored <- tales_align(picked_group, residue_col = "dom_code",
-                          repeat_sims = cmp$domain_distances)
+                          domain_distances = cmp$domain_distances)
 ```
 
 Code
@@ -211,13 +156,13 @@ rbind(
 Scored, the gap this array carries is one column narrower – MAFFT could
 place its real repeats slightly more compactly once it knew which
 substitutions were cheap. This matches what the package documentation
-already claims about `repeat_sims`: more compact alignments, fewer gap
-columns, on data where it has something to work with.
+already claims about `domain_distances`: more compact alignments, fewer
+gap columns, on data where it has something to work with.
 
 ### 3.2 Aligning on `rvd`
 
 The built-in RVD similarity matrix works the same way, opted into with
-`repeat_sims = "rvd"` rather than a `domain_distances` table – but
+`domain_distances = "rvd"` rather than an actual distance table – but
 scores DNA-binding specificity instead of protein sequence, so it is
 worth checking separately rather than assuming it behaves like the
 `dom_code` case:
@@ -226,7 +171,7 @@ Code
 
 ``` r
 msa_rvd_plain  <- tales_align(picked_group, residue_col = "rvd")
-msa_rvd_scored <- tales_align(picked_group, residue_col = "rvd", repeat_sims = "rvd")
+msa_rvd_scored <- tales_align(picked_group, residue_col = "rvd", domain_distances = "rvd")
 identical(as.matrix(msa_rvd_plain), as.matrix(msa_rvd_scored))
 #> [1] TRUE
 ```
@@ -249,8 +194,8 @@ makes graded divergence visible where cluster identity would only say
 Code
 
 ``` r
-plot(msa, fill_type = "repeat_sim",
-    tal_sim = cmp$tale_distances, domain_sim = cmp$domain_distances)
+plot(msa, fill_type = "domain_sim",
+    tale_distances = cmp$tale_distances, domain_distances = cmp$domain_distances)
 ```
 
 [![](tale_msa_files/figure-html/fig-msa-sim-1.png)](https://scunnac.github.io/tantale/articles/tale_msa_files/figure-html/fig-msa-sim-1.png "Figure 2: The same alignment, coloured by protein-sequence similarity to the reference array.")
@@ -266,7 +211,7 @@ Code
 
 ``` r
 plot(msa, consensus = TRUE,
-    tal_sim = cmp$tale_distances, domain_sim = cmp$domain_distances)
+    tale_distances = cmp$tale_distances, domain_distances = cmp$domain_distances)
 ```
 
 [![](tale_msa_files/figure-html/fig-msa-consensus-1.png)](https://scunnac.github.io/tantale/articles/tale_msa_files/figure-html/fig-msa-consensus-1.png "Figure 3: The same alignment again, with a consensus row attached above it.")

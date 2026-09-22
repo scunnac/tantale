@@ -30,9 +30,18 @@ as.matrix(x, value = PAIRWISE_DISTANCES_VALUE_COL, ...)
 
 A numeric matrix, square, with sorted ids as dimnames.
 
+## Details
+
+`x` must be square (see
+[`distances_assert_square`](https://scunnac.github.io/tantale/reference/distances_assert_square.md),
+called here for you) – every id present in both `id1` and `id2`. A table
+that has been filtered on one id column only, rather than both, will not
+be.
+
 ## See also
 
 Other pairwise distances:
+[`[.pairwise_distances()`](https://scunnac.github.io/tantale/reference/sub-.pairwise_distances.md),
 [`distances_assert_square()`](https://scunnac.github.io/tantale/reference/distances_assert_square.md),
 [`distances_restrict()`](https://scunnac.github.io/tantale/reference/distances_restrict.md),
 [`is_pairwise_distances()`](https://scunnac.github.io/tantale/reference/is_pairwise_distances.md),

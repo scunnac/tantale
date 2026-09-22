@@ -1,3 +1,0 @@
-# annotale output
-
-annotale output

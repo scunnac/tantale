@@ -55,6 +55,7 @@ why `seqnames` and the rest are optional.
 ## See also
 
 Other tales objects:
+[`[.tales()`](https://scunnac.github.io/tantale/reference/sub-.tales.md),
 [`format.tales()`](https://scunnac.github.io/tantale/reference/format.tales.md),
 [`format.tales_msa()`](https://scunnac.github.io/tantale/reference/format.tales_msa.md),
 [`is_tales()`](https://scunnac.github.io/tantale/reference/is_tales.md),

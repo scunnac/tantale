@@ -281,10 +281,10 @@ invisible(tell_tales(subject_file = bai311_fa, output_dir = bai311_corr_dir,
 #> Finding the closest reference amino acid sequences:
 #> ================================================================================
 #> 
-#> Time difference of 0.43 secs
+#> Time difference of 0.52 secs
 #> ================================================================================
 #> 
-#> Time difference of 17.46 secs
+#> Time difference of 18.57 secs
 bai311_corr <- suppressWarnings(tales_from_telltale(bai311_corr_dir))
 ```
 
@@ -347,7 +347,7 @@ corrections <- correct_tales(uncorrected_path = bai311_fa,
 
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
 reports every substitution it made, genome-wide, as a table – this
-genome needed 63:
+genome needed 70:
 
 Code
 
@@ -385,26 +385,27 @@ Code
 
 ``` r
 tales_anomalies(bai311_java)
-#> # A tibble: 2 × 3
-#>   array_id  check          detail                
-#>   <chr>     <chr>          <chr>                 
-#> 1 ROI_00005 missing_rvd    part(s) with no rvd   
-#> 2 ROI_00005 missing_aa_seq part(s) with no aa_seq
+#> # A tibble: 0 × 3
+#> # ℹ 3 variables: array_id <chr>, check <chr>, detail <chr>
 ```
 
-A third outcome again: `ROI_00003` is fixed, but `ROI_00005` still is
-not – the opposite pattern from the `max_comparisons = 20` run above,
-which fixed both original frameshifts but broke a third array instead.
-Neither correction path is a silver bullet, and which one a given array
-needs is not predictable in advance.
+Zero anomalies here too, reached by a different route than the
+`max_comparisons = 50` run below:
+[`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
+fixes both `ROI_00003` and `ROI_00005` on this genome, without touching
+any candidate array individually. A genome-wide pass and a per-array one
+can land on the same outcome through different means. Checking
+[`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
+after either one is the way to find out which method a given array
+actually needed.
 
 ### 4.3 A clean correction without an eight-minute wait
 
-Three results so far, none of them fully clean: `max_comparisons = 20`
-trades a fix for a new break;
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
-alone leaves one array short. Two ways forward, both measured rather
-than assumed:
+above already reached zero anomalies in under a minute.
+`max_comparisons = 50` is a second, independent route to the same
+outcome, worth knowing about since it does not depend on the Java
+correction tool being available:
 
 Code
 
@@ -424,7 +425,7 @@ invisible(tell_tales(subject_file = bai311_fa, output_dir = bai311_best_dir,
 #> Time difference of 0.42 secs
 #> ================================================================================
 #> 
-#> Time difference of 44.98 secs
+#> Time difference of 46.38 secs
 bai311_best <- suppressWarnings(tales_from_telltale(bai311_best_dir))
 ```
 
@@ -437,32 +438,34 @@ tales_anomalies(bai311_best)
 ```
 
 Zero anomalies – raising the cap from 20 to 50 references was enough for
-every array in this genome, in a little over a minute rather than eight.
-`bai311_best` is the version the rest of this set of articles builds on.
+every array in this genome, in a little over a minute. Either this run
+or
+[`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)’s
+own result above is a reasonable choice for the rest of this set of
+articles; `bai311_best` (built here) is the one used from here on.
 
-> **A second way there: chain both correction paths**
+> **Chaining both correction paths**
 >
 > Running
 > [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
-> first and feeding *its* output into `tell_tales(correct_array = TRUE)`
+> first and feeding its output into `tell_tales(correct_array = TRUE)`
 > also reaches zero anomalies, and lets the per-array step use a smaller
-> `max_comparisons` again, because the genome-wide pass has already
-> removed most of the damage
-> [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
-> would otherwise have to correct for on its own. Measured on this same
-> genome (not re-run live here, to keep this article’s build time down):
+> `max_comparisons`, since most of the damage is already gone before it
+> runs. Measured on this same genome (not re-run live here, to keep this
+> article’s build time down):
 >
-> | route                                                                                                                         | time           | anomalies             |
-> |-------------------------------------------------------------------------------------------------------------------------------|----------------|-----------------------|
-> | `max_comparisons = 50` alone                                                                                                  | ~79 s          | 0                     |
-> | [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md) (~29 s) then `max_comparisons = 20` (~50 s) | ~79 s combined | still 1 (`ROI_00001`) |
-> | [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md) (~29 s) then `max_comparisons = 50` (~66 s) | ~95 s combined | 0                     |
+> | route                                                                                                                         | time           | anomalies |
+> |-------------------------------------------------------------------------------------------------------------------------------|----------------|-----------|
+> | [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md) alone                                       | ~41 s          | 0         |
+> | `max_comparisons = 50` alone                                                                                                  | ~66-79 s       | 0         |
+> | [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md) (~27 s) then `max_comparisons = 20` (~40 s) | ~67 s combined | 0         |
+> | [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md) (~27 s) then `max_comparisons = 50` (~66 s) | ~93 s combined | 0         |
 >
-> For this genome the two routes land at about the same cost. The
-> chained route is worth reaching for on a genome messy enough that
-> neither correction alone gets close: each pass only has to clean up
-> what the other left behind, rather than solving the whole problem
-> itself.
+> On this genome
+> [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
+> alone already gets to zero anomalies, so chaining does not add
+> anything beyond confirming the combination still works. The technique
+> remains available for a genome where a single pass falls short.
 
 ## 5 How much did either correction actually help?
 
@@ -507,7 +510,7 @@ coverage |>
 
 | array_id  | uncorrected | max_comparisons = 20 | correct_tales() | max_comparisons = 50 |
 |:----------|------------:|---------------------:|----------------:|---------------------:|
-| ROI_00005 |          23 |                   91 |              67 |                   91 |
+| ROI_00005 |          23 |                   91 |              91 |                   91 |
 | ROI_00003 |          19 |                   93 |              93 |                   93 |
 
 Code
@@ -522,38 +525,39 @@ ggplot2::ggplot(coverage, ggplot2::aes(x = method, y = orf_coverage, fill = meth
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 30, hjust = 1))
 ```
 
-[![](tale_mining_files/figure-html/fig-coverage-improvement-1.png)](https://scunnac.github.io/tantale/articles/tale_mining_files/figure-html/fig-coverage-improvement-1.png "Figure 2: ORF coverage of the two frameshifted BAI3-1-1 arrays, before and after each correction attempt. max_comparisons = 50 is the only one of the three that recovers both arrays fully.")
+[![](tale_mining_files/figure-html/fig-coverage-improvement-1.png)](https://scunnac.github.io/tantale/articles/tale_mining_files/figure-html/fig-coverage-improvement-1.png "Figure 2: ORF coverage of the two frameshifted BAI3-1-1 arrays, before and after each correction attempt. All three corrected routes recover both arrays fully.")
 
 Figure 2: ORF coverage of the two frameshifted BAI3-1-1 arrays, before
-and after each correction attempt. max_comparisons = 50 is the only one
-of the three that recovers both arrays fully.
+and after each correction attempt. All three corrected routes recover
+both arrays fully.
 
 [Figure 2](#fig-coverage-improvement) is the honest version of “did
-correction help”: `max_comparisons = 20` and
-[`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
-both recover most of `ROI_00003`’s coding sequence outright, but only
-partly help `ROI_00005` – and only `max_comparisons = 50` reaches full
-coverage on both, which is exactly why
-[Section 4.3](#sec-best-correction) settled on it. What is true of every
-attempted route is that
-[`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md),
-not a coverage number by itself, is what actually says whether AnnoTALE
-could use the result.
+correction help”: all three routes bring `ROI_00003` and `ROI_00005`
+back to comparable, near-complete coverage. On these two numbers alone
+the three routes look interchangeable.
+[Section 4.3](#sec-best-correction)’s finding is what actually separates
+them, and coverage does not show it: `max_comparisons = 20` reaches this
+same recovery while introducing a new anomaly in a different array,
+`ROI_00001`.
+[`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
+is what catches that; the `orf_coverage` column here does not.
 
 ## 6 Moving on with what you have
 
-`bai311_best` needs none of this – it is already clean – but a route
-that stops short of that, such as the
-[`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)-only
-run above, still needs a decision about what to do with what remains
-flagged. `tales(x, sanitize = TRUE)` drops it so an analysis can proceed
-on what is clean, while keeping a clear record of what and why:
+`bai311_best` needs none of this – it is already clean, and so is
+[`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)’s
+own result above. A route that stops short of that, such as
+`bai311_corr` (the `max_comparisons = 20` run, which fixed the two
+original frameshifts but broke `ROI_00001`), still needs a decision
+about what to do with what remains flagged. `tales(x, sanitize = TRUE)`
+drops it so an analysis can proceed on what is clean, while keeping a
+clear record of what and why:
 
 Code
 
 ``` r
-bai311_clean <- tales(bai311_java, sanitize = TRUE)
-n_distinct(bai311_java$array_id) - n_distinct(bai311_clean$array_id)
+bai311_clean <- tales(bai311_corr, sanitize = TRUE)
+n_distinct(bai311_corr$array_id) - n_distinct(bai311_clean$array_id)
 #> [1] 1
 ```
 

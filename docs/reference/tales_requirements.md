@@ -54,6 +54,7 @@ A tibble of function, requirement kind, and columns.
 ## See also
 
 Other tales objects:
+[`[.tales()`](https://scunnac.github.io/tantale/reference/sub-.tales.md),
 [`as_tales()`](https://scunnac.github.io/tantale/reference/as_tales.md),
 [`format.tales()`](https://scunnac.github.io/tantale/reference/format.tales.md),
 [`format.tales_msa()`](https://scunnac.github.io/tantale/reference/format.tales_msa.md),
@@ -70,3 +71,22 @@ Other tales objects:
 [`tales_bind()`](https://scunnac.github.io/tantale/reference/tales_bind.md),
 [`tales_namespace()`](https://scunnac.github.io/tantale/reference/tales_namespace.md),
 [`validate_tales()`](https://scunnac.github.io/tantale/reference/validate_tales.md)
+
+## Examples
+
+``` r
+tales_requirements()
+#> # A tibble: 10 × 3
+#>    fn                        requirement columns                     
+#>    <chr>                     <chr>       <chr>                       
+#>  1 plot.tales                all_of      rvd, aa_seq, domain_type    
+#>  2 plot.tales                optional    seqnames, alignment_position
+#>  3 repeat_to_rvd_map_distalr all_of      dom_code, rvd               
+#>  4 tale_parts_to_rvd         all_of      rvd                         
+#>  5 tales_align               any_of      rvd, dom_code               
+#>  6 tales_coded_strings       all_of      dom_code                    
+#>  7 tales_compare_distal      any_of      aa_seq, dna_seq             
+#>  8 tales_domain_codes        all_of      dom_code, aa_seq            
+#>  9 tales_domain_codes        optional    rvd                         
+#> 10 tales_rvd_strings         all_of      rvd                         
+```
