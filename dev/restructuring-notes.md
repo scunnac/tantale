@@ -7818,3 +7818,37 @@ left for the maintainer's call, not decided here:**
 - Not investigated: whether ARLEM's own source is available at all (it
   is an older academic tool) -- that alone may rule some options out
   before the maintainer needs to weigh in on the rest.
+
+### `tales_group_kmedoids()`'s fix, extended: validate `k_range` against `n`, not just type
+
+Maintainer's instruction, on seeing the fix above: don't stop at fixing the
+*example* -- the function itself let an invalid `k_range` reach
+`cluster::pam()` and surface *its* generic, unclassed message
+("Number of clusters 'k' must be in {1,2, .., n-1}; hence n >= 2") from
+inside `lapply()`, naming neither the package nor which arrays were
+involved. The existing `k_range` check only validated type (`NULL`/
+non-numeric); it did not check the values against `n`, the actual number
+of arrays being clustered.
+
+**Fixed:** a second check added right after that one, using
+`n <- nrow(distMat)` (the distance matrix is already built by this point):
+`cli::cli_abort()` if any `k_range` value is `< 1` or `> n - 1`, reusing
+the existing `tantale_error_group_kmedoids_krange` class (still "your
+`k_range` is invalid", just a second reason) rather than minting a new
+one. Message names both the valid bound and the values actually passed.
+`@param k_range` doc extended to state the bound; `man/tales_group_kmedoids.Rd`
+regenerated.
+
+**Tests added**, `test_tales_group_kmedoids.R`'s existing `k_range`
+section: one case exceeding `n - 1` (`k_range = 2:nTales` against the
+44-array fixture), one going below 1 (`k_range = 0:3`) -- both asserted
+against the same error class as the pre-existing type checks. 28/28 pass
+(was 26/26).
+
+Verified the original trigger is now caught with a proper message instead
+of `pam()`'s own: `tales_group_kmedoids(cmp$tales, cmp$tale_distances,
+k_range = 2:4, k = 2)` against the 4-array `tellTaleExampleOutput` fixture
+now raises `` `k_range` must be between 1 and 3 for 4 arrays. / Got 2, 3,
+and 4. `` with class `tantale_error_group_kmedoids_krange`, catchable and
+readable, where before it was a bare `cluster::pam()` message with no
+class at all.

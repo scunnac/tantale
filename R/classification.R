@@ -167,7 +167,9 @@ tales_group_hclust <- function(x, tale_distances, k = NULL, plot_tree = FALSE) {
 #'   blocking on input that will never arrive.
 #'
 #' @inheritParams tales_group_hclust
-#' @param k_range Integer vector of candidate values of `k` to evaluate.
+#' @param k_range Integer vector of candidate values of `k` to evaluate. Each
+#'   must be between 1 and one less than the number of arrays being grouped
+#'   (`cluster::pam()`'s own requirement).
 #' @param k See Details.
 #' @param seed Passed to \code{set.seed()} before every \code{cluster::pam()}
 #'   call, so the same candidate always clusters the same way. Previously a
@@ -192,6 +194,21 @@ tales_group_kmedoids <- function(x, tale_distances, k_range = NULL, k = NULL,
   if (is.null(k_range) || !is.numeric(k_range)) {
     cli::cli_abort(
       "{.arg k_range} must be a numeric vector of candidate {.arg k} values.",
+      class = c("tantale_error_group_kmedoids_krange", "tantale_error")
+    )
+  }
+
+  # cluster::pam() requires k in {1, ..., n - 1}; checked here, against the
+  # actual number of arrays being clustered, so a bad k_range fails with a
+  # message naming the arrays it came from -- not pam()'s own generic
+  # "Number of clusters 'k' must be in {1,2, .., n-1}; hence n >= 2" surfacing
+  # from inside lapply(), which is what a k_range = 2:4 example against a
+  # 4-array fixture actually produced before this check existed.
+  n <- nrow(distMat)
+  if (any(k_range < 1) || any(k_range > n - 1)) {
+    cli::cli_abort(
+      c("{.arg k_range} must be between 1 and {n - 1} for {n} array{?s}.",
+        "x" = "Got {.val {k_range}}."),
       class = c("tantale_error_group_kmedoids_krange", "tantale_error")
     )
   }

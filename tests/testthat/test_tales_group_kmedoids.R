@@ -63,6 +63,18 @@ test_that("errors on invalid k_range", {
                class = "tantale_error_group_kmedoids_krange")
 })
 
+test_that("errors on a k_range outside {1, ..., n - 1}", {
+  # cluster::pam() itself throws only when it actually reaches an
+  # out-of-range candidate, from inside lapply() -- a generic, unclassed
+  # message naming neither the package nor the arrays involved. Caught here
+  # instead, against the real n (44 arrays in this fixture), so the failure
+  # is classed and names the offending values.
+  expect_error(tales_group_kmedoids(tls, tale_dist, k_range = 2:nTales, k = 3),
+               class = "tantale_error_group_kmedoids_krange")
+  expect_error(tales_group_kmedoids(tls, tale_dist, k_range = 0:3, k = 3),
+               class = "tantale_error_group_kmedoids_krange")
+})
+
 
 #### k: the three-type contract ####
 

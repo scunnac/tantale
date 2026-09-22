@@ -20,7 +20,9 @@ tales_group_kmedoids(
 A plain data frame using the legacy \code{TAL1}/\code{TAL2}/\code{Sim} column names is
 also accepted and coerced.}
 
-\item{k_range}{Integer vector of candidate values of \code{k} to evaluate.}
+\item{k_range}{Integer vector of candidate values of \code{k} to evaluate. Each
+must be between 1 and one less than the number of arrays being grouped
+(\code{cluster::pam()}'s own requirement).}
 
 \item{k}{See Details.}
 
