@@ -1,0 +1,318 @@
+---
+title: "tantale function-call graph"
+format:
+  html:
+    embed-resources: true
+    page-layout: full
+    code-fold: true
+    code-summary: "Code"
+execute:
+  warning: false
+---
+
+A map of which function calls which in `R/`, internals included, for
+finding one's way around the package. Dev-only (`dev/` is in
+`.Rbuildignore`) and not part of the pkgdown site. Ledger §29 has the
+decisions behind it.
+
+Render it from the package root with `quarto render dev/function-graph.qmd`.
+The graph is rebuilt from the source files every time, so it cannot go
+stale the way a drawn figure does. Nothing needs to be installed or loaded:
+the files in `R/` are parsed, never run.
+
+```{r setup}
+#| code-summary: "Code: parse R/ into nodes and edges"
+r_dir <- file.path("..", "R")
+files <- sort(list.files(r_dir, pattern = "\\.[Rr]$", full.names = TRUE))
+
+# Exported functions and registered S3 methods, from NAMESPACE.
+ns_lines <- readLines(file.path("..", "NAMESPACE"))
+exports <- sub("^export\\((.*)\\)$", "\\1", grep("^export\\(", ns_lines, value = TRUE))
+s3 <- regmatches(ns_lines, regexec("^S3method\\((.*),(.*)\\)$", ns_lines))
+s3 <- do.call(rbind, lapply(s3[lengths(s3) == 3], function(m) {
+  data.frame(generic = gsub("\"|^.*::", "", m[2]), class = m[3])
+}))
+s3$method <- paste(s3$generic, s3$class, sep = ".")
+
+# The comment block right above a definition: its first line serves as a
+# title in the tooltip (the roxygen title for documented functions).
+comment_title <- function(src, line) {
+  i <- line - 1
+  block <- character()
+  while (i >= 1 && grepl("^\\s*#", src[i])) {
+    block <- c(src[i], block)
+    i <- i - 1
+  }
+  block <- trimws(sub("^\\s*#'?", "", block))
+  block <- block[nzchar(block) & !grepl("^@", block)]
+  if (length(block)) block[1] else ""
+}
+
+# Top-level definitions of the form `name <- function(...)`.
+defs <- list()
+for (f in files) {
+  ex <- parse(f, keep.source = TRUE)
+  sr <- attr(ex, "srcref")
+  src <- readLines(f)
+  for (i in seq_along(ex)) {
+    e <- ex[[i]]
+    if (is.call(e) && as.character(e[[1]])[1] %in% c("<-", "=") &&
+        is.call(e[[3]]) && identical(e[[3]][[1]], as.name("function"))) {
+      defs[[length(defs) + 1]] <- data.frame(
+        name = as.character(e[[2]]), file = basename(f),
+        line1 = sr[[i]][1], line2 = sr[[i]][3],
+        title = comment_title(src, sr[[i]][1]))
+    }
+  }
+}
+defs <- do.call(rbind, defs)
+stopifnot(!anyDuplicated(defs$name))
+defs$kind <- ifelse(defs$name %in% exports, "exported",
+                    ifelse(defs$name %in% s3$method, "S3 method", "internal"))
+
+# Edges, read off each definition's tokens.
+#   call:      name(...), unqualified or tantale::name(...), or an
+#              infix operator defined in the package (`%||%`)
+#   reference: name passed as a value, e.g. vapply(x, .helper, ...), and
+#              not shadowed by a local variable of the same name
+edges <- list()
+for (f in files) {
+  pd <- getParseData(parse(f, keep.source = TRUE))
+  pd <- pd[pd$terminal & pd$token != "COMMENT", ]
+  pd <- pd[order(pd$line1, pd$col1), ]
+  d <- defs[defs$file == basename(f), ]
+  for (k in seq_len(nrow(d))) {
+    tk <- pd[pd$line1 >= d$line1[k] & pd$line2 <= d$line2[k], ]
+    n <- nrow(tk)
+    prev_tok <- c("", tk$token[-n])
+    prev2_tok <- c("", "", tk$token[seq_len(max(n - 2, 0))])
+    prev2_txt <- c("", "", tk$text[seq_len(max(n - 2, 0))])
+    next_tok <- c(tk$token[-1], "")
+    next_txt <- c(tk$text[-1], "")
+    foreign <- prev_tok %in% c("NS_GET", "NS_GET_INT") & prev2_txt != "tantale"
+    calls <- tk$text[tk$token %in% c("SYMBOL_FUNCTION_CALL", "SPECIAL") & !foreign]
+    locals <- tk$text[tk$token == "SYMBOL_FORMALS" |
+                        (tk$token == "SYMBOL" &
+                           (next_tok %in% c("LEFT_ASSIGN", "EQ_ASSIGN") |
+                              next_txt == "%<>%" | prev2_tok == "FOR"))]
+    refs <- tk$text[tk$token == "SYMBOL" & !prev_tok %in% c("'$'", "'@'") &
+                      !foreign & !tk$text %in% locals]
+    cl <- intersect(calls, defs$name)
+    rf <- setdiff(intersect(refs, defs$name), calls)
+    edges[[k + length(edges)]] <- data.frame(
+      from = rep(d$name[k], length(cl) + length(rf)), to = c(cl, rf),
+      type = rep(c("call", "reference"), c(length(cl), length(rf))))
+  }
+}
+edges <- do.call(rbind, edges)
+
+# S3 dispatch from generics defined in the package to their methods.
+own_generics <- intersect(s3$generic, defs$name)
+dispatch <- s3[s3$generic %in% own_generics & s3$method %in% defs$name, ]
+edges <- rbind(edges, data.frame(from = dispatch$generic, to = dispatch$method,
+                                 type = rep("dispatch", nrow(dispatch))))
+edges <- edges[edges$from != edges$to, ]
+
+edges$cross_file <- defs$file[match(edges$from, defs$name)] !=
+  defs$file[match(edges$to, defs$name)]
+
+defs$callers <- vapply(defs$name, function(x) sum(edges$to == x), integer(1))
+defs$callees <- vapply(defs$name, function(x) sum(edges$from == x), integer(1))
+```
+
+`R/` has `r length(files)` files, `r length(unique(defs$file))` of which
+define functions, `r nrow(defs)` in all:
+`r sum(defs$kind == "exported")` exported,
+`r sum(defs$kind == "S3 method")` S3 methods and
+`r sum(defs$kind == "internal")` internal. They are linked by
+`r nrow(edges)` edges, of which `r sum(edges$cross_file)`
+cross from one file to another.
+
+## Graph
+
+The graph opens with one node per file, sized by its number of functions.
+An arrow from A to B means code in A calls code in B.
+
+- **Double-click a file** to open it into its functions. **Double-click a
+  function** to fold its file back up. The buttons above the graph open or
+  fold every file at once. A file that holds a single function shows that
+  function in place of a file node.
+- **Click a function** to highlight its direct callers and callees and fade
+  the rest. The drop-down list selects a function by name. Open its file
+  first: a function inside a folded file cannot be highlighted.
+- Drag to pan, scroll to zoom, drag a node to move it.
+
+Colours give the kind of function (legend at the top left). Grey arrows
+are calls. Dashed arrows are the other two kinds of link: purple for a
+function passed by name as an argument (for example to `vapply()`), green
+for S3 dispatch from a generic defined in the package to its methods.
+
+```{r graph}
+#| code-summary: "Code: draw the graph"
+library(visNetwork)
+
+kind_colour <- c(exported = "#2a78c1", "S3 method" = "#1b9e77",
+                 internal = "#c9c9c9")
+file_colour <- "#e8a33d"
+
+nodes <- data.frame(
+  id = defs$name,
+  label = defs$name,
+  group = defs$kind,
+  file = defs$file,
+  size = 10 + 2 * sqrt(defs$callers),
+  title = sprintf(
+    "<b>%s</b><br>%s:%d (%d lines)<br>%s<br>%d callers, %d callees%s",
+    htmltools::htmlEscape(defs$name), defs$file, defs$line1,
+    defs$line2 - defs$line1 + 1, defs$kind, defs$callers, defs$callees,
+    ifelse(nzchar(defs$title),
+           paste0("<br><i>", htmltools::htmlEscape(defs$title), "</i>"), ""))
+)
+
+vis_edges <- data.frame(
+  from = edges$from, to = edges$to,
+  arrows = "to",
+  dashes = edges$type != "call",
+  color = unname(c(call = "#7a7a7a", reference = "#b07aa1",
+                   dispatch = "#1b9e77")[edges$type]),
+  title = edges$type
+)
+
+# Folding by file is done here rather than with visClusteringByGroup(),
+# which keys on `group` and repaints opened nodes in vis.js's default
+# palette. vis.js does not make a cluster of a single node, so a file
+# holding one function shows that function.
+fold_by_file <- sprintf("
+function(el, x) {
+  var network = document.getElementById('graph' + el.id).chart;
+  var nodes = network.body.data.nodes;
+  var files = Array.from(new Set(nodes.get().map(function(n) { return n.file; }))).sort();
+  function fold(f) {
+    var n = nodes.get({filter: function(d) { return d.file === f; }}).length;
+    if (n < 2 || network.findNode('file:' + f).length) return;
+    network.cluster({
+      joinCondition: function(d) { return d.file === f; },
+      clusterNodeProperties: {
+        id: 'file:' + f, label: f, shape: 'dot', color: '%s', borderWidth: 2,
+        size: 12 + 4 * Math.sqrt(n),
+        title: '<b>' + f + '</b><br>' + n + ' functions<br>double-click to open'
+      }
+    });
+  }
+  function openAll() {
+    files.forEach(function(f) {
+      if (network.isCluster('file:' + f)) network.openCluster('file:' + f);
+    });
+  }
+  files.forEach(fold);
+  network.on('doubleClick', function(p) {
+    if (p.nodes.length !== 1) return;
+    var id = p.nodes[0];
+    if (network.isCluster(id)) {
+      network.openCluster(id, {releaseFunction: function(c, pos) { return pos; }});
+    } else {
+      fold(nodes.get(id).file);
+    }
+  });
+  var bar = document.createElement('div');
+  bar.style.margin = '0.3em 0';
+  [['Open all files', openAll], ['Fold all files', function() { files.forEach(fold); }]]
+    .forEach(function(b) {
+      var btn = document.createElement('button');
+      btn.textContent = b[0];
+      btn.style.marginRight = '0.5em';
+      btn.onclick = function() { b[1](); setTimeout(function() { network.fit(); }, 300); };
+      bar.appendChild(btn);
+    });
+  el.parentNode.insertBefore(bar, el);
+}", file_colour)
+
+legend_nodes <- data.frame(label = c("exported", "S3\nmethod", "internal", "file"),
+                           color = c(unname(kind_colour), file_colour),
+                           shape = "dot")
+
+visNetwork(nodes, vis_edges, width = "100%", height = "85vh") |>
+  visGroups(groupname = "exported", color = kind_colour[["exported"]], shape = "dot") |>
+  visGroups(groupname = "S3 method", color = kind_colour[["S3 method"]], shape = "dot") |>
+  visGroups(groupname = "internal", color = kind_colour[["internal"]], shape = "dot") |>
+  visNodes(font = list(size = 14)) |>
+  visEdges(smooth = FALSE, arrows = list(to = list(scaleFactor = 0.5))) |>
+  visPhysics(solver = "forceAtlas2Based",
+             forceAtlas2Based = list(gravitationalConstant = -80, springLength = 120),
+             stabilization = list(iterations = 400)) |>
+  visOptions(highlightNearest = list(enabled = TRUE, degree = 1,
+                                     algorithm = "hierarchical"),
+             nodesIdSelection = list(enabled = TRUE, main = "Select a function")) |>
+  visInteraction(navigationButtons = TRUE, tooltipDelay = 150) |>
+  visLegend(addNodes = legend_nodes, useGroups = FALSE, position = "left",
+            width = 0.1) |>
+  htmlwidgets::onRender(fold_by_file)
+```
+
+## Functions
+
+Sortable and searchable. `callers` and `callees` count distinct functions
+in the package, whatever the edge type.
+
+```{r table}
+#| code-summary: "Code: function table"
+library(reactable)
+tab <- defs[order(defs$file, defs$line1),
+            c("name", "file", "line1", "kind", "callers", "callees", "title")]
+names(tab)[3] <- "line"
+reactable(tab, searchable = TRUE, filterable = TRUE, pagination = FALSE,
+          height = 600, compact = TRUE, striped = TRUE,
+          columns = list(name = colDef(minWidth = 180, style = list(fontFamily = "monospace")),
+                         title = colDef(minWidth = 300),
+                         line = colDef(width = 60),
+                         callers = colDef(width = 75),
+                         callees = colDef(width = 75)))
+```
+
+## Internal functions with no caller in `R/`
+
+Exported functions and S3 methods are entry points by design. An internal
+function that nothing in `R/` calls may be called only from tests, called
+by R itself (`.onAttach()`), called in a way this parser does not see (see
+below), or unused. The `in_tests` column says whether the name appears
+anywhere under `tests/`. This list is a starting point for checking. Under
+the standing rule, unused code is parked in `R/unused_pending_review.R` or
+`inst/legacy/`, never deleted.
+
+```{r orphans}
+#| code-summary: "Code: uncalled internals"
+orphans <- defs[defs$kind == "internal" & defs$callers == 0,
+                c("name", "file", "line1", "title")]
+names(orphans)[3] <- "line"
+test_src <- unlist(lapply(list.files(file.path("..", "tests"), pattern = "\\.[Rr]$",
+                                     recursive = TRUE, full.names = TRUE), readLines))
+orphans$in_tests <- vapply(orphans$name, function(x) any(grepl(x, test_src, fixed = TRUE)),
+                           logical(1))
+if (nrow(orphans)) {
+  reactable(orphans, pagination = FALSE, compact = TRUE,
+            columns = list(name = colDef(style = list(fontFamily = "monospace"))))
+} else {
+  cat("None.")
+}
+```
+
+## What the parser sees and misses
+
+The graph comes from static reading of the source, so it has blind spots.
+
+- **Included:** top-level `name <- function(...)` definitions; direct calls,
+  including `tantale::name()` and the package's own infix operator
+  `%||%`; functions passed by name as arguments; S3
+  dispatch from `as_tales()` (the one generic the package defines) to its
+  methods.
+- **Methods of base and dplyr generics** (`print.tales`, `[.tales`,
+  `dplyr_reconstruct.tales`, ...) show no callers. R reaches them when some
+  code calls `print(x)` or `x[i]` on an object of that class, which the
+  parser cannot tell from any other `print()` or `[`.
+- **Calls built from strings** (`do.call("name", ...)`, `match.fun()`) are
+  not followed. None target a package function at the time of writing.
+- **Top-level constants** (`TALES_KEY_COLS`, `PAIRWISE_DISTANCES_ID_COLS`,
+  ...) and the functions reading them are left out.
+- **Class objects** (`tales`, `tales_msa`, `pairwise_distances` and its
+  subclasses) as nodes, with edges for which function produces or consumes
+  which, are phase 2 of §29 and not built yet.

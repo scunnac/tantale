@@ -8419,7 +8419,7 @@ class at all.
 
 ---
 
-## 29. Function dependency diagram, to rebuild the maintainer's mental map -- BRAINSTORMING, not decided **[P]**
+## 29. Function dependency diagram, to rebuild the maintainer's mental map -- phase 1 built (29.1), phase 2 deferred **[V]**
 
 Maintainer's request, 2026-09-22: the package has grown enough (24 `R/`
 files, 9144 lines, 51 exports + 19 S3 methods + **107** internal `.xxx()`
@@ -8492,6 +8492,70 @@ only. **Actual implementation work starts with the website items instead
 up later, not next in line. **Standing instruction, not specific to this
 item: no coding starts on anything without the maintainer's explicit
 go-ahead first**, website work included.
+
+### 29.1 Phase 1 built, 2026-09-23 **[V]**
+
+Picked up at the maintainer's request. `dev/function-graph.qmd`, rendered
+with `quarto render dev/function-graph.qmd` (about 5 s) into a
+self-contained `dev/function-graph.html`. The HTML is gitignored because
+it is regenerated from `R/` on every render.
+
+**Extraction.** Static parse of `R/*.R`; nothing is loaded or run.
+Nodes are top-level `name <- function(...)` definitions: 187 functions
+in the 22 files that define any (51 exported, 19 S3 methods, 117
+internal). The count was 179 on 2026-09-22; `R/arlem.R` (§33) accounts
+for the rise. Kind comes from `NAMESPACE`. Edges, from `getParseData()`
+tokens inside each definition's line range:
+- `SYMBOL_FUNCTION_CALL` or `SPECIAL` whose text is a package function,
+  skipping `pkg::name` for any `pkg` other than tantale (242 + 4 for
+  `%||%`, which the first draft missed because infix calls are `SPECIAL`
+  tokens);
+- `SYMBOL` naming a package function passed as a value, excluding
+  names bound locally (formals, assignment targets including `%<>%`,
+  `for` variables) and `$`/`@` accessors (2: `.arlem_histories`,
+  `.tale_parts_from_file`);
+- S3 dispatch from `as_tales()`, the only generic the package defines,
+  to its two methods.
+
+String literals equal to a function name were checked: all 31 are class
+names, error-message text or method-name arguments (`"talvez"`,
+`"preditale"`), none a `do.call()` target, so they are not edges. Top-level
+constants (`TALES_KEY_COLS` etc.) are left out.
+
+**View.** `visNetwork`, one node per file at first. Double-click opens a
+file, double-click on a function folds its file again, and two buttons
+open or fold all files. Clicking a function highlights its direct callers
+and callees. `visClusteringByGroup()` was tried first and dropped: it
+clusters on the `group` field and, on opening a cluster, repaints the
+freed nodes in vis.js's default group palette, so the colour coding by
+function kind was lost. The folding is now a short `htmlwidgets::onRender()`
+script that clusters on a separate `file` field, leaving `group` for the
+kind. vis.js does not build a one-node cluster, so
+`talecorrection_java.R` shows its only function (`correct_tales`) in place
+of a file node.
+
+The page also has a searchable table of all functions (callers, callees,
+first comment line) and a list of internals with no caller in `R/`. On
+2026-09-23 that list holds four: `repeat_to_rvd_align()` and
+`.rvd_to_repeat_align()` (test-only, as `conversion.R` already notes),
+`.onAttach()` (called by R), and `.rvds_from_annotale_file()`
+(`tales_ingest.R:55`), which nothing in `R/` or `tests/` calls. Not acted
+on: a retirement decision for the maintainer, under the parking rule.
+
+**Checked in a headless browser** (chromote driving the Playwright
+Chromium in `~/.cache/ms-playwright/`; the snap Chromium does not open a
+debugging port under chromote): 22 nodes folded, 46 after opening
+`telltale.R`, 22 after re-folding, 187 after "Open all files", node
+colours kept on opening, highlight on `tell_tales` correct.
+
+**Blind spots**, listed on the page: methods of base and dplyr generics
+(`print.tales`, `[.tales`, ...) show no callers because dispatch through
+`print(x)` or `x[i]` is invisible to a parser; calls built from strings
+are not followed.
+
+**Still open:** phase 2 (class objects as nodes) remains deferred.
+`man/figures/pipeline.svg` (§7.6) is a separate item; this graph does not
+replace a curated workflow figure.
 
 ---
 
