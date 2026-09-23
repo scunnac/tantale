@@ -291,6 +291,9 @@ and `git status` before trusting any of it.*
   (`penalizeGapLetterMatches = TRUE`), Biostrings backend uses free end
   gaps; all three backends follow DisTAL's definition. Golden
   re-baselined, grouping unchanged.
+- **§34** distribution findings recorded (sizes, licences, upstream
+  checksums); `test_correct_tales.R` no longer reads an absolute
+  `/home/...` path or writes to `~`; sweep found no other such case.
 - **§32.4** `array_report.tsv` terminus lengths no longer count the stop
   codon.
 - **§33** ARLEM computed in R (`R/arlem.R`), identical scores; executable
