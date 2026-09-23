@@ -125,24 +125,13 @@ msa_scored <- tales_align(picked_group, residue_col = "dom_code",
 identical(as.matrix(msa_plain), as.matrix(msa_scored))
 ```
 
-They differ. Looking at just the affected row shows how:
-
-```{r compare_matrices_detail}
-rbind(
-  no_matrix = as.matrix(msa_plain)["BAI3-1-1_ROI_00006", ],
-  scored    = as.matrix(msa_scored)["BAI3-1-1_ROI_00006", ]
-)
-```
-
-Both alignments are 18 columns wide and give this array the same four
-gap columns. What moves is its final half-repeat (`NI`). Without the
-matrix it sits in column 17, matched with MAI1's identical half-repeat.
-With the matrix it moves to column 13, opposite MAI1's full-length `NI`
-repeat, and the gap shifts to the end of the repeat region. On this
-group, the unscored alignment is the one that keeps identical sequences
-together. A scoring matrix changes which substitutions look cheap. It
-does not guarantee a biologically better alignment, so check the result
-on your own data.
+On this group the two alignments are identical. The domain distances
+count the residues a half-repeat lacks against a full repeat, so the
+final half-repeat that BAI3 and BAI3-1-1 share with MAI1 stays opposite
+its identical copy (column 17), and the four-repeat gap stays internal.
+On more divergent arrays, the matrix lets MAFFT prefer matching similar
+repeats over dissimilar ones; whether that changes the alignment depends
+on the data, so it is worth checking as done here.
 
 ### Aligning on `rvd`
 
@@ -157,8 +146,8 @@ msa_rvd_scored <- tales_align(picked_group, residue_col = "rvd", domain_distance
 identical(as.matrix(msa_rvd_plain), as.matrix(msa_rvd_scored))
 ```
 
-On this group, aligning on RVDs gives the *same* alignment whether or not
-the matrix is supplied. The RVD alphabet is smaller than the domain-code
+On this group, aligning on RVDs also gives the *same* alignment whether or
+not the matrix is supplied. The RVD alphabet is smaller than the domain-code
 one (6 distinct RVDs against 12 distinct repeat codes here), and these
 three arrays are closely related, so there was little room for a scoring
 matrix to change anything. Whether either matrix matters depends on the

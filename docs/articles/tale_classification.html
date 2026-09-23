@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9005</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9007</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -165,14 +165,14 @@
 <span><span class="co">#&gt;    id1                id2                dissim arlem_score max_length</span></span>
 <span><span class="co">#&gt;    &lt;chr&gt;              &lt;chr&gt;               &lt;dbl&gt;       &lt;dbl&gt;      &lt;int&gt;</span></span>
 <span><span class="co">#&gt;  1 BAI3-1-1_ROI_00001 BAI3-1-1_ROI_00001 0                0         28</span></span>
-<span><span class="co">#&gt;  2 BAI3-1-1_ROI_00002 BAI3-1-1_ROI_00001 6.07           170         28</span></span>
-<span><span class="co">#&gt;  3 BAI3-1-1_ROI_00003 BAI3-1-1_ROI_00001 6.21           174         28</span></span>
-<span><span class="co">#&gt;  4 BAI3-1-1_ROI_00005 BAI3-1-1_ROI_00001 5.79           162         28</span></span>
-<span><span class="co">#&gt;  5 BAI3-1-1_ROI_00006 BAI3-1-1_ROI_00001 6.43           180         28</span></span>
-<span><span class="co">#&gt;  6 BAI3-1-1_ROI_00007 BAI3-1-1_ROI_00001 6.32           177         28</span></span>
-<span><span class="co">#&gt;  7 BAI3-1-1_ROI_00008 BAI3-1-1_ROI_00001 6.14           172         28</span></span>
-<span><span class="co">#&gt;  8 BAI3-1-1_ROI_00009 BAI3-1-1_ROI_00001 6.29           176         28</span></span>
-<span><span class="co">#&gt;  9 BAI3_ROI_00001     BAI3-1-1_ROI_00001 5.07           142         28</span></span>
+<span><span class="co">#&gt;  2 BAI3-1-1_ROI_00002 BAI3-1-1_ROI_00001 5.64           158         28</span></span>
+<span><span class="co">#&gt;  3 BAI3-1-1_ROI_00003 BAI3-1-1_ROI_00001 4.89           137         28</span></span>
+<span><span class="co">#&gt;  4 BAI3-1-1_ROI_00005 BAI3-1-1_ROI_00001 5.14           144         28</span></span>
+<span><span class="co">#&gt;  5 BAI3-1-1_ROI_00006 BAI3-1-1_ROI_00001 6.07           170         28</span></span>
+<span><span class="co">#&gt;  6 BAI3-1-1_ROI_00007 BAI3-1-1_ROI_00001 5.32           149         28</span></span>
+<span><span class="co">#&gt;  7 BAI3-1-1_ROI_00008 BAI3-1-1_ROI_00001 5.04           141         28</span></span>
+<span><span class="co">#&gt;  8 BAI3-1-1_ROI_00009 BAI3-1-1_ROI_00001 5.46           153         28</span></span>
+<span><span class="co">#&gt;  9 BAI3_ROI_00001     BAI3-1-1_ROI_00001 4.5            126         28</span></span>
 <span><span class="co">#&gt; 10 BAI3_ROI_00002     BAI3-1-1_ROI_00001 0.0714           2         28</span></span>
 <span><span class="co">#&gt; # ℹ 666 more rows</span></span></code></pre></div>
 </details>
@@ -300,12 +300,12 @@
 <span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/stats/cor.html" class="external-link">cor</a></span><span class="op">(</span><span class="va">backend_dists</span><span class="op">)</span></span>
 <span><span class="co">#&gt;             DECIPHER Biostrings    mmseq2</span></span>
-<span><span class="co">#&gt; DECIPHER   1.0000000  0.9872101 0.9860172</span></span>
-<span><span class="co">#&gt; Biostrings 0.9872101  1.0000000 0.9994692</span></span>
-<span><span class="co">#&gt; mmseq2     0.9860172  0.9994692 1.0000000</span></span></code></pre></div>
+<span><span class="co">#&gt; DECIPHER   1.0000000  0.9996585 0.9994917</span></span>
+<span><span class="co">#&gt; Biostrings 0.9996585  1.0000000 0.9994692</span></span>
+<span><span class="co">#&gt; mmseq2     0.9994917  0.9994692 1.0000000</span></span></code></pre></div>
 </details>
 </div>
-<p>All three agree closely on this fixture (correlations of 0.986 and above), so the default gives up nothing in accuracy here, at least on data this size.</p>
+<p>All three agree closely on this fixture (correlations of 0.999 and above), so the default gives up nothing in accuracy here, at least on data this size.</p>
 </section></section><section class="level2" data-number="3"><h2 data-number="3" id="allocating-arrays-to-groups-tales_group_hclust-and-tales_group_kmedoids">
 <span class="header-section-number">3</span> Allocating arrays to groups: <code>tales_group_hclust()</code> and <code>tales_group_kmedoids()</code>
 <a class="anchor" aria-label="anchor" href="#allocating-arrays-to-groups-tales_group_hclust-and-tales_group_kmedoids"></a>
@@ -554,7 +554,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script><script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","loop":false,"descPosition":"bottom","selector":".lightbox","openEffect":"zoom"});
+</script><script>var lightboxQuarto = GLightbox({"descPosition":"bottom","loop":false,"closeEffect":"zoom","openEffect":"zoom","selector":".lightbox"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

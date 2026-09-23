@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9006</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9007</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,6 +45,14 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="tantale-development-version">tantale (development version)<a class="anchor" aria-label="anchor" href="#tantale-development-version"></a></h2>
+<div class="section level3">
+<h3 id="domain-distances-now-count-missing-residues-decipher-backend-development-version">Domain distances now count missing residues (DECIPHER backend)<a class="anchor" aria-label="anchor" href="#domain-distances-now-count-missing-residues-decipher-backend-development-version"></a></h3>
+<p><code><a href="../reference/tales_domain_distances.html">tales_domain_distances()</a></code>’s default <code>"DECIPHER"</code> backend ignored gaps, so a half-repeat was at distance 0 from any full repeat it is a prefix of, and indels between domains went uncounted. It now follows DisTAL’s published definition (percentage of amino acids that change, normalised by the longer domain), as the <code>"mmseq2"</code> backend already did: a 20-residue half-repeat is about 41 from the 34-residue repeat it matches. Domain and array distances change for pairs that differ in length or align with gaps; on the three genomes in the articles the grouping is unchanged. With a <code>domain_distances</code> scoring matrix, <code><a href="../reference/tales_align.html">tales_align()</a></code> no longer pulls a half-repeat away from its identical match.</p>
+</div>
+<div class="section level3">
+<h3 id="reference-pages-reviewed-development-version">Reference pages reviewed<a class="anchor" aria-label="anchor" href="#reference-pages-reviewed-development-version"></a></h3>
+<p>Every exported function’s help page was re-read against the code. Among the corrections: the <code>pairwise_distances</code> family is now described as the distance table it is (it stores <code>dissim</code>), <code><a href="../reference/repeat_to_rvd_map_distalr.html">repeat_to_rvd_map_distalr()</a></code> and <code><a href="../reference/tale_parts_to_rvd.html">tale_parts_to_rvd()</a></code> document the input they actually take, <code>rvd_dna_specificity</code> explains its special rows (<code>N*</code>/<code>H*</code>, <code>OO</code>, <code>XX</code>), <code><a href="../reference/talomes_heatmap.html">talomes_heatmap()</a></code> explains what its colours mean, and the package page and README no longer claim that tantale bundles none of the programs it drives (the Java tools ship with it).</p>
+</div>
 <div class="section level3">
 <h3 id="array-alignment-computed-in-r-the-arlem-executable-is-no-longer-bundled-development-version">Array alignment computed in R; the ARLEM executable is no longer bundled<a class="anchor" aria-label="anchor" href="#array-alignment-computed-in-r-the-arlem-executable-is-no-longer-bundled-development-version"></a></h3>
 <p><code><a href="../reference/tales_tale_distances.html">tales_tale_distances()</a></code>, and so <code><a href="../reference/tales_compare_distal.html">tales_compare_distal()</a></code>, aligns the coded arrays with an R implementation of ARLEM’s minisatellite alignment model (Abouelhoda et al., <a href="https://doi.org/10.1142/S0219720009004060" class="external-link">2009</a>) in place of the ARLEM 1.0 executable that shipped in <code>inst/tools/arlem/</code>. The scores are identical to the executable’s: checked on about 6000 random array pairs and on real TALE arrays, and recorded in a test fixture. The executable ran only on Linux x86-64, and its licence did not clearly allow redistribution; it has been removed from the package. This also clears the “undeclared executable file” warning from <code>R CMD check</code>.</p>

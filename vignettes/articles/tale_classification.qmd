@@ -164,7 +164,7 @@ backend_dists <- tibble::tibble(
 cor(backend_dists)
 ```
 
-All three agree closely on this fixture (correlations of 0.986 and
+All three agree closely on this fixture (correlations of 0.999 and
 above), so the default gives up nothing in accuracy here, at least on
 data this size.
 

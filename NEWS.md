@@ -1,5 +1,18 @@
 # tantale (development version)
 
+## Domain distances now count missing residues (DECIPHER backend)
+
+`tales_domain_distances()`'s default `"DECIPHER"` backend ignored gaps, so
+a half-repeat was at distance 0 from any full repeat it is a prefix of, and
+indels between domains went uncounted. It now follows DisTAL's published
+definition (percentage of amino acids that change, normalised by the longer
+domain), as the `"mmseq2"` backend already did: a 20-residue half-repeat is
+about 41 from the 34-residue repeat it matches. Domain and array distances
+change for pairs that differ in length or align with gaps; on the three
+genomes in the articles the grouping is unchanged. With a
+`domain_distances` scoring matrix, `tales_align()` no longer pulls a
+half-repeat away from its identical match.
+
 ## Reference pages reviewed
 
 Every exported function's help page was re-read against the code. Among

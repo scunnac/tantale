@@ -141,7 +141,7 @@ unique(grouped[c("array_id", "group")])
 #>   array_id  group
 #>   <chr>     <int>
 #> 1 ROI_00001     1
-#> 2 ROI_00002     1
-#> 3 ROI_00003     2
+#> 2 ROI_00002     2
+#> 3 ROI_00003     1
 #> 4 ROI_00004     1
 ```

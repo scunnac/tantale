@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9005</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9007</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -165,45 +165,30 @@ Figure 1: Alignment of one TALE locus across three related strains, coloured by
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">msa_plain</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">msa_scored</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] FALSE</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 </details>
 </div>
-<p>They differ. Looking at just the affected row shows how:</p>
-<div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/cbind.html" class="external-link">rbind</a></span><span class="op">(</span></span>
-<span>  no_matrix <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">msa_plain</span><span class="op">)</span><span class="op">[</span><span class="st">"BAI3-1-1_ROI_00006"</span>, <span class="op">]</span>,</span>
-<span>  scored    <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">msa_scored</span><span class="op">)</span><span class="op">[</span><span class="st">"BAI3-1-1_ROI_00006"</span>, <span class="op">]</span></span>
-<span><span class="op">)</span></span>
-<span><span class="co">#&gt;           1       2    3    4    5    6    7    8    9    10   11   12   13  </span></span>
-<span><span class="co">#&gt; no_matrix "NTERM" "NN" "HD" "NV" "HD" "NI" "NG" "NI" "NN" "NS" "HD" "HD" NA  </span></span>
-<span><span class="co">#&gt; scored    "NTERM" "NN" "HD" "NV" "HD" "NI" "NG" "NI" "NN" "NS" "HD" "HD" "NI"</span></span>
-<span><span class="co">#&gt;           14 15 16 17   18     </span></span>
-<span><span class="co">#&gt; no_matrix NA NA NA "NI" "CTERM"</span></span>
-<span><span class="co">#&gt; scored    NA NA NA NA   "CTERM"</span></span></code></pre></div>
-</details>
-</div>
-<p>Both alignments are 18 columns wide and give this array the same four gap columns. What moves is its final half-repeat (<code>NI</code>). Without the matrix it sits in column 17, matched with MAI1’s identical half-repeat. With the matrix it moves to column 13, opposite MAI1’s full-length <code>NI</code> repeat, and the gap shifts to the end of the repeat region. On this group, the unscored alignment is the one that keeps identical sequences together. A scoring matrix changes which substitutions look cheap. It does not guarantee a biologically better alignment, so check the result on your own data.</p>
+<p>On this group the two alignments are identical. The domain distances count the residues a half-repeat lacks against a full repeat, so the final half-repeat that BAI3 and BAI3-1-1 share with MAI1 stays opposite its identical copy (column 17), and the four-repeat gap stays internal. On more divergent arrays, the matrix lets MAFFT prefer matching similar repeats over dissimilar ones; whether that changes the alignment depends on the data, so it is worth checking as done here.</p>
 </section><section class="level3" data-number="3.2"><h3 data-number="3.2" id="aligning-on-rvd">
 <span class="header-section-number">3.2</span> Aligning on <code>rvd</code>
 <a class="anchor" aria-label="anchor" href="#aligning-on-rvd"></a>
 </h3>
 <p>The built-in RVD similarity matrix works the same way, opted into with <code>domain_distances = "rvd"</code> instead of a distance table. It scores DNA-binding specificity instead of protein sequence, so it is worth checking separately:</p>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">msa_rvd_plain</span>  <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tales_align.html">tales_align</a></span><span class="op">(</span><span class="va">picked_group</span>, residue_col <span class="op">=</span> <span class="st">"rvd"</span><span class="op">)</span></span>
 <span><span class="va">msa_rvd_scored</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tales_align.html">tales_align</a></span><span class="op">(</span><span class="va">picked_group</span>, residue_col <span class="op">=</span> <span class="st">"rvd"</span>, domain_distances <span class="op">=</span> <span class="st">"rvd"</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/identical.html" class="external-link">identical</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">msa_rvd_plain</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">msa_rvd_scored</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 </details>
 </div>
-<p>On this group, aligning on RVDs gives the <em>same</em> alignment whether or not the matrix is supplied. The RVD alphabet is smaller than the domain-code one (6 distinct RVDs against 12 distinct repeat codes here), and these three arrays are closely related, so there was little room for a scoring matrix to change anything. Whether either matrix matters depends on the data.</p>
+<p>On this group, aligning on RVDs also gives the <em>same</em> alignment whether or not the matrix is supplied. The RVD alphabet is smaller than the domain-code one (6 distinct RVDs against 12 distinct repeat codes here), and these three arrays are closely related, so there was little room for a scoring matrix to change anything. Whether either matrix matters depends on the data.</p>
 </section></section><section class="level2" data-number="4"><h2 data-number="4" id="other-views-of-the-same-alignment">
 <span class="header-section-number">4</span> Other views of the same alignment<a class="anchor" aria-label="anchor" href="#other-views-of-the-same-alignment"></a>
 </h2>
 <p>Colouring by similarity to the reference array instead of by cluster membership makes graded divergence visible where cluster identity would only say “different”:</p>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">msa</span>, fill_type <span class="op">=</span> <span class="st">"domain_sim"</span>,</span>
 <span>    tale_distances <span class="op">=</span> <span class="va">cmp</span><span class="op">$</span><span class="va">tale_distances</span>, domain_distances <span class="op">=</span> <span class="va">cmp</span><span class="op">$</span><span class="va">domain_distances</span><span class="op">)</span></span></code></pre></div>
 </details><div class="cell-output-display">
@@ -220,7 +205,7 @@ Figure 2: The same alignment, coloured by protein-sequence similarity to the re
 <p>In <a href="#fig-msa-sim" class="quarto-xref">Figure 2</a>, every domain is identical to MAI1’s except BAI3-1-1’s N-terminus, which has its own <code>dom_code</code> at about 99.7% similarity. The cluster colouring of <a href="#fig-msa-default" class="quarto-xref">Figure 1</a> groups it with the other two N-termini, so the difference only shows here.</p>
 <p>With a consensus panel attached, the column-by-column question “does this array agree with the group” is answered directly above the alignment itself:</p>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">msa</span>, consensus <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>    tale_distances <span class="op">=</span> <span class="va">cmp</span><span class="op">$</span><span class="va">tale_distances</span>, domain_distances <span class="op">=</span> <span class="va">cmp</span><span class="op">$</span><span class="va">domain_distances</span><span class="op">)</span></span></code></pre></div>
 </details><div class="cell-output-display">

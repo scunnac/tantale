@@ -135,6 +135,14 @@ tales_assign_domain_codes <- function(x) {
 #' cost goes with the number of distinct sequences rather than the number of
 #' parts. See [summary()][summary.tales] for that ratio on a given object.
 #'
+#' `dissim` follows DisTAL's definition: the percentage of amino acids that
+#' change between two domains, normalised by the longer one, with residues
+#' one domain lacks counted as changes. A 20-residue half-repeat that is an
+#' exact prefix of a 34-residue repeat is therefore 14/34, about 41 percent, from
+#' it. The `"DECIPHER"` and `"mmseq2"` backends compute this; `"Biostrings"`
+#' uses a global alignment with gap penalties and scores length differences
+#' more severely.
+#'
 #' @param x A [tales] object carrying `dom_code`, as returned by
 #'   [tales_assign_domain_codes()].
 #' @param aln_method One of `"DECIPHER"` (the default), `"Biostrings"` or
@@ -551,8 +559,14 @@ diag(identSubMat) <- 1
   }
   msa <- DECIPHER::StaggerAlignment(msa, tree = staggerTree, fullLength = TRUE,
                                     processors = ncores, verbose = FALSE)
+  # penalizeGapLetterMatches = TRUE counts a gap opposite a residue as a
+  # difference, as DisTAL does ("percentage of amino acids that change",
+  # normalised by the longer repeat). DECIPHER's default ignores them, which
+  # put a half-repeat at distance 0 from any full repeat it is a prefix of
+  # (ledger §32.3). This matches the mmseq2 backend on such pairs.
   distMat <- DECIPHER::DistanceMatrix(msa, method = "longest",
                                       includeTerminalGaps = TRUE,
+                                      penalizeGapLetterMatches = TRUE,
                                       processors = ncores, verbose = FALSE)
   pair_align_scores <- tibble::as_tibble(.matrix_to_long(as.matrix(distMat), value_name = "dissim"))
   colnames(pair_align_scores) <- c("id2", "id1", "dissim")

@@ -55,6 +55,14 @@ of parts. See
 [summary()](https://scunnac.github.io/tantale/reference/summary.tales.md)
 for that ratio on a given object.
 
+`dissim` follows DisTAL's definition: the percentage of amino acids that
+change between two domains, normalised by the longer one, with residues
+one domain lacks counted as changes. A 20-residue half-repeat that is an
+exact prefix of a 34-residue repeat is therefore 14/34, about 41
+percent, from it. The `"DECIPHER"` and `"mmseq2"` backends compute this;
+`"Biostrings"` uses a global alignment with gap penalties and scores
+length differences more severely.
+
 ## See also
 
 [`tales_tale_distances()`](https://scunnac.github.io/tantale/reference/tales_tale_distances.md),

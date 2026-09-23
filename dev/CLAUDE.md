@@ -375,9 +375,10 @@ section, especially before building on top of it.
 scoring matrix displacing an identical half-repeat) is root-caused: the
 default DECIPHER backend of `tales_domain_distances()` ignores gaps
 (`penalizeGapLetterMatches = FALSE`), so a half-repeat is at distance 0
-from any full repeat it is a prefix of. Three fix options and measured
-impact (grouping unchanged, golden baseline would change) are in §32.3,
-**awaiting the maintainer's choice**. §32.2 (`rvdSimDf` covering 17 RVDs)
+from any full repeat it is a prefix of. **Fixed 2026-09-23** with
+`penalizeGapLetterMatches = TRUE` (DisTAL's definition, matches mmseq2),
+golden re-baselined with every row explained, articles re-rendered from a
+cleared comparison cache; version 0.9.9007. §32.2 (`rvdSimDf` covering 17 RVDs)
 and §32.4 (the `*` counted in `cterm_aa_length`) also await decisions.
 
 **§30, 2026-09-23 -- website prose review DONE (articles and reference

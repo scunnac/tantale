@@ -8848,7 +8848,7 @@ Options, not evaluated:
 Whatever is chosen, the plot legend and the `rvd_sim` docs should say
 what an `NA` (grey) cell means.
 
-### 32.3 The `domain_distances` matrix displaced an identical half-repeat -- **root cause found (DECIPHER backend ignores gaps), fix awaiting maintainer's choice** **[P]**
+### 32.3 The `domain_distances` matrix displaced an identical half-repeat -- **FIXED 2026-09-23 (option 1, `penalizeGapLetterMatches = TRUE`)** **[V]**
 
 Maintainer: "good catch", elaborate so we can figure out what is going on.
 
@@ -8994,6 +8994,44 @@ also decide whether the Biostrings backend should drop its gap penalties
 to match (DisTAL: "no gap penalty"), and add a test pinning 29 vs 31 so
 the backends cannot silently drift apart again (current tests check only
 output dimensions).
+
+**Maintainer's decision (2026-09-23): option 1, `TRUE`.** Executed:
+
+- `.pairwise_align_decipher()` (`R/distalr.R`) now passes
+  `penalizeGapLetterMatches = TRUE`, with a comment pointing here.
+  Version 0.9.9006 -> 0.9.9007.
+- New test in `test_distalPairwiseAlign.R`: a 20-aa half-repeat that is
+  a prefix of a 34-aa repeat must be 14/34 (41.2) from it under both the
+  DECIPHER and mmseq2 backends; one mismatch in 34 stays 2.94. Fails on
+  the old code (0), passes now.
+- **Golden re-baseline, every changed row explained** (golden-rebaseline
+  skill): `test_golden.R:70` (`domain_distances` of the four-array
+  `tales_compare_distal()` run), only the `dissim` column (50 -> 43
+  distinct values); `test_golden.R:71` (`tale_distances`), only `dissim`
+  and `arlem_score` (a direct consequence: ARLEM uses the domain
+  distances as substitution costs); ids and `max_length` unchanged,
+  `out$tales` unchanged. Checked by recomputing old and new domain
+  distances on that subset: 1108 of 2304 pairs changed, every one of them
+  a pair whose alignment has a gap opposite a residue, every change an
+  increase; no equal-length ungapped pair changed and no gapped pair
+  stayed the same. Accepted, re-run: 44/44.
+- `tales_domain_distances()` docs now state DisTAL's `dissim` definition
+  and that the Biostrings backend (gap penalties) scores length
+  differences more severely. **Still open:** whether the Biostrings
+  backend should drop its gap penalties to match DisTAL's "no gap
+  penalty" (not part of this decision).
+- Articles: `_cache/compare.rds` and `group.rds` deleted (discovery
+  unaffected) and the four cache-dependent articles re-rendered,
+  classification first. Grouping identical (k = 9, same partition, same
+  group numbers: group 6 is still the MAI1_ROI_00007 locus, the three
+  converging target-prediction arrays still group 7). Backend
+  correlations on the small fixture rose to >= 0.9995 (DECIPHER now agrees
+  with the other two); the article's figure updated to "0.999 and above".
+  `tale_msa.qmd`'s scoring-matrix section rewritten: scored and unscored
+  alignments are now identical, the half-repeat stays in column 17 (§30's
+  text described the old displacement). In the default alignment plot the
+  half-repeat now gets its own domain-cluster colour, separate from the
+  full `NI` repeats.
 
 ### 32.4 C-terminus length differs by one between `tales` and `array_report.tsv` -- **explained, nothing to fix yet** **[V]**
 

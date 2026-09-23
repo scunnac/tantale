@@ -2,6 +2,36 @@
 
 ## tantale (development version)
 
+### Domain distances now count missing residues (DECIPHER backend)
+
+[`tales_domain_distances()`](https://scunnac.github.io/tantale/reference/tales_domain_distances.md)’s
+default `"DECIPHER"` backend ignored gaps, so a half-repeat was at
+distance 0 from any full repeat it is a prefix of, and indels between
+domains went uncounted. It now follows DisTAL’s published definition
+(percentage of amino acids that change, normalised by the longer
+domain), as the `"mmseq2"` backend already did: a 20-residue half-repeat
+is about 41 from the 34-residue repeat it matches. Domain and array
+distances change for pairs that differ in length or align with gaps; on
+the three genomes in the articles the grouping is unchanged. With a
+`domain_distances` scoring matrix,
+[`tales_align()`](https://scunnac.github.io/tantale/reference/tales_align.md)
+no longer pulls a half-repeat away from its identical match.
+
+### Reference pages reviewed
+
+Every exported function’s help page was re-read against the code. Among
+the corrections: the `pairwise_distances` family is now described as the
+distance table it is (it stores `dissim`),
+[`repeat_to_rvd_map_distalr()`](https://scunnac.github.io/tantale/reference/repeat_to_rvd_map_distalr.md)
+and
+[`tale_parts_to_rvd()`](https://scunnac.github.io/tantale/reference/tale_parts_to_rvd.md)
+document the input they actually take, `rvd_dna_specificity` explains
+its special rows (`N*`/`H*`, `OO`, `XX`),
+[`talomes_heatmap()`](https://scunnac.github.io/tantale/reference/talomes_heatmap.md)
+explains what its colours mean, and the package page and README no
+longer claim that tantale bundles none of the programs it drives (the
+Java tools ship with it).
+
 ### Array alignment computed in R; the ARLEM executable is no longer bundled
 
 [`tales_tale_distances()`](https://scunnac.github.io/tantale/reference/tales_tale_distances.md),

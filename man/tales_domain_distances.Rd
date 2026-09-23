@@ -37,6 +37,14 @@ any array-level alignment.
 Distances are between \strong{distinct domains}, keyed by \code{dom_code}, so the
 cost goes with the number of distinct sequences rather than the number of
 parts. See \link[=summary.tales]{summary()} for that ratio on a given object.
+
+\code{dissim} follows DisTAL's definition: the percentage of amino acids that
+change between two domains, normalised by the longer one, with residues
+one domain lacks counted as changes. A 20-residue half-repeat that is an
+exact prefix of a 34-residue repeat is therefore 14/34, about 41 percent, from
+it. The \code{"DECIPHER"} and \code{"mmseq2"} backends compute this; \code{"Biostrings"}
+uses a global alignment with gap penalties and scores length differences
+more severely.
 }
 \examples{
 x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",

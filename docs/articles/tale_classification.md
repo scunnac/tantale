@@ -127,14 +127,14 @@ cmp$tale_distances
 #>    id1                id2                dissim arlem_score max_length
 #>    <chr>              <chr>               <dbl>       <dbl>      <int>
 #>  1 BAI3-1-1_ROI_00001 BAI3-1-1_ROI_00001 0                0         28
-#>  2 BAI3-1-1_ROI_00002 BAI3-1-1_ROI_00001 6.07           170         28
-#>  3 BAI3-1-1_ROI_00003 BAI3-1-1_ROI_00001 6.21           174         28
-#>  4 BAI3-1-1_ROI_00005 BAI3-1-1_ROI_00001 5.79           162         28
-#>  5 BAI3-1-1_ROI_00006 BAI3-1-1_ROI_00001 6.43           180         28
-#>  6 BAI3-1-1_ROI_00007 BAI3-1-1_ROI_00001 6.32           177         28
-#>  7 BAI3-1-1_ROI_00008 BAI3-1-1_ROI_00001 6.14           172         28
-#>  8 BAI3-1-1_ROI_00009 BAI3-1-1_ROI_00001 6.29           176         28
-#>  9 BAI3_ROI_00001     BAI3-1-1_ROI_00001 5.07           142         28
+#>  2 BAI3-1-1_ROI_00002 BAI3-1-1_ROI_00001 5.64           158         28
+#>  3 BAI3-1-1_ROI_00003 BAI3-1-1_ROI_00001 4.89           137         28
+#>  4 BAI3-1-1_ROI_00005 BAI3-1-1_ROI_00001 5.14           144         28
+#>  5 BAI3-1-1_ROI_00006 BAI3-1-1_ROI_00001 6.07           170         28
+#>  6 BAI3-1-1_ROI_00007 BAI3-1-1_ROI_00001 5.32           149         28
+#>  7 BAI3-1-1_ROI_00008 BAI3-1-1_ROI_00001 5.04           141         28
+#>  8 BAI3-1-1_ROI_00009 BAI3-1-1_ROI_00001 5.46           153         28
+#>  9 BAI3_ROI_00001     BAI3-1-1_ROI_00001 4.5            126         28
 #> 10 BAI3_ROI_00002     BAI3-1-1_ROI_00001 0.0714           2         28
 #> # ℹ 666 more rows
 ```
@@ -275,12 +275,12 @@ backend_dists <- tibble::tibble(
 )
 cor(backend_dists)
 #>             DECIPHER Biostrings    mmseq2
-#> DECIPHER   1.0000000  0.9872101 0.9860172
-#> Biostrings 0.9872101  1.0000000 0.9994692
-#> mmseq2     0.9860172  0.9994692 1.0000000
+#> DECIPHER   1.0000000  0.9996585 0.9994917
+#> Biostrings 0.9996585  1.0000000 0.9994692
+#> mmseq2     0.9994917  0.9994692 1.0000000
 ```
 
-All three agree closely on this fixture (correlations of 0.986 and
+All three agree closely on this fixture (correlations of 0.999 and
 above), so the default gives up nothing in accuracy here, at least on
 data this size.
 
