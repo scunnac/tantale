@@ -46,6 +46,10 @@ and 6 were done on 2026-09-24 (outcomes kept below); the rest are open.
    channel §34 ends up choosing. Cheap interim fix: a third-party notice
    (licence text, upstream URL, source link per tool) shipped with the
    package and referenced from `LICENSE`/README.
+   **2026-09-24: the GitHub repository is private for now** (maintainer,
+   to change things freely without users). While it stays private this is
+   not distribution, so the notices must be in place before it goes
+   public again, or before anyone outside gets a copy.
 2. **DONE 2026-09-24: every external program's exit status is checked.**
    nHMMER (`.run_nhmmer_search()`, `correct_tales()`), PrediTALE and
    TALEcorrection go through `.tantale_exec()`; AnnoTALE's three stages

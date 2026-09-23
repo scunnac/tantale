@@ -242,6 +242,10 @@ and `git status` before trusting any of it.*
 - Branch `main`, version **0.9.9010** (commits of 2026-09-23/24 not
   pushed as of this writing; check `git status -sb`). The installed
   `tantale` may be older: reinstall before rendering articles.
+- **The GitHub repository is private** since 2026-09-24 (maintainer's
+  choice, to change things without users). The README's install command
+  works only with access; GitHub Pages for a private repository needs a
+  paid plan, so the published site may be offline until it is public.
 - Full `devtools::check()` on 0.9.9010, 2026-09-24: tests 0 failures,
   examples (with `--run-donttest`) and vignette OK. One NOTE left: R's
   news parser finds no entries in `NEWS.md` (ledger START HERE item 3).
@@ -263,6 +267,7 @@ against the code 2026-09-23). Headlines:
 2026-09-24):
 1. Licence notices for the bundled GPL-3 jars and TALVEZ (§34): nothing
    in the package gives the licence or source pointer the GPL requires.
+   Needed before the repository is made public again.
 3. (residue) `NEWS.md` format: R's news parser wants bullets; a
    decision, since it changes the pkgdown news page.
 5. `inst/legacy/docs_temp/` (untracked, 3.8 MB) ships in any tarball
