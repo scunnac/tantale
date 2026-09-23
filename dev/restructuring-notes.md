@@ -62,9 +62,15 @@ Status markers used below:
 
 ## START HERE
 
-This file is ~5080 lines and is a record, not a reading list. **Do not
+> **Current state and open items (updated 2026-09-23): read
+> `dev/CLAUDE.md`'s "Where things stand" first.** It lists what is open,
+> by status, with the section to read for each. Everything since
+> 2026-09-21 is in §17-§33 at the end of this file.
+
+This file is ~9300 lines and is a record, not a reading list. **Do not
 read it end to end.** Read `CLAUDE.md` (it loads automatically), then
-only the sections below that bear on the task in hand.
+only the sections below that bear on the task in hand. The rest of this
+block describes the state before 2026-09-21.
 
 Sections are now in ascending numeric order within each chapter (fixed
 2026-09-17 -- §7 and §8 were badly scrambled: §8 alone had 18 subsections
@@ -7341,7 +7347,7 @@ own two stale references to the old names (§7.2, this section) updated.
 
 ---
 
-## 25. Proposed article: how correction handles genuine truncTALEs -- IDEA ONLY, not started **[P]**
+## 25. Proposed article: how correction handles genuine truncTALEs -- DONE, published via §31 **[V]**
 
 Maintainer's proposal, 2026-09-22, for a new, separate pkgdown article (not
 a section folded into an existing one).
@@ -8254,7 +8260,7 @@ of §27's scope, not investigated further -- flagged for later triage:**
 
 ---
 
-## 28. The two §27 follow-up findings, triaged
+## 28. The two §27 follow-up findings, triaged -- both resolved (the ARLEM one by §33) **[V]**
 
 ### `tales_group_kmedoids()` example -- FIXED, verified **[V]**
 
@@ -8760,7 +8766,7 @@ to fold in §25/§25b/§31 for a clean handoff to a fresh session.
 
 ---
 
-## 32. Four findings from §30's render check -- triaged by the maintainer, 2026-09-23
+## 32. Four findings from §30's render check -- 32.1, 32.3, 32.4 fixed; 32.2 awaits a decision **[P]**
 
 Surfaced while checking the articles against their rendered output (§30,
 "open questions"). Maintainer's triage below; none acted on yet.

@@ -1,7 +1,7 @@
 # Working on tantale
 
 An R package for analysing TALEs (transcription activator-like effectors) of
-*Xanthomonas*. Current work is pre-publication cleanup on the `dev` branch.
+*Xanthomonas*. Current work is pre-publication cleanup on the `main` branch.
 
 New to TALE biology? [The Wikipedia
 page](https://en.wikipedia.org/wiki/Transcription_activator-like_effector)
@@ -9,10 +9,10 @@ is worth a look before touching code that deals with repeats, RVDs or
 target prediction.
 
 **`dev/restructuring-notes.md` is the ledger** and the main source of
-context: what has been done, what is deferred, and why. It is ~3200 lines
-and is a record, not a reading list — **start at its `START HERE` block**,
-which lists the open items, then read only the sections bearing on the task
-in hand.
+context: what has been done, what is deferred, and why. It is ~9300 lines
+and is a record, not a reading list. **Start with "Where things stand"
+below**, which lists the current state and the open items with their
+ledger sections, then read only the sections bearing on the task in hand.
 
 Markers: `[V]` verified/done, `[A]` agreed but not executed, `[P]` parked
 pending a judgement call, `[superseded]` a record of a replaced plan and
@@ -224,199 +224,116 @@ stamp exists to catch cross-run mixing, and is enforced, not advisory.
 
 ## Where things stand
 
-**Branch is `main`, not `dev`.** A full repository history reset was
-executed 2026-09-22 (ledger §26): `master`/`dev` and all pre-reset history
-are retired, replaced by a single orphan commit on `main`. Old history
-(327 commits, all branches/tags) survives as a `git bundle` attached to
-the `v0.1.9553` GitHub release, and the pre-reset working directory was
-kept on disk as `tantale-old-before-reset`, not deleted. Nothing about
-any tracked file's *content* changed in the reset itself.
+*Updated 2026-09-23, end of session. Re-check with `git log --oneline -5`
+and `git status` before trusting any of it.*
 
-`dev/restructuring-notes.md` is ~8500 lines. **Read its `START HERE`
-block for the pre-2026-09-21 history; for everything since, read §17-§33
-directly** (numbered, in order, at the end of the file) -- this note is
-the short pointer, not a re-summary of either. §27 (2026-09-22) closed
-clean: all three test-suite findings from §26's post-reset `R CMD check`
-(`reshape2` leftover dependency, a hardcoded `ncores`, and a golden-
-baseline mismatch in the frameshift-correction test) are fixed and
-verified; `test_golden.R` passes clean under both `load_all()` and a real
-install. Two unrelated findings surfaced by that same check run, both
-since resolved (§28): `tales_group_kmedoids()`'s own `@examples` (an
-invalid `k`, fixed), and an "undeclared executable file" warning from the
-bundled ARLEM binary, which went with the binary itself (§33).
+### State
 
-**§33, 2026-09-23 -- ARLEM is computed in R; the executable is gone.**
-`tales_tale_distances()` aligns the coded arrays with `.arlem_scores_r()`
-(`R/arlem.R`), an R implementation of ARLEM's model that gives
-`identical()` scores to the executable. The executable was deleted from
-`inst/tools/` on the maintainer's instruction (licence, Linux-x86-64
-only). The code that drove it is in `inst/legacy/arlem_binary.R`, and its
-recorded answers are the test fixture `arlem_reference_scores.rds`.
-Column names `arlem_score`/`norm_arlem_score` are unchanged.
+- Branch `main`, in sync with `origin/main`, working tree clean. Version
+  **0.9.9009**. The `tantale` package installed on this machine is that
+  version.
+- Full test suite last run 2026-09-23: 380 tests, 0 failed, 0 skipped
+  (before the small §32.4 change; its targeted files and `test_golden.R`
+  pass since). `pkgdown::check_pkgdown()` and `check_built_site()` clean.
+- The site in `docs/` was rebuilt piecewise this session (articles one by
+  one, reference, home, news, llm docs, search), not wiped and rebuilt in
+  full. No pages were added or removed except `docs/CLAUDE.*`, deleted.
+- The Claude Code pointer file is `.claude/CLAUDE.md` (it imports this
+  file). It was moved out of the repo root because pkgdown publishes every
+  root `.md` as a page, whatever `.Rbuildignore` says.
 
-**§24 is a maintainer triage of the whole open-items list, 2026-09-21,
-same day as §17-23 but a later session -- read it before assuming any
-"still open" item below needs a decision.** It also prompted a ledger
-cleanup pass (fixed ~10 stale status markers found by a full read-through,
-compressed the "-original"/"-superseded" historical subsections) -- see
-§24 for the priorities that came out of it and what got dropped from
-active tracking. Not yet pushed as of this note; re-check `git log
---oneline origin/dev..dev` directly rather than trusting this note if any
-doubt.
+### Open items
 
-**Session (2026-09-21, earlier) ends at §21 mid-item, on purpose --
-an intermediate pause, not a close, and is written up as one.**
+**Needs a maintainer decision (do not start without one):**
+- **§32.2** `rvdSimDf` covers 17 RVDs, `rvd_dna_specificity` 404; any
+  other RVD scores `NA` (grey) in `plot.tales_msa(fill_type = "rvd_sim")`
+  and possibly in the `domain_distances = "rvd"` MAFFT matrix. Four
+  options written up in §32.2.
+- **Distribution strategy** (GitHub-only, CRAN or Bioconductor). The
+  ARLEM executable is gone (§33); the bundled Java tools (~60 MB:
+  AnnoTALE, PrediTALE, TALE correction) are the remaining question.
 
-**§17, the in-depth documentation review of every exported function and
-S3 method -- DONE.** All 51 exports and 19 S3 methods (re-verified count,
-not assumed -- see §17's own closing note for how the original "49" was
-itself wrong) read against their actual current behaviour, not just
-structurally checked. One real, live functional bug found and fixed with
-the maintainer's sign-off: `correct_tales()` was feeding two nHMMER
-result files to `TALEcorrection.jar`'s flags swapped, confirmed against
-the tool's own printed usage -- corrected sequences may now differ from
-before. Version bumped to `0.9.9003`.
+**Deferred by the maintainer as future work:**
+- **§30, parallel-phrasing sweep** of the site prose (habit 2 of the
+  Documentation rules above). The "A, not B" sweep is done.
+- **§33** an Rcpp version of ARLEM (not tried; likely faster than the R one
+  and the old executable).
 
-**§18 correction:** the earlier retirement of `unused_pending_review.R`'s
-last batch had missed an orphaned test file (`test_conda.R`, testing
-`.run_in_conda()` directly, nothing else) -- only caught by running the
-*full* suite once, at the very end of §17, not the targeted files the
-retirement itself checked. Removed; lesson folded into this file's own
-"never delete code that looks dead" rule above.
+**Reserved for the maintainer, or parked; do not start unasked:**
+- **§21** the three remaining matrix-shaped helpers of `plot.tales_msa()`
+  (`.pick_ref_name()` and others), including rewriting the tests that
+  assert their matrix shape. Read §21's closing note first.
+- **§20** `tale_parts_to_rvd()` as a rename/refactor candidate.
+- **§2** `repeat_to_rvd_map()` retirement.
 
-**§19, the `repeat_sims`/`tal_sim`/`domain_sim`/`fill_type` naming
-question -- acted on, see §23.** §20 is still parked, explicitly not to
-be started without going back to the maintainer first: `tale_parts_to_rvd()`
-as a rename/refactor candidate.
+**Planned, not started:**
+- **§29** an interactive function-dependency graph (`visNetwork`, a
+  `dev/*.qmd`, opening grouped by file; object-class layer deferred).
+- **§7.6** `man/figures/pipeline.svg` is stale (old function names):
+  redraw or remove.
 
-**§21, `plot.tales_msa()`'s matrix round trips -- in progress, not
-done.** The function round-trips its already-long `tales_msa` input
-through an array-by-position matrix and back at least nine times before
-handing long data to `ggplot()`, which wants it long anyway; only two of
-those (the consensus/match computation) have been converted so far, via
-two new private, `tales_msa`-native functions
-(`.tales_consensus_long()`/`.tales_consensus_match_long()` in
-`tales_consensus.R`) that are candidates to become public drop-in
-replacements for `tales_consensus()`/`tales_consensus_match()` later --
-documented to that standard already, `@noRd` for now. Internal "repeat_*"
-identifiers throughout `tales_plot.R` renamed to "domain_*" while in
-there; the public API (`fill_type`, `domain_sim` -> `domain_distances`,
-`tal_sim` -> `tale_distances`) was untouched at the time but has since
-been renamed too, see §23. **Read §21's own closing note before touching
-this function again** -- it lists the three remaining matrix-shaped helpers in
-the order they'd naturally get done, what falls out for free once they
-are (`domain_align`/`rvd_align` disappearing from the function entirely),
-and two separate, only-just-noticed findings not to conflate with the
-main thread: a mislabelled `position_in_array` column (actually alignment
-position), and `dev/class-design.md` §4.6 -- an older, stale design note
-that already called for exactly this `tales_consensus_match()`-as-method
-direction back on 2026-09-13 and was never revisited until this session
-rediscovered the same idea independently.
+### Done recently (details in the ledger)
 
-**§21's own remaining items (the three matrix-shaped helpers,
-`.pick_ref_name()` included) are the maintainer's to do, not an
-assistant's -- do not start them without being asked, same footing as
-§19/§20 above.** Two tests (`test_plot_tales_msa.R`,
-`test_error_conditions.R`) call `.pick_ref_name()`/`.rvd_to_match_align()`
-directly and assert their current matrix-in/matrix-out shape; converting
-these helpers to the long-tibble form the rest of §21 already moved to
-means rewriting those test assertions too, and the maintainer wants that
-part done personally. See the ledger's §21 closing note, 2026-09-21, for
-the full reasoning.
+- **§30** site prose review: 8 articles, README, `pkgdown/index.md` and
+  all 63 published reference pages checked against rendered output or the
+  code; many content errors fixed along with tone.
+- **§32.1** `as_tales()` on a `tales_msa` now drops `alignment_width`.
+- **§32.3** domain distances: DECIPHER backend counts gaps
+  (`penalizeGapLetterMatches = TRUE`), Biostrings backend uses free end
+  gaps; all three backends follow DisTAL's definition. Golden
+  re-baselined, grouping unchanged.
+- **§32.4** `array_report.tsv` terminus lengths no longer count the stop
+  codon.
+- **§33** ARLEM computed in R (`R/arlem.R`), identical scores; executable
+  removed (`inst/legacy/arlem_binary.R` keeps the old driver).
+- **§25/§25b/§31** truncTALE article published; `tale_mining.qmd`
+  correction sections rewritten.
+- Earlier, still true: §17 documentation review and the `correct_tales()`
+  flag-swap fix; §23 public renames (`domain_distances`,
+  `tale_distances`, `"domain_clust"`/`"domain_sim"`); §26 history reset
+  (old history in a git bundle on the `v0.1.9553` release).
 
-**§22, the `position_in_array` mislabel §21 flagged but left alone --
-fixed.** `domainAlignLong`/`rvdAlignLong`'s per-position column (and
-everything joined on it, and the base plot's `aes()`/`scale_x_discrete()`
-`limits`) renamed to `alignment_position`, matching what
-`as.matrix.tales_msa()`'s columns actually are. Label only, no values
-changed -- golden baseline confirmed a single column-name diff and
-nothing else. The visible x-axis title, still "Position in array", was
-deliberately left as-is -- user-facing plot output, a separate decision
-from the internal rename. See §22 for the full record.
+**Treat `[V]`/DONE markers as "verified once"** and spot-check against the
+code before building on a closed section.
+Ledger sections are in ascending order and never renumbered (~35 code
+comments cite them).
 
-**§23, §19's naming question -- acted on.** `repeat_sims` ->
-`domain_distances` (`tales_align()`); `tal_sim` -> `tale_distances` and
-`domain_sim` -> `domain_distances` (`plot.tales_msa()`); `tal_sim` ->
-`tale_distances` (`tales_group_hclust()`/`tales_group_kmedoids()`);
-`fill_type`'s `"repeat_clust"`/`"repeat_sim"` -> `"domain_clust"`/
-`"domain_sim"`. A real breaking public-API change across four exported
-functions -- man pages regenerated, `pkgdown::check_pkgdown()` clean, full
-suite `FAIL 0 | WARN 35 | SKIP 0 | PASS 756`. Version bumped to
-`0.9.9004`. **`vignettes/articles/tale_msa.qmd` and
-`tales_msa_class.qmd`, initially left calling the old names, were fixed
-the same session on request** -- package reinstalled first (this file's
-own quarto-subprocess rule), `docs/` rebuilt in full via the established
-decomposed sequence (never `build_site()`/`build_articles()` directly),
-zero errors, `pkgdown::check_pkgdown()` clean. §21's own reserved matrix
-helpers (`.domain_to_sim_align()` etc.) still take a parameter literally
-named `domain_sim`, untouched, still the maintainer's to do -- see §23's
-own record for exactly how the two renames meet at that call site without
-colliding.
+### Practices learned this session
 
-`tales_bind()` (§5.2), `tales_group()`'s split into
-`tales_group_hclust()`/`tales_group_kmedoids()` (§11), `tales_compare()`'s
-rename to `tales_compare_distal()`, and a new
-`tales_compare_functal()`/`tales_to_universalmotif()` pair replacing the
-unfixable Perl `functal()` for that one path (§12b) remain built and
-unaffected by anything in this session.
+- **Two Claude sessions may share this checkout.** Run `ListAgents` at the
+  start. Stage explicit paths only, and before staging a shared file
+  (`dev/restructuring-notes.md`, `dev/CLAUDE.md`, `NEWS.md`,
+  `DESCRIPTION`) check its diff for hunks you did not write; stage only
+  yours by building your version from HEAD and writing it to the index
+  (`git hash-object -w` + `git update-index --cacheinfo`), since
+  `git add -p` is interactive and does not work here. Message the other
+  session before installing, wiping `docs/`, or rendering. A separate git
+  worktree per session avoids most of this.
+- **An untracked file in `R/` is picked up** by `load_all()` and
+  `devtools::install()`. If another session has work in progress there,
+  test and install from a scratchpad copy of the tracked files instead.
+- **When a change alters `domain_distances` or `tale_distances`**, delete
+  `vignettes/articles/_cache/compare.rds` and `group.rds` (keep
+  `discovery.rds` unless `tell_tales()` output changed), reinstall, and
+  re-render `articles/tale_classification` first, then `tale_msa`,
+  `tales_msa_class` and `tale_target_prediction`. Check that the group
+  numbers the articles hard-code (`group == 6`) still point at the same
+  locus.
+- **Prose must match the render.** After re-rendering, read
+  `docs/articles/<name>.html` (or `.md` after `build_llm_docs()`) and the
+  figure PNGs, and fix any quoted number that moved.
+- **`build_home()` needs the network** (it queries CRAN for a link). If
+  DNS fails, it aborts the build script; rerun the remaining steps once
+  the network is back.
+- **Golden changes:** use the `golden-rebaseline` skill and explain every
+  changed row before accepting.
 
-Sections are kept in ascending numeric order within each chapter (fixed
-2026-09-17, after §7 and §8 had drifted into add-order). Content only, never
-renumbered -- ~35 code comments cite specific section numbers.
+### Site builds
 
-**Treat `[V]`/DONE markers as "verified once," not "still true."**
-Repeatedly confirmed again this session (§17's own "49 exports" turned
-out wrong on re-count; `dev/class-design.md` §4.6 sat stale for over a
-week). Spot-check against the actual code before trusting a closed
-section, especially before building on top of it.
-
-**Ledger §32** -- four findings from the §30 render check. §32.1
-(`as_tales()` keeping a stale `alignment_width`) is fixed. §32.3 (the
-scoring matrix displacing an identical half-repeat) is root-caused: the
-default DECIPHER backend of `tales_domain_distances()` ignores gaps
-(`penalizeGapLetterMatches = FALSE`), so a half-repeat is at distance 0
-from any full repeat it is a prefix of. **Fixed 2026-09-23** with
-`penalizeGapLetterMatches = TRUE` (DisTAL's definition, matches mmseq2),
-golden re-baselined with every row explained, articles re-rendered from a
-cleared comparison cache; version 0.9.9007. The Biostrings backend
-followed (free end gaps, `type = "overlap"`; 0.9.9008), so all three
-backends now count a length difference once. §32.4 (the `*` counted
-in `cterm_aa_length`) is fixed too (0.9.9009). §32.2 (`rvdSimDf` covering 17 RVDs)
-still awaits a decision.
-
-**§30, 2026-09-23 -- website prose review DONE (articles and reference
-pages).** All 8 articles, `README.md`, `pkgdown/index.md` and the 63
-published reference pages re-read against rendered output or the code,
-plus the "A, not B" tone rule. Several real content errors fixed along
-with the tone edits (full list in §30). The parallel-phrasing sweep (habit 2 in the
-Documentation rules above) is **deferred by the maintainer as future
-work**. `tale_classification.qmd`'s `tales_group` chunk always recomputes
-(cheap), so its silhouette plot is drawn on every render; it still writes
-the cache for the other three articles.
-
-**§25/§25b, 2026-09-22/23 -- both DONE, published.** A new pkgdown
-article, `vignettes/articles/trunctale_correction.qmd`, compares both
-correction methods against PXO86's two genuine truncTALEs (confirmed by
-the maintainer): `tell_tales(correct_array = TRUE)` over-extends the
-frameshift-type one (`ROI_00001`) but leaves the clean-early-stop one
-(`ROI_00019`) alone; `correct_tales()` leaves both alone. Grounded in
-[Ji et al. 2016](https://doi.org/10.1038/ncomms13435) and
-[Read et al. 2016](https://doi.org/10.3389/fpls.2016.01516), both of
-which name PXO86 directly. `tale_mining.qmd`'s "Correcting frameshifts,
-two ways" and "How much did either correction actually help?" sections
-were stale against §17's `correct_tales()` flag-swap fix and are rewritten
-to match a real re-run (it now fixes both of BAI3-1-1's frameshifted
-arrays, not one). Both articles registered in `_pkgdown.yml`, `NEWS.md`
-updated, version bumped to `0.9.9005`. Full detail, including the
-mechanism (`hits_report.tsv`'s `frameshift_count` per hit, not the GFF --
-see §25's own note on why) and every number's provenance, is in §25/§25b.
-
-**A full site rebuild was done from a clean `docs/`, 2026-09-22/23 --
-the working recipe is now proven and worth reusing as-is next time.**
-`pkgdown::build_site()`/`build_articles()` still must not be called
-directly (§15's ordering bug). The full, faithful replacement, read
-directly out of `pkgdown:::build_site_local()`'s own source so nothing
-it normally does is skipped:
+`pkgdown::build_site()`/`build_articles()` must not be called directly
+(§15's quarto ordering bug). For a **full** rebuild, delete `docs/`'s
+contents first, then run this sequence, read out of
+`pkgdown:::build_site_local()` so nothing is skipped:
 
 ```r
 pkgdown::init_site(".")
@@ -434,18 +351,14 @@ pkgdown::build_search(".")              # bs_version 5; build_docsearch_json() i
 pkgdown:::check_built_site(pkgdown::as_pkgdown("."))
 ```
 
-Deleting `docs/` first (this file's own rule, added 2026-09-22) is not
-just hygiene: the wipe surfaced real, long-stale content that the
-per-article `build_article()` loop had never been removing on its own --
-whole old numbered-vignette-era articles (`1_tale_mining.html`,
-`2_tale_classification.html`, `p2_multiple_alignments.html` and their
-figure/dependency folders, predating §7.5c's restructuring) were still
-sitting in `docs/` and only disappeared once the directory was emptied
-before rebuilding. `docs/articles/articles/<name>.html` paths are not the
-same kind of leftover -- confirmed this session by reading the
-`build_redirects()` output directly: they are single-file redirect stubs
-pkgdown creates on purpose, regenerated by the recipe above, not cruft to
-chase.
+For a **partial** update (no page added or removed), skip the wipe and
+run only what changed: `build_article()` for edited articles,
+`build_reference()` after roxygen changes (reinstall first), then
+`build_home()` if README or `pkgdown/index.md` changed, `build_news()`,
+`build_llm_docs()`, `build_search()` and the checks. Deleting `docs/`
+before a full build matters: it is the only thing that removes pages whose
+source is gone. `docs/articles/articles/<name>.html` files are
+deliberate redirect stubs from `build_redirects()`.
 
 ## Commits
 
