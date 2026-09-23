@@ -1,8 +1,10 @@
 # Domain-coded strings, one per TALE array
 
 Renders each array as a separated string of its `dom_code`s in part
-order – the encoding ARLEM and MAFFT's text mode consume, where each
-distinct domain sequence is one "residue".
+order – the encoding the array alignments consume (MAFFT's text mode,
+and
+[`tales_tale_distances()`](https://scunnac.github.io/tantale/reference/tales_tale_distances.md)),
+where each distinct domain sequence is one "residue".
 
 ## Usage
 
@@ -39,11 +41,11 @@ This is the sibling of
 and takes the same two arguments, but **both defaults differ**, because
 the two projections feed different consumers:
 
-|        |                                                                                           |                                               |
-|--------|-------------------------------------------------------------------------------------------|-----------------------------------------------|
-|        | [`tales_rvd_strings()`](https://scunnac.github.io/tantale/reference/tales_rvd_strings.md) | `tales_coded_strings()`                       |
-| `sep`  | `"-"`, the AnnoTALE convention                                                            | `" "`, what ARLEM and MAFFT `--text` split on |
-| filter | `rvd_only = TRUE`                                                                         | `repeats_only = FALSE`                        |
+|        |                                                                                           |                                      |
+|--------|-------------------------------------------------------------------------------------------|--------------------------------------|
+|        | [`tales_rvd_strings()`](https://scunnac.github.io/tantale/reference/tales_rvd_strings.md) | `tales_coded_strings()`              |
+| `sep`  | `"-"`, the AnnoTALE convention                                                            | `" "`, what MAFFT `--text` splits on |
+| filter | `rvd_only = TRUE`                                                                         | `repeats_only = FALSE`               |
 
 The separator is free to choose here in a way it is not for RVDs: a
 `dom_code` is a bare integer rendered as text, so `"1 2 3"` and

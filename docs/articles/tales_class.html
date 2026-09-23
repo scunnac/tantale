@@ -24,7 +24,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9005</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9006</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -276,7 +276,7 @@
 <li>
 <code><a href="../reference/tales_rvd_strings.html">tales_rvd_strings()</a></code>: one RVD string per array, the form target-prediction tools consume. Drops the termini by default (<code>rvd_only = TRUE</code>), since only the repeats bind DNA.</li>
 <li>
-<code><a href="../reference/tales_coded_strings.html">tales_coded_strings()</a></code>: the <code>dom_code</code> equivalent, for ARLEM and MAFFT’s text mode. Keeps the termini by default, since alignment uses them as anchors, and separates codes with a space, which is what those tools split on.</li>
+<code><a href="../reference/tales_coded_strings.html">tales_coded_strings()</a></code>: the <code>dom_code</code> equivalent, for the array alignments (MAFFT’s text mode, and <code><a href="../reference/tales_tale_distances.html">tales_tale_distances()</a></code>). Keeps the termini by default, since alignment uses them as anchors, and separates codes with a space, which is what MAFFT’s text mode splits on.</li>
 <li>
 <code><a href="../reference/tales_domain_codes.html">tales_domain_codes()</a></code>: the lookup table itself, with one row per distinct <code>dom_code</code> and the amino acid sequence and RVD it stands for.</li>
 </ul>
@@ -379,7 +379,7 @@
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/tales_tale_distances.html">tales_tale_distances</a></span><span class="op">(</span><span class="va">xa_sub</span>, <span class="va">dd_all</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error in `.assert_same_namespace()` at tantale/R/distalr.R:221:3:</span></span>
+<span><span class="co">#&gt; Error in `.assert_same_namespace()` at tantale/R/distalr.R:234:3:</span></span>
 <span><span class="co">#&gt; ! `x` and `domain_distances` come from different runs.</span></span>
 <span><span class="co">#&gt; ✖ Namespaces "39eacafcbbcbfa90" and "7377e3f80aa36898".</span></span>
 <span><span class="co">#&gt; ℹ Domain codes are only meaningful within the call that minted them.</span></span>
@@ -429,7 +429,7 @@
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">xa</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>position_in_array <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error in `.tales_check_key()` at tantale/R/tales_class.R:818:3:</span></span>
+<span><span class="co">#&gt; Error in `.tales_check_key()` at tantale/R/tales_class.R:822:3:</span></span>
 <span><span class="co">#&gt; ! array_id and position_in_array must together be unique.</span></span>
 <span><span class="co">#&gt; ✖ 92 duplicated rows in 4 arrays: "ROI_00001", "ROI_00002", "ROI_00003", and</span></span>
 <span><span class="co">#&gt;   "ROI_00004"</span></span></code></pre></div>

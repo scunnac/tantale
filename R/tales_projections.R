@@ -10,7 +10,8 @@
 #' Domain-coded strings, one per TALE array
 #'
 #' Renders each array as a separated string of its `dom_code`s in part order --
-#' the encoding ARLEM and MAFFT's text mode consume, where each distinct
+#' the encoding the array alignments consume (MAFFT's text mode, and
+#' [tales_tale_distances()]), where each distinct
 #' domain sequence is one "residue".
 #'
 #' @details
@@ -20,8 +21,8 @@
 #'
 #' \tabular{lll}{
 #'   \tab [tales_rvd_strings()] \tab [tales_coded_strings()] \cr
-#'   `sep` \tab `"-"`, the AnnoTALE convention \tab `" "`, what ARLEM and
-#'     MAFFT `--text` split on \cr
+#'   `sep` \tab `"-"`, the AnnoTALE convention \tab `" "`, what MAFFT
+#'     `--text` splits on \cr
 #'   filter \tab `rvd_only = TRUE` \tab `repeats_only = FALSE` \cr
 #' }
 #'

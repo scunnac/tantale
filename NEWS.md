@@ -1,5 +1,22 @@
 # tantale (development version)
 
+## Array alignment computed in R; the ARLEM executable is no longer bundled
+
+`tales_tale_distances()`, and so `tales_compare_distal()`, aligns the
+coded arrays with an R implementation of ARLEM's minisatellite alignment
+model (Abouelhoda et al., [2009](https://doi.org/10.1142/S0219720009004060))
+in place of the ARLEM 1.0 executable that shipped in `inst/tools/arlem/`.
+The scores are identical to the executable's: checked on about 6000 random
+array pairs and on real TALE arrays, and recorded in a test fixture. The
+executable ran only on Linux x86-64, and its licence did not clearly allow
+redistribution; it has been removed from the package. This also clears the
+"undeclared executable file" warning from `R CMD check`.
+
+The R version takes about 4 ms per pair of 20-domain arrays, roughly five
+times the executable's time; the domain-level alignment in
+`tales_domain_distances()` remains the slow step. `matrixStats` is now
+imported. Column names are unchanged (`arlem_score`, `max_length`).
+
 ## Bug fix: demoting a `tales_msa` now drops its alignment width
 
 `as_tales()` (and `tales()`) on a `tales_msa` returned a plain `tales`

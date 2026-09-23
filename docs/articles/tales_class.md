@@ -270,9 +270,12 @@ a single string. Three functions bridge the gap:
   Drops the termini by default (`rvd_only = TRUE`), since only the
   repeats bind DNA.
 - [`tales_coded_strings()`](https://scunnac.github.io/tantale/reference/tales_coded_strings.md):
-  the `dom_code` equivalent, for ARLEM and MAFFT’s text mode. Keeps the
-  termini by default, since alignment uses them as anchors, and
-  separates codes with a space, which is what those tools split on.
+  the `dom_code` equivalent, for the array alignments (MAFFT’s text
+  mode, and
+  [`tales_tale_distances()`](https://scunnac.github.io/tantale/reference/tales_tale_distances.md)).
+  Keeps the termini by default, since alignment uses them as anchors,
+  and separates codes with a space, which is what MAFFT’s text mode
+  splits on.
 - [`tales_domain_codes()`](https://scunnac.github.io/tantale/reference/tales_domain_codes.md):
   the lookup table itself, with one row per distinct `dom_code` and the
   amino acid sequence and RVD it stands for.
@@ -432,7 +435,7 @@ tales_namespace(xa_sub) == tales_namespace(xa)
 >
 > ``` r
 > tales_tale_distances(xa_sub, dd_all)
-> #> Error in `.assert_same_namespace()` at tantale/R/distalr.R:221:3:
+> #> Error in `.assert_same_namespace()` at tantale/R/distalr.R:234:3:
 > #> ! `x` and `domain_distances` come from different runs.
 > #> ✖ Namespaces "39eacafcbbcbfa90" and "7377e3f80aa36898".
 > #> ℹ Domain codes are only meaningful within the call that minted them.
@@ -529,7 +532,7 @@ Code
 
 ``` r
 xa %>% mutate(position_in_array = 1L)
-#> Error in `.tales_check_key()` at tantale/R/tales_class.R:818:3:
+#> Error in `.tales_check_key()` at tantale/R/tales_class.R:822:3:
 #> ! array_id and position_in_array must together be unique.
 #> ✖ 92 duplicated rows in 4 arrays: "ROI_00001", "ROI_00002", "ROI_00003", and
 #>   "ROI_00004"

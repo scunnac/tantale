@@ -37,10 +37,10 @@ keyed by \code{array_id}.
 Quantifies how TALE arrays, and the individual domains they are built
 from -- repeats and the two termini alike -- relate to one another by
 aligning their domain sequences. An R re-implementation of the original
-DisTAL Perl program: it still uses the
-ARLEM binary for the array alignment step, but performs the rest
-with R support and parallelization, which makes it much faster (the exact
-speedup depends on \code{aln_method}).
+DisTAL Perl program, including the array alignment step (the ARLEM
+model, see \code{\link{tales_tale_distances}}), with parallel domain
+alignment, which makes it much faster (the exact speedup depends on
+\code{aln_method}).
 }
 \details{
 Named for the algorithm, not just historically: \code{\link{tales_compare_functal}}
@@ -49,7 +49,7 @@ specificity rather than by domain sequence -- so both need a name that says
 which.
 
 Two products are irreducible and expensive — the pairwise protein alignment
-between distinct domains, and ARLEM on the coded arrays. Everything else the
+between distinct domains, and the alignment of the coded arrays. Everything else the
 former \code{tales_compare()} (this function's name before the DisTAL/FuncTAL
 split) returned was a projection of its inputs, so this function returns
 only what cannot be recomputed cheaply.

@@ -16,7 +16,7 @@
 # so any difference between them is attributable to the inserted base rather
 # than to the two arrays being different TALEs.
 #
-# MAFFT, HMMER and arlem are required. If they are missing these fail rather
+# MAFFT and HMMER are required. If they are missing these fail rather
 # than skip.
 
 toy_subject <- function() test_path("data_for_tests", "toy_tal_regions.fasta")

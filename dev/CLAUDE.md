@@ -233,19 +233,26 @@ kept on disk as `tantale-old-before-reset`, not deleted. Nothing about
 any tracked file's *content* changed in the reset itself.
 
 `dev/restructuring-notes.md` is ~8500 lines. **Read its `START HERE`
-block for the pre-2026-09-21 history; for everything since, read §17-§31
+block for the pre-2026-09-21 history; for everything since, read §17-§33
 directly** (numbered, in order, at the end of the file) -- this note is
 the short pointer, not a re-summary of either. §27 (2026-09-22) closed
 clean: all three test-suite findings from §26's post-reset `R CMD check`
 (`reshape2` leftover dependency, a hardcoded `ncores`, and a golden-
 baseline mismatch in the frameshift-correction test) are fixed and
 verified; `test_golden.R` passes clean under both `load_all()` and a real
-install. Two unrelated findings surfaced by that same check run and are
-flagged, not yet investigated: `tales_group_kmedoids()`'s own `@examples`
-fails under a real check (does not reproduce under `load_all()`), and
-`inst/tools/arlem/arlem` triggers an "undeclared executable file"
-`R CMD check` warning (plausibly an accepted cost of bundling a
-third-party binary, not confirmed).
+install. Two unrelated findings surfaced by that same check run, both
+since resolved (§28): `tales_group_kmedoids()`'s own `@examples` (an
+invalid `k`, fixed), and an "undeclared executable file" warning from the
+bundled ARLEM binary, which went with the binary itself (§33).
+
+**§33, 2026-09-23 -- ARLEM is computed in R; the executable is gone.**
+`tales_tale_distances()` aligns the coded arrays with `.arlem_scores_r()`
+(`R/arlem.R`), an R implementation of ARLEM's model that gives
+`identical()` scores to the executable. The executable was deleted from
+`inst/tools/` on the maintainer's instruction (licence, Linux-x86-64
+only). The code that drove it is in `inst/legacy/arlem_binary.R`, and its
+recorded answers are the test fixture `arlem_reference_scores.rds`.
+Column names `arlem_score`/`norm_arlem_score` are unchanged.
 
 **§24 is a maintainer triage of the whole open-items list, 2026-09-21,
 same day as §17-23 but a later session -- read it before assuming any

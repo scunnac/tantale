@@ -3,10 +3,11 @@
 Quantifies how TALE arrays, and the individual domains they are built
 from – repeats and the two termini alike – relate to one another by
 aligning their domain sequences. An R re-implementation of the original
-DisTAL Perl program: it still uses the ARLEM binary for the array
-alignment step, but performs the rest with R support and
-parallelization, which makes it much faster (the exact speedup depends
-on `aln_method`).
+DisTAL Perl program, including the array alignment step (the ARLEM
+model, see
+[`tales_tale_distances`](https://scunnac.github.io/tantale/reference/tales_tale_distances.md)),
+with parallel domain alignment, which makes it much faster (the exact
+speedup depends on `aln_method`).
 
 ## Usage
 
@@ -62,9 +63,9 @@ DNA-binding specificity rather than by domain sequence – so both need a
 name that says which.
 
 Two products are irreducible and expensive — the pairwise protein
-alignment between distinct domains, and ARLEM on the coded arrays.
-Everything else the former `tales_compare()` (this function's name
-before the DisTAL/FuncTAL split) returned was a projection of its
+alignment between distinct domains, and the alignment of the coded
+arrays. Everything else the former `tales_compare()` (this function's
+name before the DisTAL/FuncTAL split) returned was a projection of its
 inputs, so this function returns only what cannot be recomputed cheaply.
 
 This is where `dom_code` is minted, over the whole set of parts
@@ -121,11 +122,9 @@ x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
 cmp <- tales_compare_distal(x)
 #> Computing a distance matrix between TALE parts amino acid sequences using:
 #> DECIPHER
-#> Generate an ARLEM cost matrix which meets triangle inequality criteria by
-#> computing the minkowski distance between pairwise distance vectors.
-#> Running ARLEM version 1.0 :
-#> Copyright by Mohamed I. Abouelhoda
-#> Plz. cite Abouelhoda, Giegerich, Behzadi, and Steyaert
+#> Deriving domain substitution costs that meet the triangle inequality (Minkowski
+#> distance between domain distance profiles).
+#> Aligning 4 TALE arrays pairwise (6 pairs).
 #> Finished computing TALE and repeat relatedness.
 names(cmp)
 #> [1] "tales"            "domain_distances" "tale_distances"  

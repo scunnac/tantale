@@ -34,16 +34,29 @@ object, keyed by `array_id`.
 
 ## Details
 
-The two arguments are not independent, and that is the point. ARLEM
-aligns each array's sequence of `dom_code`s; what it costs to align one
-domain against a different one is taken from `domain_distances`, so the
-TALE-level comparison is built on the domain-level one rather than
-computed beside it.
+The two arguments are not independent, and that is the point. Each
+array's sequence of `dom_code`s is aligned against every other's; what
+it costs to align one domain against a different one is taken from
+`domain_distances`, so the TALE-level comparison is built on the
+domain-level one rather than computed beside it.
+
+The alignment is the minisatellite map alignment of ARLEM (Abouelhoda,
+Giegerich, Behzadi and Steyaert,
+[2009](https://doi.org/10.1142/S0219720009004060)), which DisTAL used
+because repeat arrays evolve like minisatellites: besides substitutions,
+a run of domains that one array has and the other lacks can be explained
+as tandem duplications of a neighbouring domain, each copy then free to
+diverge. tantale computes it in R with the costs DisTAL gave ARLEM: a
+duplication costs 10 plus the substitution cost between the copy and its
+source, and a domain inserted from elsewhere costs 10. The scores are
+identical to those of the original ARLEM program. `arlem_score` is the
+cost of the best alignment, and `dissim` divides it by the length of the
+longer array.
 
 The domain distances are first passed through a Minkowski distance
 (`p = 3.5`) between their rows and rescaled to 0-100. That step is not
-cosmetic: ARLEM needs a cost matrix satisfying the triangle inequality,
-and raw pairwise alignment dissimilarities do not.
+cosmetic: the alignment needs substitution costs satisfying the triangle
+inequality, and raw pairwise alignment dissimilarities do not.
 
 ## Both arguments must come from the same call
 
@@ -85,9 +98,7 @@ dd <- tales_domain_distances(xa)
 #> Computing a distance matrix between TALE parts amino acid sequences using:
 #> DECIPHER
 tales_tale_distances(xa, dd)
-#> Generate an ARLEM cost matrix which meets triangle inequality criteria by
-#> computing the minkowski distance between pairwise distance vectors.
-#> Running ARLEM version 1.0 :
-#> Copyright by Mohamed I. Abouelhoda
-#> Plz. cite Abouelhoda, Giegerich, Behzadi, and Steyaert
+#> Deriving domain substitution costs that meet the triangle inequality (Minkowski
+#> distance between domain distance profiles).
+#> Aligning 4 TALE arrays pairwise (6 pairs).
 ```

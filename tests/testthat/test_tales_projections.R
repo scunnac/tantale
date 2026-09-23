@@ -159,7 +159,7 @@ test_that("tales_coded_strings() honours sep", {
     gsub(" ", "-", as.character(tales_coded_strings(x)), fixed = TRUE))
 })
 
-test_that("tales_coded_strings() defaults to a space, as ARLEM and MAFFT expect", {
+test_that("tales_coded_strings() defaults to a space, as MAFFT --text expects", {
   # Pinned deliberately: this default differs from tales_rvd_strings()'s "-",
   # and the difference is load-bearing rather than an oversight.
   expect_match(as.character(tales_coded_strings(coded_tales()))[1], " ")

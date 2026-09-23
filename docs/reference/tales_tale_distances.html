@@ -11,7 +11,7 @@ cost of substituting one domain for another."><meta property="og:image" content=
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9005</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9006</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -78,14 +78,26 @@ returned by <code><a href="tales_domain_distances.html">tales_domain_distances()
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The two arguments are not independent, and that is the point. ARLEM aligns
-each array's sequence of <code>dom_code</code>s; what it costs to align one domain
-against a different one is taken from <code>domain_distances</code>, so the TALE-level
-comparison is built on the domain-level one rather than computed beside it.</p>
+    <p>The two arguments are not independent, and that is the point. Each
+array's sequence of <code>dom_code</code>s is aligned against every other's; what it
+costs to align one domain against a different one is taken from
+<code>domain_distances</code>, so the TALE-level comparison is built on the
+domain-level one rather than computed beside it.</p>
+<p>The alignment is the minisatellite map alignment of ARLEM (Abouelhoda,
+Giegerich, Behzadi and Steyaert,
+<a href="https://doi.org/10.1142/S0219720009004060" class="external-link">2009</a>), which DisTAL used
+because repeat arrays evolve like minisatellites: besides substitutions,
+a run of domains that one array has and the other lacks can be explained
+as tandem duplications of a neighbouring domain, each copy then free to
+diverge. tantale computes it in R with the costs DisTAL gave ARLEM: a
+duplication costs 10 plus the substitution cost between the copy and its
+source, and a domain inserted from elsewhere costs 10. The scores are
+identical to those of the original ARLEM program. <code>arlem_score</code> is the cost of the best
+alignment, and <code>dissim</code> divides it by the length of the longer array.</p>
 <p>The domain distances are first passed through a Minkowski distance
 (<code>p = 3.5</code>) between their rows and rescaled to 0-100. That step is not
-cosmetic: ARLEM needs a cost matrix satisfying the triangle inequality,
-and raw pairwise alignment dissimilarities do not.</p>
+cosmetic: the alignment needs substitution costs satisfying the triangle
+inequality, and raw pairwise alignment dissimilarities do not.</p>
     </div>
     <div class="section level2">
     <h2 id="both-arguments-must-come-from-the-same-call">Both arguments must come from the same call<a class="anchor" aria-label="anchor" href="#both-arguments-must-come-from-the-same-call"></a></h2>
@@ -127,11 +139,9 @@ disagree.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Computing a distance matrix between TALE parts amino acid sequences using:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> DECIPHER</span>
 <span class="r-in"><span><span class="fu">tales_tale_distances</span><span class="op">(</span><span class="va">xa</span>, <span class="va">dd</span><span class="op">)</span></span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Generate an ARLEM cost matrix which meets triangle inequality criteria by</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> computing the minkowski distance between pairwise distance vectors.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Running ARLEM version 1.0 :</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Copyright by Mohamed I. Abouelhoda</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Plz. cite Abouelhoda, Giegerich, Behzadi, and Steyaert</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Deriving domain substitution costs that meet the triangle inequality (Minkowski</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> distance between domain distance profiles).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Aligning 4 TALE arrays pairwise (6 pairs).</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

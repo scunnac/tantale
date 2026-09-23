@@ -129,11 +129,9 @@ x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
 cmp <- tales_compare_distal(x)
 #> Computing a distance matrix between TALE parts amino acid sequences using:
 #> DECIPHER
-#> Generate an ARLEM cost matrix which meets triangle inequality criteria by
-#> computing the minkowski distance between pairwise distance vectors.
-#> Running ARLEM version 1.0 :
-#> Copyright by Mohamed I. Abouelhoda
-#> Plz. cite Abouelhoda, Giegerich, Behzadi, and Steyaert
+#> Deriving domain substitution costs that meet the triangle inequality (Minkowski
+#> distance between domain distance profiles).
+#> Aligning 4 TALE arrays pairwise (6 pairs).
 #> Finished computing TALE and repeat relatedness.
 grouped <- tales_group_kmedoids(cmp$tales, cmp$tale_distances,
                                 k_range = 2:3, k = 2)

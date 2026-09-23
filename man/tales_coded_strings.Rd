@@ -19,7 +19,8 @@ A \link[Biostrings:BStringSet]{Biostrings::BStringSet}, named by \code{array_id}
 }
 \description{
 Renders each array as a separated string of its \code{dom_code}s in part order --
-the encoding ARLEM and MAFFT's text mode consume, where each distinct
+the encoding the array alignments consume (MAFFT's text mode, and
+\code{\link[=tales_tale_distances]{tales_tale_distances()}}), where each distinct
 domain sequence is one "residue".
 }
 \details{
@@ -29,8 +30,8 @@ different consumers:
 
 \tabular{lll}{
 \tab \code{\link[=tales_rvd_strings]{tales_rvd_strings()}} \tab \code{\link[=tales_coded_strings]{tales_coded_strings()}} \cr
-\code{sep} \tab \code{"-"}, the AnnoTALE convention \tab \code{" "}, what ARLEM and
-MAFFT \code{--text} split on \cr
+\code{sep} \tab \code{"-"}, the AnnoTALE convention \tab \code{" "}, what MAFFT
+\code{--text} splits on \cr
 filter \tab \code{rvd_only = TRUE} \tab \code{repeats_only = FALSE} \cr
 }
 

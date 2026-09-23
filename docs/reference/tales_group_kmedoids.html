@@ -13,7 +13,7 @@ result attached as its group column."><meta property="og:image" content="https:/
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9005</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9006</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -161,11 +161,9 @@ blocking on input that will never arrive.</p></li>
 <span class="r-in"><span><span class="va">cmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="tales_compare_distal.html">tales_compare_distal</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Computing a distance matrix between TALE parts amino acid sequences using:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> DECIPHER</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Generate an ARLEM cost matrix which meets triangle inequality criteria by</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> computing the minkowski distance between pairwise distance vectors.</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Running ARLEM version 1.0 :</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Copyright by Mohamed I. Abouelhoda</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Plz. cite Abouelhoda, Giegerich, Behzadi, and Steyaert</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Deriving domain substitution costs that meet the triangle inequality (Minkowski</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> distance between domain distance profiles).</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Aligning 4 TALE arrays pairwise (6 pairs).</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Finished computing TALE and repeat relatedness.</span>
 <span class="r-in"><span><span class="va">grouped</span> <span class="op">&lt;-</span> <span class="fu">tales_group_kmedoids</span><span class="op">(</span><span class="va">cmp</span><span class="op">$</span><span class="va">tales</span>, <span class="va">cmp</span><span class="op">$</span><span class="va">tale_distances</span>,</span></span>
 <span class="r-in"><span>                                k_range <span class="op">=</span> <span class="fl">2</span><span class="op">:</span><span class="fl">3</span>, k <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span></span>

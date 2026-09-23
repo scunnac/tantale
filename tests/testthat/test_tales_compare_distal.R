@@ -1,7 +1,7 @@
 # Tests for tales_compare_distal(). See dev/class-design.md §1.2 and
 # dev/restructuring-notes.md §1 (what the returned list shrank to, and why).
 #
-# These run the real pipeline (pairwise protein alignment + ARLEM), so they are
+# These run the real pipeline (pairwise protein alignment + array alignment), so they are
 # slower than the rest of the suite.
 
 example_tales <- function() {

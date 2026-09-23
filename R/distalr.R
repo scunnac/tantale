@@ -48,8 +48,8 @@
 #' as a number, returns that margin as numeric/integer rather than the
 #' character/factor `as.data.frame(as.table(mat))` alone would give (matrix
 #' dimnames are always character, so this is not visible from the matrix
-#' itself). `.run_arlem()` needs this: its ids are later used in arithmetic
-#' (`id1 + 1`), which silently NA's on a factor with only a warning.
+#' itself). `.arlem_scores_long()` needs this: its ids are later used in
+#' arithmetic (`id1 + 1`), which silently NA's on a factor with only a warning.
 #' @noRd
 .matrix_to_long <- function(mat, value_name = "value") {
   d <- as.data.frame(as.table(mat), stringsAsFactors = FALSE)
@@ -129,7 +129,7 @@ tales_assign_domain_codes <- function(x) {
 #' This is the expensive step, and the one worth having on its own: the
 #' domain-level distances answer questions about domain diversity that need
 #' no TALE-level alignment at all, and computing them does not require
-#' running ARLEM.
+#' aligning the arrays.
 #'
 #' Distances are between **distinct domains**, keyed by `dom_code`, so the
 #' cost goes with the number of distinct sequences rather than the number of
@@ -185,15 +185,28 @@ tales_domain_distances <- function(x, aln_method = "DECIPHER", ncores = 1,
 #' cost of substituting one domain for another.
 #'
 #' @details
-#' The two arguments are not independent, and that is the point. ARLEM aligns
-#' each array's sequence of `dom_code`s; what it costs to align one domain
-#' against a different one is taken from `domain_distances`, so the TALE-level
-#' comparison is built on the domain-level one rather than computed beside it.
+#' The two arguments are not independent, and that is the point. Each
+#' array's sequence of `dom_code`s is aligned against every other's; what it
+#' costs to align one domain against a different one is taken from
+#' `domain_distances`, so the TALE-level comparison is built on the
+#' domain-level one rather than computed beside it.
+#'
+#' The alignment is the minisatellite map alignment of ARLEM (Abouelhoda,
+#' Giegerich, Behzadi and Steyaert,
+#' [2009](https://doi.org/10.1142/S0219720009004060)), which DisTAL used
+#' because repeat arrays evolve like minisatellites: besides substitutions,
+#' a run of domains that one array has and the other lacks can be explained
+#' as tandem duplications of a neighbouring domain, each copy then free to
+#' diverge. tantale computes it in R with the costs DisTAL gave ARLEM: a
+#' duplication costs 10 plus the substitution cost between the copy and its
+#' source, and a domain inserted from elsewhere costs 10. The scores are
+#' identical to those of the original ARLEM program. `arlem_score` is the cost of the best
+#' alignment, and `dissim` divides it by the length of the longer array.
 #'
 #' The domain distances are first passed through a Minkowski distance
 #' (`p = 3.5`) between their rows and rescaled to 0-100. That step is not
-#' cosmetic: ARLEM needs a cost matrix satisfying the triangle inequality,
-#' and raw pairwise alignment dissimilarities do not.
+#' cosmetic: the alignment needs substitution costs satisfying the triangle
+#' inequality, and raw pairwise alignment dissimilarities do not.
 #'
 #' @section Both arguments must come from the same call:
 #' `domain_distances` is keyed by `dom_code`, and those codes mean what they
@@ -222,8 +235,8 @@ tales_tale_distances <- function(x, domain_distances) {
   
   parts <- tibble::as_tibble(x)
   coded <- .coded_seq_set(parts)
-  cost <- .arlem_cost_file(domain_distances)
-  scores <- .run_arlem(coded, cost)
+  cost <- .arlem_cost_matrix(domain_distances)
+  scores <- .arlem_scores_long(.arlem_scores_r(coded, cost), length(coded))
   tale_distances(.normalise_arlem_scores(scores, parts, coded))
 }
 
@@ -290,9 +303,9 @@ tales_tale_distances <- function(x, domain_distances) {
 
 #' Each array as a space-separated string of its domain codes
 #'
-#' Not tales_coded_strings(): ARLEM is given these through a file whose
-#' record order defines the integer index it reports results by, so the
-#' construction and that ordering have to stay together.
+#' Not tales_coded_strings(): the alignment reports results by each array's
+#' record index in this set, so the construction and that ordering have to
+#' stay together.
 #' @noRd
 .coded_seq_set <- function(parts) {
   strings <- parts %>%
@@ -305,69 +318,47 @@ tales_tale_distances <- function(x, domain_distances) {
   out
 }
 
-#' Write ARLEM's substitution cost matrix
+#' ARLEM's duplication and insertion costs
 #'
-#' The Minkowski pass is what makes the matrix usable: ARLEM requires the
-#' triangle inequality and raw pairwise dissimilarities do not satisfy it.
-#' @return The path of the cfile.
+#' The values tantale always passed to the ARLEM program (ledger 33); its
+#' cost file also had an "Indel align" cost, which the program read but
+#' never used.
 #' @noRd
-.arlem_cost_file <- function(dd) {
-  cli::cli_inform("Generate an ARLEM cost matrix which meets triangle inequality criteria by computing the minkowski distance between pairwise distance vectors.")
+.arlem_dup_cost <- 10
+.arlem_indel_cost <- 10
+
+#' ARLEM's substitution cost matrix
+#'
+#' The Minkowski pass is what makes the matrix usable: the alignment
+#' model assumes the triangle inequality and raw pairwise dissimilarities do not satisfy it.
+#' Rounding up keeps it: the ceilings of two sides still sum to at least the
+#' third.
+#' @return A square integer-valued matrix, domain codes as dimnames, rows in
+#'   numeric code order.
+#' @noRd
+.arlem_cost_matrix <- function(dd) {
+  cli::cli_inform("Deriving domain substitution costs that meet the triangle inequality (Minkowski distance between domain distance profiles).")
   mat <- .pairwise_long_to_matrix(tibble::as_tibble(dd), "dissim")
   stopifnot(nrow(mat) == ncol(mat))
-  # ARLEM's types are 1..n in order, so the rows must be in numeric code
-  # order for type i to mean domain code i.
+  # Rows in numeric code order, as the ARLEM program required (its types
+  # were 1..n); .arlem_scores_r() matches by name and does not depend on it.
   mat <- mat[order(as.numeric(rownames(mat))), order(as.numeric(colnames(mat)))]
-  
+
   mat <- as.matrix(stats::dist(mat, method = "minkowski", p = 3.5,
                                diag = TRUE, upper = TRUE))
-  mat <- mat / max(mat) * 100
-  
-  header <- c(glue::glue("# Type no. ", nrow(mat)),
-              glue::glue("# Types ", paste(seq_len(nrow(mat)), collapse = " ")),
-              "# Indel align 10", "# Indel hist 10", "# Dup 10", "# matrix")
-  
-  mat <- matrix(format(ceiling(mat)), ncol = ncol(mat),
-                dimnames = list(rownames(mat), colnames(mat)))
-  mat[lower.tri(mat)] <- ""
-  diag(mat) <- ""
-  lines <- apply(mat, 1, function(row) gsub("^[ ]+", "", paste(row, collapse = " ")))
-  lines <- lines[seq_len(length(lines) - 1L)]   # drop the empty last row
-  
-  cfile <- tempfile()
-  writeLines(cfile, text = c(header, lines))
-  cfile
+  ceiling(mat / max(mat) * 100)
 }
 
-#' Run ARLEM over the coded strings and parse its stdout
+#' Mirror one-directional alignment scores into every ordered pair
+#'
+#' `.arlem_scores_r()` reports each pair once (`id1 < id2`, 0-based); the completeness
+#' check downstream expects every ordered pair, the diagonal included.
 #' @noRd
-.run_arlem <- function(coded, cfile) {
-  seqfile <- tempfile(fileext = ".fasta")
-  Biostrings::writeXStringSet(coded, filepath = seqfile, format = "fasta",
-                              width = 20000L)
-  arlem <- system.file("tools", "arlem", "arlem", package = "tantale",
-                       mustWork = TRUE)
-  cmd <- glue::glue("{shQuote(arlem)} -f {shQuote(seqfile)} -cfile {shQuote(cfile)} -align -insert -showalign")
-  cli::cli_inform("Running ARLEM version 1.0 : ")
-  cli::cli_inform("Copyright by Mohamed I. Abouelhoda")
-  cli::cli_inform("Plz. cite Abouelhoda, Giegerich, Behzadi, and Steyaert")
-  raw <- system(cmd, intern = TRUE)
-  
-  scores <- grep("Score of aligning Seq:", raw, value = TRUE)
-  scores <- gsub("Score of aligning Seq:([0-9]+), Seq:([0-9]+) =([0-9]+)",
-                 "\\1|\\2|\\3", scores)
-  scores <- strsplit(scores, split = "\\|")
-  scores <- tibble::as_tibble(
-    do.call(rbind, lapply(scores, function(s) t(as.matrix(as.numeric(s))))),
-    .name_repair = "minimal")
-  colnames(scores) <- c("id1", "id2", "arlem_score")
-
-  # ARLEM reports one direction only; mirror it so every ordered pair is
-  # present, which is what the completeness check downstream expects.
+.arlem_scores_long <- function(scores, n) {
   mat <- .pairwise_long_to_matrix(scores, "arlem_score")
   mat <- cbind("0" = NA, mat)
   mat <- rbind(mat, NA)
-  rownames(mat)[length(coded)] <- length(coded) - 1
+  rownames(mat)[n] <- n - 1
   out <- tibble::as_tibble(.matrix_to_long(
     as.matrix(stats::as.dist(t(mat), diag = TRUE, upper = TRUE)),
     value_name = "arlem_score"))
@@ -657,10 +648,10 @@ diag(identSubMat) <- 1
 #' Quantifies how TALE arrays, and the individual domains they are built
 #' from -- repeats and the two termini alike -- relate to one another by
 #' aligning their domain sequences. An R re-implementation of the original
-#' DisTAL Perl program: it still uses the
-#' ARLEM binary for the array alignment step, but performs the rest
-#' with R support and parallelization, which makes it much faster (the exact
-#' speedup depends on \code{aln_method}).
+#' DisTAL Perl program, including the array alignment step (the ARLEM
+#' model, see \code{\link{tales_tale_distances}}), with parallel domain
+#' alignment, which makes it much faster (the exact speedup depends on
+#' \code{aln_method}).
 #'
 #' Named for the algorithm, not just historically: \code{\link{tales_compare_functal}}
 #' answers a related but different question -- relatedness by predicted DNA-binding
@@ -668,7 +659,7 @@ diag(identSubMat) <- 1
 #' which.
 #'
 #' Two products are irreducible and expensive — the pairwise protein alignment
-#' between distinct domains, and ARLEM on the coded arrays. Everything else the
+#' between distinct domains, and the alignment of the coded arrays. Everything else the
 #' former \code{tales_compare()} (this function's name before the DisTAL/FuncTAL
 #' split) returned was a projection of its inputs, so this function returns
 #' only what cannot be recomputed cheaply.

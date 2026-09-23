@@ -14,7 +14,7 @@
 # line of it is something you meant, then accept it with
 # testthat::snapshot_accept("golden").
 #
-# MAFFT and arlem are required. If they are missing these tests fail rather
+# MAFFT is required. If it is missing these tests fail rather
 # than skip: a baseline that quietly does not run is worse than none.
 
 fx <- function() {

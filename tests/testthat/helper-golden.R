@@ -50,7 +50,7 @@ fingerprint <- function(x) {
 
 # expect_snapshot_value() skips on CRAN by default. This baseline exists to be
 # run, and a check that silently does not run is worse than no check, so it is
-# forced on. Everything it needs (MAFFT, arlem) ships in inst/tools.
+# forced on. Everything it needs is bundled or in the conda environment.
 expect_golden <- function(x) {
   testthat::expect_snapshot_value(x, style = "json2", cran = TRUE)
 }

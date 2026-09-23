@@ -33,7 +33,7 @@ every other and returns their pairwise dissimilarity.
 This is the expensive step, and the one worth having on its own: the
 domain-level distances answer questions about domain diversity that need
 no TALE-level alignment at all, and computing them does not require
-running ARLEM.
+aligning the arrays.
 
 Distances are between \strong{distinct domains}, keyed by \code{dom_code}, so the
 cost goes with the number of distinct sequences rather than the number of

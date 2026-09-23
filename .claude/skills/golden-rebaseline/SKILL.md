@@ -89,7 +89,7 @@ artefacts changed and why. "Re-baselined golden" is not a description.
 ## Notes
 
 - The suite takes a few minutes; run it in the background and do other work.
-- It needs MAFFT, HMMER and arlem. If they are missing these tests **fail
+- It needs MAFFT and HMMER. If they are missing these tests **fail
   rather than skip** — deliberately, since a baseline that quietly does not
   run is worse than none. Run `tantale_setup()` to check the environment.
 - `tests/testthat/_snaps/golden.html` is a `snapshot_review()` artefact and

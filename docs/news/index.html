@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9005</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9006</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,8 +46,13 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="tantale-development-version">tantale (development version)<a class="anchor" aria-label="anchor" href="#tantale-development-version"></a></h2>
 <div class="section level3">
+<h3 id="array-alignment-computed-in-r-the-arlem-executable-is-no-longer-bundled-development-version">Array alignment computed in R; the ARLEM executable is no longer bundled<a class="anchor" aria-label="anchor" href="#array-alignment-computed-in-r-the-arlem-executable-is-no-longer-bundled-development-version"></a></h3>
+<p><code><a href="../reference/tales_tale_distances.html">tales_tale_distances()</a></code>, and so <code><a href="../reference/tales_compare_distal.html">tales_compare_distal()</a></code>, aligns the coded arrays with an R implementation of ARLEM’s minisatellite alignment model (Abouelhoda et al., <a href="https://doi.org/10.1142/S0219720009004060" class="external-link">2009</a>) in place of the ARLEM 1.0 executable that shipped in <code>inst/tools/arlem/</code>. The scores are identical to the executable’s: checked on about 6000 random array pairs and on real TALE arrays, and recorded in a test fixture. The executable ran only on Linux x86-64, and its licence did not clearly allow redistribution; it has been removed from the package. This also clears the “undeclared executable file” warning from <code>R CMD check</code>.</p>
+<p>The R version takes about 4 ms per pair of 20-domain arrays, roughly five times the executable’s time; the domain-level alignment in <code><a href="../reference/tales_domain_distances.html">tales_domain_distances()</a></code> remains the slow step. <code>matrixStats</code> is now imported. Column names are unchanged (<code>arlem_score</code>, <code>max_length</code>).</p>
+</div>
+<div class="section level3">
 <h3 id="bug-fix-demoting-a-tales_msa-now-drops-its-alignment-width-development-version">Bug fix: demoting a <code>tales_msa</code> now drops its alignment width<a class="anchor" aria-label="anchor" href="#bug-fix-demoting-a-tales_msa-now-drops-its-alignment-width-development-version"></a></h3>
-<p><code><a href="../reference/as_tales.html">as_tales()</a></code> (and <code><a href="../reference/tales.html">tales()</a></code>) on a <code>tales_msa</code> returned a plain <code>tales</code> that still carried the alignment’s width, so <code><a href="../reference/tales_width.html">tales_width()</a></code> kept answering on an object that no longer claims to be an alignment. The width is now removed on demotion, as it already was when <code>alignment_position</code> is dropped with <code>select()</code>.</p>
+<p><code><a href="../reference/as_tales.html">as_tales()</a></code> (and <code><a href="../reference/tales.html">tales()</a></code>) on a <code>tales_msa</code> returned a plain <code>tales</code> that still carried the alignment’s width, so <code><a href="../reference/tales_width.html">tales_width()</a></code> kept answering on an object that no longer claims to be an alignment. The width is now removed on demotion, as it already was when <code>alignment_position</code> is dropped with <code><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select()</a></code>.</p>
 </div>
 <div class="section level3">
 <h3 id="articles-checked-against-their-own-output-development-version">Articles checked against their own output<a class="anchor" aria-label="anchor" href="#articles-checked-against-their-own-output-development-version"></a></h3>

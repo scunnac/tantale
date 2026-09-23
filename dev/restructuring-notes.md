@@ -8284,8 +8284,9 @@ targeted test file (`test_tales_group_kmedoids.R`, 26/26 pass); and the
 actual `.Rd` extracted via `tools::Rd2ex()` and sourced, matching exactly
 what `R CMD check`'s examples step runs.
 
-### `inst/tools/arlem/arlem` executable warning -- investigated, **flagged for
-the maintainer, not fixed [P]**
+### `inst/tools/arlem/arlem` executable warning -- investigated, flagged for
+the maintainer; **RESOLVED by §33 (2026-09-23): ARLEM re-implemented in R,
+executable removed [V]**
 
 Confirmed real, not a fluke: `file inst/tools/arlem/arlem` ->
 `ELF 64-bit LSB executable, x86-64 ... for GNU/Linux 2.6.8, with
@@ -8346,6 +8347,16 @@ worth having on record for whoever picks this back up:
   `.tantale_exec()` does) whenever this is picked up -- flagged here so
   it is not lost before the bigger distribution-strategy question is
   settled.
+  **Fixed 2026-09-23 [V]:** `.run_arlem()` now runs the binary through
+  `.tantale_exec()` (stdout redirected to a file), so a non-zero exit
+  aborts with `tantale_error_exec_failed` and the tail of ARLEM's stderr.
+  It then requires exactly `choose(n, 2)` score lines, or aborts with
+  `tantale_error_arlem_failed`, naming the binary and `R.version$platform`.
+  Checked on three failures: a stand-in that exits 0 and prints nothing,
+  `/bin/false` (status 1), and a copy without its execute bit (status
+  126, "Permission denied"). Tests in `test_arlem_r.R`. The binary's
+  path is now an argument (`arlem =`, defaulting to the bundled one)
+  so the tests can substitute it.
 
 **Third finding, 2026-09-23 -- the binary's own licence terms.** Read
 straight out of the binary (`strings inst/tools/arlem/arlem`), since
@@ -8736,7 +8747,6 @@ ARLEM work (`R/arlem.R`, `R/distalr.R`) that `load_all()` would have
 picked up. `tales_msa_class.qmd`'s demotion paragraph now says the width
 goes with the class.
 
-
 ### 32.2 `rvdSimDf` covers 17 RVDs, `rvd_dna_specificity` covers 404 -- **undecided, options below** **[P]**
 
 Maintainer: known; unsure what is best; describe the options so a
@@ -8853,3 +8863,176 @@ inside the C-terminal part marks a truncated C-terminus). Either way,
 worth one line in `tell_tales()`'s docs for `array_report.tsv`.
 `trunctale_correction.qmd` already cites each number with its source,
 so it stays correct either way.
+
+---
+
+## 33. ARLEM re-implemented in R, wired in; the executable removed -- DONE **[V]**
+
+Maintainer's request, 2026-09-23, following §28: re-implement ARLEM in
+R in a separate file, check it against the binary's results, and
+estimate the difference in speed. Motivation (§28): the bundled binary
+runs only on Linux x86-64, its licence ("unauthorized commercial usage
+and distribution ... prohibited") does not clearly allow tantale to
+redistribute it, and no public source or conda package exists.
+
+**Model.** From Abouelhoda, Giegerich, Behzadi & Steyaert, APBC 2008,
+pp. 261-272 ("Alignment of minisatellite maps: a minimum spanning
+tree-based approach"; PDF in the APBC 2008 proceedings at
+comp.nus.edu.sg/~wongls/psZ/apbc2008/apbc080a.pdf). For every interval
+of each array, compute the cheapest duplication history grown from its
+leftmost or rightmost unit (the paper's section 3 recurrences, with
+insertions). Then align two arrays with a DP that chooses between
+matching units, growing a run from its left neighbour, and simultaneous
+right growth in both arrays ending in a match (section 4.2, using the
+paper's A' table so this costs O(n^3), not O(n^4)). A sentinel `$` is
+prepended to each array, with a mutation cost of 99999 to anything, as
+the binary does.
+
+**Two binary behaviours not stated in the paper, found by probing it:**
+- of the cost file's `# Indel align` and `# Indel hist`, only
+  `Indel hist` affects any score;
+- `-showalign`'s traces show the leading unit of an array explained as
+  a "Left dup. in S [0..1]" from `$` at the insertion cost, i.e. an
+  insertion.
+
+**Code.**
+- `R/arlem.R` (new): `.arlem_histories()`, `.arlem_align()`,
+  `.arlem_scores_r()`. The last returns the same `id1`/`id2`/
+  `arlem_score` tibble that `.run_arlem()` parses from stdout, so
+  everything downstream is shared.
+- `R/distalr.R`:
+  - `.arlem_cost_file()` split into `.arlem_cost_matrix()` (the
+    Minkowski/rescale/ceiling step) and a writer, so both engines take
+    the identical integer matrix;
+  - `.arlem_dup_cost`/`.arlem_indel_cost` constants replace the
+    literals in the file header;
+  - the mirroring step moved to `.arlem_scores_long()`;
+  - the §28 exit-status fix.
+- (First pass.) The exported API was left unchanged at this stage:
+  `tales_tale_distances()` still called the binary. See "Decisions and
+  execution" below for the switch.
+
+**Consistency with the binary. Every comparison is `identical()`, not
+approximate:**
+- ~6060 random array pairs: alphabets of 2-60 types, arrays of 1-40
+  units with runs of repeats, costs from integer-ceiled Euclidean
+  distances (so metric, like tantale's), `Dup` in {0,1,5,10,30},
+  insertion cost in {1,10,25,100,1000}, with and without `-insert`;
+- the articles' cached three-genome comparison
+  (`vignettes/articles/_cache/compare.rds`: 26 arrays, 14-28 domains,
+  113 codes, 325 pairs). Raw scores and the final `tale_distances` are
+  identical, and the R engine reproduces the cached `tale_distances` an
+  earlier binary run produced;
+- the same data replicated to 52 and 104 arrays (1326 and 5356 pairs);
+- `sampleDistalrOutput.rds` (44 arrays, 251 codes, 946 pairs).
+
+Tests: `tests/testthat/test_arlem_r.R`, 9 tests covering:
+- toy cases whose expected scores were read off the binary, so they pin
+  the model on machines where the binary cannot run;
+- 25 seeded random cases against the binary;
+- 15 real arrays against the binary;
+- the failure paths above.
+
+All pass. `test_tales_compare_steps.R`, `test_tales_compare_distal.R`
+and `test_golden.R` pass unchanged under `load_all()`. The golden
+baseline pins `tales_compare_distal()` end to end, so the cost-file
+refactor changed nothing.
+
+**Speed.** Same machine, wall clock. Binary timings include writing its
+`-showalign` traces.
+
+| arrays | pairs | binary | R (base) | ratio |
+|---|---|---|---|---|
+| 26 | 325 | 0.16 s | 1.43 s | 9x |
+| 44 | 946 | 0.53 s | 4.27 s | 8x |
+| 52 | 1326 | 0.49 s | 5.05 s | 10x |
+| 104 | 5356 | 1.82 s | 20.5 s | 11x |
+
+About 3.8 ms per pair of ~20-domain arrays, growing with n^2 in the
+number of arrays and ~L^3 in array length. Profiling shows ~47% of the
+time in column minima (`.col_min()`, base R via `max.col()`) and ~18% in
+the one loop that cannot be vectorised (growing `r` from the left
+depends on the same row's earlier cells).
+`matrixStats::colMins()` in place of `.col_min()` halves the total
+(26 arrays: 0.70 s, identical scores), to ~4.5x the binary.
+`matrixStats` is already installed with tantale through six current
+imports (`biovizBase`, `BSgenome`, `plyranges`, `systemPipeR`,
+`universalmotif`, `rtracklayer`), but using it means adding it to
+`Imports`. Not done: it is a `DESCRIPTION` decision.
+
+**Decisions and execution (maintainer, 2026-09-23):**
+1. **Switched to R outright.** `tales_tale_distances()` calls
+   `.arlem_scores_r()`. `.run_arlem()` and `.arlem_cost_file()` moved
+   verbatim to `inst/legacy/arlem_binary.R`, with a header explaining the
+   move. **`inst/tools/arlem/` deleted outright, on the maintainer's
+   explicit instruction.** This departs from the functal/QueTAL
+   precedent (§12b), where the vendored tool moved to `inst/legacy/`.
+   Here the licence is the reason: keeping the executable anywhere in the
+   package would still redistribute it. It remains in git history, in
+   the `v0.1.9553` bundle and in the pre-reset checkout on disk.
+2. **`matrixStats` added to `Imports`.** `.col_min()` is now
+   `matrixStats::colMins()`.
+3. **What was removed, and what stays.** Mentions of tantale *running*
+   the ARLEM program are removed from code, roxygen, tests and the
+   `tales_class` article. On the maintainer's choice, these stay:
+   - the `arlem_score` / `norm_arlem_score` column names (public API,
+     unchanged);
+   - the `.arlem_*` internal names;
+   - one citation in `tales_tale_distances()` (Abouelhoda et al. 2009,
+     DOI inline), saying tantale computes ARLEM's model in R with
+     identical scores. `tales_compare_distal()` points to it;
+   - past `NEWS.md` entries, as history. A new entry records the switch.
+
+   The ledger, `dev/` and `inst/legacy/` keep their mentions as records.
+4. **The binary's answers are kept as a fixture before deletion.**
+   `data-raw/make_arlem_reference_scores.R` wrote
+   `tests/testthat/data_for_tests/arlem_reference_scores.rds`:
+   - 25 random cases with `-insert`, 10 without;
+   - all 44 arrays of `sampleDistalrOutput.rds` with tantale's own costs;
+   - 1126 pairs in all.
+
+   `test_arlem_r.R` now checks against this fixture, including one
+   end-to-end `tales_tale_distances()` check. The earlier
+   live-binary comparisons and the `.run_arlem()` failure-path tests were
+   dropped with the function (`test_arlem_r.R`: 8 tests).
+5. **Removed with `.run_arlem()`:**
+   - the "Running ARLEM version 1.0 / Copyright..." messages, which
+     reference pages printed in their example output;
+   - the cost-matrix message's "ARLEM" wording.
+
+   New message: "Aligning n TALE arrays pairwise (k pairs)."
+6. Version 0.9.9006.
+
+Verified: `document()` (4 man pages), `pkgdown::check_pkgdown()` clean.
+`test_arlem_r.R`, `test_tales_compare_steps.R`,
+`test_tales_compare_distal.R`, `test_tales_projections.R`,
+`test_pairwise_distances_class.R` and `test_golden.R` pass, the golden
+baseline unchanged. Coordinated with the parallel website session:
+- No article cache wipe is needed, because the R engine is `identical()`
+  to the cached binary run.
+- Only `tales_class` needs re-rendering, for prose.
+
+Full suite under `load_all()`: 29 files, 379 tests, 0 failed, 0
+skipped, 47 warnings. That is the same warning count as the clean run
+recorded in §18; the distal-path files emit only the two known ones (a
+`dom_code` re-mint notice and a ggplot2 `label.size` deprecation).
+Installed (`0.9.9006`) and checked in a fresh `Rscript`:
+`.arlem_scores_r` present, `.run_arlem` and `tools/arlem` absent.
+
+Site: partial rebuild, no `docs/` wipe (no page added or removed) and no
+`_cache/` change:
+- `build_reference`, `build_article("articles/tales_class")`,
+  `build_news`, `build_sitemap`, `build_llm_docs`, `build_search`;
+- `check_built_site`: no problems. 6 min.
+
+Afterwards no "Running ARLEM" / copyright / old cost-matrix text remains
+in `docs/`. The remaining "arlem" hits are the kept ones:
+- the `arlem_score` column printed in `tale_classification`;
+- the citation in `tales_tale_distances`/`tales_compare_distal`;
+- the column mapping in `pairwise_distances`;
+- news.
+
+The other `docs/` diffs are the navbar version and example temp paths.
+
+**Still open:** an Rcpp version would likely beat the executable. The
+maintainer asked for R, so it is not tried.
