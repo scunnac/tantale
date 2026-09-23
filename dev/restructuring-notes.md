@@ -1,8946 +1,1233 @@
 # tantale — restructuring notes and action ledger
 
-Working document for the pre-publication overhaul. Records findings, agreed
-actions and deferred questions so they don't live only in conversation.
+Working record of the pre-publication overhaul: findings, decisions,
+deferred questions. Branch `main` (the only branch since the history reset
+of §26).
 
-Branch: `dev`. Last updated: 2026-09-20 (overnight autonomous session,
-explicitly authorized -- maintainer went to bed with instructions to keep
-working through the punch list, commit and push, and leave a morning
-summary; this file's own closing pass was written for a **session
-handoff**, context growing too large to continue in the same
-conversation -- the next session starts fresh here). **Pushed and
-current with `origin/dev` as of commit `934c92b`.** Seven commits landed
-on top of the night's starting point, `16b123f`
-(`tales_to_universalmotif()`, §12b): `9d6fecd` (vignette fixes +
-getting-started vignette + index page), `26f31e1` (`functal()`
-retirement + version bump + README `pak` swap), `de3e69d` (`reshape2` ->
-`tidyr` migration + §6 fix), `e39e070` (ledger sync), `8d07fb7`
-(`docs/`), `cf4a9d8` (a final ledger correction), `934c92b` (a small,
-unrelated pre-existing cleanup -- five orphaned `figure/*.png` files the
-maintainer had already deleted before this session started, committed on
-request the next morning). What each covers is recorded in the relevant
-section below, not summarized twice here -- and each commit message says
-which of the night's several distinct pieces of work it actually
-contains, since `git mv`/`git rm` staged earlier in the session meant the
-first commit ended up broader than its own message originally planned
-(harmless, just less atomic than intended -- see that commit's message
-for the honest account).
+**Compacted 2026-09-23.** Closed sections were cut down to their decisions
+and to the facts still worth knowing; statements found wrong against the
+code were corrected or removed. The full text before compaction (9661
+lines) is in git: `git show 7ef1fe9:dev/restructuring-notes.md`. Commit
+hashes quoted in that older text predate the history reset and no longer
+resolve; the pre-reset history is in the git bundle attached to the
+`v0.1.9553` GitHub release (§26).
 
-**One thing proposed the next morning, deliberately deferred, not
-executed: §15**, caching the discovery/compare/group pipeline four
-articles repeat identically (most of why `docs/` rebuilds are slow).
-Maintainer said "not now" -- recorded in full in §15 so the design
-discussion (already had once) is not redone from scratch whenever it is
-picked up. **This is the first thing to read if the next session's task
-is anything about article build time or content.**
+Status markers:
 
-**One real problem hit and fixed along the way, worth flagging here
-since it's an environment gotcha that will recur:** the first two
-`docs/` rebuild attempts failed with a generic "Error running quarto CLI"
-error. Root cause, found via `quiet = FALSE` after the generic error
-gave nothing actionable: quarto's article-rendering step spawns a
-**separate R subprocess** that does `library(tantale)`, not
-`devtools::load_all()` -- it sees whatever is *installed*, not the live
-source tree. The installed copy was stale (predated tonight's renames),
-so `tale_msa.qmd`'s `tales_compare_distal()` call failed with "could not
-find function". Fixed with `devtools::install(quick = TRUE, upgrade =
-FALSE)`, confirmed in a fresh session before retrying. **Anyone rebuilding
-`docs/` (or running a full `pkgdown::build_site()`) after changing `R/`
-should reinstall the package first** -- `devtools::load_all()` alone,
-which is what every other verification step tonight used, is not
-enough, because it only updates the *calling* R session, not what a
-spawned subprocess's `library()` call resolves to.
-
-Status markers used below:
-
-- **[V]** verified empirically against the code/data in this repo
+- **[V]** verified against the code/data at the time of writing
 - **[A]** agreed direction, not yet executed
-- **[P]** parked — needs a judgement call or a dedicated review pass
-- **[superseded]** kept as a record of a plan that was replaced; **not** work
+- **[P]** parked: needs a judgement call or a dedicated pass
+- **[superseded]** a record of a replaced plan; nothing to do
+
+Section numbers are never reused or renumbered: code comments, tests and
+articles cite them (`ledger §N`). Treat every `[V]` as
+"verified once" and spot-check it against the code before building on it.
 
 ---
 
 ## START HERE
 
-> **Current state and open items (updated 2026-09-23): read
-> `dev/CLAUDE.md`'s "Where things stand" first.** It lists what is open,
-> by status, with the section to read for each. Everything since
-> 2026-09-21 is in §17-§33 at the end of this file.
+`dev/CLAUDE.md` ("Where things stand") is the short briefing; this block
+is the detailed list it points to. Updated 2026-09-23, after a full review
+of this file against the code.
 
-This file is ~9300 lines and is a record, not a reading list. **Do not
-read it end to end.** Read `CLAUDE.md` (it loads automatically), then
-only the sections below that bear on the task in hand. The rest of this
-block describes the state before 2026-09-21.
+### Pending issues deserving urgent action
 
-Sections are now in ascending numeric order within each chapter (fixed
-2026-09-17 -- §7 and §8 were badly scrambled: §8 alone had 18 subsections
-in add-order rather than numeric order). Nothing was renumbered, only
-moved, so the ~35 `(ledger §N)`-style references scattered through `R/`
-and `tests/` still point at the right section.
+Ranked by risk. Each was re-checked against the code on 2026-09-23.
 
-**Treat every `[V]` as "verified once," not "still true."** Two sections
-marked done or `[V]` tonight turned out to describe code that no longer
-exists (§6's first bullet claimed a bug fixed elsewhere as still open; §9.1
-sub-heading described `msa_heatmap()`/`group_tales()`, both since
-renamed/retired). Both are now flagged inline. There was not time to
-re-check every other `[V]` section the same way -- treat this file's
-"done" markers as a claim to spot-check against the code, not a guarantee.
+1. **Licence notices for the bundled tools (§34).** The three jars
+   (AnnoTALE, PrediTALE, TALEcorrection) are GPL-3 and may be
+   redistributed only with the licence and a pointer to their source
+   (github.com/Jstacs/Jstacs). Nothing in the package gives either, and
+   `LICENSE`/`DESCRIPTION` present the whole package as MIT. TALVEZ has
+   no licence at all; the maintainer is asking its author. GitHub
+   distribution is already distribution, so this applies today, whatever
+   channel §34 ends up choosing. Cheap interim fix: a third-party notice
+   (licence text, upstream URL, source link per tool) shipped with the
+   package and referenced from `LICENSE`/README.
+2. **External programs still run through a bare `system()`** with no
+   exit-status check, the bug class §12 fixed for MAFFT/HMMER-via-conda
+   and §28 for ARLEM. Remaining sites: `.run_nhmmer_search()` and
+   `.check_hmmer()` (`R/telltale.R:60-84`, the core discovery search);
+   `.run_annotale_analyze()` (`R/telltale.R:684`, output and status both
+   discarded); `run_annotale_predict()`'s analyze stage and
+   `run_annotale_build()` (`R/annotale.R:83`, `:133`, status returned,
+   never checked); `preditale()` (`R/target_predictions.R:79`);
+   `correct_tales()` (`R/talecorrection_java.R:90`, wrapped in `try()`).
+   A failing tool can surface as empty or partial output further down.
+   Route them through `.tantale_exec()`.
+3. **A fresh full `devtools::check()`.** The last one ran 2026-09-22
+   (§27). Since then: ARLEM in R, `matrixStats` in `Imports`, the §32
+   fixes, new tests and fixtures. §27 showed that the isolated check
+   library finds problems `load_all()` never sees. Also confirms whether
+   item 5's directory ends up in the tarball.
+4. **Deprecated ggplot2 arguments in the two main plots.** `label.size`
+   (7 sites in `plot.tales_msa()`, `R/tales_plot.R:462-540`; 2 in
+   `plot_target_preds()`) and `size` for a line width
+   (`R/target_predictions.R:441`). They warn on every render and test run
+   today; a future ggplot2 release can turn them into errors, the way
+   ggplot2 4.0.3 once broke every `plot_tales_msa()` call (§6).
+5. **`inst/legacy/docs_temp/`** (3.8 MB of old notebooks, untracked and
+   gitignored) sits inside `inst/`, so any tarball built from this
+   checkout ships it. The maintainer's files: delete, or move to `extra/`.
+6. **Exported functions no test calls** (confirmed by the §29.2
+   recorder): `talomes_heatmap()`, `plot_target_preds()`, `preditale()`,
+   `run_annotale_build()`, `run_annotale_predict()`. `tales_consensus()`/
+   `tales_consensus_match()` are exercised only through the plot tests.
+   Refresh the static 73.96% coverage badge afterwards (§7.6), since it
+   predates most of the recent work.
+7. **§32.2 decision** (`rvdSimDf`, 17 RVDs). Narrower than first thought:
+   the alignment side already scores an unknown RVD pair as neutral (0)
+   and any RVD against itself as 1 (`.rvd_score_table()`). Only
+   `plot.tales_msa(fill_type = "rvd_sim")` still greys out identical RVDs.
+8. **README contradicts itself**: the "stable" lifecycle badge against
+   "under active development ahead of publication; interfaces may still
+   change" (`README.md:116`). One of the two should go before release.
 
-**2026-09-18 session, in one place** (caveat added 2026-09-19: §11's
-`tales_group()` split has since broken the runnable code in three of the
-articles this session wrote -- see the "Blast radius" note at the end of
-§11. The articles below were thoroughly, carefully rewritten and verified
-against the API *as it stood that night*; they are not stale or neglected,
-but "done" here means "done for the API of 2026-09-18," not "still current"
--- exactly the caution the file's own `[V]` marker warning already gives,
-just illustrated one section later than usual):
+### Decisions to make before 1.0.0 (breaking or user-visible)
 
-1. **§7.5b** -- the four numbered vignettes rebuilt from a blank slate,
-   self-contained, each verified with a real `rmarkdown::render()`; a new
-   `tales-msa-class.qmd` article (coercion + plotting, the piece §7.5a
-   deferred); a subsetting section added to `tales-class.qmd`;
-   `@examples` added to 29 exported functions, each verified by
-   extracting and running it, not just by inspection.
-2. **§7.5c, in the same session** -- maintainer review of that site found
-   real problems, not style notes, and asked for the numbered-vignette
-   vs. class-article split to go away. All six articles now live under
-   `vignettes/articles/*.qmd`; the old `vignettes/*.Rmd` numbered set and
-   `p1`/`p2`/`p3` are gone (merged in, where their content survived); the
-   package ships no traditional vignette any more (`VignetteBuilder`
-   removed -- a real product decision, flagged for the maintainer, not
-   assumed settled). PXO86 dropped from the classification/alignment/
-   target-prediction demos as a poor fit for what they are trying to
-   show; the `tales_align()` example replaced with one carrying a real,
-   biologically legible internal gap; `repeat_sims`/`tal_sim` actually
-   exercised rather than only documented; alignment and target-prediction
-   figures resized after both were found unreadable for opposite reasons.
-3. **Three real bugs found while building the articles, not looked
-   for**, all fixed: `plot.tales_msa()` was returning its result visibly
-   (`return()`, not `invisible()`), double-rendering every non-assigned
-   `plot(msa, ...)` call; `as.matrix.pairwise_distances()`'s `@param` doc
-   named the wrong default column (stale since the §9.6 rename); an
-   `Edit` while writing §7.5b silently dropped the `## 8. Tests` heading,
-   found and restored while writing §7.5c.
-4. **Two more findings, reported by the maintainer while `tell_tales.log`
-   was showing up in an article's output, recorded in §6**: the log's
-   "File of subject DNA sequences" line reports an internal temp path
-   rather than the caller's actual `subject_file`, and its parameter
-   block mixes two-column and three-column tab-separated rows, breaking
-   a spreadsheet import. A third, `tales_group()`'s hclust dendrogram
-   plot spamming an `ape`/`ggtree` warning, was found the same way and is
-   also in §6, dodged (by dropping the outgroup genome that triggers it
-   from the affected articles) rather than fixed at the source.
-5. **A config bug found only by actually running the build**: pkgdown
-   evaluates `articles:` `contents:` entries as R expressions, so the
-   hyphenated filenames the articles were first written with parsed as
-   subtraction and aborted the build. Fixed by renaming every article to
-   underscore_separated names (all cross-links updated to match) and by
-   pointing `contents:` at the `articles/<name>` topic form pkgdown
-   actually assigns them, confirmed via `pkgdown:::as_pkgdown(".")` rather
-   than guessed twice more.
-6. **Once the site was solid, the rest of §6's backlog was cleared
-   autonomously**, each verified against real data and the full test
-   suite before being called done: `rvdSimDf` turned out already fixed
-   (a stale ledger marker, not a code gap); `.build_repeat_msa()`'s
-   hardcoded six-RVD guess replaced with the type `tales_align()` already
-   knows and passes down; the same aa_seq pairing with two different rvd
-   values is now a caught (soft) anomaly, not a silent
-   `tales_domain_codes()` corruption; both `tell_tales.log` bugs fixed
-   and the golden baseline re-accepted, with the change explained (a
-   line that used to be dropped as `/tmp/`-noise is now real, stable
-   signal). A second stale `[P]` marker (§9.6's "still live" claim) was
-   also found and corrected -- it was already resolved by the section's
-   own main text.
-7. **Separately, the self-deprecatory-language cleanup from §7 was done**
-   (six of seven flagged spots; the README/tantale.R/AnnoTALE-library/
-   unused_pending_review/telltale.R language all revised), which
-   incidentally fixed a real roxygen bug: `R/tantale.R`'s four
-   `@section` tags had a stray prefix that made roxygen2 8.0 misparse
-   every one of them, the exact warning `devtools::document()` printed on
-   every single run tonight until this was found. `talomes_heatmap()`'s
-   reversed rows/columns doc (§7) fixed too.
-8. A full `pkgdown::build_site()` was run three times against a
-   scratch-installed copy across the session (once per config bug), and
-   the full local test suite (`testthat::test_dir()`, not just targeted
-   files, given how broadly the anomaly check and the residue-type
-   change could in principle reach) passed clean at the end with zero
-   failures.
-9. **Three more fixes from maintainer review of the rendered site,
-   after the "done" report above, all in §6**: `tales_group()`'s
-   dendrogram cutoff line (and its label/`xlab`) was drawn at
-   `cutOff / 2`; no reason for the `/2` was found (`ggtree` does not
-   rescale `hclust` heights), so it now draws at the real `cutOff`.
-   `plot.tales_msa()`'s legend rendered on the right whenever a tree or
-   consensus panel was attached, because `aplot` composes panels through
-   `patchwork::plot_layout(guides = "collect")`, which reads the
-   *combined* object's theme for legend placement, not any individual
-   panel's -- fixed by converting to `patchwork` and re-theming at that
-   level for what gets printed (the value returned is still the
-   unmodified `aplot`, so nothing downstream changes). And `plyr` is
-   gone: audited (three live call sites, all in `R/telltale.R`) and
-   replaced with `lapply()`/`pmin()`+`pmax()`/`dplyr::count()`, dropped
-   from `DESCRIPTION`. All three re-verified against real data and their
-   targeted test files (`test_group_tales.R`, `test_plot_tales_msa.R`,
-   `test_plot_tales_composition.R`, `test_tell_tales*.R` -- 102 tests
-   across the six files, 0 failures); articles using either affected
-   plot have not yet been re-rendered against the fixed code (next
-   step).
+Not urgent in themselves, but each is cheaper before the release than
+after it.
 
-10. **Fourth fix from the same review pass, found by the maintainer
-    reading the rendered site:** `fig-mai1-composition`'s caption said
-    "four TALE arrays"; a real `tell_tales()` run on MAI1 finds nine
-    (`ROI_00001`-`00004`, `00006`-`00010`) -- stale text, not a code
-    bug. Fixed in `tale_mining.qmd`.
-11. **§9.2c, `tell_tales()`'s output file names, done the same night.**
-    `.telltale_paths()` covers most of them, but tracing every write
-    found three more mint sites it does not: `.hits_report_to_gff()`
-    (derives its name from the path it is given, so it followed once
-    `hits_report.tsv` did), `.telltale_write_correction_alignments()`'s
-    own `glue()` calls, and `.telltale_align_termini()`'s. Also renamed
-    the per-ROI `putative_tal_orf.fasta` that `tell_tales()` itself
-    writes inside `annotale/ROI_*/` as AnnoTALE's *input* -- distinct
-    from AnnoTALE's own output files in the same directory, which stay
-    untouched. Blast radius: `R/telltale.R`, `R/tales_ingest.R`, six
-    test files, one article, `git mv` across five fixture trees
-    (including `inst/extdata/`, shipped and reachable from
-    `tales_from_telltale()`'s own `@examples`). Golden re-baselined --
-    79/80 rows verified programmatically as byte-identical pure
-    renames; one row (`tell_tales.log`'s own digest) accepted without a
-    fully traced root cause, recorded honestly rather than papered
-    over. Full suite: 0 failures.
-12. **A version-scheme decision that nearly overwrote the tracked
-    release site.** Maintainer settled on `0.9.x` pre-publication,
-    `1.0.0` at release, replacing the old `0.1.9553` devtools-style
-    counter. The natural first choice, `0.9.1`, silently broke
-    `development: mode: auto`: `pkgdown:::dev_mode_auto()` only treats
-    a 3-component version as "devel" (-> `docs/dev/`) when the third
-    component is `>= 9000`; `0.9.1` does not clear that, so a routine
-    theme rebuild wrote 215 new files and modified 16 tracked ones
-    straight into `docs/` -- caught by `git status` before anything was
-    committed, reverted. Resolved with `0.9.9001`, which restores the
-    same `>= 9000` third component `0.1.9553` always had, verified
-    directly against `pkgdown:::dev_mode_auto()`.
-13. **Site polish, same session:** the `Articles` navbar dropdown had
-    silently regressed to a single link to `articles/index.html` when
-    the numbered-vignette/article duality was abrogated (§7.5c) --
-    `_pkgdown.yml`'s `articles:` section needs a per-group `navbar: ~`
-    key to keep pkgdown's dropdown-building code path, root-caused by
-    reading `pkgdown:::navbar_articles()` directly. A dangling
-    cross-article `@sec-` reference in `tale_classification.qmd` (quarto
-    cannot resolve crossrefs across separate documents outside a
-    book/project) fixed the same pass. Bootswatch theme changed from
-    `lumen` ("a bit tern") to `sandstone`, after the maintainer compared
-    six real candidates' rendered home pages side by side (screenshotted
-    with headless `chromium`, which on this machine can only read/write
-    inside `$HOME`, not `/tmp`). Full site rebuilt, `docs/` confirmed
-    untouched, `docs/dev/` committed (415 files) and pushed --
-    `e219065..464e1fd`.
+- **`tales_rvd_strings(rvd_only =)`** means "repeats only"; its sibling
+  says `repeats_only` (§8.2b).
+- **§2** retire `repeat_to_rvd_map()`, and **§20** rename/rewrite
+  `tale_parts_to_rvd()`. Reserved for the maintainer.
+- **`plot.tales_msa()`'s x-axis title** still reads "Position in array";
+  the axis is the alignment position (§22, `R/tales_plot.R:406`).
+- **§21 option (c)**: `tales_consensus()`/`tales_consensus_match()` taking
+  a `tales_msa` directly (`dev/class-design.md` §4.6 has it as `[A]`).
+- **`tell_tales()`'s 17 arguments** were never regrouped, and two `TODO`
+  blocks remain in its body (circular molecules; what two output files
+  should contain) (§5.3).
+- **ARLEM's duplication and insertion costs** are fixed at 10
+  (`.arlem_dup_cost`, `.arlem_indel_cost`), not exposed. Their ratio to
+  substitution costs (up to 99) is a modelling choice about how TALE
+  arrays evolve (§6).
+- **Distribution channel** and the one-archive plan (§34).
 
-See §7.5b and §7.5c for the article-rebuild detail, and §6/§7 for the
-backlog items closed in the second half of the session. Full verification
-commands are not reproduced here; re-run them from those sections if
-anything here needs re-checking.
+### Worth investigating, no deadline
 
-**2026-09-19 session, in one place** (design and documentation only, no
-code changed; six commits, `f1f2930`..`d2439ed` -- since pushed, along
-with everything through `16b123f`; see the header):
+- `correct_array = TRUE` fabricated a ~489 nt region on a two-array PXO86
+  excerpt that does not exist in the genome; the fixture
+  `dev/fixtures/pxo86_roi18_19_excerpt.fa` reproduces it in under a
+  minute (§25). Did not reproduce on the full genome.
+- Which corrected BAI3-1-1 object the article cache should build on (§25b).
+- Validate the 136-sequence correction reference against the 494 one
+  (maintainer's own, §8.1b).
+- Each toy region yields a spurious single-hit array at its 3' end,
+  because `min_domain_hits` filters subject sequences (§8.1).
+- `.rvds_from_annotale_file()` (`R/tales_ingest.R:55`) has no caller in
+  `R/` or `tests/`: a parking candidate (§29.1).
+- Consumers of `tales_rvd_strings()` other than
+  `tales_to_universalmotif()` were never checked for silently dropping
+  an array with no repeats (§12b).
+- Seven condition sites still carry only the generic `tantale_error`
+  class (`conversion.R` 2, `talecorrection_java.R` 3, `tales_ingest.R` 1,
+  `tales_plot.R` 1) (§9.5).
+- Rendered error messages from an installed package show a source path
+  ("at tantale/R/tales_class.R:818:3"); cosmetic (§30).
+- Commented-out developer snippets still carry `/home/cunnac/...` paths
+  (§34).
+- `man/figures/pipeline.svg`/`.png` are stale and referenced from nowhere
+  outside `dev/` (§7.6). The data-flow view of §29.2 could replace them.
 
-1. **Three of §7.6's five README/docs follow-ups landed already** in the
-   session above (the LLM-use section, the stale class-bullet fix, the
-   lifecycle badge); this session added and closed a fourth --
-   **a test-coverage badge, checked before acting on**: this repo has no
-   CI at all (`.github/workflows/` does not exist), `covr` is not a
-   declared dependency, no codecov config. Recorded the real choice this
-   implies (a live badge needs standing up CI first; a static one goes
-   stale silently) rather than guessing at a number --
-   `covr::package_coverage()` was deliberately not run, since it
-   re-executes the full suite under instrumentation and this package's
-   external-tool-heavy tests make that multi-minute-plus. The fifth
-   item, a dedicated pkgdown index page, stays parked as genuine
-   content-authoring work.
-2. **§5.2 (talome-wide MSA plot) parked for much later**, with a leaning
-   recorded rather than a decision forced: the maintainer finds the
-   arguments for shape A (a plain list of per-group `tales_msa`) quite
-   strong. Not next in line -- §11 is.
-3. **§14, a full `DESCRIPTION` Imports audit**, prompted by a suspicion
-   ("a lot of them will need to leave") that the grep-based check did
-   not bear out: 42 of 43 `Imports:` packages have real, findable call
-   sites in live `R/` code. Two genuine exceptions did turn up:
-   `XVector`, referenced only inside the parked
-   `.extract_seqs_from_hits()` in `unused_pending_review.R` (a
-   keep-or-drop call, not urgent); and `reshape2`, a `plyr`-vintage
-   dependency superseded by `tidyr` the same way `plyr` was by `dplyr`,
-   but with 18 call sites across seven files -- six times `plyr`'s
-   footprint, a real future migration and not a quick fix.
-4. **`tales_bind()`'s design finished, end to end, nothing built yet.**
-   Worked through live with the maintainer, correcting two of the
-   session's own earlier proposals along the way, which is exactly why
-   this is recorded in this much detail rather than just "settled":
-   - **Distances:** rather than the rectangular-comparison optimisation
-     first floated (reuse the within-input distance blocks, compute
-     only the new cross-pairs), the maintainer chose the honest first
-     cut -- `tales_bind()` does not touch `tale_distances`/
-     `domain_distances` at all; a caller re-runs `tales_compare()` on
-     the bound result. Simpler, correct by construction, and it fully
-     sidesteps a `dom_code`-rekeying problem that would otherwise have
-     been real (see the conceptual note under §5.2's "Proposed route"
-     for the full reasoning on which `tales` operations invalidate a
-     companion distance table, and why subsetting and binding are not
-     the same shape of problem).
-   - **`group`:** the maintainer caught that this is not an `array_id`
-     -style identity-collision problem at all -- `group` is a
-     *clustering result* derived from one specific distance matrix over
-     one specific set of arrays, so two "group 1"s from separate runs
-     are not comparable, not just at risk of colliding. The
-     disjoint-labels check first proposed here would have produced an
-     object that looks validated while carrying meaningless data.
-     Corrected to: drop `group` entirely whenever present on any input,
-     `cli_inform()` why, point at `tales_group()`+`tales_compare()` as
-     how to get real groups back.
-   - **A `tales_comparison` class idea (bundling `tales_compare()`'s
-     return list under a real S3 class) was floated, then correctly
-     challenged by the maintainer** as not actually solving
-     `tales_bind()` -- it is an orthogonal display/ergonomics idea over
-     `tales_compare()`'s output, not a fix for reconciling two objects'
-     distance data. Recorded so it is not re-proposed as a solution to
-     the same problem later.
-   - The full seven-step procedure -- location, signature, validation
-     order, the `dom_code_namespace` recode path via
-     `tales_assign_domain_codes()`, the final `tales()` constructor
-     call, tests to write, docs -- is consolidated in one place under
-     §5.2's "Implementation plan, as of 2026-09-19". That subsection is
-     the one to read before building this; nothing here duplicates it.
+### Parked, reserved or deferred
 
-**2026-09-19 session, continued (evening)** -- picked up §7.7 and §7.5c,
-both left as maintainer decisions above; ended up resolving both, not
-just deciding them. Nothing committed yet (working tree only); see §7.7
-and §7.5c for the full record. In one place:
+- **Reserved for the maintainer, do not start unasked:** §21 items 1-4
+  (the matrix helpers of `plot.tales_msa()` and the tests pinning their
+  shape), §20, §2.
+- **Deferred by the maintainer:** §30's parallel-phrasing sweep; an Rcpp
+  ARLEM (§33); rOpenSci (§34); §5.2 (talome-wide MSA plot, leaning
+  shape A).
+- **Dropped from tracking, unless raised again:** §9.3, §8.6b, §12b's
+  `universalmotif` follow-ups.
 
-1. **§7.7 resolved: `docs/` now tracks the latest build**, via a one-off
-   `pkgdown::build_site(override = list(development = list(mode =
-   "release")))` rather than a version-scheme change -- deliberately, to
-   avoid retriggering the exact `0.9.1` trap §7.7's main text already
-   documents. Full detail, including a real pkgdown 2.2.0 bug this
-   surfaced (`CLAUDE.md` silently publishing itself as a site page, live
-   since 2026-09-18 and unnoticed) and the fix (relocated to
-   `dev/CLAUDE.md`), is in §7.7 itself, not duplicated here.
-2. **§7.5c's "ships no vignette" consequence addressed, narrowly, not
-   reversed wholesale.** Investigated whether a `.qmd` article can serve
-   double duty as a real, `vignette()`-accessible package vignette --
-   yes, via the `quarto` R package's own vignette engine, confirmed
-   against its own dogfooded example. But the six existing articles are
-   unsuitable as-authored (`tale_mining.qmd` alone runs an ~8-minute
-   `tell_tales()` call, needing the conda/Java toolchain `tantale_setup()`
-   only builds on first *use* -- after vignette building at install time
-   would already need it). Wrote one new, minimal, install-time-safe
-   vignette instead, `vignettes/getting_started.qmd`, built from an
-   already-shipped fixture rather than live discovery. `VignetteBuilder:
-   quarto` reinstated in `DESCRIPTION`. Full detail in §7.5c.
-3. **Housekeeping while there:** confirmed via `git log --oneline
-   origin/dev..dev` that everything through `16b123f` is actually
-   pushed -- the header and the 2026-09-19 (design/docs) session note
-   above both still said "not yet pushed"; corrected both. `figure/*.png`
-   shows five pre-existing uncommitted deletions, unrelated to anything
-   in this session (not investigated, not touched) -- flagged for the
-   maintainer, not for this ledger to resolve.
+### Cross-cutting lessons
 
-**2026-09-17 session, in one place** (five commits, `6811f91`..`2c57864`,
-plus a housekeeping commit `d13bb5e`; all pushed):
+Rules already in `dev/CLAUDE.md` are not repeated here.
 
-1. **§7.5a written** -- the pkgdown article on the `tales` class, all five
-   `dom_code` points covered, every example live against the shipped
-   fixture. Reference-fixture numbers re-derived from
-   `sampleDistalrOutput.rds` rather than trusted, and matched exactly.
-2. **§7.5z decided and applied** -- articles are Quarto, not R Markdown;
-   `tales-class.qmd` converted and re-verified with a real `quarto render`.
-3. **The ledger itself audited and reordered.** §7 and §8 were in add-order
-   rather than numeric order (§8 alone had 18 subsections scrambled);
-   reordered with a content-preservation check (sorted line-multiset
-   identical before/after), nothing renumbered, so the ~35 `(ledger §N)`
-   references in `R/` and `tests/` still resolve correctly. Two stale
-   `[V]`/done claims caught in the process and flagged inline: a §6 bullet
-   describing a bug as open that was already fixed two paragraphs below
-   it, and a §9.1 sub-heading naming three functions (`msa_heatmap()`,
-   `plot_tales_msa()`, `group_tales()`) that no longer exist under those
-   names.
-4. **§9.2b finished** -- `arrayReport.tsv` and `hitsReport.tsv` are now
-   fully snake_case, exactly the mapping this section had proposed. Golden
-   re-baselined, every changed row traced to the rename before accepting.
-5. Four obsolete `dev/session-log-*` files and their rendered `.html`
-   copies removed (maintainer's call) -- their content lives in this file.
-
-`grep -nE '\*\*\[A\]\*\*|\*\*\[P\]\*\*' dev/restructuring-notes.md`
-lists what is still open at the section-heading level, but two sections
-that grep would call closed (§7.6, §14) have live sub-items worth
-listing too, and §5.2's `tales_bind()` sub-design is closed *and*
-implementable, not just closed. As of 2026-09-19, the actual picture:
-
-**Needs your decision: none currently open.** The three-item table this
-used to hold (§7.5c, §7.7, §14) is now empty -- all three resolved
-2026-09-19 evening into 2026-09-20 morning. See below.
-
-**Resolved 2026-09-19 evening into 2026-09-20, not yet committed:** §7.7
-(`docs/` now tracks the latest build, via a one-off `override`, not a
-version change), §7.5c's "ships no vignette" consequence (one new,
-minimal, install-time-safe vignette written --
-`vignettes/getting_started.qmd` -- rather than converting any of the six
-existing articles), and §14 (`XVector` dropped from `Imports:`,
-maintainer's call, verified with a real `R CMD check` rather than
-grep-trusted -- exactly the one predicted WARNING, nothing else; two
-genuinely dead `Suggests`, `ggcorrplot`/`corrr`, found and dropped the
-same pass). All fully recorded in their own sections; working-tree
-changes only so far, pending review before commit.
-
-**Done this session, no longer scoped work:** `tales_bind()` (§5.2),
-`tales_group()` split into `tales_group_hclust()`/`tales_group_kmedoids()`
-(§11), `tales_compare()` renamed to `tales_compare_distal()`, and
-`tales_compare_functal()`/`tales_to_universalmotif()` built (§12b). See
-each section for its as-built record -- not reproduced again here.
-
-**Done in the 2026-09-20 overnight session (all fully recorded in their
-own sections; not reproduced again here):**
-
-- **Vignette breakage, fully fixed.** All six articles (the five from
-  §11/§12b's note, plus `tales_class.qmd`, which turned out to have a
-  seventh real call site the original blast-radius note missed) now call
-  `tales_compare_distal()`/`tales_group_hclust()`/`tales_group_kmedoids()`
-  throughout -- code chunks and prose both, verified against real data
-  (identical grouping to the pre-split API, confirmed empirically, not
-  assumed). `tale_classification.qmd`'s "Allocating arrays to groups"
-  section rewritten as two functions, not patched as one with a
-  `method=` switch. The two banked content notes are addressed:
-  `tales_group_kmedoids()` is featured on its own terms in that same
-  rewrite, and a new section, "A different lens: comparing predicted
-  binding specificity," demonstrates `tales_to_universalmotif()` ->
-  `tales_compare_functal()` -> `universalmotif::motif_tree()`/
-  `view_motifs()` on real data, with `scan_sequences()`/`merge_motifs()`/
-  `average_ic()` covered in a closing paragraph and significance testing
-  (`make_DBscores()`) explicitly deferred, not attempted.
-- **§7.6** -- a real `pkgdown/index.md`, with the logo, a current
-  (verified-fresh) figure, and a "getting started" pointer, replacing the
-  verbatim `README.md` reuse.
-- **§7.8** -- the two flagged articles (`tale_classification.qmd`,
-  `tales_msa_class.qmd`) read through and fixed on sight; the
-  `fill_type` argument values (`"repeat_clust"`/`"repeat_sim"`) turned
-  out to be real, correctly-documented API, not an article wording bug --
-  left alone, flagged separately below as a deeper, code-level finding.
-  Full sweep across the rest of the site still not done.
-- **§12b's closing question** -- `functal()` retired: unexported, moved
-  to `inst/legacy/functal.R` plus `inst/legacy/QueTAL_v1.1/`, `README.md`/
-  `R/tantale.R` updated, version bumped to `0.9.9002` and `NEWS.md`
-  entry added to mark it.
-- **§9.2d** -- inventoried; 10 genuinely unused files (~20MB) moved to
-  `extra/`; `PXO86.fa` kept despite zero code references because an
-  article promises it ships; two files kept because the *naive* method
-  would have missed that they're actually used.
-- **§6** -- the `ape`/`ggtree` dendrogram message reproduced for real,
-  root-caused to `tidytree::MRCA()` (a cosmetic `cli` message, not a real
-  failure), and fixed with a targeted `suppressMessages()` at the one
-  call site, not a blanket guard.
-- **§7.6** (second item) -- README's install instructions, `remotes` ->
-  `pak`.
-- **§14** -- the full `reshape2` -> `tidyr` migration, all 18 call sites,
-  three verified internal helpers, one real bug found and fixed along the
-  way (see §14 for the `id1 + 1` / numeric-coercion story). Full test
-  suite and golden baseline both clean afterward.
-
-**Not attempted, by deliberate scope decision, not oversight:** §5.4's
-converters (`tales_get_protein_seq()`/`tales_get_dna_seq()` -- genuine new
-API design with four open questions already on record, not "straightforward"
-per the maintainer's own qualifier) and the six new-capability items under
-§12b's "follow-up tasks" list (`motif_tree()` etc. are now demonstrated on
-the website, per above, but nothing new was built in `R/` -- that was a
-misreading corrected mid-session, see §12b).
-
-**§15, proposed 2026-09-20, explicitly deferred ("not now") that
-morning, picked up and built the same day, later that session:** cache
-the discovery/`tales_compare_distal()`/`tales_group_kmedoids()` pipeline
-across the four articles that repeat it identically, instead of
-recomputing it in each (a real cost -- this is most of why `docs/`
-rebuilds take as long as they did the overnight session). **Built,
-verified end-to-end, working tree only (not committed yet).** The
-maintainer revised both of the morning's own "not yet agreed to"
-refinements when this was actually built: no check-then-compute
-duplicated into every consuming article (rejected as unnecessary
-complexity -- only the one canonical article computes; the other three
-`readRDS()` with a clear error if the cache is missing, not a
-standalone fallback), and the cache lives at
-`vignettes/articles/_cache/` (co-located, simpler paths), not
-`dev/site-cache/`. A real, previously unknown problem surfaced empirically
-while verifying this, with real consequences for anyone doing a full
-site rebuild -- see §15 for the finding and the fix (a required priming
-step) before touching this again.
-
-**Parked deliberately, not urgent:**
-
-- **§5.2** the talome-wide MSA plot itself -- maintainer leans toward
-  shape A (a plain list of per-group alignments) but this is "much
-  later," not next.
-- ~~§7.5's remaining `@examples` gap~~ -- **done 2026-09-21**, see §7.5
-  itself for the record.
-
-Two `####` sub-headings used to carry a stale `[P]`, one inside §9.1's
-"-original" notes and one inside §9.6's -- both were already resolved by
-each section's own main text and have since been folded into the condensed
-"Original notes" paragraphs those sections now carry (2026-09-21 ledger
-cleanup pass). Zero genuinely open `####`-level `[P]`s, as far as this pass
-found.
-
-**Before editing anything**, confirm the external environment --
-`tantale_setup()`. This machine carries `/usr/bin/mafft` **7.505** and
-`/usr/bin/nhmmer` **3.4** against pins of 7.453 and 3.3.2 (§12).
-
-**Before accepting a golden snapshot**, use the `golden-rebaseline` skill.
-Explain every changed row before accepting -- an accepted snapshot is
-indistinguishable from a correct one (§8.3, §8.1d).
+- **An `R CMD check` finds what `load_all()` hides**: undeclared
+  dependencies still installed in the ambient library, the core limit
+  (`_R_CHECK_LIMIT_CORES_`, at most 2), relative `test_path()` results
+  (§27).
+- **A golden digest pins a code path and cannot tell a right answer from
+  a wrong one.** Where a known answer exists, assert it (§8.1's toy
+  fixture). When diagnosing golden mismatches, give the control run the
+  same output-directory basename, and keep diagnostic output inside
+  `tempdir()` (§27).
+- **Read the source when the docs are silent** (§8.1b: DECIPHER's
+  `maxComparisons` ranks before truncating).
+- **Genomes are gold-quality unless flagged** (BAI3-1-1 is flagged): a
+  frameshift found in one is biology (§25).
+- **`Filter()` over a predicate that can return `logical(0)`** silently
+  shifts every later keep/drop decision (§7.7).
+- **An `Edit` whose `old_string` ends on a heading can delete the
+  heading**; re-read the section boundaries afterwards (§7.5c).
+- **cli pluralisation needs a quantity in the same bullet**
+  (`{cli::qty(n)}`); an inline style span such as `{.fn x}` is not one
+  (§8).
+- Headless Chromium for screenshots: the snap build only reads and writes
+  inside `$HOME`, and does not open a debugging port under `chromote`;
+  the Playwright build in `~/.cache/ms-playwright/` works (§7.5c, §29.1).
 
 ---
 
 ## 0. Framing
 
-`tale_parts` was introduced late in development, in response to an interface
-that had grown too many conversion functions. It emerged while `distalr()` was
-being written. Before that, computations went through `runDistal()` plus a
-family of conversion functions whose job was to reshape its output into
-whatever MSA or plotting needed.
+`tale_parts` (now the `tales` class) arrived late, while `distalr()` was
+being written, to replace a family of conversion functions that reshaped
+`runDistal()` output for MSA and plotting. Two cautions that apply
+throughout:
 
-The current code is therefore transitional: several exported conversion
-functions are archaeology from the pre-`tale_parts` era, and can be retired or
-unexported once `tale_parts` is genuinely central.
-
-Two cautions that apply throughout, and that earlier analysis got wrong:
-
-- **Absence from `pipeline.svg` says nothing about a function's value.** The
-  package also ships standalone utilities useful outside that workflow.
-- **Zero internal call sites says nothing either.** Exported functions are
-  meant to be called by users; unused internals may be dormant rather than
-  dead. Judge by what a function *does*, not by how often the package calls it.
+- **Absence from the old workflow figure says nothing about a function's
+  value.** The package also ships standalone utilities.
+- **Zero internal call sites says nothing either.** Exported functions
+  are meant for users, and an unused internal may be dormant.
 
 ---
 
 ## 1. Shrink `distalr()`'s returned list -- OBSOLETE, `distalr()` no longer exists
 
-**`distalr()` itself is gone**, superseded by the `tales`/`tales_msa` class
-system (§5 onward). Kept as the historical record of the analysis that
-motivated the class design -- not a live finding, nothing to act on.
-
-`distalr()` currently returns six elements. Three are derivable from a fourth.
-
-| element | finding |
-|---|---|
-| `coded.repeats.str` | **[V]** pure projection of `tale_parts`. Rebuilt from the stored `tale_parts` and compared: identical names, byte-identical sequences, identical widths, `all.equal()` TRUE. `identical()` differs only in the `XStringSet` `pool` slot (an allocation detail, not content). |
-| `repeats.code` | **[V]** pure projection. `identical()` TRUE outright. |
-| `repeats.cluster` | **[V]** zero consumers anywhere in `R/`, `tests/` or `vignettes/`. The only code needing cluster IDs — `.repeat_to_cluster_align()`, for plot colouring — recomputes them from `repeat.similarity`, and at a different default cut height (`distalr()` uses `h_cut = 10`; both plotting functions default to `90`). |
-| `tale_parts`, `tal.similarity`, `repeat.similarity` | **[V]** necessary and sufficient. The two similarity tables are the irreducible expensive products (pairwise protein alignment, then ARLEM on coded arrays); `tale_parts` is the substrate the rest project from. |
-
-**Actions**
-
-- **[A]** Drop `coded.repeats.str`, `repeats.code`, `repeats.cluster` from the
-  returned list.
-- **[A]** Re-expose the two projections as *methods* rather than stored fields,
-  so the reconstruction lives in exactly one place.
-- **[P]** `repeats.cluster` embeds a cut-height choice that consumers override
-  anyway. Cut height looks like a display/analysis parameter, not an intrinsic
-  property — confirm before deciding whether any clustering belongs in the
-  object at all.
-
-Note on the reconstruction: it is safe today only because `distalr()` hard-stops
-when any `aaSeq` is `NA`, so `domCode` is never `NA`. If that guard were relaxed,
-`paste(domCode, collapse = " ")` would silently emit the literal string `"NA"`
-as a repeat code. Another reason for the logic to exist once, not at each call
-site.
+The analysis showed that three of `distalr()`'s six returned elements were
+projections of `tale_parts`, and that only `tale_parts` and the two
+similarity tables were irreducible. It motivated the class design (§5);
+`distalr()` itself is gone. The projections exist as
+`tales_coded_strings()`/`tales_rvd_strings()`/`tales_domain_codes()`.
 
 ---
 
-## 2. Conversion functions
+## 2. Conversion functions **[P]**
 
-### Retire
-
-- **[V]** `repeat_to_rvd_map()` is redundant given `tale_parts`. Both paths were
-  computed from the same fixture and compared: 251 rows each, identical once
-  sorted, zero rows unique to either. The function exists to *re-derive* by
-  melt-and-rejoin a correspondence that `tale_parts` already holds on a single
-  row (`domCode` and `rvd` side by side). It is exactly the kind of function
-  that was necessary when `runDistal()` handed back `coded.repeats.str` and RVD
-  fasta files as unrelated artifacts.
-- **[A] Migrate its assertion first.** It `stopifnot`s that each `repeatID` maps
-  to exactly one RVD. That invariant is currently enforced *nowhere else* — move
-  it onto `tales` validation rather than losing it.
-  **[V]** The assertion is now pinned by a test
-  (`test_untested_exports.R`), which feeds it a repeat code carrying two
-  different RVDs and confirms it errors. So retiring the function can no longer
-  drop the check silently: the test will fail until the invariant has a new
-  home. Note the `tales` validator already has invariant 8, the `aa_seq` ↔
-  `dom_code` bijection, which is the same *shape* of constraint one level down —
-  that is the natural place for it.
-- **[A]** `repeat_to_rvd_map_distalr()` survives, but its name is misleading: it
-  depends on `domCode` being present, not on `distalr()` having been run.
-
-**Status check, 2026-09-21: never executed.** `repeat_to_rvd_map()` is still
-defined and exported today (`R/conversion.R`, `NAMESPACE`) -- confirmed
-directly against the code, not assumed from this section's own `[V]`. It was
-even actively maintained in §17 (a duplicated `@param` fixed there). Whether
-to retire it after all, or accept it as intentionally kept, is an open call
-for the maintainer -- this section's `[V]` should not be read as "done."
-
-### Keep internal
-
-- **[V]** `.repeat_to_sim_align()`, `.repeat_to_cluster_align()` — genuinely
-  plotting-only internals, correctly unexported.
-
-### Dormant but valuable — REPAIRED AND WIRED UP **[V]**
-
-Both are now reachable, and `rvdSimDf` has two independent consumers rather
-than none.
-
-**`.rvd_to_match_align()` is `fill_type = "rvd_sim"`.** It colours each cell by
-how alike that RVD's DNA-binding preference is to the reference TALE's RVD at
-the same position -- the RVD-level counterpart of `repeat_sim`, which scores
-protein sequence. The two genuinely differ: `HD` and `ND` are distinct repeats
-with identical specificity, while repeats differing only at 12-13 are
-near-identical proteins targeting different bases.
-
-**[V]** Working example on the fixture: at position 23 the reference carries
-`NG` (T-binder, 5/10/1/50) and MAI1 carries `NN` (A/G-binder, 30/10/30/1),
-scoring **-0.95**. A repeat-level fill renders that as merely "a different
-repeat"; the RVD fill shows the specificities are opposed.
-
-It needs `rvd_align` but **not** `repeat_sim`, so it works without having run
-`tales_compare()`. It gets a diverging scale centred on zero, since the score
-is signed on [-1, 1] -- the sequential 0-100 palette would flatten "opposite"
-and "somewhat different" together. Cells with no score render grey. On the reference fixture those are the
-termini (`NTERM`/`CTERM`), which are not RVDs and so have no specificity to
-compare -- not `XX`, which is a genuine RVD with a uniform profile. The cell
-keeps its own label either way, so nothing reads as `NA`.
-
-**`rvdSimDf` also scores RVD alignments** -- see 7.5. That use came out of
-noticing that RVD alignments had no scoring matrix at all.
-
-The earlier instinct to delete these on call-count alone was wrong in a
-specific way worth remembering: they were not dead, they were **unwired**, and
-the capability existed nowhere else.
-
-**Original notes, condensed (two successive drafts, both superseded by
-"REPAIRED AND WIRED UP" above):** an earlier pass recommended deleting
-`.rvd_to_match_align()`/`.rvd_to_repeat_align()` on call-count alone; that was
-wrong, since both implement capability (RVD-level scoring, the RVD→repeat
-alignment direction) available nowhere else. Real bugs fixed in each:
-`.rvd_to_match_align()`'s `tantale::rvdSimDf` reference could never have run
-(internal data accessed with `::`); `.rvd_to_repeat_align()` had no guard
-against its positional back-mapping's non-gap-count assumption silently
-failing.
+- **`repeat_to_rvd_map()` is redundant with `tales`** (same 251 rows as
+  the `dom_code`/`rvd` columns of the fixture). Its one-RVD-per-repeat
+  assertion is pinned by `test_untested_exports.R`, so retiring it cannot
+  drop that check silently; the `aa_seq` -> `rvd` anomaly check of
+  `tales()` (§6) covers the same ground. **Retirement not executed**; the
+  function is still exported. Reserved for the maintainer ("we will see
+  that later").
+- `repeat_to_rvd_map_distalr()`'s name is misleading: it needs a
+  `dom_code` column, and `distalr()` no longer exists.
+- **Dormant internals repaired and wired up [V]**: `.rvd_to_match_align()`
+  is `fill_type = "rvd_sim"` (RVD-level specificity similarity to the
+  reference, signed on [-1, 1], diverging scale; termini have no RVD and
+  render grey); `rvdSimDf` also scores RVD alignments
+  (`tales_align(domain_distances = "rvd")`). Lesson: they were only
+  unwired, and the capability existed nowhere else. See §32.2
+  for `rvdSimDf`'s coverage.
 
 ---
 
 ## 3. Legacy cemetery (`inst/legacy/`) — DONE **[V]**
 
-The three AnnoTALE<->QueTAL shims are moved to
-`inst/legacy/annotale_quetal_shims.R`, joining the existing
-`inst/legacy/tellTaleLegacy.R`.
-
-**[V]** Verified uncalled before moving: zero references to
-`.reformat_array_report()`, `.annotale_to_quetal_rvd()` or
-`.quetal_to_annotale_rvd()` anywhere in `R/`, `tests/` or `vignettes/` outside
-their own definitions.
-
-Moved rather than deleted. The file conventions they encode -- how AnnoTALE and
-QueTAL disagree about writing the same RVD content -- are not recorded anywhere
-else, and that is worth keeping even though nothing calls them. `inst/legacy/`
-ships with the package but is not sourced, so they cost nothing at load time.
-
-**Original notes, condensed (superseded by the decision above):** the shims
-were dead as a set (fed the now-dormant FuncTAL branch), carried lab-specific
-hardcodings presented as general converters, and `.reformat_array_report()`
-was stale against its own upstream (`BBB`/`ZZZ` extremity flags, long
-replaced by `NTERM`/`CTERM`). If FuncTAL is ever revived, the replacement is
-a `tale_parts` writer, not these shims.
+The AnnoTALE <-> QueTAL shims are in `inst/legacy/annotale_quetal_shims.R`
+beside `tellTaleLegacy.R`: uncalled, kept because the file conventions they
+encode are recorded nowhere else. `inst/legacy/` ships but is never
+sourced. It now also holds `annout_class.R`, `arlem_binary.R` (§33),
+`functal.R` + `QueTAL_v1.1/` (§12b), `msa_heatmap.R` (§4) and
+`unused_pending_review.R` (§18).
 
 ---
 
 ## 4. Plotting: `msa_heatmap()` — RETIRED **[V]**
 
-Done. Moved to `inst/legacy/msa_heatmap.R` (345 lines) once the consensus
-prerequisite was implemented in `plot_tales_msa()`. Vignette 3's three calls
-were migrated: `plot_type = "repeat.similarity"` -> `fill_type = "repeat_sim"`,
-`"repeat.clusters"` -> `fill_type = "repeat_clust"`, and
-`"repeat.clusters.with.rvd"` -> the same plus `rvd_align` and `consensus = TRUE`.
+Retired to `inst/legacy/msa_heatmap.R` once `plot.tales_msa()` could draw
+a consensus. Every `plot_type` of the old function maps onto separate
+arguments of the new one (`fill_type`, supplying an RVD layer, a
+reference pattern, `consensus = TRUE`).
 
-The internals it used (`.repeat_to_sim_align()`, `.repeat_to_cluster_align()`,
-`.pick_ref_name()`) are shared with `plot_tales_msa()` and stay.
-
-#### The analysis that justified it
-
-
-The ledger asked what `msa_heatmap()` provides that `plot_tales_msa()` does
-not. Answered.
-
-**Most of the apparent difference is not a difference.** `msa_heatmap()`'s six
-`plot_type` values are combinations of orthogonal features that
-`plot_tales_msa()` exposes as separate arguments -- which is the better design:
-
-| `plot_type` | `plot_tales_msa()` equivalent |
-|---|---|
-| `repeat.clusters` | `fill_type = "repeat_clust"` |
-| `repeat.similarity` | `fill_type = "repeat_sim"` |
-| `with.rvd` | pass `rvd_align` |
-| `repeat.clusters.with.rvd` | both of the above |
-| `reference` | pass `ref_pattern` |
-| `consensus` | `consensus = TRUE` -- **but see below** |
-
-**The one real blocker [V]: `consensus` does not work in `plot_tales_msa()`.**
-The argument is accepted and documented as *"NOT IMPLEMENTED YET"*; the body
-carries `#### TODO: Bind a 'consensus' tibble or a consensus plot if requested`.
-`msa_heatmap()` does render a consensus row.
-
-Note the groundwork is already there: `plot_tales_msa()` computes
-`tales_consensus(rvd_align)` and builds a tibble of it, using it to colour
-matches. What is missing is only *displaying* it as a row.
-
-**Smaller gaps**, all arguably out of scope for a ggplot function:
-
-- `save_path` -- writes the plot to a file. A ggplot is returned as an object,
-  so `ggsave()` covers this; not a real gap.
-- `note_colors` -- customises the matched/mismatched colours. A ggplot caller
-  adds a scale instead; the `p2` example in `p2_multiple_alignments.Rmd` shows
-  exactly that.
-- `...` passed to `gplots::heatmap.2`. Nothing equivalent, and nothing should be.
-
-**Conclusion — PREREQUISITE NOW MET [V].** `consensus` display is implemented
-in `plot_tales_msa()`, so nothing blocks retiring `msa_heatmap()` any more.
-
-Implementation note worth keeping, because the obvious approach cannot work:
-the consensus is a **separate `aplot` panel**, not an extra row of the
-alignment. `aplot::insert_left()` reorders the main plot's y axis onto the
-tree's leaves, and a y level with no matching leaf is *silently dropped* --
-measured, the composed y levels came back `NA | 1 | 2 | 3 | NA` with the
-consensus row simply absent. There is no variant of "just add a row" that
-survives the tree.
-
-Two further details:
-
-- The consensus follows whatever the cells are labelled with: taken from
-  `rvd_align` when supplied, `repeat_align` otherwise, with the same 3-character
-  padding the cells use for `dom_code`.
-- `aplot`'s `height` is a *ratio* of the main plot, so a fixed value grows with
-  the array count -- several rows tall for a large group. It is
-  `1.0 / countOfTales`, clamped, which holds the consensus at about one row
-  whatever the count. Verified at 3 and 12 arrays.
-
-**[V]** `tales_consensus()` was cross-checked against an independent
-`table()`-based mode calculation over all 28 positions of the fixture: identical.
-
-What remains before `msa_heatmap()` can actually go is only the decision, plus
-`save_path`/`note_colors` having no ggplot equivalent -- and §4 already argues
-`ggsave()` and an added scale cover those.
-
-**Original notes, condensed (superseded by the analysis above):** the
-starting hunch was that `msa_heatmap()` (base graphics, `gplots::heatmap.2`)
-was obsolete next to `plot_tales_msa()` (ggplot, composable `aplot`), sharing
-the same underlying internals and differing only in rendering. The one
-feature gap this first pass flagged as needing confirmation --
-`note_colors`, a configurable colour scheme -- was superseded by the fuller
-analysis above, which found the real blocker was `consensus` display
-instead, since resolved.
+Implementation note worth keeping: the consensus is a **separate `aplot`
+panel**. `aplot::insert_left()` reorders the main plot's y axis onto the
+tree's leaves and silently drops a y level with no matching leaf, so a
+consensus "row" inside the alignment cannot survive a tree. The panel's
+height is a ratio of the main plot, set to `1 / n_arrays` (clamped) so it
+stays about one row high.
 
 ---
 
 ## 5. OOP restructuring
 
-> Detailed class definitions — identity, invariants, constructors, method
-> policy — now live in **`dev/class-design.md`**. This section stays the
-> ledger: what is settled, what is open, and why.
+Class definitions (identity, invariants, constructors, method policy) live
+in **`dev/class-design.md`**.
 
-**[A]** Settled so far:
+Settled and built **[V]**: additive S3 classes over tibbles (dplyr keeps
+working); per-stage classes and no session/project container; the long
+table as the canonical alignment form, with matrices as `as.matrix()`
+views; snake_case columns; two families, `tales` -> `tales_msa` and
+`pairwise_distances` -> `tale_distances`/`domain_distances`. The S4
+`annout` class was retired to `inst/legacy/` (§5.3).
 
-- Additive S3 — classes tag the native type (tibble/matrix stays a
-  tibble/matrix), preserving dplyr compatibility.
-- Per-stage classes; no top-level session/project object.
-- Long table as the canonical form for alignments.
-- Data column names to be canonicalised (`TAL1`/`RepU1`/`RepID`/`Rep_clust` →
-  a shared schema). This is the data-level counterpart to the code-level
-  rename already done.
-- `annout` migrated to S3 — **[V]** with the caveat that its
-  `contains = "AAStringSet"` inheritance is load-bearing: `telltale.R:651` does
-  `unlist(Biostrings::AAStringSetList(annoTaleOut))`, which works only because
-  each `annout` *is-a* `AAStringSet`. An S3 class cannot inherit that way, so
-  the collection step needs rewriting, not relabelling. Note `annout` is purely
-  a private bundling device inside `tell_tales()`'s per-array loop (an
-  `AAStringSet` plus a `domainsReport`), unpacked immediately afterwards — it
-  never reaches the public pipeline despite being `exportClasses`-tagged.
+The structural problem this solved: every core shape existed as both a
+wide matrix and a long table, converted ad hoc at each call site (17
+`melt`/`acast`/`dcast` calls, 16 positional `colnames<-`).
 
-**[P]** Open design questions:
-
-- Primary justification. **[V]** the dominant structural problem is that every
-  core shape exists in two representations (wide matrix ↔ long table), with the
-  conversion re-implemented ad hoc at each call site: **17** `melt`/`acast`/
-  `dcast` calls and **16** positional `colnames(x) <- c(...)` assignments across
-  `R/`. `acast(tal_sim, TAL1 ~ TAL2, value.var = "Sim")` appears at four sites.
-  Semantics are carried by convention, not structure — if `melt()` ever changed
-  its column order, the package would silently mislabel data rather than error.
-  This argues the classes need canonical representations and conversion
-  *methods*, with validation as the second benefit rather than the first.
-- ~~Whether `repeat_align`/`rvd_align` become parent + subclass (shared methods
-  written once, since both are character matrices with `arrayID` rownames
-  differing only in cell meaning) rather than two peers.~~ **Resolved — neither.**
-  They are two *value layers over one alignment geometry*, which a long
-  `tales_msa` carries simultaneously; the matrices become `as.matrix()` views.
-  See `class-design.md` §4. This is why `plot_tales_msa()` currently needs both
-  `repeat_align` and `rvd_align` as separate arguments — a matrix can only hold
-  one layer.
-- ~~Whether `tal.similarity` and `repeat.similarity` unify into one class.~~
-  **Resolved — yes**, parent `pairwise_sim` with `tale_sim`/`repeat_sim`
-  subclasses carrying entity semantics only, and canonical id columns. See
-  `class-design.md` §3. Their divergence was indeed accidental: different ID
-  column names (`TAL1`/`TAL2` vs `RepU1`/`RepU2`), different column *order*
-  (`RepU2` precedes `RepU1`), different extras
-  (`arlemScore`/`maxLength`/`normArlemScore` vs `Dissim`) — yet downstream code
-  treats them interchangeably.
-- **[V]** `domCode` is a whole-set-dependent surrogate key (`cur_group_id()`
-  over `aaSeq`). Recomputing it on a subset renumbers everything and silently
-  breaks the join to both similarity tables. It must be carried, never
-  recomputed — a real invariant for a class to protect, and an argument that a
-  `tale_parts` and its companion similarity tables must be subset coherently.
-  **Resolved** — "carried, never recomputed" is now invariant 4 of `tales`
-  (`class-design.md` §2.4), and cross-object coherence is *enforced* by a
-  `dom_code` namespace tag: a content hash stamped on the `tales` and on each
-  `dom_code`-keyed companion, compared by methods that consume two of them
-  (`class-design.md` §3.5). **No container object is needed** — the
-  "no top-level session/project object" decision above stands. **[V]** The real
-  hazard was never subsetting (which fails loudly, or not at all) but *mixing
-  runs*: `cur_group_id()` mints `1..N` every run, so a cross-run join succeeds
-  and silently maps repeats to the wrong sequences.
-
-Downstream consequence: a good part of the conversion functions can then be
-unexported.
+**`dom_code` run-dependence** is the invariant with the most bite:
+`cur_group_id()` over `aa_seq` mints `1..N` on every run, so a join across
+runs succeeds and silently maps domains to the wrong sequences. Enforced
+by the `dom_code_namespace` stamp (a content hash) on `tales` and
+`domain_distances`, checked by every method that consumes two of them.
+`tale_distances` carries no stamp on purpose: `array_id` does not collide
+across runs.
 
 ### 5.1 Does `diagnose_tale_parts()` survive the `tales` class? — RETIRED **[V]**
 
-**Resolved.** The function is gone; `tales_anomalies()` reports the same
-conditions, `tales(sanitize = TRUE)` drops the offending arrays, and the
-checks are part of the class rather than a separate diagnostic. Nothing in
-`R/` or `NAMESPACE` mentions it.
-
-**[V]** It checks three things — rows with `NA` in `aaSeq`, `dnaSeq` or `rvd` —
-and has two modes: report the offending arrays (default), or *remove* them
-(`sanitize = TRUE`).
-
-Against the `tales` contract (`class-design.md` §2.4):
-
-| check | status under the class |
-|---|---|
-| `rvd` is `NA` | **redundant** — hard invariant 3 errors on an `NA` residue column, so a valid `tales` cannot reach the check |
-| `aa_seq` is `NA` | **not covered** — deliberately a *precondition* of `tales_relatedness()`, not an invariant, since a `tales` built from RVD strings has no `aa_seq` at all |
-| `dna_seq` is `NA` | **partly** — soft invariant 10 warns, does not error |
-
-So it is not made redundant, but its remit has narrowed to two things no
-invariant provides:
-
-1. **Array-level triage.** Validation is per row; this reports the *whole
-   array* when any one of its parts lacks a sequence — which is the right
-   granularity, since a partial array cannot be aligned.
-2. **Repair.** `sanitize = TRUE` drops the bad arrays so the rest can proceed.
-   The class errors instead; it has no "carry on without the broken ones" mode.
-
-**To decide:** whether to keep it as an explicitly-named triage/repair tool
-(dropping the now-unreachable `rvd` branch, and renamed — it is not a
-validator, and sharing vocabulary with `validate_tales()` would mislead), or
-to fold the `sanitize` behaviour into a `tales` helper and retire the rest.
-Note both call sites use it as a *guard* (`conversion.R:205`, `:373`), which
-is a third use again — and that guard is stricter than the class, since it
-rejects the whole input if any array is affected.
-
-It also carries a bare `warning()` with an empty message, one of the §9.5
-cases.
-
----
+Gone. `tales_anomalies()` reports the same conditions and
+`tales(sanitize = TRUE)` drops the offending arrays.
 
 ### 5.2 Talome-wide MSA summary plot **[P]** — parked for much later, leaning A
 
-The idea: show every group's alignment in one figure, faceted by group, using
-`plot_tales_composition(position = "alignment")`. That layout puts domain type
-and amino-acid length onto the alignment coordinate, which neither existing
-plot does -- aberrant repeats line up as a column instead of scattering.
+Idea: every group's alignment in one faceted figure,
+`plot.tales(position = "alignment")`. Each group aligns independently, with
+its own width and coordinate system, so a concatenated `tales_msa` would
+be valid in structure and meaningless in content. Two shapes:
 
-**Prerequisite, already done:** `group` is now a recognised `tales` column,
-validated as constant within an array (it is an array-level property, like
-`seqnames`). It was always usable as a free column; what is new is the
-invariant. The name matches what `tales_group()` already returns.
+- **A**, a list of `tales_msa`, one per group (maintainer's leaning,
+  2026-09-19);
+- **B**, a plain `tales` carrying `group` and `alignment_position` as
+  ordinary columns, faceted with `scales = "free_x"`.
 
-#### The dilemma: what does the summary function take?
+A group-aware `tales_align()` would follow from A with no bind method.
 
-**[V]** Each group aligns independently, so each alignment has its own width
-*and its own coordinate system*. Measured on the fixture: group 1 is 28 columns
-numbered 1-28, group 2 is 22 columns numbered 1-22.
-
-A single concatenated `tales_msa` is therefore **structurally valid but
-semantically incoherent**: `alignment_position = 5` means unrelated things in
-different groups, `alignment_width` is one scalar that cannot describe two
-alignments, and `as.matrix()` would build a single grid spanning both.
-
-Two honest shapes, undecided:
-
-| | shape | cost |
-|---|---|---|
-| **A** | a list of `tales_msa`, one per group | honest about there being N alignments; needs a `tales_msa_list` type or just a plain list |
-| **B** | concatenate to a plain `tales`, carrying `group` and `alignment_position` as ordinary columns, and facet with `scales = "free"` | closest to the original idea; the object stops claiming to be one alignment, which is the accurate claim |
-
-B is reachable today: demoting a `tales_msa` with `as_tales()` keeps
-`alignment_position`, and `position = "alignment"` consumes it. Note the facet
-currently uses `scales = "free_y", space = "free"`, which **shares** the x
-axis -- per-group alignments need `free_x` too, or the narrower group is padded
-out to the wider one's width.
-
-**Maintainer's read, 2026-09-19: the arguments for A are quite strong.**
-Not a formal decision to build A -- a leaning, recorded so the next
-person to pick this up starts from it rather than re-litigating A vs B
-from scratch. **Whole thing parked for much later**, not next in line;
-§11 (`tales_group()` rework) is the actual next §5-adjacent item. One
-concrete consequence of leaning A, already noted below: if A is what
-gets built, the group-aware `tales_align()` idea's dependency on a
-`tales`-level bind method evaporates -- "if A wins ... no bind method
-is needed at all."
-
-#### Decided: how `group` gets populated **[V]**
-
-Maintainer's call, and the right one: `tales_group()` takes the `tales`
-object whose comparison produced `tal_sim` and returns it with `group`
-filled, rather than a separate `add_group()` combining a bare mapping with a
-`tales` after the fact.
-
-Implemented as `tales_group(x, tal_sim, ...)`, returning `x` with `group`
-added. Previously it took `tal_sim` alone and returned a
-`data.frame(name, group)`.
-
-The argument order is a judgement made when implementing, not something the
-maintainer specified: `x` first, following the rOpenSci data-first
-convention (§9.0) and the rest of the `tales_*` API. Trivially flipped.
-
-**Why the combining variant is worse, concretely.** Taking `x` is the only
-point at which the correspondence between the distances and the object can
-be checked. `tales_group()` now errors (`tantale_error_group_mismatch`) if
-any array in `x` is ungrouped or any grouped name is absent from `x`, which
-means "these distances did not come from this object". An `add_group()`
-called later could do the same check, but nothing would *oblige* the caller
-to route through it, and the failure mode it prevents -- a partly-grouped
-object -- surfaces far downstream and confusingly.
-
-The bare mapping is not lost: `unique(out[c("array_id", "group")])`.
-
-**Still open:** this settles how `group` is populated, not the A-vs-B
-question below, which is about what a multi-group *alignment* is.
-
-#### Connected: a group-aware `tales_align()`
-
-Rather than making the user loop, `tales_align()` could notice a `group` column
-and align each group separately, returning either a reassembled object or a
-list. That is the natural home for the loop.
-
-**Blocked on a prerequisite that does not exist yet:** there is no `c()` or
-`bind_rows()` method for `tales` or `tales_msa`. Reassembly needs one, and it
-is not trivial:
-
-- **[V]** `array_id` uniqueness is a hard invariant, so a bind must reject
-  colliding ids rather than silently fanning out.
-- The `dom_code` namespace attribute must agree across the parts being bound --
-  §3.5 exists precisely because mixing runs joins wrongly and silently.
-- For `tales_msa`, `alignment_width` cannot survive a bind of two alignments,
-  which is the same incoherence as above; a bind would have to demote to
-  `tales`, or be refused.
-
-So the ordering is: decide A vs B, then add the bind method the chosen shape
-needs, then make `tales_align()` group-aware. Not before.
-
-#### Proposed route: `tales_bind()`, not `c.tales()` **[V]** — decided and built 2026-09-19
-
-Worked through in conversation, then built as planned -- see
-"Implementation plan" below for the as-built record. Splits into two
-questions that looked like one.
-
-**`tales` can be bound now; `tales_msa` mostly can't, and that is not a gap
-to close but a fact about what the class claims.** `alignment_width` and
-`alignment_position` are a coordinate system specific to one MAFFT run --
-two independently-produced alignments essentially never share it, so
-binding their matrices does not produce a second `tales_msa`, it produces an
-object that *lies* about what column 5 means in each row. Same failure
-shape as the `positionInArray` bug already on record in §6: asserting a
-coordinate instead of deriving it, just at the object level rather than one
-column. The one case a `tales_msa` bind is honestly meaningful --
-reassembling row-subsets that share both `dom_code_namespace` and
-`.tales_msa_contract_holds()`, i.e. genuinely the same alignment run split
-apart -- is narrow, low-risk, and nothing currently asks for it. Everything
-else should refuse rather than silently demote.
-
-So the bind that the group-aware `tales_align()` above actually needs is at
-the `tales` level, applied *after* each group's `tales_msa` is demoted with
-`as_tales()` -- which is exactly what "the ordering" note above already
-concludes, just spelled out.
-
-**Route for the `tales`-level bind.** Delegate the row mechanics to
-`dplyr::bind_rows()`/vctrs rather than hand-rolling concatenation --
-`tales` is a tibble subclass, and that machinery already handles column
-union. Wrap it with the two invariant checks that matter:
-
-- `array_id` uniqueness across inputs -- hard error on collision, the same
-  check the constructor already makes.
-- `dom_code_namespace` -- the real decision. If inputs share a namespace
-  (rare -- subsets of one original coding), bind and keep it. If they don't
-  (the common case: two independent `tell_tales()` runs), the integers are
-  not the same meaning-space and cannot just sit side by side. Two honest
-  options: refuse and make the caller re-code explicitly, or recompute
-  `dom_code` fresh via `cur_group_id()` over the unioned `aa_seq`, stamp a
-  new namespace, and `cli_inform()` that codes were reassigned and that any
-  companion distance table from either input is now stale. Leaning toward
-  the second as the default -- refusing unconditionally makes the function
-  useless in the one case people actually reach for it -- but this is the
-  maintainer's call, not a settled design.
-- `group`, if present on either side -- **decided 2026-09-19: drop it, do
-  not try to reconcile it.** First guess here (checking label
-  disjointness, same spirit as `array_id`) turned out wrong: `array_id`
-  is an identity, but `group` is a *derived* result of clustering one
-  specific `tale_distances` matrix over one specific set of arrays. Two
-  "group 1"s from separate runs are not at risk of colliding, they are
-  not comparable at all -- nothing ever clustered them against each
-  other. A disjointness check would have produced an object that looks
-  validated (each array still agrees with itself, per the existing
-  "`group` is constant within an array" invariant) while silently
-  carrying meaningless grouping information. This is the same shape as
-  the distances question one level further downstream: `group` is
-  computed *from* `tale_distances`, so if `tales_bind()` already
-  correctly declines to reconcile the distance tables themselves (the
-  honest-first-cut decision above), it has even less business trying to
-  reconcile something derived from them. So: if `group` is present on
-  any input, `tales_bind()` strips it from the bound result entirely --
-  not just the colliding labels, all of them, since every group is
-  equally invalidated by the object's shape changing -- and
-  `cli_inform()`s why, pointing at a fresh `tales_group()` call (after a
-  fresh `tales_compare()`) as how to get real groups back.
-
-#### Conceptual note: which operations invalidate a `tales`'s distance tables
-
-Maintainer's reasoning (2026-09-19), worked through together and agreed --
-recorded because it is general, not specific to `tales_bind()`, and
-worth surfacing somewhere a user would find it (website article or a
-`@details` block), not just buried in this ledger. Applies to
-`tale_distances` and `domain_distances` wherever a `tales` object and a
-companion distance table are being kept around together -- `tales_compare()`'s
-return list today, or any future container that bundles them.
-
-A companion distance table is keyed by *identity* (which `array_id`, which
-`dom_code`), not by row position, and a distance value is a property of
-that identity, not of the `tales` object's current shape. That is what
-makes the two operations below behave so differently:
-
-- **Subsetting -- cheap, no recomputation.** Dropping rows only changes
-  what is *in scope*; it does not change the distance between two survivors.
-  Filtering the companion table to pairs where both sides still exist in
-  the subsetted object is sufficient and exact, for both `tale_distances`
-  and `domain_distances`.
-- **Binding -- genuinely needs new computation, and the two tables are not
-  symmetric.** Filed as a refinement to "recompute the missing
-  comparisons," not a disagreement with it:
-  - `tale_distances`: `array_id` is never renumbered across a bind (its
-    uniqueness is enforced, not reassigned -- see the invariant above), so
-    every within-input distance stays valid under its existing key.
-    Binding genuinely is "add the array-A-vs-array-B pairs that were never
-    computed" and nothing more.
-  - `domain_distances` is not the same shape of problem. Reconciling the
-    `dom_code_namespace` mismatch (see the bullet above) by recoding via
-    `tales_assign_domain_codes()` over the *unioned* `aa_seq` reassigns
-    `dom_code` wholesale -- a domain that was `5` in one input is not
-    reliably still `5` afterwards. So every *existing* `domain_distances`
-    row from both inputs needs **rekeying to the new numbering first**,
-    and only then do the new cross-pairs get unioned in. Skipping the
-    rekey step would silently corrupt the table against the new codes --
-    exactly the failure mode `dom_code_namespace` exists to catch, just
-    reintroduced through the back door of an unreconciled companion table.
-
-**Decided, 2026-09-19: take the honest first cut.** Rather than the
-rectangular/reuse-the-within-input-blocks optimisation, `tales_bind()`
-does not touch `tale_distances`/`domain_distances` at all -- it binds
-the `tales` data only (`array_id`, `dom_code_namespace`, `group`
-invariants), and a caller who needs distances afterward just calls
-`tales_compare()` again on the bound result. Simpler, always correct by
-construction (it is the same code path as any other `tales_compare()`
-call, not a new incremental-merge code path to get right), and it
-sidesteps the rekey-then-fill complexity for `domain_distances` above
-entirely -- a fresh `tales_compare()` run naturally produces correctly
-numbered `dom_code`s and a complete distance table, so there is no
-rekeying step to implement or to get wrong. The optimisation (asking a
-backend for only the new cross-pairs, reusing the rest) stays a
-documented possibility for later, not something `tales_bind()`'s first
-version needs to attempt.
-
-**A related idea floated and rejected in the same conversation, recorded
-so it is not re-proposed identically later:** attaching `tale_distances`/
-`domain_distances` as slots directly on the `tales` object (so
-`tales_group()`/`plot()` would not need them passed separately) was
-suggested, and the counter-argument that won was exactly the reasoning
-above -- a slot like that would need every tibble verb (subsetting,
-`mutate()`, `tales_bind()`) to know how to keep it honest, which none of
-them do today, and the existing design already has a deliberate
-checkpoint for this (`tales_group(x, tal_sim)` takes the distances
-as an explicit argument specifically so the correspondence between `x`
-and the distances can be checked once, at the call). A lighter
-alternative -- giving `tales_compare()`'s existing return value (already
-`list(tales=, tale_distances=, domain_distances=)`) a real class, e.g.
-`tales_comparison`, so it reads better without teaching `tales` itself to
-carry cached derived data -- was also raised, but **does not solve
-`tales_bind()`**: bundling the three together does not make reconciling
-two objects' worth of distance data any easier, it only relocates the
-same rekey-then-fill problem to a differently-named function. The two
-ideas are orthogonal: `tales_comparison` (if ever built) is a display/
-ergonomics convenience over `tales_compare()`'s output; `tales_bind()`
-(if ever built) is what would still have to do the rekey-then-fill work
-above, on bare `tales` objects, regardless of whether `tales_comparison`
-exists.
-
-**Naming: `tales_bind()`, not `c.tales()`.** Two reasons, independent of the
-namespace question above. First, base `c()` S3 dispatch is leaky -- it only
-fires cleanly when every argument shares the class, and mixing a `tales`
-with a bare tibble or a different subclass can silently drop attributes
-instead of erroring, the wrong failure mode for a class whose whole point is
-invariants that must not go silent. Second, the namespace-mismatch handling
-above wants an argument (something like `on_namespace_mismatch = c("recode",
-"error")`) that `c(...)`'s signature has no room for. A named function
-follows the `object_verb()` convention already adopted (§9.0) rather than
-fighting a generic whose contract doesn't quite fit.
-
-**Necessity, scoped.** Only the group-aware `tales_align()` idea above
-currently depends on this, and that is itself downstream of the undecided A
-vs B choice -- if A wins (a plain list of per-group `tales_msa`), no bind
-method is needed at all. `tales_bind()` is probably worth building
-independently of that anyway: combining two `tell_tales()` runs (e.g.
-different genomes) into one object before comparing them is a normal
-workflow need, not just a §5.2 dependency. A `tales_msa`-level bind should
-stay unbuilt until something concrete needs the narrow same-run-subset
-case.
-
-#### Implementation plan, as of 2026-09-19 -- BUILT **[V]**
-
-Everything above worked through to a concrete, ready-to-implement shape.
-Consolidated here as one procedure rather than left scattered across the
-bullets above, since that is what an implementer actually needs.
-
-**Built as planned, same session.** `tales_bind()` in `R/tales_class.R`,
-right after `as_tales()`. All seven steps below implemented as specified,
-with one deliberate deviation from the letter of step 5: the internal
-tibble handed to `tales_assign_domain_codes()` during a namespace recode
-is wrapped with `new_tales()` (the unvalidated low-level constructor), not
-`tales()` -- `tales_assign_domain_codes()` itself calls `tales()` on its
-way out, so validating the intermediate too would just double the
-anomaly warnings that the one official construction in step 6 already
-reports. `tales_bind()` itself never calls `validate_tales()`/
-`.tales_anomalies()` directly, exactly as specified.
-
-Tests: `tests/testthat/test_tales_bind.R`, 30 cases covering every item in
-the "Tests to write" list below plus the round-trip check, all passing
-(`FAIL 0`). `pkgdown::check_pkgdown()` clean (the `@family tales objects`
-tag is enough; no `_pkgdown.yml` edit needed). No regressions in
-`test_tales_class.R`, `test_tales_compare_steps.R`, `test_tales_compare.R`
-or `test_group_tales.R` (the `ggtree` "Invalid edge matrix" noise there is
-the pre-existing §6 issue, unrelated).
-
-NEWS.md left untouched, per this round's standing instruction (no NEWS.md
-maintained this round -- see the 2026-09-18/19 session commits).
-
-- **Where:** `R/tales_class.R`, beside `tales()`/`as_tales()`/
-  `tales_namespace()` -- a class-level verb, not a `distalr.R` concern.
-- **Signature:** `tales_bind(..., on_namespace_mismatch = c("recode",
-  "error"), sanitize = FALSE)` -- variadic like `dplyr::bind_rows(...)`,
-  not a fixed two-argument pair.
-1. **Reject wrong types up front.** Every argument must satisfy
-   `is_tales()`. Separately -- `is_tales()` alone will not catch this,
-   `tales_msa` inherits `tales` -- explicitly check `is_tales_msa()` on
-   each input and refuse, pointing at `as_tales()`, if any is a
-   `tales_msa`. The caller demotes explicitly; `tales_bind()` does not do
-   it for them, per "everything else should refuse rather than silently
-   demote" above.
-2. **Check `array_id` disjointness across all inputs, before touching
-   rows.** Not "no duplicate rows" -- one array has many rows. Collect
-   each input's `unique(array_id)`, check the combined multiset for any
-   value appearing in more than one input, hard-error naming the
-   colliding ids. This is exactly the gap the articles currently
-   paper over by hand (`mutate(array_id = paste0(strain, "_",
-   array_id))` before combining genomes); that workaround stops being
-   necessary once this check exists and names what collided.
-3. **`group`: drop it, do not reconcile it.** See the corrected bullet
-   above -- strip the column entirely if present on any input (not just
-   colliding labels), `cli_inform()` why, point at
-   `tales_group()`+`tales_compare()` as how to get it back.
-4. **Bind rows:** `dplyr::bind_rows(...)`. Steps 2-3 already cleared the
-   only invariants row-binding itself could violate.
-5. **Reconcile `dom_code_namespace`.** Read `tales_namespace()` off every
-   input. All `identical()` (including all-`NULL`) -> keep as-is, no
-   recoding -- the namespace is a content hash of sorted-unique `aa_seq`
-   (`.tales_dom_code_namespace()`), so equal hashes already guarantee
-   compatible codes. Any differ -> drop the stale `dom_code` column from
-   the bound tibble and call `tales_assign_domain_codes()` on it, which
-   recomputes `dom_code` via `cur_group_id()` over the *unioned* `aa_seq`
-   and stamps a fresh namespace in one call. `cli_inform()` that codes
-   were reassigned and any distance table from either original input is
-   now stale. `on_namespace_mismatch = "error"` skips the recode and
-   aborts instead, for callers who want that stricter behaviour.
-6. **Construct via the existing constructor, not hand-rolled checks:**
-   `tales(bound, dom_code_namespace = <resolved>, sanitize = sanitize)` --
-   reuses `validate_tales()`/`.tales_report_anomalies()` rather than
-   duplicating them. The only work `tales_bind()` does beyond the
-   constructor is steps 2-3 and the namespace reconciliation in step 5.
-7. **Distances untouched, by design (the honest-first-cut decision
-   above).** `tales_bind()` never reads or writes `tale_distances`/
-   `domain_distances`. Documented as: re-run `tales_compare()` on the
-   bound result if you need them.
-
-**Tests to write:** `array_id` collision (error, names the ids); `group`
-present on one or both inputs is dropped with a message on both the
-colliding- and disjoint-label cases (it is *always* dropped, so both
-should behave the same way -- a good test of the "not just collisions"
-point); shared-namespace bind (no recode, codes unchanged); mismatched-
-namespace bind (recode happens, message fires, codes differ from either
-input); `tales_msa` input rejected, message names `as_tales()`; a
-round-trip check against the manual `paste0(strain, "_", array_id)`
-workaround the articles use today -- `tales_bind()` on three genomes
-should match `bind_rows()` + manual prefixing, modulo `dom_code`.
-
-**Docs:** `@family tales objects`; an example binding two small fixtures
-with genuinely distinct `array_id`s; a `_pkgdown.yml` entry under the
-existing "tales objects" reference group.
-
----
+Settled along the way **[V]**:
+- `tales_group_*()` take the `tales` and return it with `group` filled;
+  taking `x` is the one point where "these distances came from this
+  object" can be checked (`tantale_error_group_mismatch`).
+- **`tales_bind()`** (built, `R/tales_class.R`):
+  `tales_bind(..., on_namespace_mismatch = c("recode", "error"),
+  sanitize = FALSE)`. Refuses a `tales_msa` (demote with `as_tales()`
+  first); hard error on colliding `array_id`s; **drops `group`** (a
+  clustering result of one distance matrix, meaningless across runs);
+  on a namespace mismatch, recodes `dom_code` over the union and informs
+  that any companion distance table is stale; never touches distance
+  tables (re-run `tales_compare_distal()` on the result). Named
+  `tales_bind()` because base `c()` dispatch drops attributes silently on
+  mixed inputs and has no room for the mismatch argument. Tests:
+  `test_tales_bind.R`.
+- **Which operations invalidate a companion distance table** (worth a
+  user-facing home): subsetting never does (filter the table to surviving
+  ids); binding does. `tale_distances` then needs only the new cross
+  pairs, while `domain_distances` needs rekeying to the new `dom_code`s
+  first. Attaching the distance tables to the `tales` object as slots was
+  rejected: every tibble verb would have to keep them honest.
 
 ### 5.3 `tell_tales()` refactoring — MECHANICAL PASS DONE **[V]**
 
-| | before | after |
-|---|---|---|
-| lines in `tell_tales()` | 745 | **160** |
-| deepest indentation | 65 | 48 |
-| `if`/`else` branches | 18 | 4 |
-| `for` loops | 5 | 0 |
-| arguments | 17 | 17 (untouched) |
+745 -> 160 lines, 17 named internals, the body reads as a pipeline. Each
+extraction was checked against a baseline in both directions. Two defects
+no test would have caught: the GFF export tested
+`exists("reducedOlapGr")`, which silently became `FALSE` once the merge
+moved into a function (199 -> 103 records); removing the `annout` class
+removed an `@import Biostrings` four calls depended on.
 
-Seventeen internals, each named for what it does, and the body now reads as
-a pipeline: prepare the subject, read the profiles, find the hits, put them
-on the genome, merge, group into arrays, find the ORFs, run AnnoTALE, finish
-the RVD strings, align the termini, measure, report, log.
-
-**Verification.** Every extraction was checked the same way, not assumed: a
-baseline captured on the refactored code was re-run against the
-pre-extraction commit (`git stash push R/telltale.R`). Passing in both
-directions means the two produce identical output. Every step also ran the
-full suite, and each is its own commit, so any one of them reverts alone.
-
-**Two defects found, neither of which any test would have caught**
-
-1. The GFF export decided whether to include the unmerged hits by testing
-   `exists("reducedOlapGr")` -- an intermediate variable of the merge branch.
-   Lifting that branch into a function removed the variable from the frame,
-   `exists()` silently became `FALSE`, and `allRanges.gff` lost half its
-   records: 199 lines to 103. It asks `merge_hits` now.
-2. Removing the `annout` S4 class removed an `@import Biostrings` that its
-   roxygen block had been carrying for the whole package. Four unqualified
-   calls depended on it; the worst was `nchar()` on an `XStringSet`, which
-   reads as base R and only differs for an S4 argument. The import is now
-   declared deliberately (7.3 still wants it narrowed).
-
-**Also fixed on the way:** the unguarded `min_domain_hits` filter (8.0); the
-three terminus anchor codes, hardcoded here as literals, now read from
-`tales_anchor_codes()`; the nested `AnnoTALEanalyze()` promoted to
-`.run_annotale_analyze()` (8.0b); the DNA and protein terminus alignments,
-written twice, unified; `methods::Quote()` dropped from the package imports.
-
-**Not done, deliberately.** The 17 arguments are untouched: grouping them is
-a judgement call, it interacts with 9.1, and it changes the user-facing
-interface, which the rest of this pass did not. Two `TODO` blocks remain in
-the body -- circular molecules, and what two output files should contain --
-both of which are questions for the maintainer rather than cleanups.
-
-**Original notes, condensed (superseded by the before/after table above):**
-the initial diagnosis measured a single 745-line function at 65 spaces of
-indent, 82% of its file, leaning on only four internals -- evidence the bulk
-was inline orchestration rather than irreducible logic. Refactor executed as
-diagnosed.
+**Not done, on purpose:** the 17 arguments are unchanged (grouping them
+changes the user interface), and two `TODO` blocks remain in the body
+(circular molecules; what two output files should contain), both
+questions for the maintainer.
 
 ### 5.4 Reassemble whole-TALE sequences from ordered domain parts — DONE **[V]**
 
-Maintainer's request (2026-09-18), for later: two new converters,
-`tales_get_protein_seq()` and `tales_get_dna_seq()`, taking a `tales`
-object and returning one `Biostrings` object (`AAStringSet`/
-`DNAStringSet`) per `array_id` -- built by pasting that array's parts'
-`aa_seq`/`dna_seq` together in `position_in_array` order (N-term,
-repeats in order, C-term). The maintainer recalled possibly having
-written something like this before but could not locate it.
-
-**Checked, does not currently exist.** Grepped `R/` and `inst/legacy/`
-for anything that concatenates a `tales`/`tale_parts` object's rows back
-into one sequence per array: nothing does this. The nearest things in
-the codebase are not it --
-`.extract_seqs_from_hits()` (`unused_pending_review.R`, itself parked)
-*creates* per-hit sequences by subsetting a genome at nhmmer
-coordinates, it does not reassemble already-parsed parts; `tale_parts()`
-type readers (`tales_ingest.R`) build the `aa_seq`/`dna_seq` columns in
-the first place but return one row per part, never concatenated; and
-`.translate_parts()` (`distalr.R`) translates `dna_seq` -> `aa_seq`
-per row, again not a concatenation across rows. So the maintainer's
-memory of writing this is either from code since removed, or from a
-different, unshipped project.
-
-Not implemented yet -- recorded here so the idea is not lost, not
-started. Worth settling before writing it: ordering key
-(`position_in_array` vs `alignment_position`, given `tales_msa` inputs
-would have gaps to skip or fail on); what happens to a `tales_msa`'s gap
-rows if one is passed in; whether N-/C-terminal parts are always present
-per array or need a documented fallback when absent; return type exactly
-(bare `AAStringSet`/`DNAStringSet`, `names()` set to `array_id`) to match
-how the rest of the package hands off to `Biostrings`
-(see `R/distalr.R:120`, `R/tales_ingest.R:15-16` for the existing
-conventions to match).
-
-**Built, 2026-09-21 -- all four questions resolved by matching existing
-precedent rather than deciding fresh.** `tales_rvd_strings()`/
-`tales_coded_strings()` (`R/tales_projections.R`, same file) turned out to
-already answer three of the four exactly, once actually read rather than
-recalled:
-
-1. **Ordering key: `position_in_array`, not `alignment_position`** --
-   what both existing projections already use
-   (`x[order(x$array_id, x$position_in_array), ]`). This works
-   unchanged for a `tales_msa` input: an alignment never reorders an
-   array's own parts, only inserts gaps *between* them, and a
-   `tales_msa`'s gaps are never rows to begin with (`tales_msa_class.qmd`:
-   "There is no row, anywhere, whose alignment_position is a gap"). So
-   `position_in_array` gives the identical part order `alignment_position`
-   would, for any one array, with nothing to skip -- not a design choice,
-   a consequence of the class invariant. Verified, not just argued: built
-   a small `tales`, ran a real `tales_align()` on it, confirmed
-   `tales_get_protein_seq()`/`tales_get_dna_seq()` return byte-identical
-   output for the `tales` and its aligned `tales_msa`.
-2. **Gap rows: moot**, for the reason just given -- there is nothing to
-   special-case.
-3. **Missing termini: no special fallback**, matching how the two
-   existing projections handle it -- neither guards against a missing
-   terminus specifically; that is `tales_anomalies()`/`sanitize = TRUE`'s
-   job at construction time, not something every downstream projection
-   should re-check. The converters concatenate whatever rows exist per
-   array, in position order, same as their siblings.
-4. **Return type: bare `AAStringSet`/`DNAStringSet`, `names()` = `array_id`**
-   -- confirmed against `tales_domain_distances()`'s own pattern
-   (`R/distalr.R`: `Biostrings::AAStringSet(parts$aa_seq); names(aa) <-
-   parts$dom_code`), the closest existing example of constructing (not
-   just reading) a typed Biostrings object in this codebase. One real
-   deviation from the sibling *string* projections, not from this
-   pattern: no separator. `tales_rvd_strings()`/`tales_coded_strings()`
-   join with `"-"`/`" "` because they render token strings for tools that
-   split on it; these converters paste with `collapse = ""`, because the
-   output is a real protein/DNA sequence, not a token string.
-
-`tales_get_protein_seq()`/`tales_get_dna_seq()` share one internal helper,
-`.tales_assemble_seq()`, with an NA guard mirroring
-`.tales_assert_dom_code()`'s exact reasoning (a missing sequence must not
-silently get pasted in as the literal text `"NA"`). 18 new test cases in
-`tests/testthat/test_tales_projections.R`: rendering, position-order
-independence (row-shuffled input gives the same output), both required-
-column errors, both non-`tales`-input errors, both NA guards, and the
-`tales`-vs-`tales_msa` identity check above, which runs a real
-`tales_align()` rather than mocking it (this repo's convention: external-
-tool tests fail rather than skip when the tool is missing). Targeted
-suite: `FAIL 0 | WARN 0 | SKIP 0 | PASS 51` (was 33 before this).
-`pkgdown::check_pkgdown()` clean (both new exports pick up the "tales
-projections" concept via `@family`, already correctly wired to
-`_pkgdown.yml`'s `has_concept("tales projections")`, no config change
-needed). The cli-conditions audit (`getParseData()`, not grep) confirms
-no `stop()`/`warning()`/`message()` in the new code. Committed shortly after
-(`7eb9aa9`); both functions confirmed still present and exported today.
+`tales_get_protein_seq()`/`tales_get_dna_seq()` (`R/tales_projections.R`):
+one `AAStringSet`/`DNAStringSet` per array, parts pasted in
+`position_in_array` order, names = `array_id`. A `tales_msa` gives the
+same result, since gaps are never rows. No terminus fallback (anomaly
+checks own that); an NA guard stops a missing sequence being pasted as
+"NA".
 
 ---
 
 ## 6. Correctness review backlog -- DONE **[V]**
 
-Every item resolved, including the `tales_consensus_match(long = TRUE)`
-`position_in_array` mislabel (fixed 2026-09-21, see §24 and the bullet
-below).
+All items closed. Kept for reference:
 
-Deferred to a dedicated pass on "computations that may not match intent":
+- **The `as.dist()` inversion**: only `.repeat_to_cluster_align()` (now
+  `.domain_to_cluster_align()`) clustered a similarity as if it were a
+  distance; fixed (45 clusters instead of 59 on the reference output),
+  `h_cut` default moved 90 -> 10.
+- **ggplot2 API drift**: `plot_tales_msa()` aborted on every call under
+  ggplot2 4.0.3 (`palette =` passed to `scale_fill_manual()`); replaced by
+  `discrete_scale()`. The same kind of drift is live again: see START
+  HERE item 4.
+- `.build_repeat_msa()` takes the residue type from `tales_align()`
+  instead of guessing from six frequent RVDs.
+- `aa_seq` -> `rvd` consistency is a soft anomaly
+  (`aa_seq_rvd_inconsistent`); `aa_seq` <-> `dom_code` is a hard bijection
+  in `validate_tales()`.
+- `tell_tales.log`: the subject file is logged as given (it used to show
+  the renamed temp copy), and every parameter row is two tab-separated
+  fields.
+- The `tidytree::MRCA()` "Invalid edge matrix" noise is a cli message, not
+  a failure; silenced at its one call site.
+- The hclust dendrogram cut line is drawn at `cutOff` (was `cutOff / 2`,
+  no reason found).
+- `plot.tales_msa()`'s collected legend is placed through
+  `aplot::as.patchwork() & theme(...)`, the only level patchwork reads;
+  the returned value is still the `aplot`.
+- `plyr` removed (three sites in `telltale.R`).
+- `tales_consensus()` ties: see §8.7.
 
-- ~~`hclust(as.dist(Sim))` feeding a similarity where a distance is
-  expected~~ -- **fixed, see "RESOLVED" immediately below.** This bullet
-  named the bug as still open after it had already been closed; left as a
-  strikethrough rather than deleted so a future reader searching for
-  "as.dist" does not re-open a closed question. (Found stale during the
-  2026-09-17 ledger audit -- the whole reason to distrust this file's
-  markers and re-check every claim against the code.)
-- ~~`rvdSimDf` is orphaned while `build_repeat_msa()` forces identity
-  scoring for RVD alignments~~ -- **stale, already fixed.** §2's "Dormant
-  but valuable — REPAIRED AND WIRED UP" already records this:
-  `repeat_sims = "rvd"` opts an RVD alignment into `rvdSimDf` via
-  `.rvd_score_table()` (`tales_msa_class.R`). Re-verified tonight, not
-  just re-read: `tale-msa.qmd`
-  (§7.5c) calls `tales_align(x, residue_col = "rvd", repeat_sims = "rvd")`
-  against real data and checks the result differs from the unscored
-  alignment. This bullet was simply never removed when §2 closed it --
-  left as a strikethrough for the same reason the `as.dist()` one above
-  is, not deleted.
-- ~~`aaSeq` ↔ `rvd` is 1:1 in the sample data but not enforced. The two come
-  from independent sources (protein-parts file vs `rvdSequences.fas`) and
-  `tale_parts()`'s own comments say the disagreement is deliberately kept
-  visible. If they ever diverged, `repeats.code` would gain duplicate `code`
-  rows and quietly stop being a key-per-code table.~~ -- **addressed,
-  confirmed 2026-09-21.** `.tales_anomalies()`'s "aa_seq -> rvd must be a
-  function" check (`R/tales_class.R:580-594`) catches exactly this: the
-  same `aa_seq` paired with more than one `rvd`, reported as the
-  `aa_seq_rvd_inconsistent` soft anomaly (removable via
-  `sanitize = TRUE`). Related but distinct: `.tales_check_bijection()`
-  (`R/tales_class.R:785`, called from `validate_tales()`) is a separate,
-  *hard* structural check that `aa_seq` and `dom_code` stay in one-to-one
-  correspondence -- always true by construction once `dom_code` is minted
-  from `aa_seq` alone, so it guards against downstream corruption after
-  minting rather than the raw ingestion-time mismatch this bullet
-  originally worried about. Both exist; together they cover the concern.
-- ~~`build_repeat_msa()` infers whether its input is RVDs or repeat codes
-  by testing against a hardcoded list of six frequent RVDs~~ -- **fixed.**
-  "A typed object removes the guess" turned out not to need a new type at
-  all: `tales_align()` already knows which column it read
-  (`residue_col`), so `.build_repeat_msa()` now takes that as an explicit
-  `residue_type` argument and only falls back to the six-RVD guess when
-  called directly without one -- which only the tests exercising it in
-  isolation do (`tales_msa_class.R`). `test_tales_msa_class.R` and the
-  golden baseline both pass unchanged, confirming this is byte-identical
-  for every real caller and only changes the misclassification case the
-  guess existed to get wrong in the first place.
-- ~~`functal()` is blocked on Perl deps~~ -- **resolved, see §12b.**
-  `functal()` was retired to `inst/legacy/` and replaced by
-  `tales_compare_functal()` (built on `universalmotif`); confirmed still
-  absent from `NAMESPACE` today.
-- **[V] FIXED** — `plot_tales_msa()` aborted on **every** call under ggplot2
-  4.0.3: `msa.R:830` passed `palette =` to `ggplot2::scale_fill_manual()`,
-  which has no such argument (it takes `values`), so the name collided with the
-  `palette` that `discrete_scale()` supplies internally —
-  *"formal argument 'palette' matched by multiple actual arguments"*. The scale
-  was built before the `fill_type` branch, so both branches died; verified by
-  calling the function directly on the package's own fixture matrix. Replaced
-  with `discrete_scale()`, which is the scale that actually accepts a palette
-  *function*. This is ggplot2 API drift of the same kind as the Bioconductor
-  drift found in Phase 1. It also explains the assertion-free
-  `test_plot_tales_msa.R`: nothing there *could* have asserted, since every
-  call aborted — that file now has real assertions, including that the plot
-  renders to a file.
-- ~~`tales_consensus_match(long = TRUE)` labels the melted alignment
-  coordinate `position_in_array`~~ -- **fixed, 2026-09-21, see §24.**
-  `R/tales_consensus.R:92`'s `colnames(matchConsensusLong) <- c("array_id",
-  "position_in_array", "tales_consensus_match")` renamed to
-  `"alignment_position"`. Scoped narrowly, per the maintainer's explicit
-  choice (label only, not the wider matrix-vs-`tales_msa` API question --
-  see §24): the column is built by `.matrix_to_long()` melting `align`
-  (a matrix, index-based), so the value it holds was always alignment
-  position regardless of what produced the matrix, exactly as this bullet
-  always argued. No other code path reads that column by name (confirmed:
-  `tales_summary.R`'s only internal call uses `long = FALSE`; the golden
-  baseline and `test_plot_tales_msa.R` don't assert on it), so this is a
-  contained, low-risk rename -- `devtools::document()` clean (no `@return`
-  named the old column, so no Rd changed), `test_plot_tales_msa.R` 52/52
-  and `test_golden.R` both pass unchanged.
-- ~~`tell_tales.log` misreports its own input file~~ -- **fixed.**
-  `subject_file` was being reassigned to the HMMER-safe renamed temp copy
-  ([telltale.R:1394-1395](../R/telltale.R#L1394-L1395), confirmed: the
-  renaming is unconditional, not only when a name actually needs it)
-  before the log call read it. The original argument is now captured as
-  `original_subject_file` ahead of that reassignment and passed to
-  `.telltale_log()` instead. Verified against a real run -- the log now
-  names the actual fixture path, not a `/tmp/Rtmp...` one -- and the
-  golden baseline updated accordingly: the line no longer matches
-  `helper-golden.R`'s `/tmp/`-drop pattern, so it is now digested (with
-  its directory normalised, same as the HMM-profile paths already are),
-  making the baseline sensitive to *which* subject file was used. That is
-  a strict improvement, the same reasoning §8.1d already applied to the
-  other paths in this file.
-- ~~`tell_tales.log`'s parameter block is not uniformly tab-separated~~ --
-  **fixed.** The "Other parameters" block
-  ([telltale.R:430-444](../R/telltale.R#L430-L444)) put the colon in its
-  own tab-separated field instead of the label's; now
-  `paste("nterm_min_score:", value, sep = "\t")`, matching every other
-  line's two-column shape. Verified on a real run: every data row in the
-  log now splits into exactly two tab-separated fields.
-- ~~`tales_group(method = "hclust", plot_tree = TRUE)` can spam
-  `Invalid edge matrix for <phylo>. A <tbl_df> is returned.`~~ --
-  **[V] FIXED, 2026-09-20, root cause found and pinned down, not just
-  suppressed blindly.** Reproduced deliberately as this bullet asked,
-  with the real four-genome MAI1/BAI3/BAI3-1-1/PXO86 comparison (still
-  reproduced after the §11 `tales_group()` split -- 8 occurrences,
-  confirmed before touching anything, not assumed fixed by the split).
-  Isolated by bisecting `.tales_group_hclust_plot()` call by call: not
-  `ggtree::ggtree()` itself (a bare call never warns), specifically
-  `tidytree::MRCA(p, nms)`, and only for some subtrees (size-5 and one
-  size-3 group out of nine, in the reproduction). Root cause is cosmetic,
-  not a real failure: `withCallingHandlers(condition = ...)` shows it is
-  a `cli`-class **message**, not a `warning` -- `MRCA()` still returns the
-  correct integer index every time (verified: the same value with and
-  without suppression), it just narrates an internal `<tbl_df>` fallback
-  it took to get there. Fixed by wrapping that one call in
-  `suppressMessages()` where it is made
-  ([classification.R](../R/classification.R)'s
-  `.tales_group_hclust_plot()`), not by guarding against a real failure
-  mode, since there isn't one. Verified silent on the same four-genome
-  reproduction, and `test_tales_group_hclust.R` (19 tests) passes
-  unchanged.
-- **[V] FIXED** -- `tales_group(method = "hclust", plot_tree = TRUE)`'s
-  dendrogram drew its dashed cutoff line, and labelled it, at
-  `cutOff / 2` rather than `cutOff`
-  ([classification.R](../R/classification.R), the `geom_vline`/
-  `geom_text`/`xlab` trio in the hclust plotting branch). Asked the
-  maintainer whether the `/2` encoded a real reason before touching it;
-  none was found. Checked empirically rather than assumed: `ggtree()` on
-  an `hclust`-derived `phylo`, with or without
-  `ggtree::layout_dendrogram()`, plots x-coordinates that are exactly the
-  raw `hclust` heights -- no rescaling anywhere in that path -- so there
-  was never a factor of two to compensate for. Changed both the
-  `xintercept`/label position and the `xlab()` to use `cutOff` directly;
-  re-rendered against real data
-  (a saved `tales_compare()` result on the three-African-strain fixture
-  used in §7.5c's articles) and confirmed the line now sits where the
-  nine coloured subtree clades actually split, not crammed near the leaf
-  labels. `test_group_tales.R` passes unchanged (it does not assert on
-  line position).
-- **[V] FIXED** -- `plot.tales_msa()`'s legend rendered on the right of
-  the composed figure whenever a tree and/or consensus panel was
-  attached (`aplot::insert_left()`/`insert_top()`), despite the base
-  panel's own `theme(legend.position = ...)`. Root cause, found by
-  reading `aplot:::as.patchwork()`: `aplot` renders a composed object by
-  handing it to `patchwork::plot_layout(..., guides = "collect")`, and
-  patchwork's guide collection places the *collected* legend by the
-  combined object's own theme, not by any individual panel's -- so a
-  per-panel `legend.position` is silently ignored the moment more than
-  one panel exists. Confirmed with `[i, j] <-` indexed panel
-  reassignment (`aplot`'s own documented mechanism) that retheming the
-  correct cell -- found via `p$layout`, not guessed: for this figure
-  `layout[1,1]` is the tree panel and `layout[1,2]` is the main
-  alignment panel that owns the legend -- changes the *panel's* theme but
-  still renders the collected legend on the right, proving the panel
-  theme genuinely has no effect post-collection. The fix converts the
-  final `aplot` to a `patchwork` object with `aplot::as.patchwork()` and
-  applies `& ggplot2::theme(legend.position = "bottom")` to *that*, which
-  is the level patchwork actually reads for guide placement. Applied only
-  to what gets printed, not to the value `plot.tales_msa()` returns: the
-  function still returns the `aplot` object unchanged, so
-  `test_plot_tales_msa.R`'s `expect_s3_class(..., "aplot")` and
-  `$plotlist`-based introspection keep working with no test changes
-  needed. Also changed the base panel's own
-  `theme(legend.position = "top")` to `"bottom"`, so the plain
-  (no-tree, no-consensus) case matches the composed case instead of
-  differing by accident. Verified against real data: both the
-  tree-composed figure and the plain single-panel figure now show the
-  legend underneath, and `test_plot_tales_msa.R`/
-  `test_plot_tales_composition.R` pass unchanged (68 tests, 0 failures).
-- **[V] FIXED** -- the `plyr` dependency audited and removed
-  (maintainer's request, prompted by the `telltale.R:221` comment about
-  `plyr::ddply()` above). All three live call sites were in
-  `R/telltale.R`, none elsewhere in the package:
-  - `plyr::llply(files, ...)` / `plyr::llply(lines, ...)` -> `lapply()`,
-    a direct drop-in (no `.parallel`/`.progress` options were used).
-  - `plyr::adply(hits[, c("envfrom", "env_to")], 1, c(min, max))[, -(1:2)]`
-    -> `pmin(hits$envfrom, hits$env_to)` / `pmax(...)`, vectorised instead
-    of row-wise; verified identical output on the fixture.
-  - `plyr::ddply(hits[, -20], ~ target_name + sq_len, nrow)` ->
-    `dplyr::count(hits, target_name, sq_len, name = "V1")`. The
-    `hits[, -20]` in the original turned out to be a no-op at this point
-    in the pipeline -- `hits` has 19 columns here, not 20+, so the
-    negative index silently dropped nothing; confirmed with
-    `identical()` on `plyr::ddply()`'s output with and without the
-    `[, -20]`. The `telltale.R:221` comment (revised earlier tonight
-    during the self-deprecatory-language pass) claimed the RVD column
-    broke `ddply()` and needed dropping -- that claim was already stale
-    when it was reworded, since this call site was reachable only after
-    the RVD column had already been excluded upstream. The comment is now
-    removed along with the code it was explaining.
-  `plyr` dropped from `DESCRIPTION`'s `Imports:`.
-  `test_tell_tales.R`/`test_tell_tales_correction.R`/
-  `test_tell_tales_guards.R` all pass unchanged (34 tests, 0 failures).
-
-### RESOLVED: the as.dist() inversion bug **[V]**
-
-Closed. Of the sites that looked suspect, only one was a live bug:
-
-| site | verdict |
-|---|---|
-| `msa.R` (both dendrogram sites) | correct -- they compute `100 - tal_sim` first |
-| `classification.R` | correct -- its matrix is now a distance |
-| `conversion.R` `.repeat_to_cluster_align()` | **was the bug**; fixed |
-| `distalr.R` `.cluster_repeats()` | same defect, but unreachable after `distalr()` was removed; deleted |
-
-Measured effect of the fix on the reference output: 45 clusters instead of 59,
-93.8% pair-agreement. `h_cut` defaults moved 90 -> 10 in both plotting
-functions, since the height is now read on a distance scale, and the dot.case
-`h.cut` argument was renamed `h_cut` at the same time (part of 9.1).
-
-### ARLEM score semantics
-
-**[V]** `arlemScore` is a **cost (a distance), not a similarity**. ARLEM takes
-`-cfile cost_file`; its error strings refer to "the cost matrix" and "distance
-matrix"; `distalr()` feeds it the `Dissim` matrix as that cost file
-([distalr.R:571](../R/distalr.R#L571)); and every self-comparison yields
-`arlemScore = 0`. Three consequences:
-
-- **`tal.similarity$Sim` is crushed into the top ~8% of its nominal scale.**
-  [distalr.R:666-667](../R/distalr.R#L666-L667) computes
-  `normArlemScore = arlemScore/maxLength` (mean per-position alignment cost)
-  then `Sim = 100 - normArlemScore`. The subtraction presumes the cost is on a
-  0–100 scale. It could be in principle — the cost matrix spans 0–99 — but
-  aligned TALEs mostly match, so the observed mean per-position cost is ~6.
-  Measured on the fixture: `arlemScore` 0–231, `normArlemScore` 0–8.25,
-  therefore **`Sim` 91.75–100**. All discriminating signal sits in 8 units of
-  100. Note this affects the *array-level* table only; the repeat-level
-  `Sim = 100 - Dissim` ([distalr.R:565](../R/distalr.R#L565)) is a genuine
-  full-range similarity.
-- **Every consumer immediately undoes it.** All three users of
-  `tal.similarity$Sim` convert straight back to a distance —
-  [classification.R:24](../R/classification.R#L24),
-  [msa.R:332](../R/msa.R#L332), [msa.R:760](../R/msa.R#L760) — recovering
-  exactly `normArlemScore`. The `Sim` column is a round trip that costs
-  interpretability and buys nothing; exposing the distance directly would be
-  more honest. *(This also narrows the `as.dist(Sim)` question above: at array
-  level everyone does invert correctly. Only the repeat-level clustering fails
-  to, and there the values really are 1–100 similarities — so that one looks
-  like a genuine inversion bug rather than a scale quibble.)*
-- **Three magic numbers in the cost model.**
-  [distalr.R:612-613](../R/distalr.R#L612-L613) hardcodes
-  `"# Indel align 10"`, `"# Indel hist 10"`, `"# Dup 10"` into the cost file.
-  So an indel or duplication costs 10 while a substitution between dissimilar
-  repeats costs up to 99. Since TALE arrays evolve largely by duplication and
-  loss, the relative weighting of duplication against substitution is a real
-  biological modelling choice — currently fixed, undocumented and not exposed
-  as a parameter.
-
-**Re-confirmed live, 2026-09-21 -- not dormant, despite what this bullet's
-own file:line citations now suggest.** The names above (`distalr()`,
-`tal.similarity$Sim`, `classification.R:24`, `msa.R:332`/`760`) are
-pre-restructuring and several no longer resolve as written (`msa.R` alone
-has since split into `tales_consensus.R`/`tales_plot.R`, per §6's own
-`tales_consensus_match()` bullet above) -- but the underlying mechanism is
-still exactly the code running today, checked directly rather than
-assumed either way: `.run_arlem()` ([distalr.R:344](../R/distalr.R#L344))
-is called from `tales_tale_distances()` -- step 3 of
-`tales_compare_distal()`, run unconditionally on every call regardless of
-which `aln_method` (`DECIPHER`/`Biostrings`/`mmseq2`) computed the
-domain-level distances first. So the compressed-distribution finding
-(effectively ~8 points of usable range out of 100, since aligned TALEs
-mostly match) is a live property of every `tale_distances` table this
-package produces today, not legacy-code trivia -- flagged here so a future
-session does not wave it off as dormant the way this one almost did.
+**ARLEM score semantics.** `arlem_score` is a cost; `tale_distances`
+stores the normalised cost (`arlem_score / max_length`) as `dissim`
+directly (the old `Sim = 100 - cost` round trip is gone, §9.6). Two facts
+still hold:
+- The range is compressed: aligned TALEs mostly match, so `dissim` spans
+  about 0-8 of its nominal 0-100 (0-7.04 on the article data, §32.3).
+- **Duplication and insertion costs are fixed at 10**
+  (`.arlem_dup_cost`, `.arlem_indel_cost`, `R/distalr.R:336`) against
+  substitution costs up to 99. Undocumented to users and not a parameter;
+  a biological modelling choice (see START HERE, decisions before 1.0.0).
 
 ---
 
 ## 7. Documentation and artifacts
 
-- **[V]** `man/figures/pipeline.svg` has been updated on `dev` (names refreshed;
-  `runDistal()`, `tree` and six orphaned arrows removed).
-- **[A] TODO — re-export `man/figures/pipeline.png` from the current
-  `pipeline.svg` in Inkscape.** It must be done from Inkscape rather than
-  scripted: librsvg's text metrics differ and would silently change the
-  figure's typography. The SVG carries the export settings already
-  (`export-filename`, 300 dpi, 3555x1621). *(A re-export was done once and then
-  destroyed by an erroneous `git checkout --` on my part; it needs redoing.)*
-- **[V]** `p3_tantale_objects.Rmd` embeds that figure by absolute local path
-  (`/home/cunnac/...`), so it renders for nobody else. The vignette body is
-  otherwise just `TODO!!!`.
-- **[V]** The committed pkgdown site (`docs/`) was built 2023-09-17. 25 of its
-  28 reference pages document functions that no longer exist under those names,
-  including pages for deleted functions (`runDistal`, `buildDisTalGroups`,
-  `read_distal_aligns`, `tellTaleLegacy`, `tellTale2`). `_pkgdown.yml` itself
-  needs no change. A rebuild is the fix — but see below.
-- **[V]** A clean rebuild is **blocked on vignette reproducibility**, not on the
-  rename: vignettes 2, 3 and 4 all begin with
-  `load(file.path(outdir, "mining.RData"))` from `~/TEMP/test_tantale/`, which
-  does not exist on a fresh machine. The vignettes are currently
-  personal-workstation notebooks rather than portable documents.
-- **[A]** Self-deprecatory / quality-shadowing language to revise --
-  **done, 2026-09-18**, six of the seven flagged spots (the seventh,
-  `inst/legacy/tellTaleLegacy.R`, stays parked -- already unexported with
-  no man page, and explicitly lower priority):
-  - `README.md` — the "work in progress ... not necessarily fully and
-    properly implemented!!!" note replaced with a plain statement that
-    interfaces may still change ahead of publication; "nightmarish
-    experience" reworded to describe the actual problem (coordinating
-    tools across platforms) without the loaded language. A stray
-    "minning" typo fixed while there.
-  - `R/tantale.R` — "(IDEALLY)" dropped from the package description
-    rendered on `?tantale`. While in the same block: its four
-    `@section   - <title>:` tags had a stray `- ` prefix that made
-    roxygen2 8.0 mis-parse the title as spanning multiple lines --
-    exactly the "@section title spans multiple lines" warning that
-    showed up in every `devtools::document()` run tonight. Fixed
-    alongside the language, since it was the same lines; verified by
-    re-running `document()` and confirming the warning is gone, and by
-    checking the generated `.Rd`'s four `\section{}` titles render clean.
-  - `R/AnnoTALE_QueTAL_functions_library.R` — the comment naming a
-    collaborator's unpublished data genericised to describe the crash
-    condition without naming anyone.
-  - `R/unused_pending_review.R:71` (moved from `tellTale_utilities.R`,
-    which no longer exists under that name) — the alarmed
-    `## !! THIS SHOULD BE MADE OBSOLETE...` toned down; the file's own
-    header already documents this function's history in more useful
-    detail, including that the original comment's ask "apparently
-    happened, without the function being revisited" -- left untouched,
-    since it is accurate historical bookkeeping, not live alarm.
-  - `R/telltale.R:221` — "I do not know why but it fails to work..."
-    rephrased to state the workaround factually (the RVD column breaks
-    `plyr::ddply()` here) without dropping the honest admission that the
-    root cause was never tracked down. *(Superseded the same session,
-    see §6: the plyr audit found the claim itself was stale — the
-    `[, -20]` it described was already a no-op — and the comment is gone
-    along with the `plyr::ddply()` call it explained.)*
-- **[V]** Local roxygen2 is 8.0.0 and rewrote `RoxygenNote` →
-  `Config/roxygen2/version`. Worth checking against the usual toolchain.
-- ~~`talomes_heatmap()`'s roxygen describes `group_col` as displayed "as
-  rows" and `strain_col` "as columns"~~ -- **fixed.** `dcast(tale_annotation,
-  strain ~ group)` puts strains in rows and groups in columns
-  (`reshape2::dcast`'s formula is `rows ~ columns`); the two `@param`
-  lines were swapped to match.
-
----
+- Self-deprecatory language in README, `?tantale` and comments rewritten
+  (2026-09-18); `?tantale`'s four `@section` tags fixed on the way
+  (roxygen2 8.0 misparsed them).
+- `talomes_heatmap()`'s rows/columns docs corrected.
+- `DESCRIPTION` carries `Config/roxygen2/version: 8.0.0` (roxygen2 8.0
+  replaced `RoxygenNote`).
+- `man/figures/pipeline.svg`/`.png`: see §7.6.
 
 ### 7.1 Vignettes 1-4 cannot be built **[V]** — SUPERSEDED, see §7.5b/§7.5c
 
-**Superseded.** The four numbered vignettes diagnosed below no longer exist in
-this form -- rebuilt from scratch in §7.5b, then restructured again into
-`vignettes/articles/*.qmd` in §7.5c. Kept as the historical diagnosis of why
-the original `save.image()`-chained set couldn't build; nothing here is live.
-
-**Vignettes do not constrain the code.** They will be rebuilt from the
-finished functionality and the sharpened interface, not the other way round.
-A broken vignette is not a regression to chase, and no API decision should be
-made to keep one knitting. This section and 7.5 are downstream of everything
-else here.
-
-The diagnosis below stands, for whenever that rebuild happens.
-
-
-Found while removing the deprecated functions, and it predates that work.
-
-`R CMD build` (with vignettes) **fails today**, at `2_tale_classification.Rmd`.
-The cause is not an API problem: vignettes 1-4 are chained through session
-state written to a hardcoded user path.
-
-- `1_tale_mining.Rmd` ends with `save.image(file.path(outdir, "mining.RData"))`
-  where `outdir <- fs::dir_create("~/TEMP/test_tantale")`.
-- `2`, `3` and `4` each begin with `load(file.path(outdir, "mining.RData"))`.
-- That file is absent on a clean machine, so 2-4 error immediately.
-
-Consequences:
-- `R CMD build` must be run with `--no-build-vignettes` to succeed at all.
-- This, not anything about pkgdown itself, is the real blocker behind the
-  "pkgdown rebuild blocked on vignette reproducibility" note.
-- The four vignettes could not be verified after the API migration, since they
-  cannot execute. Their call sites were updated mechanically and are unchecked.
-
-By contrast `p1_tales_compare.Rmd` and `p2_multiple_alignments.Rmd` are
-self-contained -- they read fixtures from `inst/extdata` -- and both were
-re-knitted successfully after migration.
-
-The fix is to make each vignette stand alone: read its inputs from
-`inst/extdata` (or build them in a setup chunk) rather than inheriting a
-`save.image()` from the previous one. Worth doing before any pkgdown rebuild.
-
----
+The old numbered vignettes were chained through `save.image()` to a
+hardcoded home path and could not build anywhere else. Rewritten, then
+merged into the articles.
 
 ### 7.2 `R CMD check` results **[V]**
 
-First full check of the package (with `_R_CHECK_FORCE_SUGGESTS_=false`, since
-`ggcorrplot` and `corrr` are not installed here -- an environment gap, not a
-package defect).
-
-**Fixed tonight:**
-
-| finding | fix |
-|---|---|
-| NOTE: `exportClasses(annout)` requires `methods` | added `methods` to Imports |
-| WARNING: `::` imports not declared -- `BiocGenerics`, `BiocParallel`, `GenomeInfoDb`, `S4Vectors`, `rtracklayer` | all five added to Imports (all were already installed, so this was purely a declaration gap) |
-| WARNING: malformed cross-reference `\link[Biostrings::BStringSet]{BStringSet}` | corrected to `\link[Biostrings]{BStringSet}` |
-| WARNING: `correct_tales.Rd` documents `telltale_dir`, which is not an argument | stale `@param` removed |
-| WARNING: undocumented `rvd_vecs` in `repeat_to_rvd_map.Rd` | documented |
-| WARNING: undocumented `plot_tree`, `k`, `k_range`, `method` in `tales_group.Rd` | restored from the deleted `group_tales()`, which had them |
-| WARNING: undocumented `plot_type` in `talomes_heatmap.Rd` | documented |
-
-Note the `tales_group.Rd` gap was **pre-existing**, not caused by the removal:
-`tales_group()` never carried those `@param` tags, while the `group_tales()`
-alias it superseded did. Deleting the alias merely made the omission visible.
-
-**Second pass** brought it to 5 WARNINGs / 3 NOTEs, then fixed two more:
-
-- `@param plot_type` had been inserted into the wrong roxygen block. Both
-  `tales_group()` and `talomes_heatmap()` live in `classification.R`, and
-  `talomes_heatmap()`'s block has no `@return`, so an "insert before the nearest
-  preceding `@return`" heuristic landed it in `tales_group()`. Anchoring on
-  `@export` instead fixed it. Third time tonight that a positional heuristic
-  found a plausible-but-wrong target silently.
-- `methods` was declared (needed for `exportClasses`) but never imported from.
-  Added `@importFrom methods setClass` on the `annout` class definition, which
-  is the only `methods` machinery the package uses.
-
-**Left open:**
-
-- ~~*Imports declared but not imported from*~~ **RESOLVED [V]**. All six were
-  checked individually and all six were genuinely unused, so all six were
-  removed:
-
-  | package | evidence |
-  |---|---|
-  | `GenomicFeatures` | zero occurrences in `R/`, `inst/`, `vignettes/`, `tests/` |
-  | `RColorBrewer` | zero occurrences anywhere |
-  | `dichromat` | zero occurrences anywhere |
-  | `optparse` | zero occurrences anywhere |
-  | `scales` | one occurrence, inside a **commented-out** line (`msa.R:334`) |
-  | `msa` | 38 textual hits, but **all of them our own identifiers** -- `tales_msa`, `plot_tales_msa`, `rvd_msa_by_group`, `.tidy_biostrings_msa`. No `msa::`, no bare call to any of its functions. Alignment shells out to MAFFT, not to this package. |
-
-  Also confirmed for each: no `library()`/`require()`/`requireNamespace()` call,
-  and no `@import`/`@importFrom` roxygen tag. `msa` and `GenomicFeatures` are
-  substantial Bioconductor packages that users were being made to install for
-  nothing.
-- The vignette WARNINGs all trace to 7.1 (no `inst/doc`, because the vignettes
-  cannot build).
-- ~~WARNINGs on executable files and non-portable file names~~ -- the
-  non-portable-path half **fixed, see §24/§7.2.** The bundled-binary half
-  (`inst/tools/arlem/arlem`, undeclared executable) is separate and unfixed.
-- ~~NOTE on `R code for possible problems`~~ **TRIAGED AND LARGELY FIXED [V]**.
-  It had two halves and they were nothing alike:
-
-  | half | count | verdict |
-  |---|---|---|
-  | "no visible global function definition" | ~40 | **every one real.** Not a single false positive. |
-  | "no visible binding for global variable" | 126 | all NSE column names -- genuine false positives |
-
-  The first half is how `plot_tale_composition()`'s breakage was found. It also
-  turned up `methods::Quote`, used ten times in `telltale.R` and never
-  imported. All are fixed by declaring what the code calls.
-
-  The second half is now declared in `R/globals.R` (81 names). That is not
-  cosmetic: 126 lines of noise are exactly what let ~40 real unresolved calls
-  sit unread. A check output nobody can read is a check nobody runs.
-- NOTE on `package subdirectories` -- relates to `inst/`.
-
----
+First full check (2026-09): undeclared `::` imports added, six unused
+Imports removed (`GenomicFeatures`, `RColorBrewer`, `dichromat`,
+`optparse`, `scales`, `msa`), broken Rd links and stale `@param`s fixed.
+The NSE false positives are declared in `R/globals.R`; ~40 "no visible
+global function" notes were all real and fixed. Over-long fixture paths
+(65 over the 100-byte tar limit) fixed by renaming four test fixture
+directories (`err_missing_dna`, `err_array_count`, `err_missing_nterm`,
+`example_output`; the shipped `inst/extdata/tellTaleExampleOutput` kept
+its name). The executable-file warning went with ARLEM's binary (§33).
+Last full check: §27. See START HERE item 3.
 
 ### 7.3 A systemic habit: unqualified calls to non-imported packages **[V]**
 
-Three separate defects tonight had the identical shape, which makes it a habit
-rather than three accidents:
-
-| where | call | consequence |
-|---|---|---|
-| `plot_tale_composition()` | `mutate()`, `ggplot()` | **failed outright** unless the user had dplyr attached |
-| `telltale.R` (x10) | `Quote()` | `methods::Quote`, never imported |
-| `msa_heatmap()` (`msa.R:356`) | `countMatches()` | `S4Vectors::countMatches` -- and `msa.R:43` gets it *right*, 300 lines earlier |
-
-All three lived in code no test exercised. None was visible by reading -- the
-calls look perfectly ordinary; only the namespace resolution is wrong.
-
-**Root cause.** Listing a package in `Imports` makes it *installable*, not
-*visible*. Without an `@import` or `@importFrom`, a bare call to it resolves
-through the caller's search path, so the function works in an interactive
-session where the user has done `library(dplyr)` and fails everywhere else.
-
-**Review heuristic worth keeping: in this package, a bare call to anything
-outside base is suspect.** `R CMD check`'s "no visible global function
-definition" is the tool that finds them, and it is only readable once the NSE
-false positives are declared away (see 7.2) -- which is the real argument for
-`R/globals.R`.
-
----
+Three defects of one shape (`mutate()`/`ggplot()`, `Quote()`,
+`countMatches()` called bare). `Imports` makes a package installable;
+only `@import`/`@importFrom` or `pkg::` makes it visible. **In this
+package, a bare call to anything outside base is suspect**; `R CMD
+check`'s "no visible global function definition" finds them.
 
 ### 7.4 Shrink the payload — DONE **[V]**
 
-`inst/tools` is **122 MB -> 63 MB**. MAFFT and HMMER now come from the
-`tantale` conda environment, which already existed and already declared both.
-
-**The versions were checked, not assumed.**
-
-- **HMMER 3.3 -> 3.3.2.** Whole pipeline run both ways: of 36 output files, 2
-  differed, and within those exactly one line -- the version banner. Every
-  hit identical.
-- **MAFFT 7.450 -> 7.520 changed results**, reproducibly and in both
-  directions (28 vs 29 columns on `dom_code`, 29 vs 28 on `rvd`). Worse,
-  7.520 left the termini unanchored: with 7.450 every array starts at column
-  1 with its N-terminus and ends at the last column with its C-terminus,
-  while 7.520 staggered them. Gap penalties do not explain it -- `--op` 0-5
-  and `--ep` 1-10 all gave the same wrong answer. `--globalpair --op 1 --ep 1`
-  recovers the column count and the anchoring, and is identical for
-  well-populated arrays, but still differs on sparse ones.
-- **MAFFT 7.453 from bioconda is byte-identical to the bundled 7.450**, on
-  both layers. That is what the yaml pins, with a comment saying why.
-
-**What this changes for users.** The core pipeline no longer works offline
-out of the box: the first `tales_align()` or `tell_tales()` creates the conda
-environment. Conda was already a stated requirement, and TALVEZ and functal
-already depended on it, but they were optional paths and these are not.
-
-`mafft_path` and `hmmer_path` default to `NULL`, meaning "use the conda
-environment". Passing a directory still works for a standalone MAFFT, and
-the docs warn that the version matters.
-
-**A trap found on the way.** conda and micromamba keep separate roots, so
-`tantale` can exist twice with different contents -- it did here, and
-`reticulate::conda_list()` returned both. `.tantale_env_prefix()` prefers the
-one belonging to the binary in use rather than picking arbitrarily.
-
-**What is left, and why.** `arlem` (144 KB) has no conda package, so the
-`R CMD check` executable-files WARNING remains -- but for one small file
-rather than roughly 1300. The jars stay: AnnoTALE (16 MB), PrediTALE (14 MB)
-and TALEcorrection (27 MB) have no conda packages, and `correct_tales()` is
-wanted for the vignettes.
-
-**Original notes, condensed (superseded by the outcome above):** `inst/tools`
-was 122 MB of `inst/`'s 163 MB, and the conda env already declared MAFFT/HMMER
-independently of the bundled copies the package still called -- 61 MB of
-straightforward duplication, dropped as planned. The jar files (AnnoTALE,
-PrediTALE) were correctly flagged as a separate question, with no conda
-package available for either; they stayed.
-
----
+`inst/tools` 122 -> 63 MB: MAFFT and HMMER come from the conda
+environment. HMMER 3.3 -> 3.3.2 changed nothing but the banner. **MAFFT
+7.520 changes results** (different column counts, termini no longer
+anchored at the first and last columns; no gap-penalty setting fixes it);
+bioconda's 7.453 is byte-identical to the old bundled 7.450, hence the
+pin. The three jars stayed (no conda package; §34).
 
 ### 7.4a `tantale_setup()` -- DONE **[V]**
 
-A single entry point that checks, and optionally builds, everything the
-package needs outside R. Decided after 7.4 made the conda environment a
-prerequisite of the core pipeline.
-
-**The reason to build it is correctness, not convenience.**
-`.create_tantale_env()` today tests only whether an environment *named*
-`tantale` exists. If one does, it prints "can be used for analysis" and
-returns success **without looking inside it**. An environment built by an
-older version of this package holds MAFFT 7.520, which silently produces
-different alignments -- unanchored termini, a different column count (7.4).
-Nothing would report it. This happened three times during 7.4 and was caught
-only because a golden baseline existed to compare against; a user has no such
-thing.
-
-So the pins in `tantale_conda_env.yaml` are currently aspirational. Verifying
-them is the point of this function.
-
-**Shape**
-
-```r
-tantale_setup(install = FALSE, conda = FALSE, conda_bin = "auto")
-```
-
-Diagnostic by default -- called bare it reports and changes nothing:
-
-```
-✔ conda binary     /home/cunnac/bin/micromamba       # what reticulate drives
-ℹ default root     /home/cunnac/micromamba           # where `-n` would create
-✔ tantale env      /home/cunnac/mamba/envs/tantale   # what is actually used
-✔ mafft            7.453   (required 7.453)
-✔ hmmer            3.3.2   (required 3.3.2)
-✔ mmseqs2          14.7e284
-✖ java             not on PATH -- needed by AnnoTALE, PrediTALE, TALEcorrection
-✔ perl             5.36.0
-ℹ Run tantale_setup(install = TRUE) to build or repair the environment.
-```
-
-**Requirements**
-
-1. **Check versions against the yaml pins**, not merely presence. Parse the
-   pins out of `inst/tools/tantale_conda_env.yaml` so there is one source of
-   truth; a hardcoded second list would drift.
-2. **Repair, not just create.** `install = TRUE` on an environment with the
-   wrong MAFFT must fix it. Note that `micromamba create` on an existing
-   environment does *not* downgrade a package -- 7.4 learned this the hard
-   way; an explicit `install` of the pinned version does.
-3. **Check Java and Perl too.** They are hard requirements of the AnnoTALE,
-   PrediTALE and TALEcorrection wrappers, they are not conda's business, and
-   they currently fail deep inside a `system()` call with nothing useful said.
-   This is the only place they would ever be checked.
-4. **Report three separate paths, not one.** The binary, the default root,
-   and the environment actually in use are different things, and on a machine
-   with any history they diverge. Measured on the development machine:
-
-   | | |
-   |---|---|
-   | binary `reticulate` drives | `/home/cunnac/bin/micromamba` |
-   | micromamba's own root (`MAMBA_ROOT_PREFIX`) | `/home/cunnac/micromamba` |
-   | the `tantale` env reticulate resolves to | `/home/cunnac/mamba/envs/tantale` |
-
-   `reticulate::conda_list()` scans several known locations, so it returns
-   environments from every root it finds -- two rows named `tantale` here.
-   This is not hypothetical: during 7.4 three rebuilds appeared to succeed,
-   with honest logs saying MAFFT 7.453 was linked, while the package kept
-   using an env in the other root that still held 7.520.
-
-   **Corollary for the implementation: always operate on `-p <prefix>`, never
-   `-n <name>`.** `-n` creates under the binary's default root, which is not
-   necessarily the root the environment lives in.
-5. **Installing conda itself stays opt-in** behind its own argument. Putting a
-   package manager on someone's machine is a larger side effect than building
-   an environment, and should be asked for. Note that
-   `reticulate::install_miniconda()` installs **miniconda**, not mamba -- do
-   not let the docs promise otherwise.
-6. **The lazy path stays.** Users cannot be made to call this, so
-   `.create_tantale_env()` must still work on demand. It gains the version
-   check, and its failure message should point at `tantale_setup()`.
-
-Precedent for the idiom: `keras::install_keras()`,
-`tensorflow::install_tensorflow()`, `spacyr::spacy_install()`. All of them
-require the user to ask before touching the system.
-
-**Knock-on:** this shrinks 7.4b a lot. The README stops needing to explain
-conda roots and lazy environment creation, and says instead: install tantale,
-run `tantale_setup(install = TRUE)`.
-
-**Built**, in `R/tantale_setup.R`, to the shape specified above. All six
-requirements met:
-
-1. *Versions, not presence.* `.tantale_pins()` parses
-   `inst/tools/tantale_conda_env.yaml` so there is one source of truth;
-   `.tantale_installed()` reads `conda-meta/`, whose filenames are
-   `name-version-build.json`. No subprocess, and it does not need conda to be
-   working in order to report that conda is not working. Both hard cases are
-   covered and tested: hyphenated names (`perl-statistics-r`) and
-   non-numeric versions (`14.7e284`).
-2. *Repair, not just create.* `.tantale_repair()` runs an explicit
-   `conda_install` of the pinned specs, because `create` against an existing
-   environment will not downgrade.
-3. *Java and Perl checked*, with what needs them named in the failure line.
-4. *Three paths reported.* `.tantale_conda_root()` exists because
-   `dirname(dirname(bin))` is **not** the root: micromamba's binary sits in
-   `~/bin` while its root is `MAMBA_ROOT_PREFIX`. Getting this wrong is
-   precisely what made 7.4's rebuilds land in a different root from the one
-   in use. Everything operates on `-p <prefix>`.
-5. *Conda install is opt-in* behind its own `conda` argument, and the docs
-   say `install_miniconda()` installs miniconda, not mamba.
-6. *The lazy path still works.* `.tantale_warn_if_unpinned()` rides along
-   with `.tantale_env_prefix()`, warning once per session and pointing at
-   `tantale_setup(install = TRUE)`.
-
-**Removed while here:** `.create_tantale_env()` announced on every run that
-an environment "has been found on your system and can be used for analysis"
--- without having looked inside it. Noise when true and a false assurance
-when false, which is the exact failure 7.4a was written to catch. Now silent.
-
-**Not exercised by the test suite:** the `install = TRUE` and `conda = TRUE`
-branches, which need network and would modify the machine. The parsing and
-comparison they depend on are tested against fixtures; the install call
-itself is one `reticulate::conda_install()`.
+Checks, and on request builds or repairs, everything outside R. Versions
+are compared with the pins parsed from
+`inst/tools/tantale_conda_env.yaml` (read from `conda-meta/`, no
+subprocess); repair installs the pinned specs explicitly (`create` does
+not downgrade); Java and Perl are checked; three paths are reported
+(conda binary, default root, environment in use), because on a machine
+with history they diverge; installing conda is opt-in. The lazy path
+warns once per session when the environment is off its pins.
 
 ### 7.4b Tell users how to get conda, and that they now need it -- DONE **[V]**
 
-7.4 changed what a user must have before the package works at all. Before,
-MAFFT and HMMER shipped inside it and the core pipeline ran on a bare Linux
-box; now the first `tales_align()` or `tell_tales()` builds the `tantale`
-conda environment, so **conda or mamba, plus a working network connection, is
-a hard prerequisite of the main workflow** rather than of optional extras.
-
-The README and the pkgdown site both need updating, and neither currently
-says enough:
-
-- `README.md` line 59 says only "**Conda and Mamba** must be installed as
-  well.", in a list of caveats, with no instructions.
-- The package-level doc in `R/tantale.R` links to `install_miniconda()`'s help
-  page, which is better but still only a link, and it is buried under
-  "CAUTIONARY NOTES" alongside remarks about Java and Perl.
-
-**What to write.** The point users need is that they do not have to install
-conda by hand or know anything about it -- `reticulate` will do it from
-inside R:
-
-```r
-install.packages("reticulate")
-reticulate::install_miniconda()      # or point at an existing installation
-```
-
-and that `reticulate::conda_binary()` is how tantale finds it afterwards, so
-an existing conda/mamba/micromamba is used if there is one. Worth stating
-explicitly:
-
-- it happens **once**, and the environment is built on first use, not at
-  install time, so the first call is slow and needs the network;
-- which tools come from it -- MAFFT, HMMER, mmseqs2 and the Perl
-  dependencies -- so a failure to build it has an understandable consequence
-  rather than an opaque one;
-- that conda and micromamba keep **separate roots**, and an environment named
-  `tantale` in one is not the one in the other. This bit us during 7.4 and
-  will bite a user who has both.
-
-Also worth revisiting while there: the README's last bullet still explains
-that Perl libraries are bundled and "cause tantale to occupy quite some disk
-space". After 7.4 the size story has changed and that sentence should be
-re-checked against what is actually shipped.
-
-**Written.** `README.md` gains a proper three-step Installation section
-(install the package, make sure conda is available, run `tantale_setup()`),
-replacing the single caveat bullet. The package-level doc in `R/tantale.R`
-gains a `@section Setting up:` that says the same thing, and the two remaining
-cautionary bullets now point at `tantale_setup()` rather than at a
-`reticulate` help page.
-
-Everything 7.4b asked to be stated explicitly is stated: that it happens
-once and on first use rather than at install time; which tools come from the
-environment; that miniconda is not mamba; that an existing conda/mamba is
-found automatically; and that conda and micromamba keep separate roots, with
-`tantale_setup()`'s three-path report as the way to see it.
-
-**Two stale things corrected while there.**
-
-- The README claimed bundled Perl libraries "cause tantale to occupy quite
-  some disk space". False since 7.4 -- there are no bundled Perl libraries.
-  The ~60 MB is three Java programs (AnnoTALE 16 MB, PrediTALE 14 MB, TALE
-  correction 27 MB), none of which has a conda package. Corrected.
-- `_pkgdown.yml` still listed `annout-class`, whose Rd disappeared when the
-  S4 class was retired to `inst/legacy`. That is a **hard error** in
-  `pkgdown::build_site()`, so the site could not have been rebuilt. Removed,
-  and a "Setting up" section added for `tantale_setup()`.
-  `pkgdown::check_pkgdown()` is now clean.
-
-Worth keeping as a habit: **run `pkgdown::check_pkgdown()` after retiring or
-adding an exported topic.** Nothing else catches a dangling reference entry,
-and `R CMD check` does not look at `_pkgdown.yml`.
+README and `?tantale` explain the three-step setup (install, make conda
+available, `tantale_setup()`). `_pkgdown.yml` lost a dangling
+`annout-class` entry, which had made `build_site()` impossible.
 
 ### 7.5 Worked examples: vignettes and `@examples` **[A]**
 
-**Found during the 9.2 sweep:** the "Overview of TALE composition by genome"
-chunk in vignette 2 hand-rolls, in about fifteen lines of `ggplot()` calls,
-exactly the figure `plot_tales_composition()` now produces in one. It also
-passed `color = isNaAaSeq`, a variable defined nowhere in the vignette or the
-package -- dead since it was written, and invisible only because these
-vignettes do not build (7.1). The stray argument is removed; replacing the
-chunk with a `plot_tales_composition()` call belongs to this rewrite.
-
-
-`plot_tales_msa()` is the most capable function in the package and the hardest
-to use: three independent things determine the rendering (cell text, text
-colour, block fill), each with its own inputs. Its `@details` now explains the
-mechanism, but explanation is not the same as demonstration.
-
-Two gaps, both out of scope for now:
-
-**The pkgdown MSA section is obsolete.** It was written against
-`msa_heatmap()`, which is retired, and against the legacy slot names. Vignette
-3's calls were migrated mechanically but the surrounding prose still describes
-the old workflow, and none of it can be verified while 7.1 stands. It needs
-rewriting as a set of commented examples covering the combinations a user
-actually reaches for -- each `fill_type`, with and without a tree, with and
-without a consensus panel, RVD versus repeat-code labels.
-
-**No exported function has `@examples`.** Nothing in `man/` carries a runnable
-example, so `R CMD check` exercises none of the documented API and a reader has
-nothing to copy. This matters most for the plotting and class constructors,
-where the argument combinations are the hard part.
-
-Note the dependency: useful `@examples` need small, fast, self-contained
-fixtures. `inst/extdata` has some, but the plotting examples would want a tiny
-alignment that does not require running MAFFT. Worth building that fixture
-first; it would serve the vignettes too.
-
----
+Superseded by §7.5b/§7.5c and §17: every exported function has a run and
+verified example.
 
 ### 7.5a An article on the `tales` class, and what a `dom_code` is -- DONE **[V]**
 
-A full pkgdown article on the `tales` class, written for an audience that is
-biologists first. The `tales_msa` class gets the same treatment later, with
-the alignment material.
-
-**The section that matters most: what a `dom_code` is.** Nothing currently
-explains it to someone who is not already reading the source, and it is the
-concept the whole comparison machinery rests on. What it has to say:
-
-- **A `dom_code` names a distinct *domain* sequence -- not a repeat.** This
-  is the point the name is making and it must be said first. A TALE part is
-  an N-terminus, a repeat, or a C-terminus, and all three get codes on the
-  same footing; "domain" is the word chosen precisely to cover them
-  indiscriminately. Two parts with the same amino acid sequence get the same
-  code, whatever kind of part they are.
-
-  The distinction is not pedantic. On the reference fixture, 251 distinct
-  codes cover **180 repeats and 71 termini** -- describing the total as a
-  repeat count overstates it by nearly a third. (This exact error was made
-  and caught while writing `summary.tales()`.)
-
-- **It is what makes a TALE alignable.** Aligning TALEs residue by residue is
-  meaningless -- the repeats are near-identical, so everything matches
-  everything. Giving each distinct repeat a symbol turns an array into a
-  *sequence of repeat units*, and that can be aligned the way a protein
-  sequence is, with insertions and deletions of whole repeats. This is why
-  `tales_align()` works on `dom_code` (or `rvd`) rather than on `aa_seq`.
-
-- **It is finer than an RVD, and defined where an RVD is not.** The RVD is
-  residues 12-13 and says what base the repeat binds. Two repeats can carry
-  the same RVD -- the same specificity -- while differing elsewhere in the
-  repeat, and they get different `dom_code`s. So `rvd` is the functional
-  layer and `dom_code` the identity layer, which is why the class carries
-  both and why the plots let you choose.
-
-  And a terminus has no RVD at all: the `rvd` column holds `NTERM`, `CTERM`
-  or `XXXXX` there, which are placeholders standing in for "not a repeat",
-  whereas its `dom_code` is a real identifier of a real sequence. Another
-  reason the two layers are not interchangeable.
-
-- **How they are computed, plainly**: group the parts by `aa_seq`, number the
-  groups. `dplyr::cur_group_id()`, nothing cleverer.
-
-- **And the consequence that bites**: the numbers depend on which arrays were
-  in the table when they were assigned. Code 42 from one run is not code 42
-  from another. This is not a wart to apologise for but a fact to state
-  early, because it is why `tales_compare()` stamps a
-  `dom_code_namespace` and why mixing a similarity table from one run with
-  codes from another is an error the package tries to catch. The redundancy
-  is worth a number: the reference fixture has **251 distinct domains across
-  955 parts**, which is also what makes the pairwise comparison affordable --
-  it runs over distinct domains, not over parts.
-
-**The rest of the article** should cover: what a `tales` is (one row per
-part, not per TALE, and why); the column contract and which columns are
-optional; the three ways to build one (`tales_from_telltale()`,
-`as_tales()`, `tales_compare()`); that it is a tibble and dplyr verbs work on
-it; `tales_anomalies()` and `sanitize`; and the projections
-(`tales_rvd_strings()`, `tales_coded_strings()`, `tales_domain_codes()`).
-
-Relates to 8.5b: if `tales_compare()` is broken into three exported steps,
-the code-assignment step becomes the natural place to link this explanation
-from.
-
-**Written.** `vignettes/articles/tales-class.Rmd`. All five `dom_code`
-points covered; the 251/180/71 split was re-derived from
-`sampleDistalrOutput.rds` rather than trusted from this ledger (they match
-exactly), and the article's own live example (the small shipped
-`bai3_sample_tal_genomic_regions.fasta`, run through `tell_tales()`) gives
-47 distinct codes across 96 parts, 39 of them repeats.
-
-**Two placement decisions, not specified by this section:**
-
-- **`vignettes/articles/`, not the numbered `vignettes/` sequence.**
-  Confirmed with `tools::pkgVignettes()` that R's build machinery does not
-  descend into that subfolder, so this is a pkgdown-only article: it never
-  runs during `R CMD build`/`check`, and does not need the conda
-  environment to be present for the package to build. The numbered
-  vignettes remain §7.5's job.
-- **Live, not static.** Every example is an executed chunk against the
-  small shipped fixture, not prose describing numbers by hand -- so the
-  article stays true across rebuilds rather than becoming another thing
-  that quietly drifts from the code (§9.2's own lesson).
-
-**A real bug caught by verifying rather than assuming.** The first draft
-cross-referenced functions as `[fn()][fn]`, which is roxygen2's `.Rd` link
-syntax and not valid in a plain `.Rmd` -- pandoc silently dropped every one
-under both plain `rmarkdown::render()` and a real `pkgdown::build_article()`
-(tested against a temporary installed copy, since pkgdown's article
-renderer requires an installed package and will not accept `load_all()`).
-Fixed to the convention the existing vignettes already use, plain
-`` `fn()` `` inline code, which `downlit` autolinks automatically -- and
-re-verified all 15 references resolve to the correct reference page.
-
+`vignettes/articles/tales_class.qmd`. Key points it carries: a `dom_code`
+names a distinct **domain** sequence (N-terminus, repeat or C-terminus);
+coding repeats as symbols is what makes arrays alignable; it is finer
+than an RVD; the codes mean nothing outside the call that minted them.
+Cross-references in plain `.qmd` are inline code (`` `fn()` ``), which
+downlit autolinks; roxygen link syntax is dropped silently.
 
 ### 7.5z Articles are Quarto, not R Markdown -- agreed **[V]**
 
-Maintainer's call, made after §7.5a was written: future website articles
-under `vignettes/articles/` are `.qmd`, not `.Rmd`. pkgdown 2.2.0 supports
-quarto vignettes natively (its own NEWS: "`build_articles()` now executes
-quarto vignettes ..."), and quarto is installed on the dev machine (1.5.57).
-
-`tales-class.qmd` (§7.5a) was written as `.Rmd` an hour before this was
-said, converted immediately: YAML changed from
-`output: html_document: {...}` to `format: html: {...}`, content
-unchanged, re-verified with a direct `quarto render` against a temporary
-installed copy -- same 29 chunks, same numbers, same namespace-mismatch
-error text.
-
-**Not yet done, and not urgent** (maintainer: the website is not a current
-priority): the four numbered `vignettes/*.Rmd` walkthroughs and the three
-`p*.Rmd` files are still R Markdown. They are §7.5's problem, not this
-one's, and §7.5 is deliberately last regardless of format.
+In `dev/CLAUDE.md`'s standing rules.
 
 ### 7.5b The four numbered vignettes rebuilt; a `tales_msa` article; `@examples` on the core API -- DONE **[V]**
 
-The blocker §7.1 named -- each vignette inheriting session state via
-`save.image()`/`load()` from a hardcoded `~/TEMP/test_tantale` path -- is
-gone. All four numbered vignettes were rewritten from a blank slate (the
-old ones were used only as a list of topics, per the maintainer's steer,
-since the API had moved on): each is now self-contained, building whatever
-it needs itself via `tempdir()`, and each was verified with a real
-`rmarkdown::render()` -- exit status checked, not just "no error printed"
--- against a package installed to a scratch library.
-
-**What each one covers**, and why the shape changed from the original set:
-
-- **`1_tale_mining.Rmd`** -- `tell_tales()` on a clean genome, then the
-  gap this rewrite was specifically asked to close:
-  `tales_anomalies()` and **both** correction paths, contrasted rather than
-  documented separately, since a user has to choose between them.
-  `correct_array = TRUE` (`DECIPHER::CorrectFrameshifts()`, run from inside
-  `tell_tales()`, correcting already-found candidate arrays) and
-  `correct_tales()` (the Java `TALEcorrection` wrapper, correcting the whole
-  genome sequence *before* discovery) are not alternatives with the same
-  failure mode. This is shown, not asserted, on the real BAI3-1-1 fixture:
-  uncorrected, `ROI_00003`/`ROI_00005` have no `rvd` at all (AnnoTALE
-  cannot parse a frameshifted ORF); `correct_array = TRUE` with
-  `max_comparisons = 20` (kept low so the vignette builds in seconds, not
-  the ~8 minutes the full reference set takes) fixes both -- but breaks a
-  *third*, previously clean array, `ROI_00001`, exactly the risk
-  `max_comparisons`'s own docs describe; `correct_tales()` on the same
-  genome fixes `ROI_00003` but not `ROI_00005`, a third, different outcome.
-  None of this was staged -- it is what the fixture actually does, found
-  while writing the article and kept because it is a better illustration
-  of "check `tales_anomalies()` after correcting, whichever path you took"
-  than an invented example would have been.
-- **`2_tale_classification.Rmd`** -- multi-genome discovery (own
-  `tell_tales()` calls, not inherited), `tales_compare()`, `tales_group()`
-  (`k = "auto"`, avoiding the interactive-`k` prompt), `talomes_heatmap()`.
-- **`3_tale_msa.Rmd`** -- re-derives one real classification group
-  (7 arrays across BAI3/BAI3-1-1/MAI1/PXO86 collapse to a handful of
-  cross-strain groups of size 2-3, one per shared locus, plus PXO86-only
-  paralog groups -- group 9, used here, holds one member from each of
-  MAI1/BAI3/BAI3-1-1), aligns it, and plots it three ways. Deep mechanics
-  live in the new article (below) and are only linked from here.
-- **`4_tale_target_prediction.Rmd`** -- `talvez()`/`preditale()` against
-  the shipped clade III *SWEET* promoter set, using `tales_rvd_strings()`
-  directly (a `BStringSet`, no intermediate fasta) rather than the
-  hand-rolled file writing the original had, `plot_target_preds()`.
-
-**A new pkgdown article, `tales-msa-class.qmd`**, the counterpart §7.5a
-promised: what `alignment_position`/`tales_width()` are, why gaps are
-implicit, coercion **both directions** between `tales` and `tales_msa`
-(`tales_align()` promotes; `as_tales()` demotes, verified to strip the
-class and `alignment_width` while keeping `alignment_position` as an
-ordinary column; column-subsetting degrades the same way automatically,
-one grade at a time), and `plot.tales()`/`plot.tales_msa()` in depth --
-added specifically because §7.1's rebuild surfaced that a `tales`/
-`tales_msa` coercion-and-plotting section was still missing after 7.5a.
-
-**`tales-class.qmd` gained the subsetting section it was missing.** `[`,
-`select()`, `mutate()` and what each does to the class and to
-`dom_code_namespace` -- maintainer-flagged as absent while reviewing 7.5a.
-
-**Two real bugs found by building the articles, not looked for --
-fixed:**
-
-- `plot.tales_msa()` ended `print(finalPlot); return(finalPlot)` --
-  no `invisible()`. Building `tales-msa-class.qmd` with quarto showed every
-  non-assigned `plot(msa, ...)` call rendering a figure twice (confirmed
-  with a raw `pdf()` device: one page from the explicit `print()`, a
-  second from top-level auto-print of the visible return). Fixed to
-  `invisible(finalPlot)`, matching `plot.tales()`'s existing pattern;
-  `test_plot_tales_msa.R`'s 52 assertions still pass.
-- `as.matrix.pairwise_distances()`'s `@param value` doc said the default
-  is `sim`; the code default is `PAIRWISE_DISTANCES_VALUE_COL`, which is
-  `"dissim"` (§9.6's rename). Stale since that rename. Fixed.
-
-**`p2_multiple_alignments.Rmd` was broken against the current API** --
-`repeat_to_rvd_align()` and `plot_tales_msa()` are both gone (§8.6 folded
-the latter into `plot.tales_msa()`). §7.1's claim that p1/p2 "were
-re-knitted successfully after migration" predates that change, which is
-exactly the kind of stale `[V]` this file warns about elsewhere. Its first
-half (plain RVD/repeat-code alignment via `tales_align()` + `as.matrix()`)
-still worked and is kept; the second half (a 15-call sweep of
-`plot_tales_msa()`'s retired argument combinations) is replaced with a
-pointer to `tales-msa-class.qmd`, which now covers the same ground against
-a currently-exported API. Re-verified with `rmarkdown::render()`.
-`p3_tantale_objects.Rmd` -- unchanged since 2023, "TODO!!!" plus an
-absolute local image path (already flagged in §7, above) -- is retired to
-a two-line redirect to the two class articles, since its stated topic is
-now genuinely covered.
-
-**`@examples` added to 26 exported functions** across the core classes --
-`tales()`/`as_tales()`/`tales_namespace()`/`validate_tales()`/
-`tales_anomalies()`/`tales_assert_complete()`, `tales_msa()`/
-`as.matrix.tales_msa()`/`tales_align()`, `pairwise_distances()`/
-`distances_assert_square()`/`as.matrix.pairwise_distances()`/
-`distances_restrict()`, the three projections, the three
-`tales_compare()` steps plus `tales_compare()` itself, `tales_group()`,
-`talomes_heatmap()`, `tales_consensus()`/`tales_consensus_match()`,
-`tales_from_telltale()`, `plot.tales()`/`plot.tales_msa()`, and (behind
-`\donttest{}`, since they need the conda environment / a JVM)
-`tell_tales()`/`correct_tales()`. Every one of the 26 extracted with
-`tools::Rd2ex()` and executed against a scratch-installed copy of the
-package, not merely inspected -- all pass. Most reuse the tiny shipped
-`tellTaleExampleOutput` fixture (fast, no external tool needed, since
-DECIPHER and the bundled ARLEM binary are pure R / no-conda); the
-`tales_msa` examples are hand-built alignments where that is faster and
-clearer than running MAFFT for two rows.
-
-**`target_predictions.R`'s three exports done too**, after the above:
-`talvez()`, `preditale()`, `plot_target_preds()`, all behind `\donttest{}`
-(conda / a JVM). Verified directly against a real run rather than only via
-`Rd2ex()`, since `\donttest{}` blocks are not part of that check.
-
-**Left for later, deliberately:** the AnnoTALE/QueTAL wrapper functions
-(`run_annotale_predict()`, `run_annotale_build()`, `functal()`) still have
-no `@examples` -- lowest traffic of what remains, and `functal()` cannot
-even run yet (§12b).
-
-**Done, 2026-09-21.** `functal()` no longer needs one at all -- it was
-retired to `inst/legacy/` in the meantime (§12b) and is not exported.
-`run_annotale_predict()` and `run_annotale_build()` both got a real,
-verified `\donttest{}` example -- run for real against `MAI1.fa` (not
-just `Rd2ex()`-extracted and inspected), chained exactly as
-`run_annotale_build()`'s own docs already said it usually is
-(`run_annotale_predict()`'s `Predict/TALE_DNA_sequences_*` output feeding
-`run_annotale_build()`), producing nine real AnnoTALE classes end to end.
-A fourth function not on this list originally, `tales_predict_targets()`
-(added after this section was written -- checked, not assumed identical
-to the three already done), was found missing an example too and got one
-demonstrating both backends (`talvez`/`preditale`), verified the same
-way. `devtools::document()`/`pkgdown::check_pkgdown()`/the cli-conditions
-check all clean.
-
-A full `pkgdown::build_site()` was run after all of the above, against a
-scratch-installed copy, to confirm the whole site -- reference pages, both
-new/edited articles, all seven vignettes -- builds together, not just each
-piece in isolation.
+Rebuilt self-contained, then merged into the articles (§7.5c). Found on
+the way: `plot.tales_msa()` returned visibly (every figure printed twice),
+now `invisible()`.
 
 ### 7.5c The numbered-vignette/article duality abrogated; genome choice and figure sizing fixed; one real vignette reinstated -- DONE **[V]**
 
-Maintainer review of 7.5b's site, in the same session, found real problems
-with it -- not style notes, substantive ones -- and a structural request:
-stop treating "the four numbered walkthroughs" and "the two class deep
-dives" as two separate kinds of thing.
-
-**Restructured into one coherent set.** All six articles now live under
-`vignettes/articles/*.qmd` -- the four numbered `vignettes/*.Rmd`
-walkthroughs and the `p1`/`p2`/`p3` files are gone, `git mv`'d or merged
-rather than deleted where their content survived. Two are deep dives
-extending a walkthrough rather than numbered steps of their own
-(`tales-class.qmd` extends "mining"; `tales-msa-class.qmd` extends
-"msa"), and every article says explicitly, near the top, where it sits
-relative to the others and links both ways. p1's backend-comparison
-content is now a subsection of the classification article; p2's still-
-valid alignment demo folded into the msa deep dive; p3 (already just a
-redirect) is gone outright, superseded by the two class articles it
-pointed at.
-
-**Consequence flagged, not decided: the package now ships no traditional
-vignette at all.** `DESCRIPTION`'s `VignetteBuilder: knitr` is removed --
-nothing under `vignettes/` builds via the standard mechanism any more,
-only the pkgdown-only `articles/` subfolder `tools::pkgVignettes()`
-already confirmed R's build machinery does not descend into (7.5a). That
-trades away `vignette()`/`browseVignettes()` access and anything bundled
-in the source tarball for offline reading, in exchange for finally having
-walkthroughs that render at all and can use quarto's callouts/crossrefs/
-lightbox consistently. **This is a real product decision, not a
-formatting one, and belongs on the maintainer's desk** rather than
-assumed settled by an autonomous session.
-
-**Three content problems, found by actually reading the built site
-rather than trusting that "renders without error" meant "good":**
-
-- **The classification demo was undermined by its own input.** All four
-  sample genomes were being compared together, and PXO86 -- a distantly
-  related Asian outgroup whose TALE repertoire barely overlaps the
-  African strains' -- turned a clean one-locus-per-strain signal into a
-  mess of singletons and PXO86-only paralog clusters, making
-  `tales_group()` look worse than it is. Dropping PXO86 from the
-  classification, alignment and target-prediction articles (mining still
-  covers all four, since PXO86 discovery on its own is fine) turns the
-  9-group result into 8 clean triplets, one member per strain, and --
-  found as a side effect of the same fix, not chased separately --
-  **silences a warning that had no business being in the rendered site
-  at all**: `ggtree`/`ape`'s `Invalid edge matrix for <phylo>. A <tbl_df>
-  is returned.`, baked into the old built page 24 times over from
-  `tales_group(method = "hclust", plot_tree = TRUE)`. Confirmed by
-  removing PXO86 alone, with everything else unchanged, that the warning
-  stops. **Not fixed at the source** -- nothing in `classification.R`
-  changed -- so a user's own dataset with a similarly structured tree
-  could still trigger it; recorded in §6 below rather than assumed gone
-  for good.
-- **The `tales_align()` example was a bad advertisement for gaps.** The
-  old example (four unrelated arrays from `bai3_sample_tal_genomic_
-  regions.fasta`) does have gaps, but scattered everywhere with no clean
-  story -- not "not very adapted" as a fixture, adapted for the wrong
-  thing. Replaced across both the walkthrough and the class deep dive
-  with a real classification group carrying exactly one internal gap,
-  outside both extremities, shared by BAI3 and BAI3-1-1 against MAI1 --
-  and, because BAI3-1-1 is the same background as BAI3 with *talC*
-  deleted, a biologically legible one: a deletion the two share because
-  they share an ancestor with it, not two coincidences. Both articles now
-  build on the *same* alignment (the class deep dive continues directly
-  from the walkthrough's, self-contained rather than session-shared), so
-  the deep dive is a continuation rather than a context switch.
-
-  While there, `repeat_sims`/`tal_sim` were exercised rather than only
-  documented, per the maintainer's request: on `dom_code`, supplying
-  `domain_distances` as a scoring matrix produces a measurably narrower
-  gap (one column instead of three) for the array carrying the deletion
-  -- concrete support for the existing "more compact alignments" claim.
-  On `rvd`, the built-in matrix changed nothing on this data, reported as
-  the honest (if less dramatic) finding it is rather than dropped for a
-  better story: three closely related arrays with a small RVD alphabet
-  leave a scoring matrix little room to matter.
-- **Two figures were unreadable, for opposite reasons.** The alignment
-  plots were stretched tall relative to their row count and narrow
-  relative to their column count, squeezing the repeat-code boxes;
-  settled empirically at roughly 9in width / 2.3in height per three-row
-  alignment, checked by rendering and looking rather than guessing.
-  `plot_target_preds()`'s RVD boxes were unreadable the opposite way --
-  crammed into a wide filter window with several unrelated predictions
-  competing for space. Narrowing the window to one region of interest
-  fixed it, and searching for a tighter example paid off unexpectedly: a
-  literal three-way tie, one TALE from each strain predicting the *exact
-  same* site on SWEET14 at an identical score, which is a better
-  illustration of orthologous conservation than the two-prediction
-  example it replaced.
-
-**A real mistake caught while writing this section, worth recording so
-it does not repeat:** the `Edit` that added §7.5b matched an `old_string`
-ending exactly at the `## 8. Tests` header and replaced it without
-preserving that header, silently merging §8's content under §7.5b with
-no heading between them for several commits. Found only by re-reading
-the section boundaries just now, not by any tool complaining. Restored.
-The lesson is generic, not specific to this file: an `old_string` that
-ends exactly on a heading is a genuine risk of eating that heading, and
-is worth a re-read of the surrounding structure after the edit, not just
-a check that the intended new text landed.
-
-**[V] FIXED, found the same night on further review** -- the site's
-navbar lost its "Articles" dropdown as an unintended side effect of the
-restructuring above. Before 7.5c, `_pkgdown.yml` had no `articles:`
-section at all, so pkgdown's `navbar_articles()` took its "no config"
-branch and auto-built a dropdown listing every vignette. Adding the
-`articles:` section (to control ordering/titles) switched it onto a
-different branch that, absent a per-group `navbar:` key, collapses to a
-single link to `articles/index.html` instead -- root-caused by reading
-`pkgdown:::navbar_articles()` directly rather than guessing from the
-rendered HTML. Fixed by adding `navbar: ~` to the one article group;
-`purrr::keep(articles_index, ~has_name(.x, "navbar"))` only needs the
-key to be *present*, not non-null, to take the submenu branch. Verified
-with a clean `pkgdown::build_home()` into a scratch destination (a
-stale destination directory silently no-ops the write in a way that
-looks identical to success in the console log -- caught only by
-`grep`-ing the actual output file, not by trusting "Writing
-`index.html`"; always verify a pkgdown navbar change against a genuinely
-fresh destination). Also fixed in the same pass: `tale_classification.qmd`
-had a `@sec-best-correction` cross-reference into a *different* article,
-which quarto cannot resolve outside a book/project (silent
-"Unable to resolve crossref" warning on every build) -- replaced with an
-explicit markdown link, the same pattern already used correctly
-elsewhere in the same file.
-
-**[V] DECIDED** -- maintainer found the `lumen` bootswatch theme "a bit
-tern" (dull). Rendered six candidates' actual home pages (`lumen`,
-`flatly`, `journal`, `litera`, `sandstone`, `zephyr`) via
-`pkgdown::build_home()` with `override = list(template = list(bootswatch
-= <name>))`, screenshotted each with headless `chromium` (this machine's
-snap-confined chromium can only read/write inside `$HOME`, not `/tmp` --
-worth remembering if screenshotting is needed again), and let the
-maintainer pick by eye rather than by description. First picked
-`zephyr`, then changed their mind to `sandstone` on a second look --
-`_pkgdown.yml`'s `template.bootswatch` is `sandstone`.
-`build_site()` re-run to apply it everywhere, not just the home page.
-
-**2026-09-19 evening -- the "ships no vignette" consequence addressed,
-narrowly.** Prompted by a direct question: can the same `.qmd` source
-serve both the pkgdown site and a real, `vignette()`-accessible package
-vignette? Answer is yes, and not hypothetically -- the `quarto` R package
-registers real vignette engines matching `*.qmd$` (`quarto::html`,
-`quarto::pdf`, `quarto::format`; confirmed via `tools::vignetteEngine()`
-before and after `library(quarto)`), and it dogfoods exactly this for its
-own vignettes (`doc/hello.qmd` in the installed package). A file becomes
-a real vignette by living directly under `vignettes/` (not
-`vignettes/articles/` -- `tools::pkgVignettes()` still does not descend
-there, per 7.5a/7.5c above), declaring `DESCRIPTION`'s `VignetteBuilder:
-quarto`, and carrying a `%\VignetteEngine{quarto::html}` YAML block.
-
-Three real constraints, not just "yes it works," found from `quarto`'s
-own vignette doc and confirmed empirically:
-
-1. **The real-vignette render is locked to a minimal, bootstrap-free,
-   standalone/`embed-resources` theme** -- no pkgdown navbar, lightbox or
-   crossrefs, and the base settings cannot be overridden from the
-   `.qmd`'s own YAML. "Same source, both outputs" means one plain offline
-   copy plus one fully-styled site page, not visual parity.
-2. **A new hard dependency at install time**, not just at site-build
-   time: `quarto` (R package) in `Suggests`, `VignetteBuilder: quarto`,
-   and the `quarto` CLI actually present. Outside `R CMD check` context
-   (where there is a soft-skip path), a user running
-   `remotes::install_github(..., build_vignettes = TRUE)` without the
-   quarto CLI hits a hard `cli::cli_abort()`.
-3. **The six existing articles are unsuitable as real vignettes
-   as-authored.** `tale_mining.qmd` alone runs `tell_tales()` several
-   times, one call ~8 minutes, needing the conda/Java toolchain that
-   `tantale_setup()` only builds lazily on first *use* -- which vignette
-   building at install time happens before. Turning any of the six into a
-   real vignette unmodified would make a from-source install either fail
-   outright (no conda env yet) or hang for minutes.
-
-**Resolution built, not just decided: one new, minimal, install-time-safe
-vignette**, `vignettes/getting_started.qmd` -- not a conversion of one of
-the six. Loads the already-shipped `tellTaleExampleOutput` fixture via
-`tales_from_telltale()` (no live `tell_tales()` call, no external tool),
-walks `summary()` -> `tales_anomalies()` -> `plot()`, then links out to
-the six full articles on the website for the real depth. Verified two
-ways before calling it done: the real vignette engine renders it
-correctly in isolation
-(`tools::vignetteEngine("html", package = "quarto")$weave(...)`, output
-HTML inspected directly -- correct code/output text, figure embedded as
-base64, not just "no error"); and `pkgdown:::data_articles_index()`
-resolves the new `_pkgdown.yml` entry to the right title/href before
-committing to a full site rebuild to confirm it end-to-end.
-
-**Plumbing:** `DESCRIPTION` gained `quarto` in `Suggests` and
-`VignetteBuilder: quarto`. `.Rbuildignore`/`.gitignore` gained the
-`_files`/`.html`/`.rmarkdown` ignore patterns `quarto`'s own vignette
-recommends -- applied to `vignettes/` generally, which opportunistically
-also covers pre-existing untracked render byproducts under
-`vignettes/articles/` that had no ignore rule before this. `_pkgdown.yml`
-gained `getting_started` as the first "Learn tantale" entry.
-
-**Still not the same thing as "reinstate the traditional vignette set."**
-The package ships one real vignette again (`vignette()`/tarball access
-work for the getting-started case), but the five full walkthroughs remain
-deliberately pkgdown-only, for the tool-dependency reasons above. If that
-balance ever needs to move -- more of the six as real vignettes, or a
-different split -- re-read this note's three constraints first; nothing
-about them has changed.
+- All walkthroughs are `vignettes/articles/*.qmd` (pkgdown only; R's
+  build never descends there). One real vignette,
+  `vignettes/getting_started.qmd` (`VignetteBuilder: quarto`), built from
+  a shipped fixture so it needs no external tool at install time.
+- **Why the other articles cannot become real vignettes as written**
+  (relevant to §34): the quarto vignette engine renders a minimal,
+  unthemed page; building vignettes needs the quarto CLI at install time;
+  `tale_mining.qmd` runs `tell_tales()` for minutes and needs the conda
+  and Java tools, which `tantale_setup()` only builds on first use.
+- PXO86 is left out of the classification/alignment/prediction articles:
+  with the African strains it turns one clean group per locus into
+  singletons and paralog clusters.
+- `_pkgdown.yml`: an `articles:` section needs `navbar: ~` on its group to
+  keep the Articles dropdown (`pkgdown:::navbar_articles()`); quarto
+  cannot resolve `@sec-` cross-references across separate articles. Theme
+  `sandstone`.
 
 ### 7.6 README/index/docs follow-ups **[V]** five of five done, plus a sixth
 
-Five items from the maintainer, four on 2026-09-18 and a fifth
-(coverage badge) the next day. Three resolved fast in a follow-up pass
-the same night; the index page is genuine content-authoring and the
-coverage badge needs an infrastructure decision first -- both parked.
+Done: README section on the use of large language models; a dedicated
+`pkgdown/index.md`; DisTAL and functal named on the index page; `pak`
+install instructions; README and `?tantale` descriptions reconciled on the
+two concrete errors (tool-name styling left to drift, maintainer's
+choice); lifecycle badge `stable` (maintainer's call); a static coverage
+badge, 73.96% measured 2026-09-21 with a dated caveat in README.
 
-- **A "use of large language models" section for `README.md` -- DONE.**
-  Added, naming Claude/Anthropic and Sonnet 5 specifically (this ledger
-  does not know which model ran any earlier session, so it does not
-  guess at that):
+Open:
+- The "stable" badge against README's own "interfaces may still change"
+  (`README.md:116`). START HERE item 8.
+- The coverage badge predates ARLEM in R, the §32 fixes and several test
+  files. START HERE item 6.
+- **`man/figures/pipeline.svg`/`.png`** show pre-restructuring function
+  names and are referenced from nowhere outside `dev/`. Redraw, remove,
+  or replace with the §29.2 data-flow view. Re-exporting the PNG needs
+  Inkscape (librsvg changes the typography).
 
-  > **Use of large language models**
-  >
-  > The authors used large language models (Claude, Anthropic --
-  > including Claude Sonnet 5) to assist with code development,
-  > debugging, and documentation writing throughout this package. Where
-  > LLM assistance extends to a manuscript describing this work, it is
-  > limited to the copy-editing stage; the manuscript itself is written
-  > entirely by the authors. Any figures are prepared by the authors,
-  > with LLMs used only to help write the scripts that generate them.
-  > The authors affirm that they are fully responsible for the content
-  > of the codebase, its documentation, and any accompanying manuscript.
-
-- **A dedicated pkgdown index page -- DONE, 2026-09-20.** `pkgdown/index.md`
-  (`?build_home`'s highest-priority home-page source, confirmed working
-  via a targeted `build_home()` before trusting it) opens with what a TALE
-  actually is for a reader who has never heard of one, the logo
-  (explicit maintainer requirement -- verified present in the built
-  `docs/index.html`, not just written into the source and assumed), one
-  showcase figure (the classification dendrogram, referenced by its real
-  `articles/tale_classification_files/figure-html/...` path, confirmed to
-  exist on disk), and pointers to `getting_started` plus the six full
-  articles. README stays the GitHub-facing entry point, diverging on
-  purpose, exactly the open question this bullet used to end on.
-  `pkgdown::check_pkgdown()` clean afterward.
-
-  **A real find, not assumed away:** the obvious source of a showcase
-  figure, `man/figures/pipeline.svg`/`pipeline.png`, turned out to be
-  badly stale -- opened and actually looked at (not just referenced by
-  filename), it shows pre-rename function names that no longer exist
-  (`distalr()`, `group_tales()`, `tale_parts()`, `build_repeat_msa()`,
-  `msa_heatmap()`) from before this whole restructuring. Not used on the
-  index page for exactly that reason. Neither file is referenced
-  anywhere else in shipped docs either -- genuinely orphaned, not just
-  unused by the index page specifically. Not redrawn tonight (real
-  design work, out of scope); flagged here so it is not reached for
-  again without this context, and worth its own ticket: redraw against
-  the current API, or remove if nothing needs it.
-
-  The IRD-support logo the maintainer separately asked about is
-  unaffected by any of this -- it comes from `_pkgdown.yml`'s
-  `home.sidebar` config, which is independent of whichever file supplies
-  the home page's main content, confirmed present in the rebuilt
-  `docs/index.html`.
-
-- **Mention DisTAL and functal alongside AnnoTALE/Talvez/PrediTALE on
-  the index page -- source fixed, 2026-09-21; `docs/` not yet rebuilt.**
-  `pkgdown/index.md`'s opening paragraph now reads "wraps several purpose-built external tools
-  (AnnoTALE, Talvez, PrediTALE) and reimplements others in R (DisTAL and
-  functal)", matching README's own "wrapper around"/"R reimplementations
-  of" vocabulary and links rather than inventing new phrasing. Settled on
-  two verbs, not three: README itself does not distinguish "supersedes"
-  for functal (it uses "R reimplementations of DisTAL and functal"
-  together), so the index page follows that precedent rather than the
-  finer three-way split first proposed below -- `tales_compare_functal()`
-  is a genuine reimplementation of FuncTAL's comparison idea (§12b), just
-  not a byte-for-bye port of its formula, so "reimplements" reads
-  accurately for both.
-
-- **README's install instructions, `remotes` -> `pak` -- DONE,
-  2026-09-20.** Requested separately from the original five, recorded
-  and closed the same evening it was asked. `pak::pkg_install("scunnac/
-  tantale", dependencies = TRUE, upgrade = FALSE)` -- not a 1:1 flag
-  rename (`pak` has no `type = "source"` equivalent to carry over: it
-  always builds GitHub installs from source), each argument re-derived
-  against real `pak::pkg_install()` docs rather than guessed.
-
-- **`README.md` and `R/tantale.R`'s `@description` contradiction --
-  found and the two concrete bugs fixed, option (b) from the two offered.**
-  Chose "keep both files, fix today's bugs, accept the drift risk going
-  forward" over "shrink `R/tantale.R` to a bare pointer at README" --
-  the fast option, and `?tantale` is also the one description that
-  reaches a user who never leaves R, an argument for keeping it
-  self-contained rather than revisiting that architecture tonight. Fixed:
-  - `R/tantale.R`'s `@description` no longer dangles --
-    now "An integrated collection of functions for TALE mining and
-    analysis in R." (matching `DESCRIPTION`'s own `Description:` field),
-    followed by the website pointer as before. Confirmed via the
-    re-rendered `man/tantale-package.Rd`, not just the roxygen source.
-  - The stale "A TALE class and associated methods (to be done)" bullet
-    replaced in *both* files with what is actually there: the
-    `tales`/`tales_msa` S3 classes, with subsetting, coercion and
-    plotting methods, linked to the two class articles in README's copy.
-  - **Not fixed, left as recorded drift:** README's tool names are
-    capitalised and linked (AnnoTALE, DisTAL, functal, Talvez, PrediTALE,
-    daTALbase); `R/tantale.R` still spells them `annotale_jar`, `distal`,
-    `functal` with no links, and the two files' section titles for the
-    target-prediction topic still differ ("predictions" vs "mining").
-    Cosmetic, not touched -- this was the accepted cost of choosing (b).
-
-- **The `Lifecycle` badge -- changed to `stable`, maintainer's explicit
-  call.** The four current lifecycle.r-lib.org stages were checked (see
-  the superseded draft of this entry for the full finding: `maturing`,
-  the word that would have fit best, is retired upstream). Offered
-  `experimental` (the closest current-vocabulary fit by definition),
-  the retired `maturing` badge, or a custom non-lifecycle badge; the
-  maintainer picked `stable`, "in preparation of release," overriding
-  the fit-by-definition reasoning on purpose -- a judgement call about
-  signalling intent ahead of `1.0.0` (§7.7), not a correction of the
-  research. Badge and link both updated to
-  `lifecycle-stable-brightgreen`. **Left unreconciled, worth a look before
-  publication:** README's own NOTE two lines below the LLM section still
-  reads "tantale is under active development ahead of publication;
-  interfaces may still change" -- in tension with "stable" by
-  lifecycle's own definition, not fixed since the maintainer's
-  instruction was about the badge specifically.
-
-- **A test coverage badge for `README.md` -- requested 2026-09-19, not
-  started.** Checked before recording rather than assumed: there is
-  **no CI at all** in this repo (`.github/workflows/` does not exist),
-  `covr` is not in `DESCRIPTION`'s `Suggests`, and there is no
-  `codecov`/coverage config of any kind. `covr` itself is installed on
-  this machine, but that is a local fact about this development
-  environment, not something the repo can rely on. So "insert a badge"
-  is really two different jobs depending on what the maintainer wants,
-  and the choice needs making before either is worth starting:
-
-  - **A live badge** (the normal thing a coverage badge means: it
-    updates itself as the code changes) needs a CI workflow that runs
-    on push/PR, computes coverage with `covr::package_coverage()`, and
-    reports it somewhere a badge can read -- typically
-    `r-lib/actions`' `test-coverage.yaml` uploading to codecov.io (free
-    for open source, gives a `https://codecov.io/.../branch/main/graph/badge.svg`
-    URL), or a self-hosted equivalent. This means standing up GitHub
-    Actions for this repo for the first time, not just editing
-    `README.md` -- a real, if fairly standard, infrastructure task, and
-    worth asking whether the maintainer wants CI running tantale's
-    slower tests (real `mafft`/`nhmmer`/`mmseqs2`/AnnoTALE calls, per
-    the timings already on record throughout this ledger) on every
-    push, or a coverage-only workflow that skips those.
-  - **A static badge** (a number computed once locally and hand-edited
-    into a shields.io URL) is the fast version, but it goes stale the
-    moment the code changes and nothing in the repo would ever flag
-    that -- actively worse than no badge if it sits there reporting a
-    number nobody has checked in months, which is exactly the kind of
-    thing this whole pre-publication pass has been cleaning up
-    elsewhere (stale `[V]` markers, stale doc claims, §6/§7 generally).
-
-  Current coverage percentage is genuinely unknown -- deliberately not
-  run tonight, since `covr::package_coverage()` re-executes the full
-  suite under instrumentation and this package's slower tests (real
-  external-tool calls) make that a multi-minute-or-more operation, not
-  something to kick off just to fill in a ledger number. **Recommend
-  the live-badge route** if the maintainer is going to set up CI at all
-  before publication (worth having independent of the badge), otherwise
-  the static route with an explicit note in `README.md` of the date it
-  was measured, so a stale number is at least honestly labelled as
-  such.
-
-  A sixth item, requested and closed 2026-09-20 -- see the `remotes` ->
-  `pak` bullet above, kept with the rest of this section's items rather
-  than duplicated here.
-
-  **Re-raised by the maintainer, 2026-09-21 -- decided (static) and
-  done.** Static route chosen over live/CI, matching the trade-off
-  already on record: `covr` added to `Suggests:`; `README.md` gets a
-  shields.io badge (`coverage-73.96%25-yellowgreen`) plus a one-line,
-  dated caveat that this is a manual snapshot, not a live number, per
-  the honesty concern already raised above.
-
-  **Getting the number surfaced a real, separate bug, not a badge
-  detail -- worth its own record since it affects more than this
-  badge.** `covr::package_coverage()` failed two golden-baseline tests
-  (`test_golden.R:143`, `:206`) that pass cleanly under every normal
-  test run. Root-caused, not worked around: `helper-golden.R`'s
-  `.RUN_SPECIFIC` pattern (ledger §8.1d) dropped the four reference-file
-  lines in `tell_tales.log` entirely instead of normalising them,
-  because `covr` installs the package itself under a tempdir (unlike a
-  normal dev install), and the pattern's temp-path detection (first a
-  bare `"/tmp/"`, then a bare `"Rtmp"`) could not distinguish "this run's
-  own scratch output directory" from "some unrelated path that merely
-  lives under a tempdir too" -- confirmed by reproducing the exact
-  failure cheaply (installing to a path containing literal `"Rtmp"`,
-  without needing a full `covr` run each iteration) before touching
-  anything, and confirming the fix the same way afterward. Fixed
-  properly: the static "looks temp-y" patterns are replaced with a match
-  against this session's actual, current `tempdir()` value, computed
-  fresh each call rather than guessed at with a generic substring. Full
-  detail, including the first (incomplete) fix attempt and how it was
-  caught, belongs in §8.1d's own section, not repeated here -- this
-  paragraph exists so a reader looking for "why does the coverage badge
-  section mention a test bug" finds the pointer.
-
-  Final number: **73.96%**, reproduced twice after the fix, both
-  matching exactly. Per-file range 0% (`AnnoTALE_QueTAL_functions_library.R`,
-  its `@examples` need a JVM `covr` doesn't have -- expected, not a gap
-  to close for this badge) to 100% (`functal.R`, `startup.R`,
-  `tales_consensus.R`).
-
-  **One unexplained anomaly during this work, flagged rather than
-  buried:** `extra/tantale_logo.png` turned up genuinely deleted from
-  disk (not a git-status quirk -- confirmed missing) after one of the
-  `covr::package_coverage()` runs, despite `extra/` being in
-  `.Rbuildignore` and nothing here ever targeting that path. Restored
-  immediately via `git checkout -- extra/tantale_logo.png`, confirmed
-  back and byte-identical. No root cause found, and it did not recur
-  across several further `covr` runs in the same session -- recorded
-  as a real, one-off observation in case it happens again to someone
-  who can dig further, not as a known, understood mechanism.
+A one-off: `extra/tantale_logo.png` vanished during one `covr` run and
+never again; restored from git, cause unknown.
 
 ### 7.7 Version scheme decided: 0.9.x pre-publication, 1.0.0 at release; docs/ now tracks the latest build — DONE **[V]**
 
-Maintainer's call, but it came with a real, previously-undiscovered
-technical constraint, so recording both the decision and the finding.
+`0.9.x` until publication, `1.0.0` at release; current `0.9.9009`.
+`docs/` tracks the latest build, published in release mode
+(`_pkgdown.yml` `development: mode: release`, §15). Background:
+`pkgdown:::dev_mode_auto()` treats a version as "devel" only when its
+third component is >= 9000, which is why `0.9.1` once wrote a release
+build straight into `docs/`; with `mode: release` hardcoded this no
+longer matters.
 
-**Decision:** the ad hoc `0.1.9553` devtools-dev-counter scheme is
-retired. From now until publication the package carries a `0.9.x`
-version; `1.0.0` is reserved for the actual release.
-
-**Finding, not obvious from the decision alone:** `Version: 0.9.1` (the
-first, natural-looking choice) silently broke something. This answers
-the still-open ledger question from §7.5c/START HERE about whether a
-pkgdown build should overwrite the tracked `docs/` -- not by a decision,
-but by discovering the two questions are coupled through a mechanism
-nobody had looked at: `pkgdown:::dev_mode_auto()` (backing this repo's
-`development: mode: auto`) treats a 3-component version as `"devel"`
-(routes to `docs/dev/`) only when the third component is `>= 9000`;
-otherwise it is `"release"` and `build_site()` writes straight into the
-tracked `docs/`. `0.1.9553` always satisfied this, by construction of
-the old devtools convention, not by anyone having read this rule.
-`0.9.1` does not (`1 < 9000`), so the routine sandstone-theme rebuild
-that used it wrote 215 new files and modified 16 tracked ones directly
-under `docs/` -- silently, with no error or warning, indistinguishable
-in the console log from a normal `docs/dev/` build. Caught only because
-`git status` was checked before committing (habit, not luck: this
-session's standing instruction is to check status after any broad
-change) and showed dozens of changes under `docs/` that had no business
-being there. Reverted with `git checkout -- <tracked files>` plus `rm
--rf` on the new untracked ones (all still just working-tree changes,
-nothing had been committed) before any of it landed.
-
-**Resolved by picking `0.9.9001`** instead of `0.9.1` -- same
-`0.9.x`-then-`1.0.0` intent, same `>= 9000` third component `0.1.9553`
-always had, so `development: mode: auto` keeps working exactly as
-before with no config change. Verified directly against
-`pkgdown:::dev_mode_auto(package_version("0.9.9001"))` returning
-`"devel"`, not just re-run and hoped.
-
-**Was still open as of this point:** whether `docs/` (the tracked release
-site, last actually built 2023-10-04 and now describing a much older
-version of the package) should ever be deliberately rebuilt before
-`1.0.0`, or stay frozen as "the last real release" until publication.
-Nothing above answered that -- it only made sure an accidental version
-choice could not decide it by side effect again. Whoever next changes
-`Version:` in `DESCRIPTION` should re-run
-`pkgdown:::dev_mode_auto(package_version(new_version))` and confirm it
-still says `"devel"`, the same check that caught this.
-
-**2026-09-19 evening -- resolved: `docs/` now tracks the latest build.**
-Maintainer's call: `docs/` should track current `dev` progress, not stay
-frozen until `1.0.0`. Built via a **one-off `override`**, not a version
-change:
-
-```r
-pkgdown::build_site(override = list(development = list(mode = "release")))
-```
-
-This writes straight to `docs/` for this one call only, leaving
-`Version: 0.9.9001` and `development: mode: auto` in `_pkgdown.yml`
-untouched -- routine builds still land in `docs/dev/` exactly as before,
-so the `0.9.1` trap documented above cannot recur by accident. Confirmed
-`docs/pkgdown.yml`'s `last_built` moved from `2023-09-17T22:46Z`
-(pkgdown 2.0.7, the old numbered-vignette article set) to a current
-timestamp (pkgdown 2.2.0, the six-article set from §7.5c), and that
-`_pkgdown.yml`/`docs/dev/` were untouched by the override (`git status`
-on both, plus a diff of `docs/pkgdown.yml`).
-
-**A real pkgdown 2.2.0 bug this surfaced, unrelated to the version-mode
-question: `build_home()` silently publishes `CLAUDE.md`.** `build_home()`
-copies every root `.md` file to a site page except
-`README`/`LICENSE`/`LICENCE`/`NEWS` (`pkgdown:::package_mds()`, confirmed
-by reading its source, then confirmed *again* in `?build_home`'s own
-text -- "Extra markdown files in the base directory... are copied by
-`build_home()` to docs/ and converted to HTML" -- since the source-code
-finding alone was rightly challenged as maybe-missed-documentation before
-being acted on). No config-level exclude exists in this pkgdown version.
-`CLAUDE.md` -- internal dev-workflow notes, this ledger's own pointer,
-machine-specific tool-version pins -- had been live as `docs/CLAUDE.html`
-since the *2026-09-18* push, unlinked from any navbar so nobody had
-noticed, but indexed in both `sitemap.xml` and `search.json` (discoverable,
-not just guessable). Today's rebuild would have republished it, plus
-written a fresh copy to the newly-tracked `docs/`.
-
-**Fix chosen: relocate the content, not exclude the file -- and this
-needs a correction, caught the next morning re-checking the final
-rebuild, not assumed clean.** `package_mds()` only globs the repo root
-and `.github/`, not subdirectories, so `git mv CLAUDE.md dev/CLAUDE.md`
-does put the *real content* permanently outside pkgdown's reach. But the
-original note here overstated it: a root `CLAUDE.md` still exists (now a
-four-line stub using Claude Code's `@dev/CLAUDE.md` import syntax, so
-sessions still auto-load the real file), and `package_mds()` has no way
-to tell a stub from real content -- it matches on filename alone. So
-`docs/CLAUDE.html` (and `docs/dev/CLAUDE.html` once `docs/dev/` is next
-rebuilt) *will* keep getting regenerated, every build, indefinitely.
-Checked what actually ships in it now, not assumed harmless: just the
-stub's own four lines, rendered as a real but inert page -- no dev-
-workflow content, no machine-specific notes, nothing sensitive. The
-original problem (internal notes exposed) is genuinely fixed; a mostly-
-empty, unlinked-but-indexed `CLAUDE.html` page persisting on the site is
-the accepted, low-priority residue, not a new leak. Both `docs/CLAUDE.html`
-and `docs/dev/CLAUDE.html` (the latter dating to 2026-09-18) were removed
-mid-session, and `build_home()`/`build_sitemap()`/`build_search()` re-run
-clean with nothing left referencing `CLAUDE.html` in either tree --
-**but the final consolidated `build_site()` run that actually shipped
-`docs/` (below) ran *after* the `CLAUDE.md` relocation, so it read the
-stub and wrote `docs/CLAUDE.html` right back**, exactly as this
-correction predicts. That is the real, current, expected state:
-`docs/CLAUDE.html` exists, contains only the four harmless stub lines,
-indexed in `sitemap.xml`/`search.json`, unlinked from any navbar. Not
-worth a further fix pass on its own -- if `CLAUDE.md`'s root stub is ever
-touched for another reason, this is just context, not a blocker.
-
-**A different approach was tried first and rejected, worth recording
-so it is not reached for again.** Before the relocation, a post-build
-script (`dev/strip_pkgdown_claude_page.R`, since deleted) deleted
-`CLAUDE.html`/`.md` and hand-patched `sitemap.xml`/`search.json` after
-each build. It worked for `sitemap.xml` (line-based, straightforward) but
-silently corrupted `search.json`: `Filter(function(e) !grepl(...), entries)`
-over `jsonlite::fromJSON(..., simplifyVector = FALSE)` output dropped 59
-unrelated entries (477 -> 411 instead of the expected 470) on
-`docs/dev/search.json`. Root cause: some entries have `"path": ""`, which
-that parse turns into `path = list()` rather than a length-1 string;
-`grepl()` on it returns `logical(0)`, and `Filter()`'s
-`unlist(lapply(x, f))` silently shifts every subsequent element's keep/drop
-decision by one. Caught before the corrupted file was committed (restored
-via `git checkout -- docs/dev/search.json`), but it is exactly the kind of
-bug that would not have been caught without deliberately diffing entry
-counts against the pre-edit original -- a generic R trap (any `Filter`
-over a predicate that is not guaranteed length-1 for every element), not
-specific to this file. Abandoned once the relocation fix made the whole
-post-build step unnecessary, rather than patched and kept.
+pkgdown publishes every root `.md` except README/LICENSE/NEWS as a site
+page (`pkgdown:::package_mds()`, no exclude option); the Claude Code
+pointer file therefore lives in `.claude/CLAUDE.md`. A post-build script
+that edited `search.json` was abandoned after it silently dropped 59
+entries (the `Filter()` trap in START HERE).
 
 ### 7.8 Audit docs and website for "repeat" used where "domain" is meant -- DONE **[V]**
 
-Caught by the maintainer proofreading a rename's diff, in a sentence this
-session had just written: `tales_compare_distal()`'s roxygen description
-said TALE arrays are built from "the individual repeat units", which
-elides the two termini -- exactly the conflation §9.0 exists to prevent.
-The package is explicit and enforced about this distinction elsewhere: a
-`dom_code` names a distinct **domain**, not a repeat, precisely *because*
-the N-/C-termini are parts like the repeats are and get codes too
-(`tales_assign_domain_codes()`'s own docs; CLAUDE.md's API conventions
-section). `tales_domain_distances()`/ARLEM operate on `dom_code`-keyed
-domains -- repeats and termini alike -- never on repeats alone, so prose
-that says "repeat" where the mechanism is really domain-general is not
-just imprecise, it describes different biology than the code does.
-
-**Fixed on sight, in the one sentence found:** `R/distalr.R`'s
-`tales_compare_distal()` description now says "domains ... repeats and the
-two termini alike". **Not yet done: the in-depth sweep this one instance
-implies.** Likely fertile ground, not yet checked instance by instance:
-- Every `@description`/`@details` block that talks about "repeats" in a
-  context that actually means all domains (`R/distalr.R`'s three
-  `tales_compare_distal()` steps are the most likely other offenders, given
-  they share authorship and phrasing with the sentence just fixed).
-- The pkgdown articles, especially `tale_classification.qmd` and
-  `tales_msa_class.qmd`, which talk at length about alignment and
-  relatedness in prose aimed at biologist readers (§7's own "readers are
-  biologists too" rule) -- exactly the audience for whom this conflation
-  would actually mislead, not just read informally.
-- README.md and the package-level `tantale.R` `@section` docs.
-
-Not scoped further than that -- a dedicated read-through is needed, not a
-grep (the word "repeat" is also correct in plenty of places: an actual
-repeat-type domain is still a repeat). Do this as its own pass, not folded
-into unrelated work, so it gets the attention a biology-correctness issue
-needs rather than being caught opportunistically one sentence at a time.
-
-**Done, 2026-09-21 -- a real read-through, not a grep-and-replace,** across
-exactly the scope this bullet named. Six more genuine instances found, all
-sharing the same shape as the one already fixed: a `domain_distances`/
-`dom_code`-level object or operation (which is always domain-general,
-repeats and termini alike) described using "repeat" as if it only covered
-repeats.
-
-- `R/distalr.R`'s `tales_compare_distal()` block itself had three more,
-  past the one sentence already fixed: its **title** ("Compute TALE and
-  repeat relatedness by repeat-sequence alignment" -- contradicting its
-  own very next sentence, which already said "domains ... repeats and the
-  two termini alike"), "the ARLEM binary for the repeat-array alignment
-  step" (simplified to "the array alignment step" -- ARLEM aligns the
-  whole `dom_code` sequence, not a repeat-specific one), "the pairwise
-  protein alignment between repeat units" (-> "distinct domains"), the
-  `@return`'s "`domain_distances`: ... between repeat units" (-> "between
-  distinct domains"), and the `@seealso`'s "repeat-sequence relatedness"
-  /"comparing by repeat sequence instead" (both -> "domain-sequence").
-- `tales_domain_distances()`'s own `@details` said "the repeat-level
-  distances answer questions about repeat diversity" -- fixed to
-  "domain-level"/"domain diversity"; the function computes distances
-  between all distinct domains, not repeats specifically.
-- `R/pairwise_distances_class.R`'s `pairwise_distances()` docs described
-  `domain_distances()` as similarity "between individual repeat units" --
-  fixed to "between distinct domains -- repeats and the two termini
-  alike", matching the phrasing already settled on elsewhere.
-- `R/tales_msa_class.R`'s RVD-similarity-matrix function contrasted itself
-  against "the repeat-level similarity matrix ... keyed by `dom_code`" --
-  fixed to "domain-level", since `dom_code` is exactly the domain-general
-  key this whole audit is about.
-- `R/tales_plot.R`'s `plot.tales_msa()` `@param domain_sim` said "Pairwise
-  distances between repeat units" for what is, again, the
-  `domain_distances` object -- fixed to "between distinct domains". Left
-  the surrounding `fill_type = "repeat_clust"`/`"repeat_sim"` table and
-  prose untouched at the time, trusting §7.8's own predecessor note that
-  this was already vetted, real, correct API -- **that trust was
-  misplaced, caught by the maintainer doubting it two days later and
-  asked to be checked again, not by this session's own doing.** Checked
-  properly this time, empirically, not read off the code and assumed:
-  built a real alignment with termini, called `.repeat_to_sim_align()`/
-  `.repeat_to_cluster_align()` directly, and confirmed every one of 8
-  real terminus cells gets a genuine, non-`NA` similarity/cluster value
-  (e.g. `100, 97.2, 39.4...`; cluster ids `9, 9, 9, 9, 10`) computed
-  exactly like a repeat cell, from the same all-domains `domain_sim`
-  table. So `fill_type = "repeat_clust"`/`"repeat_sim"` is the same
-  repeat/domain conflation this whole section exists to catch, not a
-  deliberate repeat-only visualisation choice as both the earlier note
-  and this one's first pass claimed -- see §19 for the naming
-  consequence, now folded in with `repeat_sims`/`tal_sim`/`domain_sim`
-  as the same family of question, not resolved here.
-- `R/functal.R`'s `tales_compare_functal()` had two instances contrasting
-  itself against `tales_compare_distal()` -- "rather than by repeat
-  sequence identity" and "comparing by repeat sequence instead" -- both
-  fixed to "domain sequence". `functal.R`'s *own* side of each contrast
-  (repeats turned into a PWM, DNA-binding prediction) was correctly left
-  as "repeat": FuncTAL's mechanism is genuinely RVD/repeat-specific, since
-  termini carry no RVD-based binding prediction -- only the
-  `tales_compare_distal()` side of the comparison was mischaracterised.
-- `vignettes/articles/tale_msa.qmd` described `domain_distances` itself as
-  "the repeat-level protein similarity already computed by
-  `tales_compare_distal()`" -- fixed to "domain-level". The surrounding
-  sentence's own focus on repeats (the worked example's actual finding)
-  was left alone; only the object's own general description changed.
-
-**Checked and left alone, not overlooked:** README.md and `R/tantale.R`'s
-`@section` docs (two peripheral, already-ambiguous-in-a-harmless-way
-mentions each, not the domain_distances-described-as-repeats pattern);
-`tale_classification.qmd` (its one "repeat" hit is about a real,
-repeat-specific structural finding in the worked example, correctly
-worded); `tales_class.qmd` (already the article that most carefully
-*teaches* this exact distinction -- an entire "## It names a domain, not
-a repeat" section -- nothing to fix, if anything the model to match);
-`tales_msa_class.qmd`'s remaining "repeat" mentions (all either genuinely
-repeat-specific or part of the already-vetted `fill_type` terminology);
-`tale_mining.qmd`/`tale_target_prediction.qmd` (no matching pattern
-found). The much larger set of "repeat" mentions across `R/telltale.R`,
-`R/functal.R` (RVD-specific parts), `R/tales_summary.R`,
-`R/tales_projections.R` and `R/tales_class.R` were read and are correctly
-repeat-specific -- discovery, RVD extraction and plotting genuinely only
-concern the repeat domain in most of those contexts, and `tales_summary.R`
-in particular already has its own careful "Domains, not repeats" section
-making exactly this distinction for its reader.
-
-`devtools::document()` clean; `pkgdown::check_pkgdown()` clean (no
-exports added or removed, wording-only); the cli-conditions parser check
-clean on every edited file. Not re-run against the golden baseline or the
-test suite -- none of this touched executable code, only comments and
-`.qmd` prose.
-
-## 8. Tests — error conditions now covered **[V]**
-
-`tests/testthat/test_error_conditions.R` added (18 assertions). It exists
-because 11 of the package's `tantale_error_*` classes had **zero** test
-coverage, including six created during the cli conversion. A classed condition
-that nothing asserts on buys nothing.
-
-**It immediately earned its keep: it found a live bug in two error handlers.**
-
-`.pairwise_distances_rename_legacy()` and `.tales_rename_legacy()` both build a
-message whose `"i"` bullet carries a `{?s}` plural marker with no quantity to
-count. cli processes each bullet separately, so it raised
-*"Cannot pluralize without a quantity"* — as a plain `simpleError`. The
-intended `tantale_error_*_name_clash` class was never signalled, and the user
-saw a cli internals complaint instead of the real problem.
-
-Fixed with an explicit `{cli::qty(clash)}`. Both now raise their proper class.
-
-Worth remembering when writing cli messages: an inline style span such as
-`{.fn tales}` is **not** a quantity. A first scan for this bug missed the
-`tales_class.R` instance for exactly that reason.
-
-**Original notes, condensed (superseded by §8.0 onward):** the starting point
-was `test_plot_tales_msa.R` asserting nothing at all (fixed once
-`plot_tales_msa()`'s ggplot2-4.0.3 breakage was found, §6) and coverage gaps
-in `msa.R`/`conversion.R`/`target_predictions.R`, deliberately deferred until
-the class shapes settled -- those files have since been substantially
-rewritten (§8.6b, §8.6c) or gained real tests, so the percentages are stale
-and not worth carrying forward. Two conventions from here did stick, and are
-now `dev/CLAUDE.md`'s own testing rules: targeted test files over the full
-suite, and failing loudly rather than skipping when an external tool is
-missing.
+Seven instances fixed across `distalr.R`, `pairwise_distances_class.R`,
+`tales_msa_class.R`, `tales_plot.R`, `functal.R` and `tale_msa.qmd`:
+domain-level objects (`domain_distances`, anything keyed by `dom_code`)
+described as repeat-only. FuncTAL's side is genuinely repeat-specific
+(termini carry no RVD). The same check found that `fill_type`'s
+`"repeat_clust"`/`"repeat_sim"` scored termini too; renamed in §23.
 
 ---
 
+## 8. Tests — error conditions now covered **[V]**
+
+`test_error_conditions.R` exists because 11 condition classes had no
+test. It found two handlers raising cli's "Cannot pluralize without a
+quantity" instead of their own class (fixed with `{cli::qty()}`).
+
 ### 8.0 `tell_tales()` has an unguarded filter — FIXED **[V]**
 
-Found while checking that the new baseline is actually sensitive.
-
-`min_domain_hits` filters at `telltale.R:319`:
-
-```r
-nhmmerTabularOutput <- subset(nhmmerTabularOutput,
-  target_name %in% temp_df[temp_df$V1 > min_domain_hits, "target_name"])
-```
-
-If it removes everything, the run does not stop. It carries on and dies
-several stages later inside Bioconductor:
-
-```
-Error: Rle of type 'NULL' is not supported
-  call: new_Rle(values, lengths)
-```
-
-A bare `simpleError`, no `tantale` class, nothing naming the argument that
-caused it. The two filters immediately before this one -- "no TALE cds hit"
-and "no record remains after filtering on score" -- are both guarded and warn
-properly, so the pattern to follow is already in the function a few lines up.
-
-Two further things worth noticing about this argument:
-
-- It filters on `target_name`, the **subject sequence**, not on the array. The
-  name reads as "minimum hits per TALE array"; it is actually "minimum hits per
-  contig". `min_domain_hits = 12` on a fixture with four TALEs changes nothing
-  at all, because the two contigs carry far more than twelve hits between them.
-  Worth asking whether the documented meaning and the implemented meaning are
-  the same thing.
-- The comparison is `>` where the name says "minimum", so `min_domain_hits = 4`
-  keeps sequences with **five** hits or more.
-
-**Done**, during 5.3. The guard lives in `.telltale_find_domain_hits()`, the
-internal that now owns this stage, and says which argument caused it and that
-it counts per subject sequence. All three of `tell_tales()`'s give-up points
-have tests now (`test_tell_tales_guards.R`); none had any before.
-
-**The other two observations, resolved by the maintainer:**
-
-- **The off-by-one is fixed.** The filter compares with `>=` now, so a
-  subject sequence carrying exactly `min_domain_hits` hits is kept, which is
-  what the documentation always said. Nothing changes at the default: real
-  TALE contigs carry dozens of hits, and only a sequence sitting exactly on
-  the threshold behaves differently.
-- **Per contig vs per array was not a bug** -- the documentation and the code
-  agreed, and my first reading of it here was wrong. The author's own note at
-  that line asked whether short *arrays* should also be dropped. They should,
-  optionally: `min_array_length` is a second argument, defaulting to `0`,
-  which drops arrays with too few repeats after grouping. The two filters are
-  complements, not alternatives -- one is a cheap pre-filter on input
-  sequences, the other a quality filter on the arrays found in them, and the
-  per-contig filter can never catch a 3-repeat fragment sitting on a contig
-  that also holds two real TALEs.
-
-  It counts **repeat units**, not all hits, so an array is not penalised for
-  having had a terminus missed, and because the repeat count is what "array
-  length" means for a TALE -- it determines how long a target box it
-  recognises. Default 0 because whether a short array is noise or a truncated
-  TALE is a judgement about the biology: a pseudogene with three surviving
-  repeats is real, and may be exactly what someone is looking for.
+- `min_domain_hits` counts hits **per subject sequence** (a cheap
+  pre-filter); `>=`, as documented. When it removes everything the run
+  now stops with a classed error naming the argument.
+- `min_array_length` (default 0) drops arrays with fewer repeat units
+  after grouping; 0 because a short array may be a real truncated TALE.
+- All three give-up points of `tell_tales()` are tested
+  (`test_tell_tales_guards.R`).
 
 ### 8.0b Quoting paths in shell commands — DONE **[V]**
 
-`tell_tales()` had a nested function definition that shelled out to
-AnnoTALE's "analyze" stage. It is now `.run_annotale_analyze()` at top level.
-
-It overlaps the exported `run_annotale_predict()`, which runs predict *and*
-analyze starting from a genome. They are not duplicates -- `tell_tales()` has
-already found the ORF by the time it calls AnnoTALE, so it needs analyze on
-its own -- but the two build their `java -jar` command lines separately, and
-they disagree: the exported one wraps paths in `shQuote()` and the internal
-one does not. A path with a space in it works through one and not the other.
-
-**Resolved by quoting, not by sharing.** No common helper: the maintainer's
-call was to add `shQuote()` where it was missing rather than build an
-abstraction over command construction.
-
-The audit found it missing well beyond AnnoTALE. Every shell command the
-package builds now quotes its interpolated paths:
-
-| file | command |
-|---|---|
-| `telltale.R` | `.run_annotale_analyze()`, `.run_nhmmer_search()` |
-| `tales_msa_class.R` | the MAFFT pipeline and its `--textmatrix` (2 sites) |
-| `distalr.R` | arlem, and the four mmseqs calls |
-| `talecorrection_java.R` | nhmmer, and the TALEcorrection jar |
-| `target_predictions.R` | PrediTALE, TALVEZ |
-| `AnnoTALE_QueTAL_functions_library.R` | functal |
-
-`run_annotale_predict()` and `run_annotale_build()` already quoted theirs.
-The parked HMMER wrappers in `unused_pending_review.R` were left alone.
-
-Two of these needed restructuring rather than a wrapped variable, because
-they pasted a directory and a filename into one string: the MAFFT binaries
-(`{mafft_path}/mafft.bat`) and the TALEcorrection nhmmer outputs
-(`{outputFolder}/out_nhmmer.{domains}.txt`). A path is built with
-`file.path()` first and quoted whole; quoting only the directory would have
-left the separator outside the quotes.
+Every shell command built by the package quotes its interpolated paths
+(`shQuote()`); paths are built with `file.path()` before quoting.
 
 ### 8.1 A purpose-built fixture for `tell_tales()` -- DONE **[V]**
 
-`tell_tales()` is slow, and the slowness is not where it looks.
-
-| run on the current 116 kb fixture (2 regions, 4 TALEs) | elapsed |
-|---|---|
-| `correct_array = FALSE` | 8.8 s |
-| `correct_array = TRUE` | **254.6 s** |
-
-The correction is 29x the rest of the pipeline. But it does **not** scale with
-the size of the subject sequence. `CorrectFrameshifts()` is called with
-`maxComparisons = length(AAref)` against `decipher_ref_tales_aa.fa.gz`, which
-holds **1057 reference TALEs**, so every array is aligned against all of them.
-The cost is (number of arrays) x (size of the reference set):
-
-| reference TALEs | elapsed |
-|---|---|
-| 1057 (default) | 254.6 s |
-| 100 | 60.9 s |
-| 20 | 20.3 s |
-
-So there are two independent levers, and they fix different things:
-
-1. **A trimmed reference set** is what makes the correction path testable at
-   all -- 12x, and `correction_ref` is already an argument, so a test can pass
-   its own without touching the package default. **DONE**:
-   `tests/testthat/data_for_tests/correction_ref_20.fa.gz`, 20 sequences taken
-   at even intervals through the shipped file rather than the first 20, so the
-   subset is not biased by whatever ordering that file happens to have. The
-   correction branch now has a baseline and runs in ~19 s. It pins the code
-   path, not the biology: a 20-sequence reference is not claimed to correct as
-   well as the full one.
-2. **A toy subject sequence** -- two TALEs, one carrying a single-nucleotide
-   insertion in its ORF -- shortens the HMMER stage and, more importantly,
-   gives the correction a **known right answer** to assert against. Today
-   nothing checks that the correction corrects anything; it is only checked
-   that the call does not error.
-
-Suggested composition for the toy, to be built from the existing BAI3 regions
-rather than synthesised, so the sequences stay biologically real:
-
-- two complete TALE ORFs with short flanks, enough for `extend_len = 300`
-  to have something to extend into;
-- one left intact, as the negative control -- correction must not change it;
-- one with a single nucleotide inserted in a known repeat, far enough from
-  the ends that the frameshift truncates the ORF and is detectable. Record
-  the insertion point in the fixture's name or a companion file so the test
-  can assert the correction restores exactly that position;
-- optionally a third region with no TALE at all, which would pin the
-  "no hits" branch on real sequence rather than the random DNA the current
-  test generates.
-
-Relates to 5.3: the refactor needs a characterisation baseline, and the
-baseline needs a fixture that can run in seconds.
-
-**Item 2 built.** `data-raw/make_toy_tale_regions.R` cuts three regions from
-the shipped BAI3 sequences into
-`tests/testthat/data_for_tests/toy_tal_regions.fasta` (14.6 kb against the
-old 116 kb), with a companion `toy_tal_regions_truth.tsv` recording the
-answer:
-
-| region | what it is |
-|---|---|
-| `toy_intact` | one complete TALE, untouched |
-| `toy_frameshift` | the same TALE, one `A` inserted mid-array |
-| `toy_no_tale` | 4 kb of the same genome with no TALE in it |
-
-**Two copies of the same TALE is the design.** The intact one is the control,
-so any difference between the two is attributable to the inserted base rather
-than to the arrays being different TALEs. That is what lets the test assert
-something real without needing the correction to be perfect in absolute
-terms -- which it is not, against the deliberately small 20-sequence test
-reference.
-
-Measured, and now asserted in `test_tell_tales_correction.R`:
-
-| | intact | frameshifted |
-|---|---|---|
-| longest ORF, correction **off** | 4305 nt (93%) | **2631 nt (57%)** |
-| longest ORF, correction **on** | 4305 nt | **4305 nt** |
-| RVD string, correction on | — | **identical to intact** |
-| predicted insertions | 2 | **3** |
-
-So the inserted base truncates the ORF to 57% coverage, and correction
-recovers the original TALE exactly: same ORF length, same RVD string, and
-precisely one more insertion charged.
-
-**What this replaces.** The correction branch was covered only by a golden
-digest. A digest pins the code path but cannot notice correction silently
-ceasing to work -- once the changed digest is accepted it simply records the
-new wrong answer. These tests fail instead.
-
-The `toy_no_tale` region also pins the no-hits branch on real genomic
-sequence, where the previous test used randomly generated DNA, which is a
-much easier negative than the real thing.
-
-*Incidental finding:* each toy region also yields a spurious single-hit
-array at its 3' end, because `min_domain_hits` filters **subject sequences**,
-not arrays -- a contig with enough hits overall keeps all of its arrays,
-however small. Pre-existing and not touched here; the tests select the real
-arrays explicitly. Worth a look if short spurious arrays ever become a
-nuisance.
+- The DECIPHER correction dominates runtime and scales with the number of
+  arrays times the reference size; `correction_ref_20.fa.gz` (20
+  sequences at even intervals) makes the path testable in ~19 s.
+- `data-raw/make_toy_tale_regions.R` -> `toy_tal_regions.fasta`
+  (`toy_intact`, `toy_frameshift` = the same TALE with one inserted base,
+  `toy_no_tale`) with `toy_tal_regions_truth.tsv`.
+  `test_tell_tales_correction.R` asserts the known answer: the insertion
+  truncates the ORF to 57% coverage, correction restores the same ORF
+  length and RVD string with one more insertion charged.
+- Incidental, still true: each toy region yields a spurious single-hit
+  array at its 3' end (START HERE, worth investigating).
 
 ### 8.1b Curating the shipped correction reference -- DONE **[V]**
 
-Separate from the test fixture above, and a biological question rather than
-an engineering one.
+The original 1057 references were uncurated `tell_tales()` output over 70
+*X. oryzae* genomes (555 duplicates, 8 fragments). Shipped:
+`tale_correction_ref.fa.gz` (494, the default) and
+`tale_correction_ref_representative.fa.gz` (136, pseudogenes kept on
+purpose), built by `data-raw/make_correction_references.R`.
 
-`inst/extdata/decipher_ref_tales_aa.fa.gz` holds **1057 reference TALEs**,
-1.25 M amino acids, median length 1198. `CorrectFrameshifts()` is called with
-`maxComparisons = length(AAref)`, so every candidate array is aligned against
-every one of them. That is the entire reason correction costs 255 s where the
-rest of the pipeline costs 9 s, and the cost is borne by every user on every
-run.
+**Reference size is not the lever; `max_comparisons` is.** DECIPHER ranks
+all references by a cheap distance, truncates to `maxComparisons`, then
+aligns: capping at 20 gave byte-identical corrections in 10 s instead of
+252 s. The cap fails in the worse direction when the closest references
+are not close (a poor correction still looks like an ORF), documented in
+`@param max_comparisons` and pinned by a test. `processors` gives ~10%
+and is not exposed.
 
-Questions worth answering before touching it:
-
-- **Where did the 1057 come from?** **Answered by the maintainer:** it is the
-  raw output of `tell_tales()` run over a large set of *Xanthomonas oryzae*
-  genomes, assembled long ago, **with no curation applied**. The file's own
-  contents corroborate that exactly -- 70 genome accessions, AnnoTALE-style
-  `<accession>-tempTALE<n>` names, `(Pseudo)` markers left in place, and
-  fragments far too short to be TALEs.
-
-  So the question is not whether to *re*-curate but whether to curate at all,
-  for the first time.
-- **How redundant is it?** TALEs are highly similar by construction. If the
-  set collapses to a few dozen clusters at high identity, most of those 1057
-  alignments are re-deriving the same answer.
-- **Does a smaller set correct as well?** This is the measurable one: correct
-  a set of known-frameshifted arrays against the full reference and against
-  candidate subsets, and compare the corrected sequences. If a curated 100
-  reproduces the full set's output, the default could change and every user's
-  run gets ~10x faster.
-- **Is `maxComparisons = length(AAref)` the right call at all?** DECIPHER's
-  own default is lower. Capping it is a one-line change that does not require
-  touching the reference file, though it makes which references get compared
-  depend on ordering.
-
-Do not trim the shipped file on speed grounds alone: a reference that is fast
-but corrects worse is a bad trade, and correction rewrites the user's
-sequences.
-
-**Resolved.** Answers to the four questions above, and what was done.
-
-*Provenance.* Confirmed by the maintainer and by the file: uncurated
-`tell_tales()` output over 70 *X. oryzae* genomes. 1057 sequences, of which
-555 are byte-identical duplicates and 8 are too short to be TALEs (shortest
-23 aa against a median of 1198).
-
-*Redundancy.* Very high, as expected. After dedup and a 300 aa floor, 494
-remain; clustering the intact ones at 0.04 collapses them to 65 clusters.
-
-*Does a smaller set correct as well?* **Reference size is not the lever.** 494
-and 1057 give the same corrections at almost the same cost, because the cost
-is dominated by alignment, not by the cheap pre-screen every reference goes
-through.
-
-*Is `maxComparisons = length(AAref)` right?* **This is the lever**, and the
-finding that mattered. Reading the DECIPHER source settled what the docs do
-not say: `CorrectFrameshifts()` scores *all* references with a cheap distance,
-`order(d, widths, decreasing = TRUE)`, truncates to `maxComparisons`, and only
-then aligns, stopping early at `acceptDistance`. So the cap does not pick
-arbitrary references -- it bounds how deep a ranked search goes. Measured on
-four arrays against the 1057 set, all byte-identical: 252 s uncapped, 10 s at
-20.
-
-(Method note, worth keeping: I first asserted this ranking behaviour, then
-wrongly retracted it when the documentation was silent. The maintainer's
-correction -- *"reading the source code of the function may teach you far more
-that you ask for with the tests"* -- was right, and reading it confirmed the
-original claim. Prefer the source to inference when the docs are silent.)
-
-**What shipped.**
-
-- `data-raw/make_correction_references.R` builds both sets from
-  `data-raw/tale_correction_ref_source.fa.gz` (the renamed original).
-- `inst/extdata/tale_correction_ref.fa.gz` -- 494, the new default.
-- `inst/extdata/tale_correction_ref_representative.fa.gz` -- 136, a
-  diversity-sampled subset (all pseudogenes + one longest member per cluster).
-- Pseudogenes are kept in both, deliberately: the genomes were high quality,
-  so the frameshifts are real biology, and a reference of only intact TALEs
-  risks "repairing" a genuine pseudogene into an ORF no strain carries.
-- `Clusterize()` settings: `includeTerminalGaps = TRUE`,
-  `penalizeGapLetterMatches = NA`, `method = "overlap"` (inert when
-  `includeTerminalGaps` is TRUE, stated for clarity).
-- `max_comparisons` promoted to a real `tell_tales()` argument, defaulting to
-  `NULL` = all references. It had to be a real argument, not passed through
-  `...`, which collided ("formal argument matched by multiple actual
-  arguments").
-- It is echoed into `tell_tales.log`, since it changes results.
-
-**The trade-off, measured.** The cap is not a free speedup, and it fails in
-the worse direction -- not by leaving an array uncorrected but by correcting
-it against a poor reference, which still looks like a corrected ORF. Against
-a deliberately small 20-sequence reference:
-
-| `max_comparisons` | indels called per array |
-|---|---|
-| all (20), 20, 10 | 2, 2, 0, 1 |
-| 5 | 2, 2, 0, **2** |
-| 2 | **9, 11, 0, 15** |
-
-So what matters is not the ratio to the reference set but whether the closest
-`max_comparisons` are genuinely close: 20 of 1057 is ample, 5 of 20 is not.
-This is in `@param max_comparisons` and pinned by a test in
-`test_tell_tales_guards.R`.
-
-*`processors`.* Tried, per the maintainer's recollection that it once broke
-things. It no longer breaks, and gives ~10% -- it does not scale. Not worth
-exposing; `max_comparisons` is the real lever.
-
-**Deferred to the maintainer:** validating the 136-sequence set against the
-494 on real frameshifted arrays. Their call -- *"I will do the test myself
-later on"*.
+**Deferred to the maintainer:** validate the 136 set against the 494 on
+real frameshifted arrays.
 
 ### 8.1c `...` must not hide arguments behind an internal **[V]** — audited
 
-**The rule.** When an exported function forwards `...` to something the user
-cannot see, the `@param ...` has to name the arguments themselves, not point
-at the callee. "Passed to `.build_repeat_msa()`" is useless advice: the reader
-cannot call that function, cannot read its help, and has no way to discover
-what it accepts.
-
-**The case that prompted it.** `tales_align()` took `x`, `residue_col`,
-`repeat_sims` and `...`, and its `@param ...` read "Passed to
-`tales_align()` (e.g. `mafft_opts`)" -- circular, and naming an argument
-without saying what it does or what its default is. MAFFT's options were
-therefore reachable but undiscoverable, which matters because the default
-sets gap penalties (`--op 0 --ep 5`) that are unusual on purpose and that a
-user may well want to change.
-
-Fixed by promoting `mafft_opts` and `mafft_path` to real arguments of
-`tales_align()`, documented in terms of what they do to an alignment of
-TALE repeats rather than as a pass-through.
-
-**The audit.** Every exported function that forwards `...`:
-
-| function | `...` reaches | verdict |
-|---|---|---|
-| `tales_align()` | `.build_repeat_msa()` (internal) | **was the problem; fixed** |
-| `as_tales()`, `as_tales.data.frame()` | `tales()` | fine -- exported and documented |
-| `tales_predict_targets()` | `talvez()`, `preditale()` | fine -- both exported, and `@param ...` links to them |
-| `tell_tales()` | `DECIPHER::CorrectFrameshifts()` | fine -- names the external function and links to its help |
-
-So this was one occurrence, not a pattern. The rule stands for anything added
-later: **if `...` lands somewhere the reader cannot open, the arguments belong
-in the signature or spelled out in the docs.** Worth re-running the audit
-(`scratchpad/dots.R` in the session notes, trivially rebuilt) whenever a new
-exported wrapper appears.
+Rule in `dev/CLAUDE.md`. The one violation (`tales_align()` forwarding to
+`.build_repeat_msa()`) was fixed by promoting `mafft_opts`/`mafft_path`.
 
 ### 8.1d Golden baseline records machine-specific paths -- DONE **[V]**
 
-`tell_tales.log` echoes absolute paths -- the three HMM files, and
-`correction_ref`. Under `load_all()` these are the source tree; from an
-installed package they are the library path. `.RUN_SPECIFIC` in
-`helper-golden.R` drops `/tmp/` and `Rtmp` lines but not these, so the golden
-snapshot for `tell_tales.log` only reproduces on the machine that recorded it.
-
-Pre-existing, not introduced by 8.1b -- but it surfaced there, because
-renaming the reference file changed that line and nothing else.
-
-A baseline that fails for everyone but its author is worth much less than one
-that travels. Options: log basenames instead of paths (loses provenance),
-filter those lines (loses the ability to catch a default change -- which is
-exactly what caught the rename), or teach the fingerprint to rewrite absolute
-paths to a placeholder rather than drop whole lines. The third keeps both
-properties and is probably right.
-
-**Fixed**, by the third option: `helper-golden.R` now rewrites absolute
-directories to `<path>/` before digesting, keeping the basename. Both
-properties are preserved -- the baseline travels between machines, and a
-change of *which* reference file is used still shows up.
-
-Also added `^# Current dir:` to the drop list; that is HMMER echoing the
-working directory, which is where the run happened rather than what it found.
-
-**The interesting part was getting the pattern narrow enough.** A first
-attempt matched "anything between two slashes", which also rewrote
-`</title></head>`, HMMER's `//` record separators and the `//` in
-`http://hmmer.org/`. It would have produced a perfectly stable digest while
-quietly destroying content -- a weaker baseline wearing the appearance of a
-more portable one. The pattern now requires a slash that starts a token and
-at least one non-empty `segment/` group, and every case the broad version got
-wrong is a test.
-
-Audited after the change: exactly one file (`tell_tales.log`) and exactly the
-four lines this section identified are touched.
-
-**Reopened, 2026-09-21, by trying to compute a coverage number for
-§7.6 -- a real gap in this section's own "Fixed", not a new problem.**
-`covr::package_coverage()` failed `test_golden.R:143`/`:206`, both
-passing cleanly under a normal `devtools::test()`. Root-caused before
-touching anything: `covr` installs the package itself under a tempdir
-(unlike a normal dev install, which lands in the ordinary library
-path), so the four reference-file lines this section already fixed --
-correctly *normalised* under every install location tried until now --
-started containing the substrings this file's own drop-rules were
-watching for, and got dropped entirely instead of normalised.
-
-Two drop-rules existed for temp paths at that point: a bare `"/tmp/"`,
-and (after a first, *incomplete* fix -- recorded here rather than
-silently overwritten, since it looked right and passed its own targeted
-test before failing again one level deeper) a bare `"Rtmp"`. Both share
-the identical structural flaw this section's own "narrow enough" lesson
-from 2026-09-1x already warned about, just for path-shaped noise instead
-of the `//`-record-separator case: neither can tell "this run's own
-scratch output directory" from "some unrelated path that merely happens
-to live under a tempdir too" -- which is exactly what a reference-file
-path becomes once the *package* (not just the test's own output) is
-installed under one, as `covr`'s default install step does.
-
-**Verified cheaply at each step, not by re-running the full multi-minute
-`covr::package_coverage()` every time:** installing the package to a
-plain path containing literal `/tmp/` (not `Rtmp`) reproduced and then
-confirmed the first fix; installing to a path additionally containing
-literal `Rtmp` (`/tmp/RtmpSimInstall/tantale`) reproduced the *second*
-failure the first fix missed, and confirmed the eventual fix. Only the
-final, confirmed state was checked against a real `covr::package_coverage()`
-run (twice, both giving the identical 73.96%).
-
-**Fixed, properly this time:** both generic "looks temp-y" rules
-replaced with a match against this session's actual, current
-`tempdir()` value (regex-escaped, computed fresh per call, not a
-guessed-at pattern). This can only ever match this specific run's own
-output directory, wherever `tempdir()` decided to put it -- it cannot
-match some other process's install location just because both happen to
-start with the same conventional prefix, the same way two people
-sharing a surname are not the same person. `file[0-9a-f]{10,}`
-(`tempfile()` basenames) is untouched -- that rule targets a property of
-the *name itself*, not of where it sits, so it never had this flaw.
+`helper-golden.R` rewrites absolute directories to `<path>/` (keeping the
+basename, so a change of reference file still shows) and drops lines
+containing **this session's own `tempdir()`**. Generic patterns such as
+`/tmp/` or `Rtmp` broke under `covr`, which installs the package under a
+tempdir; the pattern was also narrowed once already after "anything
+between two slashes" rewrote HMMER's `//` separators and URLs.
 
 ### 8.2 Silence MAFFT by default — DONE **[V]**
 
-`.build_repeat_msa()` runs MAFFT through `system()` with
-`ignore.stderr = FALSE` (`tales_msa_class.R`, the `res <- system(...)` call).
-MAFFT writes its banner, strategy notice and per-sequence progress to stderr,
-so every alignment floods the console with dozens of lines the user did not
-ask for. The alignment itself is already redirected to a file with `>`, so
-stdout carries nothing of interest either.
-
-Wanted: a `mafft_verbose = FALSE` argument on `.build_repeat_msa()`, surfaced
-through `tales_align()`. Note the spelling — the package converted every
-argument to snake_case in 9.1, so `mafft_verbose`, not `mafftVerbose`.
-
-**One thing to get right.** Simply setting `ignore.stderr = TRUE` also
-discards MAFFT's error messages, and the current failure path is already thin:
-when the output file comes back empty the code aborts with nothing but the
-exit status, so a silenced run would report *that* it failed and never *why*.
-Better to redirect stderr to a temporary file (`2> {logfile}` in the command,
-or `stderr = TRUE` on a captured call) and replay its contents only when the
-run fails. That gives silence in the normal case and more diagnostics than
-today in the failing one.
-
-**Done.** `mafft_verbose = FALSE` on `.build_repeat_msa()`, surfaced as a
-real argument of `tales_align()`. Measured: **61 lines of stderr per
-alignment, down to 0.**
-
-`--quiet` was not used. Redirecting stderr to a temporary file does more: it
-covers the banner and the strategy notice as well as the progress, and the
-captured text is replayed when the run fails. Silence therefore costs nothing
-diagnostically -- the failure path is *better* than before, which reported an
-exit status and nothing else. Verified against a deliberately bad option:
-the abort carries MAFFT's own usage output and is classed
-`tantale_error_mafft_failed`.
+`mafft_verbose = FALSE` on `tales_align()`: stderr goes to a temp file,
+replayed only on failure (`tantale_error_mafft_failed`).
 
 ### 8.2b `tales_coded_strings()` needs a `sep` argument -- DONE **[V]**
-
-The two projections are siblings and should take the same arguments, but do
-not:
-
-```r
-tales_rvd_strings(x, sep = "-", rvd_only = TRUE)
-tales_coded_strings(x)
-```
-
-`tales_coded_strings()` hardcodes `collapse = " "`
-(`tales_projections.R:25`). Add `sep = "-"`... but **check the default before
-changing it**, because the separator is not cosmetic here:
-
-- `.build_repeat_msa()` is handed repeat-code strings built with `sep = " "`,
-  and splits them back on the same character. `tales_align()` constructs its
-  own strings rather than calling `tales_coded_strings()`, so it is probably
-  insulated -- confirm that before assuming it.
-- A repeat code is a bare integer rendered as text, so `"1 2 3"` and
-  `"1-2-3"` are both unambiguous; unlike RVDs, no code contains either
-  character. The choice is therefore free, which is exactly why it should be
-  the caller's.
-
-Whether the default should match `tales_rvd_strings()`'s `"-"` (consistency
-between siblings) or stay `" "` (not changing output for existing callers) is
-a judgement about which matters more. Matching the sibling reads better but
-changes what the function returns today.
-
-Same pass should check `rvd_only`: `tales_rvd_strings()` has it and
-`tales_coded_strings()` does not, and it is not obvious whether dropping the
-terminus codes makes sense for repeat codes.
-
-**Resolved.** `tales_coded_strings(x, sep = " ", repeats_only = FALSE)`.
-
-*Was the separator safe to change?* Checked, and yes -- but it was not
-changed. `tales_coded_strings()` has **no callers inside `R/` at all**, only
-tests; `tales_align()` builds its own `" "`-joined strings at
-`tales_msa_class.R:288` rather than going through the projection, so it was
-never coupled. The default stays `" "` because the function's documented job
-is the encoding ARLEM and MAFFT `--text` consume, and those split on spaces.
-Changing it would have silently altered output for existing users with no
-error anywhere.
-
-So the siblings now take the same two arguments with *different defaults*,
-which is the honest answer rather than a compromise -- they feed different
-consumers, and the docs say so in a small table.
 
 | | `tales_rvd_strings()` | `tales_coded_strings()` |
 |---|---|---|
 | `sep` | `"-"` (AnnoTALE) | `" "` (ARLEM, MAFFT) |
 | filter | `rvd_only = TRUE` | `repeats_only = FALSE` |
 
-*And `rvd_only`?* Added as `repeats_only`, defaulting to `FALSE`. Target
-prediction concerns repeats only, so dropping termini is right for RVDs;
-alignment is the consumer here and the termini are the most reliable anchors
-an alignment of TALE arrays has. It filters on `domain_type == "repeat"` and
-errors if that column is absent.
-
-**Naming debt noted:** `tales_rvd_strings()`'s `rvd_only` means "repeats
-only" and would be better named `repeats_only` to match. Not renamed -- it is
-an exported argument and §9.1 is closed. Worth folding into any future
-breaking pass.
-
-**A bug this uncovered.** The shared `coded_tales()` test fixture carried
-`rvd = NTERM, NI, NTERM` for one array -- two N-termini, the second
-mid-array. Not a TALE. It had gone unnoticed because the fixture had no
-`domain_type` column, and without one the anomaly checks cannot run. Adding
-the column made `tales()` flag it at once (`terminus_duplicated`,
-`terminus_misplaced`). Fixture rebuilt as one complete and one incomplete
-array, preserving every property the tests relied on (three distinct codes,
-code 7 -> `MDP`, a recurring code within an array).
-
-Worth generalising: **a fixture that omits the columns the validators key on
-is not exercising the validators.** Other minimal fixtures in the suite are
-likely in the same position.
+Different defaults on purpose: different consumers. **Naming debt:**
+`rvd_only` means "repeats only" and should become `repeats_only` before
+1.0.0 (breaking). The fixture fix found here generalises: a fixture that
+omits the columns the validators key on does not exercise the validators.
 
 ### 8.3 Regression baseline — DONE **[V]**
 
-`tests/testthat/test_golden.R` plus `helper-golden.R`. Twenty snapshots
-covering the tales column contract, the anomaly report, the requirements
-table, the five projections, `tales_compare()`, both `tales_align()` layers,
-`tales_group()`, the data behind `plot()` on a `tales_msa`, and the consensus
-of the reference alignment. Runs in about 19 seconds; MAFFT and arlem are
-exercised for real.
-
-These assert nothing about what the values *should* be. They record what the
-pipeline produces, so a refactor meant to change nothing can be shown to have
-changed nothing, and one that does change something says where.
-
-**Whole tables are not snapshotted.** Each is reduced to a fingerprint: one
-row per column carrying type, length, distinct count, missingness and an md5
-of the values. Snapshots stay readable (23 KB in total) and a diff names the
-artefact *and* the column that moved. Doubles are rounded before digesting so
-that last-bit differences between machines do not register. Small artefacts
-worth reading -- the column contract, the requirements table, the consensus --
-are snapshotted whole.
-
-`expect_golden()` forces `cran = TRUE`: `expect_snapshot_value()` skips on CRAN
-by default, and a baseline that quietly does not run is worse than none.
-
-Verified to work by reintroducing the `tales_consensus()` tie-break bug: two
-snapshots failed, naming the consensus and the plot data. This replaces an
-ad-hoc baseline kept in a session scratchpad, which was lost when the session
-restarted -- the reason it now lives in the repository.
-
-To accept an intended change: inspect the diff, then
-`testthat::snapshot_accept("golden")`.
+`test_golden.R` + `helper-golden.R`: snapshots of the column contract, the
+anomaly report, the requirements table, the projections,
+`tales_compare_distal()`, both alignment layers, grouping, `plot()` data
+and consensus, plus two `tell_tales()` runs digested file by file. Tables
+are reduced to per-column fingerprints (type, length, distinct count,
+missingness, md5 of rounded values). `expect_golden()` forces
+`cran = TRUE` so the baseline never silently skips. Use the
+`golden-rebaseline` skill to accept a change.
 
 ### 8.4 `print()` methods for `tales` and `tales_msa` — DONE **[V]**
 
-Both classes currently fall through to the tibble print method, so the screen
-says `# A tibble: 955 x 10` and nothing about what the object *is*. Everything
-the class knows that a tibble does not is invisible:
-
-- that it is a `tales` at all, rather than a data frame that happens to have
-  these columns;
-- how many arrays it holds, as opposed to how many parts (rows);
-- which residue layers are present (`rvd`, `dom_code`), which is what decides
-  what `tales_align()` and `plot()` can do with it;
-- the `dom_code` namespace stamp, whose whole purpose is to catch tables from
-  different runs being mixed, and which is invisible until something fails;
-- for a `tales_msa`, the alignment width, and how gappy it is.
-
-A print method is the cheapest place to surface all of that, and it is the
-first thing a user sees. Worth doing before the vignettes are rebuilt, since
-the printed object will appear throughout them.
-
-**Done.** `R/tales_print.R`, 25 tests.
-
-```
-<tales> 44 arrays, 955 parts
-  layers: rvd, dom_code   |   namespace: 4a3059c6   |   6 other columns
-                      dom_code
-  BAI3_ROI_00001      194 68 152 68 94 154 151 157 152 94 60 34 153 154 15 ...
-  BAI3_ROI_00002      199 64 50 64 94 149 8 54 5 94 127 115 158 39 56 50 5 ...
-  ...                 ...
-  PXO86_ROI_00018     213 131 120 128 140 79 145 84 10 40 96 116 18 166 96 ...
-  PXO86_ROI_00019     214 139 116 116 114 50 21 50 39 17 18 65 93 115 94 1 ...
-```
-
-A `tales_msa` prints the same way but draws its gaps and pads every cell to a
-common width, so the columns line up down the page -- an alignment is
-something you recognise by looking at it.
-
-The preview follows Biostrings: first two, `...`, last two, eliding nothing
-when the object holds four arrays or fewer. It previews `dom_code` over
-`rvd` because repeat codes discriminate better -- two arrays can share an RVD
-sequence while being built from different repeats.
-
-**Two bugs caught while writing the tests**, both worth remembering:
-
-- The header was built with `cli::cli_text()`, which writes to the **message
-  connection**. A `print()` method must write to stdout: as it was, the header
-  would interleave wrongly under redirection and `capture.output()` could not
-  see it at all. `cli::format_inline()` plus `cat()` keeps the styling and the
-  pluralisation while going to the right place.
-- I briefly "fixed" a non-existent portability problem with `%||%`, thinking
-  it was base-only since R 4.4 while `DESCRIPTION` allows 3.6.3. The package
-  defines its own at `tales_msa_class.R:206`, so it was never at risk.
-
-**`format()` methods too**, for both classes, and not as polish: both
-inherit a `format()` from tibble, so adding `print()` alone left the two
-halves of one operation disagreeing. `print(x)` showed the view above while
-`format(x)` still returned `# A tibble: 955 x 10`. Anyone writing
-`cat(format(x), sep = "\n")` -- the idiomatic way to get a printed form as
-text -- got the wrong one.
-
-`format()` now builds the lines and `print()` only emits them. The tibble
-rendering stays reachable as `format(tibble::as_tibble(x))`.
-
-A third bug fell out of that: the `tales_msa` header used a `\\` line
-continuation inside the `cli` template, which left an **embedded newline in
-one element**. `format()` reported six lines while printing seven, so the
-vector lied about its own length -- exactly what breaks a caller indexing
-lines to put in a log. Tests now assert that no element contains a newline
-and that `format(x)` equals `capture.output(print(x))` for both classes.
-
-**`summary()` methods too**, `R/tales_summary.R`, 26 tests. They return an
-object that a `print` method renders, so the numbers are usable and not
-merely visible.
-
-```
-<tales> summary
-  arrays / parts            44 / 955
-  distinct domains          251 of 955 parts  (C-terminus 37, N-terminus 34, repeat 180)
-  distinct RVDs             17
-  repeats per array         min 12   median 19   max 27
-  arrays with both termini  44 of 44
-  source sequences          4
-  anomalies                 none
-```
-
-Contents were cross-checked against what `tell_tales()` already thinks worth
-logging, which independently confirmed "complete arrays" and array-length
-min/median/max. It also turned up a commented-out line in that log --
-"Total number of distinct types of RVD" -- which the author wanted and lost
-when the table it needed was disabled. It is back, here.
-
-For a `tales_msa` the measure that earns its place is **columns with no
-consensus, per layer**. On a gappy four-array alignment: 17 of 28 columns
-have no `dom_code` consensus but only 10 have no `rvd` one. That gap is the
-biology -- repeats that are distinct proteins can share a base preference --
-and it is a one-line answer to "is this alignment telling me something, or is
-it disagreement all the way down".
-
-**Left out deliberately:** the RVD frequency table (composition analysis,
-belongs in its own function returning data), and per-array breakdowns (they
-scale with the object; a summary should not).
-
-Still open: nothing. `format()`, `print()` and `summary()` are all in place
-for both classes.
+`format()`, `print()` and `summary()` for both classes (`R/tales_print.R`,
+`R/tales_summary.R`). Print writes to stdout through `cat()` of
+`cli::format_inline()` output; `format(x)` equals
+`capture.output(print(x))` and no element contains a newline (tested).
+Left out on purpose: an RVD frequency table, per-array breakdowns.
 
 ## 8.5 Internals audit — function census **[V]**
 
-A census of every top-level definition in `R/` (111: 51 exported, 60
-internal), counting call sites within the package.
-
-**Single-caller internals: 27.** But 18 of those already sit in the same file
-as their caller, so the maintenance cost is concentrated in the 9 that do
-not:
-
-| internal | defined in | only caller |
-|---|---|---|
-| `.repeat_to_sim_align()` | `conversion.R` | `msa.R` |
-| `.repeat_to_cluster_align()` | `conversion.R` | `msa.R` |
-| `.rvd_to_match_align()` | `conversion.R` | `msa.R` |
-| `.tale_parts()` | `distalr.R` | `tales_class.R` |
-| `.build_repeat_msa()` | `msa.R` | `tales_msa_class.R` |
-| `.tales_dom_code_namespace()` | `tales_class.R` | `distalr.R` |
-| `.tales_msa_contract_holds()` | `tales_msa_class.R` | `tales_class.R` |
-| `.run_nhmmer_search()` | `tellTale_utilities.R` | `telltale.R` |
-| `.hits_report_to_gff()` | `tellTale_utilities.R` | `telltale.R` |
-
-**The test is not "how many callers".** Some single-caller helpers earn their
-name: `.pairwise_align_biostrings/mmseq2/decipher()` are three siblings behind
-a `switch` and their symmetry is the readable part; the `.tales_check_*()`
-validators surface in error provenance. The useful question is whether the
-helper has a name the reader needs. If it does, it should live *next to* its
-caller; if it does not, it is a paragraph of the caller that was given a name
-for no reason.
-
-**Callers with no caller: 5.** Moved to `R/unused_pending_review.R`, not
-deleted -- see the header of that file for what is known about each. (That
-file was itself fully reviewed and retired in §18: two of the five turned out
-to still have test dependents and were rescued into `conversion.R`; the rest
-moved on to `inst/legacy/`, and the file itself no longer exists.)
+Superseded by `dev/function-graph.qmd` (§29), which lists every function
+with its callers and callees. Rule kept: a single-caller helper earns its
+name when a reader needs the name; it then lives next to its caller.
 
 ### 8.5b Break `tales_compare()` into three composable steps -- DONE **[V]**
 
-Maintainer's proposal, and I agree with it. `.tales_compare_core()` does three
-things that are separable and each independently useful:
-
-1. assign the `dom_code`s;
-2. compute the `domain_distances`;
-3. compute the `tale_distances`.
-
-**One correction to the ordering, which improves the design rather than
-complicating it.** Steps 2 and 3 are not parallel: **the TALE distances are
-built *from* the domain distances.** At `distalr.R:498-510` the pairwise
-repeat dissimilarities are cast to a matrix, passed through
-`stats::dist(method = "minkowski", p = 3.5)` to force the triangle
-inequality, rescaled to 0-100, and written as ARLEM's cost matrix. ARLEM then
-aligns the repeat-code strings *using that matrix* as its substitution cost.
-
-So the real chain is **1 -> 2 -> 3**, and that is worth exposing rather than
-hiding, because it states something biological the current monolith conceals:
-two TALEs are compared by aligning their repeat arrays, where the cost of
-substituting one repeat for another is how different those repeats are as
-proteins. The repeat-level comparison is not a by-product of the TALE-level
-one; it is its input.
-
-Composed, the three would read:
-
-```r
-x  <- tales_assign_domain_codes(x)          # 1
-dd <- tales_domain_distances(x, aln_method) # 2
-td <- tales_tale_distances(x, dd)           # 3, consumes dd
-```
-
-and `tales_compare()` stays as the convenience wrapper that runs all three.
-
-**What already exists, and what does not.** `tales_domain_codes()` is taken
-but does something else -- it *reads back* the `dom_code`/`aa_seq`
-correspondence from an object that already has codes. Step 1 needs a
-different name.
-
-**The hazard to think about before exporting step 1.** Codes are assigned
-with `dplyr::cur_group_id()` over `aa_seq`, so they depend on which arrays
-were in the table at the time. That is exactly why the `dom_code_namespace`
-stamp exists -- to catch similarity tables from one run being used with codes
-from another. Exporting the assignment makes that run-dependence part of the
-public API, so the function must stamp a namespace and its documentation must
-be blunt: **these codes are meaningful only within one call, and comparing
-them across calls is an error the namespace is there to catch.**
-
-Worth doing. Every step is separately useful -- someone may want the
-repeat-level distances without paying for ARLEM at all -- and the
-decomposition documents the model.
-
-**Built**, in `R/tales_compare_steps.R`, in the 1 -> 2 -> 3 shape above:
-
-```r
-coded <- tales_assign_domain_codes(x)
-dd    <- tales_domain_distances(coded, aln_method = "DECIPHER")
-td    <- tales_tale_distances(coded, dd)
-```
-
-`tales_compare()` is now exactly that composition plus its existing input
-validation, and a test asserts the wrapper equals its parts.
-
-**Verification.** The golden baseline passed **44/44 with no snapshot
-changes**, so the decomposition is byte-identical to the monolith it
-replaces. That was the point of having the baseline.
-
-**Step 1 was named `tales_assign_domain_codes()`**, since `tales_domain_codes()`
-was taken and does something else -- it reads the code/sequence table back
-out of an object that already has codes.
-
-**The run-dependence hazard is enforced, not just documented.** Exporting
-step 1 makes `cur_group_id()`'s dependence on which arrays were present into
-public API, so:
-
-- `tales_assign_domain_codes()` stamps a `dom_code_namespace`, and its docs
-  have a dedicated section saying the codes mean nothing outside the call
-  that minted them;
-- `tales_tale_distances()` **refuses** (`tantale_error_namespace_mismatch`)
-  when its two arguments carry different namespaces. This matters more than
-  it looks: step 3 indexes domains by code, so distances keyed by another
-  run's codes would not fail, they would silently compare the wrong domains.
-- A test pins that two different subsets of the same object get different
-  namespaces.
-
-**One implicit coupling made explicit while extracting.** The ARLEM cost
-matrix is written with types `1..n` in row order, so it only means anything
-if the `dom_code`s are exactly `1..n` -- which holds because
-`cur_group_id()` produces them, but nothing said so. `.arlem_cost_file()`
-now sorts rows numerically with a comment stating the requirement.
-
-**`.tales_compare_core()` is parked, not deleted**, in
-`R/unused_pending_review.R`: it is the reference for what the composed
-version must reproduce.
+`tales_compare_distal()` = `tales_assign_domain_codes()` ->
+`tales_domain_distances()` -> `tales_tale_distances()`. The chain states
+the model: two TALEs are compared by aligning their arrays, and the cost
+of substituting one domain for another is how different those domains are
+as proteins. Step 1 stamps a namespace; step 3 refuses mismatched
+namespaces (`tantale_error_namespace_mismatch`). The ARLEM cost matrix
+relies on `dom_code`s being exactly `1..n` in row order.
 
 ### 8.6 Legacy preconditions leaking through class methods — DONE **[V]**
 
-`plot.tales_msa()` decomposes its object and hands the pieces to
-`plot_tales_msa()`, whose argument checks are written for a caller assembling
-matrices by hand. Measured against what the class guarantees:
-
-| check in `plot_tales_msa()` | reachable via the method? |
-|---|---|
-| neither `repeat_align` nor `rvd_align` given | no -- the method always builds `repeat_align` |
-| `repeat_align` was coerced to a vector | no -- `as.matrix.tales_msa()` uses `matrix()`; a one-array subset still returns a `1 x n` matrix |
-| `rvd_align` was coerced to a vector | no -- same |
-| fewer than one sequence | **yes** -- a zero-row `tales_msa` is valid |
-
-So three of four are unstateable, and the one that fires reports a problem
-with `repeat_align`, an argument a `plot(x)` caller never supplied and cannot
-inspect.
-
-Decided: `plot_tales_msa()` is folded into `plot.tales_msa()` and unexported.
-Done.
-
-**The other entry points, audited the same way:**
-
-- `plot.tales()` -> `plot_tales_composition()`: **clean.** A one-line
-  pass-through to a function that already takes the object and checks through
-  `.tales_require()`; every message names a column, not an argument the caller
-  did not supply. The only question here is a different one -- two public
-  names (`plot(x)` and `plot_tales_composition(x)`) for one operation, both
-  taking the same object. Unlike the msa case there is no legacy matrix
-  interface to remove, so this is an API-surface choice, not a defect.
-
-- `tales_compare()` -> `.tales_compare_core()`: **one dead check.** The core
-  aborts with "Your tale arrays identifers are probably not unique. Make sure
-  that there is only one part per position per array_id." Tested: `tales()`
-  already rejects a duplicated `array_id`/`position_in_array` pair, so this
-  cannot fire through `tales_compare()`. (It also misspells "identifiers".)
-  **Deleted.** The class is where that invariant belongs, and duplicating it
-  in a private function only created a second place for it to go stale.
-
-  Its two *other* checks are live and must stay: `tales()` accepts `NA` and
-  `""` in `aa_seq` (tested), so "Some of the provided TALE parts have no amino
-  acid sequence" is reachable and doing real work.
-
-- `tales_align()` -> `.build_repeat_msa()`: **fixed.** Its messages named
-  `input_seqs`, an internal argument a `tales_align()` caller has no way to
-  inspect.
-
-**Incidental finding, resolved:** `tales()` accepts `NA` in a residue column,
-but not silently -- `.tales_anomalies()` reports it as `missing_rvd` /
-`missing_dom_code`, `tales()` warns, and `sanitize = TRUE` drops the array.
-Working as designed; empty strings are covered by the same check.
+`plot_tales_msa()` folded into `plot.tales_msa()` and unexported: three of
+its four argument checks could not fire through the method.
+`plot_tales_composition()` is internal behind `plot.tales()`.
 
 ### 8.6b Co-locating single-caller internals — PARTLY DONE **[V]**
 
-Done, and the file responsibilities now line up:
-
-- `msa.R` is **drawing an alignment**: `plot.tales_msa()`, the three
-  fill-layer builders moved in from `conversion.R`, the consensus functions
-  and the reference picker.
-- `tales_msa_class.R` is **the class and how to build one**: constructor,
-  validators, `as.matrix()`, `tales_align()`, and the MAFFT runner moved in
-  from `msa.R`.
-- `conversion.R` is down to five functions, about projecting a `tales` onto
-  strings and maps, which is what its name suggests.
-
-The remaining six need a decision about which file owns what, so they are
-left alone. My reading of each:
-
-| internal | situation | suggestion |
-|---|---|---|
-| `.tale_parts()` + its two helpers | **DONE** — the trio and `tales_from_telltale()` are now `R/tales_ingest.R`. `distalr.R` no longer reads anything off disk | — |
-| `.build_repeat_msa()` | **DONE** — moved to `tales_msa_class.R` beside `tales_align()`, taking `.as_mafft_score_table()` and `.rvd_score_table()` with it, since it is their only caller. Co-located, not inlined: 157 lines of MAFFT plumbing inside a 57-line `tales_align()` would have made the caller harder to read, and "run MAFFT in text mode and return a matrix" is a name the reader needs. Six tests also call it directly with fasta paths and bare sequence lists, exercising edge cases `tales_align()` cannot reach | — |
-| `.tales_dom_code_namespace()` | in `tales_class.R`, called from `distalr.R` | leave. It is a property of the class read by another module, which is normal |
-| `.tales_msa_contract_holds()` | in `tales_msa_class.R`, called from `tales_class.R` | leave, same reason |
-| `.run_nhmmer_search()`, `.hits_report_to_gff()` | in `tellTale_utilities.R`, called only from `telltale.R` | `tellTale_utilities.R` is down to five members after the parking. Either fold what is left into `telltale.R` and drop the file, or leave it |
-
-Of the six, only the last row is still a real open decision (the other five
-are done or already settled as "leave"). **Dropped from active tracking,
-2026-09-21 (maintainer's call).** Not being pursued unless raised again.
+Files now follow responsibilities (plotting in `tales_plot.R`, the
+`tales_msa` class and MAFFT in `tales_msa_class.R`, ingestion in
+`tales_ingest.R`). Remaining row dropped from tracking (maintainer,
+2026-09-21).
 
 ### 8.6c Plot methods collected into `tales_plot.R` **[V]**
 
-`plot.tales` lived in `distalr.R` and `plot.tales_msa` in `msa.R` -- both
-legacy files named after functions that used to dominate them rather than
-after what they now held. Moved together into `R/tales_plot.R`, with the
-five internals only `plot.tales_msa()` reaches (`.pick_ref_name()`,
-`.consensus_panel()`, `.repeat_to_sim_align()`,
-`.repeat_to_cluster_align()`, `.rvd_to_match_align()`).
-
-**Which axis.** The package had two competing ones. `tales_class.R` holds
-the class contract (constructor, validator, coercion) while `tales_print.R`
-and `tales_summary.R` hold a method family across *both* classes. For those
-two the arrangement is **forced**: `format.tales` and `format.tales_msa`
-share `.tales_preview_layer()`, `.tales_header()` and `.tales_preview()`,
-which cannot be split across two class files without duplication.
-
-Plot has no such constraint -- notably `plot.tales` has no internals at all,
-only the package-wide `.tales_require()` -- so either axis would have
-worked. Maintainer's call was the method-family axis, so that the two plot
-methods can be read against each other.
-
-`msa.R` was left holding only `tales_consensus()` and
-`tales_consensus_match()`, so it became `R/tales_consensus.R`. Both take a
-plain matrix rather than a `tales_msa`, so they are usable on any alignment;
-`summary.tales_msa()` and `plot.tales_msa()` are the in-package callers.
-
-Pure reorganisation: no exports changed, no Rd content changed, and the
-suite passed 642/0 before and after, golden included.
+Method-family layout (print, summary and plot each in one file across
+both classes), maintainer's choice; `msa.R`'s remainder became
+`tales_consensus.R`.
 
 ### 8.7 `tales_consensus()` depended on row order **[V]** — FIXED
 
-Found while checking that folding `plot_tales_msa()` into `plot.tales_msa()`
-preserved behaviour: the plot data differed, and the difference was real.
-
-`tales_consensus()` scored candidates with
-`unique(allElements)[which.max(freq)]`. `unique()` returns values in order of
-first appearance and `which.max()` takes the first maximum, so a tie was won
-by whichever array happened to be the top row. Permuting the rows of an
-alignment changed its consensus. Fixed by sorting the candidates first; the
-counting is untouched.
-
-**The deeper question -- resolved: first option taken.** Confirmed directly
-against the current code (`R/tales_consensus.R`, both `tales_consensus()` and
-its `tales_msa`-native sibling `.tales_consensus_long()`): a tie now returns
-`NA_character_` (`if (sum(freq == max(freq)) > 1L) return(NA_character_)`),
-so a column/position with no strict majority reports no consensus rather than
-an arbitrary pick, and the figure shows no match there either. Maintainer
-confirmed 2026-09-21 this reflects the intended resolution (option one of the
-three above); not separately dated in this ledger at the time it was made.
+A tie was won by whichever array came first. Now a tie (or a gap
+majority) returns `NA`: no strict majority, no consensus.
 
 ## 9. Long-term systematic passes -- all DONE, including 9.2b **[V]**
 
-Whole-codebase sweeps, to be done deliberately rather than opportunistically.
-Deferred until the class design settles, since it will dictate several of the
-names.
-
 ### 9.0 Governing convention — rOpenSci package API guidelines **[reference]**
 
-Source: <https://devguide.ropensci.org/pkg_building.html#package-api>. Adopted
-as the reference standard for 9.1, 9.2, and — importantly — for the generics
-design in §5, which has to be decided *before* any further renaming, since the
-class design dictates several of the names.
-
-The five rules, each audited against the current `dev` state:
-
-1. **`object_verb()` naming scheme** for functions sharing a data type or API.
-   *Status: inconsistent, but do not act yet.* The package currently splits:
-   - object-first: `talomes_heatmap()`, `msa_heatmap()`, `tales_consensus()`,
-     `tales_consensus_match()`, `tale_parts_to_rvd()`, `repeat_to_rvd_align()`,
-     `repeat_to_rvd_map()`
-   - verb-first: `plot_tales_msa()`, `plot_tale_composition()`,
-     `plot_target_preds()`, `build_repeat_msa()`, `group_tales()`,
-     `correct_tales()`, `diagnose_tale_parts()`, `tell_tales()`,
-     `run_annotale_*()`, `split_list()`
-
-   **The OOP transition dissolves most of this split rather than renaming
-   through it.** Every verb-first name above is a verb applied to one of our
-   prospective classes; under S3/S4/S7 those become *methods on a generic*
-   (`plot()`, `autoplot()`, `summary()`) dispatching on the object, so the
-   object moves out of the function name and into the signature. Renaming
-   `plot_tales_msa()` → `msa_plot()` now would be churn we then undo. Decide
-   §5 first; re-audit this rule against whatever survives as a plain function.
-
-2. **Data/object as the first argument**, for pipe compatibility.
-   *Status: broadly satisfied, two real violations* — both cases of the same
-   pair of objects taken in opposite order, which also breaks rule 5:
-
-   | | first arg | second arg |
-   |---|---|---|
-   | [`msa_heatmap()`](../R/msa.R#L297) | `tal_sim` | `repeat_align` |
-   | [`plot_tales_msa()`](../R/msa.R#L630) | `repeat_align` | `tal_sim` |
-   | [`.repeat_to_sim_align()`](../R/conversion.R#L237) | `repeat_align` | `repeat_sim` |
-   | [`.repeat_to_cluster_align()`](../R/conversion.R#L270) | `repeat_sim` | `repeat_align` |
-
-   The second pair is the worse of the two: the name reads
-   `repeat_ -> _cluster_align`, so the alignment is the subject, yet the
-   similarity matrix is passed first. §4 already marks `msa_heatmap()` as
-   superseded, so the first pair may resolve by deletion rather than by
-   reordering.
-
-   Path-taking entry points (`tale_parts(telltale_dir)`,
-   `run_annotale_*(fasta_file)`, `tell_tales(subject_file)`,
-   `correct_tales(uncorrected_path)`, `functal(TALfile)`) are **not**
-   violations — they are constructors/readers, and the file *is* the input.
-
-3. **snake_case throughout.** Confirms the direction already taken for
-   functions; 9.1 and 9.2 are the unfinished remainder.
-
-4. **No name conflicts with base or popular packages.** *Status: clean.*
-   Verified by set-intersecting all 24 exports against the exports of `base`,
-   `stats`, `utils`, `ggplot2`, `dplyr`, `magrittr`, `data.table`, `tidyr`,
-   `purrr` and `Biostrings` — zero collisions. Worth re-running after any
-   rename pass, and worth keeping in mind for generic names specifically,
-   where the point is to *deliberately* collide (i.e. register a method on an
-   existing generic) rather than to shadow.
-
-5. **Consistent argument naming and order across functions with similar
-   inputs.** *Status: naming largely unified by the rename pass* (`tal_sim`,
-   `repeat_align`, `repeat_sim`, `h_cut` are now used uniformly — except
-   `h.cut`, see 9.1); *ordering is not*, per the table in rule 2. This rule is
-   the one that makes 9.1 and 9.2 a single coordinated pass rather than two
-   independent ones: the argument vocabulary and the column vocabulary have to
-   agree, so that `repeat_align` the argument and `repeat_align` the column
-   mean the same thing.
+<https://devguide.ropensci.org/pkg_building.html#package-api>:
+1. `object_verb()` naming for functions sharing a data type; methods on
+   generics for verbs applied to a class;
+2. data first;
+3. snake_case throughout;
+4. no name clashes with base or popular packages (re-checked 2026-09-23:
+   none of the 51 exports clashes with base, stats, utils, graphics,
+   methods, ggplot2, dplyr, tidyr, purrr, magrittr, Biostrings or
+   tibble);
+5. consistent argument names and order across functions with similar
+   inputs.
 
 ### 9.1 Argument names — DONE **[V]**
 
-Complete. Verified by `formals()` introspection over every function in the
-namespace: no argument anywhere in the package now contains a capital letter or
-a dot. The last six were `functal(TALfile)`, `.compute_match_string(RVDSeq,
-EBESeq)`, `.extract_seqs_from_hits(DNAsequences)`, the two
-`inputFile`s, and `.repeat_to_cluster_align(h.cut)` -- the one with real bite,
-since it was dot.case *and* disagreed with `h_cut` everywhere else. Fixed as
-part of the clustering bug fix.
-
-**Original notes, condensed:** the snake_case conversion started from six
-functions with non-conforming argument names (`functal(TALfile)`,
-`.compute_match_string(RVDSeq, EBESeq)`, and similar) -- all fixed, per the
-main text above. It also first raised the deeper naming question of whether
-`repeat_sim`/`repeat_sims`/`tal_sim` (arguments) agreed with the
-`tale_sim`/`repeat_sim` class names -- that question was carried forward as
-§19 and resolved in §23 (`repeat_sim`/`repeat_sims`/`tal_sim` all renamed to
-`domain_distances`/`tale_distances`). Nothing here is still open.
+No argument anywhere contains a capital letter or a dot (checked with
+`formals()`).
 
 ### 9.2 Column names — DONE for the classes, PARTLY for the report files **[V]**
 
-The `tales` class and the distance tables use snake_case throughout, and the
-two egress bridges that let legacy-named internals survive are deleted.
-
-**Correction (found later):** the sentence that stood here said "every table
-the package produces". That overstated it -- in the three TSVs `tell_tales()`
-writes, only `array_id` was renamed. See §9.2b for the inventory.
-
-**What the vocabulary is now**
-
-| table | columns |
-|---|---|
-| `tales` | `array_id`, `domain_type`, `position_in_crd`, `dna_seq`, `source_directory`, `position_in_array`, `aa_seq`, `rvd`, `seqnames`, `dom_code` |
-| `tales_domain_codes()` | `dom_code`, `aa_seq`, `rvd` |
-| `domain_distances` / `tale_distances` | `id1`, `id2`, `dissim` (+ `arlem_score`, `max_length`) |
-| `tales_group()` | `name`, `group` |
-
-The two distance tables now agree on their id columns, which was the stated
-prerequisite for unifying them into one class -- that unification landed in
-9.6, and this sweep removes the last places that still spoke the old
-vocabulary behind it.
-
-**Bridges: one kept, two deleted**
-
-- `.tales_rename_legacy()` — **kept**. Ingest only. A `tell_tales` output
-  directory written by an older version still has camelCase headers, so
-  `tales()` must keep accepting them. `.as_mafft_score_table()` and
-  `.pairwise_distances_rename_legacy()` are the same courtesy for the
-  distance tables.
-- `.tales_to_legacy()` — **deleted**. Existed only because
-  `.tales_compare_core()` was written against camelCase.
-- `.distances_to_legacy()` — **deleted**. Existed only because
-  `plot_tales_msa()` was written against `TAL1`/`RepU1`/`Sim`. That function
-  now normalises both of its similarity arguments through
-  `pairwise_distances()` at entry, so it accepts either spelling and its
-  internals speak one.
-
-**On-disk formats changed too.** `arrayReport.tsv`, `domainsReport.tsv` and
-`hitsReport.tsv` now write `array_id`, and the derived GFFs carry an
-`array_id` attribute. Authorised explicitly -- this release breaks things by
-design. The fixtures under `tests/testthat/data_for_tests/` and
-`inst/extdata/` were rewritten to match.
-
-**Defects this uncovered**
-
-1. `.tale_parts_from_file()` named the column `arrayIDs` in its empty-input
-   branch and `arrayID` in the populated one, so the two returns had
-   incompatible schemas.
-2. `repeat_to_rvd_map_distalr()` and `tale_parts_to_rvd()` are exported and
-   documented as taking a `tales_compare()` result, but read camelCase -- so
-   both had been broken against that result since the class work landed.
-   Neither had a test that would notice.
-3. Two test assertions went silently vacuous when the fixture moved:
-   `d$tale_parts$arrayID` returns `NULL`, and `expect_identical(NULL, NULL)`
-   passes. Both now index with `[[ ]]`, which errors on a missing column.
-   **This is the third distinct way `$` has hidden a defect in this project;
-   prefer `[[ ]]` in tests.**
-4. The tree panel of `plot_tales_msa()` had no test at all, so the dendrogram
-   rewrite was flying blind until one was added.
-
-**Not renamed, deliberately:** `repeatClusterId`, `repeatSimVsRef`,
-`rvdSimVsRef`, `matchConsensusRepeat`, `matchConsensusRvd`. These are columns
-of the intermediate plot-data tibble inside `plot_tales_msa()`, not of any
-table the package returns. They are reachable as `p$data`, so they are worth
-a later pass, but renaming them changes nothing a documented API promises.
-
-**Follow-up needed from the maintainer:** `man/figures/pipeline.svg` labels
-the `tale_parts` box with the old camelCase column names -- same figure, same
-open issue as §7.6's later, fuller finding (the figure is stale well beyond
-this one label and is a candidate for redrawing or removal, not just a
-re-export). See §7.6 rather than acting on this note alone.
-
-**Original notes, condensed:** the starting point was that no column
-anywhere was snake_case, across four different casing conventions
-including one literal space (`` `AA Seq` ``) -- fully resolved by the
-rename above.
+Class and distance-table columns are snake_case (`array_id`,
+`domain_type`, `position_in_crd`, `dna_seq`, `source_directory`,
+`position_in_array`, `aa_seq`, `rvd`, `seqnames`, `dom_code`; distances
+`id1`, `id2`, `dissim`). `.tales_rename_legacy()` still accepts camelCase
+input from old output directories; `.pairwise_distances_rename_legacy()`
+does the same for distance tables. **Prefer `[[ ]]` to `$` in tests**: a
+missing column gives `NULL` and `expect_identical(NULL, NULL)` passes.
+One intermediate plot-data column, `rvdSimVsRef` (`tales_plot.R`), is
+still camelCase; not part of any returned table.
 
 ### 9.2b The sweep stopped at `array_id` in the report files -- DONE **[V]**
 
-§9.2 above says "Every table the package produces now uses snake_case". That
-is true of the `tales` class and the distance tables, and **not** true of the
-three TSVs `tell_tales()` writes. What 9.2 actually changed there was
-`array_id`; the rest of the columns were left alone.
-
-Measured on a corrected run:
-
-| file | snake_case | still legacy |
-|---|---|---|
-| `domainsReport.tsv` | all 4 | -- |
-| `hitsReport.tsv` | 10 of 12 | `nhmmerHitID`, `hitID` |
-| `arrayReport.tsv` | 3 of 17 | the other 14 |
-
-`arrayReport.tsv` in full: `OriginalSubjectName`, `Start`, `End`, `Strand`,
-`NumberOfHits`, `ArraySeq`, `AllDomains`, `SeqOfRVD`, `aberrantRepeat`,
-`N.terminusAAlength`, `C.terminusAAlength`, `LongestOrfLength`,
-`OrfCovOverArrayLength`, `LongestORFSeq`. (The three that are already right
-are `array_id` and the two `predicted_*_count` columns, which correction
-adds.)
-
-Note `N.terminusAAlength` is not merely camelCase -- the dots are what
-`data.frame()` does to `N-terminus`, so that name is an accident rather than
-a choice.
-
-**Proposed mapping**, if you want it finished:
-
-| now | proposed |
-|---|---|
-| `OriginalSubjectName` | `seqnames` (matches every other table) |
-| `Start`, `End`, `Strand` | `start`, `end`, `strand` |
-| `NumberOfHits` | `n_domain_hits` |
-| `ArraySeq` | `array_seq` |
-| `AllDomains` | `has_all_domains` |
-| `SeqOfRVD` | `rvd_string` |
-| `aberrantRepeat` | `has_aberrant_repeat` |
-| `N.terminusAAlength` / `C.terminusAAlength` | `nterm_aa_length` / `cterm_aa_length` |
-| `LongestOrfLength` | `longest_orf_length` |
-| `OrfCovOverArrayLength` | `orf_coverage` |
-| `LongestORFSeq` | `longest_orf_seq` |
-| `nhmmerHitID`, `hitID` | `nhmmer_hit_id`, `hit_id` |
-
-**Why this is not done unattended.** These are the column names of the
-package's primary output files, and the person who knows what reads them
-downstream is the maintainer, not me. §9.2 broke this format once already
-"by design", so doing it again is defensible -- but it is a decision, not a
-chore. The work itself is mechanical, has golden coverage, and would take
-one pass.
-
-Two things to decide: whether to do it at all, and whether
-`.tales_rename_legacy()` should learn the old spellings so that directories
-written by the current version still load after the change.
-
-**Done.** Applied the mapping exactly as proposed, in `R/telltale.R` --
-these column names originate as `S4Vectors::mcols()` on the `by_array`
-`GRangesList`, one source of truth from which `arrayReport.tsv`,
-`hitsReport.tsv` and both GFFs (`allRanges.gff`, `hitsReport.gff`) are all
-derived, so the rename at that single point propagated correctly to every
-output format without touching the GFF-writing code at all -- verified by
-inspecting a real run's GFF attribute strings, not assumed.
-
-**On the two decisions:**
-
-1. *Whether to do it at all* -- yes (maintainer).
-2. *Whether `.tales_rename_legacy()` needs the old spellings* -- turned out
-   not to apply. That function bridges camelCase *class* columns
-   (`arrayID`, `positionInArray`, ...) into `tales()`'s constructor; these
-   report-file columns are never read back into a `tales` object at all.
-   Checked directly: `tales_ingest.R` reads exactly two columns out of
-   `hitsReport.tsv` -- `array_id` and `seqnames` -- both already
-   snake_case before this change, and neither `arrayReport.tsv` nor
-   `domainsReport.tsv` is read by any internal function. So there is no
-   ingest path to make backward-compatible; a directory written by an
-   older package version keeps its old headers regardless (files on disk
-   don't change), and nothing internal cares.
-
-**Result**, on the small shipped fixture:
-
-| file | columns |
-|---|---|
-| `arrayReport.tsv` | `array_id, seqnames, start, end, strand, n_domain_hits, array_seq, has_all_domains, predicted_ins_count, predicted_dels_count, rvd_string, has_aberrant_repeat, nterm_aa_length, cterm_aa_length, longest_orf_length, orf_coverage, longest_orf_seq` |
-| `hitsReport.tsv` | ... `nhmmer_hit_id, query_name, hit_id` ... |
-| `domainsReport.tsv` | unchanged, already fully snake_case |
-
-`.telltale_add_array_measures()`'s `paste0(e, "AAlength")` (where `e` is
-`"N-terminus"`/`"C-terminus"`, and the auto-sanitised `N.terminusAAlength`
-was never a chosen name, just what `data.frame()` did to a dash) became an
-explicit two-way lookup rather than a paste, since `nterm_aa_length` and
-`cterm_aa_length` don't share the parent string's shape.
-
-Golden re-baselined: 4 snapshot changes, every row of every diff traced to
-this rename before accepting (two per-column fingerprints, plus two
-whole-directory file-digest tables picking up the changed `.tsv`/`.gff`
-files) -- no unexplained change. `tests/testthat/test_tell_tales_correction.R`
-updated (9 references). Full suite green.
-
-**Known consequence, not fixed tonight:** `vignettes/1_tale_mining.Rmd`
-references `AllDomains`/`aberrantRepeat` in its own prose and a plotting
-chunk (`geom_bar(aes(..., fill = AllDomains, color = aberrantRepeat))`) and
-is now stale against real `tell_tales()` output. Left alone deliberately --
-that vignette is §7.5's problem, explicitly low priority, and rewriting it
-now would be doing §7.5's work under 9.2b's ticket.
+`array_report.tsv`: `array_id, seqnames, start, end, strand,
+n_domain_hits, array_seq, has_all_domains, predicted_ins_count,
+predicted_dels_count, rvd_string, has_aberrant_repeat, nterm_aa_length,
+cterm_aa_length, longest_orf_length, orf_coverage, longest_orf_seq`.
+The names originate as `mcols()` of one `GRangesList`, so the TSVs and
+both GFFs follow from one place. No internal reader needs the old names.
 
 ### 9.2c `tell_tales()`'s output file names snake_cased -- DONE **[V]**
 
-Maintainer's request (2026-09-18): the file names `tell_tales()` writes
-to `output_dir` were "out of place" and needed renaming, "mainly with
-underscores." Done the same night.
-
-The scoping done before starting turned out to undercount the real
-mint sites: `.telltale_paths()` is *not* the only place that builds an
-output filename. Found and fixed four more while tracing every write:
-
-| old name | new name | where it's actually built |
-|---|---|---|
-| `hitsReport.tsv` | `hits_report.tsv` | `.telltale_paths()` |
-| `domainsReport.tsv` | `domains_report.tsv` | `.telltale_paths()` |
-| `arrayReport.tsv` | `array_report.tsv` | `.telltale_paths()` |
-| `allRanges.gff` | `all_ranges.gff` | `.telltale_paths()` |
-| `putativeTalOrf.fasta` (top-level) | `putative_tal_orf.fasta` | `.telltale_paths()` |
-| `pseudoTalCds.fasta` | `pseudo_tal_cds.fasta` | `.telltale_paths()` |
-| `rvdSequences.fas` | `rvd_sequences.fas` | `.telltale_paths()` (extension left as `.fas`, out of scope) |
-| `TALE_CDS_all_diagnostic_regions_hmmfile.out` | `tale_cds_all_diagnostic_regions_hmmfile.out` | `.telltale_paths()` |
-| `hmmerSearchOut.txt` | `hmmer_search_out.txt` | `.telltale_paths()` |
-| `nhmmerHumanReadableOutputOfLastRun.txt` | `nhmmer_human_readable_output_of_last_run.txt` | `.telltale_paths()` |
-| `CorrectionAlignmentDNA` / `CorrectionAlignmentAA` (dirs) | `correction_alignment_dna` / `correction_alignment_aa` | `.telltale_paths()` |
-| `hitsReport.gff` | `hits_report.gff` | **`.hits_report_to_gff()`** -- derives its name from the path it's given, so this followed automatically once `hits_report.tsv` did; also fixed its stale, never-used default argument (`"hitsReport.csv"`, always overridden by the real caller) |
-| `CorrectionAlignmentDNA_{n}.html` / `..AA_{n}.html` | `correction_alignment_dna_{n}.html` / `..aa_{n}.html` | **`.telltale_write_correction_alignments()`**, a `glue()` call `.telltale_paths()` never touches |
-| `N-terminusDNAAlignment.html` / `C-terminusAAAlignment.html` etc. | `n_terminus_dna_alignment.html` / `c_terminus_aa_alignment.html` etc. | **`.telltale_align_termini()`**, another independent `glue()` -- the `"N-terminus"`/`"C-terminus"` strings themselves stay as-is (they are also the `grepl()` pattern matched against AnnoTALE's own sequence names, not just display text) but the filename is now built from a lower-cased, underscored copy of that string, not the string itself |
-| `annotale/ROI_*/putativeTalOrf.fasta` (per-ROI) | `annotale/ROI_*/putative_tal_orf.fasta` | **`.telltale_run_annotale()`**, line ~716 -- this one is *inside* the `annotale/` tree but is not AnnoTALE's own output: it's the ORF fasta tantale itself writes there as AnnoTALE's *input*. Everything else inside `annotale/` (`TALE_Protein_parts.fasta`, `TALE_DNA_parts.fasta`, `TALE_RVDs.fasta`, `protocol_analyze.txt`) genuinely is AnnoTALE's own output and was correctly left untouched -- confirmed by reading which function writes vs. reads each file, not by its directory alone |
-
-Also renamed in passing, unreferenced by any code so purely cosmetic:
-a stray `tellTale.log` (the pre-rename function name) sitting in both
-copies of the `tellTaleExampleOutput` fixture, where every other file
-already said `tell_tales.log` -- leftover from before `tellTale()`
-became `tell_tales()`, never cleaned up.
-
-**Blast radius, all handled:** `R/telltale.R`, `R/tales_ingest.R` (two
-`list.files()` patterns), six test files (`test_golden.R`,
-`test_split_list.R`, `test_tales_class.R`, `test_tales_compare.R`,
-`test_tell_tales_correction.R`, `test_tell_tales_guards.R`), one
-article (`tale_mining.qmd`), and `git mv` across five fixture trees
-(`tests/testthat/data_for_tests/tellTaleExampleOutput/` and its three
-`tellTaleError*` siblings, plus `inst/extdata/tellTaleExampleOutput/`
-shipped with the package and reachable from `tales_from_telltale()`'s
-own `@examples`). The fixture *directory* names themselves
-(`tellTaleExampleOutput`, etc.) were deliberately left alone -- that is
-a test-authoring naming choice, not one of `tell_tales()`'s own output
-names, and renaming it would have dragged in ~15 more `R/`/`tests/`
-files that only ever pass the whole directory through, never a literal
-file name inside it.
-
-**Verified as a pure rename, not trusted as one:** for both golden
-tests, built the full old-name -> new-name mapping and checked every
-row's MD5 digest against its renamed counterpart programmatically
-(not by eyeballing the truncated `and N more...` diff testthat prints).
-36/36 rows matched exactly for the uncorrected run; 43/44 for the
-frameshift-correction run. The one exception, `tell_tales.log` itself
-(name unchanged, digest changed), was chased down as far as time
-allowed: the visible content (paths normalised, dates dropped) looks
-completely ordinary and the digest is perfectly reproducible across
-repeated fresh runs of the current code, so it is not flaky -- but
-*why* it differs from the old baseline was not fully traced before
-accepting. Recorded honestly rather than papered over: either a
-pre-existing, unrelated staleness in that one snapshot row (plausible,
-given 9.2b's own history of snapshot rows going stale between
-re-baselines) or a real side effect of this rename that the
-programmatic check did not catch. Re-accepted via
-`testthat::snapshot_accept("golden")` anyway, since 79/80 rows were
-airtight and a rename has to touch the snapshot regardless -- but if
-`tell_tales.log`'s content is ever the subject of its own investigation,
-this paragraph is why its golden history has a discontinuity here that
-isn't a rename.
-
-Full test suite re-run after accepting (`test_golden.R` plus the other
-eleven files the blast-radius check named): 0 failures.
+`hits_report.tsv`, `domains_report.tsv`, `array_report.tsv`,
+`all_ranges.gff`, `rvd_sequences.fas`, `correction_alignment_*`, the
+termini alignment pages, etc. All output paths are built in
+`.telltale_paths()` (§17 moved the last inline ones there). AnnoTALE's own
+output names inside `annotale/` are untouched. The golden history of
+`tell_tales.log` has one unexplained digest change at this rename.
 
 ### 9.2d Inventory `inst/extdata/`; park what nothing uses in `extra/` -- DONE **[V]**
 
-Maintainer (2026-09-18): audit which `inst/extdata/` files are actually
-reachable from the website (articles), `@examples`, or `tests/`, and
-move whatever is not into `extra/` (the existing convention this repo
-already uses for material kept but not shipped -- see `CLAUDE.md`'s
-"never delete code that looks dead" rule, same idea applied to data
-files rather than R code). Agreed direction, not started.
-
-Sizing, so the next pass starts with a number rather than a guess:
-`inst/extdata/` is **41 MB**, 27 top-level files plus the `hmmProfile/`
-and `tellTaleExampleOutput/` subdirectories. This is squarely inside
-the repo-bloat concern flagged and explicitly deferred in an earlier
-phase of this package's cleanup (that phase named `extra/`/`docs_temp/`
-bloat directly, among other things) -- the maintainer is the one
-reopening it now, not this session restarting it unprompted.
-
-Candidates worth checking first, not confirmed unused: `PXO142.fa` and
-`PXO99A.fa` -- `PXO86.fa` is the only *outgroup* genome confirmed still
-referenced (and only by name, deliberately excluded from three of the
-six articles per §7.5c); these two extra Xanthomonas genomes were not
-seen in any `grep` this session, but that is circumstantial, not a
-finding -- the actual inventory is the point of this ticket, not
-something to shortcut here.
-
-Method suggestion, not prescriptive: `grep -rl` each `inst/extdata/`
-basename across `R/`, `tests/`, and `vignettes/`, the same technique
-§9.2c's scope check just used -- a file with zero hits in all three is
-a candidate for `extra/`, one hit in a `tests/` fixture only (vs. a
-real `@examples` or article use) is worth a second look before moving,
-since test-only fixtures are exactly what `extra/` should not swallow.
-
-**2026-09-20 -- done, with the method note above upgraded, not just
-followed.** A plain basename grep turned out to give real false
-positives, caught before trusting it: `inst/extdata/Out_CodedRepeats.fa`
-and `tests/testthat/data_for_tests/Out_CodedRepeats.fa` are
-byte-identical namesakes in different directories, and three tests
-reference the *second* one via `test_path()` -- a naive
-`grep -rl "Out_CodedRepeats.fa"` finds all three hits and reports the
-file as used, when the `inst/extdata/` copy specifically is not. Same
-trap, worse: `sampleDistalrOutput.rds` and `sampleRepeatMsaByGroup.rds`
-have namesakes in `tests/testthat/data_for_tests/` too, this time with
-**different content** (confirmed by `md5sum`) -- 17 and 8 apparent
-"hits" respectively, all actually the tests/ copy. Method upgraded to
-check each hit's context for `extdata` specifically (a small R script,
-not a one-liner grep), which is what caught both.
-
-**Confirmed unused, moved to `extra/` (10 files, ~20MB):**
-`BigRepDist.mat`, `Out_CodedRepeats.fa`, `Out_Repeatmatrix.mat`,
-`PXO142.fa`, `PXO99A.fa`, `sampleDistalrOutput.rds`,
-`SamplePutativeTalOrf.fasta`, `sampleRepeatMsaByGroup.rds`,
-`SampleTALSaa.fa`, `TalF_RVDSeqs_AnnoTALE.fasta`. `inst/extdata/`:
-41MB -> 21MB. Verified via a repo-wide sweep (`data-raw/`, `man/*.Rd`,
-`README.md`, `_pkgdown.yml` included, not just the three directories the
-method suggested) that the handful of remaining string matches for the
-two PXO files are unrelated -- real strain names inside a vendored
-QueTAL reference database, not references to these files. Package still
-loads clean after the move.
-
-**Kept despite zero or near-zero code references, each for a stated
-reason, not by default:**
-- **`PXO86.fa`** -- zero `system.file(..., "extdata", ...)` call sites
-  anywhere, same as the two PXO files that moved. Kept anyway:
-  `tale_mining.qmd`'s callout box explicitly promises a reader "tantale
-  ships a fourth sample genome, PXO86" as the reason it is *not* used in
-  the discovery code there -- moving the file to `extra/` (not part of
-  the installed package) would make that documented claim false. This is
-  the "worth a second look" case the method note anticipated, just from
-  an article promise rather than a test fixture.
-- `small_Out_CodedRepeats.fa` and `cladeIII_sweet_targeting_control_TALEs.fa`
-  -- genuinely used (`test_build_repeat_msa.R`, `R/target_predictions.R`
-  respectively), confirmed via the corrected method, not the naive one.
-
-Not investigated further: whether `PXO142.fa`/`PXO99A.fa` were ever
-used and became orphaned, or were added speculatively and never wired
-in. Not needed to make the extra/ call, and not reconstructable from
-`git log` without a dedicated archaeology pass nobody asked for.
+10 unused files (~20 MB) moved to `extra/` (untracked since §26). A
+basename grep gives false positives here: several `inst/extdata/` files
+have namesakes under `tests/testthat/data_for_tests/`, some with
+different content; check each hit's path. `PXO86.fa` is kept because
+articles use it (§25).
 
 ### 9.3 Decide `@internal` vs `@noRd` per function — PARTLY DONE **[V]**
 
-Current state over 55 non-exported functions: 21 `@noRd`, 12
-`@keywords internal`, and roughly two dozen with no roxygen at all.
-
-**A finding that changes what this item means [V].** `@keywords internal` on
-its own does *nothing*. roxygen generates no Rd for a block with no title, so
-of the pre-existing `@keywords internal` tags on dot-prefixed helpers
-(`.tales_check_key()` and its siblings), none produces a help page. They read
-as a policy decision but have no effect: those functions are documented exactly
-as if they carried `@noRd`.
-
-So the real distinction is not `@noRd` vs `@keywords internal` — it is
-**whether the block has a title at all**:
-
-| block | Rd generated? | checked by `R CMD check`? |
-|---|---|---|
-| `@noRd`, with or without title | no | no |
-| `@keywords internal`, **no title** | no | no |
-| `@keywords internal`, **with title** | yes, as `man/dot-<name>.Rd`, hidden from the index | yes |
-
-Only the third row buys anything. The two functions repaired in §2 use it
-deliberately and are the first in the package to generate `man/dot-*.Rd`.
-
-Note this does not conflict with the class-implementation session's §3.7
-decision to use `@noRd` for its new helpers: that decision explicitly said it
-did not pre-empt this item.
-
-**Remaining work**, and why I left it: deciding which of the two dozen
-undocumented internals deserve real, check-validated documentation is a
-per-function judgement. Bulk-adding a bare `@noRd` would only restate what
-already happens.
-
-**Dropped from active tracking, 2026-09-21 (maintainer's call).** Not being
-pursued unless raised again -- do not start this without being asked.
-
-**Original notes, condensed:** the package started with almost no
-`@noRd`/`@keywords internal` policy at all (2 `@noRd` tags total, one of them
-a typo roxygen never saw). The main finding above -- that `@keywords internal`
-does nothing without a title -- came out of applying the naive distinction
-this note first proposed.
+Finding: `@keywords internal` without a title generates no Rd at all, so
+it behaves exactly like `@noRd`. Only a titled `@keywords internal` block
+produces a checked, hidden `man/dot-*.Rd`. Rest dropped from tracking
+(maintainer, 2026-09-21).
 
 ### 9.4 Use `@family` wherever justified -- DONE **[V]**
 
-42 `@family` tags added across eight families:
-
-| family | n |
-|---|---|
-| tales objects | 8 |
-| TALE alignment | 7 |
-| tales projections | 6 |
-| TALE plots | 5 |
-| pairwise distances | 5 |
-| target prediction | 4 |
-| TALE discovery | 4 |
-| external TALE tools | 3 |
-
-Two implementation notes:
-
-- Blocks carrying `@rdname` were deliberately skipped. They share a topic with
-  their parent, so a tag on each would emit duplicate `\concept{}` entries into
-  one Rd.
-- `plot_target_preds()` carries two tags (target prediction *and* TALE plots),
-  the dual membership anticipated when this item was written.
-
-Each tag emits both a bidirectional `\seealso{Other <family>: ...}` and a
-`\concept{<family>}`, so a grouped `reference:` section can now be added to
-`_pkgdown.yml` with `has_concept("<family>")` rather than maintaining the list
-separately. That pkgdown change was done later -- confirmed by §5.4/§23's `build_reference()`
-runs, which rely on exactly this `has_concept()`-based grouping.
-
-**Original notes, condensed:** the package started with zero `@family`/
-`@seealso` tags and no `_pkgdown.yml` grouping at all -- one flat alphabetical
-export list. The provisional families table sketched here named functions
-that have since been retired or renamed (`group_tales`, `distalr`,
-`build_repeat_msa`, `msa_heatmap`, `plot_tales_msa`, `plot_tale_composition`)
-and is not worth reproducing; the eight families actually applied are the
-ones in the table above.
+Eight families feed `_pkgdown.yml`'s `has_concept()` reference groups.
+Blocks with `@rdname` carry no tag (duplicate `\concept{}`).
 
 ### 9.5 Unify the user-messaging system -- DONE **[V]**
 
-Executed. `logger` is removed from `R/` and from `DESCRIPTION`; `cli` is the
-single messaging system.
-
-| before | after |
-|---|---|
-| 87 `logger::log_*()` | 0 |
-| 22 **bare** `stop()` + 1 bare `warning()` -- calls with *no message* | 0 |
-
-**Read that second row carefully** -- it caused a misreading later. "Bare"
-meant `stop()` with an empty message, the residue of `log_error(msg);
-stop()` where the text went to the logger and the condition carried nothing.
-This pass did **not** convert message-carrying `stop()` to `cli_abort()`;
-38 of those remained. See §13.
-| `log_errors() && stop(...)` (message unreachable) | `cli_abort()` naming the bad value |
-| `cat()` / `print()` narration on stdout | `cli_inform()` on stderr |
-
-Conversion rules applied:
-
-- `log_error(msg)` immediately followed by `stop()` -> `cli_abort(msg, class = "tantale_error")`.
-  This is what fixes the empty-message class of bug: the text was going to the
-  logger while the condition itself carried nothing.
-- `log_error(msg)` *not* followed by `stop()` -> `cli_warn()`, since it never aborted.
-- `log_warn(msg)` + `warning()` -> `cli_warn(msg)`.
-- `log_info()` -> `cli_inform()`.
-- `log_debug()` -> **deleted**. logger's default threshold is INFO, so these
-  were already invisible; removing them changes nothing a user could see. The
-  `skip_formatter(kable(...))` table dumps went with them, their information
-  folded into the neighbouring `cli_warn()` bullets where it mattered.
-
-Open follow-up: converted legacy sites carry the generic `tantale_error` class
-only. Giving them specific subclasses (as the class-system code already does,
-e.g. `tantale_error_tales_type`) would make them individually assertable in
-tests. Worth a pass, but each needs a judgement call about the right name.
-
-**Original notes, condensed (superseded by the decision and result above):**
-the package started with four messaging idioms across ~190 call sites
-(`logger` dominant at 86 calls, plus `stop`/`stopifnot`/`warning`/`cat`/
-`message`/`print`), with real correctness problems independent of which
-system won -- 23 bare `stop()`/`warning()` calls carrying an **empty**
-condition message (the real text had gone to the logger instead), one
-`logger::log_errors() && stop(...)` short-circuit that made its own error
-message unreachable, and `logger` never configured with a namespace, so it
-silently read and wrote the *user's* global logger settings. The framing
-that resolved it: split every call by what it *is* (a catchable condition,
-narration, progress, or a level-filtered debug diagnostic) rather than by
-which package is fashionable -- converting the condition-signalling group to
-`cli` was unambiguous value regardless of `logger`'s fate. Recommendation
-(**cli for everything user-facing, drop logger unless a real log-file need
-exists**) is exactly what was decided and built.
-
----
+`logger` removed; cli is the only messaging system; the empty-message
+`stop()`s (text sent to the logger, condition empty) are gone.
+`logger` had also read and written the user's global logger settings.
+Seven sites still carry only the generic `tantale_error` class (START
+HERE, worth investigating).
 
 ### 9.6 "similarity" and "repeat" are both wrong names -- DONE **[V]**
 
-Both halves resolved and implemented.
-
-**(a)** confirmed by measurement (71 of 251 ids, 28%, are terminus domains) and
-fixed by renaming to the `distances` vocabulary:
-`pairwise_sim`/`tale_sim`/`repeat_sim` -> `pairwise_distances`/`tale_distances`/`domain_distances`,
-`tales_relatedness()` -> `tales_compare()`, helpers `sim_*` -> `distances_*`.
-
-**(b)** resolved in favour of storing the distance. `dissim` is the required
-column; `sim` and `norm_arlem_score` are folded in on ingest and dropped, since
-all three were exact restatements of one quantity. Legacy tables are still
-accepted and converted.
-
-Naming decisions taken with the user, in order: the function keeps a verb
-(`tales_compare`), the slots mirror the class labels, the constructors mirror
-them too, and the entity word stays singular while the head noun is plural
-(`tale_distances`, not `tales_distances`) -- both because English puts the
-modifier in the singular and because `tales_*` already means "operates on a
-tales object" in this package.
-
-**Original notes, condensed:** two independent problems drove this section --
-(a) "repeat" understated what the object covers (measured: 71 of 251 ids, 28%,
-are terminus domains, not repeats, and both participate in the alignment by
-design), and (b) whether to store similarity or dissimilarity, given the
-ARLEM finding (§6) that every consumer immediately inverted `Sim` back to a
-distance anyway. Both resolved above: renamed to the `distances` vocabulary,
-and `dissim` made the required column.
-
----
+`pairwise_sim`/`tale_sim`/`repeat_sim` -> `pairwise_distances`/
+`tale_distances`/`domain_distances` (28% of domain ids are termini).
+`dissim` is the stored column; `sim`/`norm_arlem_score` inputs are
+converted on ingest. Entity word singular, head noun plural
+(`tale_distances`), since `tales_*` means "operates on a tales object".
 
 ### 9.7 Roxygen markdown enabled -- DONE **[V]**
 
-`DESCRIPTION` had no `Roxygen:` field, so markdown was off -- while the
-roxygen comments had been written for years as if it were on. Backticks,
-`*emph*` and `**strong**` were reaching the rendered help as literal
-characters: `**precondition**` showed up in `?tales_assert_complete` with the
-asterisks visible.
-
-Turned on with `Roxygen: list(markdown = TRUE)`.
-
-**How it was verified**, since this reparses every block in the package and
-can silently change any of them: copy `man/` aside, flip the flag,
-re-document, and diff. 31 of 64 Rd files changed. Classified:
-
-- Most of the diff is whitespace re-wrapping -- no content change.
-- The rest is the fix: `` `dom_code` `` and friends became `\code{}` (7
-  occurrences of `dom_code` alone), `*valid*`/`*unreadable*` became
-  `\emph{}`, `**not**`/`**precondition**` became `\strong{}`.
-- **Two regressions, caught and fixed.** Square brackets in prose are link
-  syntax under markdown, so `[eg PacBio, ONT]` and `[see the min_gap
-  parameter]` in `tell_tales`'s description became `\link{}` to targets that
-  do not exist -- an R CMD check WARNING. Rewritten as plain prose.
-
-Checks that it is clean: the set of `\link` targets is now identical to
-before the switch, all 64 Rd files pass `tools::parse_Rd()`, and no literal
-`**` remains anywhere in `man/`.
-
-Snake_case survived unharmed: CommonMark does not treat intraword
-underscores as emphasis, so `dom_code` and `array_id` render as written.
-
-**The rule for anything written later:** square brackets in roxygen prose are
-a link. Use parentheses, or escape them.
+`Roxygen: list(markdown = TRUE)`, verified by diffing `man/` before and
+after. Square brackets in prose are links (rule in `dev/CLAUDE.md`).
 
 ## 10. Explicitly ruled out
 
-- Deleting dormant internals such as the unused HMMER wrappers
-  (`.write_hmm_file()`, `.run_hmmer_search()`, `.run_hmmalign()`,
-  `.extract_seqs_from_hits()`). Obsolete now, plausibly useful later.
-- Treating `run_annotale_predict()` / `run_annotale_build()` as dead. They have
-  no internal call sites but are legitimate standalone user utilities — the type
-  case for "useful outside the `pipeline.svg` workflow".
+- Deleting dormant internals such as the old HMMER wrappers (now in
+  `inst/legacy/unused_pending_review.R`).
+- Treating `run_annotale_predict()`/`run_annotale_build()` as dead: no
+  internal callers, legitimate standalone utilities.
 
 ---
 
 ## 11. Rework `tales_group()` — together, and last -- SPLIT INTO TWO **[V]**
 
-**Maintainer's note:** `tales_group()` was written by a student, and the code
-should be improved. This is **not an unattended task**: to be done jointly,
-and scheduled **after** the website articles (§7.5a, §7.5) are finished.
+Joint session, 2026-09-19. `tales_group()` retired without an alias:
+- `tales_group_hclust(x, tale_distances, k, plot_tree = FALSE)`: clusters
+  `as.dist()` of the distances (the DisTAL semantics; the Euclidean
+  distance between rows that had been switched on was an experiment),
+  `ward.D`, cut with `cutree(k = )` (the old height bisection failed on
+  tied merges).
+- `tales_group_kmedoids(x, tale_distances, k_range, k, seed = 7,
+  plot_silhouette = TRUE)`: PAM, a second clustering method in its own
+  right (one full clustering per candidate `k`). The stdin prompt for
+  `k = NULL` runs only when `interactive()`; `k = "auto"` picks the elbow
+  (`.tales_group_kmedoids_elbow()`, unchanged heuristic); `k_range` is
+  validated against the number of arrays (§28).
+- Plots are drawn only when asked; `seed` is an argument.
 
-Only the signature has been touched so far (§5.2): it now takes the `tales`
-object and returns it with `group` filled. The body is as inherited.
-
-Observations from reading it while doing §5.2, recorded so the joint session
-starts with evidence rather than a re-read. None of these are decisions.
-
-**Things that make it hard to call from a script**
-
-- `k = NULL` **prompts on stdin** (`readLines(con = stdin(), 1)`, line 76)
-  after drawing a silhouette plot. A function that blocks for keyboard input
-  cannot be used in a pipeline, a test, or a vignette, and this is the
-  documented default.
-- `k` carries three types in one argument: `NULL` (prompt), the string
-  `"auto"`, or a number. A length > 1 `k` trips R's own "condition has
-  length > 1" on `k == "auto"` before reaching the intended
-  `stop("invalid k value!")` — there is already a test noting this.
-- `method = "k-medoids"` is the default but needs `k_range`, whose default
-  is `NULL`, so the documented default call errors.
-- Plotting is unconditional in two of the branches: the function computes
-  *and* draws, with no way to ask for only the first.
-- `set.seed(7)` is hardcoded inside the k-medoids loop, so the caller cannot
-  control or observe the seed.
-
-**Two substantive questions, not style**
-
-- The hclust branch runs a **bisection search over cut height** to land on
-  exactly `k` groups (lines 125-133), erroring with "Cannot determine k
-  groups!" when it cannot. `cutree(tree, k = numGroups)` does this directly
-  and always succeeds. Worth understanding why the height search is there
-  before replacing it — it may be deliberate, since the cut height is then
-  reported on the plot.
-- `hclust(d = dist(distMat, method = "euclidean"))` clusters the
-  dissimilarity matrix by the **Euclidean distance between its rows** —
-  i.e. it treats each TALE's vector of distances to all others as
-  coordinates, rather than clustering the distances themselves. The
-  commented-out `hclust(as.dist(distMat), ...)` right above it (line 118)
-  suggests this was uncertain at the time. These give different trees and
-  the choice is biological, not technical.
-
-**Smaller**
-
-- `stop()` throughout rather than `cli::cli_abort()` with condition classes,
-  so none of its failures are catchable by class the way the rest of the
-  package's are (§9.5).
-- `message("WE SHOULD BE DOING SOMETHING")` (line 113) is a live placeholder
-  on the `method = "hclust"`, `k = NULL` path.
-- Pulls in `ggtree`, `tidytree` and `viridis` for a side-effect plot.
-
-**Prerequisite met:** the function has 28 tests as of §5.2, so a rewrite has
-something to hold it in place.
-
-### Joint session, 2026-09-19: split into two functions **[V]** — DONE
-
-Worked through together, decision by decision, before any code moved:
-
-- **`tales_group()` is retired, no dispatcher kept** -- replaced by
-  `tales_group_hclust(x, tal_sim, k = NULL, plot_tree = FALSE)` and
-  `tales_group_kmedoids(x, tal_sim, k_range = NULL, k = NULL, seed = 7,
-  plot_silhouette = TRUE)`, both in `R/classification.R`. Matches this
-  project's established practice of hard renames with no alias (NEWS.md
-  already has several). Both still return `x` with `group` filled via the
-  unchanged shared helper `.tales_attach_groups()`.
-- **k-medoids was found to be a second real clustering method, not a
-  k-selection helper.** First framed (by the maintainer) as "k-medoids
-  decides k and plots a silhouette graph; hclust does the actual cut and
-  returns groups" -- checked against the code and corrected: `cluster::pam()`
-  is run once per candidate in `k_range` (line 71-75 of the pre-split code),
-  and `allPam[[which(k_range == numGroups)]]$clustering` (line 115) returns
-  a real, final PAM cluster assignment, exactly as `cutree()` does for
-  hclust. The actual asymmetry is *why* each method needs what it needs:
-  hclust builds one structure once and can cut it at any `k` cheaply
-  afterward; PAM has no such structure, so getting to "try several k and
-  compare" costs one full clustering per candidate.
-- **hclust distance: switched to `stats::as.dist(distMat)`**, clustering the
-  TALE-to-TALE distances directly. The pre-split code's active line was
-  `dist(distMat, method = "euclidean")` -- treating each TALE's *row* of
-  distances to everyone else as a coordinate vector, which clusters by
-  similarity of relationship-to-the-population rather than direct
-  relatedness. The commented-out alternative right above it was labelled
-  `"distal"`, a clear reference to DisTAL (the tool `distalr()` reimplements,
-  README.md:28) -- strong evidence `as.dist()` was the original, validated
-  semantics and the Euclidean-on-rows version was a later experiment left
-  switched on by accident. Decided: switch to `as.dist()`.
-- **hclust cut: switched to `stats::cutree(tree, k = k)`**, replacing the
-  bisection search over height. Demonstrated live that the search can fail
-  outright: a 4-leaf tree with two merges tied at the same height
-  (`taleTree$height` = `2, 2, 8`) makes the search hit `lo >= hi` and throw
-  `"Cannot determine k groups!"`, while `cutree(tree, k = k)` succeeds
-  cleanly on the identical tree and reproduces the same cut as the search
-  would have found in the untied case. The display cutoff line/value is now
-  computed directly from `sort(taleTree$height)` (the height between the
-  `(n-k)`-th and `(n-k+1)`-th merges) instead of searched for -- same picture
-  in the normal case, no failure mode.
-- **The interactive stdin prompt (`k = NULL` in k-medoids) is kept, but
-  gated on `interactive()`.** The original problem was never that prompting
-  is bad -- it's a reasonable console workflow -- but that there was no way
-  to opt out of it, so a script, a `testthat` run or a `pkgdown`/vignette
-  render hitting `k = NULL` would hang or fail confusingly. Now: prompts
-  only when `interactive()` is `TRUE`; otherwise a clear `cli_abort`
-  (`tantale_error_group_kmedoids_k`) says to pass a number or `"auto"`.
-  `tales_group_hclust()` never had a real `NULL` path to begin with (it
-  printed one placeholder message then errored on the very next line
-  regardless), so no equivalent gate was needed there.
-- **`seed` is now a documented, overridable argument** (default `7`,
-  matching the previous hardcoded value) instead of a bare `set.seed(7)`
-  buried in the k-medoids loop.
-- **Both plots are now fully conditional on their flag**, not just on
-  whether they get `print()`-ed. Previously `tales_group()`'s hclust branch
-  built the entire `ggtree` object unconditionally regardless of
-  `plot_tree`, and the k-medoids branch drew its silhouette plot
-  unconditionally regardless of any flag at all (the `plot_tree` argument
-  did nothing there except get forced to `FALSE` with a message). Now
-  `tales_group_hclust(..., plot_tree = FALSE)` (the default) never touches
-  `ggtree`/`tidytree`/`viridis` at all, and `tales_group_kmedoids(...,
-  plot_silhouette = FALSE)` skips the scatter plot. Useful side effect for
-  §6: most test/script call sites default to no plot, so the `ggtree`
-  "Invalid edge matrix" warning noise there should now mostly disappear
-  without having been directly fixed -- worth re-checking next time §6 is
-  visited.
-- **A length > 1 `k` no longer trips R's own "condition has length > 1"
-  error before reaching the intended message** (old §11 observation) --
-  `identical(k, "auto")` replaced the bare `k == "auto"` comparison, so any
-  `k` shape falls through cleanly to the one classed error
-  (`tantale_error_group_kmedoids_k`) instead of erroring on the comparison
-  itself with an unrelated message.
-- **Not changed:** the elbow-picking heuristic's math (extracted verbatim
-  into `.tales_group_kmedoids_elbow()`, same partial-Kneedle approach,
-  same caveat comment carried over) and `ward.D` as the hclust linkage --
-  neither was raised as a question, so neither was touched.
-
-**Blast radius, checked directly against the current file content, not
-assumed (the maintainer was right to press on this -- see the caveat added
-to the 2026-09-18 entry above): tests done, articles are real rewriting
-work, not a mechanical rename.**
-
-- Tests: `test_group_tales.R` replaced by `test_tales_group_hclust.R` /
-  `test_tales_group_kmedoids.R`, rewritten against the two new functions.
-  `test_golden.R`'s partition snapshot re-baselined (below) since the hclust
-  output legitimately changed.
-- **`vignettes/articles/*.qmd`: three files have real runnable code chunks
-  built around the single old `tales_group()`, not just prose mentions --**
-  - `tale_classification.qmd` has a whole section, `## Allocating arrays to
-    groups: tales_group()` (line 149), whose prose explicitly teaches the
-    `method =` argument as one function with two modes, plus three code
-    chunks calling `tales_group(..., method = "k-medoids"/"hclust", ...)`
-    (lines 161-186). This is the article that most needs rewriting, not
-    patching -- the pedagogical structure itself ("one function, pick a
-    method") no longer matches the API.
-  - `tale_msa.qmd:76` and `tales_msa_class.qmd:72` each have one runnable
-    chunk calling the old signature directly.
-  - `tale_mining.qmd:427` and `tale_target_prediction.qmd:171` only
-    *mention* `tales_group()` in passing prose (no code chunk) -- a smaller
-    fix once the API settles.
-  - These five articles were the ones **thoroughly rewritten from a blank
-    slate in the 2026-09-18 session** (point 1 above) -- current, careful,
-    verified content, not neglected leftovers. Today's split is what broke
-    them, not staleness on their part. Per the standing "vignettes come
-    last" rule they are left broken for now rather than patched mid-refactor,
-    but whoever picks this up should read `tale_classification.qmd` in full
-    before touching it, not just grep-and-replace the function name.
-
-  **Fixed the next day (2026-09-20 overnight session -- see START HERE).**
-  All six articles rewritten to call `tales_compare_distal()`/
-  `tales_group_hclust()`/`tales_group_kmedoids()`; `tale_classification.qmd`'s
-  allocation section rewritten as two functions, not patched with a
-  `method =` switch; both content notes below (featuring k-medoids on its
-  own terms, and the `tales`/`tale_distances`/`domain_distances`
-  interdependence) were addressed in the same pass.
-
-**Two content notes for that eventual website update, from the maintainer,
-recorded here so they're not lost before the rewrite happens:**
-
-- **`tales_group_kmedoids()` is worth featuring deliberately**, not just
-  fixed to compile. It's a capability specific to tantale (no equivalent in
-  DisTAL), in the same category as `tales_msa` as something worth
-  advertising rather than treating as an interchangeable alternative to
-  hclust. (The two methods probably agree on the shipped demo dataset --
-  not yet checked.)
-- **The interdependence between `tales`, `tale_distances` and
-  `domain_distances` should be emphasized on the website** -- how a `tales`
-  object's `dom_code`/`dom_code_namespace` ties it to a specific
-  `domain_distances` table, and how `tale_distances` is derived from
-  `domain_distances` rather than computed independently (§0's framing,
-  `tales_assign_domain_codes()`'s docs, and the "which operations invalidate
-  a tales's distance tables" note under §5.2 already spell this out
-  code-side; it needs a reader-facing home too).
+Articles rewritten for the split (2026-09-20). Not checked: whether the
+two methods agree on the demo data.
 
 ---
 
 ## 12. One mechanism for running the environment's programs -- DONE **[V]**
 
-There were two: MAFFT resolved absolute paths inside the conda prefix and
-called them directly, while seven other call sites went through
-`.run_in_conda()`, which wrapped `conda run`. The maintainer was
-uncomfortable having both, and asked whether everything could go through
-`conda run` (or `reticulate::conda_run2()`).
-
-**It went the other way, on measurements.**
-
-| | absolute path | `conda run` |
-|---|---|---|
-| cost per call | ~36 ms | **~1.3 s** |
-| compound command | every stage correct | **only the first runs in the env** |
-
-The second row is the serious one. `conda run` receives its command as a
-string that the *outer* shell has already split, so in `a ; b ; c` only `a`
-runs inside the environment. Demonstrated:
-
-```
-conda_run2("... ; which mafft")  ->  /usr/bin/mafft        # outside
-via a temp script                ->  <prefix>/bin/mafft    # inside
-```
-
-**And this was not hypothetical.** This machine carries `/usr/bin/mafft`
-**7.505** and `/usr/bin/nhmmer` **3.4**, against pins of 7.453 and 3.3.2 --
-exactly the versions the pins exist to exclude. `talecorrection()` joins
-three `nhmmer` calls with `"; "`, so two of them had been running against
-system HMMER 3.4 with nothing said.
-
-Resolving every executable to an absolute path makes shell splitting
-irrelevant, which `conda run` plus a temp script would not.
-
-**What `conda run` would have given us and we did not need:** the
-environment's variables. Checked with `env -i`: mafft, mmseqs and perl all
-run correctly from a scrubbed environment, and the env's perl resolves its
-own `@INC`, because conda bakes prefixes into its binaries at build time.
-
-### What shipped
-
-- `.tantale_bin(tools)` -- absolute paths, checked, naming everything
-  missing at once. A small table handles the executables that are not in
-  `bin/` (MAFFT's two hex converters live under `libexec/mafft`).
-- `.tantale_exec(command, cwd, stderr_file, check, what)` -- runs it and
-  **checks the exit status**, uniformly. `reticulate::conda_run2()` does
-  this only on its micromamba branch; its plain-conda branch ends in a bare
-  `system2()` with no check, so whether a failing tool raised depended on
-  which conda the user had.
-- All seven `.run_in_conda()` callers converted; `.run_in_conda()` parked in
-  `unused_pending_review.R`.
-- `.mafft_binaries()` is gone. `.mafft_paths()` remains only for
-  `tales_align(mafft_path = )`, the escape hatch for a MAFFT outside the
-  environment, which has a different layout and cannot be resolved from a
-  prefix.
-- mmseqs2's four stages are now checked individually. Previously all four
-  statuses were assigned to `res` and none tested.
+Measured: `conda run` costs ~1.3 s per call against ~36 ms by absolute
+path, and in a compound command only the first program runs inside the
+environment (this machine's `/usr/bin/nhmmer` 3.4 was answering two of
+TALEcorrection's three calls). Shipped: `.tantale_bin(tools)` (absolute
+paths inside the prefix, naming everything missing at once) and
+`.tantale_exec()` (runs and **checks the exit status**; `conda_run2()`
+does so only on its micromamba branch). The environment's programs run
+correctly from a scrubbed environment (`env -i`). **Not covered:** the
+Java tools and the nHMMER search of `tell_tales()`, which still call
+`system()` directly (START HERE item 2).
 
 ### 12a The environment-choosing rule was broken **[V]**
 
-Spotted by the maintainer, who thought "prefer the one belonging to the
-binary in use" looked arbitrary. It was worse than arbitrary:
-
-```r
-root <- dirname(dirname(reticulate::conda_binary(conda_bin)))   # /home/cunnac
-owned <- python[startsWith(python, root)]
-```
-
-micromamba's binary is in `~/bin`, so that expression yields the **home
-directory**, which every candidate is under. The filter matched all of them,
-the code took `owned[1]` -- whatever order `conda_list()` returned -- and
-said nothing, because the warning was in the branch that runs when *nothing*
-matched. The same `dirname(dirname(bin))` error was fixed in
-`.tantale_conda_root()` during 7.4a; it was fixed in the function that
-*reports* the root and left in the one that *resolves* the environment.
-
-Replaced with `.tantale_pick_env()`, which uses the criterion that actually
-matters: **which candidate holds the tools at the pinned versions.** Exactly
-one match wins silently; several warn and name the choice; none is an error
-rather than a guess, since guessing means alignments from an unpinned MAFFT.
-`options(tantale.env_prefix = )` overrides everything.
+`dirname(dirname(conda_binary()))` is the home directory for micromamba
+in `~/bin`, so every environment matched and the first one listed won.
+`.tantale_pick_env()` picks the candidate holding the tools at the pinned
+versions; one wins silently, several warn, none aborts.
+`options(tantale.env_prefix = )` overrides.
 
 ### 12b `functal()` cannot work, and cannot be fixed with a package -- REBUILT ON `universalmotif`, NOT PATCHED **[V]**
 
-Found while adding the Perl dependencies to the yaml.
-`FuncTAL_v.1.1.pl` does `use Bio::Perl` and calls `translate_as_string()`.
-
-- BioPerl **dropped** `Bio::Perl` in the 1.7 reorganisation: 1.7.8 installs
-  1023 files and `Bio/Perl.pm` is not among them.
-- The last version that had it, 1.6.924, wants **perl 5.22** against this
-  environment's 5.32.
-- Nothing else on bioconda provides `translate_as_string`, and system perl
-  has no `Bio::Perl` either.
-
-So `perl-bioperl` was deliberately **not** added -- it would be ~1000 files
-that fix nothing. `perl-list-moreutils=0.430` **was** added, being genuinely
-needed and available.
-
-Options, all maintainer decisions: patch the one `translate_as_string()`
-call in the bundled script to use `Bio::PrimarySeq`; ship a vendored
-`Bio/Perl.pm`; document `functal()` as needing a hand-built perl; or retire
-it.
-
-**Decided and built, 2026-09-19: a new function, reimplemented in R -- not
-a port.** (The old `functal()`/vendored Perl tool itself was not touched or
-retired -- see the open question at the end of this section.) A fifth
-option, not on the list above: the vendored script
-already skips `Bio::Perl` entirely when handed a protein fasta rather than
-DNA (checked in the script itself, `FuncTAL_v.1.1.pl:148-158`), and the
-package already has a trusted DNA->protein translator
-(`.translate_parts()`, Biostrings-based). But once inside the script for
-this reason, a second question came up: what would it cost to port the
-*rest* of it? Read in full (816 lines) plus its bundled `Statistics.pm`
-(1094 lines, of which exactly one function, `Statistics::correlation()`,
-is ever called). Findings, before any code moved:
-
-- **~150 lines of fasta-parsing/RVD-extraction-by-motif-scanning is not
-  worth porting at all.** It exists only because the original tool has no
-  typed RVD representation to start from. `tales_rvd_strings()` is a
-  strictly better, already-tested replacement.
-- **The real algorithmic core** (`compareMotifs()`/`scoreComparison()`,
-  ~100 lines): slides two PWMs across every offset, zero-pads the
-  non-overlapping ends, Pearson-correlates the *whole padded, flattened*
-  matrix, keeps the best. Found a near-exact match in
-  `universalmotif::compare_motifs()` (Bioconductor, actively maintained,
-  `min.overlap` = the offset search, `tryRC` = the reverse-complement
-  comparison FuncTAL computes but -- checked -- never actually scores
-  against, dead code inherited from HOMER's original motif-comparer).
-- **Checked empirically, not assumed: `compare_motifs()`'s PCC does not
-  reproduce FuncTAL's numbers, and no parameter combination will.**
-  `compare_motifs()` correlates matched columns individually and combines
-  the per-column scores (`score.strat`); FuncTAL flattens the entire
-  padded region -- positions and the four bases together -- into one
-  vector and takes a single correlation over that. Reproduced on two real
-  RVD-derived PWMs: `0.360` (`compare_motifs()`) vs `0.489` (hand-rolled
-  FuncTAL-style). Different statistics, not two settings of one.
-- **FuncTAL computed a p-value (`Statistics::correlation()`'s second
-  return value) and threw it away**, never using or printing it --
-  significance was never actually surfaced by the original tool.
-- The tree step (`Statistics::R` shelling out to a real `R` process to run
-  `library(ape); bionj(); plot(); write.tree()`) already does in a
-  subprocess exactly what this package can do in-process.
-
-**Maintainer's call, given the numeric divergence: adopt
-`universalmotif`'s standard PCC rather than hand-replicate FuncTAL's own
-formula.** A modernised reimplementation, not a bug-for-bug port --
-`tales_compare_functal()`'s docs say so explicitly, since a user who
-remembers the original tool's numbers should not expect this one to
-reproduce them.
-
-**What shipped**, in `R/functal.R`:
-
-- `tales_compare_functal(x, method = "PCC", tryRC = FALSE, min.overlap = 1,
-  normalise.scores = TRUE, score.strat = "a.mean", nthreads = 1)`. Builds
-  one PWM per array from `tales_rvd_strings(x)` (repeat RVDs only, in
-  order -- termini were never scored by FuncTAL either, since its
-  RVD-extraction only ever found repeats), compares with
-  `universalmotif::compare_motifs()`, returns a
-  `tale_distances` object -- interchangeable with
-  `tales_compare_distal()`'s, so it plugs directly into
-  `tales_group_hclust()`/`tales_group_kmedoids()` without any adapter.
-  Handles both similarity-type and distance-type `method`s correctly
-  (`dissim = 1 - score` only for the six similarity metrics
-  `compare_motifs()` itself lists as such).
-- Deliberately narrow interface: of `compare_motifs()`'s ~15 parameters,
-  six are exposed, chosen for what actually varies across TALE arrays
-  (wildly differing repeat counts) --
-  `min.overlap = 1` (not the upstream default of 6, which would silently
-  refuse to compare short arrays) and `normalise.scores = TRUE` (arrays
-  differ enough in length that an unnormalised score would favour a short
-  array mostly overhanging a long one) are the two departures from
-  `compare_motifs()`'s own defaults, each documented with why. `tryRC`
-  defaults to `FALSE`: an RVD array's specificity code has a fixed
-  reading direction, so reverse-complement comparison asks a different,
-  narrower question (do these two TALEs target opposite strands) worth
-  asking on purpose, not folded in silently.
-- **A real bug caught while building the "no repeats" guard**:
-  `tales_rvd_strings()` silently *omits* an array with zero repeats (all
-  termini) from its output rather than erroring, since it has nothing
-  left to render for that one array but plenty for the object as a whole
-  -- fine for a projection, not fine for a comparison that must cover
-  every array it was given. `tales_compare_functal()` now checks
-  `setdiff(unique(x$array_id), names(rvd_strings))` explicitly and aborts
-  naming the dropped array(s) (`tantale_error_functal_empty`) rather than
-  silently comparing over fewer arrays than it was handed. Worth
-  rechecking whether any other `tales_rvd_strings()`/`tales_coded_strings()`
-  consumer has the same silent-drop exposure -- not audited beyond this
-  one call site.
-- **`rvd_dna_specificity`, a new exported, documented package dataset**
-  (`R/data.R`, built by `data-raw/rvd_dna_specificity.R` from QueTAL's own
-  `Info/2014mat18`, values unchanged) -- `tales_compare_functal()`'s only
-  consumer. Exported rather than kept as internal `sysdata.rda` (the
-  precedent `rvdSimDf`/`rvdToNtAssocMat` set): a maintainer's call, made
-  because this table is more central to interpreting
-  `tales_compare_functal()`'s results than `rvdSimDf` is to
-  `tales_align()`'s, and worth being inspectable/citable rather than a
-  hidden implementation detail. Prompted by the maintainer noticing the
-  conceptual overlap with `rvdSimDf` mid-review -- checked, not assumed,
-  that they are genuinely different objects: `rvdSimDf` is a *derived*
-  RVD-vs-RVD similarity (Spearman correlation between two RVDs' base
-  profiles, from TALVEZ's 17-RVD `mat1`) used to score repeat
-  *substitutions* during alignment; `rvd_dna_specificity` is the *raw*
-  per-RVD base preference (404 RVDs, from QueTAL FuncTAL, a different,
-  larger, independently-curated table -- the two agree closely but not
-  exactly where they overlap, e.g. `HD`: TALVEZ `10 50 0 5` vs QueTAL
-  `15 50 5 5`) used to build a whole array's PWM for comparison. Not
-  interchangeable, one level apart in the pipeline.
-- Tests: `tests/testthat/test_tales_compare_functal.R`, 17 cases,
-  including one that reproduces the `0.360` vs `0.489` divergence finding
-  directly rather than only asserting it in prose, and one pinning the
-  silent-array-drop fix. All passing.
-
-**Follow-up tasks worth scoping separately** (from reading
-`?compare_motifs` and its "Motif comparisons and P-values" vignette in
-full while building this -- not investigated further, recorded so they
-are not lost):
-
-- **`motif_tree()`** -- a one-line `ggtree`-based visualisation straight
-  from a list of motifs, using every `compare_motifs()` option. Could
-  give `tales_compare_functal()` a plotting convenience the way
-  `tales_group_hclust()` has one for DisTAL distances, without
-  reimplementing tree-drawing.
-- **`view_motifs()`** -- renders a classic sequence-logo-style plot of a
-  PWM. FuncTAL never visualised the specificity model itself, only the
-  resulting distance tree; this would be a genuinely new capability, not
-  a replacement for anything.
-- **Significance testing** (`compare.to`, `max.p`/`max.e`,
-  `motif_pvalue()`, `make_DBscores()`): FuncTAL computed a p-value and
-  discarded it; `universalmotif` has a real, usable pipeline for this,
-  but its default precomputed null distributions are calibrated on real
-  JASPAR transcription-factor motifs, not TALE-RVD-derived PWMs -- using
-  them as-is would be a plausible-looking but uncalibrated significance
-  claim. `make_DBscores()` could build a TALE-specific null distribution
-  instead; worth scoping as its own piece of work, not assumed safe to
-  turn on by default.
-- **`scan_sequences()` for target prediction.** These are genuine
-  DNA-binding PWMs, so `universalmotif::scan_sequences()` could search a
-  promoter/genomic sequence for predicted TALE binding sites directly
-  from the same PWM this function already builds -- a modern,
-  statistically-grounded angle on what `tales_predict_targets()`
-  (`R/target_predictions.R`) does today. Worth a dedicated look at
-  whether it complements or could eventually replace part of that
-  pipeline, not decided here.
-- **`merge_motifs()`** -- also built on `compare_motifs()`. Could produce
-  a consensus binding-specificity model for a group of related TALEs
-  (from `tales_group_hclust()`/`tales_group_kmedoids()`), complementing
-  what `tales_consensus()` already does at the RVD/`dom_code` sequence
-  layer, but at the PWM/binding-site layer instead.
-- **`average_ic()`** -- the vignette's own recommended guard against
-  `min.mean.ic`-driven comparison failures on low-information-content
-  motifs (an array whose PWM is dominated by `"XX"` unknown-RVD rows,
-  which are flat/zero-information by construction). Not currently
-  checked for; worth a diagnostic warning at minimum.
-
-**The output side of the same question, missed in the first pass through
-the vignette and caught by the maintainer re-reading the request that
-prompted this whole section** -- `?compare_motifs`'s `Value` section
-matters as much as its arguments:
-
-- **The raw `score` column is currently discarded.**
-  `tales_compare_functal()` computes `dissim` (inverting it for the six
-  similarity-type methods) and returns only that. Keeping the
-  method-native `score` alongside `dissim` costs nothing --
-  `pairwise_distances`'s own constructor already preserves arbitrary
-  extra columns (`arlem_score`/`max_length` are exactly this pattern on
-  `tale_distances` from the DisTAL side) -- and is real information a
-  caller comparing runs across `method`s would otherwise have to
-  recompute by hand.
-- **Nothing on the returned object records which `method`/`tryRC`/
-  `min.overlap` produced it.** Two `tales_compare_functal()` calls with
-  different `method=` return objects identical in shape but not in
-  meaning, with no way to tell them apart after the fact. The package
-  already has a precedent for exactly this problem --
-  `dom_code_namespace`/`tales_namespace()` stamp a `tales` object with
-  the provenance that produced its codes -- an analogous attribute here
-  (or a documented column) would close the same gap.
-- **`compare.to`'s `DataFrame`-with-`Pval`/`Eval` output mode was
-  considered, not overlooked, and deliberately not built** -- it is the
-  same significance-testing question already listed above
-  (`make_DBscores()`, TALE-specific calibration), just visible from the
-  output side instead of the argument side. One follow-up, two entry
-  points into the same missing piece of work.
-
-**All of §12b's remaining follow-ups (this list, the `scan_sequences()`/
-`merge_motifs()`/`average_ic()`/significance-testing items above, and the
-discarded-`score`/no-provenance-stamp gaps) dropped from active tracking,
-2026-09-21 (maintainer's call).** `motif_tree()`/`view_motifs()` are already
-done (demonstrated on the website, see below); the rest are not being
-pursued unless raised again.
-
-**`tales_to_universalmotif()`, from the maintainer reviewing the first
-implementation -- BUILT the same session [V].** Exposes the PWM-building
-step (previously the internal, unexported `.functal_pwm()`) as a
-first-class, reusable projection -- `tales_rvd_strings()`/
-`tales_coded_strings()`'s sibling, at the PWM layer instead of the string
-layer. Built as sketched:
-
-- `R/functal.R`, beside `tales_compare_functal()`. `tales_to_universalmotif(x)`
-  -- data-first, no other argument; `.functal_pwm()`'s RVD-to-
-  `rvd_dna_specificity` lookup is the only construction rule there is.
-  Returns a plain named list of `universalmotif` objects, one per array --
-  not a special container class, since `compare_motifs()`/`motif_tree()`
-  themselves accept a bare list, confirmed rather than assumed before
-  choosing not to build one.
-- **The array-coverage guard moved here from `tales_compare_functal()`**,
-  since this is now where PWMs actually get built: the check that
-  `tales_rvd_strings()` did not silently drop an all-terminus array is
-  `tales_to_universalmotif()`'s job now. Its error class was renamed from
-  `tantale_error_functal_empty` to the more general
-  `tantale_error_no_repeats` in the move -- the condition it names
-  ("this array has no repeats to build a PWM from") is not specific to
-  FuncTAL, now that a general-purpose converter raises it.
-- **`tales_compare_functal()` refactored to call it**, exactly the
-  decomposition already applied on the DisTAL side (§8.5b:
-  `tales_compare_distal()` composes three separately exported,
-  independently useful steps rather than hiding them in one ~200-line
-  internal). It no longer duplicates PWM-construction or the empty-array
-  check. A new test (`test_tales_compare_functal.R`) pins the refactor
-  directly -- `tales_compare_functal()`'s output must equal
-  `compare_motifs()` run on `tales_to_universalmotif()`'s own output,
-  not just look right by inspection.
-- Every follow-up listed above (`motif_tree()`, `view_motifs()`,
-  `scan_sequences()`, `merge_motifs()`, `average_ic()`) is now a one-line
-  call on `tales_to_universalmotif(x)`'s output -- not yet done, but no
-  longer blocked on refactoring anything first.
-- Tests: 11 new cases in `test_tales_compare_functal.R` (28 total in that
-  file now) -- one-motif-per-array shape, PWM width matches repeat count
-  with termini excluded, the moved empty-array guard names the array,
-  and the compose-not-duplicate pin above. All passing; full suite
-  unaffected.
-- **Worth illustrating on the website, not just in `@examples` -- DONE,
-  2026-09-20.** The maintainer's own framing, corrected mid-session from
-  an initial misreading: this meant *demonstrating* `universalmotif`'s
-  existing functions on `tales_to_universalmotif()`'s output, not
-  building new tantale-exported wrapper functions named after them --
-  clarified directly rather than guessed at, since the two readings
-  imply very different amounts and kinds of work (one is documentation,
-  the other is unreviewed new API design). Landed as a new section in
-  `tale_classification.qmd`, "A different lens: comparing predicted
-  binding specificity," built on real data (the same three-array group
-  the rest of that article already uses): `tales_compare_functal()`,
-  `tales_to_universalmotif()`, `motif_tree()`, `view_motifs()`, with
-  `scan_sequences()`/`merge_motifs()`/`average_ic()` covered more briefly
-  in closing prose. Significance testing (`make_DBscores()`) explicitly
-  named as deliberately not shown, for the calibration reason already on
-  record two paragraphs up -- not silently dropped. No new `R/` code from
-  this; `tales_to_universalmotif()`/`tales_compare_functal()` (already
-  built, see above) were sufficient on their own.
-
-**2026-09-20 -- decided: retire it.** Maintainer confirmed retiring the
-old `functal()` R wrapper (`R/AnnoTALE_QueTAL_functions_library.R:132`)
-and the vendored Perl tool it calls (`inst/tools/QueTAL_v1.1/FuncTAL/`);
-`tales_compare_functal()` is the path forward. **Mechanism not
-separately confirmed** -- of the three options this section originally
-listed (removed outright, parked in `inst/legacy/` per the standing
-"never delete, park whole retired classes there" rule, or kept as a
-documented escape hatch), `inst/legacy/` is the one that actually matches
-`CLAUDE.md`'s own convention for a whole retired tool, so that is the
-working assumption for whenever this is executed -- flagged here as an
-inference, not a separately-confirmed choice, so it is correctable before
-acting on it.
-
-**Executed the same session.** `functal()` unexported and moved with the
-vendored Perl tool to `inst/legacy/`; confirmed still absent from `NAMESPACE`
-as of 2026-09-21. `R/tantale.R`/README updated to point at
-`tales_compare_functal()`; version bumped to `0.9.9002`.
-
-Also corrected while here: the commented module list at the bottom of
-`R/tantale_conda_env.R` names `Algorithm::NeedlemanWunsch` and
-`Statistics::Basic`. Nothing shipped uses them -- they belonged to the Perl
-DisTAL that `distalr.R` reimplemented.
-
+FuncTAL's Perl needs `Bio::Perl`, gone since BioPerl 1.7. Rebuilt in R
+(`R/functal.R`):
+- `tales_to_universalmotif(x)`: one PWM per array from the repeat RVDs
+  (termini excluded), looked up in **`rvd_dna_specificity`** (exported
+  dataset, 404 RVDs, from QueTAL's table); aborts on an array with no
+  repeats (`tantale_error_no_repeats`).
+- `tales_compare_functal(x, method = "PCC", ...)`: `compare_motifs()` on
+  those PWMs, returns a `tale_distances` usable by both `tales_group_*()`.
+  `min.overlap = 1` and `normalise.scores = TRUE` depart from
+  `compare_motifs()`'s defaults (arrays differ widely in length).
+- **The scores do not reproduce FuncTAL's**: FuncTAL correlates the whole
+  padded, flattened matrix once, `compare_motifs()` combines per-column
+  scores (0.360 against 0.489 on the same pair, pinned in a test).
+  Maintainer's choice: the standard PCC.
+- `functal()` and the vendored Perl moved to `inst/legacy/`.
+- Follow-ups (`scan_sequences()`, `merge_motifs()`, significance with a
+  TALE-specific null via `make_DBscores()`, keeping the raw `score`,
+  stamping the `method` used) dropped from tracking; `motif_tree()`/
+  `view_motifs()` are shown in `tale_classification.qmd`.
 
 ---
 
 ## 13. `stop()`/`message()`/`warning()` converted to cli **[V]**
 
-Spotted by the maintainer reading `distalr.R`. §9.5 above reads as though
-the package no longer used base conditions; it had only removed the
-*empty-message* ones.
-
-**Audited with R's parser**, not grep, so comments and strings cannot
-produce false positives:
-
-```r
-pd <- getParseData(parse(f, keep.source = TRUE))
-pd[pd$token == "SYMBOL_FUNCTION_CALL" & pd$text %in% targets, ]
-```
-
-38 sites: 28 `stop()`, 5 `message()`, 5 `warning()`.
-
-**Converted: 29 across 7 files.** Each gets `cli::cli_abort()` /
-`cli_inform()` / `cli_warn()` with a specific condition subclass where an
-obvious name existed -- `tantale_error_duplicate_names`,
-`tantale_error_missing_file`, `tantale_error_rvd_seqs`,
-`tantale_error_pairwise_incomplete`, `tantale_error_hmmer_missing` and so
-on -- which also closes §9.5's open follow-up about generic classes.
-
-**Deliberately left: the 9 in `classification.R`** (4 `stop`, 4 `message`,
-plus the `cat()` stdin prompt and the `message("WE SHOULD BE DOING
-SOMETHING")` placeholder). That file is reserved for the joint
-`tales_group()` rework in §11, and converting its messages now would be
-churn ahead of a rewrite.
-
-**Confirmed legitimate and untouched:** `cat()` in `tales_print.R` and
-`tales_summary.R` (print methods must write to stdout), `print(p)` in the
-plot methods, `packageStartupMessage()` in `startup.R`, and the 20
-`stopifnot()` calls, which assert internal invariants rather than address
-the user.
-
-**Three things the audit turned up**
-
-- **The same message four times.** "Could not create the tantale conda
-  environment on your machine to run *X*" appeared in `AnnoTALE…R`,
-  `distalr.R`, `talecorrection_java.R` and `target_predictions.R`, in four
-  slightly different wordings, none of which said what to do. Now one
-  `.abort_no_env(what)` pointing at `tantale_setup()`.
-- `AnnoTALE_QueTAL_functions_library.R:62` raised its error through
-  `||` short-circuiting: `!exitPredict || stop(...)`. Now an `if`.
-- `distalr.R` had `stop("Some alignment pairs...",)` -- a trailing comma in
-  the argument list.
-
-**Re-run the audit after adding code**; the one-liner above is the whole
-check.
+Re-checked 2026-09-23 with the parser audit in `dev/CLAUDE.md`: **no
+`stop()`, `warning()` or `message()` call remains anywhere in `R/`**,
+`classification.R` included (the nine sites once left for §11 went with
+the rewrite). One `.abort_no_env(what)` replaces four wordings of "could
+not create the conda environment".
 
 ---
 
 ## 14. `DESCRIPTION` Imports audit -- checked, mostly clean; `XVector` dropped **[V]**
 
-Maintainer's request (2026-09-19): "make sure all the Imports in
-`DESCRIPTION` are valid... I suspect a lot of them will need to leave."
-Checked before acting -- the suspicion turns out **not** to hold for
-most of the list. Recorded here as a finding, not yet acted on for the
-two genuine candidates it did turn up.
-
-**Method.** All 43 packages currently in `Imports:` (`DESCRIPTION` line
-19-25), grepped two ways across `R/*.R` (not `tests/`, which is a
-separate Suggests-territory question): explicit `pkgname::call()` sites,
-and roxygen `@import`/`@importFrom` tags (for the handful that are
-imported wholesale and used unqualified -- `magrittr`'s `%>%`, `cli`'s
-condition functions, `fs`, `Biostrings`, plus the base-adjacent
-`methods`/`rlang`/`tidyr`/`grDevices`/`graphics`, all already on the
-lean `importFrom` form per package, not blanket `import`).
-
-**Result: 42 of 43 show real, active usage in live code.** Every
-package from `ape` (`dist.gene()`, feeding the strain/TALE
-hierarchical clustering in `classification.R`) through `rtracklayer`
-(`export.gff3()`, `telltale.R`'s two GFF writers) has at least one
-genuine call site outside parked code. Not reproduced line-by-line
-here -- re-run the grep in the method above if any single package's
-status needs re-checking later; do not trust this paragraph's summary
-without doing so, per this file's own standing caution about `[V]`
-markers.
-
-**The one exception: `XVector`, used only inside parked dead code.**
-Its single call site in the whole package is
-`R/unused_pending_review.R:75`'s `.extract_seqs_from_hits()` -- already
-on record elsewhere in this ledger as parked, not called by anything
-live. Nothing in `R/`'s active code path references `XVector::`
-directly. Whether it is safe to drop from `Imports:` is a real
-tension, not a clean call: `unused_pending_review.R` is deliberately
-kept per `CLAUDE.md`'s "never delete code that looks dead" rule, and
-dropping the Import would leave that one parked function broken if it
-is ever revived without also re-adding it. **Maintainer's call**: drop
-`XVector` now and note the gap in `unused_pending_review.R`'s own
-header if that function is ever un-parked, or leave it declared for
-exactly that reason.
-
-**A second, larger and different-shaped finding: `reshape2` is heavily
-used, but it is the same kind of legacy dependency `plyr` was.**
-`reshape2` and `plyr` are the same author, the same era, and `reshape2`
-is the explicitly-superseded predecessor to `tidyr` the same way
-`plyr` was superseded by `dplyr` -- but unlike `plyr` (three call
-sites, removed the same night this ledger records it, see §6), this
-one is load-bearing: **18 call sites** across seven files
-(`conversion.R`, `distalr.R` x3, `tales_consensus.R`,
-`tales_plot.R` x6, `classification.R` x2, plus 3 more in
-`unused_pending_review.R`), split `melt()` (9), `acast()` (5),
-`dcast()` (2). A `tidyr` migration is real, valuable, *and* a
-substantially bigger job than the `plyr` removal was -- not a "just do
-it while you're in there" fix, a separate piece of work with its own
-verification pass. Not started; recorded as a distinct, larger sibling
-to the `XVector` question, not conflated with it.
-
-**2026-09-20 -- done, maintainer's explicit "if you are careful and run
-the tests regularly" scope.** A precise recount while doing the actual
-migration: 18 call sites confirmed by a fresh grep (same total, though
-individually 10 `melt()`/6 `acast()`/2 `dcast()` rather than the
-9/5/2 estimated above -- one `distalr.R` site was miscounted in the
-original pass). Every site replaced with one of three verified internal
-helpers rather than 18 separate hand-rolled conversions, each helper
-checked with `identical()` against the real `reshape2` call it replaces
-on real data *before* being trusted, not assumed equivalent from reading
-the docs:
-
-- **`.pairwise_long_to_matrix()`** (`distalr.R`) -- replaces
-  `acast(df, id1 ~ id2, value.var = X)`. Factoring `id1`/`id2`
-  independently, then reindexing rows and columns by the resulting
-  factor levels, is what reproduces `acast`'s sorted-levels ordering;
-  `pivot_wider()` alone orders columns by first appearance instead.
-  Verified `identical()` on real 113x113 `domain_distances` data (a
-  symmetric case) *and* on a synthetic asymmetric case matching
-  `.run_arlem()`'s actual shape (id1/id2 covering different value sets,
-  since ARLEM reports only one triangular half) -- the symmetric-only
-  check would have missed a real bug here, see below.
-- **`.matrix_to_long()`** (`distalr.R`) -- replaces `melt(mat)` on a
-  matrix. This one hid a genuine, easy-to-miss `reshape2` behaviour:
-  `melt.matrix` inspects each margin's dimnames and, when every one
-  parses as a number, returns that margin as **numeric/integer**, not
-  character or factor -- `as.data.frame(as.table(mat))` alone always
-  gives factors, since matrix dimnames are themselves always character
-  and carry no memory of having been numeric. `utils::type.convert(x, as.is
-  = FALSE)` per margin reproduces it exactly, verified `identical()` on
-  three cases (all-numeric margin, all-character margin, mixed).
-- **`.dcast_count_matrix()`** (`classification.R`) -- replaces
-  `dcast(df, row ~ col, value.var =, drop = FALSE, fun.aggregate =)`,
-  `talomes_heatmap()`'s two call sites specifically. `drop = FALSE`
-  means every row x col combination gets a cell even with zero matching
-  rows, with `fun_aggregate` actually **called on that empty subset**
-  (`length(x) = 0`, or `NA` from `x[1]` on nothing) rather than a
-  constant fill value -- `dplyr::summarise(.drop = FALSE)` is what
-  reproduces that; `count()`/`pivot_wider(values_fill=)` cannot, since
-  fill is necessarily a constant. Verified `identical()` on synthetic
-  data matching both real `fun.aggregate`s, then re-verified against a
-  **real** `tale_annotation` table run through both the old and new code
-  side by side -- `talomes_heatmap()` turned out to have zero test
-  coverage anywhere in the suite, the highest-risk site in this whole
-  migration precisely because nothing would have caught a mistake here,
-  so it got the most direct verification, not the least. Not fixed
-  tonight (out of tonight's scope, flagged not assumed): still zero
-  coverage.
-
-**One real bug found and fixed while building the second helper --
-exactly what the "asymmetric case" verification above was for.** The
-first version of `.pairwise_long_to_matrix()` was verified only against
-symmetric `domain_distances` data and looked correct; it silently broke
-`.run_arlem()` (`tales_compare_distal()`'s ARLEM step), failing
-`test_tales_compare_distal.R` with `id1 and id2 must not contain "NA"`.
-Root cause, found by capturing the real intermediate `scores` object
-from a failing run rather than guessing: ARLEM's `scores` table has
-**numeric** `id1`/`id2` columns (built via `as.numeric()` from parsed
-text), and the melt step immediately downstream does `id1 + 1` --
-arithmetic that only works if `melt` preserved that numeric type, which
-`reshape2::melt` does (per `.matrix_to_long()`'s finding above) and a
-naive `as.data.frame(as.table())` replacement does not. Caught before
-it reached golden or any downstream consumer, by running the targeted
-test file immediately after each file's edit rather than batching
-verification to the end.
-
-**Verification, in the order it was done, file by file, not all at
-once at the end:** each of the seven files' targeted test file(s) run
-immediately after that file's edits, all passing before moving to the
-next file (`test_tales_compare_distal.R` 34, `test_distalPairwiseAlign.R`
-3, `test_tales_compare_functal.R` 28, `test_tales_compare_steps.R` 26,
-`test_plot_tales_msa.R` 52, `test_plot_tales_composition.R` 16,
-`test_error_conditions.R` 24, `test_untested_exports.R` 16 -- 0 failures
-throughout). Full suite (`testthat::test_dir()`, not just targeted
-files, per the standing "ripples broadly" exception) and golden baseline
-both re-run after all 18 sites landed; see the note immediately below
-for the result.
-
-`reshape2` dropped from `DESCRIPTION`'s `Imports:` -- `tidyr` was
-already there, nothing added. `grep -rn "reshape2" R/*.R` now returns
-only the three helpers' own doc comments explaining what they replace,
-zero live calls.
-
-**Caveat on the method, so the "clean" verdict isn't over-trusted:** a
-`pkgname::`/roxygen-tag grep cannot see every legitimate way a
-dependency is used -- S3/S4 method dispatch that never spells out the
-package name, or a class needed transitively through another import's
-own class hierarchy, would both look "unused" by this method without
-actually being safe to drop. None of the 42 packages this pass called
-"used" depend on that caveat to justify keeping them (each has a
-direct, visible call site quoted or locatable via the grep above) --
-but the one place the caveat *could* matter is `XVector`, precisely
-because its only visible reference is in code nothing currently
-exercises. Worth keeping in mind if `XVector` removal is ever
-attempted: run a real `R CMD check` after removing it, not just this
-grep, since that is the tool that actually knows about transitive
-class dependencies this method cannot see.
-
-**2026-09-20 -- `XVector` dropped, maintainer's call from the table above,
-and actually verified per the caveat just above rather than just
-grep-trusted.** Removed from `Imports:`; `R/unused_pending_review.R`'s
-file-header comment for `.extract_seqs_from_hits()` now notes the gap and
-says to re-add it before ever un-parking that function (its one call
-site, `XVector::subseq()`, is untouched -- this is a declared-dependency
-gap, not a code change to the parked function itself).
-
-Verified with a real `R CMD build` + `R CMD check --no-tests --no-examples
---no-vignettes --no-manual --no-build-vignettes` (the slow parts skipped
-deliberately; this was about the dependency-declaration check
-specifically, not a full check), `_R_CHECK_FORCE_SUGGESTS_=false` set to
-get past two missing-on-this-machine `Suggests` unrelated to the change
-(see next note). Result: exactly the one new finding this section's own
-caveat predicted, nothing else --
-
-```
-* checking dependencies in R code ... WARNING
-'::' or ':::' import not declared from: 'XVector'
-```
-
--- confirming the transitive-class-dependency risk the caveat raised did
-*not* materialize (no cascading failure from some other Import's class
-hierarchy secretly needing `XVector`); this one direct, expected WARNING
-is the whole cost, exactly as the maintainer's decision anticipated.
-Accepted, not fixed -- fixing it would mean either re-adding the Import
-(reversing the decision) or deleting `XVector::subseq()` from the parked
-function (against `CLAUDE.md`'s "never delete code that looks dead"
-rule), so this WARNING is the intended, permanent state of `R CMD check`
-for this package until `.extract_seqs_from_hits()` is un-parked or
-retired outright.
-
-**Everything else this check run surfaced was either pre-existing and
-unrelated, or a `--no-build-vignettes`/`--no-vignettes` artifact of the
-flags chosen for speed -- not investigated or touched, listed here only
-so it is not mistaken for something today's session introduced:** an
-undeclared executable file (`inst/tools/arlem/arlem`), non-portable
-(>100-byte) test-fixture paths under `tests/testthat/data_for_tests/`,
-`NEWS.md` having no entries, two pre-existing "no visible binding for
-global variable" NOTEs (`rvd_dna_specificity`, `sq_len`, both unrelated
-files), and a missing Rd cross-reference link in
-`tales_to_universalmotif.Rd` (from the §12b work, not tonight's). The
-"files in `vignettes` but nothing in `inst/doc`" and "vignette without a
-built PDF/HTML" WARNINGs are both expected consequences of
-`--no-build-vignettes` and not real problems -- §7.5c already verified
-`getting_started.qmd` builds correctly through the real engine,
-separately, with the flag not set.
-
-**One real, new finding this run did surface, unprompted: a
-`vignettes/.quarto/` cache directory** (4.5MB, from quarto's own project
-machinery, not committed) was flagged as a "hidden files and
-directories" NOTE. Same class of build byproduct as the `_files`/`.html`
-patterns §7.5c already gitignored -- added `vignettes/.quarto/` to both
-`.gitignore` and `.Rbuildignore` (`^vignettes/\.quarto$`) and deleted the
-directory rather than leave it for the next build to silently recreate
-ignored-but-present.
-
-**A second, unprompted finding, from the maintainer reading the same
-check output: `ggcorrplot` and `corrr` (the two `Suggests` this check run
-needed `_R_CHECK_FORCE_SUGGESTS_=false` to get past) turned out to be
-genuinely dead, not just missing on this machine.** Checked before
-acting, same discipline as the rest of this section:
-`grep -rn "ggcorrplot\|corrr" R/ tests/ vignettes/ man/ README.md` finds
-nothing; broadened to the whole repo (`dev/`, `extra/`, `data-raw/`
-included) and still nothing. `git log -S"ggcorrplot" -- DESCRIPTION`
-traces both to a single old commit, `38b49ab` ("Reorganize files and
-minor modifs") -- almost certainly leftover from the pre-§7.5c numbered
-`vignettes/*.Rmd` set, which used correlation plots the six current
-articles do not. Dropped from `Suggests:`. Unlike `XVector`, this one has
-no gap to record anywhere -- nothing references either package, parked
-or live.
+- Every package in `Imports` had a live call site, apart from `XVector`
+  (used only by the parked `.extract_seqs_from_hits()`, now in
+  `inst/legacy/`): dropped. Re-add it if that function is ever revived.
+- `reshape2` replaced (18 sites) by three helpers verified with
+  `identical()` against the calls they replace: `.pairwise_long_to_matrix()`
+  (reproduces `acast()`'s sorted-level order), `.matrix_to_long()`
+  (reproduces `melt()` returning numeric margins when all dimnames parse
+  as numbers, which ARLEM's `id1 + 1` relies on), `.dcast_count_matrix()`
+  (`fun.aggregate` called on empty cells, via `summarise(.drop = FALSE)`).
+- `ggcorrplot`/`corrr` dropped from `Suggests` (unused).
+- A grep for `pkg::` cannot see dependencies used only through S4
+  dispatch or class inheritance; confirm removals with a real `R CMD
+  check`.
 
 ---
 
 ## 15. Cache the repeated discovery/compare/group pipeline across articles **[V]**
 
-Maintainer's proposal (2026-09-20, after living through how long the
-`docs/` rebuild takes that same night): the three-genome
-discovery-into-`tales`-object block --
+`tale_classification.qmd` computes the three-genome discovery,
+`tales_compare_distal()` and `tales_group_kmedoids()` and caches them in
+`vignettes/articles/_cache/{discovery,compare,group}.rds` (gitignored);
+`tale_msa.qmd`, `tales_msa_class.qmd` and `tale_target_prediction.qmd`
+`readRDS()` them and abort naming the canonical article if missing.
+Checking and computing in every article was rejected as upkeep.
 
-```r
-all_tales <- lapply(names(genome_files), function(strain) {
-  strain_dir <- file.path(out, strain)
-  invisible(tell_tales(subject_file = genome_files[strain], output_dir = strain_dir,
-                       cterm_min_score = 300,
-                       correct_array = TRUE, max_comparisons = 50))
-  tales_from_telltale(strain_dir) |>
-    mutate(array_id = paste0(strain, "_", array_id))
-}) |>
-  suppressWarnings() |>
-  bind_rows() |>
-  tales(sanitize = TRUE)
-```
-
--- is near-identical across several articles. Proposed: `saveRDS()` the
-result into `dev/` (or wherever suitable) the first time it is computed;
-subsequent articles `readRDS()` it instead of recomputing, inside a
-hidden chunk that says explicitly which article first computed it so a
-reader can look the creation up.
-
-**Checked before responding, not just agreed with on the spot: the
-redundancy is bigger than "at least three instances."** Confirmed by
-grep across all four downstream articles, same `genome_files` (identical
-paths) in every one:
-
-| stage | repeated in | cost |
-|---|---|---|
-| discovery (`tell_tales()` + correction) | `tale_classification.qmd`, `tale_msa.qmd`, `tales_msa_class.qmd`, `tale_target_prediction.qmd` -- **4** | real `nhmmer`/AnnoTALE/correction runs, ~1 min+ per genome |
-| `tales_compare_distal()` | `tale_classification.qmd`, `tale_msa.qmd`, `tales_msa_class.qmd` -- **3** | real protein alignment + ARLEM |
-| `tales_group_kmedoids()` | same three -- **3** | `cluster::pam()` across `k_range = 2:20` |
-
-So the compare/group stages, not just discovery, are worth caching too --
-arguably a bigger win, since ARLEM is the single most expensive step in
-the whole pipeline.
-
-**Two refinements proposed back, not yet agreed to by the maintainer
-("not now"), recorded so they are not relitigated from scratch whenever
-this is picked up:**
-
-1. **Check-then-compute, not a bare `readRDS()`:**
-   `if (file.exists(cache)) readRDS(cache) else { compute; saveRDS(...) }`.
-   The articles currently say, explicitly, "reproduced here rather than
-   carried over, since each article in this series stands alone" (§7.5b/
-   §7.5c) -- a reader who copies one article's code out and runs it in
-   isolation, with no cache file present, needs it to still work.
-   Check-then-compute gives the speed win *within* one `pkgdown::build_site()`
-   run (whichever article renders first computes and caches; the rest
-   find it) while keeping every article independently runnable, which a
-   bare "first article writes, the others only read" split would not.
-2. **Do not commit the cache to git.** A committed `.rds` that silently
-   goes stale the next time `tell_tales()`/`tales_compare_distal()`/
-   `tales_group_kmedoids()` changes is a real, quiet trap -- exactly the
-   kind of thing this whole session's own `docs/` rebuild saga (stale
-   *installed package*, not even a cache, causing two failed builds)
-   argues against. Gitignore the cache location (a `dev/site-cache/` or
-   similar, not bare `dev/`) so a fresh clone or a deliberate cache-clear
-   always recomputes from the current code. Residual risk not fully
-   solved by this: an *incremental* local rebuild, cache not cleared,
-   after a real pipeline change, would still silently serve stale
-   results within that one machine's cache -- worth a one-line reminder
-   near the cache-check code, not a technical fix.
-
-Three cache entries built (discovery, compare, group) rather than one
-bundled object, so that changing just the k-medoids call does not force
-discovery/compare to redo too -- as suggested above.
-
-### As built, same day, later session -- both refinements above revised
-
-Asked the maintainer directly which of two readings of "hidden chunk"
-was meant, since it materially changes the site's content, not just its
-speed: keep every article's pipeline code fully visible (pure
-under-the-hood speed win), or show the full pipeline once and reuse it
-silently elsewhere (a real declutter, partially reversing §7.5c's
-"stands alone" rewrite). **Answer: the declutter.**
-`tale_classification.qmd` is the canonical, fully-visible article --
-first among the four in `_pkgdown.yml`'s order, and already the one that
-teaches `tales_compare_distal()`/`tales_group_hclust()`/
-`tales_group_kmedoids()` in depth. `tale_msa.qmd` and
-`tales_msa_class.qmd` each had their `## Reproduced here... stands
-alone` section rewritten to a short cross-reference paragraph plus one
-`include = FALSE` chunk; `tale_target_prediction.qmd` (discovery only,
-no compare/group calls in this one -- confirmed by reading it, not
-assumed) got the same treatment on a smaller scale.
-
-**Refinement 1 (check-then-compute in every article) was then dropped
-by the maintainer at review, before it was built out:** duplicating a
-full fallback-compute block into three separate hidden chunks, purely so
-each article could still run with no cache present, was judged not worth
-the upkeep burden it creates ("a massive bugger"). Revised design:
-`tale_classification.qmd` is the only article that computes, and does so
-unconditionally (plus a light check-then-compute of its own around each
-of its three stages, purely for its own dev-loop -- not duplicated
-anywhere else, so it doesn't reintroduce the rejected complexity); the
-other three do a bare `readRDS()` with a `cli::cli_abort()` naming
-`tale_classification.qmd` if the file is missing, rather than a
-standalone-safe fallback. The dependency this creates is documented, not
-hidden: a callout on `vignettes/getting_started.qmd` explains these four
-articles are one linked analysis, and `dev/CLAUDE.md` carries the
-build-order rule for maintainers.
-
-**Refinement 2 (cache location) was also revised:** `vignettes/articles/_cache/`
-instead of `dev/site-cache/` -- asked for explicitly ("check if the rds
-could be included in a more suitable folder"), and it *is* more
-suitable: co-located with the four consuming articles, so the read side
-is a bare filename (`_cache/discovery.rds`) rather than a guessed
-`../../repo-root` relative path. Gitignored (`vignettes/articles/_cache/`
-added to `.gitignore`), same reasoning as before -- not committed, so a
-pipeline change can't leave a silently stale result behind.
-Not-content-hashed residual risk unchanged from the original proposal;
-the reminder comment lives next to the cache-path constants in
-`tale_classification.qmd` now, and in each consumer's hidden chunk.
-
-**A third thing, not anticipated in the original proposal, found only by
-actually running a full build: `pkgdown::build_articles()`'s internal
-render order is not what any of the obvious guesses predict, and is not
-something a `_pkgdown.yml`/`_quarto.yaml` setting was found to control.**
-`pkgdown::build_quarto_articles()` (not exported; read directly) funnels
-every `.qmd` under `vignettes/` through *one* `quarto render` call over
-the whole project directory when building the full site -- there is no
-per-article rendering pass to sequence. Three guesses were tried and
-each falsified against a real build, cache cleared each time:
-
-1. Alphabetical order (`tale_classification` sorts before `tale_msa`,
-   `tale_target_prediction`, `tales_msa_class` -- looked promising on
-   paper). **False**: real render order observed was
-   `getting_started.qmd` (1st), `tale_target_prediction.qmd` (2nd), ...
-   -- `tale_target_prediction` before `tale_classification` outright.
-2. `_pkgdown.yml`'s `articles: contents:` navbar order (classification
-   listed before msa/msa_class/target_prediction). **False**, same
-   observed order as above -- this list controls navigation, not build
-   sequence.
-3. A committed `vignettes/_quarto.yaml` with an explicit
-   `project: render: [articles/tale_classification.qmd, "*.qmd"]`, on
-   the theory that pkgdown skips writing (and deleting) its own
-   auto-generated version when one already exists on disk (confirmed
-   true by reading `build_quarto_articles()`'s source) and quarto would
-   then honour the listed order. **False** -- rebuilt with this file
-   in place, identical order (`tale_target_prediction` still 2nd).
-   Quarto's project `render:` list evidently does not sequence a
-   whole-project `quarto render <dir>` call the way a per-file `render:`
-   invocation might; not investigated further past this. File removed
-   again after the test, not committed, so as not to leave dead
-   configuration or relitigate the same idea from scratch.
-
-**Consequence and fix:** a full site rebuild with an empty or stale
-`_cache/` reliably fails (`tale_target_prediction.qmd` hits the missing
-cache first, aborting the whole `quarto render` project pass, which
-`pkgdown::build_articles()`/`build_site()` then reports as a `quarto`
-CLI error). Fixed operationally, not architecturally: `pkgdown` exports
-a single-article build, `build_article(name, pkg = ".")`, which renders
-*one* file directly (confirmed by reading its internal
-`build_quarto_articles(pkg, article = ...)` branch) rather than the
-whole project, so it cannot be affected by the multi-file ordering
-problem at all.
-
-First fix tried: `pkgdown::build_article("articles/tale_classification")`
-once to prime `_cache/`, then a normal `pkgdown::build_articles()`/
-`build_site()` for everything -- works (the project pass re-renders
-`tale_classification.qmd` too, but its own check-then-compute now hits
-the warm cache), but **the maintainer caught the real cost this still
-leaves on the table**: that second pass re-renders the canonical
-article's *own* uncached content a second time for nothing -- the
-small-fixture backend comparison (three more `tales_compare_distal()`
-calls) and the whole functal/`motif_tree()`/`view_motifs()` section, not
-huge, but not free either (61s of the article's own content, observed).
-Asked directly: why not just call `build_article()` once per file,
-sequentially, in a chosen order, plus the index, instead of
-`build_articles()`/`build_site()` at all? **Adopted, and it is strictly
-better, not just equivalent:** every file renders exactly once, order is
-fully explicit rather than merely "made safe," and nothing depends on
-`quarto`'s own project-pass behaviour at all any more. `build_articles()`'s
-own two jobs for this repo (there are no `.Rmd`-type vignettes here, only
-`.qmd`, so its `rmd`-walk branch is a no-op) are `build_articles_index(pkg)`
-plus the one `build_quarto_articles()` project call -- replaced with
-`build_articles_index(pkg)` plus a loop of `build_article(name)` over
-all seven names (`articles/tale_classification` first; the other five
-articles and `getting_started` in any order). This is now the documented
-way to build the articles at all, not just a cold-cache special case --
-see `dev/CLAUDE.md`.
-
-**Verification performed**, all against real data, nothing assumed:
-
-- `tale_classification.qmd` rendered alone from an empty cache: all 41
-  chunks ran clean, `_cache/{discovery,compare,group}.rds` created,
-  `discovery.rds` a proper `tales` object (26 arrays, `strain` column
-  present as intended for the other three's benefit).
-- `tale_msa.qmd`, `tales_msa_class.qmd`, `tale_target_prediction.qmd`
-  each rendered alone against the warm cache: 14s, 12s, 26s respectively
-  (the last a little longer for its own unrelated `talvez()`/
-  `preditale()` calls) -- against several minutes for the real discovery
-  run alone, let alone discovery+compare+group.
-- Cache-miss path: cleared `_cache/` and rendered `tale_msa.qmd` alone --
-  a clean, specific `cli_abort()` naming `tale_classification.qmd`, not
-  a bare `readRDS()` "cannot open file" error.
-- Cache-hit correctness in the canonical article itself: re-rendered
-  `tale_classification.qmd` against its own warm cache (61s, down from
-  several minutes -- the remainder is the small-fixture backend
-  comparison and the functal/motif section, deliberately not cached, see
-  the redundancy table above) and confirmed `n_distinct(all_tales$array_id)`
-  (26) and the inline group-count sentence ("8 of 9 groups...") both
-  identical to the cold-cache render -- the idempotent re-`sanitize`
-  on a cache hit changes nothing, as expected.
-- Full `pkgdown::build_articles()` to a scratch destination, cache
-  primed first (the first fix tried, superseded below): all seven
-  articles built clean, zero errors, regardless of the internal render
-  order.
-- The adopted fix: a fresh `_cache/`, then `build_article()` looped over
-  all seven names (classification first) plus `build_articles_index()`,
-  all to a scratch destination -- 10m20s total (cold-cache discovery +
-  compare + group + every article's own content, real `talvez()`/
-  `preditale()` calls included), zero errors, each file rendered exactly
-  once (confirmed by counting -- one `=== building ===` marker and one
-  render per name in the log, no repeats), output identical in shape to
-  a normal `build_articles()` run (`docs/articles/*.html` for all seven
-  plus `articles/index.html`).
-
-### Unrelated follow-up done the same session: home page and social preview
-
-Two small, unrelated requests from reviewing this work: `_pkgdown.yml`
-got a `template: opengraph: image:` block (copied from another package's
-config, asked what it does before adopting it -- it sets the `og:image`/
-`og:image:alt` meta tags social platforms read for link-preview cards;
-pkgdown resolves a relative `src:` to an absolute URL using the site's
-own `url:` config, confirmed in a real rendered `<head>`). Pointed at a
-new `man/figures/tantale_logo.png` (copied from `extra/tantale_logo.png`,
-500x500 -- `extra/` isn't part of the built site, so the source-quality
-logo needed a copy somewhere pkgdown actually serves; `man/figures/` is
-where the existing small logo already lives, README included, so this
-follows that same convention rather than inventing a new one).
-
-`pkgdown/index.md`'s header was also reworked: the logo moved from a
-centred block above the `# tantale` title to sitting right-aligned next
-to it, in the same row. Written as a flex container with a literal
-`<h1>` rather than a nested markdown `# tantale` inside the div, since
-pandoc's handling of markdown syntax nested inside a raw HTML block is
-parser-dependent and risks silently not converting the heading at all --
-a literal `<h1>` sidesteps that ambiguity entirely, at no visible cost
-(pkgdown wraps it in its own `.page-header` div regardless of which
-syntax produced it). Verified with a real `build_home()` render,
-screenshotted with headless `chromium` at both a desktop (1400px) and a
-mobile (400px) width -- title and logo sit side by side, right-aligned,
-at both sizes; no overlap or overflow.
-
-Also new this session: `dev/dev-notes.Rmd`, a personal, chunk-by-chunk
-reference for solo dev sessions (env checks, install/test/check
-snippets, and the site-build sequence above, copy-paste-ready) --
-`eval = FALSE` throughout, never meant to be knit start to finish.
-
-### Committed and pushed (four commits, `a4162e5`..`35ced48`)
-
-`a4162e5` (the caching change itself), `e1a9d29` (opengraph image,
-logo layout, `dev-notes.Rmd`), then two more once `docs/` was actually
-rebuilt for real -- everything above had only been tested against
-scratch destinations (`override = list(destination = ...)`) until this
-point, specifically to avoid touching the tracked site mid-verification.
-
-**`docs/` rebuild, first pass (`854e409`):** a plain rebuild (no
-`development` override) landed in `docs/dev/`, per `_pkgdown.yml`'s
-`mode: auto` and the version's `>= 9000` third component -- correct
-per that config, but got interrupted mid-run on request (maintainer
-asked to kill it, clean `docs/` and start over) while a first attempt
-was still rendering `tale_mining.qmd`. Full process tree killed
-cleanly (`bash -> R -> quarto -> deno -> R`/`java`), `docs/`'s tracked
-files reverted with `git checkout -- docs/`, untracked leftovers
-removed with `git clean -fd docs/`, then a genuine from-scratch rebuild
-(`init_site()` -> `build_home()` -> `build_reference()` -> the
-`build_article()` loop -> `build_articles_index()`) -- zero errors,
-verified with a real headless-`chromium` screenshot of the rebuilt home
-page before committing. This landed in `docs/dev/` correctly, by the
-existing config, along with several reference pages that had
-apparently never been committed to `docs/` at all despite the
-functions existing (`tales_compare_distal`, `tales_group_hclust`,
-`tales_group_kmedoids`, `tales_bind`, `tales_compare_functal`,
-`tales_to_universalmotif`, `rvd_dna_specificity`) and a
-`getting_started` article in the same situation.
-
-**Then asked directly: drop `docs/dev/`, publish `docs/` in release
-mode instead (`35ced48`).** `docs/dev/` removed with `git rm -r`; every
-build step re-run with `override = list(development = list(mode =
-"release"))` (same one-off mechanism §7.7 already used once), landing
-everything at `docs/` root instead. Verified the same way -- zero
-errors, a real screenshot confirming release styling (no dev-mode
-badge) and the logo/opengraph changes both live. **Consequence, not yet
-acted on:** `_pkgdown.yml` still says `mode: auto`, and the version's
-third component is still `>= 9000`, so any *future* build that omits
-this override will silently recreate `docs/dev/` -- `dev/CLAUDE.md` and
-`dev/dev-notes.Rmd` both now bake the override into every `build_*`
-call for this reason, but the config itself was deliberately left
-unchanged (a real decision -- `mode: release` in `_pkgdown.yml` would
-make it the default with no override needed, at the cost of losing the
-auto-dev-mode safety net entirely -- not decided either way, just not
-yet acted on).
-
-**Tested directly, 2026-09-21, since the maintainer recalled hardcoding
-this before and having it not work, but not why.** Temporarily set
-`_pkgdown.yml`'s `development: mode:` to `release` and ran `init_site()`,
-`build_home()`, `build_reference()`, a real `build_article()`, and
-`check_pkgdown()` against it, all to a scratch destination -- every one
-completed cleanly, writing straight to the destination root with no
-`docs/dev/`, no errors. No failure reproduced on this pkgdown/quarto
-version combination. Reverted immediately after (`_pkgdown.yml` back to
-`mode: auto`); nothing about the hypothetical earlier failure was found
-or explained, so this is recorded as "not reproduced here," not as "the
-maintainer misremembered" -- a different pkgdown version, a different
-scenario, or the unrelated `0.9.1` version-number trap already on record
-in §7.7 (a genuinely different mechanism, easy to conflate with this one
-since both are about `development:`/version interactions) are all still
-open possibilities. This only removed "it might just break" as a reason
-to avoid deciding -- it did not decide it.
-
-**Decided and done, shortly after (confirmed directly against the repo,
-2026-09-21): hardcode it.** `_pkgdown.yml`'s `development: mode:` is
-`release` today, permanently (commit `9b415e4`, "Publish docs/ in release
-mode permanently"), matching `dev/CLAUDE.md`'s standing rules. This is the
-norm now, not a pending call -- the auto-dev-mode safety net is deliberately
-gone. The decision and its reasoning were never actually written up in this
-ledger at the time, only the commit message and `dev/CLAUDE.md`'s summary --
-this paragraph is that missing record, added retroactively.
+A whole-project `quarto render` (what `build_articles()`/`build_site()`
+run) uses an order that follows neither the alphabet nor `_pkgdown.yml`
+nor a `_quarto.yaml` `render:` list (all three tested). Hence the
+per-article `build_article()` sequence in `dev/CLAUDE.md`. Also here:
+`_pkgdown.yml` `template: opengraph: image:` (logo copy in
+`man/figures/`), and `dev/dev-notes.Rmd` (copy-paste snippets for dev
+sessions).
 
 ---
 
 ## 16. Preserving the early prototype (`v0.1.9553`) ahead of an eventual repo-bloat cleanup -- DONE, see §26 **[V]**
 
-Maintainer's request, 2026-09-21: copy `master` (this repo's frozen "old
-reference version" -- `dev` was branched off it specifically so `master`
-stays untouched, per this ledger's very first phase) into a new branch,
-`v0.1.9553`, named after the old devtools-style version counter that
-scheme used before §7.7 retired it. Stated reason: eventual plans to
-clean up the git tree -- "remove unnecessary files and history" -- and
-this is meant to guarantee the early prototype stays retrievable through
-that.
-
-**A tag with the identical name, `v0.1.9553`, already existed at the same
-commit** (`e1a8d68...`) before this request -- found only because `git
-push` refused the ambiguous short name (`error: src refspec v0.1.9553
-matches more than one`), not anticipated going in. Resolved by pushing
-the branch with an explicit full refspec
-(`refs/heads/v0.1.9553:refs/heads/v0.1.9553`), which coexists with the
-tag fine at the ref-storage level; the coexistence just means this
-branch/tag pair will need disambiguating (`heads/v0.1.9553` vs
-`tags/v0.1.9553`) in any future `checkout`/`push`/`fetch` by short name.
-
-**The real substance, flagged before any cleanup is attempted, not
-after:** a branch (or tag) is only a *pointer*. Since the pre-existing
-tag already pointed at this exact commit, creating the branch changed
-nothing about what git will or won't garbage-collect -- it does not make
-a future cleanup any harder than the tag alone already did, but it also
-does not, by itself, get the maintainer any closer to a smaller `.git`.
-`master` is the *oldest* branch in this repo and the most likely home of
-the original repo-bloat culprits (bundled jars etc., per the
-still-deferred repo-bloat item from the very first review phase) --
-so **preserving this snapshot and shrinking the repository are in direct
-tension as long as both live in the same repo**: git cannot prune a
-commit or blob that is still reachable from any ref, branch or tag
-alike, so a real size reduction (`git filter-repo`/BFG, or a fresh
-squashed history) will eventually require deleting *every* ref that
-still points at the old, bloated commits -- this branch and the
-pre-existing tag both -- and only then does the removed content actually
-become collectible (and GitHub itself retains unreferenced objects for a
-window afterward, so not even instant then).
-
-**Recommended path when the cleanup is actually attempted, not yet
-acted on:** keep a copy of whatever `v0.1.9553` should preserve *outside*
-this repository first -- a separate small archive repo, a plain
-tarball/zip of the commit, or a fork -- before deleting the branch/tag
-and rewriting history here. Relying on a same-repo branch or tag to
-survive a cleanup that is specifically designed to delete what it
-points at does not work; the two goals need to be pursued as separate
-steps, not one action serving both.
-
-### The cleanup itself -- decided and executed 2026-09-22, see §26 for the full record
-
-**Not a close -- picks up exactly where the "recommended path" above left
-off, and stops partway through on purpose.** Full options were laid out
-(git-filter-repo, BFG, Git LFS, moving files out of git entirely, a fresh
-squashed history), each with its own trade-offs -- not reproduced here,
-see the session's own working plan,
-`~/.claude/plans/let-s-move-to-16-glistening-thacker.md`, for the full
-comparison. Maintainer's decisions, in order:
-
-1. **Fresh start, not a surgical history edit.** Rather than picking
-   through history file-by-file with `git-filter-repo`/BFG, discard the
-   entire commit-by-commit timeline (327 commits, 2020-2026) and begin
-   again from a single new commit matching `dev`'s current content
-   exactly. Chosen specifically because `dev`'s own ancestry shares every
-   old commit with `master` -- there is no tool that shrinks `.git`
-   without rewriting every ref's history together, so a full reset is no
-   more disruptive mechanically than a surgical one, and far simpler.
-2. **Everything currently part of the project stays exactly as it is.**
-   The large `.jar` files and reference genomes under `extra/`/
-   `inst/tools/` are *not* being moved to Git LFS or external storage --
-   only genuinely dead history (old MAFFT/HMMER binaries, an orphaned
-   83MB XML, etc. -- none of it present in any current tree) is what a
-   surgical approach would have targeted, and the fresh-start approach
-   removes all of it categorically without needing to enumerate it.
-3. **`v0.1.9553` preserved via a `git bundle`, not a same-repo ref.**
-   Checked directly against GitHub's API before trusting it: the
-   existing `v0.1.9553` *release* (created 2026-09-18) has an **empty**
-   assets array -- what its page shows as "Assets 2" is only GitHub's
-   automatic per-tag "Source code (zip/tar.gz)", which captures the files
-   at that commit but not the git history behind it, so nothing usable as
-   a real backup existed there yet. A `git bundle create --all` was made
-   instead, capturing the *entire* repository (all 327 commits, every
-   branch and tag, including `backup-reword`, a local-only branch never
-   pushed to GitHub at all) in one file -- broader than just `v0.1.9553`,
-   for the same effort. **Done and verified:** the bundle
-   (`tantale-full-history-2026-09-22.bundle`, 185M) restores cleanly in a
-   scratch clone -- 327 commits, all four branches present, confirmed by
-   direct inspection, not assumed from `git bundle verify`'s own
-   "complete history" claim alone.
-4. **The single surviving branch is `main`, not `dev`.** `master` and
-   `dev` are both retired -- `master`'s only job was freezing an old
-   reference point for `dev` to build on, and that reference point is
-   exactly what's being archived and discarded, so there is no reason
-   left to keep two branches. `main` matches GitHub's own modern default
-   naming.
-
-**Completed the same night -- see §26 for the full step-by-step record,
-including two real deviations from the plan above (`extra/` excluded from
-git entirely, not just history; the surviving branch is `main`, not
-`dev`) and two genuine, unresolved findings surfaced by the post-reset
-`devtools::check()` that are unrelated to the reset itself.** `.git`
-went from 223M to 46M; the working tree from 396M to 115M in a fresh
-clone. Not reproduced again here -- §26 is the record, this section
-stays as the original decision and reasoning.
-
-For reference, this is what "not yet done" looked like at the pause
-point, now entirely superseded by §26: the orphan commit,
-force-pushing `main`, switching GitHub's default branch, deleting
-`master`/`dev`/`v0.1.9553`/`backup-reword`, local `git gc
---prune=now --aggressive`, re-cloning to a fresh working copy, and the
-post-reset `devtools::check()`/golden-baseline verification. All of it
-was spelled out step-by-step in the plan file above, and followed
-directly rather than re-derived, including not skipping the "switch the
-default branch before deleting anything" step,
-since GitHub refuses to delete whichever branch is currently set as
-default.
+A branch or tag pointing at old commits keeps them from being collected,
+so a real size reduction needs a copy of the history outside the repo
+first. Decided: fresh single-commit history, a full `git bundle` kept as
+a release asset, one branch `main`. Executed in §26.
 
 ---
 
 ## 17. In-depth review of every exported function's documentation -- DONE **[V]**
 
-Maintainer recalled having recorded a note about this before but could
-not locate it -- a real search across this ledger and the assistant's
-own cross-session memory found nothing matching, so this is written
-fresh rather than assumed lost or reconstructed from a guess. Written
-2026-09-21, scope confirmed directly rather than assumed: all three
-concerns below apply, over the whole exported API, not a subset.
+All 51 exports and 19 S3 methods read against their behaviour, one file
+at a time; every example extracted with `tools::Rd2ex()` and run
+(examples needing external tools run for real). Standards: accuracy
+against the code, completeness (every argument, a real `@return`, a run
+example; `\dontrun{}` replaced by `try()` for error demonstrations),
+biology embedded, no archaeology.
 
-**Not the same thing as §7.8 or §7.5, though closely related and
-already touched by both:** §7.8 fixed one specific, narrow biology
-conflation ("repeat" for "domain") wherever it appeared; §7.5 closed a
-specific gap (missing `@examples` on four functions). This item is the
-general practice both of those were instances of -- read every
-exported function's documentation against its actual current behaviour
-and against this package's own documentation standards, not scanning
-for one known issue at a time.
+Fixes with consequences beyond wording:
+- **`correct_tales()` fed TALEcorrection's nHMMER results on swapped
+  flags** (`r=` repeats and `c=` C-terminus reversed). Fixed with the
+  maintainer's sign-off; `test_correct_tales.R` moved from 63 to 70
+  corrections. Articles updated in §25b.
+- `tale_parts_to_rvd()`'s `sep` did nothing (join hardcoded); now used.
+- `[.tales` and `[.pairwise_distances` were exported without any docs.
+- `tell_tales()`'s termini-alignment file names moved into
+  `.telltale_paths()`; `talomes_heatmap()` now returns `invisible(NULL)`.
+- `AnnoTALE_QueTAL_functions_library.R` renamed `annotale.R`.
 
-**Scope, corrected 2026-09-21 against `NAMESPACE` directly rather than
-trusted from §8.5:** §8.5's "51 exported" was assumed stale (functions
-retired, added and renamed since) and also never counted S3 methods
-separately, so this section's own first pass recounted it as **49 plain
-`export()` entries plus 19 `S3method()` registrations**.
-
-**Re-corrected, end of this whole item, 2026-09-21 evening:** that "49"
-was itself wrong -- a second direct `grep -c "^export(" NAMESPACE` at the
-end of the review, done to confirm every file had actually been covered
-rather than trusting the count on sight (this section's own methodology,
-applied to its own scope statement), came back **51**, matching §8.5's
-original figure -- so the "51 -> 49" correction above was a false
-correction, not a real drift. Every one of the 51 was mapped by hand to
-the `R/` file that defines it (`grep -rl` per function name, not
-assumed), and every file came back already covered under this section --
-except `R/tales_consensus.R`, which the original file-by-file pass
-missed entirely and which accounts for the whole 49-vs-51 gap
-(`tales_consensus()`, `tales_consensus_match()`). Fixed by reviewing it
-too, see Progress below; scope is now genuinely closed, not just
-believed to be. The S3 method count (19) held up both times. Method
-grouping unchanged: `plot`/`print`/`format`/`summary` for both `tales`
-and `tales_msa`, `as.matrix` for `pairwise_distances` and `tales_msa`,
-`[` for `tales` and `pairwise_distances`, and the dplyr integration
-methods -- a method whose generic is already one of the 51 (e.g.
-`as_tales.data.frame`) reviewed with its generic, not counted twice; one
-whose generic is not (`plot.tales`, `[.tales`, ...) its own review
-target.
-
-**Three things to check, per function, all three, not just one:**
-
-1. **Accuracy** -- does the documentation describe what the function
-   actually does *today*, not what it did when written or was meant to
-   do. Concretely: `@param` descriptions match the argument's real
-   current behaviour and default; `@return` describes the actual
-   returned type and shape (checked against a real call, not the
-   `@return` line trusted on sight); no reference to a removed,
-   renamed, or retired function, column, or class (the exact failure
-   mode §6/§7 caught repeatedly this session -- stale citations,
-   pre-rename file:line references, a bug described as open two
-   paragraphs after it was closed); no biology conflation of the kind
-   §7.8 just swept for (checked there, but a future rename or new
-   function could reintroduce the same mistake, so this is a standing
-   check, not a one-time fix).
-2. **Completeness** -- every argument the function actually takes has
-   an `@param`, including ones forwarded through `...` (named
-   explicitly per §8.1c's own rule, not left as a bare `@param ...`
-   when the reader cannot open the internal it forwards to); a real
-   `@return`; a working `@examples` block, wrapped in `\donttest{}`
-   and verified by an actual run when it needs an external tool or
-   environment, not merely present (the standard §7.5b/§7.5's own work
-   already set: extracted and executed, not just inspected).
-3. **Consistency and tone**, per `dev/CLAUDE.md`'s own Documentation
-   section, not a new standard invented here: readers are biologists
-   too, so the TALE biology is embedded in the docs, not only the R
-   mechanics; no implementation archaeology (what changed and why
-   belongs in code comments or this ledger, never in `@details`);
-   user-facing prose lives in the exported function's own roxygen
-   block, not hidden in an internal's `@noRd` where the real work
-   happens to live.
-
-**Method:** a real read-through per function, the same discipline §7.8
-insisted on for its own narrower scope -- not a grep, not a batch pass
-trusting `R CMD check`'s structural checks alone (those catch missing
-`@param`/`@return` tags, not wrong ones, and do not run `\donttest{}`
-examples at all). Working through it one file or class family at a
-time, not all ~68 topics in one sitting -- confirmed workable, not just
-proposed, once actually started (see Progress below).
-
-**Working rhythm, agreed with the maintainer once this was actually
-under way (2026-09-21), not decided in the abstract beforehand:**
-
-- One file/family at a time, in the order the package's own reference
-  index already groups things (`_pkgdown.yml`'s `reference:` sections) --
-  the core `tales` class first, since everything else builds on it.
-- Every fix is verified before moving to the next file, not batched to
-  the end: `devtools::document()` regenerates cleanly, every touched
-  `@examples` (including previously-`\dontrun{}` ones, see below) is
-  extracted with `tools::Rd2ex()` and actually run, the file's targeted
-  test file passes, `pkgdown::check_pkgdown()` is clean, and the
-  cli-conditions parser check (§ standing rule, `getParseData()` not
-  grep) is clean.
-- A genuine accuracy/completeness gap (docs claiming something the code
-  does not do, or vice versa) is reported and the maintainer decides the
-  resolution -- not silently picked either way. A finding that is just a
-  surprising-but-correct feature is folded into the fix without being
-  raised as its own discussion point, so real decisions do not get lost
-  in noise (maintainer's own instruction, 2026-09-21).
-- Any prose written or rewritten is grounded in how the concept is
-  already explained in the pkgdown articles (the same "readers are
-  biologists too" material, already fact-checked once when those
-  articles were written) rather than re-derived from scratch or
-  invented -- without adding an explicit cross-reference to the site
-  itself (maintainer's own instruction, 2026-09-21). `[.tales`'s fix
-  below is the first example: grounded in `tales_class.qmd`'s
-  `#sec-subsetting` section, no link to it added.
-- **Every `\dontrun{}` is questioned, not assumed necessary.** Only two
-  exist in the whole package (`tales_class.R`, `pairwise_distances_class.R`),
-  both wrapping an example that demonstrates an *error* case, and both
-  turned out to need nothing more than `try()` around the failing call --
-  a real, executable, `R CMD check`-verified example instead of one
-  invisible to every automated check this package has (maintainer's own
-  instruction, 2026-09-21, applied retroactively to both).
-- **Bump the version once this whole item is done** (`0.9.9002` ->
-  `0.9.9003`, `usethis::use_version("dev")` per `dev/dev-notes.Rmd`) --
-  not per file, at the end, since this is one coherent piece of work
-  even though it spans many files (maintainer's own instruction,
-  2026-09-21).
-
-**Progress, as of this record (not a substitute for finishing this
-section once the whole item is done -- see the running list, not this
-sentence, for what is actually closed):**
-
-- **`tales_class.R` -- done.** `` `[.tales` `` was exported with zero
-  documentation anywhere (no Rd page, no mention in any other page) --
-  written fresh, grounded in `tales_class.qmd`'s subsetting section:
-  row subsetting always safe, column subsetting degrades the class
-  silently (a plain tibble, not an error) rather than continuing to
-  claim invariants it can no longer keep, `tales_msa` degrading one
-  step at a time. `tales_bind()`'s docs claimed "two or more" inputs;
-  the code (and its own error message) only ever required "at least
-  one" -- confirmed by a real call with a single argument succeeding;
-  docs corrected to match the code, maintainer's choice over changing
-  the code to match the docs. `tales_assert_complete()`'s `\dontrun{}`
-  fixed per the rule above.
-- **`pairwise_distances_class.R` -- done.** Same `` `[.X` `` gap found
-  again -- `` `[.pairwise_distances` `` also exported with zero
-  documentation, fixed the same way, grounded in the same subsetting
-  logic (squareness deliberately not re-checked on every `[`, same
-  reasoning `distances_assert_square()`'s own docs already give).
-  `distances_assert_square()`'s `\dontrun{}` converted per the rule
-  above. One completeness gap found and closed without needing a
-  maintainer call: `as.matrix.pairwise_distances()` silently depends on
-  `x` being square (it calls `distances_assert_square()` internally)
-  but never said so -- documented. The shared `pairwise_distances()`/
-  `tale_distances()`/`domain_distances()` example never actually
-  demonstrated `domain_distances()` itself -- added.
-- **`distalr.R` -- done.** No `[.X` gap here (no S3 methods defined in
-  this file) and no `\dontrun{}`. One real accuracy fix:
-  `tales_compare_distal()`'s own `@details` claimed "the resulting
-  *objects* are stamped with a namespace" (plural) -- but
-  `tale_distances`, one of the three returned objects, deliberately
-  carries no stamp at all (confirmed empirically: `tales_namespace()`
-  on a real `tale_distances` object is `NULL`), while `tales`/
-  `domain_distances` do. Fixed to say which. **A related design
-  question raised and then answered by the codebase itself, not left
-  open:** asked the maintainer whether this asymmetry (only
-  `domain_distances` gets cross-run protection) was intentional or a
-  gap; before an answer was needed, found the function's own body
-  already explains it (`R/distalr.R`'s `tales_compare_distal()`, right
-  next to where `tale_distances` is returned) -- deliberate, because
-  `array_id` is a meaningful name that does not collide across runs the
-  way a `dom_code` does (class-design.md §3.5). Maintainer's call:
-  flag it here rather than act further -- the accuracy fix above
-  already surfaces the same explanation in the one place a reader of
-  `?tales_compare_distal` would see it; `tales_tale_distances()`'s own
-  page does not yet repeat it, left as-is rather than duplicated.
-- **`tales_msa_class.R` -- done.** No `\dontrun{}`; no missing `[.X`
-  method (`tales_msa` degrades through `[.tales` already, by design --
-  nothing separate to document). Two real, live bugs found, not just
-  wording: `.as_mafft_score_table()`'s roxygen block opened with a
-  title and paragraph ("Align TALE sequences with MAFFT text mode...
-  Implementation behind `tales_align()` and the deprecated
-  `tales_align()`") that belonged to a *different* function and had
-  drifted onto this one -- confirmed live in the actual generated Rd
-  page (wrong title and all), not just suspicious-looking source, before
-  fixing. `tales_align()`'s own `@param repeat_sims` had a trailing,
-  self-referential leftover sentence ("as accepted by `tales_align()`",
-  inside `tales_align()`'s own docs) -- removed. The same "X and the
-  deprecated X" templated phrasing turned up twice more
-  (`R/conversion.R`'s `.split_list()`, `R/tales_ingest.R`'s
-  `.tale_parts()`) but both are `@noRd` -- no Rd page generated, zero
-  visible impact, out of §17's exported-function scope -- so left alone
-  rather than fixed opportunistically.
-- **`classification.R` -- done.** No `[.X` gap (no S3 methods defined
-  here) and no `\dontrun{}`. `tales_group_hclust()`/
-  `tales_group_kmedoids()` read as accurate and complete on their own
-  terms; their `tal_sim` parameter is the naming question §19 already
-  tracks, not touched again here. Three real gaps, all in
-  `talomes_heatmap()`: no `@return` tag at all (added -- `NULL`,
-  invisibly, for the side effect of drawing or saving the heatmap); a
-  typo in the `@param x_lab,y_lab,title` line ("x axix" -> "x axis");
-  and the function actually returned `NULL` visibly, the same bug class
-  as `plot.tales_msa()`'s already-fixed one (§6) -- confirmed by running
-  its example and checking `source()`'s own `$visible` value, not
-  assumed from the source alone -- fixed with a trailing
-  `invisible(NULL)`. Noted, not acted on, per the "don't overcomment"
-  instruction: `talomes_heatmap()` has no test file of its own anywhere
-  in `tests/testthat/` (its two sibling functions each do).
-- **`tales_plot.R` -- done.** Both S3 methods (`plot.tales`,
-  `plot.tales_msa` -- confirmed against `NAMESPACE`, the file's only two
-  registrations). No `\dontrun{}`. Two real `@return` accuracy fixes:
-  `plot.tales_msa()`'s said unconditionally "An aplot object", but a real
-  call with the example's own default arguments (no `tal_sim`, `consensus
-  = FALSE`) returns a plain `ggplot` -- confirmed by checking the class
-  of a live call, not inferred from source -- the function's own
-  `@details` already explains the aplot case is conditional, so only the
-  `@return` tag itself was out of step; reworded to cover both cases and
-  point at Details. `plot.tales()`'s `@return` ("invisibly printed as a
-  side effect") had the two facts backwards -- printing is the visible
-  action, the *return* is invisible -- reworded for accuracy, and to
-  read consistently with its sibling's now-fixed wording. Both examples
-  re-extracted and run, confirming class and `source()$visible` for
-  each. One thing found and *not* acted on, folded into §19 instead of
-  raised as a new question, since it is the same tracked conflation, not
-  a new one: `fill_type`'s own `@param`/`@details` prose describes
-  `"repeat_clust"`/`"repeat_sim"` as repeat-specific ("colour cells by
-  repeat cluster or by protein-sequence similarity to the reference"),
-  the same claim §19 already found empirically false for the string
-  *values* -- so whatever rename §19 eventually settles on needs to
-  revisit this prose too, not just the parameter/argument names. Both
-  targeted test files pass unchanged (`test_plot_tales_composition.R`
-  16/16, `test_plot_tales_msa.R` 52/52).
-- **`tales_print.R` and `tales_summary.R` -- done, together.** Six S3
-  methods across the two files (`format`/`print` x2 classes in
-  `tales_print.R`; `summary` x2 classes plus their own `print.summary.*`
-  in `tales_summary.R`, sharing an Rd page with their `summary.*` via
-  `@rdname` -- confirmed against `NAMESPACE`: 4 registrations in each
-  file, 6 total, all accounted for). No `[.X` gap, no `\dontrun{}`.
-  **The same completeness gap, found twice, independently, in both
-  files: zero `@examples` anywhere in either file**, on any of the six
-  methods -- not one narrow miss but the whole file, in both cases.
-  Added one real, working example to each of the six Rd pages (four
-  standalone in `tales_print.R`; two in `tales_summary.R`, each also
-  exercising its paired `print.summary.*` through auto-print), reusing
-  the two small hand-built fixtures already established elsewhere in the
-  package's own examples (`tales_msa()`'s own `aligned` data frame;
-  a `tales()` `parts` data frame in the same style) rather than
-  inventing new ones or reaching for the heavier `tellTaleExampleOutput`
-  fixture these lightweight display methods don't need -- all six
-  extracted with `tools::Rd2ex()` and run for real, not just inspected.
-  One accuracy claim worth re-verifying rather than trusting on sight,
-  per this section's own standing caution about numbers going stale:
-  `summary.tales()`'s `@details` cites concrete figures from "the
-  reference fixture" (251 distinct domains, 180 repeats, 71 termini,
-  955 parts) -- re-ran `summary()` on that exact fixture
-  (`data_for_tests/sampleDistalrOutput.rds`, the one `test_print.R`/
-  `test_summary.R` both use) and confirmed all four numbers still hold
-  precisely. Two smaller cross-file claims spot-checked and confirmed
-  rather than assumed: `tell_tales()`'s log wording ("array length
-  (number of TALE domain hits)") matches the docs' claim that it counts
-  termini alongside repeats (`R/telltale.R`); `tales_consensus()`'s
-  documented "no strict majority -> NA" behaviour, which
-  `summary.tales_msa()`'s own `@details` leans on, matches its actual
-  code. Both targeted test files pass unchanged (`test_print.R` 34/34,
-  `test_summary.R` 26/26).
-- **`conversion.R`, `tales_projections.R` and `functal.R` -- done
-  together** (the "Projections and conversions" `_pkgdown.yml` section),
-  **plus `requirements.R`**, pulled in because two of `conversion.R`'s
-  functions lean on `.tales_require()`/`TALES_REQUIREMENTS` directly and
-  its own sole export, `tales_requirements()`, turned out to have the
-  same gap as everything else reviewed so far -- noted here rather than
-  treated as a separate file, since it is one exported function, 106
-  lines, and already in hand. Ten exports total across the four files.
-  No `[.X` gap, no `\dontrun{}`.
-
-  **A real, live docs bug, the same drifted/copy-paste class already
-  found twice this pass:** `repeat_to_rvd_map()` had `@param repeat_vecs`
-  declared *twice* -- the second copy, describing "Distal RVDs", silently
-  overwrote the first, correct one in the generated Rd (confirmed by
-  reading the actual compiled page, not just the source), so `?repeat_to_rvd_map`
-  currently tells a reader the wrong parameter holds RVDs. Deleted the
-  duplicate.
-
-  **A real code bug, not just a docs mismatch, found and fixed with the
-  maintainer's explicit sign-off (asked first, as the working rhythm
-  requires for a genuine accuracy gap):** `tale_parts_to_rvd()`'s `sep`
-  parameter, documented as the RVD-joining separator, silently did
-  nothing to the returned value -- the actual join was hardcoded to
-  `"-"`, and `sep` only fed a `posString` variable that was computed and
-  then discarded, never read again. Confirmed empirically: `sep = "-"`,
-  `"|"` and a nonsense string produced byte-identical output, and no
-  test anywhere exercised a non-default `sep`. Maintainer chose to fix
-  the code (over documenting it as a no-op, or dropping the parameter):
-  the join now uses `collapse = sep`, the dead `posString` line is gone.
-  Confirmed the default call is unaffected -- same output before and
-  after for `sep = "-"` -- and the golden baseline passes unchanged
-  (44/44), since nothing exercises a non-default `sep` yet. The
-  function's whole roxygen block was also cleaned up while in there: it
-  carried a second, copy-pasted paragraph describing a *different*
-  function's return value ("the association between repeat ID and
-  RVD" -- `repeat_to_rvd_map_distalr()`'s own description, not this
-  function's) and a `@return` tag that said "a two columns repeatID -
-  RVD data frame" when the function has only ever returned a
-  \code{BStringSet} -- both corrected, plus two typos
-  ("separatator"/"ommit").
-
-  **The same zero-`@examples` gap found a third time**, this time
-  narrower: only `conversion.R`'s three exports and `requirements.R`'s
-  one had none; `tales_projections.R` and `functal.R` already had a real
-  example on every export. Added one working example to each of the four
-  bare functions, all extracted and run for real. One smaller
-  completeness fix while re-reading the existing, already-example-bearing
-  functions: `tales_domain_codes()`'s `@return` claimed its result always
-  has `dom_code`, `aa_seq` *and* `rvd` columns, but the code (and its own
-  in-code comment) only includes `rvd` when `x` carries one -- reworded
-  to say so.
-
-  All pre-existing examples in `tales_projections.R`/`functal.R` (5 + 2)
-  re-extracted and run for real rather than trusted as already-adequate,
-  per this item's own methodology -- all five ran cleanly with sensible
-  output. Targeted test files pass unchanged: `test_tales_projections.R`
-  51/51, `test_tales_compare_functal.R` 28/28, `test_requirements.R`
-  15/15, `test_untested_exports.R` 16/16 (covers the fixed
-  `tale_parts_to_rvd()` directly), `test_error_conditions.R` 24/24 (3
-  pre-existing, unrelated warnings from `tales_compare_distal()`'s own
-  dom_code-re-minting message, not from anything touched here),
-  `test_plot_tales_msa.R` 52/52.
-- **`target_predictions.R` -- done.** The whole "Target prediction"
-  `_pkgdown.yml` section in one file: `preditale()`, `talvez()`,
-  `plot_target_preds()`, `tales_predict_targets()`. No `[.X` gap, no
-  `\dontrun{}` -- all four already used `\donttest{}` correctly, being
-  the only functions in the package that call out to an external tool
-  (a Java runtime for `preditale()`; the `tantale` conda environment for
-  `talvez()`), so per this item's own methodology ("verified by an
-  actual run when it needs an external tool") **all four examples were
-  actually run, not just extracted** -- both tools are installed on
-  this machine (`java 21`, `inst/tools/PrediTALE.jar`, a pre-built
-  `tantale` conda env), so this was possible rather than assumed. All
-  four ran cleanly; `preditale()` and `talvez()`'s output columns match
-  what their own `@return` tags claim (9 columns each, homogenised
-  names), and `tales_predict_targets()` correctly adds its documented
-  `method` column against both backends. No accuracy or completeness
-  gaps found -- this file's docs were already correct throughout,
-  unusually for something written earlier and less carefully than the
-  rest of the package (see below). One real, live finding, out of
-  `@examples` scope but surfaced by actually running one: running
-  `plot_target_preds()`'s example throws a ggplot2 deprecation warning
-  (`size` aesthetic on `geom_tile()`/`geom_label()`, deprecated since
-  ggplot2 3.4.0 in favour of `linewidth`) -- noted here per the
-  "unexpected features, don't overcomment" instruction, not fixed: a
-  real future-proofing gap in the plotting code, not a documentation
-  one, and not yet an error.
-
-  **Consistency and tone, not accuracy: this file reads like earlier,
-  less-edited prose than the rest of the package** -- untouched by any
-  of this ledger's previous documentation passes. Six repeated typos
-  fixed across the three older functions' roxygen blocks and body
-  prose (`separeted`/`formated`/`optionnal`/`originale programs's` in
-  `preditale()` and `talvez()`, byte-identical in both since one was
-  copy-pasted from the other; `preicted`/`whithin`/`squences` plus three
-  subject-verb agreement slips in `plot_target_preds()`). No behavioural
-  changes, wording only. `tales_predict_targets()`, the newest of the
-  four (built to unify the other two), had none of these -- consistent
-  with it being written in this package's current documentation style
-  already. Targeted test file passes unchanged (`test_target_predictions.R`
-  6/6).
-- **`telltale.R` -- done.** 1522 lines but only one `@export`,
-  `tell_tales()` itself (confirmed against `NAMESPACE`) -- everything
-  else in the file is an internal `.telltale_*` helper, read as needed to
-  check `tell_tales()`'s own claims, not reviewed in its own right (out
-  of §17's exported-function scope). No `[.X` gap; the one
-  \code{\donttest{}} example (needs nhmmer, AnnoTALE and a Java runtime,
-  all resolved from the pre-built `tantale` conda env on this machine)
-  was **run for real, end to end**, including the chained
-  `tales_from_telltale(out)` call at the end -- produced a proper
-  `<tales>` object exactly as documented.
-
-  Three real accuracy/completeness fixes, found by checking each
-  `@param` against the code it describes rather than trusting the
-  (unusually long and otherwise carefully-written) existing prose:
-  `@param frameshift` said "the default is 11" when the function's own
-  default is \code{-11} (confirmed also against
-  \code{DECIPHER::CorrectFrameshifts()}'s own default, \code{-15} --
-  this wrapper deliberately overrides it, so the sign is not incidental)
-  -- fixed. `@param correct_array` was a bare "True or False", the one
-  parameter in the whole function left with no behavioural description
-  at all despite being one of the most consequential and already having
-  a full risk/benefit explanation sitting in the function's own
-  `@details` two screens above it -- reworded to summarise that
-  explanation and point back to it, matching every sibling boolean
-  parameter's own level of detail. The `@return` file list's four
-  termini-alignment HTML files were documented as if always produced,
-  but `.telltale_align_termini()` only writes one when at least 2
-  putative TALEs are found for that terminus, warning and skipping
-  otherwise -- added the caveat.
-
-  **A real design inconsistency, caught and corrected mid-review by the
-  maintainer, not self-found:** while checking the `@return` file list
-  against `.telltale_paths()` (the function that centralises every
-  output path so the rest of `tell_tales()` reads as a pipeline over
-  data rather than over paths -- see the file's own header comment), I
-  described it in passing as covering "every output path," which the
-  maintainer immediately flagged as not quite true and asked to have
-  fixed, not just reworded. It wasn't: the four termini-alignment HTML
-  filenames were assembled inline inside `.telltale_align_termini()` via
-  `glue::glue("{part_slug}_{spec$suffix}")` against a bare `output_dir`
-  argument, the one place in the function that built a path outside
-  `paths`. **Fixed, not just noted:** the four filenames moved into
-  `.telltale_paths()` itself (`n_terminus_dna`, `c_terminus_dna`,
-  `n_terminus_aa`, `c_terminus_aa`), and `.telltale_align_termini()`
-  now takes the whole `paths` list instead of a bare `output_dir`,
-  looking up the right entry per terminus/type rather than constructing
-  it. Purely mechanical, no filename or behaviour changed -- verified
-  by running `tell_tales()` for real before relying on the golden
-  baseline alone, and confirming the output directory's file listing is
-  byte-identical to the pre-refactor names. Verified: `test_tell_tales.R`
-  2/2, `test_tell_tales_guards.R` 20/20, golden baseline 44/44, cli-conditions
-  and `pkgdown::check_pkgdown()` clean.
-- **`tales_ingest.R`, `talecorrection_java.R`, `tantale_setup.R`,
-  `AnnoTALE_QueTAL_functions_library.R` (renamed `annotale.R`), and
-  `R/tantale.R`'s package-level `_PACKAGE` doc -- done together**, the
-  rest of the small remaining files. Five exports total
-  (`tales_from_telltale()`, `correct_tales()`, `tantale_setup()`,
-  `run_annotale_predict()`, `run_annotale_build()`) plus a look at
-  `?tantale` itself.
-
-  **`tales_ingest.R` -- clean.** `tales_from_telltale()`'s docs were
-  already accurate and complete; its example re-run for real, no
-  external tool needed (reads pre-generated fixture files only).
-
-  **`talecorrection_java.R` -- a real, live functional bug, not a docs
-  issue, found by checking `@param hmm_path`'s "Xox" sibling-directory
-  claim against the actual `inst/tools/talecorrect/HMMs/` layout (it's
-  `Xoc`, fixed) and then, while verifying the example end to end,
-  against `TALEcorrection.jar`'s own printed usage.** `correct_tales()`
-  builds `domains <- c(N = ..., C = "repeat", R = "C-terminus")` and
-  calls the jar with `r={hmmerOut(domains["R"])} c={hmmerOut(domains["C"])}`.
-  Running it for real showed the jar's own help text: flag `r=` is
-  documented by the tool itself as the "Repeats nHMMER File" and `c=`
-  as the "C-terminus nHMMER File" -- exactly backwards from what the
-  vector supplied, so every call has been feeding the repeat-domain
-  hits to the C-terminus flag and vice versa. **Reported to the
-  maintainer before touching it, given the scientific stakes -- fixed
-  on their instruction:** the vector's `C`/`R` values swapped
-  (`C = "C-terminus"`, `R = "repeat"`), with a comment explaining the
-  keys follow the jar's own flag letters, not domain initials, since
-  that is exactly the confusion that hid the bug. `test_correct_tales.R`
-  caught the change immediately -- its hardcoded `expect_setequal(dim(t),
-  c(63, 4))` failed with the real, corrected count (70) -- updated with
-  a comment recording why the number moved, the same discipline this
-  ledger already applies to golden-baseline changes. Also fixed:
-  "ouput"/"containning"/"build from" typos in the surrounding docs.
-  Verified: both tests in `test_correct_tales.R` pass (70/4 now), the
-  roxygen example re-run end to end, cli-conditions and
-  `pkgdown::check_pkgdown()` clean. `test_tell_tales_correction.R` and
-  the golden baseline do not touch `correct_tales()` at all (confirmed,
-  not assumed) -- this is a separate code path from `tell_tales(
-  correct_array = TRUE)`'s own `DECIPHER::CorrectFrameshifts()`-based
-  correction, so neither needed re-running.
-
-  **`tantale_setup()` -- one real completeness gap, one real accuracy
-  gap, both fixed.** No `@examples` at all, despite the function being
-  side-effect-free by default (`install = FALSE`, `conda = FALSE` --
-  "a diagnostic," per its own docs) and therefore safe to demonstrate
-  for real -- added, wrapped in `\donttest{}` since it depends on the
-  machine's own conda/environment state, and run for real (this
-  machine's `tantale` env is fully pinned-version-compliant, so the
-  example prints a clean all-green report). `@return`'s claim that the
-  result always has `conda`/`system` data frames and a real `prefix`
-  is only true on the success path -- the two early-exit branches (no
-  conda found; no `tantale` environment and `install = FALSE`) return
-  `conda = NULL`/`prefix = NA_character_`, confirmed by reading both
-  branches, not assumed -- documented. `@seealso` named only
-  `tell_tales()`/`tales_align()` as "the two entry points that need
-  these tools," but a real search for every caller of
-  `.tantale_bin()`/`.create_tantale_env()`/`.tantale_exec()` turned up
-  three more exported consumers (`tales_compare_distal()`, `talvez()`,
-  `correct_tales()`) -- all five now listed. `test_tantale_setup.R`
-  41/41, cli-conditions and `pkgdown::check_pkgdown()` clean.
-
-  **`AnnoTALE_QueTAL_functions_library.R` -- renamed `annotale.R` on the
-  maintainer's instruction, its QueTAL content (the old `functal()`)
-  having already left for `inst/legacy/` in §12b, so the old name no
-  longer describes what the file holds.** `git mv`, `devtools::document()`
-  to repoint both Rd files' "edit documentation in" header, and the one
-  live cross-reference to the old filename in `dev/class-design.md`
-  updated (its line-number part was already stale independent of the
-  rename -- the file has shrunk since -- dropped rather than guessed at).
-  Both functions' docs already had a real, previously-verified
-  `\donttest{}` example (closed in an earlier, pre-§17 session -- not
-  new work here); this pass found and fixed two `(?)` hedge markers
-  left in `@param fasta_file` on both functions ("DNA (?) sequences",
-  "TALE sequences ... (?)") -- both resolvable with confidence by
-  checking the actual fixture (`MAI1.fa` is DNA) and the actual
-  chain (`run_annotale_build()`'s own example feeds it
-  `run_annotale_predict()`'s `TALE_DNA_sequences_*` output) rather than
-  left as authorial uncertainty in a published API. Re-ran both
-  examples for real (not just `Rd2ex()`-extracted) as part of
-  confirming the rename didn't break anything -- `run_annotale_build()`'s
-  chained example still produces nine real AnnoTALE classes, matching
-  the earlier session's own record exactly. Noted, not acted on: zero
-  test coverage for either function (only the docs' own examples
-  exercise them) and `run_annotale_predict()`'s asymmetric error
-  checking (the "predict" stage's exit code is checked and aborts on
-  failure; "analyze"'s is only ever returned, never checked) -- both
-  real, both out of proportion to fix opportunistically here.
-
-  **`R/tantale.R` (`?tantale`, the package-level doc) -- looked at,
-  mostly left alone.** Not part of §17's 49+19 scope, but cheap to check
-  while already touching every remaining file. A real typo fixed
-  ("lenght" -> "length"). Everything else that looks stale in this file
-  (uneven tone between an evidently-rewritten "Setting up" section and
-  much older bullet-point stubs elsewhere; unlinked tool names; the
-  "Connector with daTALbase (to be done)" line) turned out to already be
-  a recorded, deliberate decision from an earlier session -- README and
-  `R/tantale.R` were found to disagree, and the maintainer chose "fix
-  today's two concrete bugs, accept the drift risk going forward" over a
-  bigger rewrite. Re-raising that here would be re-litigating a closed
-  decision, not a new finding, so left as is.
-- **`tales_consensus.R` -- done, and closes the section.** Found missing
-  entirely from this list while doing the final scope re-check above,
-  not flagged by the maintainer this time -- self-caught. Two exports
-  (`tales_consensus()`, `tales_consensus_match()`), no `[.X` gap, no
-  `\dontrun{}`. Both already accurate and complete on inspection; the
-  one concrete claim worth verifying rather than trusting on sight --
-  "`NA` is likewise returned when the most common thing at a position is
-  a gap" -- confirmed empirically with a built matrix where gaps
-  outnumber the one real residue in a column, returning `NA` as
-  documented. Both examples re-run for real, matching documented output
-  exactly (tie -> `NA`; gap -> `FALSE`, not counted as a match; a
-  resolved column's `TRUE`/`FALSE` split as expected). No dedicated test
-  file exists for either function -- both are exercised only as
-  dependencies, via `test_plot_tales_msa.R`/`test_golden.R` (both
-  already green from earlier work this session, and nothing here
-  changed, so neither was re-run) -- noted, not treated as a gap to
-  close today. cli-conditions and `pkgdown::check_pkgdown()` clean.
-
-**Section closed, 2026-09-21 evening.** Every one of the 51 exports and
-19 S3 methods has now had a real read-through against its actual current
-behaviour, not just a structural check -- confirmed by the file-by-file
-map above, not asserted. Total tally across the whole item: one real,
-live functional bug with scientific consequences (`correct_tales()`'s
-swapped nHMMER flags, §-note above, fixed with the maintainer's sign-off
-after being reported rather than silently patched); one design
-inconsistency caught by the maintainer mid-review and fixed properly
-rather than just reworded (`tell_tales()`'s termini-alignment paths
-folded into `.telltale_paths()`); a double-digit count of smaller
-accuracy fixes (wrong `@return` types, stale copy-pasted paragraphs,
-wrong defaults, drifted cross-references) and completeness fixes (missing
-`@examples` added to every function that lacked one, always grounded in
-an existing fixture rather than invented, and always actually run, not
-merely extracted); and one renamed file (`annotale.R`) reflecting content
-that had already changed. Nothing found was swept under the rug: every
-completeness/accuracy question either got fixed on the spot (the
-unambiguous ones) or was reported and resolved with the maintainer before
-touching code (the two that carried real behavioural risk). Per the
-maintainer's own standing instruction for this item, the version bump
-(`usethis::use_version("dev")`, `0.9.9002` -> `0.9.9003`) is now due, and
-everything from this whole stretch (§17/§18/§19/§20 and this closing
-note) still needs to be committed -- nothing in this multi-session item
-has been committed yet.
-
-**Correction/follow-up, 2026-09-22 -- a live consequence of the
-`correct_tales()` flag-swap fix, not caught until now.** Tracked at §25b,
-alongside the rest of the website follow-up work this same fix implies --
-not duplicated here.
+Noted, not acted on (still true 2026-09-23): no test for
+`talomes_heatmap()`, `run_annotale_predict()`/`run_annotale_build()`
+(START HERE item 6); the analyze stage's exit status unchecked (item 2);
+`plot_target_preds()`'s ggplot2 deprecations (item 4).
 
 ---
 
 ## 18. `R/unused_pending_review.R`'s last batch reviewed and retired -- DONE **[V]**
 
-Maintainer's request, 2026-09-21: move `R/unused_pending_review.R` into
-`inst/legacy/` -- i.e. treat its whole remaining content as reviewed and
-genuinely dead, not merely parked, per the file's own documented
-distinction ("Parking is a bookkeeping move, not a retirement -- retired
-code goes to `inst/legacy/` instead, where it is no longer compiled").
-
-**Checked before moving anything, not assumed from the file's own
-inventory comment:** two of the eight functions turned out to still be
-real test dependencies, not one. `repeat_to_rvd_align()` (no dot prefix)
-builds fixture data at the top of `test_plot_tales_msa.R`, unconditionally,
-for every test in that file -- the file's own separate note already knew
-this ("Tests still exercise it"). Precisely re-checking the *other*,
-similarly-named sibling turned up a second, easy-to-conflate case:
-`.rvd_to_repeat_align()` (dot-prefixed, the literal inverse direction) is
-tested directly, for its own error conditions, in
-`test_error_conditions.R` -- a different test file than the one the
-file's inventory comment was pointing at. Moving either to `inst/legacy/`
-as originally asked would have broken real, currently-passing tests, one
-of them by breaking the whole file's fixture setup, not just skipping a
-test. **Asked the maintainer directly rather than guessing** which of
-three ways to resolve the entanglement; chose pulling both functions out
-into real, kept code first.
-
-**Done:**
-- `repeat_to_rvd_align()` and `.rvd_to_repeat_align()` moved into
-  `R/conversion.R`, alongside `repeat_to_rvd_map()`/
-  `repeat_to_rvd_map_distalr()`/`tale_parts_to_rvd()` -- the natural
-  existing home, since both are the same repeat-code/RVD alignment-matrix
-  conversion this file already collects, just at the matrix level rather
-  than the sequence level. Kept unexported (`repeat_to_rvd_align()` stays
-  `@noRd`, `.rvd_to_repeat_align()` stays `@keywords internal`), matching
-  their status before the move -- this is a relocation, not a promotion
-  to public API, and out of §17's scope for exactly that reason.
-- The other six (`.write_hmm_file()`, `.run_hmmer_search()`,
-  `.run_hmmalign()`, `.extract_seqs_from_hits()`, `.tales_compare_core()`,
-  `.run_in_conda()`) moved verbatim into `inst/legacy/unused_pending_review.R`,
-  with a new header recording what each was and why it was retired
-  (superseded-by references to §8.5b/§12/§14, matching the existing
-  `inst/legacy/functal.R` header convention) -- not just relocated with
-  the stale "parked, pending review" framing still attached.
-- `R/unused_pending_review.R` itself removed (`git rm`), now that it is
-  empty. `dev/CLAUDE.md`'s standing "never delete code that looks dead"
-  rule updated: the file is created fresh next time something needs
-  parking, not assumed to permanently exist, and a new line records the
-  actual lesson from this review -- check every similarly-named sibling
-  for its own, separate test dependency before parking or retiring
-  anything, since two near-identical functions in the same file were
-  each kept alive by a *different* test file here.
-
-**Verified:** `devtools::document()` clean (only `.rvd_to_repeat_align()`
-gets a fresh Rd page, as expected); both dependent test files pass
-unchanged (`test_error_conditions.R` 24/24, `test_plot_tales_msa.R`
-52/52); `pkgdown::check_pkgdown()` clean; the cli-conditions parser check
-clean on `conversion.R`; the relocated `inst/legacy/` file parses (a
-syntax check only -- `inst/legacy/` content is shipped data, never
-sourced as package code, same as the existing `functal.R`/
-`msa_heatmap.R`/etc. there).
-
-**Correction, found by the §17-closing full test suite run, not by this
-section's own verification:** the "verified" above only ever ran the two
-test files known to depend on the two *rescued* functions
-(`repeat_to_rvd_align()`, `.rvd_to_repeat_align()`). It never checked
-whether any of the other six retired functions had their own dedicated
-test file -- and one did. `.run_in_conda()` had `tests/testthat/
-test_conda.R`, two tests exercising it directly and nothing else, unlike
-the shared-fixture entanglement the rescued pair had. Once
-`.run_in_conda()` moved to `inst/legacy/`, both tests failed with
-"could not find function" -- caught only when the full suite was run at
-the end of the whole §17 item, not by this section's own, narrower
-check. Confirmed no production code calls `.run_in_conda()` (the only
-other reference anywhere in `R/` is a commented-out line in
-`tantale_conda_env.R`), so the right fix is the same one `functal()`'s
-own retirement already set as precedent: the retired function's own
-orphaned unit test goes with it, not a resurrection of dead code to keep
-a test green. `test_conda.R` removed entirely (its `require_tantale_conda_env()`
-helper was private to it, confirmed unused elsewhere). Full suite
-re-run after the fix: `[ FAIL 0 | WARN 47 | SKIP 0 | PASS 756 ]`, clean
-(the first, pre-fix full run was `[ FAIL 2 | WARN 47 | SKIP 0 | PASS 756 ]`
--- same pass count, the two failures were errors, not missing passes;
-756 real passes both times, only the two `test_conda.R` tests gone from
-the total the second time). The lesson this adds to `dev/CLAUDE.md`'s
-existing "check every similarly-named sibling" rule: check every
-*test file*, too, not just siblings in `R/` -- a full suite run is the
-only check that actually catches this, and is worth doing before calling
-a retirement done, not only when a change is believed to ripple broadly.
+`repeat_to_rvd_align()` and `.rvd_to_repeat_align()` had test dependents
+in two different test files and moved into `R/conversion.R` (still
+internal, used only by tests). The other six (`.write_hmm_file()`,
+`.run_hmmer_search()`, `.run_hmmalign()`, `.extract_seqs_from_hits()`,
+`.tales_compare_core()`, `.run_in_conda()`) went to
+`inst/legacy/unused_pending_review.R`. `.run_in_conda()` had its own test
+file, found only by the full suite; removed with it. Both lessons are in
+`dev/CLAUDE.md`'s parking rule.
 
 ---
 
-## 19. `repeat_sims`/`tal_sim`/`domain_sim`/`fill_type` values -- naming
-may not have followed §9.6's rename **[P]**
+## 19. `repeat_sims`/`tal_sim`/`domain_sim`/`fill_type` values -- naming may not have followed §9.6's rename **[superseded]**
 
-Maintainer's observation, 2026-09-21, surfacing while reviewing
-`tales_msa_class.R` for §17: these three parameter names look like the
-same "repeat" and "sim" vocabulary §9.6 already renamed elsewhere
-(`repeat_sim` -> `domain_sim`/`domain_distances`, `sim` -> `distances`
-as the stored/canonical quantity). **Explicitly not to be changed yet --
-verify first**, maintainer's own instruction; this section records the
-observation precisely enough to verify against, not a decision to act on.
-
-**Located precisely, not assumed from memory:**
-
-- **`repeat_sims`** -- `tales_align()`'s parameter (`R/tales_msa_class.R`),
-  passed straight through to the internal `.build_repeat_msa()` (same
-  parameter name) and referenced in cli conditions as `{.arg repeat_sims}`.
-  Accepts a `domain_distances` object (per its own `@param` doc) or the
-  literal string `"rvd"` -- so the *value* it takes is exactly what
-  `domain_sim` (below) also takes, under a different name. Internal
-  variable `repeatSims` (`tales_msa_class.R`) and the helper
-  `.format_repeat_dist_mat()` (`R/conversion.R`) carry the same
-  vocabulary further in. Live in user-facing example code, not just
-  internals: `vignettes/articles/tale_msa.qmd` calls it five times,
-  including as prose ("`tales_align()` accepts a `repeat_sims`
-  argument...").
-- **`tal_sim`** -- the array-level `tale_distances` argument of
-  `tales_group_hclust()`/`tales_group_kmedoids()` (`R/classification.R`)
-  and of `plot.tales_msa()` (`R/tales_plot.R`). Threaded into
-  `.tales_group_distmat(x, tal_sim)`, error messages
-  (`{.arg tal_sim}`), and a local `talsimForDendo` in `tales_plot.R`.
-  Live in three qmd articles (`tale_msa.qmd` x3, `tales_msa_class.qmd`).
-- **`domain_sim`** -- the domain-level `domain_distances` argument of
-  `plot.tales_msa()` only (`R/tales_plot.R`). Already uses "domain", not
-  "repeat" -- §9.6-original's own text proposed exactly this rename
-  ("`repeat_sim` -> `domain_sim`") and it was evidently carried out here,
-  just not for `repeat_sims` above, which is the same kind of argument on
-  a sibling function. One internal relic found: `tales_plot.R:238` still
-  assigns `repeat_sim <- domain_sim` right inside the function body --
-  the old name survives one level down even where the parameter itself
-  was already renamed.
-
-**Correction, same day, a few hours later: folded back in, not excluded
-after all.** This section originally said `fill_type`'s string values,
-`"repeat_clust"`/`"repeat_sim"` (`plot.tales_msa()`, `R/tales_plot.R`
-and `vignettes/articles/tales_msa_class.qmd`'s explanatory table), were
-a separate, already-settled matter -- trusting §7.8's own claim that
-they name a genuinely repeat-specific visualisation choice, not a
-mislabelled general-domain quantity. **The maintainer doubted that
-claim on sight, asked for it to be checked again, and it was wrong.**
-Verified empirically (§7.8's own entry now has the full account): a
-real alignment with termini, run through `.repeat_to_sim_align()`/
-`.repeat_to_cluster_align()` directly, shows every terminus cell getting
-a genuine similarity/cluster value computed exactly like a repeat cell,
-from the same all-domains `domain_sim` table -- not repeat-only at all.
-So these two string values are the same conflation as `repeat_sims`
-above, not a different question: whatever this section's rename ends up
-being should cover `"repeat_clust"`/`"repeat_sim"` too, most likely as
-`"domain_clust"`/`"domain_sim"` (careful: `domain_sim` the *string
-value* and `domain_sim` the *parameter name* would then be the same
-token in two different roles on the same function call --
-`fill_type = "domain_sim"` alongside an argument also named `domain_sim`
--- worth thinking through on its own before picking exact names, not
-assumed harmless).
-
-**What "verify" should mean before this is acted on:** confirm whether
-"sim" was a deliberate, load-bearing shorthand for "the *thing you
-compare with*" (as opposed to `dissim`/`distances`, the class-level
-column name) rather than an oversight -- `domain_sim`/`tal_sim` read
-naturally as "the [X] similarity input", which `domain_distances`/
-`tale_distances` as parameter names would not as cleanly, so this may
-not be a simple typo-grade fix. If a rename is agreed, the blast radius
-is real: three `R/` files, their internal helpers/variables/error
-messages, and at least two pkgdown articles' example code and prose --
-comparable in scope to past renames in this ledger (§9.2c, §14), not a
-one-line fix.
-
-**Addendum, found reviewing `tales_plot.R` for §17:** the conflation is
-not only in the `fill_type` string values -- `plot.tales_msa()`'s own
-`@param fill_type`/`@details` prose describes `"repeat_clust"`/
-`"repeat_sim"` as repeat-specific throughout, the same claim already
-shown false. Any eventual rename needs to touch this prose too, not
-just the argument/value names.
-
-Not started, and explicitly not to be started without going back to the
-maintainer first.
+The observation: argument names and `fill_type` values kept the
+"repeat"/"sim" vocabulary §9.6 had retired, and `"repeat_clust"`/
+`"repeat_sim"` scored termini as well. Acted on in §23.
 
 ---
 
 ## 20. `tale_parts_to_rvd()` -- candidate for a rename and a refactor/rewrite **[P]**
 
-Maintainer's instruction, 2026-09-21, while reviewing `conversion.R` for
-§17: this function needs a closer look, as a candidate for both a rename
-and a refactor/rewrite. Recorded here as a flag for future work, not
-acted on beyond what §17 already did.
-
-**What §17 already found and fixed on this same function**, for context:
-its `sep` parameter silently did nothing to the returned value (the RVD
-join was hardcoded to \code{"-"}; `sep` only fed a `posString` variable
-that was computed and then discarded) -- fixed, with the maintainer's
-sign-off, to actually use `sep`. Its roxygen block also carried a
-paragraph copy-pasted from a different function's docs and a `@return`
-tag describing the wrong return type (a data frame, when the function
-has only ever returned a \code{BStringSet}) -- both corrected. Full
-account in §17's `conversion.R` entry.
-
-**Not yet examined, and exactly the kind of thing a closer look would
-need to weigh:** the name itself carries the legacy "tale_parts" term
-this ledger uses elsewhere for a plain, informally-shaped data frame
-(distinct from a validated \code{tales} object), while the function
-lives in `conversion.R` alongside `repeat_to_rvd_map_distalr()` and
-`repeat_to_rvd_map()`, both named around "map" rather than "to_rvd" for
-a similar RVD-string-building operation. Whether that is worth
-unifying, and what the refactor/rewrite itself should change beyond the
-`sep` fix already made, is not decided here.
-
-Not started, and explicitly not to be started without going back to the
-maintainer first.
+Maintainer's flag (2026-09-21). The name carries the legacy "tale_parts"
+term, and the function builds RVD strings next to two siblings named
+around "map". §17 fixed its `sep` argument and its docs. Reserved for the
+maintainer.
 
 ---
 
 ## 21. `plot.tales_msa()` -- consensus computation moved off the matrix round-trip; internal "repeat_*" naming corrected to "domain_*" -- DONE, partial **[V]**
 
-Maintainer's request, 2026-09-21, following on from the §19 audit of
-`plot.tales_msa()`: audited what a full long-native refactor of that
-function would entail (`x`, a `tales_msa`, is already long/tidy; the
-function round-trips it through an array-by-position matrix and back at
-least nine times before handing a long tibble to `ggplot()`, which wants
-long data anyway). Full audit not repeated here -- the finding was that
-only two computations in the whole function are genuinely matrix-shaped
-(the two `hclust()` calls, both already fed from the long `domain_sim`/
-`tal_sim` tables directly, never from the array-by-position matrix); every
-other matrix round trip is a per-position value lookup, which a join does
-more directly.
+Audit: `plot.tales_msa()` round-trips its long `tales_msa` through an
+array-by-position matrix about nine times; only the two `hclust()` calls
+are genuinely matrix-shaped (and they read the distance tables directly).
 
-**Maintainer's decisions, this session:**
+Done: `.tales_consensus_long()`/`.tales_consensus_match_long()`
+(`R/tales_consensus.R`, `@noRd`, documented to public standard) take the
+`tales_msa` itself and count implicit gaps as `n_arrays - rows at the
+position`; numerically identical to the matrix versions; guarded by
+`.assert_tales_msa_layer()`. Internal names changed from "repeat" to
+"domain" (`.domain_to_sim_align()`, `.domain_to_cluster_align()`, ...);
+a dead consensus computation removed.
 
-1. **Design fork from the audit -- picked (b):** write long-native,
-   `tales_msa`-native siblings of `tales_consensus()`/`tales_consensus_match()`
-   as private (`@noRd`) functions for now, documented to public-quality
-   standard, since they are candidates to become public drop-in
-   replacements later. Not (a) (bespoke logic inside `plot.tales_msa()`
-   itself, no reusable functions) or (c) (redesign the public
-   `tales_consensus()`/`tales_consensus_match()` API itself, a breaking
-   change with its own blast radius, not decided here).
-2. **Internal identifiers: "repeat" discounted as accurate, "domain" used
-   throughout** -- the same correction §19 already proved for the public
-   `fill_type` values and `repeat_sims` parameter name applies just as much
-   to every internal-only variable and helper-function name in this file,
-   which claimed the same false repeat-specificity. Purely mechanical, no
-   behaviour change: does **not** touch the still-parked public surface
-   (`fill_type`'s own values, the `domain_sim`/`tal_sim` parameter names,
-   `h_cut`) -- that rename is still §19's call, not made here.
-3. **`.rvd_to_match_align()`'s stale docs -- fixed immediately, on its own,**
-   ahead of everything else below: its own roxygen said "Currently
-   unwired: no `fill_type` in either plotting function requests an
-   RVD-level layer" -- false, found while doing the original audit, not
-   assumed. `fill_type = "rvd_sim"` calls it on every plot with a `label`
-   layer, unconditionally. Corrected.
+**Reserved for the maintainer, do not start unasked** (the tests in
+`test_plot_tales_msa.R` and `test_error_conditions.R` pin the current
+matrix shapes, and the maintainer wants to rewrite them personally):
+1. `.domain_to_cluster_align()`/`.domain_to_sim_align()` as joins against
+   the distance table;
+2. `.rvd_to_match_align()`, the same;
+3. `.pick_ref_name()` as a grouped summary;
+4. then `.consensus_panel()` on `.tales_consensus_long()`, after which
+   `as.matrix()` leaves `plot.tales_msa()` entirely. The two
+   `.pairwise_long_to_matrix()` calls in `tales_plot.R` could become
+   `as.matrix()` in the same pass (the two in `distalr.R` need its numeric
+   ordering and stay).
 
-**A real design flaw in the first draft of the two new functions, caught
-by the maintainer before anything was wired in, not self-found:** the
-first version took a generic long table (`align`, `position_col`,
-`value_col`) rather than a `tales_msa` object directly, which pushed the
-job of building a "complete" array-by-position grid (one row per
-position, an explicit `NA` row for a gap) onto the caller. A real
-`tales_msa`'s own gap semantics are the *absence* of a row, never an
-explicit `NA` one -- so a future caller handing a real, native `tales_msa`
-to a public version of this function would have silently gotten a wrong
-answer whenever a gap was the majority at a position (the gap's votes
-would never be counted, since there is no row for them to occupy).
-Redesigned to take `x` (a `tales_msa`) directly and do the sparse-to-
-complete accounting internally (array count from `unique(x$array_id)`,
-gap count per position as `n_arrays - (real rows at that position)`),
-which is exactly the calculation the matrix version gets for free from
-every cell always existing. This is safe by construction rather than by
-caller discipline -- get the arithmetic right once here, not in every
-caller.
-
-**Done:**
-
-- `R/tales_consensus.R`: two new private functions,
-  `.tales_consensus_long(x, value_col)` and
-  `.tales_consensus_match_long(x, value_col, consensus = NULL)`, `@noRd`
-  but documented to the same standard as `tales_consensus()`/
-  `tales_consensus_match()` above them in the same file (full `@details`
-  explaining the gap arithmetic, `@seealso` cross-links both ways).
-  Verified **numerically identical** to the matrix-based originals, not
-  just "runs without error": a real fixture (`sampleTalesMsa.rds`, both
-  `dom_code` and `rvd` layers) and a hand-built case with a genuine
-  gap-majority position (3 arrays, one real value against two gaps) both
-  give `identical()` results between old and new, values and NAs alike,
-  down to stripping a spurious `names()` attribute `ifelse()` introduced
-  that had no effect on the values but would have broken `identical()`
-  spuriously.
-- `R/tales_plot.R`: `plot.tales_msa()`'s two `tales_consensus_match()`
-  calls (previously re-deriving a long table from `domain_align`/
-  `rvd_align` via their own internal matrix round trip) replaced with
-  calls to `.tales_consensus_match_long(x, ...)` directly on the function's
-  own `x` argument -- these two computations no longer touch the
-  array-by-position matrix at all. `.consensus_panel()` (the top consensus
-  panel) deliberately left alone, still matrix-based: `domain_align`/
-  `rvd_align` still exist regardless, needed by the domain-cluster/
-  similarity helpers below, which are unchanged this round -- converting
-  this one remaining call site would not remove anything, just move where
-  the (still-necessary) matrix gets used.
-- A genuinely dead block removed while in this code: `consensusRVD <-
-  tales_consensus(rvd_align)` and the `rvdConsensusSeqLong` tibble built
-  from it were computed and never read again anywhere in the function --
-  confirmed by a full-file grep before removing, not assumed.
-- Full internal rename, `tales_plot.R` only: `repeat_align` ->
-  `domain_align`, `repeatAlignLong` -> `domainAlignLong`,
-  `repeatClusterAlignLong`/`repeatClusterId` -> `domainClusterAlignLong`/
-  `domainClusterId`, `repeatSimAlignLong`/`repeatSimVsRef` ->
-  `domainSimAlignLong`/`domainSimVsRef`, `matchConsensusRepeat` ->
-  `matchConsensusDomain`, `.repeat_to_sim_align()`/`.repeat_to_cluster_align()`
-  -> `.domain_to_sim_align()`/`.domain_to_cluster_align()` (and their own
-  parameters), the `repeat_sim <- domain_sim` local alias removed entirely
-  (the exact relic §19 already flagged: "the old name survives one level
-  down even where the parameter itself was already renamed") in favour of
-  using `domain_sim` directly throughout. `R/globals.R`'s
-  `utils::globalVariables()` declarations updated to match
-  (`matchConsensusDomain`, `domainClusterId`, `domainSimVsRef`) --
-  `repeatID` in the same list is a real, unrelated column from
-  `conversion.R`'s `repeat_to_rvd_map()`, confirmed and left alone.
-  Cosmetic only, deliberately not extended to the still-parked public
-  surface (see point 2 above) or to the internal `dist_cut` data frame's
-  own column names inside `.domain_to_cluster_align()` (renamed `RepID`/
-  `Rep_clust` -> `DomID`/`Dom_clust` while already in there, since it cost
-  nothing).
-
-**Verified, not assumed, given the size of this change:**
-- `test_plot_tales_msa.R` 52/52, `test_plot_tales_composition.R` 16/16,
-  `test_summary.R` 26/26, `test_print.R` 34/34, cli-conditions and
-  `pkgdown::check_pkgdown()` both clean on the two touched files.
-- Golden baseline: the one snapshot covering `plot.tales_msa()`'s
-  underlying plot data changed, exactly as expected (three renamed
-  columns) -- but rather than trust the diff summary alone, checked out
-  the pre-refactor commit into a throwaway `git worktree`, computed the
-  same plot's data there, and ran `waldo::compare()` against the
-  refactored version's output after renaming the three columns back:
-  **zero differences**, confirming the renames carry no value change
-  alongside them. Snapshot accepted only after that direct check, not
-  on the strength of "the diff only shows column names."
-
-**Not done, deliberately, and explicitly separate questions:**
-- The domain-cluster/similarity helpers (`.domain_to_sim_align()`,
-  `.domain_to_cluster_align()`, `.rvd_to_match_align()`) and
-  `.pick_ref_name()` still take and return matrices -- the rest of the
-  audited round trips. A future session's work, not started.
-- The `position_in_array` column `domainAlignLong`/`rvdAlignLong` carry is
-  actually alignment position (inherited from the matrix's own column
-  labels, `as.character(seq_len(width))`), not each array's own
-  `position_in_array` -- a pre-existing naming inaccuracy, noticed while
-  wiring the new functions in (which correctly use `alignment_position`,
-  the tales_msa's real column, internally) but not fixed here: renaming it
-  touches the `aes()`/`scale_x_discrete()` calls throughout the rest of
-  the function, a distinct, wider-reaching change from today's.
-- Whether `tales_consensus()`/`tales_consensus_match()` themselves should
-  eventually move to this shape (design fork option (c)) is still open --
-  the two new functions exist and are verified, ready for that decision
-  whenever it is made, not before.
-
-**A real gap in the two new functions, caught by the maintainer right
-after the above, not self-found: no check on `x`'s type at all.**
-`as.matrix.tales_msa()` gets that check for free -- it is an S3 method, so
-R's own dispatch already guarantees `x` carries the `tales_msa` class tag
-before the method body runs. `.tales_consensus_long()`/
-`.tales_consensus_match_long()` are plain functions, not methods -- nothing
-stops a malformed `x` from reaching them, today only because
-`plot.tales_msa()`'s own dispatch happens to protect the one real call
-site, but not if either is ever exported as planned. Fixed: a shared
-`.assert_tales_msa_layer(x, value_col)` guard, called at the top of both,
-checking `is_tales_msa(x)` and that `value_col` names a real column --
-mirroring `as.matrix.tales_msa()`'s own layer check and reusing its error
-class (`tantale_error_msa_layer`) and the established `tantale_error_tales_type`
-class already used for the equivalent `tales`-level check elsewhere
-(`.tales_assert_dom_code()` et al. in `tales_projections.R`), not new
-vocabulary. Deliberately the same light check `as.matrix.tales_msa()`
-itself makes, not the full `validate_tales_msa()` -- consistent with the
-rest of this class family's own trust-after-construction convention, not
-a stricter new standard invented here. Verified: both guards actually
-trigger on malformed input (a plain data frame; a real `tales_msa` with an
-unknown `value_col`) and pass through valid input unchanged; full
-`test_plot_tales_msa.R` (52/52) and `test_golden.R` (44/44) re-run clean,
-cli-conditions and `pkgdown::check_pkgdown()` clean.
-
-**Session pause here, 2026-09-21 evening -- intermediate status, not a
-close.** Of the nine matrix round trips the original audit counted, two
-are gone (the consensus/match computation, above). What is left, in the
-order it would naturally get picked up:
-
-**Items 1-4 below are reassigned to the maintainer -- explicitly not to
-be started by an assistant/agent in a future session without being
-asked, even though they read as the natural continuation of this
-section.** Reason on record, 2026-09-21: `.pick_ref_name()` and
-`.rvd_to_match_align()` are exercised directly by two tests
-(`test_plot_tales_msa.R`'s "the reference row scores 1 against itself"/
-"opposite specificities score strongly negative", and
-`test_error_conditions.R`'s ".rvd_to_match_align() runs against the
-internal rvdSimDf") that pin down the *current* matrix-in/matrix-out
-contract of these helpers (`sc[ref, ]`, `is.matrix(out)`, `dim(out)`).
-Converting these functions to the long-tibble, `x`-native shape §21's
-own next-steps list calls for is therefore not a same-file refactor --
-it also rewrites those tests' assertions, and the maintainer wants to
-do that part personally rather than have it done for them.
-
-1. **`.domain_to_cluster_align()` and `.domain_to_sim_align()`**
-   (`R/tales_plot.R`) still take `domain_align` (a matrix) plus
-   `domain_sim` (already long) and substitute values column by column via
-   `apply()`, immediately melted back to long by their caller. `domain_sim`
-   is exactly the shape a join wants already -- these two want the same
-   treatment `.tales_consensus_match_long()` just got: rewrite as a join
-   against `domain_sim` keyed on residue value, no matrix.
-2. **`.rvd_to_match_align()`** -- the RVD-level sibling of the above
-   (scores `rvdSimVsRef` against `rvdSimDf` instead of `domain_sim`), same
-   treatment.
-3. **`.pick_ref_name()`** -- currently `rownames(align)`/row-wise `apply()`
-   to find the reference array (matched pattern, or longest non-gap run).
-   A `group_by(array_id)` summary over `x` directly does the same thing
-   without a matrix.
-4. **Contingent on 1-3:** once nothing else in the function needs
-   `domain_align`/`rvd_align`, the only remaining consumer is
-   `.consensus_panel()`'s own internal `tales_consensus(align)` call
-   (deliberately left matrix-based this round, see above, precisely
-   because 1-3 hadn't been done yet and the matrix existed regardless).
-   `.tales_consensus_long()` already exists and is verified -- converting
-   that one last call site becomes cheap once 1-3 are done, and at that
-   point `domain_align`/`rvd_align`/`as.matrix(x, ...)` disappear from
-   `plot.tales_msa()` entirely, closing the audit's finding that the
-   matrix shape earns its keep nowhere in this function except the two
-   `hclust()` calls (which were never fed from `domain_align`/`rvd_align`
-   in the first place -- they already take `domain_sim`/`tal_sim`
-   directly).
-
-**Separate findings, on record, explicitly not part of the above
-sequence:**
-
-- ~~`domainAlignLong`/`rvdAlignLong`'s `position_in_array` column is
-  actually alignment position, mislabelled~~ -- **fixed, see §22.**
-- **§19** (the public `fill_type` values, `domain_sim`/`tal_sim`
-  parameter names) -- still parked, still needs the maintainer's explicit
-  go-ahead before anything in the public surface changes, separate from
-  all the internal-only work above.
-- **Design fork option (c)** -- whether `tales_consensus()`/
-  `tales_consensus_match()` themselves should eventually be redesigned to
-  take a `tales_msa` natively as public API, collapsing the matrix-based
-  originals into the new private ones -- still open, not decided.
-  **`dev/class-design.md` §4.6 already called for exactly this** back on
-  2026-09-13, marked `[A]` (agreed, not executed) and never revisited
-  since -- this is not a new idea, it is a known-but-stale item this
-  session rediscovered independently before finding the older record.
-- **Maintainer's question, 2026-09-22: is `.pairwise_long_to_matrix()`
-  (`R/distalr.R`) redundant with `as.matrix.pairwise_distances()`
-  (`R/pairwise_distances_class.R`)?** Checked all four call sites, not
-  assumed either way. **Not simply redundant -- two genuinely need it,
-  two are the same unresolved question as this section's own items 1-4
-  above, not a new one.**
-  - `R/distalr.R`'s `.arlem_cost_file()` and `.run_arlem()`'s own melt
-    step both operate on data that either isn't a validated
-    `pairwise_distances` object yet (`.arlem_cost_file()` explicitly
-    strips the class first, via `tibble::as_tibble(dd)`) or is raw ARLEM
-    output that never was one (`scores`, before any class wraps it), and
-    both need **numeric-order** row/column handling afterward (`domain
-    codes are integers rendered as text -- alphabetical sort, which is
-    what both `as.matrix.pairwise_distances()`'s `sort(union(...))` and
-    `.pairwise_long_to_matrix()`'s own internal ordering give, puts "10"
-    before "2"`) -- `.arlem_cost_file()` compensates with its own
-    `order(as.numeric(rownames(mat)))` afterward, something
-    `as.matrix.pairwise_distances()` has no hook for. Genuinely justified,
-    not redundant.
-  - **`R/tales_plot.R`'s two call sites (`.domain_to_cluster_align()` line
-    687, the hclust dendrogram builder line 378) are less clearly
-    justified** -- neither needs `.pairwise_long_to_matrix()`'s specific
-    behaviour: the dendrogram one re-subsets and reorders its matrix by
-    explicit array name immediately afterward regardless of the input's
-    own row order, and the cluster one feeds straight into
-    `hclust(as.dist(...))`, which doesn't care about row/column order at
-    all as long as it's square and consistent. Both operate on what looks
-    like an already-valid `domain_distances`/`tale_distances` object at
-    that point in the call chain (not independently confirmed with
-    certainty here) -- if so, `as.matrix()` could replace
-    `.pairwise_long_to_matrix()` at both sites, gaining its squareness
-    check as a free correctness net rather than losing anything. **This is
-    the exact same ground as §21's own reserved items 1-4 above**
-    (`.domain_to_cluster_align()` is literally item 1) -- not a new
-    finding to act on separately, folded in here rather than opened as its
-    own question. Still the maintainer's own to do, not to be started
-    without being asked.
+**Open:** option (c), a public `tales_consensus()`/
+`tales_consensus_match()` taking a `tales_msa` natively
+(`dev/class-design.md` §4.6).
 
 ## 22. `plot.tales_msa()`'s `position_in_array` mislabel -- fixed **[V]**
 
-Maintainer's request, 2026-09-21, following on from §21: fix the
-mislabelled column §21 found but deliberately left alone ("a distinct,
-wider-reaching change from today's").
-
-**What it was:** `domainAlignLong`/`rvdAlignLong` (the long tables
-`plot.tales_msa()` melts `domain_align`/`rvd_align` into) named their
-per-position column `position_in_array`. That name was always wrong for
-what it held: `as.matrix.tales_msa()` indexes its columns by
-`x$alignment_position` (`idx <- cbind(match(x$array_id, arrays),
-x$alignment_position)`, `tales_msa_class.R:221`), not by each array's own
-`position_in_array` -- the two coordinates agree only for an array with no
-gaps. `dev/class-design.md` §4.6 had flagged the same shape of bug once
-before, under the old camelCase-era name (`positionInArray`, ledger §6);
-not confirmed to be the literal same instance, but the same class of
-mistake recurring on its own is worth having on record.
-
-**Fix, `R/tales_plot.R` only:** every occurrence of `position_in_array`
-between the "Getting domain align" block and the base-plot `ggplot()`
-call (the `domainAlignLong`/`rvdAlignLong`/`domainClusterAlignLong`/
-`domainSimAlignLong`/`rvdSimAlignLong` column, every `join_by()` keyed on
-it, the `aes(x = ...)` mapping and the `scale_x_discrete()` `limits`)
-renamed to `alignment_position`. Purely a label -- no join logic, no
-values, changed. Two call sites this incidentally simplified: the
-`.tales_consensus_match_long()`-derived `domainMatchConsensusLong`/
-`rvdMatchConsensusLong` tables already correctly said `alignment_position`
-internally and were being renamed *to* `position_in_array` right before
-the join back into `domainAlignLong`/`rvdAlignLong`, purely so the names
-would line up; that now-pointless rename-to-the-wrong-name step is gone,
-the join uses `alignment_position` on both sides throughout.
-
-**Deliberately not touched, a separate call:**
-- The visible x-axis title, `scale_x_discrete(name = "Position in
-  array", ...)` -- still says "Position in array", not "Position in
-  alignment", even though the axis is genuinely alignment position and the
-  sibling method `plot.tales()` already uses the phrase "Position in
-  alignment" for exactly this coordinate (`position = "alignment"`, this
-  file's `plot.tales()` above). Left alone because it is user-visible plot
-  output, not an internal rename -- a different kind of decision from
-  everything else in this section, held for the maintainer explicitly.
-- `.pick_ref_name()`, `.domain_to_sim_align()`, `.domain_to_cluster_align()`,
-  `.rvd_to_match_align()` and `.consensus_panel()` are all still
-  matrix-based and untouched -- §21's items 1-4, reassigned to the
-  maintainer (see §21's closing note, 2026-09-21 addendum). None of them
-  reference `position_in_array`/`alignment_position` by name (they operate
-  on bare matrices, which carry no column-name concept at all), so this
-  rename has no bearing on that work either way.
-
-**Verified, not assumed:**
-- `test_plot_tales_msa.R` 52/52, `test_plot_tales_composition.R` 16/16,
-  `test_summary.R` 26/26, `test_print.R` 34/34 -- none of them assert on
-  this column by name, and none broke.
-- Golden baseline: exactly one row changed, a column-name diff
-  (`position_in_array` -> `alignment_position`) at the same position in
-  the same column order, everything else on that row and every other row
-  identical -- accepted via the `golden-rebaseline` skill after confirming
-  it was the sole diff.
+The per-position column of the plot's long tables held the alignment
+position; renamed `alignment_position`. **Held for the maintainer:** the
+visible axis title still reads "Position in array"
+(`R/tales_plot.R:406`), where `plot.tales()` says "Position in
+alignment" for the same coordinate.
 
 ## 23. `repeat_sims`/`tal_sim`/`domain_sim`/`fill_type` renamed -- §19 acted on **[V]**
 
-Maintainer's go-ahead, 2026-09-21, to act on §19's observation, which had
-been explicitly parked pending exactly this. Two design questions §19
-itself flagged as open -- keep `_sim` as the shorthand word, or retire it
-for the package's actual class names (`domain_distances`/`tale_distances`);
-and how `fill_type`'s `"repeat_sim"` value should read once renamed, given
-it would otherwise duplicate the `domain_sim` argument name in the same
-call -- were put to the maintainer directly rather than guessed. Decided:
-retire `_sim` in favour of the class names; keep `fill_type = "domain_sim"`
-as the value (a mode selector reads fine sharing a word with the argument
-it draws on, and the collision this specific choice raised is moot anyway
-once the argument itself is renamed to `domain_distances`).
+| old | new |
+|---|---|
+| `tales_align(repeat_sims =)` | `domain_distances =` |
+| `plot.tales_msa(tal_sim =, domain_sim =)` | `tale_distances =`, `domain_distances =` |
+| `fill_type = "repeat_clust"` (default), `"repeat_sim"` | `"domain_clust"`, `"domain_sim"` |
+| `tales_group_*(tal_sim =)` | `tale_distances =` |
 
-**Renamed, mechanically, everywhere each name is live (not vignettes --
-see below):**
-
-| old | new | where |
-|---|---|---|
-| `tales_align()`'s `repeat_sims` | `domain_distances` | `R/tales_msa_class.R` |
-| `.build_repeat_msa()`'s `repeat_sims` | `domain_distances` | `R/tales_msa_class.R` |
-| internal `repeatSims` | `domainDistances` | `R/tales_msa_class.R` |
-| `.format_repeat_dist_mat()` | `.format_domain_distances_mat()` | `R/conversion.R`, called from `R/tales_msa_class.R` |
-| `plot.tales_msa()`'s `tal_sim` | `tale_distances` | `R/tales_plot.R` |
-| `plot.tales_msa()`'s `domain_sim` | `domain_distances` | `R/tales_plot.R` |
-| `fill_type = "repeat_clust"` (default) | `"domain_clust"` | `R/tales_plot.R` |
-| `fill_type = "repeat_sim"` | `"domain_sim"` | `R/tales_plot.R` |
-| `tales_group_hclust()`/`tales_group_kmedoids()`'s `tal_sim` | `tale_distances` | `R/classification.R` |
-
-Every `@param`/`@details` prose paragraph documenting these was rewritten
-to match, not just the token swapped -- `plot.tales_msa()`'s `fill_type`
-table and its surrounding paragraph in particular, since §19's own
-addendum had already found that prose asserting `"repeat_clust"`/
-`"repeat_sim"` were repeat-specific was factually wrong (§7.8): the
-`@details` now says plainly that every fill mode scores across the whole
-alignment, termini included. `tales_align()`'s `@param domain_distances`
-also now documents the file-path input (a `*_Repeatmatrix.mat` written by
-Distal) that the old doc omitted. `dev/CLAUDE.md`'s own body text does not
-use this vocabulary and needed no changes.
-
-**Two same-name shadow risks, checked, not assumed harmless:**
-- `plot.tales_msa()`'s call sites into the still-reserved
-  `.domain_to_sim_align()`/`.domain_to_cluster_align()` (§21 items 1-4,
-  untouched) pass the renamed outer `domain_distances` variable into
-  those functions' own unchanged `domain_sim` parameter --
-  `domain_sim = domain_distances` in the call, callee signature untouched.
-  Confirmed the callee still says `domain_sim` before wiring this, not
-  after.
-- `.tales_group_distmat()` (`R/classification.R`) would have shadowed the
-  exported `tale_distances()` class constructor with its own
-  same-named parameter (`tale_distances(tale_distances)` inside the
-  function body) -- R resolves this correctly (confirmed directly:
-  `mean <- 5; mean(mean)` still calls the function, since a call-position
-  lookup skips non-function bindings), but it reads as a mistake, so this
-  one internal-only helper's own parameter was named `dists` instead. The
-  two public callers (`tales_group_hclust()`/`tales_group_kmedoids()`)
-  still expose `tale_distances` and pass it in positionally, unaffected.
-
-**`vignettes/articles/tale_msa.qmd`/`tales_msa_class.qmd` -- fixed the
-same session, on the maintainer's explicit follow-up request (not left for
-later as first planned).** Both called the pre-rename names in live,
-executable code chunks (`repeat_sims` x5 and `tal_sim` x3 in the former;
-`tal_sim` and the `fill_type` table in the latter) and would have errored
-on render. Renamed to match (`domain_distances`/`tale_distances`,
-`fill_type = "domain_sim"`), including the surrounding prose that
-repeated §7.8's already-corrected "repeat-specific" claim (`tales_msa_class.qmd`'s
-`"HD`/`ND` are different repeats..." paragraph reworded to "domains",
-matching the R-level `@details` wording exactly) -- not just the tokens,
-same discipline as the R-level docs got in §23 proper. The package was
-reinstalled first (`devtools::install(quick = TRUE, upgrade = FALSE)`),
-per this file's own standing rule that a quarto subprocess reads the
-*install*, not a `load_all()` session -- confirmed live in a fresh
-`Rscript` session before rendering anything. `docs/` rebuilt in full via
-the established decomposed sequence (`init_site()` -> `build_home()` ->
-`build_reference()` -> the `build_article()` loop, `tale_classification`
-first -> `build_articles_index()`), never `build_site()`/`build_articles()`
-directly (§15's ordering bug). Zero errors across all seven articles;
-`pkgdown::check_pkgdown()` clean; both fixed articles' rendered HTML
-spot-checked for the new argument names and no error blocks. Picked up
-two long-missing reference pages as a side effect of a real
-`build_reference()` run (`[.tales`, `[.pairwise_distances` -- the same
-gap §15's own full-rebuild record already flagged for other functions,
-apparently never fully closed).
-
-**Deliberately not touched:**
-- `.domain_to_sim_align()`, `.domain_to_cluster_align()`,
-  `.rvd_to_match_align()`, `.pick_ref_name()` -- still §21 items 1-4,
-  reassigned to the maintainer. Their own `domain_sim`/`ref_tag`
-  parameter names are untouched; only the outer variables plot.tales_msa()
-  passes into them changed.
-- `.build_repeat_msa()`'s own name still says "repeat" -- a generic
-  description of what it aligns (RVD or domain codes alike), not the
-  domain/repeat conflation §19 was about, so out of scope.
-- `NEWS.md` -- not maintained this round, per the standing instruction for
-  this phase (see `dev/CLAUDE.md`).
-
-**Version bumped:** `0.9.9003` -> `0.9.9004` (DESCRIPTION) -- a real,
-breaking public-API signature change across four exported functions.
-
-**Verified, not assumed:**
-- `devtools::document()` regenerated `man/tales_align.Rd`,
-  `man/plot.tales_msa.Rd`, `man/tales_group_hclust.Rd`,
-  `man/tales_group_kmedoids.Rd`, `man/dot-rvd_to_match_align.Rd` -- diffed
-  by hand, every change is the intended rename, nothing else moved.
-  `pkgdown::check_pkgdown()` clean.
-- Full suite, not just the touched files, given the blast radius:
-  `FAIL 0 | WARN 35 | SKIP 0 | PASS 756`. The golden baseline's own
-  `fill_type`/`domain_sim` call site (`test_golden.R`) is part of that
-  756 and needed no re-baseline -- its snapshot is keyed on the plot
-  data's values and column names, neither of which this rename touches
-  (only the caller's argument names and the `fill_type` string changed,
-  both already correct by the time `ggplot()` sees the data).
-- The two fixed vignette articles: rendered individually via
-  `pkgdown::build_article()` before the full rebuild, both zero errors;
-  full `docs/` rebuild afterward likewise zero errors,
-  `pkgdown::check_pkgdown()` clean a second time post-rebuild.
+Docs now say every fill mode scores the whole alignment, termini
+included. `.tales_group_distmat()`'s parameter is `dists`, to avoid
+shadowing the `tale_distances()` constructor. Version 0.9.9004.
 
 ---
 
 ## 24. Maintainer triage of the open-items list -- decisions recorded, 2026-09-21 **[V]**
 
-A ledger-audit pass the same day (2026-09-21) produced a report of every
-section still standing or not entirely addressed across the whole file
-(§0-§23). This section records the maintainer's actual decisions on that
-report, so they live in the ledger and not only in chat history.
-
-**Priorities set, highest first:**
-
-1. **§6** -- top priority. See the new finding below. Done, same session.
-2. **§16** -- repo-bloat/history-preservation tension. Kept high; not started
-   *as of this session* -- executed the very next day, see §26. Confirmed
-   DONE by the maintainer, 2026-09-22.
-3. **§7.2** -- DONE, next session. See its own entry below.
-4. **§2** -- `repeat_to_rvd_map()`'s never-executed retirement. Real, but
-   lower priority; not started.
-
-**§5.2** (talome-wide MSA plot, shape A vs B) -- confirmed as correctly
-parked; no change.
-
-**§6 -- a new, real finding, checked against the code before acting.** The
-maintainer flagged that §21's private `.tales_consensus_match_long()`
-(`R/tales_consensus.R`) might be redundant with the public
-`tales_consensus_match(align, long = TRUE)` in the same file, and asked for
-it to be checked and, if so, elegantly decommissioned.
-
-**Checked directly against both function bodies, not assumed either way --
-they are not simple duplicates, and decommissioning `.tales_consensus_match_long()`
-outright would be a regression, not a cleanup:**
-
-- `tales_consensus_match(align, long = TRUE)` takes a **matrix**. Its
-  `long = TRUE` branch melts that matrix via `.matrix_to_long()`, producing a
-  tibble with columns `array_id`, **`position_in_array`** (the still-open
-  mislabel this bullet was originally about -- it really holds alignment
-  position) and `tales_consensus_match`.
-- `.tales_consensus_match_long(x, value_col, consensus = NULL)` takes a
-  **`tales_msa` object directly**, builds the complete array-by-position
-  grid itself (correctly recovering implicit gaps, which a `tales_msa` never
-  stores as rows), and returns `array_id`, **`alignment_position`** (the
-  right name) and `match`.
-
-To get the private function's result out of the public one, a caller would
-still have to build a matrix first (`as.matrix.tales_msa()`) and then rename
-two columns afterward -- exactly the round-trip §21 was written to eliminate
-from `plot.tales_msa()`'s two hot call sites. So the *values* the two
-compute are equivalent once you correct for the matrix step and the column
-names, but the *implementations* are not redundant in the sense of wasted
-duplicate work -- `.tales_consensus_match_long()` exists specifically because
-the public function's calling convention (matrix in) is the wrong shape for
-a caller that already holds a `tales_msa`.
-
-**The real question this surfaces is §21's own already-recorded "design fork
-option (c)"**: should `tales_consensus_match()` itself be redesigned to take
-a `tales_msa` natively, which would let `.tales_consensus_match_long()`
-become its actual implementation for that input type, rather than a
-separate, unexported sibling? Put to the maintainer with four concrete
-options (dual-input, label-only fix, `tales_msa`-only, or leave both as-is).
-
-**Decided: label-only fix, option chosen deliberately over the fuller
-redesign.** The matrix-only interface and `.tales_consensus_match_long()`'s
-existence as a separate implementation both stay exactly as they are --
-this was a scoped, minimal fix to the one known bug, not an attempt to
-also resolve the redundancy question. **Done and verified:**
-`R/tales_consensus.R:92`'s hardcoded `colnames()` renamed
-`position_in_array` -> `alignment_position`. No other code reads that
-column by name (`tales_summary.R`'s only internal caller uses
-`long = FALSE`); `devtools::document()` produced no Rd diff (no `@return`
-named the old column); `test_plot_tales_msa.R` (52/52) and `test_golden.R`
-both pass unchanged. §21's design-fork option (c) itself remains open,
-separately, if the redundancy is ever worth revisiting.
-
-**§7.6 -- source fixed, `docs/` not yet rebuilt.** `pkgdown/index.md`'s opening paragraph now names DisTAL and
-functal, phrased with README's own established vocabulary ("wraps" for
-AnnoTALE/Talvez/PrediTALE, "reimplements... in R" for DisTAL and functal,
-same links) rather than the finer three-way "wraps"/"reimplements"/
-"supersedes" split first proposed -- README itself does not make that finer
-distinction, so the index page now matches its precedent instead of
-inventing a new one.
-
-**§8.7 -- confirmed DONE, resolved in favour of the first option.** Checked
-directly against `R/tales_consensus.R`: both `tales_consensus()` and
-`.tales_consensus_long()` now return `NA` for a tie (`if (sum(freq ==
-max(freq)) > 1L) return(NA_character_)`), so a position with no strict
-majority reports no consensus rather than an arbitrary pick. §8.7 itself
-updated to record this rather than leave it listed as three open options.
-
-**§9.3, §8.6b (its one real remaining row), and §12b's remaining
-follow-ups -- dropped from active tracking, maintainer's call.** Not
-permanently closed, not deleted -- each section says so in place -- just not
-on the active list unless raised again.
-
-**§15 -- resolved in place, not duplicated here.** The ledger previously left
-the mode:auto-vs-release question open in two consecutive paragraphs that
-contradicted each other (one saying "remains the maintainer's to make," the
-next saying it had already been decided). Rewritten into one clear
-statement: `_pkgdown.yml`'s `development: mode:` is `release`, permanently,
-confirmed against the repo today -- that is the norm now, not a pending call.
-
-**Not yet started, explicitly, as of this session:** §16's repo-bloat
-cleanup. Real, prioritised work, not decided against -- just not executed
-this session pending a dedicated pass. §7.2 was picked up the same day,
-see below. (Superseded the next day: executed 2026-09-22, see §26. §16 is
-DONE, confirmed by the maintainer.)
-
-### §7.2 fixture-path renaming -- DONE **[V]**
-
-Picked up next, per the priority order above. Measured precisely rather
-than trusting the ledger's old "60 over-long tar entries" figure: **65**
-paths currently exceed the 100-byte ustar limit once prefixed with the
-package name (`tantale/...`), all traced to four fixture directories under
-`tests/testthat/data_for_tests/` whose deeply-nested AnnoTALE-output paths
-(`annotale/ROI_0000N/TALE_Protein_parts.fasta` etc.) push the total length
-over the limit. The per-file names inside (`TALE_Protein_parts.fasta`,
-`protocol_analyze.txt`, ...) are AnnoTALE's own output convention,
-correctly left alone per §9.2c's precedent -- the only lever is the
-top-level fixture directory name.
-
-**Renamed, via `git mv` (`git status`'s rename-detection cross-paired the
-displayed old->new mapping across the three simultaneous moves, since the
-AnnoTALE fixture content is structurally near-identical across them --
-verified the actual physical result was correct by checking each target's
-ROI count against its known original: 4, 3 and 4 respectively, matching
-exactly, and by running the tests, whose warning messages named the
-correct fixture in each case):**
-
-| old | new |
-|---|---|
-| `tellTaleErrorMissingAnnotaleDnaDomain` | `err_missing_dna` |
-| `tellTaleErrorOutputInconsistentArrayNumber` | `err_array_count` |
-| `tellTaleErrorOutputMissingN-term` | `err_missing_nterm` |
-| `tellTaleExampleOutput` (tests/ copy only) | `example_output` |
-
-**The fourth one needed checking before renaming, not assumed safe.**
-`tellTaleExampleOutput` exists as *two separate, independently-maintained
-copies* (§9.2c already recorded this) -- one under
-`tests/testthat/data_for_tests/` (referenced only via `test_path()`, in 9
-test files), one shipped under `inst/extdata/` (referenced via
-`system.file()` in ~19 `@examples` across seven `R/` files, two `.qmd`
-articles, and the man pages generated from those examples). Only the
-`tests/` copy's paths exceed 100 bytes -- `inst/extdata/`'s copy has a
-shorter path prefix and was never over the limit. So only the `tests/`
-copy was renamed; `inst/extdata/tellTaleExampleOutput` is untouched, and
-nothing in `R/`, `man/`, or `vignettes/` needed editing. The two copies no
-longer sharing a name is, if anything, clearer -- they were never the same
-fixture, just coincidentally named alike.
-
-**Fixture content files (`protocol_analyze.txt` etc.) still contain
-embedded absolute paths naming the old `inst/extdata/tellTaleExampleOutput`
-location** -- untouched, since that is a record of a real historical run
-against the (unrenamed) `inst/extdata/` copy, not something this rename
-touches or invalidates.
-
-**Verified:** zero paths now exceed the limit anywhere under
-`tests/testthat/data_for_tests/` or `inst/extdata/` (was 65). All nine
-directly affected test files pass clean
-(`test_tale_parts.R`, `test_tales_class.R`, `test_tales_msa_class.R`,
-`test_tales_projections.R`, `test_tales_compare_distal.R`,
-`test_tales_compare_functal.R`, `test_target_predictions.R`,
-`test_split_list.R`, `test_distalPairwiseAlign.R` -- 0 failures), and the
-warning-message text in `test_tale_parts.R`'s three renamed-fixture tests
-confirms each points at the semantically correct fixture, not just a
-structurally-plausible one. `test_golden.R` passes unchanged (44/44) --
-none of these fixtures feed a golden snapshot. `dev/restructuring-notes.md`'s
-own two stale references to the old names (§7.2, this section) updated.
+Decisions of that triage, all since carried out or recorded in place:
+- `tales_consensus_match(long = TRUE)`'s coordinate column renamed
+  `alignment_position` (label only; the matrix interface stays).
+- §16 prioritised (done in §26); §7.2's fixture paths fixed (see §7.2).
+- §2 kept open at lower priority; §5.2 stays parked; §8.7 confirmed
+  (ties give `NA`); §9.3, §8.6b and §12b's follow-ups dropped from
+  tracking; `mode: release` confirmed as permanent (§15).
 
 ---
 
 ## 25. Proposed article: how correction handles genuine truncTALEs -- DONE, published via §31 **[V]**
 
-Maintainer's proposal, 2026-09-22, for a new, separate pkgdown article (not
-a section folded into an existing one).
+`vignettes/articles/trunctale_correction.qmd`, on PXO86. Biology from Ji
+et al. 2016 (doi 10.1038/ncomms13435, "iTALEs") and Read et al. 2016
+(doi 10.3389/fpls.2016.01516, "truncTALEs"): TALEs lacking the activation
+domain that suppress *Xa1*-mediated resistance; both papers name PXO86.
 
-**The biology.** Asian *Xoo* strains carry truncTALEs -- TALEs with much
-shorter N- and C-termini than a typical TALE. The short C-terminus is not
-an assembly artefact or a sequencing error: it derives from a genuine,
-real frameshift, i.e. the truncation is the organism's actual biology, not
-noise to be corrected away.
+Two genuine truncTALEs (confirmed by the maintainer), two different
+DNA-level events, visible before any correction runs:
 
-**The problem this article would document, transparently.** The
-maintainer's own prior experimentation with `tell_tales(correct_array =
-TRUE)` (the DECIPHER-based correction) found that it artificially extends
-genuine truncTALE ORFs -- it cannot distinguish a real, evolved
-frameshift from an assembly error, so it "fixes" both the same way,
-producing a longer ORF than the real protein actually has. This is
-already known from experience, not something to re-derive.
+| | `ROI_00019` | `ROI_00001` |
+|---|---|---|
+| event | clean in-frame early stop | genuine frameshift |
+| C-terminus nHMMER hit | none | full length, `frameshift_count = 2` |
+| `has_all_domains` | FALSE | TRUE |
+| N-terminus | 230 aa (283-288 elsewhere) | 230 aa |
+| `correct_array = TRUE` | untouched | C-terminus extended by 33 aa |
+| `correct_tales()` | untouched | unchanged |
 
-**The open question the article would actually investigate:** does
-`correct_tales()` (the Java `TALEcorrection.jar` wrapper, now correctly
-invoked since §17's flag-swap fix) have the same over-correction tendency
-on a genuine truncTALE, or does it correctly preserve a real truncTALE's
-ORF instead of extending it? Not yet checked either way.
+The DECIPHER correction extends `ROI_00001` because the span `tell_tales()`
+hands it already contains a C-terminus-shaped template;
+`max_comparisons` (20, 50, all 494) makes no difference. Conclusion stated
+in the article: `correct_tales()` left both sequences alone,
+`correct_array = TRUE` rewrote the frameshift-type one. (The old text of
+this section called the full run "1057 references, the default"; the
+default is the 494-sequence set, §8.1b.)
 
-**Not started.** No fixture identified, no code written, no article
-drafted. Recorded here so the idea and its framing (illustrate the
-DECIPHER over-extension honestly, then test whether the jar-based
-correction shares the same failure mode) aren't lost before a future
-session picks it up.
+**Standing rule from this work:** treat a genome as gold-quality unless it
+is flagged (BAI3-1-1 is): a frameshift in it is biology.
 
-**Plan firmed up, 2026-09-22, maintainer's own sequencing:**
-
-1. First, honestly document that `tell_tales(correct_array = TRUE)` tends
-   to over-correct genuine truncTALEs (extends the ORF as if the
-   frameshift were an assembly error, per "The problem" above).
-2. Then test and report `correct_tales()`'s own behaviour against the same
-   genuine truncTALEs -- does it share the over-correction tendency, or
-   does it correctly leave the real, shorter ORF alone?
-
-**Fixture: `inst/extdata/PXO86.fa`**, an Asian *Xoo* genome already shipped
-(kept in the package specifically because an article promises it ships --
-§9.2d) and already known, from §7.5c, to be "a distantly related Asian
-outgroup whose TALE repertoire barely overlaps the African strains'" --
-i.e. exactly the kind of strain expected to carry genuine truncTALEs, not
-yet confirmed which specific arrays are truncated.
-
-**Kept as a separate article from the rest of the site on purpose, for
-exactly this reason:** PXO86 was deliberately dropped from the
-classification/alignment/target-prediction articles (§7.5c) because mixing
-it with the African-strain genomes turns a clean signal into a mess of
-singletons and paralog clusters. A dedicated truncTALE deep-dive using
-PXO86 alone avoids re-introducing that problem into the rest of the site.
-
-**Autonomy checkpoint, agreed 2026-09-22, before any of this article gets
-written:** discovery on PXO86 (`tell_tales()`), running `tales_anomalies()`
-to find candidate short/truncated arrays, and testing both correction
-methods against them are all mechanical and can be done unattended. **What
-cannot:** confirming that a specific candidate array is a *genuine*,
-evolved truncTALE rather than an assembly/sequencing artifact is a
-biological call, not a code one -- general truncTALE biology can be
-learned from the literature (per the maintainer's own instruction), but
-identifying *this particular instance* correctly cannot. Candidate
-array(s) found this way are to be flagged to the maintainer for
-confirmation before the article's narrative is written around them, not
-published on the assistant's own judgement.
-
-**Progress, 2026-09-22 -- candidate found, flagged for confirmation, not
-yet acted on further.** Raw (uncorrected) `tell_tales()` on `PXO86.fa`,
-default parameters, 31 s: 19 candidate regions, 17 with both termini
-detected, 18 of the 19 make it into the `tales` object at all (one,
-`ROI_00005`, has zero computable ORF and zero rows in the object -- too
-degenerate to parse, a likely fragment/pseudogene remnant, not pursued as
-the demonstration case).
-
-Identification method: per-array amino-acid width of the N-terminus and
-C-terminus domain rows (`nchar(aa_seq)`, grouped by `array_id`), compared
-across all 18 arrays, plus repeat count per array (to rule out "just a
-short array" per §8.0's `min_array_length` distinction -- that counts
-repeats, a different axis from terminus length).
-
-**`ROI_00019` stands out clearly:**
-- C-terminus: **42 aa**, against 286-297 aa for every other array (~15%
-  of normal) -- by far the largest outlier on this axis.
-- N-terminus: 230 aa, against 283-288 aa elsewhere -- reduced, though not
-  as extreme as the C-terminus.
-- Repeat count: 18 -- squarely inside the normal range (13-27 across the
-  18 arrays), so this is not a short/degenerate array by repeat count,
-  only by terminus length.
-- ORF coverage 93% -- essentially complete, not frameshifted (in the same
-  range as the genuinely clean arrays elsewhere in this genome), so this
-  does not look like an assembly artefact by the frameshift heuristic
-  `tale_mining.qmd` already uses.
-- `tales_anomalies()` reports nothing for it (or for anything else in this
-  genome) -- consistent with "structurally fine, just short," not with
-  "broken."
-- The last repeat (position 19 of 20) is itself shortened (19 aa vs. 34 aa
-  typical) with a non-standard `rvd` code (`H*`), and the terminus itself
-  is coded `XXXXX` rather than the canonical `CTERM` -- both signals that
-  something changes right around that repeat, consistent with a
-  frameshift/stop shortly into what would otherwise be a normal C-terminus,
-  not a hit that merely scored low.
-- **Correction, superseded below: `has_all_domains = FALSE` for this array
-  does mean a genuinely missing hit, not merely a non-canonical code as
-  first written here.** See "The mechanism, precisely" below -- checked
-  directly against `R/telltale.R:373-379` after the maintainer questioned
-  the original framing, not assumed a second time.
-
-**Confirmed by the maintainer, 2026-09-22: `ROI_00019` is the genuine
-truncTALE.** Also confirmed: `ROI_00018`, its near-identical (paralogous)
-full-length counterpart discovered elsewhere in the same genome, N-terminus
-DNA near-identical to `ROI_00019`'s for the first ~700 bp -- consistent
-with a gene duplication where `ROI_00019` is the copy that lost its
-C-terminal activation domain, a real, biologically plausible history for a
-genuine truncTALE (not proof by itself, but a second, independent piece of
-supporting context beyond the domain-width signal alone).
-
-**Testing both correction methods against `ROI_00019` -- in progress,
-first results in, not all consistent yet:**
-
-*Method: isolated-excerpt testing, not the full genome, for speed while
-iterating* -- a ~6.4 kb slice of `PXO86.fa` around `ROI_00019`'s own
-coordinates (`2812633-2815116`, `NZ_CP007166`) plus 2 kb flank each side.
-Verified this reproduces the full-genome numbers exactly for the
-uncorrected baseline (`nterm_aa_length=230`, `cterm_aa_length=43`,
-`longest_orf_length=2592`, `orf_coverage=93`) before trusting any
-correction result off it.
-
-- **`correct_tales()` (the jar, genome-wide, run directly on the
-  excerpt):** made exactly 3 corrections, all at one homopolymer run
-  (`posInOriginSeq` 4137-4139, `HomopolymerChar` vs. `CommonNucl`
-  ambiguity) -- nowhere near the C-terminus. Re-discovery on the corrected
-  excerpt: `cterm_aa_length` unchanged at 43; `nterm_aa_length` 230 -> 231,
-  `longest_orf_length` 2592 -> 2595 (both +1 codon, from the same
-  homopolymer fix). **Reads as: `correct_tales()` leaves the genuine
-  truncation alone.**
-- **`correct_array = TRUE` (DECIPHER) -- inconsistent results, not
-  resolved yet.** First test, `ROI_00019` isolated alone (the only
-  candidate array in the input): every number came back **completely
-  unchanged**, alongside an `R` warning
-  (`recycleSingleBracketReplacementValue`) and "less than 2 putative
-  TALEs" skip-warnings not seen elsewhere -- looked like a single-array
-  testing artifact, not trusted on its own. Re-tested with a second array
-  present (`ROI_00018` + `ROI_00019` excerpts, two sequences, same
-  correction call): `ROI_00019`'s own numbers **again came back
-  completely unchanged** (230/43/2592/93, byte-identical to uncorrected)
-  -- so the "unchanged" result is not a single-array artifact, at least
-  not for this specific array. **But** a third, spurious ~489 nt region
-  appeared in this run that does not exist in the uncorrected genome
-  (confirmed: the whole-genome uncorrected scan found zero inter-array
-  gaps below 500 nt anywhere, so this is not a real neighbouring gene
-  picked up by the wider excerpt) -- broken, `N`-containing after
-  correction, 48% ORF coverage, AnnoTALE could not parse its domains at
-  all. This is the same known failure mode already on record in
-  `tale_mining.qmd` for BAI3-1-1 (`correct_array = TRUE` "breaks a third,
-  previously-clean array") reproducing here as a fabricated fragment
-  rather than a degraded existing one.
-
-**Not yet reconciled with the maintainer's own prior experience** that
-`tell_tales(correct_array = TRUE)` tends to *over-extend* genuine
-truncTALE ORFs -- two independent excerpt tests here instead show it
-leaving `ROI_00019` completely untouched. Possible explanations, none
-checked yet: excerpt testing itself is misleading DECIPHER somehow (a
-full-genome run is in progress specifically to rule this out); this
-particular truncation pattern does not resemble what
-`DECIPHER::CorrectFrameshifts()` is willing to "fix"; or the maintainer's
-prior experience was on a different genome/array where the reference set
-happened to argue for extension and this one does not. **A full-genome
-`correct_array = TRUE` run on `PXO86.fa` (all ~18 arrays, default full
-reference) is running in the background as the authoritative check** --
-not concluded until that returns.
-
-**Full-genome run back, 21.7 min elapsed -- confirms the excerpt result,
-does not resolve the puzzle.** `ROI_00019`'s row in `array_report.tsv` is
-**byte-identical** to the raw, uncorrected run: `nterm_aa_length=230`,
-`cterm_aa_length=43`, `longest_orf_length=2592`, `orf_coverage=93`,
-`has_all_domains=FALSE`. Third independent test (single-array excerpt,
-2-array excerpt, full 19-array genome), same result every time: **`correct_array
-= TRUE` does not touch `ROI_00019` at all.** No fabricated/broken region
-this time either (still exactly 19 distinct regions, 17 complete, matching
-the raw run's own shape) -- the spurious ~489 nt fragment from the 2-array
-excerpt test does not reproduce at full-genome scale, so that was
-excerpt-specific noise, not a real finding about this genome.
-
-**Correction to the read above, maintainer, 2026-09-22: `ROI_00001` is
-not a frameshift artifact -- it is PXO86's *second* genuine truncTALE.**
-The maintainer recalls PXO86 carries two. The reasoning above (lower
-`orf_coverage` -> "probably a real partial frameshift, i.e. noise") was
-wrong on the standing interpretive rule for this project, not on the
-number itself:
-
-**New standing rule, recorded here and worth keeping close at hand for
-any future genome-level finding:** unless a genome is explicitly flagged
-otherwise (as `BAI3-1-1` already is, deliberately, in
-`tale_mining.qmd`'s own genomes callout), **treat it as gold-quality --
-no sequencing error, so any frameshift signal found in it is genuine
-biology, not assembly noise.** `PXO86` is one of the article's own
-"clean" genomes; a lower `orf_coverage` there cannot be waved off as
-noise the way it legitimately can be on `BAI3-1-1`.
-
-**This reframes the whole comparison, and is the real story the article
-should tell:** PXO86's two truncTALEs are not the same molecular kind of
-truncation, and that -- not "some genuine truncTALEs get overcorrected,
-others don't," which would be an unexplained inconsistency -- is exactly
-why they respond differently to `correct_array = TRUE`:
-
-- **`ROI_00019`**: a clean, in-frame early stop.
-- **`ROI_00001`**: a genuine, evolved *frameshift* -- real biology on a
-  gold-quality genome, per the rule above, not an assembly error. Its
-  lower `orf_coverage` (83%, before correction) reflects that. Correction:
-  `cterm_aa_length` 183 -> 217, `longest_orf_length` 3015 -> 3114,
-  `orf_coverage` 83 -> 86%.
-
-**The mechanism, precisely -- corrected after the maintainer pushed back
-on the first framing above as "a bit naive."** The maintainer's own
-description of how `tell_tales()` works: it defines a candidate TAL
-locus's DNA span from *merged nhmmer hits* (N-terminus profile, repeat
-profile, C-terminus profile), and it is *that DNA span* -- not the final
-ORF, not the parsed protein -- that gets handed to
-`DECIPHER::CorrectFrameshifts()`. So the real question is not "does the
-final protein look broken" but "did nhmmer's C-terminus profile find a
-hit downstream of the disruption at all" -- because if it did, that
-downstream sequence is *already part of the span DECIPHER sees*, whether
-or not the real reading frame ever reaches it.
-
-**Checked directly against `all_ranges.gff`'s per-hit records (not
-`array_report.tsv` alone, which only carries the yes/no summary) --
-confirms the maintainer's hypothesis exactly:**
-
-- `ROI_00001`'s hit list ends with a real, full-length
-  `TALE_C-terminus_CDS_aligned_curated_long` hit (`2023350-2024209`, 286
-  codons -- the normal, complete C-terminus length) immediately after the
-  last repeat -- but tagged `frameshift_count=2`: nhmmer's own alignment
-  needed two internal reframings to call it a hit at all. The repeat just
-  before it is also short (24 vs. 34 codons) and itself tagged
-  `frameshift_count=1`. **nhmmer detects a C-terminus-shaped signal right
-  there, just out of frame** -- so `tell_tales()`'s merged span for this
-  array already includes a full, C-terminus-shaped template, and
-  `DECIPHER::CorrectFrameshifts()` has exactly the material it needs to
-  reframe into and extend toward.
-- `ROI_00019`'s hit list has **no C-terminus-profile hit anywhere** --
-  repeats, then the N-terminus hit, nothing else, at any
-  `frameshift_count`. nhmmer's C-terminus profile was run against the
-  downstream sequence (same pipeline, same profile) and simply did not
-  score a hit, frameshifted or not. **The merged span `tell_tales()` builds
-  for this array never includes anything C-terminus-shaped**, so
-  `DECIPHER::CorrectFrameshifts()` has no template to extend into --
-  not "declines to fix a clean stop," but has nothing there to work with
-  in the first place.
-
-**This also corrects the `has_all_domains` claim above:** verified
-against `R/telltale.R:373-379` -- it is
-`all(c(hmm$nterm, hmm$repeats, hmm$cterm) %in% x$query_name)`, i.e. a
-literal check for whether each HMM profile produced at least one hit in
-the array's merged set, computed before any ORF-finding or RVD-parsing
-happens. `ROI_00001` is `TRUE` because a (frameshifted) C-terminus hit
-genuinely exists. `ROI_00019` is `FALSE` because none does -- not a
-non-canonical code, an actually absent hit, exactly as `has_all_domains`'s
-own definition says and nothing subtler.
-
-**Two genuine truncTALEs, two different underlying DNA-level events, and
-`array_report.tsv`/`all_ranges.gff` already show which is which before
-either correction method is even run:** a real internal deletion/early
-stop with nothing TAL-like surviving downstream (`ROI_00019`,
-`has_all_domains = FALSE`, no C-terminus hit at any frameshift count) vs.
-a real frameshift with a since-garbled but still-detectable C-terminus
-sitting right behind it (`ROI_00001`, `has_all_domains = TRUE`, C-terminus
-hit present at `frameshift_count = 2`). Not an inconsistency between the
-two truncTALEs' behaviour under `correct_array = TRUE` -- a direct,
-checkable consequence of what nhmmer did or didn't find before correction
-ever runs.
-
-**`correct_tales()` (the jar) against `ROI_00001` -- done, full genome.**
-Genome-wide, `correct_tales()` made exactly **one** correction on the
-whole of `PXO86.fa`: a single-base insertion at position 2024199 (within
-`ROI_00001`'s own span, 2020887-2024209) -- a trivial homopolymer-type
-nudge, not a meaningful fix. `ROI_00001`'s numbers barely move:
-`cterm_aa_length` 183 -> 184, `orf_coverage` unchanged at 83%. Contrast
-with `correct_array = TRUE` on the same array: `cterm_aa_length` 183 ->
-217, `orf_coverage` 83 -> 86%. **`correct_tales()` leaves both genuine
-truncTALEs' short C-termini essentially intact; `correct_array = TRUE`
-over-corrects only the frameshift-type one (`ROI_00001`), not the
-clean-early-stop one (`ROI_00019`).** Comparison matrix now complete for
-both methods x both arrays.
-
-**Side note on excerpt-testing reliability, `correct_tales()` specifically:**
-the earlier isolated-excerpt test around `ROI_00019` alone found 3
-corrections at that same array (a homopolymer run inside it); the
-full-genome run finds none there at all -- likely an nHMMER e-value
-artifact (significance scales with total search-space size, so a
-marginal signal can clear the bar on a 6.4 kb excerpt and not on the real
-5 Mb genome). Net effect: the full-genome run is *more* conservative than
-the excerpt suggested, not less -- it still supports "leaves `ROI_00019`
-alone," just even more cleanly (zero changes there, not a cosmetic one).
-Noted so excerpt-based `correct_tales()` results are not over-trusted
-either, same caution as already applied to the DECIPHER excerpt tests.
-
-**Follow-up question raised by the maintainer -- answered: `max_comparisons`
-has no effect.** Does `tell_tales()`'s `max_comparisons` argument change
-whether `correct_array = TRUE` over-corrects `ROI_00001`? Maintainer's own
-guess was no. Confirmed directly, full genome, `max_comparisons` in
-`{20, 50}` (the two values `tale_mining.qmd` already uses elsewhere)
-against the default full-1057-reference run already on record above:
-**byte-identical result at all three settings**, for both arrays --
-`ROI_00019` stays at 230/43/2592/93 nt/aa/coverage; `ROI_00001` is
-extended to 230/217/3114/86 the same way every time. Whatever makes
-DECIPHER decide to "fix" `ROI_00001`, it does not depend on how many
-reference sequences it is allowed to consider -- consistent with there
-being at least one adequately-matching full-length reference in even the
-smallest (20-sequence) pool, so trimming the pool further doesn't remove
-the signal that triggers the extension.
-
-**The 2-array excerpt test (`ROI_00018` + `ROI_00019`) that produced a
-spurious, broken ~489 nt fragment under `correct_array = TRUE`** (see
-above) -- kept for later, not thrown away: the exact input sequence is
-saved at `dev/fixtures/pxo86_roi18_19_excerpt.fa` (two records,
-`roi18_region`/`roi19_region`, ~2 kb flank each side of the two arrays'
-real genomic coordinates). Worth returning to on its own terms at some
-point -- a `correct_array = TRUE` run fabricating a region that does not
-exist in the real genome is a separate, real robustness question about
-the DECIPHER wrapper, independent of the truncTALE article, and this
-fixture reproduces it in under a minute rather than the ~22 min a
-full-genome repro costs.
-
-**Mechanism refined once more, maintainer pushed back on the first
-version as "a bit naive," 2026-09-22.** Checked directly against `all_ranges.gff`'s
-per-hit records and `R/telltale.R:373-379`'s actual `has_all_domains`
-definition, not re-guessed: `ROI_00001` carries a real, full-length
-(~286-codon) C-terminus-profile nHMMER hit immediately after its last
-repeat, tagged `frameshift_count=2` -- nhmmer still recognises a
-C-terminus-shaped signal there, just out of frame, so the DNA span
-`tell_tales()` merges and hands to correction already contains a
-C-terminus-shaped template. `ROI_00019` has no C-terminus-profile hit at
-any frameshift count -- nothing downstream of its last repeat resembles a
-TALE C-terminus to nhmmer, so the span it hands to correction never
-contains such a template in the first place. This is a correction to an
-earlier, wrong claim in this same section (`has_all_domains = FALSE` was
-first described as "not a missing terminus, a non-canonical one" -- it
-is, in fact, a literally absent hit; fixed in place above where that claim
-was originally made) and to the first cut of "the mechanism" a few
-paragraphs up, which read as "nothing looks broken" rather than tracing
-the actual reason all the way back to what nhmmer did or didn't find
-before correction ever runs.
-
-**First draft of the article written and verified, 2026-09-22 --
-`vignettes/articles/trunctale_correction.qmd`.** Kept deliberately
-separate from `tale_mining.qmd` (§25b remains its own item). Covers:
-finding the two truncTALEs via termini widths and `tales_anomalies()`
-reporting nothing for either (§ "Two genuine truncTALEs in one genome");
-the `has_all_domains`/nHMMER-hit mechanism above, shown with real code
-against `array_report.tsv` and `all_ranges.gff` rather than asserted (§
-"Not the same kind of short"); both correction methods run for real
-against the full genome, including the `max_comparisons` invariance check
-(§ "Does correction respect that difference?"); a closing summary table
-and practical guidance for a user who suspects their own genome carries
-real truncTALEs.
-
-**Rendered for real before calling it done, per this file's own standing
-rule for quarto articles:** package reinstalled first
-(`devtools::install(quick = TRUE, upgrade = FALSE)`, confirmed against a
-fresh session that the reinstall picked up this same session's other
-fixes, not assumed); built with `pkgdown::build_article("articles/trunctale_correction",
-pkg = ".")` alone, never `build_site()`/`build_articles()`. Clean run,
-all 37 chunks executed, ~2.8 minutes (`max_comparisons = 20` for the live
-`correct_array = TRUE` demo, per the invariance already established
-above -- the full 1057-reference run is reported as a table, not
-re-executed live, same precedent as `tale_mining.qmd`'s own BAI3-1-1
-timing table). Checked the rendered `docs/articles/trunctale_correction.html`
-directly, not just the exit code: no leaked tool/`cli` output, no error
-text, and the hit-level evidence, correction-comparison and summary
-tables all show the same numbers already on record above
-(`ROI_00001`/`ROI_00019` hit-level check: `TRUE`/`2` vs. `FALSE`/`NA`;
-corrections: 183->217/86% vs. 183->184/83%).
-
-**Not yet done, deliberately paused here for the maintainer:** not added
-to `_pkgdown.yml`'s `articles:` `contents:` list or navbar, no
-`build_articles_index()` run, no version bump or `NEWS.md` entry, nothing
-committed. First draft only -- content polish and official-publish steps
-both still to come.
-
-**Maintainer review of the first draft, 2026-09-22 -- content revisions
-requested, second round not yet done.** Sequencing: §25b (below) first,
-then a second pass on this article informed by it.
-
-- **Ground the introduction in the literature, not general knowledge.**
-  Two papers to use, both explicitly documenting truncTALEs/iTALEs in
-  Xoo, and both naming `PXO86` directly as a carrier genome:
-  - [Ji et al. 2016, *Nat. Commun.*](https://doi.org/10.1038/ncomms13435)
-    -- calls them "iTALEs": lack the C-terminal transcription activation
-    domain but retain nuclear localisation motifs; act as gain-of-function
-    suppressors of the rice *Xa1* executor-R-gene resistance normally
-    triggered by full-length TALEs. Names `Tal3`/`Tal6` specifically from
-    `PXO86`.
-  - [Read et al. 2016, *Front. Plant Sci.*](https://doi.org/10.3389/fpls.2016.01516)
-    -- calls them "truncTALEs": lack the activation domain entirely, part
-    of the N-terminal region including the first cryptic repeat, and the
-    second NLS (a candidate NLS sequence remains); most carry a novel
-    28 aa repeat rather than the usual 34 aa. Also suppress *Xa1*-mediated
-    resistance; the characterised example (`Tal2h`) did not bind any
-    tested candidate target site in vitro, supporting a protein-level
-    (dominant-negative ligand) mechanism rather than DNA-binding
-    transactivation. Documents truncTALEs directly in `PXO86` among other
-    Xoo/Xoc strains.
-  - Cite both inline as markdown links with their DOI URLs, matching this
-    package's existing citation style (plain `[Name](doi-url)`, see
-    `README.md`/`tale_target_prediction.qmd` -- no separate bibliography).
-  - The two papers use different terminology (iTALE vs. truncTALE) for
-    apparently the same phenomenon -- keep that distinction visible rather
-    than silently merging their wording into one voice.
-- **Lay out the stakes right after "Where this fits," before the PXO86
-  case study.** State plainly what question this article is actually
-  answering: does `tell_tales(correct_array = TRUE)` mishandle genuine
-  truncTALEs the way it is already known to over-extend genuine assembly-
-  error frameshifts, and does `correct_tales()` do any better -- pulled
-  from this section's own original framing above, not re-invented.
-- **Use `hits_report.tsv` instead of `all_ranges.gff` for the hit-level
-  mechanism section.** `all_ranges.gff` exists so a genome browser can
-  draw domains along the sequence -- a different job. `hits_report.tsv`
-  (confirmed: one row per real nHMMER hit, `array_id`/`query_name`/
-  `codon_count`/`frameshift_count` columns, no GFF attribute-string
-  parsing or hit-vs-summary-row filtering needed) is the right source and
-  makes the code chunk simpler, not just more appropriate.
-- **Sharpen the conclusion.** State the practical, transparent headline
-  directly: on this evidence, `correct_tales()` is not prone to
-  mis-correcting a genuine truncTALE's sequence, while
-  `tell_tales(correct_array = TRUE)` is, for the frameshift-type one.
-  Don't leave the takeaway as even-handed "check both" hedging when the
-  actual result favours one method concretely.
-- **Style, package-wide, not just this article:** stop overusing the
-  "A, not B" antithesis construction (flagged as an immediately-
-  recognisable LLM tic, in both its sentence-initial and mid-sentence
-  forms); neutral, plain, scientific register throughout. Recorded as
-  [[feedback_writing_tone]] in memory, since it applies beyond this one
-  file.
-
-**Second round done, 2026-09-22, after §25b (below).** All five requested
-revisions applied: introduction now cites Ji et al. and Read et al. by
-name with their DOI links, and states the truncTALE/iTALE biology and
-`Xa1`-suppression function from those papers rather than general
-knowledge; a stakes paragraph now sits right after "Where this fits,"
-naming the two concrete questions (does `correct_array = TRUE` extend a
-genuine truncTALE the way it extends a genuine assembly error, and does
-`correct_tales()` differ); the hit-level mechanism section now reads
-`hits_report.tsv` instead of `all_ranges.gff`; the summary states plainly
-that `correct_tales()` left both truncTALEs' sequence alone while
-`correct_array = TRUE` rewrote the genuine frameshift's C-terminus,
-scoped honestly to one genome and two arrays rather than a general
-ranking; the antithesis construction was scrubbed throughout. Re-rendered
-for real with the same procedure as the first draft -- clean, ~2.9
-minutes, both citation links present in the built HTML, hit-level table
-still reads `TRUE`/`2` vs. `FALSE`/`NA`, correction numbers still
-183->217/86% vs. 183->184/83%.
-
-**Still not done, same as after the first draft:** `_pkgdown.yml`
-registration, `build_articles_index()`, version bump, `NEWS.md`, commit.
+**Open:** on a two-array excerpt (`dev/fixtures/pxo86_roi18_19_excerpt.fa`)
+`correct_array = TRUE` fabricated a ~489 nt region that does not exist in
+the genome; the full-genome run did not. A robustness question for the
+DECIPHER wrapper. Excerpts also shift nHMMER e-values (search-space size),
+so excerpt-based correction results need confirming on the full genome.
 
 ### §25b, `tale_mining.qmd`'s correction chapters are stale after §17's `correct_tales()` fix -- DONE **[V]**
 
-First surfaced 2026-09-22 as a live consequence of §17's flag-swap fix
-(`correct_tales()`, `R/talecorrection_java.R:44`, was feeding
-`TALEcorrection.jar` its two nHMMER result files on the wrong flags),
-recorded originally as an addendum to §17's own closing note -- moved here,
-where the rest of the website follow-up work this same fix implies is
-tracked, and confirmed again while discussing §25 the same day. Kept a
-separate item from §25 on purpose (see §25's own note above): this is
-about an *existing, published* article going stale, not the new deep-dive.
-
-`vignettes/articles/tale_mining.qmd`'s **"Correcting frameshifts, two
-ways"** section (rendered at
-https://scunnac.github.io/tantale/articles/tale_mining.html#correcting-frameshifts-two-ways)
-was written and verified against the *pre-fix*, swapped-flags
-`correct_tales()`. Its whole narrative rests on neither correction path
-alone fixing every problem in the real **BAI3-1-1** talome fixture used
-there -- not PXO86 -- per §7.5b: `correct_tales()` fixed `ROI_00003` but
-not `ROI_00005`; `correct_array = TRUE` (`tell_tales()`'s own DECIPHER-based
-correction) fixed both but broke a third, previously-clean array,
-`ROI_00001`. That three-way contrast is why the section demonstrates
-running both methods, sequentially.
-
-**Now stale.** With the flags fixed, the correctly-called `correct_tales()`
-alone now fixes every problem in that talome (both `ROI_00003` and
-`ROI_00005`) -- the sequential two-method demonstration is no longer
-justified, and the section's prose and structure need rewriting to match
-the tool's actual current behaviour.
-
-**"How much did either correction actually help?"** (the
-`fig-coverage-improvement` chapter) quantifies each method's benefit from
-numbers computed against the same pre-fix `correct_tales()` -- these need
-recomputing against the fixed tool, not assumed still accurate just
-because the surrounding prose is what's being rewritten.
-
-**One piece confirmed still valid, explicitly not to be touched when this
-is revisited:** the timing/performance comparison between the two
-correction approaches, elsewhere in the same section. That table is about
-`tell_tales()`'s DECIPHER path (§8.1: `correct_array = TRUE` runs at 29x the
-rest of the pipeline, cost scaling with the reference set's size, not the
-subject sequence's) -- unaffected by the `correct_tales()` jar fix.
-
-Not started: no re-render attempted, no check yet on whether the fix
-changes the qualitative story (still worse/better/same relative to
-DECIPHER) or just the numbers.
-
-**When this is picked up, a `docs/` rebuild is required** -- via the
-established decomposed sequence (per this file's own `CLAUDE.md` note and
-§15: one `pkgdown::build_article()` call per file, `tale_classification.qmd`
-first to prime the shared cache, never `build_site()`/`build_articles()`
-directly), package reinstalled first so the quarto subprocess sees the
-change, same as §23's precedent for a cross-article rename.
-
-**Done, 2026-09-22.** Re-ran the whole `BAI3-1-1` correction pipeline for
-real against the reinstalled, fixed `correct_tales()` before writing
-anything. Result: `correct_tales()` alone now clears both `ROI_00003` and
-`ROI_00005` (zero anomalies) -- previously it fixed only one. Four
-sections of `tale_mining.qmd` rewritten to match:
-
-- **"Correcting the genome, before discovery"** -- prose updated from
-  "fixes one, not the other" to both fixed, framed as a genome-wide pass
-  and a per-array pass reaching the same outcome by different routes.
-- **"A clean correction without an eight-minute wait"** -- `correct_tales()`
-  and `max_comparisons = 50` now presented as two independent routes to
-  zero anomalies rather than "three results, none fully clean." The
-  "chaining both paths" tip's numbers re-measured for real (`correct_tales()`
-  alone ~41 s; chained routes unchanged at zero anomalies) and reframed:
-  chaining adds nothing on this genome now that a single pass suffices,
-  though the technique remains available for a messier one.
-- **"How much did either correction actually help?"** -- all three
-  correction routes now bring `ROI_00003`/`ROI_00005` to the same
-  near-complete coverage (91%/93%), verified directly rather than
-  assumed; figure caption and prose updated to say so, and to point out
-  that the real remaining difference between routes (`max_comparisons = 20`
-  breaking a third array, `ROI_00001`) does not show up in a coverage
-  number at all -- only `tales_anomalies()` catches it.
-- **"Moving on with what you have"** -- the `sanitize()` demonstration
-  switched from `bai311_java` (now fully clean, so it dropped nothing) to
-  `bai311_corr` (the `max_comparisons = 20` run, which still has
-  `ROI_00001` flagged), confirmed to still drop exactly one array.
-
-`bai311_best` (the `max_comparisons = 50` result) is left as the
-canonical downstream object the rest of this article set builds on --
-not changed to `correct_tales()`'s own result, since that choice ripples
-into the four-article shared cache (§15) and is not this session's to
-make unilaterally. Flagged, not decided: whether a future session should
-revisit which corrected version is canonical now that `correct_tales()`
-reaches the same outcome.
-
-Re-rendered for real: `pkgdown::build_article("articles/tale_mining", pkg
-= ".")`, clean, all 63 chunks, ~3.6 minutes. Checked the built
-`docs/articles/tale_mining.html` directly: two `A tibble: 0 x 3` results
-(both `bai311_java` and `bai311_best` now anomaly-free), `corrections`
-inline count reads 70, `sanitize` chunk output reads `[1] 1`.
+With the flags fixed, `correct_tales()` alone clears both broken BAI3-1-1
+arrays; the article was rewritten and re-rendered accordingly. **Flagged,
+not decided:** the shared article cache still builds on `bai311_best`
+(`max_comparisons = 50`); switching to `correct_tales()`'s result would
+ripple through the four cached articles.
 
 ---
 
 ## 26. §16's history reset, executed -- DONE, with two real findings surfaced along the way **[V]**
 
-Follow-through on §16 and its own in-progress note (2026-09-22, same
-day): the plan recorded there (`~/.claude/plans/let-s-move-to-16-glistening-thacker.md`)
-was carried out in full, with two deviations from the original sketch,
-both maintainer decisions made live rather than assumed.
-
-**Deviation 1: `extra/` excluded from git entirely, not just from
-history.** While the fresh single commit was being pushed, the maintainer
-realised `extra/` (274M) was never meant to be git-tracked at all -- it
-is already excluded from the R build via `.Rbuildignore` (`^extra$`), and
-was assumed to be gitignored too, but had no `.gitignore` entry. Confirmed
-directly (`grep -rln "extra/" R/ tests/testthat/*.R inst/` -- zero hits)
-that nothing in the package's code references it, so removing it from git
-tracking has no functional consequence. `extra/` added to `.gitignore`,
-untracked with `git rm -r --cached` (kept on disk, just no longer part of
-the repository), and the orphan commit amended before it was ever
-successfully pushed -- caught in time to avoid uploading its 274M
-needlessly; a first push attempt (of the version still including `extra/`)
-was killed mid-transfer once this was noticed.
-
-**Deviation 2: the single surviving branch is `main`, not `dev`.**
-Maintainer's call, mid-execution: since `master`'s only job was freezing
-an old reference point for `dev` to build on, and that reference point is
-exactly what's being archived and discarded, there was no reason left to
-keep two branches. `main` replaces `master`/`dev` both, matching GitHub's
-modern default naming.
-
-**Executed, in order, all verified directly rather than assumed:**
-
-1. **Backup.** `git bundle create --all` -- the entire pre-reset
-   repository (327 commits, every branch and tag, including
-   `backup-reword`, a local-only branch never pushed to GitHub at all) in
-   one 185M file. Verified by cloning from the bundle into a scratch
-   folder and confirming 327 commits and all four branches present, not
-   just trusting `git bundle verify`'s own "complete history" claim.
-2. **Archived.** The existing `v0.1.9553` GitHub release (created
-   2026-09-18) was checked directly via GitHub's API first, not assumed
-   sufficient -- its assets array was genuinely empty; what the page
-   showed as "Assets 2" was only GitHub's automatic per-tag source
-   zip/tarball, which holds no git history at all. The bundle was
-   attached to that existing release by hand (no `gh` CLI on this
-   machine). Confirmed after upload, again via the API, that the asset's
-   reported size matched the local file byte-for-byte (193,924,884 bytes
-   both sides) before anything was deleted.
-3. **Reset.** `git checkout --orphan main` from `dev`'s tip, `extra/`
-   excluded per Deviation 1 above, one commit.
-4. **Published.** `git push origin main` -- failed once with a broken
-   pipe on the first, larger (with-`extra/`) attempt; succeeded on retry
-   with SSH keepalive options (`ServerAliveInterval=15`) once `extra/`
-   was dropped, shrinking the push besides. Confirmed the remote SHA
-   matched the local one exactly before proceeding.
-5. **Old refs retired.** Default branch switched to `main` in GitHub's
-   settings first (confirmed via the API's `default_branch` field before
-   touching anything else) -- required, since GitHub refuses to delete
-   whichever branch is currently default. `master`, `dev`, the
-   `v0.1.9553` branch, and the local `v0.1.9553` tag all deleted, plus the
-   equivalent local branches. One hiccup, already on record as a known
-   risk in §16's own original text: `v0.1.9553` the branch and
-   `v0.1.9553` the tag really did collide on short-name deletion
-   (`error: dst refspec v0.1.9553 matches more than one`) -- resolved
-   with an explicit `refs/heads/v0.1.9553` refspec for the branch,
-   `:refs/tags/v0.1.9553` for the tag. `backup-reword` was never on the
-   remote at all (confirmed by the delete attempt's own error), so
-   nothing to remove there; its local branch was still deleted.
-6. **Space reclaimed.** `git reflog expire --expire=now --all` then
-   `git gc --prune=now --aggressive`, measured directly: **`.git` 223M ->
-   46M.**
-7. **Fresh clone.** The old working directory moved aside
-   (`tantale-old-before-reset`, not deleted, kept as a safety margin) and
-   a genuine `git clone` taken from `origin` -- **`.git` 49M, whole
-   working tree 115M**, down from 223M + 396M = 619M total before any of
-   this.
-8. **Verified against the fresh clone, not the old working directory:**
-   `test_golden.R` under `devtools::load_all()` passes clean, no snapshot
-   changes. A full `devtools::check()` was also run, beyond what the plan
-   itself asked for, as extra diligence -- see the findings below, which
-   are real but **not** consequences of this reset.
-
-**Two real findings from that `devtools::check()` run, both confirmed
-unrelated to the reset itself (the reset changes no tracked file's
-content at all, `extra/` excluded per Deviation 1 and confirmed
-unreferenced by any code above) -- both pre-existing, both newly
-surfaced only because this may be the first full, clean `R CMD check` run
-in some time. (**Picked up the same night, see §27 for the full
-investigation: the `reshape2` one is fully fixed; the golden mismatch
-turned out to actually be three separate issues bundled together in this
-paragraph's first telling -- a third, a hardcoded `ncores` value, wasn't
-even visible yet when this was written -- one is fixed and verified, one
-is narrowed to a specific, not-yet-isolated cause. Treat what follows as
-the state at the moment of discovery, not the current state.**)
-
-- **`test_pairwise_distances_class.R` hard-depends on `reshape2`** at two
-  call sites (`expected <- reshape2::acast(...)`, `legacy <- 100 -
-  reshape2::acast(...)`) -- confirmed `reshape2` is not in `DESCRIPTION`
-  at all (dropped in §14's migration off it, days ago) but is still
-  installed on this machine's ambient R library, which is exactly why
-  every `devtools::load_all()`-based check today (including this
-  session's own) never caught it: `R CMD check`'s isolated check library
-  is the only thing that actually enforces declared dependencies. Two
-  tests error with `there is no package called 'reshape2'` under a real
-  check. Not fixed -- these look like leftover "compare the new
-  implementation against the old reshape2 ground truth" regression tests
-  from §14 itself that were never removed once reshape2 was fully retired.
-- **A real golden-baseline mismatch, reproducible only under a true
-  install, not under `load_all()`.** `test_golden.R:206`,
-  "`tell_tales()` with frameshift correction": `n_dropped` changed from 2
-  to 6 (and a related row from 2 to 7), with new digests, under
-  `devtools::check()` -- while the exact same test file, run via
-  `devtools::load_all()` on this exact same commit, both earlier today
-  and again just now on the fresh clone, passes with zero changes. This
-  is a real, unexplained load_all-vs-installed behavioural difference in
-  the correction path specifically, not a cosmetic path-formatting
-  artefact like the `covr`/tempdir issue §8.1d already found and fixed --
-  `n_dropped` is a substantive count, not a string. **Root cause not
-  found tonight; explicitly not rebaselined without one**, per this
-  project's own standing golden-rebaseline discipline ("explain every
-  changed row before accepting" -- an accepted snapshot is
-  indistinguishable from a correct one). Flagged as a real, open,
-  unresolved item for the next session, not swept past because the hour
-  was late.
-
-**Not lost:** `tantale-old-before-reset` (the original working directory,
-pre-`gc`, moved aside rather than deleted) and the GitHub release bundle
-both still exist as full-fidelity fallbacks if anything above needs
-re-examining.
+2026-09-22. Full-history `git bundle` (327 commits, all branches and tags,
+185 MB) attached to the `v0.1.9553` GitHub release and verified by
+cloning; orphan commit on `main`; `extra/` untracked and gitignored;
+default branch switched before deleting `master`/`dev`/`v0.1.9553`;
+`.git` 223 -> 46 MB. The pre-reset working directory is kept on disk as
+`tantale-old-before-reset`. The two `devtools::check()` findings went to
+§27.
 
 ---
 
 ## 27. Chasing "a clean, entire test suite" -- all three real bugs fixed and verified **[V]**
 
-Direct follow-through on §26's two findings. Started one night, resumed a
-later session (2026-09-22) that closed out Finding 3 -- read this whole
-section before touching `test_golden.R`/`helper-golden.R` again, since it
-records a real methodology (and its pitfalls) that cost real time to work
-out, not just a status.
-
-### Finding 1, `reshape2` -- FIXED, verified **[V]**
-
-`test_pairwise_distances_class.R` had two tests using `reshape2::acast()`
-as independent "legacy" ground truth to check `as.matrix.pairwise_distances()`
-against -- harmless in spirit, but `reshape2` was dropped from
-`DESCRIPTION` weeks ago (§14) and only kept working because it happens to
-still be installed on this machine's ambient library, invisible to every
-`devtools::load_all()`-based check this whole project has run since.
-
-Fixed by removing the dependency entirely, not by re-adding it as a guarded
-`Suggests:`:
-- The small, fixed 3x3 fixture (`minimal_distances_df()`) test now compares
-  against a **hand-computed, hardcoded expected matrix** -- simplest
-  possible, no reshaping library needed at all.
-- The real-data test now compares against **`.pairwise_long_to_matrix()`**
-  (`R/distalr.R`), itself already an independently-verified, already-shipped
-  `reshape2::acast()` replacement from §14's own migration -- a genuine
-  cross-check against `as.matrix.pairwise_distances()`'s own, separate
-  implementation, not a tautology (confirmed the two functions really are
-  independent -- see §21's addendum on that exact question, prompted by
-  writing this fix).
-
-Verified: `test_pairwise_distances_class.R` passes clean under `load_all()`;
-`grep -rn "reshape2" R/ tests/` now returns only explanatory comments, zero
-live calls.
-
-### Finding 2, hardcoded `ncores = 4` -- FIXED, verified **[V]**
-
-`test_distalPairwiseAlign.R` called `.pairwise_align_biostrings(..., ncores
-= 4)`. `R CMD check` sets `_R_CHECK_LIMIT_CORES_`, which `BiocParallel`
-enforces (workers must be `<= 2`) -- confirmed directly from the check's own
-error message, not inferred. Changed to `ncores = 2`: still exercises the
-real multi-worker code path (the point of hardcoding a number at all,
-`.pairwise_align_biostrings()`'s own default is `ncores = 1`), just within
-the CRAN-safe limit. Verified passing under `load_all()`.
-
-### Finding 3, the golden-baseline mismatch -- root cause fixed, residual
-narrowed and closed, baseline accepted **[V]**
-
-**The investigation, in enough detail that it does not need repeating.**
-Every attempt to reproduce the original `devtools::check()` failure via a
-quick `devtools::install()` or a tarball-install into a fresh library
-**passed clean** -- load_all vs. installed was not, by itself, the
-trigger. Two full `devtools::check()` runs (not `--quiet`) confirmed the
-failure is **reliably reproducible**, not a flake -- both showed the exact
-same two rows (`test_golden.R:143`, the plain `tell_tales()` run, and
-`:206`, the frameshift-correction run) failing with `n_dropped` jumping
-(2->6/7) and a new digest, `n_lines` unchanged both times (same file, same
-line *count*, different line *content* -- not a different file landing at
-the same sorted position).
-
-**The methodology that actually worked, once found:** `testthat`'s own
-`on.exit(unlink(out, ...))` cleanup deletes the real output the instant a
-golden test finishes, pass or fail, so nothing survives to inspect
-afterward by default. Fix: temporarily repoint the test's output
-directory from a `tempdir()`-based path to a **fixed, absolute path
-outside any tempdir**, and temporarily remove the `on.exit()` cleanup, so
-a real `R CMD check` run (via raw `R CMD check ... --no-clean-on-error`,
-which -- unlike `devtools::check()` -- never deletes its own check
-directory by default) leaves the actual failing output sitting on disk to
-`diff` directly. **One real methodology trap, cost real time twice:**
-comparing two runs' `tell_tales.log` naively is not enough -- the log's
-own "Output directory:" line keeps its *basename* even after path
-normalisation (deliberately -- see the file's own comment on why), so two
-diagnostic runs using two *different* directory names for the "known
-good" and "under test" copies will always show a spurious difference
-there, however carefully everything else is controlled. **Always give the
-control run the exact same output-directory basename as the run being
-diagnosed**, or the comparison is worthless from the first line.
-
-**Root cause found and fixed for the correction test specifically:**
-`correction_ref = test_path("data_for_tests", "correction_ref_20.fa.gz")`
--- confirmed directly, byte for byte, in the captured output:
-`testthat::test_path()` resolves to a **relative** path under a real `R
-CMD check` (the working directory is already `tests/testthat/`) but an
-**absolute** one under `devtools::load_all()`. `tell_tales.log` echoes
-`correction_ref` verbatim, and the golden fingerprint's own path-
-normalisation regex (`.PATH_PREFIX`) only strips **absolute** paths --
-deliberately narrow, per §8.1d's own "anything between two slashes
-over-matches" lesson, so it was never going to be broadened casually to
-also catch bare relative fragments. A relative path therefore survives
-untouched into the digest, and a baseline captured under one context
-(load_all, always absolute) can never match a run under the other
-(check, sometimes relative) -- **exactly the same failure shape §8.1d
-already fixed once, for a different path, not a new class of bug.**
-Fixed narrowly, at the one call site (`correction_ref =
-normalizePath(test_path(...))`), not by broadening the shared regex --
-confirmed by an isolated, matched-basename reproduction that this
-eliminates the `n_dropped` jump **entirely** (down to zero rows differing
-at all, not just a smaller difference).
-
-**What is still open, confirmed narrower but not closed:** running
-`test_golden.R` as a **whole file** (`testthat::test_file()`, the same
-way `R CMD check`/`test_check()` runs it -- every `test_that()` block in
-one shared R session) still shows one residual digest difference on the
-correction test's row, even with the fix above applied -- while an
-**isolated** reproduction of the exact same scenario (fresh session,
-matched basename, the fix in place) shows **zero** difference. The
-plain, uncorrected `tell_tales()` test (`:143`) shows the identical
-pattern: zero difference in a controlled, isolated, matched-basename
-reproduction, but still fails when the whole file runs together. **This
-rules out the dependency-version hypothesis floated in §26** (a
-freshly-resolved `R CMD check` library pinning a different `DECIPHER`
-version than the ambient one) -- if that were the cause, an isolated
-run against the real installed library would show it too, and it does
-not. **What remains is session/test-order state leakage**: something
-that happens earlier in `test_golden.R`'s own run (there are several
-other golden tests before both failing ones, all sharing one R session
-under `test_check()`) leaves the session in a state that changes what a
-later `tell_tales()` call produces. Not yet isolated to a specific
-earlier test or mechanism.
-
-**Concrete next step, not yet attempted:** bisect `test_golden.R` by
-commenting out its earlier `test_that()` blocks in groups and re-running
-the file as a whole each time (not in isolation -- isolation is exactly
-what makes the difference disappear) until the residual difference stops
-reproducing, which will name the actual interfering test. Worth checking
-first, since it is the most obviously stateful thing in the file:
-`telltale_run()`'s own `local({ cache <- NULL; ... })` memoisation --
-plausible that some interaction between it being called by an earlier
-test and the correction test's own separate `tell_tales()` call is
-involved, though this is a hypothesis to test, not a finding.
-
-**Explicit status, not to be read as more resolved than it is:** the
-golden snapshot file (`tests/testthat/_snaps/golden.md`) has **not** been
-touched or re-baselined at any point tonight -- it still reflects the
-original, pre-existing accepted baseline. The `normalizePath()` fix is
-real, verified, and committed regardless of the residual issue, but
-**`test_golden.R` does not yet pass clean under a real `R CMD check`**.
-Anyone picking this up should re-run `devtools::check()` once (or the
-raw `R CMD check --no-clean-on-error` + fixed-path methodology above, for
-faster iteration) to confirm current status before assuming anything
-above is stale.
-
-### Finding 3, resumed and closed (2026-09-22 session)
-
-**The "residual, isolated-vs-whole-file" difference above does not
-reproduce.** Re-ran the exact comparison five separate ways -- two
-`testthat::test_file(desc = ...)` isolated runs, two whole-file
-`test_file()` runs, and one genuine `R CMD check` on a fresh `R CMD
-build` tarball (`_R_CHECK_LIMIT_CORES_` and all, the same isolated-library
-environment Finding 1 needed to surface in) -- and all five produced a
-**byte-identical** `telltale_fingerprint()` for the correction test. No
-session/test-order state leakage exists in the current code; the
-`telltale_run()` memoisation hypothesis from the previous session's
-closing note was never confirmed and is not the cause.
-
-**What the previous session actually saw, root-caused this time:** the
-diagnostic methodology itself. Reproducing this bug needs the failing
-output to survive past `testthat`'s `on.exit()` cleanup, so both that
-session and this one repointed the correction test's `out` to a fixed
-path *outside* `tempdir()`. That fixed path is not neutral --
-`.run_specific_pattern()` (`helper-golden.R`) drops any line containing
-*this session's own* `tempdir()` value, and several files in the
-correction output (`annotale/*/protocol_analyze.txt`,
-`hmmer_search_out.txt`, `nhmmer_human_readable_output_of_last_run.txt`)
-echo `out` itself verbatim. Moving `out` off `tempdir()` stops those
-echoed-`out` lines from matching that drop pattern, so they switch from
-"dropped" to "kept-but-path-normalised" -- changing `n_dropped` and the
-digest on exactly the files/rows the previous session flagged (4 rows:
-two `protocol_analyze.txt` files, `hmmer_search_out.txt`,
-`nhmmer_human_readable_output_of_last_run.txt`), **independently of
-whether the run is isolated or whole-file**. Confirmed directly: with the
-diagnostic `out` still off-`tempdir()`, isolated and whole-file matched
-each other exactly, digest for digest -- proving even the earlier
-session's own "isolated" and "whole" runs would have agreed, had they
-been compared against each other rather than against the pre-fix
-baseline. (Whether the *previous* session's specific two runs really did
-disagree, or whether that too was a same-shaped artefact, is not
-recoverable now -- no raw output from that session survives to check. It
-does not matter either way: the current code has no reproducible
-isolated-vs-whole difference, checked five independent ways.)
-
-**Switched back to the real, committed `out <- file.path(tempdir(), ...)`
-+ `on.exit()` cleanup** (the diagnostic-only fixed path was never
-committed) and re-ran the comparison once more under standard conditions,
-this time also capturing the raw fingerprint object (not just the printed
-snapshot diff) to compare precisely. Isolated and whole-file **still
-identical**, and now only **one** row differs from the accepted baseline,
-not four: `tell_tales.log`, digest only, `n_lines` unchanged (39 both
-sides) -- a single existing line's *content* changed, not a line added or
-removed. Read directly: `correction_ref:` now prints
-`<path>/correction_ref_20.fa.gz` (`.normalise_paths()` redacting an
-absolute path) where the old baseline has the raw, unredacted relative
-string `tests/testthat/data_for_tests/correction_ref_20.fa.gz` --
-precisely, and only, the intended effect of this section's own Root
-Cause 1 fix (`correction_ref = normalizePath(test_path(...))`), not yet
-carried into `_snaps/golden.md` until now.
-
-**Accepted, via the `golden-rebaseline` skill's own procedure** (run
-uncached, identify the row, explain it, `snapshot_accept()`, re-run to
-confirm) -- `tests/testthat/_snaps/golden.md` now has exactly one digest
-changed (the last entry in the correction test's fingerprint array),
-verified with a line-level `git diff` showing nothing else moved.
-Re-confirmed clean (`FAIL 0 | WARN 0 | SKIP 0 | PASS 44`) both under
-`devtools::load_all()` and under `library(tantale)` against a freshly
-`devtools::install()`ed copy, whole file. **`test_golden.R` now passes
-clean.** This closes §27 -- all three findings from §26 are fixed and
-verified; nothing from this section remains open.
-
-**Two unrelated findings surfaced by the same `R CMD check` run, not part
-of §27's scope, not investigated further -- flagged for later triage:**
-
-- **`checking examples ... ERROR`**: `tales_group_kmedoids()`'s own
-  `@examples` fails under a real check --
-  `tales_group_kmedoids(cmp$tales, cmp$tale_distances, k_range = 2:4, k =
-  2)` errors with `Number of clusters 'k' must be in {1,2, .., n-1}; hence
-  n >= 2`, from inside `pam()`/`as.list`. Did not reproduce under
-  `devtools::load_all()`-based interactive checks this whole project has
-  run (same blind spot Finding 1 exploited) -- worth checking whether
-  `cmp$tales`/`cmp$tale_distances` resolve to fewer arrays under a real
-  check than expected, same general shape as the reshape2 finding (an
-  isolated-library-only difference), but not yet looked into.
-- **`checking for executable files ... WARNING`**: `inst/tools/arlem/arlem`
-  flagged as an undeclared executable ("Source packages should not
-  contain undeclared executable files"). Plausibly a known, accepted
-  consequence of bundling a compiled third-party binary (ledger §12
-  covers running these tools by absolute path, not whether `R CMD check`
-  is happy about their presence) rather than a new problem -- not
-  checked against CRAN policy or `.Rbuildignore` options either way.
+- `test_pairwise_distances_class.R` still used `reshape2` (installed in
+  the ambient library, undeclared): replaced by a hand-computed matrix and
+  `.pairwise_long_to_matrix()`.
+- `ncores = 4` in a test: `R CMD check` limits BiocParallel to 2.
+- Golden mismatch under `R CMD check` only: `test_path()` is relative
+  there and absolute under `load_all()`, and the path normaliser only
+  rewrites absolute paths. Fixed with `normalizePath(test_path(...))`.
+  The apparent isolated-vs-whole-file difference seen during the
+  investigation was produced by the diagnostic itself (output moved off
+  `tempdir()` changes which lines are dropped). Methodology in START HERE.
 
 ---
 
 ## 28. The two §27 follow-up findings, triaged -- both resolved (the ARLEM one by §33) **[V]**
 
-### `tales_group_kmedoids()` example -- FIXED, verified **[V]**
-
-**Not what §27's closing note guessed.** Not an isolated-library
-blind spot like Finding 1 -- reproduces identically under a bare
-`devtools::load_all()`, no `R CMD check` needed. Root cause: a plain
-off-by-one, unrelated to anything else in this session. The example's
-fixture (`inst/extdata/tellTaleExampleOutput`, via
-`tales_from_telltale()` -> `tales_compare_distal()`) has **4** arrays;
-`cluster::pam()` requires `k <= n - 1`, i.e. `k <= 3` here. The example's
-own `k_range = 2:4` tries `k = 4` as one of its candidates and
-`cluster::pam()` throws on that call, inside `lapply()`, before
-`tales_group_kmedoids()` ever reaches its own `k` selection logic.
-
-This example was apparently never actually executed end-to-end before
-being written/kept -- `devtools::check()`/`R CMD check`'s "checking
-examples" step is exactly what would have caught it, and per this whole
-investigation's premise, that step has evidently not run clean in some
-time. Not a regression from anything in this session.
-
-**Fixed:** `R/classification.R`'s `@examples` block, `k_range = 2:4` ->
-`k_range = 2:3` (still exercises the multi-candidate path the example is
-there to demonstrate, just without the invalid `k = 4`). `man/tales_group_kmedoids.Rd`
-regenerated (`devtools::document()`, one-line diff, matches). Verified
-three ways: the example body run directly under `load_all()`; the
-targeted test file (`test_tales_group_kmedoids.R`, 26/26 pass); and the
-actual `.Rd` extracted via `tools::Rd2ex()` and sourced, matching exactly
-what `R CMD check`'s examples step runs.
-
-### `inst/tools/arlem/arlem` executable warning -- investigated, flagged for
-the maintainer; **RESOLVED by §33 (2026-09-23): ARLEM re-implemented in R,
-executable removed [V]**
-
-Confirmed real, not a fluke: `file inst/tools/arlem/arlem` ->
-`ELF 64-bit LSB executable, x86-64 ... for GNU/Linux 2.6.8, with
-debug_info, not stripped`. A genuine precompiled third-party binary
-(ARLEM, Abouelhoda/Giegerich/Behzadi/Steyaert), shipped under `inst/`
-and invoked via `system.file("tools", "arlem", "arlem", package =
-"tantale")` in `.run_arlem()` (`R/distalr.R`) -- unlike MAFFT/HMMER
-(ledger §12), which come from the conda environment rather than being
-bundled in the package itself.
-
-**This is a real portability/policy question, not a mechanical bug --
-left for the maintainer's call, not decided here:**
-- The binary is Linux-x86-64-only; it will not run on macOS or an ARM
-  build, `OS_type: unix` in `DESCRIPTION` notwithstanding (that field
-  covers Unix-family in general, not this specific architecture
-  constraint).
-- `DESCRIPTION` sets `biocViews: Software`, which CRAN ignores but
-  Bioconductor requires -- a signal (not confirmed elsewhere) that
-  Bioconductor, not CRAN, may be the intended distribution channel; the
-  two have different (both restrictive) policies on bundling
-  precompiled binaries.
-- Options not evaluated in any depth yet: document the warning as an
-  accepted exception (some domain-specific packages do ship
-  platform-specific binaries with justification); build `arlem` from
-  source via `src/` + a `Makevars`/`configure` at install time instead of
-  shipping the binary; or find/request an existing conda-forge/bioconda
-  build of ARLEM and switch to the same absolute-path-via-conda-env
-  pattern §12 already established for MAFFT/HMMER.
-- Not investigated: whether ARLEM's own source is available at all (it
-  is an older academic tool) -- that alone may rule some options out
-  before the maintainer needs to weigh in on the rest.
-
-**Maintainer decision (2026-09-22): explicitly deferred, not decided now.**
-Distribution strategy (GitHub-only vs. CRAN vs. Bioconductor) is a
-prerequisite question this bundling decision depends on, and that has not
-been settled yet -- correctly parked rather than guessed at. Two things
-worth having on record for whoever picks this back up:
-
-- **This is not merely peripheral.** `.run_arlem()` is what
-  `tales_tale_distances()` calls, which is what `tales_compare_distal()`
-  (one of `test_golden.R`'s own "expensive paths") returns as
-  `tale_distances`, which both `tales_group_kmedoids()` and
-  `tales_group_hclust()` cluster on. If ARLEM cannot run on a given
-  machine, a large share of the package's actual analytical value goes
-  with it -- this is not a rarely-used corner.
-- **A second, independent risk surfaced while reading `.run_arlem()` for
-  this question, not previously on record anywhere:** it invokes the
-  binary via a bare `system(cmd, intern = TRUE)` with **no exit-status
-  check** -- unlike MAFFT/HMMER, which go through `.tantale_exec()`
-  (ledger §12) specifically because it checks. If `arlem` fails to
-  execute on some machine (wrong architecture, lost execute bit, ...),
-  `system()` will not necessarily throw; `scores` (the parsed
-  `"Score of aligning Seq:"` lines) can simply come back empty, and that
-  propagates into `.normalise_arlem_scores()` as silent bad output or a
-  confusing downstream error, not a clear message naming the real cause.
-  This is independent of the bundling/portability question above and of
-  low cost to fix on its own (wrap the call the same way
-  `.tantale_exec()` does) whenever this is picked up -- flagged here so
-  it is not lost before the bigger distribution-strategy question is
-  settled.
-  **Fixed 2026-09-23 [V]:** `.run_arlem()` now runs the binary through
-  `.tantale_exec()` (stdout redirected to a file), so a non-zero exit
-  aborts with `tantale_error_exec_failed` and the tail of ARLEM's stderr.
-  It then requires exactly `choose(n, 2)` score lines, or aborts with
-  `tantale_error_arlem_failed`, naming the binary and `R.version$platform`.
-  Checked on three failures: a stand-in that exits 0 and prints nothing,
-  `/bin/false` (status 1), and a copy without its execute bit (status
-  126, "Permission denied"). Tests in `test_arlem_r.R`. The binary's
-  path is now an argument (`arlem =`, defaulting to the bundled one)
-  so the tests can substitute it.
-
-**Third finding, 2026-09-23 -- the binary's own licence terms.** Read
-straight out of the binary (`strings inst/tools/arlem/arlem`), since
-nothing in the repo records them: "Copyright by Mohamed I. Abouelhoda (C)
-2007. Unauthorized commercial usage and distribution of this program is
-prohibited. Contact the author for a license." (contact address printed:
-`mohamed.ibrahim@uni-ulm.de`). The package is `License: MIT + file
-LICENSE`, and neither `LICENSE`, `LICENSE.md` nor `DESCRIPTION` mentions
-ARLEM, so the MIT label currently appears to cover a file it cannot
-cover. The sentence is ambiguous: "commercial" may qualify only "usage"
-or "usage and distribution" both. Under either reading, redistributing
-the binary inside tantale needs either a licence from the author or a
-documented exception. This question comes before the choice between
-GitHub, CRAN and Bioconductor: even GitHub-only distribution is still
-distribution. Also checked: a web search found no public ARLEM source
-and no conda/bioconda package, so "build from `src/`" and "take it from
-the conda env" (the options listed above) both depend on obtaining the
-source from the authors. Build info in the binary: C++, GCC 4.3.2
-(Ubuntu, ~2008), dynamically linked against the system libstdc++.
-
-### `tales_group_kmedoids()`'s fix, extended: validate `k_range` against `n`, not just type
-
-Maintainer's instruction, on seeing the fix above: don't stop at fixing the
-*example* -- the function itself let an invalid `k_range` reach
-`cluster::pam()` and surface *its* generic, unclassed message
-("Number of clusters 'k' must be in {1,2, .., n-1}; hence n >= 2") from
-inside `lapply()`, naming neither the package nor which arrays were
-involved. The existing `k_range` check only validated type (`NULL`/
-non-numeric); it did not check the values against `n`, the actual number
-of arrays being clustered.
-
-**Fixed:** a second check added right after that one, using
-`n <- nrow(distMat)` (the distance matrix is already built by this point):
-`cli::cli_abort()` if any `k_range` value is `< 1` or `> n - 1`, reusing
-the existing `tantale_error_group_kmedoids_krange` class (still "your
-`k_range` is invalid", just a second reason) rather than minting a new
-one. Message names both the valid bound and the values actually passed.
-`@param k_range` doc extended to state the bound; `man/tales_group_kmedoids.Rd`
-regenerated.
-
-**Tests added**, `test_tales_group_kmedoids.R`'s existing `k_range`
-section: one case exceeding `n - 1` (`k_range = 2:nTales` against the
-44-array fixture), one going below 1 (`k_range = 0:3`) -- both asserted
-against the same error class as the pre-existing type checks. 28/28 pass
-(was 26/26).
-
-Verified the original trigger is now caught with a proper message instead
-of `pam()`'s own: `tales_group_kmedoids(cmp$tales, cmp$tale_distances,
-k_range = 2:4, k = 2)` against the 4-array `tellTaleExampleOutput` fixture
-now raises `` `k_range` must be between 1 and 3 for 4 arrays. / Got 2, 3,
-and 4. `` with class `tantale_error_group_kmedoids_krange`, catchable and
-readable, where before it was a bare `cluster::pam()` message with no
-class at all.
+- `tales_group_kmedoids()`'s example tried `k = 4` on 4 arrays; fixed,
+  and `k_range` is now validated against `n - 1`
+  (`tantale_error_group_kmedoids_krange`).
+- The bundled ARLEM binary: Linux x86-64 only, an undeclared executable
+  for `R CMD check`, run without an exit check, and its own licence
+  string ("Unauthorized commercial usage and distribution of this program
+  is prohibited") does not clearly allow redistribution; no public source
+  or conda package found. Resolved by §33.
 
 ---
 
 ## 29. Function dependency diagram, to rebuild the maintainer's mental map -- phase 1 (29.1) and phase 2 (29.2) built **[V]**
 
-Maintainer's request, 2026-09-22: the package has grown enough (24 `R/`
-files, 9144 lines, 51 exports + 19 S3 methods + **107** internal `.xxx()`
-helpers -- 179 function definitions total, counted directly, not
-estimated) that the maintainer has lost their own mental map of it, and
-wants a function-dependency diagram covering internals too, and input/
-output objects (the `tales`/`tales_msa`/`pairwise_distances`/
-`tale_distances`/`domain_distances` class family) if that does not make it
-too cluttered.
-
-**Related to, but a distinct ask from, the existing `man/figures/pipeline.svg`
-item (§7.6, §7, §9.2a, §0, §10) -- not a duplicate:** that figure is a
-hand-drawn (Inkscape) *conceptual workflow* diagram, already found stale
-twice (pre-rename function names still on it as of §7.6; a refresh
-earlier in §7 didn't hold), and re-exporting it even once already needs a
-manual Inkscape step (librsvg would silently change the typography). §7.6
-left it as "redraw against the current API, or remove if nothing needs
-it" -- explicitly not yet acted on. This new item is about a genuinely
-different thing: not a curated one-page illustration of the main
-discovery→classification→alignment→prediction workflow, but a *complete,
-internals-included* call graph for navigation -- the two could end up
-served by different artifacts, or this one could end up superseding
-`pipeline.svg` if it can do both jobs without becoming unreadable.
-
-**Environment check before brainstorming:** `DiagrammeR`, `DiagrammeRsvg`,
-`igraph`, `visNetwork` and `codetools` are already available on this
-machine; `pkgnet`, `DependenciesGraphs` and `mvbutils` (three CRAN packages
-that generate exactly this kind of call graph off a package namespace) are
-not currently installed.
-
-**Not decided yet -- brainstorming with the maintainer, options on the
-table:**
-1. An automated, regenerable call graph (function calls function, derived
-   from source/namespace rather than hand-drawn) -- fixes the staleness
-   problem that hit `pipeline.svg` twice, and reaches internals for free
-   since it can walk the whole namespace, not just exported symbols.
-2. An interactive graph (zoomable/searchable/collapsible, e.g. `visNetwork`)
-   rather than a static image, specifically to manage the clutter risk from
-   179 functions -- lets the maintainer explore rather than needing
-   everything legible on one static page.
-3. A custom bipartite graph adding the class objects as their own nodes
-   (function -> produces -> class, class -> consumed by -> function,
-   matching the data-first calling convention), which none of the
-   off-the-shelf call-graph tools do out of the box -- more design effort,
-   but the part of the ask a plain call graph does not cover.
-
-Nothing built yet. To be continued once the maintainer and the assistant
-converge on an approach.
-
-**Decisions from the brainstorm, 2026-09-22 -- planning only, still not
-started:**
-
-- **Artifact: a `.qmd` file under `dev/`**, not published to the pkgdown
-  site -- a dev-only navigation tool, not a user-facing figure. Name not
-  yet chosen.
-- **Scope: phase 1 only for now** -- the automated function-call graph
-  (all 179 functions, internals included), interactive (`visNetwork`).
-  **Phase 2, the object-node layer** (`tales`/`tales_msa`/
-  `pairwise_distances`/`tale_distances`/`domain_distances` as graph nodes)
-  **explicitly deferred, not decided against** -- revisit once phase 1 is
-  built and it's clear whether it's legible enough to need it, or wants it.
-- **Grouping strategy for the 107 internals in the initial view --
-  decided: collapsed by file.** The graph opens showing one node per
-  `R/` file (~24 nodes) with edges for cross-file calls; a file node
-  expands on click into its individual functions. Not flat-from-the-start.
-
-**Sequencing, the maintainer's explicit call:** this item is planning
-only. **Actual implementation work starts with the website items instead
-(§25/§25b)**, not this diagram -- §29 stays a documented plan until picked
-up later, not next in line. **Standing instruction, not specific to this
-item: no coding starts on anything without the maintainer's explicit
-go-ahead first**, website work included.
+Maintainer's request (2026-09-22): a map of the package covering
+internals, and the class objects if legible. Decisions: a dev-only `.qmd`
+under `dev/`, interactive (`visNetwork`), generated from the code so it
+cannot go stale, opening grouped by file. Distinct from
+`man/figures/pipeline.svg` (§7.6), a curated workflow figure.
 
 ### 29.1 Phase 1 built, 2026-09-23 **[V]**
 
-Picked up at the maintainer's request. `dev/function-graph.qmd`, rendered
-with `quarto render dev/function-graph.qmd` (about 5 s) into a
-self-contained `dev/function-graph.html`. The HTML is gitignored because
-it is regenerated from `R/` on every render.
+`dev/function-graph.qmd`, rendered with `quarto render
+dev/function-graph.qmd` (about 5 s) into a self-contained
+`dev/function-graph.html` (gitignored).
 
-**Extraction.** Static parse of `R/*.R`; nothing is loaded or run.
-Nodes are top-level `name <- function(...)` definitions: 187 functions
-in the 22 files that define any (51 exported, 19 S3 methods, 117
-internal). The count was 179 on 2026-09-22; `R/arlem.R` (§33) accounts
-for the rise. Kind comes from `NAMESPACE`. Edges, from `getParseData()`
-tokens inside each definition's line range:
-- `SYMBOL_FUNCTION_CALL` or `SPECIAL` whose text is a package function,
-  skipping `pkg::name` for any `pkg` other than tantale (242 + 4 for
-  `%||%`, which the first draft missed because infix calls are `SPECIAL`
-  tokens);
-- `SYMBOL` naming a package function passed as a value, excluding
-  names bound locally (formals, assignment targets including `%<>%`,
-  `for` variables) and `$`/`@` accessors (2: `.arlem_histories`,
-  `.tale_parts_from_file`);
-- S3 dispatch from `as_tales()`, the only generic the package defines,
-  to its two methods.
+**Extraction.** Static parse of `R/*.R`, nothing loaded or run. Nodes:
+top-level `name <- function(...)` definitions, 187 in the 22 files that
+define any (51 exported, 19 S3 methods, 117 internal; kind from
+`NAMESPACE`). Edges from `getParseData()` tokens inside each definition:
+calls (`SYMBOL_FUNCTION_CALL` or `SPECIAL` for `%||%`, skipping other
+packages' `pkg::name`), functions passed by name (excluding local
+bindings and `$`/`@` accessors), and S3 dispatch from `as_tales()`, the
+only generic the package defines. String literals equal to a function
+name were checked: all are class names or message text. Constants
+(`TALES_KEY_COLS` etc.) are left out.
 
-String literals equal to a function name were checked: all 31 are class
-names, error-message text or method-name arguments (`"talvez"`,
-`"preditale"`), none a `do.call()` target, so they are not edges. Top-level
-constants (`TALES_KEY_COLS` etc.) are left out.
-
-**View.** `visNetwork`, one node per file at first. Double-click opens a
-file, double-click on a function folds its file again, and two buttons
-open or fold all files. Clicking a function highlights its direct callers
-and callees. `visClusteringByGroup()` was tried first and dropped: it
-clusters on the `group` field and, on opening a cluster, repaints the
-freed nodes in vis.js's default group palette, so the colour coding by
-function kind was lost. The folding is now a short `htmlwidgets::onRender()`
-script that clusters on a separate `file` field, leaving `group` for the
-kind. vis.js does not build a one-node cluster, so
-`talecorrection_java.R` shows its only function (`correct_tales`) in place
-of a file node.
-
-The page also has a searchable table of all functions (callers, callees,
-first comment line) and a list of internals with no caller in `R/`. On
-2026-09-23 that list holds four: `repeat_to_rvd_align()` and
-`.rvd_to_repeat_align()` (test-only, as `conversion.R` already notes),
-`.onAttach()` (called by R), and `.rvds_from_annotale_file()`
-(`tales_ingest.R:55`), which nothing in `R/` or `tests/` calls. Not acted
-on: a retirement decision for the maintainer, under the parking rule.
-
-**Checked in a headless browser** (chromote driving the Playwright
-Chromium in `~/.cache/ms-playwright/`; the snap Chromium does not open a
-debugging port under chromote): 22 nodes folded, 46 after opening
-`telltale.R`, 22 after re-folding, 187 after "Open all files", node
-colours kept on opening, highlight on `tell_tales` correct.
+**View.** One node per file at first; double-click opens a file or folds
+a function's file back; buttons open or fold all; a click highlights
+direct callers and callees. The folding is an `htmlwidgets::onRender()`
+script clustering on a `file` field: `visClusteringByGroup()` was tried
+and dropped, because it clusters on `group` and repaints opened nodes in
+vis.js's default palette. vis.js makes no one-node cluster, so
+`talecorrection_java.R` shows `correct_tales` itself. The page also has a
+function table and the list of internals with no caller in `R/`:
+`repeat_to_rvd_align()`, `.rvd_to_repeat_align()` (test-only), `.onAttach()`
+(called by R), `.rvds_from_annotale_file()` (called nowhere).
 
 **Blind spots**, listed on the page: methods of base and dplyr generics
-(`print.tales`, `[.tales`, ...) show no callers because dispatch through
-`print(x)` or `x[i]` is invisible to a parser; calls built from strings
-are not followed.
-
-**Still open:** phase 2 (class objects as nodes) remains deferred.
-`man/figures/pipeline.svg` (§7.6) is a separate item; this graph does not
-replace a curated workflow figure.
+show no callers; calls built from strings are not followed.
 
 ### 29.2 Phase 2: data-flow view -- built, 2026-09-23 **[V]**
 
 **Maintainer's decision:** a separate, smaller view (exported functions
-plus the five classes), placed first in `dev/function-graph.qmd`. It may
-later be reproduced on the site's home or getting-started page, so its
-code is kept self-contained.
+plus the classes), first on the page; may later be reproduced on the
+site's home or getting-started page, so its code is self-contained.
 
-**Method.** Three were considered: static reading of the source, run-time
-recording during the test suite, and a hand-written table. Static reading
-was the first proposal and was dropped after a look at the code: 17
-functions, internals included, run the same `is_tales()` check, and
-returned classes are often attached indirectly. The Rd `\value` sections
-were also scanned for class names; they mention classes that are not
-returned (`plot.tales_msa` names `tale_distances`) and do not separate
-the parts of a returned list (`tales_compare_distal()`). Run-time
-recording was chosen: `dev/function-graph-dataflow.R` traces every
-exported function and S3 method during `testthat::test_dir()` and writes
-the class of the first argument and of the return value (and of a
-returned list's elements) to `dev/function-graph-dataflow.tsv`, which is
-committed. Rendering the page stays fast; the page lists exported
-functions absent from the TSV so a stale recording shows. Coverage is
-whatever the tests exercise.
+**Method: run-time recording.** Static reading was dropped: 17 functions,
+internals included, run the same `is_tales()` check, and returned classes
+are often attached indirectly; Rd `\value` sections mention classes that
+are not returned. `dev/function-graph-dataflow.R` traces the 70 exported
+functions and S3 methods (`trace()` with entry and exit expressions),
+runs `testthat::test_dir(load_package = "none")` after
+`pkgload::load_all()` (about 4 minutes, 0 failures), and writes
+`dev/function-graph-dataflow.tsv` (committed): class of the first
+argument on entry (`..1` when the first formal is `...`), supplied
+arguments of a tracked class, the return class and the classes of a
+returned list's elements. Entry capture matters: `plot.tales()` does
+`x <- tales(x)`. Not recorded: the three `dplyr_*` methods (dplyr
+dispatches through its own copy) and five exports no test calls (START
+HERE item 6); the page lists them.
 
-**Recorder, as built.** `trace()` with an entry tracer and an exit
-expression on each of the 70 exported functions and registered S3
-methods, then `testthat::test_dir(load_package = "none")` after
-`pkgload::load_all()`. Two corrections after the first run: the argument
-class is taken on entry, since a body may reassign its argument
-(`plot.tales()` does `x <- tales(x)`); and supplied arguments other than
-the first are recorded when they belong to a tracked class. The second
-brought in the links that make the pipeline readable:
-`domain_distances` into `tales_tale_distances()` and `tales_align()`,
-`tale_distances` into `tales_group_hclust()` and `plot.tales_msa()`.
-For a function whose first formal is `...` (`tales_bind()`), `..1` is
-recorded. Full suite, 0 failures, about 4 minutes.
+**View.** 44 nodes: the five tantale classes, the three Biostrings sets
+that link functions (`BStringSet` from `tales_rvd_strings()` into
+`talvez()`), and the functions taking or returning them. Plain R types
+are in tooltips only (a shared "tibble" node would draw false paths). One
+hand-declared link, `tell_tales()` -> `tales_from_telltale()` through the
+results folder, guarded by `stopifnot()`. Validators, predicates,
+`print`/`format`/`[` methods and the `as_tales` methods are left out by a
+name pattern. The hierarchical layout drew one long line (cycles such as
+`tales` -> `tales_group_hclust()` -> `tales`); force layout used.
+Constructors share their class's name, so node ids carry `fn:`/`class:`
+prefixes.
 
-Not recorded: the three `dplyr_*` methods (dplyr dispatches through its
-own copy of the registered method, which `trace()` does not reach) and
-five exported functions no test calls: `plot_target_preds()`,
-`preditale()`, `run_annotale_build()`, `run_annotale_predict()`,
-`talomes_heatmap()`. The page lists these.
-
-**View.** First section of the page. Nodes: the five tantale classes and
-the three Biostrings sets that link functions (`BStringSet` from
-`tales_rvd_strings()` into `talvez()`), plus the exported functions and
-S3 methods that take or return one of them (44 nodes). Plain R types
-(tibbles, character, ggplot) are not nodes; a shared "tibble" node would
-draw false paths such as `tales_anomalies()` into `tales()`. They are in
-each function's tooltip. One hand-declared link, `tell_tales()` to
-`tales_from_telltale()` through the results folder, guarded by a
-`stopifnot()` on both names. Validators, predicates, `print`/`format`/`[`
-methods and the two `as_tales` methods are left out by a name pattern.
-
-Layout: vis.js hierarchical layout (left to right, directed sort) was
-tried first and drew a single long line, because of cycles such as
-`tales` into `tales_group_hclust()` and back. Force layout used instead.
-Constructors share their class's name (`tales()` makes a `tales`), so the
-first draft merged each constructor into its class node; node ids now
-carry `fn:`/`class:` prefixes and function labels end in `()`.
-
-**For reuse on the site** (home or getting-started page, maintainer's
-idea): the chunk reads only the TSV and `NAMESPACE`. It would need the
-TSV moved somewhere the site build can read, prose written for users,
-and a check that `visNetwork` renders inside pkgdown's Bootstrap 5 page
-(DT tables break in pkgdown pages through a jQuery conflict).
+**For the site:** the chunk reads only the TSV and `NAMESPACE`; it would
+need the TSV where the site build can read it, user-facing prose, and a
+check that `visNetwork` works inside pkgdown's Bootstrap 5 pages (DT
+tables break there through a jQuery conflict).
 
 ---
 
 ## 30. Full website prose review against `feedback_writing_tone` -- articles/README/index and reference pages DONE; parallel-phrasing sweep deferred **[V]**
 
-Maintainer's suggestion, 2026-09-22, tentative ("may be worth it") --
-recorded so it isn't lost, not committed to as a scheduled task.
+2026-09-23. All 8 articles, README, `pkgdown/index.md` and the 63
+published reference topics, checked against their rendered output
+(`docs/articles/<name>.md`, figures) or the code, with the tone checklist
+(memory `feedback_tantale_doc_language`). Many content errors fixed, among
+them: `tale_msa.qmd` claimed the scoring matrix gave a more compact
+alignment (it displaced a half-repeat, §32.3); `pkgdown/index.md` called a
+nine-group dendrogram "three clean groups"; the motif tree figure had no
+tip labels; the `pairwise_distances` pages described a similarity with a
+`sim` score; README and `?tantale` said tantale bundles no programs.
 
-The "A, not B" parallel-antithesis writing tic (see the assistant's own
-memory, `feedback_writing_tone`) was caught and fixed in two places this
-same session (`trunctale_correction.qmd`'s first draft, and two spots
-introduced while rewriting `tale_mining.qmd`'s correction sections for
-§25b). Neither the rest of the existing site (`tale_classification.qmd`,
-`tale_msa.qmd`, `tales_class.qmd`, `tales_msa_class.qmd`,
-`tale_target_prediction.qmd`, `getting_started.qmd`, `README.md`,
-`pkgdown/index.md`) nor the reference-page prose has been checked for it.
+**Deferred (maintainer):** a second sweep for parallel/paired phrasing
+(habit 2 in `dev/CLAUDE.md`).
 
-Not started: no sweep attempted, no article read with this specific
-pattern in mind yet. Whenever it is picked up, it is a read-and-edit pass
-per file, not something to automate by search-and-replace -- the pattern
-is a rhetorical habit, not a fixed string, and most existing prose
-predates the memory that names it.
-
-
-### Executed 2026-09-23: articles, README, `pkgdown/index.md`
-
-Maintainer's go-ahead, with an added requirement: **every statement must
-agree with what the render code actually produces** (tables, figures,
-return values), on top of the tone rules. Method: each `.qmd` read side by
-side with its rendered `docs/articles/<name>.md` (pkgdown's LLM docs carry
-the prose *and* every chunk output) plus every figure PNG looked at
-directly; any claim not visible in the render checked against the code,
-the cached `_cache/*.rds` objects, or a fresh run. Checklist: memory
-`feedback_tantale_doc_language` (domain vs repeat, no "A, not B", no
-archaeology, biology embedded, plain conclusions). Scope: all 8 articles,
-`README.md`, `pkgdown/index.md`. **Not done: reference-page (roxygen)
-prose** -- the other half of this item's original scope.
-
-**Content mismatches found and fixed** (tone edits, made throughout, are not itemised):
-
-- `getting_started.qmd`: plot said "coloured by domain type" -- fill is
-  `aa_length`, only the outline is `domain_type` (`R/tales_plot.R:67`).
-  "Where to next" was missing the truncTALE article.
-- `tale_mining.qmd`: MAI1 plot described as "every array runs the full
-  width of its row" (lengths vary, 14-26 repeats); `array_report.tsv` has
-  10 rows vs 9 arrays (`ROI_00005`, `has_all_domains` FALSE, no ORF) --
-  now explained. Callout attributed the 252 s timing to "the default" --
-  it was measured against the 1057-sequence source set, the shipped
-  default is 494 (`R/telltale.R:1251`). "Ten seconds" for the 20-cap run
-  -> ~20 s (render: 18.6 s). ROI_00001's failure was cross-referenced to
-  the wrong section. "This is a frameshift, not a truncation -- compare
-  orf_coverage" did not follow from coverage alone (a truncTALE also has
-  low coverage); now grounded in the corrections restoring 91-93%, links
-  the truncTALE article, and notes every BAI3-1-1 array is at 38-70%.
-  Caption "recover both arrays fully" -> "to 91-93%". `correct_tales()`'s
-  table called "substitutions" (they are insertions).
-- `tales_class.qmd`: anomalies described as arrangement-only (the checks
-  also cover missing data, aa_seq->rvd consistency, coordinates);
-  `summary()` said to show domain redundancy (only once `dom_code`
-  exists -- the rendered call precedes it); `alignment_position` called an
-  attribute (it is a column). Archaeology callout ("this exact error was
-  made ... while writing `summary.tales()`") removed.
-- `trunctale_correction.qmd`: **said `ROI_00001`'s N-terminus is
-  "unaffected" -- it is 230 aa, same as `ROI_00019`** (283-288
-  elsewhere); fixed, and tied to Read et al.'s partial N-terminal loss.
-  **`correct_tales()`'s "+1 aa" was a cross-source artefact**: the
-  `tales` table gives 183, `array_report.tsv` 184 before and 184 after
-  (`orf_coverage` 83 -> 83) -- `correct_tales()` changed neither. Summary
-  table now "+33 aa" / "unchanged". Callout row "1057 (default)" -> "all
-  494 (default)": §25's "default full-1057-reference run" was the
-  default, i.e. 494 (this ledger's §25 wording is the error). Summary
-  said "neither tool distinguishes" the frameshift signal, contradicting
-  its own `correct_tales()` result.
-- `tale_classification.qmd`: silhouette plot rendered but never
-  mentioned; `k = "auto"` picks the elbow (k = 9); k = 11-13 have a
-  marginally higher average silhouette -- now said. Ninth group (MAI1 + BAI3
-  only) now noted. Backend claims "by far the fastest" and "implement the
-  same pairwise alignment" unsupported anywhere -- softened. Heatmap
-  encoding described from the code (colour = variant rank, `#` = variant
-  count); BAI3 = BAI3-1-1 everywhere, MAI1 differs in 5 of 9. **Motif tree
-  figure was broken** (no tip labels, legend "character(0)": defaults
-  `labels = "none"`, `linecol = "family"`) -- chunk now passes
-  `labels = "name"`, rectangular, no legend, widened x expansion. Functal
-  result stated concretely (MAI1 = same 12 RVDs + `NG-NI-NG-NI`; 0.25).
-  `average_ic` threshold named (0.25, `compare_motifs()` default).
-  **`tales_group` chunk now always recomputes** (cheap; still writes the
-  cache) so the silhouette plot appears on every render, warm cache
-  included.
-- `tale_msa.qmd`: **"Scored, the gap is one column narrower ... more
-  compact" was false.** Both alignments are 18 wide with 4 gap columns;
-  the matrix moves BAI3/BAI3-1-1's final half-repeat (`dom_code` 29,
-  20 aa) from column 17 -- matched with MAI1's *identical* half-repeat --
-  to column 13, opposite MAI1's full `NI` repeat (code 31). Rewritten to
-  say so; `R/tales_msa_class.R:536`'s own comment already says there is no
-  evidence the matrix makes alignments biologically better. "Deletion"
-  (assumes direction, no outgroup) -> "lack four repeats". Similarity plot
-  now pointed at its one visible difference (BAI3-1-1's N-terminus, own
-  `dom_code` 85, ~99.7%).
-- `tales_msa_class.qmd`: **"`tales_width()` ... is gone" after
-  `as_tales()` -- render prints 18.** Prose now describes current
-  behaviour (see open question 1). Label colours: grey for gap-consensus
-  added. `rvd_sim` figure's grey `NV` cells explained (see open
-  question 2).
-- `tale_target_prediction.qmd`: "same column layout" (different order,
-  `rank` vs `pval`, different score scales); the `OO` box (position 0)
-  explained; closing sentence credited the alignment article with a
-  claim it does not make.
-- `pkgdown/index.md`: **dendrogram described as "three clean groups" --
-  it shows nine** (8 one-per-strain + 1 pair), caption and alt text fixed.
-- README: typo ("lenght"), minor tone. Both LLM-use statements untouched.
-
-### Reference pages, 2026-09-23 -- DONE
-
-All 63 published reference topics (every `man/*.Rd` without
-`\keyword{internal}`), edited in their roxygen source, one R file at a
-time: the "A, not B" contrast, implementation history, internal pointers
-a reader cannot follow, grammar/typos, and accuracy against the code or
-a run of the example. Method: a helper listing every non-`@noRd`,
-non-internal roxygen block per file; a grep of the generated `man/` for
-the tone patterns before and after (all hits cleared). `devtools::document()` and `tools::checkRd()` clean
-(only the pre-existing UTF-8 notes, declared in `DESCRIPTION`).
-
-**Accuracy fixes, beyond the tone edits:**
-- `pairwise_distances` family: titles and description called the class a
-  "similarity table ... with a `sim` score"; it stores `dissim` (a `Sim`
-  input is converted, 65 -> 35, checked). Renamed to "distance table"
-  throughout, and what `dissim` means for each flavour is now stated.
-- `tales_namespace()`: a join across runs would match "the wrong
-  repeats" -> "domains" (`dom_code` covers termini).
-- `as_tales()`: now says what happens to a `tales_msa` (demoted, width
-  dropped: §32.1). Pointer to `dev/class-design.md` removed.
-- `repeat_to_rvd_map_distalr()`, `tale_parts_to_rvd()`: documented their
-  input as "the tale_parts object in a `tales_compare_distal()` output",
-  which does not exist (it returns `tales`, `domain_distances`,
-  `tale_distances`). Now: a `tales`/data frame with the named columns.
-  (Both functions otherwise untouched: §2/§20 are parked.)
-- `summary.tales()`: cited "251 distinct codes ... on the reference
-  fixture", an internal test fixture; now the shipped example's figures
-  (47 codes: 39 repeats, 8 termini; checked by running it).
-- `plot.tales()`: "coloured by domain type" -> outlined by domain type,
-  filled by length (as in §30's article fix). `plot.tales_msa()`: grey
-  label colour (no consensus) added, and `rvd_sim`'s grey cells for RVDs
-  outside `rvdSimDf`'s 17 (§32.2) documented.
-- `rvd_dna_specificity`: source path was `inst/tools/QueTAL_v1.1/...`,
-  the file lives in `inst/legacy/`; `"H*"`/`"N*"` were called "anchor
-  codes" (they are RVDs lacking residue 13); `"OO"` (position 0)
-  explained.
-- `?tantale` and README: "tantale does not bundle the programs it
-  drives" contradicted the shipped Java tools (AnnoTALE, PrediTALE, TALE
-  correction; the README even said "ships about 60 MB of Java programs"
-  a few lines later). Fixed in both.
-- `talomes_heatmap()`: description and params rewritten from the code
-  (colour = variant rank within the group, `#n` = variant count, grey =
-  absent, `trunc_tales_col` marks "T").
-- `tell_tales()`: `@param frameshift` ("fiddle with this at your own
-  risk...") rewritten with DECIPHER's own default (-15, checked);
-  typos ("C-TREM" x2, "wound by HMMer", "whch", "attemps", "iTALES",
-  "This functions").
-- Development history removed: ledger/`restructuring-notes.md` citations
-  in `tales_compare_functal()`/`tales_to_universalmotif()`, "Previously a
-  hardcoded 7" (`tales_group_kmedoids()` `seed`), "the former
-  `tales_compare()`" and "Named for the algorithm, not just historically"
-  (`tales_compare_distal()`), "replaces the hand-written `acast()` at four
-  call sites" and similar in the distances family, an internal function
-  name (`.tales_group_kmedoids_elbow()`).
-- Four titles ending in a period (`checkRd` note) fixed.
-
-Not done here: the parallel-phrasing sweep (deferred, below), and any
-doc change for §32.3 (waits on the maintainer's choice of fix).
-
-**Future work under this item (maintainer, 2026-09-23): a second tone
-sweep for parallel/paired phrasing** -- balanced doublets and rhetorical
-pairs/triplets, with or without a "not" (memory `feedback-writing-tone`,
-habit 2; also in `dev/CLAUDE.md`'s Documentation rules). This pass only
-targeted the "A, not B" contrast; an attempted parallel-phrasing edit
-batch was reverted on the maintainer's instruction ("for future work").
-
-**Open questions for the maintainer, surfaced by this pass** (items 1-4 triaged 2026-09-23, now tracked in §32):
-
-1. `as_tales()` on a `tales_msa` goes through `tales()`, which drops the
-   class but keeps the `alignment_width` attribute; the `select()`
-   demotion path (`.tales_regrade()`) removes it. Intended?
-2. `fill_type = "rvd_sim"` reads internal `rvdSimDf`, which covers 17
-   RVDs; `rvd_dna_specificity` has 404. Any other RVD (here `NV`) plots as
-   no-score grey even when identical to the reference. Possibly the same
-   gap in the MAFFT `domain_distances = "rvd"` matrix -- not checked.
-   (§21 territory, maintainer's.)
-3. The `domain_distances` scoring matrix displaced an identical
-   half-repeat match (above). Worth checking whether identical codes
-   actually score best in the recoded MAFFT matrix.
-4. `tales` C-terminus `nchar(aa_seq)` vs `array_report.tsv`
-   `cterm_aa_length` differ by one on PXO86's two truncated arrays only
-   (183/184, 42/43; normal arrays agree at 286). Cause not investigated.
-5. Rendered error messages show a source path ("at
-   tantale/R/tales_class.R:818:3") -- install keeps srcrefs; cosmetic.
-6. Seen in passing for the reference-page sweep: `tales_group_kmedoids()`
-   `@param seed` ("Previously a hardcoded 7" -- archaeology);
-   `tell_tales()` `@param frameshift` ("fiddle with this at your own
-   risk..."), `@return` ("This functions"); `talomes_heatmap()`
-   description style.
+Open from this pass: rendered error messages of an installed package show
+a source path ("at tantale/R/tales_class.R:818:3"), cosmetic. Its other
+findings became §32.
 
 ---
 
 ## 31. §25/§25b's official-publish steps, executed -- DONE **[V]**
 
-Maintainer's go-ahead, 2026-09-22, on the whole pending checklist from
-§25/§25b: `_pkgdown.yml` registration, version bump, `NEWS.md`, a full
-site rebuild, and a commit.
-
-**Done so far:**
-- `_pkgdown.yml`: `articles/trunctale_correction` added to the `Learn
-  tantale` `contents:` list, right after `articles/tales_class` (same
-  slot pattern as the other tale_mining-extending deep dive).
-- `NEWS.md`: two new entries at the top -- the new truncTALE article
-  (with both literature links), and `tale_mining.qmd`'s correction
-  sections being brought in line with the `correct_tales()` fix.
-- Version bumped `0.9.9004` -> `0.9.9005`. `usethis::use_version("dev")`
-  refused non-interactively (uncommitted changes, needs a confirmation
-  prompt this session cannot answer) -- bumped `DESCRIPTION`'s `Version`
-  field directly instead, same value that call would have produced.
-  Package reinstalled (`devtools::install(quick = TRUE, upgrade = FALSE)`)
-  before any rebuild.
-- **`docs/` fully deleted before rebuilding**, per the maintainer's own
-  standing instruction (this file's `CLAUDE.md`, added 2026-09-22) --
-  clears whatever stale `.md`/`.html` had accumulated (a duplicated
-  `docs/articles/articles/...` nesting was visible before the wipe).
-
-**Full site rebuild, decomposed, in progress at time of writing --**
-not `pkgdown::build_site()` (would re-trigger §15's quarto-project
-ordering bug across the four cache-sharing articles), but its own call
-sequence read directly out of `pkgdown:::build_site_local()`'s source so
-nothing it normally does is skipped: `init_site()`, `build_home()`,
-`build_reference()`, `build_articles_index()`, then `build_article()`
-once per article -- `tale_classification` first to prime the shared
-cache, matching §15's precedent -- then `build_tutorials()`,
-`build_news()`, `build_sitemap()`, `build_llm_docs()` (this pkgdown's
-bootstrap version is 5, so this step and `build_search()` apply rather
-than their bs3 equivalents), `build_redirects()`, `build_search()`,
-`check_built_site()`.
-
-**Two mechanical mistakes on the first two attempts, both fixed, neither
-a real problem:** `build_reference()` and `build_news()` do not accept a
-`quiet` argument (unlike most other `build_*` functions) -- passing one
-raised `unused argument (quiet = FALSE)` and halted the whole script both
-times. First failure was caught before `build_reference()` ran anything
-(cheap to rerun from the top); second failure was caught only after
-`build_reference()` and all eight articles had already built successfully
-(18 minutes) -- resumed from `build_news()` onward rather than repeating
-that.
-
-**Clean on the third attempt, confirmed:** 9 articles (`docs/articles/*.html`,
-including `trunctale_correction.html`), 83 reference pages, `docs/news/index.html`,
-`docs/search.json` all present; `check_built_site()` printed its "Checking
-for problems" header and nothing else -- no problems reported.
-`build_redirects()`'s own output confirmed `docs/articles/articles/<name>.html`
-paths are deliberate single-file redirect stubs it creates itself, not
-stale cruft (corrects an assumption made earlier in this same item).
-
-**Deleting `docs/` first paid off concretely, not just as a precaution:**
-`git status` after the rebuild shows 228 deletions -- entire old
-numbered-vignette-era articles (`1_tale_mining.html`,
-`2_tale_classification.html`, `p2_multiple_alignments.html`, their
-`_files/` dependency and figure folders, predating §7.5c) that the
-per-article `build_article()` loop had been silently leaving behind on
-every previous rebuild because it only ever writes or overwrites, never
-removes. This is the concrete case the maintainer's 2026-09-22 instruction
-(now in `dev/CLAUDE.md`'s standing rules) was about.
-
-**Committed and pushed, 2026-09-23**, maintainer's explicit request for
-both. `dev/CLAUDE.md`'s "Where things stand" updated in the same commit
-to fold in §25/§25b/§31 for a clean handoff to a fresh session.
+The truncTALE article registered in `_pkgdown.yml`, `NEWS.md` entries,
+version 0.9.9005, a full site rebuild from an emptied `docs/` (which
+removed 228 stale files from the numbered-vignette era that the
+per-article loop had kept). `build_reference()` and `build_news()` take
+no `quiet` argument. `docs/articles/articles/<name>.html` files are
+`build_redirects()` stubs.
 
 ---
 
 ## 32. Four findings from §30's render check -- 32.1, 32.3, 32.4 fixed; 32.2 awaits a decision **[P]**
 
-Surfaced while checking the articles against their rendered output (§30,
-"open questions"). Maintainer's triage below; none acted on yet.
-
 ### 32.1 `as_tales()` keeps `alignment_width` on a demoted object -- **FIXED 2026-09-23** **[V]**
 
-Maintainer: "not intended and an issue to flag as top priority".
-
-What happens: `as_tales()` on a `tales_msa` dispatches to
-`as_tales.data.frame()` (`R/tales_class.R:237`), which calls `tales(x)`.
-That drops the `tales_msa` class but leaves the `alignment_width`
-attribute in place, so `tales_width(as_tales(msa))` still returns the
-width (18 in `tales_msa_class.qmd`'s render). The other demotion path is
-correct: `select(-alignment_position)` goes through `.tales_regrade()`
-(`R/tales_class.R:~880`), which removes the attribute when the
-`tales_msa` contract no longer holds; `.tales_declass()` removes it too.
-
-Likely fix: have `tales()` (or a dedicated `as_tales.tales_msa()` method)
-drop `alignment_width` whenever the result is not a `tales_msa`. Then:
-add a test (`tales_width(as_tales(msa))` is `NULL`); update
-`tales_msa_class.qmd`'s demotion paragraph, which currently describes the
-buggy behaviour ("The stored width travels along with the demoted object,
-so `tales_width()` still answers") and restore the original intent (the
-width claim goes away on demotion); re-render that article.
-
-**Fixed, 2026-09-23.** The cause sat one level lower than `tales()`:
-`new_tales()` calls `tibble::as_tibble()`, which drops a `tales_msa`
-class but keeps its attributes. `new_tales()` now removes
-`alignment_width` (its output is always a plain `tales`;
-`new_tales_msa()` sets the width after it runs). Safe for the one
-`tales_msa()` caller, `tales_align()`, which passes the width explicitly;
-a `tales_msa()` call without a width already derived it from
-`max(alignment_position)`, unchanged. `dom_code_namespace` still survives
-demotion, as intended.
-
-Verified: new test in `test_tales_msa_class.R` ("as_tales() and tales()
-demote a tales_msa without its width") fails twice on the unfixed code
-and passes on the fix; `test_tales_msa_class.R` 26/26,
-`test_tales_class.R` 45/45, `test_print.R` 13/13, `test_golden.R` 16/16
-(no baseline change). Tests were run from a scratchpad copy of HEAD plus
-the fix, because the working tree held another session's uncommitted
-ARLEM work (`R/arlem.R`, `R/distalr.R`) that `load_all()` would have
-picked up. `tales_msa_class.qmd`'s demotion paragraph now says the width
-goes with the class.
+`new_tales()` calls `tibble::as_tibble()`, which drops the `tales_msa`
+class but keeps attributes; `new_tales()` now removes `alignment_width`.
+`dom_code_namespace` still survives demotion, as intended. Test in
+`test_tales_msa_class.R`.
 
 ### 32.2 `rvdSimDf` covers 17 RVDs, `rvd_dna_specificity` covers 404 -- **undecided, options below** **[P]**
 
@@ -8948,478 +1235,102 @@ Maintainer: known; unsure what is best; describe the options so a
 decision can be made later.
 
 Facts: internal `rvdSimDf` (289 rows = 17 x 17 RVDs, columns
-`rvd1`/`rvd2`/`Cor`; derived from TALVEZ's `mat1`, see the
-`.rvd_score_table()` docs in `R/tales_msa_class.R`) is the only source
-for two things: `plot.tales_msa(fill_type = "rvd_sim")` via
-`.rvd_to_match_align()` (`R/tales_plot.R`), and -- per its own docs -- the
-MAFFT matrix behind `tales_align(domain_distances = "rvd")` (not
-re-checked for this note). Exported `rvd_dna_specificity` has 404 RVDs
-with A/C/G/T preference counts. Any RVD outside the 17 gets `NA`: in the
-plot it is grey even when identical to the reference (`NV` in group 6).
-Worth checking what `.build_repeat_msa()` does with it: it
-`stopifnot()`s that every residue is in the table for a *custom* matrix;
-the `"rvd"` branch was not read for this note.
+`rvd1`/`rvd2`/`Cor`; Spearman correlation of TALVEZ's `mat1` base
+profiles) feeds two things:
+- `plot.tales_msa(fill_type = "rvd_sim")` via `.rvd_to_match_align()`:
+  any RVD outside the 17 gets `NA` and plots grey, **even when identical
+  to the reference** (`NV` in group 6 of `tale_msa.qmd`);
+- the MAFFT matrix of `tales_align(domain_distances = "rvd")`, through
+  `.rvd_score_table()` (`R/tales_msa_class.R:436`). **Checked
+  2026-09-23: this side already falls back**: an unknown pair scores 0
+  (neutral) and any RVD against itself scores 1. So the alignment handles
+  rare RVDs; only the plot does not.
+
+Exported `rvd_dna_specificity` has 404 RVDs with A/C/G/T preference
+counts.
 
 Options, not evaluated:
-1. **Recompute the similarity from `rvd_dna_specificity`**: Spearman
-   (as now) or Pearson correlation of each pair's A/C/G/T profile, for
-   all 404 RVDs (~163k pairs, or on demand for the RVDs present). Pro:
-   one source of truth, full coverage. Con: rare RVDs have few
-   observations, so their profiles (and any correlation) are noisy; a
-   4-point correlation is crude in any case; values for the current 17
-   would change, which changes existing `rvd_sim` plots and `"rvd"`
-   alignments (golden baseline impact to check).
-2. **Keep the 17, fall back for the rest**: score identical RVDs as 1
-   (a self-match is certain, whatever the table says), leave other
-   unknown pairs `NA`. Smallest change; fixes the misleading grey on
-   identical RVDs; does nothing for comparisons between rare RVDs.
-3. **Hybrid**: the 17 from `rvdSimDf` as now, the rest computed from
-   `rvd_dna_specificity` with a minimum-count threshold below which the
-   pair stays `NA`.
-4. **A different similarity measure** (e.g. 1 - Jensen-Shannon
-   divergence between normalised base-preference profiles): arguably
-   better suited to probability profiles than a correlation of four
-   numbers; would change existing values as in option 1.
+1. **Recompute the similarity from `rvd_dna_specificity`** (Spearman as
+   now, or Pearson) for all RVDs, or on demand for those present. One
+   source of truth, full coverage. Rare RVDs have noisy profiles, a
+   4-point correlation is crude, and the 17 current values would change
+   (existing `rvd_sim` plots and `"rvd"` alignments; golden impact to
+   check).
+2. **Keep the 17, fall back for the rest**, as `.rvd_score_table()`
+   already does: identical RVDs score 1, other unknown pairs stay `NA` in
+   the plot. Smallest change; fixes the misleading grey on identical RVDs.
+3. **Hybrid**: the 17 from `rvdSimDf`, the rest computed from
+   `rvd_dna_specificity` above a minimum count, `NA` below it.
+4. **A different measure** (e.g. 1 - Jensen-Shannon divergence between
+   normalised profiles), better suited to probability profiles; changes
+   existing values as in option 1.
 
-Whatever is chosen, the plot legend and the `rvd_sim` docs should say
-what an `NA` (grey) cell means.
+Whatever is chosen, the plot legend and the `rvd_sim` docs should say what
+a grey cell means.
 
 ### 32.3 The `domain_distances` matrix displaced an identical half-repeat -- **FIXED 2026-09-23 (option 1, `penalizeGapLetterMatches = TRUE`)** **[V]**
 
-Maintainer: "good catch", elaborate so we can figure out what is going on.
+Symptom: with `domain_distances` as MAFFT's scoring matrix, BAI3's
+terminal half-repeat (`dom_code` 29, a 20-aa prefix of the full repeat
+31) aligned against MAI1's full repeat 31 instead of MAI1's identical 29.
+Cause: `DECIPHER::DistanceMatrix()` defaults to
+`penalizeGapLetterMatches = FALSE`, so an overhang counted as nothing and
+`dissim(29, 31) = 0`.
 
-Observation (`tale_msa.qmd`, group 6 = `MAI1_ROI_00007`,
-`BAI3_ROI_00007`, `BAI3-1-1_ROI_00006`): BAI3/BAI3-1-1 lack four repeats
-MAI1 has. All three arrays end with the same 20-aa half-repeat,
-`dom_code` 29 (`LTPAQVVAIASNIGGKQALE`, RVD `NI`). Without a matrix, MAFFT
-aligns BAI3's 29 with MAI1's 29 (column 17) and puts the 4-column gap at
-13-16. With `domain_distances = cmp$domain_distances`, it aligns BAI3's
-29 against MAI1's code 31 (column 13) -- a *full-length* `NI` repeat,
-`LTPAQVVAIASNIGGKQALETVQRLLPVLCQAHG` -- and moves the gap to 14-17,
-against the C-terminus. Same width (18), same gap count.
+DisTAL's definition (Pérez-Quintero et al. 2015, doi
+10.3389/fpls.2015.00545): global alignment with free end gaps, distance =
+share of residues that differ, based on the longer repeat. Half vs full
+repeat = 14/34 = 41.2. Now followed by all three backends:
+- DECIPHER: `penalizeGapLetterMatches = TRUE` (version 0.9.9007);
+- Biostrings: `type = "overlap"` (free end gaps; internal gaps keep their
+  cost; 0.9.9008);
+- mmseq2 already agreed.
 
-**Mechanism: `dissim(29, 31) = 0`.** The half-repeat is an exact prefix of
-repeat 31, and the domain distance evidently normalises by the *shorter*
-sequence (or scores a local/overlap alignment), so a 14-residue length
-difference costs nothing. `.as_mafft_score_table()` turns this into
-`sim = 100 - dissim = 100`, the same score as 29-vs-29. MAFFT therefore
-sees two equally good placements for BAI3's half-repeat and the tie is
-broken by gap placement (`--op 0 --ep 5`, so opening a gap is free and
-the two placements cost the same). Other values from the same table, for
-scale: 29 vs 24/49 = 5 (one mismatch in 20), 29 vs 45 = 10, 29 vs 40 = 20;
-full repeats differing by one residue are 2.94 (1/34).
-
-Where to look: the `dissim` formulas in `R/distalr.R`
-(`tales_domain_distances()`): line ~455 for the Biostrings backend
-(`100 - 100 * (max_length - score) / max_length`, then inverted), ~529
-for mmseq2 (`100 - pident * min(qcov, tcov)` -- note `min` of the
-coverages, which *should* penalise a length difference, so check whether
-that backend gives 29-vs-31 a non-zero distance), ~563-569 for DECIPHER
-(`DistanceMatrix(msa, method = "longest", ...)` on a multiple alignment --
-the likely culprit if the default backend's "longest" treats terminal
-gaps as non-informative; the cached run used DECIPHER).
-
-Questions to settle:
-1. Is a zero distance between a half-repeat and the full repeat it is a
-   prefix of intended? For ARLEM's array-level distances (DisTAL), a
-   terminal half-repeat matching a full repeat cheaply may be the
-   intended DisTAL behaviour -- check against the QueTAL paper before
-   changing anything.
-2. If the domain distance stays as is, should `tales_align()`'s matrix
-   still use it unchanged? A length-aware adjustment only for the MAFFT
-   matrix (e.g. penalise pairs whose lengths differ) would keep
-   half-repeats matched to half-repeats without touching DisTAL.
-3. Separately: `sim` runs 10-100 here, all positive. Check how MAFFT's
-   `--textmatrix` treats an all-positive matrix (whether it rescales or
-   expects negative mismatch scores); that affects every scored
-   alignment, not just this tie.
-4. `R/tales_msa_class.R:536` already notes there is no evidence the
-   matrix makes alignments biologically better. This case is a
-   concrete counter-example worth turning into a test fixture.
-
-**Investigation, 2026-09-23 -- root cause found.**
-
-*The zero comes from `DECIPHER::DistanceMatrix()`'s gap handling.*
-`.pairwise_align_decipher()` (`R/distalr.R`, the default backend) calls
-`DistanceMatrix(msa, method = "longest", includeTerminalGaps = TRUE)` but
-leaves `penalizeGapLetterMatches` at its default, `FALSE`: "ignores gaps
-paired with letters" (DECIPHER 3.8.0 docs). So `method = "longest"`
-widens the region, yet a gap opposite a residue never counts as a
-difference, and the denominator is effectively the ungapped overlap.
-Reproduced on four sequences, before any `StaggerAlignment()`: 29 vs 24
-is 3 mismatches / 20 = 15%, 29 vs 49 is 1/20 = 5%, 29 vs 31 is 0/20 = 0.
-The same default also ignores *internal* indels between domains, and so
-aberrant repeats with a deletion look identical to the full repeat.
-
-*What each backend gives for the half-repeat (29) against three full
-repeats:*
-
-| 29 vs | 31 (same prefix) | 49 (1 mismatch) | 24 (3 mismatches) |
-|---|---|---|---|
-| DECIPHER as used (`penalizeGapLetterMatches = FALSE`) | 0 | 5 | 15 |
-| DECIPHER, `penalizeGapLetterMatches = TRUE` | 41.2 | 44.1 | 50 |
-| DECIPHER, `penalizeGapLetterMatches = NA` (one penalty per gap run) | 4.8 | 9.5 | 19 |
-| mmseq2 (`100 - pident * min(qcov, tcov)`) | 41.2 | 44.1 | 50 |
-| Biostrings (global, gap open 1 / extend 0.5) | 64.7 | 67.6 | 73.5 |
-
-All backends agree on equal-length pairs (2.94 per mismatch in 34). The
-disagreement is only about length differences and indels.
-
-*What DisTAL intended.* QueTAL paper (Pérez-Quintero et al. 2015,
-doi 10.3389/fpls.2015.00545): repeats are aligned "with the
-Needleman-Wunsch algorithm", "a global alignment with sliding ends (no
-gap penalty)", and the distance is "the percentage of amino acids that
-change between repeats (based on the longest repeat among the two
-aligned)". `.pairwise_align_biostrings()`'s own comment calls its
-`(max_length - score) / max_length` formula "an approximate equivalent of
-how Alvaro computed dissimilarity in distal". Read together: overhanging
-residues count as changed, normalised by the longer repeat, so 29 vs 31
-= 14/34 = **41.2**, which is what mmseq2 and DECIPHER-with-`TRUE` give.
-The current default backend is the one that departs from DisTAL. (The
-original DisTAL code is not in the repo, only FuncTAL, so this is from
-the paper, not the source.) The Biostrings backend is also off DisTAL in
-the other direction: it charges gap penalties that DisTAL's "sliding ends
-(no gap penalty)" does not.
-
-*The MAFFT placement follows directly.* Group 6, BAI3's half-repeat:
-
-| Matrix passed to `tales_align()` | where 29 lands |
-|---|---|
-| none | column 17, opposite MAI1's identical 29 |
-| DECIPHER as used | column 13, opposite MAI1's full `NI` repeat (31) |
-| mmseq2 / Biostrings | column 17 |
-| DECIPHER with `TRUE` or `NA` | column 17 |
-| DECIPHER as used, every dissim +50 (some scores negative) | column 13 |
-
-So the length-blind zero alone causes the displacement. The "all-positive
-matrix" question (point 3 above) is not the cause here: shifting the
-whole matrix changes nothing.
-
-*Impact of fixing the default backend, measured* (script run on the full
-three-genome cached comparison, 26 arrays; DECIPHER backend re-created in
-the script with the one argument changed, package untouched):
-
-| | `TRUE` | `NA` |
-|---|---|---|
-| domain pairs whose distance changes | 8330 of 12769 | 8330 of 12769 |
-| largest change in a domain distance | 44.1 | 9.5 |
-| `tale_distances`: correlation with current | 0.986 | 0.998 |
-| `tale_distances`: largest change (current range 0-7.04) | 1.53 | 0.46 |
-| `k = "auto"` pick / partition | 9, identical | 9, identical |
-
-The classification articles' conclusions would not move (same groups,
-same k). `test_golden.R`'s `tale_distances`/`domain_distances` snapshots
-would change and need a documented re-baseline (golden-rebaseline skill).
-
-**Decision needed (maintainer):**
-1. `penalizeGapLetterMatches = TRUE`: DisTAL-faithful per the paper
-   (overhang counted as changed residues, normalised by the longer
-   repeat); matches the mmseq2 backend exactly on these pairs. A
-   half-repeat is then ~41% from its full-length counterpart.
-2. `NA`: one penalty per gap run, i.e. a truncation or an indel counts
-   as one event whatever its length. Arguably closer to the biology of a
-   single deletion, but not what DisTAL describes.
-3. Leave the distances alone and fix only the MAFFT matrix side (e.g. a
-   length-aware adjustment inside `tales_align()`). Keeps DisTAL numbers
-   as they are now, but they would stay inconsistent with the mmseq2
-   backend and with the paper.
-
-Recommendation: option 1, since it restores agreement with DisTAL's
-published definition and with the mmseq2 backend. Whichever is chosen,
-also decide whether the Biostrings backend should drop its gap penalties
-to match (DisTAL: "no gap penalty"), and add a test pinning 29 vs 31 so
-the backends cannot silently drift apart again (current tests check only
-output dimensions).
-
-**Maintainer's decision (2026-09-23): option 1, `TRUE`.** Executed:
-
-- `.pairwise_align_decipher()` (`R/distalr.R`) now passes
-  `penalizeGapLetterMatches = TRUE`, with a comment pointing here.
-  Version 0.9.9006 -> 0.9.9007.
-- New test in `test_distalPairwiseAlign.R`: a 20-aa half-repeat that is
-  a prefix of a 34-aa repeat must be 14/34 (41.2) from it under both the
-  DECIPHER and mmseq2 backends; one mismatch in 34 stays 2.94. Fails on
-  the old code (0), passes now.
-- **Golden re-baseline, every changed row explained** (golden-rebaseline
-  skill): `test_golden.R:70` (`domain_distances` of the four-array
-  `tales_compare_distal()` run), only the `dissim` column (50 -> 43
-  distinct values); `test_golden.R:71` (`tale_distances`), only `dissim`
-  and `arlem_score` (a direct consequence: ARLEM uses the domain
-  distances as substitution costs); ids and `max_length` unchanged,
-  `out$tales` unchanged. Checked by recomputing old and new domain
-  distances on that subset: 1108 of 2304 pairs changed, every one of them
-  a pair whose alignment has a gap opposite a residue, every change an
-  increase; no equal-length ungapped pair changed and no gapped pair
-  stayed the same. Accepted, re-run: 44/44.
-- `tales_domain_distances()` docs now state DisTAL's `dissim` definition.
-
-**Follow-up, same day, maintainer's decision: Biostrings backend aligned
-with DisTAL too.** Context measured first. The backend ran a *global*
-pairwise alignment (identity scores, gap opening 1, extension 0.5) and
-normalised `(longer length - score)`, so a length difference was charged
-twice: as unmatched residues and as gap cost (half-repeat vs full repeat
-64.7 instead of 41.2; last residue missing 7.4 instead of 2.9; a 5-aa
-terminal insertion 21.8 instead of 12.8). Substitution-only pairs already
-agreed with DECIPHER. Variants tried over the full three-genome dataset
-(12769 pairs), each against the fixed DECIPHER distances: as it was, max
-difference 27.3; free end gaps (`type = "overlap"`, internal gap costs
-kept), max 4.9; free end gaps with 1 per gap position, max 8.3. Grouping
-identical (k = 9) under all of them. About 7300 pairs still differ by a
-median of ~1 point with any variant, because DECIPHER measures distances
-inside one multiple alignment of all domains while Biostrings aligns each
-pair separately: the backends can be made consistent, not identical.
-
-Executed: `type = "global"` -> `"overlap"` in
-`.pairwise_align_biostrings()` (DisTAL's "sliding ends (no gap
-penalty)"; internal gaps keep their cost). The §32.3 regression test now
-covers all three backends (half vs full = 14/34). Golden baseline
-unaffected (it uses the default backend). The classification article's
-backend correlations are now >= 0.9987 (text: "0.998 and above"). Docs
-updated: all three backends follow the definition; they differ slightly pair by pair, and
-Biostrings still charges internal gap opening. Version 0.9.9008.
-- Articles: `_cache/compare.rds` and `group.rds` deleted (discovery
-  unaffected) and the four cache-dependent articles re-rendered,
-  classification first. Grouping identical (k = 9, same partition, same
-  group numbers: group 6 is still the MAI1_ROI_00007 locus, the three
-  converging target-prediction arrays still group 7). Backend
-  correlations on the small fixture rose to >= 0.9995 (DECIPHER now agrees
-  with the other two); the article's figure updated to "0.999 and above".
-  `tale_msa.qmd`'s scoring-matrix section rewritten: scored and unscored
-  alignments are now identical, the half-repeat stays in column 17 (§30's
-  text described the old displacement). In the default alignment plot the
-  half-repeat now gets its own domain-cluster colour, separate from the
-  full `NI` repeats.
+About 7300 of 12769 pairs still differ by a median of ~1 point between
+DECIPHER (distances inside one multiple alignment) and Biostrings
+(pairwise), which is inherent. Grouping unchanged (k = 9, same
+partition). Test in `test_distalPairwiseAlign.R` pins 29 vs 31 for all
+backends; golden re-baselined with every row explained. After the fix
+the scored and unscored alignments of group 6 are identical.
 
 ### 32.4 C-terminus length differs by one between `tales` and `array_report.tsv` -- **FIXED 2026-09-23 (stop codon no longer counted)** **[V]**
 
-Maintainer's guess ("maybe the array report counts aa differently") is
-right. Checked 2026-09-23 on a fresh PXO86 run:
-`array_report.tsv`'s `cterm_aa_length` is the width of AnnoTALE's
-C-terminus record in `TALE_Protein_parts.fasta`
-(`.telltale_add_array_measures()`, `R/telltale.R:~966`, fed by
-`.telltale_align_termini()`), and that record **includes the stop codon
-as `*` when the stop falls inside the C-terminal part**: `ROI_00001`
-184 (`...RRKRS*`), `ROI_00019` 43 (`...RKSHD*`). For a full-length
-C-terminus the part ends before the stop, so no `*`: `ROI_00002` 286
-(`...SVGGTI`). The `tales` object's `aa_seq` has no `*` (183, 42, 286).
-So the two agree on normal arrays and differ by exactly one on truncated
-ones.
-
-Open, for later: whether `cterm_aa_length` should exclude the `*` (it is
-not a residue), or whether the difference is useful as a signal (a `*`
-inside the C-terminal part marks a truncated C-terminus). Either way,
-worth one line in `tell_tales()`'s docs for `array_report.tsv`.
-`trunctale_correction.qmd` already cites each number with its source,
-so it stays correct either way.
-
-
-**Maintainer's decision (2026-09-23): don't count the stop.** Executed:
-new internal `.aa_residue_count()` (`R/telltale.R`) counts residues
-excluding `*`, used by `.telltale_add_array_measures()` for both
-`nterm_aa_length` and `cterm_aa_length`: the same rule
-`tales_ingest.R` applies to `aa_seq`. Version 0.9.9009.
-
-**Wider than first described.** The golden fixture's C-termini (the
-278-aa variant of normal BAI3 TALEs, not truncTALEs) also end in `*`
-in AnnoTALE's record (width 279, `...LPQ*`): the stop falls inside
-AnnoTALE's C-terminal part whenever the CDS ends within it, not only
-for truncated C-termini. The report overcounted those by one too.
-
-Golden re-baseline, every row explained: `test_golden.R:143` (file
-fingerprint) rows 1 `all_ranges.gff` and 22 `array_report.tsv`;
-`:153` (per-column table fingerprint) row 12 = `array_report.tsv`'s
-`cterm_aa_length`; `:217` (correction branch) the same two files. All
-the same single change, `cterm_aa_length` 279 -> 278 (the GFF repeats
-the report's columns as attributes). `golden.md` diff: exactly those
-three values. Accepted, re-run 44/44.
-
-New tests (`test_tell_tales.R`): an end-to-end run on the PXO86 excerpt
-(`data_for_tests/pxo86_roi18_19_excerpt.fa`, copied from
-`dev/fixtures/`, ~23 s) asserting the report's `cterm_aa_length` equals
-`nchar(aa_seq)` of every C-terminus and that the truncated one is 42
-(was 43); and a unit test of `.aa_residue_count()`.
-
-`trunctale_correction.qmd` re-rendered: its report values moved by
-exactly one (ROI_00001 183 -> 216 under `correct_array = TRUE`, still
-+33; 183 under `correct_tales()`; ROI_00019 42), prose and the
-`max_comparisons` callout table updated (that table's 50/494 rows are
-the earlier recorded runs, shifted by the same one, since only the
-counting changed). The article's first table (from `tales`) and the
-report now agree. `tell_tales()` docs now say the length columns count
-residues, excluding a stop codon.
+AnnoTALE's C-terminal part includes the stop codon as `*` whenever the
+CDS ends inside it (truncTALEs, and the 278-aa variant of normal BAI3
+TALEs). `.aa_residue_count()` now counts residues excluding `*` for both
+terminus lengths, the rule `tales_ingest.R` applies to `aa_seq`. Version
+0.9.9009. Tests in `test_tell_tales.R` (PXO86 excerpt, now also
+`data_for_tests/pxo86_roi18_19_excerpt.fa`).
 
 ---
 
 ## 33. ARLEM re-implemented in R, wired in; the executable removed -- DONE **[V]**
 
-Maintainer's request, 2026-09-23, following §28: re-implement ARLEM in
-R in a separate file, check it against the binary's results, and
-estimate the difference in speed. Motivation (§28): the bundled binary
-runs only on Linux x86-64, its licence ("unauthorized commercial usage
-and distribution ... prohibited") does not clearly allow tantale to
-redistribute it, and no public source or conda package exists.
+2026-09-23. Model from Abouelhoda, Giegerich, Behzadi & Steyaert (APBC
+2008, "Alignment of minisatellite maps: a minimum spanning tree-based
+approach"): per-interval duplication histories grown from the leftmost
+or rightmost unit, then an alignment DP with simultaneous right growth
+(O(n^3) via the paper's A' table), with a `$` sentinel as the binary had.
+Two binary behaviours not in the paper, found by probing: only `# Indel
+hist` of the cost file affects scores; the leading unit is explained as
+an insertion.
 
-**Model.** From Abouelhoda, Giegerich, Behzadi & Steyaert, APBC 2008,
-pp. 261-272 ("Alignment of minisatellite maps: a minimum spanning
-tree-based approach"; PDF in the APBC 2008 proceedings at
-comp.nus.edu.sg/~wongls/psZ/apbc2008/apbc080a.pdf). For every interval
-of each array, compute the cheapest duplication history grown from its
-leftmost or rightmost unit (the paper's section 3 recurrences, with
-insertions). Then align two arrays with a DP that chooses between
-matching units, growing a run from its left neighbour, and simultaneous
-right growth in both arrays ending in a match (section 4.2, using the
-paper's A' table so this costs O(n^3), not O(n^4)). A sentinel `$` is
-prepended to each array, with a mutation cost of 99999 to anything, as
-the binary does.
+- `R/arlem.R`: `.arlem_histories()`, `.arlem_align()`, `.arlem_scores_r()`,
+  **`identical()` to the binary** on ~6060 random pairs and on all real
+  data tried. `tales_tale_distances()` uses it; `.run_arlem()` and the
+  cost-file writer are in `inst/legacy/arlem_binary.R`;
+  `inst/tools/arlem/` deleted outright (keeping the binary anywhere would
+  still redistribute it).
+- The binary's answers are kept as
+  `tests/testthat/data_for_tests/arlem_reference_scores.rds` (1126 pairs,
+  `data-raw/make_arlem_reference_scores.R`), checked by `test_arlem_r.R`.
+- `matrixStats` added to `Imports` (`colMins()` halves the run time).
+  Speed: ~4.5x the binary (26 arrays: 0.70 s against 0.16 s).
+- Kept: `arlem_score`/`norm_arlem_score` column names, `.arlem_*`
+  internal names, one citation in `tales_tale_distances()`, past
+  `NEWS.md` entries. Version 0.9.9006.
 
-**Two binary behaviours not stated in the paper, found by probing it:**
-- of the cost file's `# Indel align` and `# Indel hist`, only
-  `Indel hist` affects any score;
-- `-showalign`'s traces show the leading unit of an array explained as
-  a "Left dup. in S [0..1]" from `$` at the insertion cost, i.e. an
-  insertion.
-
-**Code.**
-- `R/arlem.R` (new): `.arlem_histories()`, `.arlem_align()`,
-  `.arlem_scores_r()`. The last returns the same `id1`/`id2`/
-  `arlem_score` tibble that `.run_arlem()` parses from stdout, so
-  everything downstream is shared.
-- `R/distalr.R`:
-  - `.arlem_cost_file()` split into `.arlem_cost_matrix()` (the
-    Minkowski/rescale/ceiling step) and a writer, so both engines take
-    the identical integer matrix;
-  - `.arlem_dup_cost`/`.arlem_indel_cost` constants replace the
-    literals in the file header;
-  - the mirroring step moved to `.arlem_scores_long()`;
-  - the §28 exit-status fix.
-- (First pass.) The exported API was left unchanged at this stage:
-  `tales_tale_distances()` still called the binary. See "Decisions and
-  execution" below for the switch.
-
-**Consistency with the binary. Every comparison is `identical()`, not
-approximate:**
-- ~6060 random array pairs: alphabets of 2-60 types, arrays of 1-40
-  units with runs of repeats, costs from integer-ceiled Euclidean
-  distances (so metric, like tantale's), `Dup` in {0,1,5,10,30},
-  insertion cost in {1,10,25,100,1000}, with and without `-insert`;
-- the articles' cached three-genome comparison
-  (`vignettes/articles/_cache/compare.rds`: 26 arrays, 14-28 domains,
-  113 codes, 325 pairs). Raw scores and the final `tale_distances` are
-  identical, and the R engine reproduces the cached `tale_distances` an
-  earlier binary run produced;
-- the same data replicated to 52 and 104 arrays (1326 and 5356 pairs);
-- `sampleDistalrOutput.rds` (44 arrays, 251 codes, 946 pairs).
-
-Tests: `tests/testthat/test_arlem_r.R`, 9 tests covering:
-- toy cases whose expected scores were read off the binary, so they pin
-  the model on machines where the binary cannot run;
-- 25 seeded random cases against the binary;
-- 15 real arrays against the binary;
-- the failure paths above.
-
-All pass. `test_tales_compare_steps.R`, `test_tales_compare_distal.R`
-and `test_golden.R` pass unchanged under `load_all()`. The golden
-baseline pins `tales_compare_distal()` end to end, so the cost-file
-refactor changed nothing.
-
-**Speed.** Same machine, wall clock. Binary timings include writing its
-`-showalign` traces.
-
-| arrays | pairs | binary | R (base) | ratio |
-|---|---|---|---|---|
-| 26 | 325 | 0.16 s | 1.43 s | 9x |
-| 44 | 946 | 0.53 s | 4.27 s | 8x |
-| 52 | 1326 | 0.49 s | 5.05 s | 10x |
-| 104 | 5356 | 1.82 s | 20.5 s | 11x |
-
-About 3.8 ms per pair of ~20-domain arrays, growing with n^2 in the
-number of arrays and ~L^3 in array length. Profiling shows ~47% of the
-time in column minima (`.col_min()`, base R via `max.col()`) and ~18% in
-the one loop that cannot be vectorised (growing `r` from the left
-depends on the same row's earlier cells).
-`matrixStats::colMins()` in place of `.col_min()` halves the total
-(26 arrays: 0.70 s, identical scores), to ~4.5x the binary.
-`matrixStats` is already installed with tantale through six current
-imports (`biovizBase`, `BSgenome`, `plyranges`, `systemPipeR`,
-`universalmotif`, `rtracklayer`), but using it means adding it to
-`Imports`. Not done: it is a `DESCRIPTION` decision.
-
-**Decisions and execution (maintainer, 2026-09-23):**
-1. **Switched to R outright.** `tales_tale_distances()` calls
-   `.arlem_scores_r()`. `.run_arlem()` and `.arlem_cost_file()` moved
-   verbatim to `inst/legacy/arlem_binary.R`, with a header explaining the
-   move. **`inst/tools/arlem/` deleted outright, on the maintainer's
-   explicit instruction.** This departs from the functal/QueTAL
-   precedent (§12b), where the vendored tool moved to `inst/legacy/`.
-   Here the licence is the reason: keeping the executable anywhere in the
-   package would still redistribute it. It remains in git history, in
-   the `v0.1.9553` bundle and in the pre-reset checkout on disk.
-2. **`matrixStats` added to `Imports`.** `.col_min()` is now
-   `matrixStats::colMins()`.
-3. **What was removed, and what stays.** Mentions of tantale *running*
-   the ARLEM program are removed from code, roxygen, tests and the
-   `tales_class` article. On the maintainer's choice, these stay:
-   - the `arlem_score` / `norm_arlem_score` column names (public API,
-     unchanged);
-   - the `.arlem_*` internal names;
-   - one citation in `tales_tale_distances()` (Abouelhoda et al. 2009,
-     DOI inline), saying tantale computes ARLEM's model in R with
-     identical scores. `tales_compare_distal()` points to it;
-   - past `NEWS.md` entries, as history. A new entry records the switch.
-
-   The ledger, `dev/` and `inst/legacy/` keep their mentions as records.
-4. **The binary's answers are kept as a fixture before deletion.**
-   `data-raw/make_arlem_reference_scores.R` wrote
-   `tests/testthat/data_for_tests/arlem_reference_scores.rds`:
-   - 25 random cases with `-insert`, 10 without;
-   - all 44 arrays of `sampleDistalrOutput.rds` with tantale's own costs;
-   - 1126 pairs in all.
-
-   `test_arlem_r.R` now checks against this fixture, including one
-   end-to-end `tales_tale_distances()` check. The earlier
-   live-binary comparisons and the `.run_arlem()` failure-path tests were
-   dropped with the function (`test_arlem_r.R`: 8 tests).
-5. **Removed with `.run_arlem()`:**
-   - the "Running ARLEM version 1.0 / Copyright..." messages, which
-     reference pages printed in their example output;
-   - the cost-matrix message's "ARLEM" wording.
-
-   New message: "Aligning n TALE arrays pairwise (k pairs)."
-6. Version 0.9.9006.
-
-Verified: `document()` (4 man pages), `pkgdown::check_pkgdown()` clean.
-`test_arlem_r.R`, `test_tales_compare_steps.R`,
-`test_tales_compare_distal.R`, `test_tales_projections.R`,
-`test_pairwise_distances_class.R` and `test_golden.R` pass, the golden
-baseline unchanged. Coordinated with the parallel website session:
-- No article cache wipe is needed, because the R engine is `identical()`
-  to the cached binary run.
-- Only `tales_class` needs re-rendering, for prose.
-
-Full suite under `load_all()`: 29 files, 379 tests, 0 failed, 0
-skipped, 47 warnings. That is the same warning count as the clean run
-recorded in §18; the distal-path files emit only the two known ones (a
-`dom_code` re-mint notice and a ggplot2 `label.size` deprecation).
-Installed (`0.9.9006`) and checked in a fresh `Rscript`:
-`.arlem_scores_r` present, `.run_arlem` and `tools/arlem` absent.
-
-Site: partial rebuild, no `docs/` wipe (no page added or removed) and no
-`_cache/` change:
-- `build_reference`, `build_article("articles/tales_class")`,
-  `build_news`, `build_sitemap`, `build_llm_docs`, `build_search`;
-- `check_built_site`: no problems. 6 min.
-
-Afterwards no "Running ARLEM" / copyright / old cost-matrix text remains
-in `docs/`. The remaining "arlem" hits are the kept ones:
-- the `arlem_score` column printed in `tale_classification`;
-- the citation in `tales_tale_distances`/`tales_compare_distal`;
-- the column mapping in `pairwise_distances`;
-- news.
-
-The other `docs/` diffs are the navbar version and example temp paths.
-
-**Still open:** an Rcpp version would likely beat the executable. The
-maintainer asked for R, so it is not tried.
+**Deferred:** an Rcpp version, likely faster than the binary.
 
 ## 34. Distribution strategy -- findings recorded; one-archive plan and rOpenSci both parked **[P]**
 
@@ -9501,19 +1412,11 @@ A pre-submission inquiry (a short issue) settles scope before any review.
 
 ### First proposal: download each tool from its upstream **[superseded]**
 
-Superseded the same day by the one-archive plan below. `tantale_setup()`
-would have fetched each tool from its authors' page, checked it against
-a pinned sha256, and installed it under a per-user directory. Two
-problems showed up:
-- TALEcorrection has no standalone download, only the 283 MB zip. The
-  options were to ask the Jstacs authors (J. Grau) to publish the jar on
-  its own, or to mirror jar + HMMs as a tantale GitHub release asset
-  (GPL-3 allows it, with the source pointer).
-- TALVEZ's only upstream is a 2016 IRD server.
-
-The maintainer's objection, which led to the replacement: the tools
-would depend on several third-party servers staying up and keeping the
-same files.
+Replaced the same day by the one-archive plan below. `tantale_setup()`
+would have fetched each tool from its authors' page against a pinned
+sha256. TALEcorrection has no standalone download (only the 283 MB zip),
+TALVEZ's only upstream is a 2016 IRD server, and the maintainer objected
+to depending on several third-party servers.
 
 ### Side finding: absolute path in `test_correct_tales.R` -- FIXED 2026-09-23 **[V]**
 

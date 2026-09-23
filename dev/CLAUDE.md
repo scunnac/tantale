@@ -9,10 +9,11 @@ is worth a look before touching code that deals with repeats, RVDs or
 target prediction.
 
 **`dev/restructuring-notes.md` is the ledger** and the main source of
-context: what has been done, what is deferred, and why. It is ~9300 lines
-and is a record, not a reading list. **Start with "Where things stand"
-below**, which lists the current state and the open items with their
-ledger sections, then read only the sections bearing on the task in hand.
+context: what has been done, what is deferred, and why. It was compacted
+on 2026-09-23 to ~1600 lines (full earlier text: `git show
+7ef1fe9:dev/restructuring-notes.md`). **Start with "Where things stand"
+below, then the ledger's START HERE block**, which holds the ranked list
+of pending issues; read only the sections bearing on the task in hand.
 
 Markers: `[V]` verified/done, `[A]` agreed but not executed, `[P]` parked
 pending a judgement call, `[superseded]` a record of a replaced plan and
@@ -85,8 +86,8 @@ pd[pd$token == "SYMBOL_FUNCTION_CALL" &
 
 Legitimate exceptions: `cat()` inside `print`/`format` methods,
 `packageStartupMessage()` in `startup.R`, and `stopifnot()` for internal
-invariants that are not addressed to the user. `classification.R` still has
-nine unconverted sites, deliberately — see ledger §11.
+invariants that are not addressed to the user. No other call remains in
+`R/` (re-checked 2026-09-23).
 
 **Run the environment's programs by absolute path, never via `PATH` or
 `conda run`.** `.tantale_bin(tools)` resolves them inside the conda prefix
@@ -246,32 +247,36 @@ and `git status` before trusting any of it.*
 
 ### Open items
 
-**Needs a maintainer decision (do not start without one):**
-- **§32.2** `rvdSimDf` covers 17 RVDs, `rvd_dna_specificity` 404; any
-  other RVD scores `NA` (grey) in `plot.tales_msa(fill_type = "rvd_sim")`
-  and possibly in the `domain_distances = "rvd"` MAFFT matrix. Four
-  options written up in §32.2.
-- **Distribution strategy** (§34). Upstream sources, licences and sizes
-  checked. Plan written up and parked by the maintainer: ship the tools
-  as one archive on a GitHub release, fetched by `tantale_setup()`.
-  rOpenSci review parked until the package matures.
+The full, ranked list is in the ledger's START HERE block (reviewed
+against the code 2026-09-23). Headlines:
 
-**Deferred by the maintainer as future work:**
-- **§30, parallel-phrasing sweep** of the site prose (habit 2 of the
-  Documentation rules above). The "A, not B" sweep is done.
-- **§33** an Rcpp version of ARLEM (not tried; likely faster than the R one
-  and the old executable).
+**Pending issues deserving urgent action:**
+1. Licence notices for the bundled GPL-3 jars and TALVEZ (§34): nothing
+   in the package gives the licence or source pointer the GPL requires.
+2. Bare `system()` calls with no exit-status check: the nHMMER search and
+   AnnoTALE analyze inside `tell_tales()`, `run_annotale_*()`,
+   `preditale()`, `correct_tales()`. Route through `.tantale_exec()`.
+3. A fresh full `devtools::check()` (last one: §27, before ARLEM in R).
+4. Deprecated ggplot2 `label.size`/`size` in `plot.tales_msa()` and
+   `plot_target_preds()`.
+5. `inst/legacy/docs_temp/` (untracked, 3.8 MB) would ship in a tarball
+   built from this checkout.
+6. Five exports no test calls (`talomes_heatmap()`,
+   `plot_target_preds()`, `preditale()`, `run_annotale_*()`); coverage
+   badge stale.
+7. §32.2 `rvdSimDf` decision, now limited to the `rvd_sim` plot fill.
+8. README's "stable" badge against its "interfaces may still change".
 
-**Reserved for the maintainer, or parked; do not start unasked:**
-- **§21** the three remaining matrix-shaped helpers of `plot.tales_msa()`
-  (`.pick_ref_name()` and others), including rewriting the tests that
-  assert their matrix shape. Read §21's closing note first.
-- **§20** `tale_parts_to_rvd()` as a rename/refactor candidate.
-- **§2** `repeat_to_rvd_map()` retirement.
+**Decisions to make before 1.0.0:** `tales_rvd_strings(rvd_only =)` ->
+`repeats_only`; §2; §20; the "Position in array" axis title (§22); §21
+option (c); `tell_tales()`'s argument list; exposing ARLEM's
+duplication/insertion costs; the distribution channel (§34).
 
-**Planned, not started:**
-- **§7.6** `man/figures/pipeline.svg` is stale (old function names):
-  redraw or remove.
+**Reserved for the maintainer; do not start unasked:** §21 items 1-4 (the
+matrix helpers of `plot.tales_msa()` and their tests), §20, §2.
+
+**Deferred by the maintainer:** §30's parallel-phrasing sweep; an Rcpp
+ARLEM (§33); rOpenSci and the one-archive plan (§34); §5.2.
 
 ### Done recently (details in the ledger)
 
