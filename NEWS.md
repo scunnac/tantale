@@ -1,5 +1,12 @@
 # tantale (development version)
 
+## `tales_to_universalmotif()` works without `library(tantale)`
+
+`tales_to_universalmotif()` and `tales_compare_functal()` read the
+`rvd_dna_specificity` table by a name that resolved only once tantale was
+attached, so calling them as `tantale::tales_to_universalmotif()` failed
+with "object 'rvd_dna_specificity' not found". Fixed.
+
 ## `talomes_heatmap()` fixes
 
 With the default `plot_type = "all"`, the `title`, `x_lab` and `y_lab`

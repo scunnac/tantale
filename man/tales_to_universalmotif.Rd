@@ -15,7 +15,7 @@ named by \code{array_id}: a plain list, which is what
 \code{compare_motifs()}/\code{motif_tree()} accept.
 }
 \description{
-One \code{\link[universalmotif:motif-class]{universalmotif}} position
+One \code{\link[universalmotif:universalmotif-class]{universalmotif}} position
 weight matrix per array, built by looking up each repeat's RVD in
 \code{\link{rvd_dna_specificity}} and stacking the rows in repeat order.
 The conversion \code{\link{tales_compare_functal}} is built on, exposed on

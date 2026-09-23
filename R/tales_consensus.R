@@ -167,6 +167,7 @@ tales_consensus_match <- function(align, long = TRUE) {
 #' @seealso \code{\link{tales_consensus}}, the matrix-based original this
 #'   mirrors exactly; \code{\link{.tales_consensus_match_msa}}, its
 #'   match-flag counterpart.
+#' @importFrom rlang :=
 #' @noRd
 .tales_consensus_long <- function(x, value_col) {
   .assert_tales_msa_layer(x, value_col)

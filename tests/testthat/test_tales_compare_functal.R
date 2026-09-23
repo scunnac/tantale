@@ -189,3 +189,17 @@ test_that("compare_motifs() PCC and FuncTAL's own padded-flatten PCC disagree", 
   ft_pcc <- functal_style_pcc(m1, m2)
   expect_false(isTRUE(all.equal(um_pcc, ft_pcc)))
 })
+
+test_that("no package function reads a dataset by its bare name", {
+  # Lazy-loaded data is on the search path only once tantale is attached;
+  # a bare name made tantale::tales_to_universalmotif() fail without
+  # library(tantale). Package code must write tantale::<dataset>.
+  ns <- asNamespace("tantale")
+  datasets <- ls(ns$.__NAMESPACE__.$lazydata)
+  expect_true("rvd_dna_specificity" %in% datasets)
+  fns <- Filter(function(f) is.function(get(f, envir = ns)), ls(ns, all.names = TRUE))
+  offenders <- Filter(function(f) {
+    any(datasets %in% codetools::findGlobals(get(f, envir = ns), merge = FALSE)$variables)
+  }, fns)
+  expect_identical(offenders, character())
+})

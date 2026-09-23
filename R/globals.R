@@ -7,7 +7,7 @@
 # Regenerate after adding NSE columns; do not hand-edit casually.
 
 utils::globalVariables(c(
-  "# Seq-ID", ".", "aa_seq", "array_id", "domain_type", "id1", "id2", "dissim", "sim",
+  "# Seq-ID", ".", "aa_seq", "alignment_position", "sq_len", "array_id", "domain_type", "id1", "id2", "dissim", "sim",
   "arlem_score", "max_length", "norm_arlem_score", "position_in_array", "position_in_crd", "dna_seq", "dom_code", "source_directory", "rvdSimVsRef", ".x", "rvd1", "position in uncorrected sequences", "AnnoTALELength", "Approx. p-value", "EBEstrand", "RANK", "RVD", "RVDs", "SCORE", "SEQ_ID",
   "Score", "Seq", "Sequence", "Strand", "TALBS_end",
   "TALBS_sequence", "TALBS_start", "TALE", "TAL_ID", "TAL_SEQ",   "aa_length", "ebeSeq", "group", "label",

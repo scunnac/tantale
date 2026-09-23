@@ -26,7 +26,10 @@
 #' not pull a comparison toward false similarity).
 #' @noRd
 .functal_pwm <- function(rvd_seq) {
-  spec <- rvd_dna_specificity
+  # Qualified: a bare name finds lazy-loaded data only when tantale is
+  # attached, so tantale::tales_to_universalmotif() used to fail without
+  # library(tantale).
+  spec <- tantale::rvd_dna_specificity
   rows <- match(rvd_seq, spec$rvd, nomatch = match("XX", spec$rvd))
   m <- t(as.matrix(spec[rows, c("A", "C", "G", "T")]))
   rownames(m) <- c("A", "C", "G", "T")
@@ -35,7 +38,7 @@
 
 #' Convert a tales object to a list of predicted DNA-binding-specificity PWMs
 #'
-#' One \code{\link[universalmotif:motif-class]{universalmotif}} position
+#' One \code{\link[universalmotif:universalmotif-class]{universalmotif}} position
 #' weight matrix per array, built by looking up each repeat's RVD in
 #' \code{\link{rvd_dna_specificity}} and stacking the rows in repeat order.
 #' The conversion \code{\link{tales_compare_functal}} is built on, exposed on
