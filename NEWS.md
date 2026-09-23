@@ -1,5 +1,14 @@
 # tantale (development version)
 
+## `talomes_heatmap()` fixes
+
+With the default `plot_type = "all"`, the `title`, `x_lab` and `y_lab`
+arguments were ignored (the default text was drawn whatever was passed),
+and saving to `save_path` left an extra graphics device open. Both fixed;
+the default figure is unchanged. An explicit `save_path = NULL` now draws
+on the current device, and an unknown `plot_type` is an error instead of
+drawing nothing.
+
 ## External programs: a failure now stops the call
 
 nHMMER (in `tell_tales()` and `correct_tales()`), AnnoTALE

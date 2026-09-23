@@ -395,7 +395,8 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
                             plot_type = "all",
                             colors = viridis::viridis(10), margins = c(5, 5, 3, 3),
                             sep_width = 5, sep_color = "white", inner_sep_color = "white", save_path = NULL) {
-  
+  plot_type <- match.arg(plot_type, c("all", "single"))
+
   ## rename colnames of tale annotation
   colnames(tale_annotation)[which(colnames(tale_annotation) == group_col)] <- "group"
   colnames(tale_annotation)[which(colnames(tale_annotation) == strain_col)] <- "strain"
@@ -451,7 +452,6 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
   TALE_HC <- hclust(ape::dist.gene(x = strainAlleles), method = "average")
   
   
-  df <- par(no.readonly = T)
   ## plot sizes
   widleft <- margins[1]
   heitop <- margins[2]
@@ -460,7 +460,7 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
   
   if (plot_type == "single") { # plot representative alleles
     codedAlleles1 <- apply(reprsntAlleles, 2, function(x) ifelse(x == 0, NA, x))
-    if (hasArg(save_path)) {
+    if (!is.null(save_path)) {
       img_format <- gsub(".*\\.", "", basename(save_path))
       img_size <-  list(save_path, width = (widleft + ncol(codedAlleles1) + widright)/2.54, height = (heitop + nrow(codedAlleles1) + heibot)/2.54)
       if (img_format %in% c("bmp", "jpeg", "png", "tiff")) {
@@ -513,9 +513,7 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
     laymat <- rbind(cbind(laymat, extcol, right.mat, legend.mat), bottom.mat)
     titmat <- matrix(c(0, rep(nplots+7, ncol(mainmat)), 0, 0, 0), nrow = 1, byrow = T)
     laymat <- rbind(titmat, laymat)
-    on.exit(par(no.readonly = TRUE))
-    
-    if (hasArg(save_path)) {
+    if (!is.null(save_path)) {
       img_format <- gsub(".*\\.", "", basename(save_path))
       img_size <-  list(save_path, width = sum(widleft, rep(1, ncol(uniqueRVD)), widright)/2.54, height = sum(2, heitop, rep(1, nrow(uniqueRVD)), heibot)/2.54)
       if (img_format %in% c("bmp", "jpeg", "png", "tiff")) {
@@ -523,7 +521,9 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
       }
       do.call(img_format, img_size)
     }
-    
+    # Read after the output device is chosen: par() on no device opens one.
+    df <- par(no.readonly = TRUE)
+
     layout(laymat, widths = c(widleft, rep(1, ncol(uniqueRVD)), ifelse(is.null(extra_col), 0.1, .7), widright, ifelse(is.null(extra_col), 0.1, 3)), heights = c(2, heitop, rep(1, nrow(uniqueRVD)), heibot))
     # layout.show(nplots+7)
     
@@ -594,7 +594,7 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
     par(mar = c(0, 0.5, 0, 0))
     image(z = matrix(1:nrow(uniqueRVD), nrow = 1), col = "white", yaxt = "n", xaxt = "n", axes = F)
     text(-1, seq(0, 1, length.out = nrow(uniqueRVD)), labels = rev(rownames(uniqueRVD)), font = 1, col = "black", cex = 1.2, adj = 0)
-    mtext(side = 4, at = .5, text = "Strain", col = "black", padj = 0, line = -1)
+    mtext(side = 4, at = .5, text = y_lab, col = "black", padj = 0, line = -1)
     
     if (!is.null(extra_col)) {
       ## legend column
@@ -611,19 +611,19 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
     par(mar = c(0.5, 0, 0.5, 0))
     image(z = matrix(1:ncol(uniqueRVD), ncol = 1), col = "white", yaxt = "n", xaxt = "n", axes = F)
     text(seq(0, 1, length.out = ncol(uniqueRVD)), 1, labels = colnames(uniqueRVD), font = 1, col = "black", bg = "red", cex = 1.2, srt = 90, adj = 1)
-    mtext(side = 1, at = 0.5, text = "TALE Group", col = "black", padj = 0, line = -1)
+    mtext(side = 1, at = 0.5, text = x_lab, col = "black", padj = 0, line = -1)
     
     
     ## title
     par(xpd = T, mai = rep(0, 4))
     image(z = matrix(1), col = "white", yaxt = "n", xaxt = "n", axes = F)
-    text(0, 1/3, labels = "RVD sequences variants", font = 2, col = "black", cex = 2, pos = 1)
+    text(0, 1/3, labels = title, font = 2, col = "black", cex = 2, pos = 1)
     
     
     par(df)
   }
-  if (hasArg(save_path)) {
-    dev.off()
+  if (!is.null(save_path)) {
+    grDevices::dev.off()
   }
   invisible(NULL)
 }
