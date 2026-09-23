@@ -9565,3 +9565,31 @@ use; tests would use a subset cut around the TALE loci, like
 **Open decisions when this is picked up:** one asset or two; whether to
 deposit the same archive on Zenodo as a fallback URL with a DOI; the
 genome accessions for BAI3 and MAI1, and whether BAI3-1-1 is public.
+
+### Code hosting on the institutional GitLab (`forge.ird.fr`) -- noted, not pursued
+
+*2026-09-23.* The maintainer asked whether moving the repository to IRD's
+GitLab would hurt the options above. Not pursued for now; the forge
+answered HTTP 502 that day.
+
+- **GitLab only:** r-universe still works (its docs: packages "can be
+  hosted on any public Git server"; only the `packages.json` registry
+  must be on GitHub). rOpenSci's process is built around GitHub, so a
+  GitLab-hosted package would be a question for the pre-submission
+  inquiry. Bioconductor's submission guide assumes a GitHub repository.
+  Zenodo's automatic release archiving is GitHub-only.
+- **What a move entails:** new `URL`/`BugReports` in `DESCRIPTION`,
+  `url:` in `_pkgdown.yml`, badges and install instructions; the site on
+  GitLab Pages via CI (check it is reachable from outside IRD); GitHub
+  Actions rewritten as GitLab CI (check shared runners can build the
+  conda environment and run Java); the GitHub repository archived with a
+  pointer, and the `v0.1.9553` history bundle copied or left there.
+- **Main practical risk:** institutional instances often create accounts
+  for staff only, so outside users could not open issues.
+- **Suggested setup if it is ever wanted:** GitLab as the main
+  repository with push mirroring to GitHub (free tier, unless the admins
+  disabled it). That keeps r-universe, Zenodo DOIs, a route to rOpenSci
+  or Bioconductor, and public issues.
+- **Tools archive:** keep it on GitHub releases (plus Zenodo) whatever
+  the code host. An institutional server is the kind of dependency the
+  one-archive plan was chosen to avoid.
