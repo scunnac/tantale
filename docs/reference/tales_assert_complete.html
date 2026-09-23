@@ -80,9 +80,10 @@ running contiguously from 1, and — when <code>domain_type</code> and
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>This is a <strong>precondition</strong>, not an invariant: <code>filter(x, domain_type ==
-"repeat")</code> legitimately produces a valid <code>tales</code> that is no longer
-complete. Alignment requires completeness, because the mapping back from a
+    <p>Completeness is a <strong>precondition</strong> of some functions; the class itself does
+not require it: <code>filter(x, domain_type == "repeat")</code> legitimately
+produces a valid <code>tales</code> that is no longer complete. Alignment
+requires completeness, because the mapping back from a
 MAFFT alignment is positional — the k-th aligned residue is the k-th part
 fed in.</p>
     </div>

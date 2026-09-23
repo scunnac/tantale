@@ -2,7 +2,7 @@
 % Please edit documentation in R/conversion.R
 \name{repeat_to_rvd_map}
 \alias{repeat_to_rvd_map}
-\title{Generate a mapping between Distal repeat IDs and their cognate RVD.}
+\title{Generate a mapping between Distal repeat IDs and their cognate RVD}
 \usage{
 repeat_to_rvd_map(repeat_vecs, rvd_vecs)
 }
@@ -22,8 +22,9 @@ the association between repeat ID and RVD.
 }
 \details{
 Care must be taken that TALEs in the two sets of sequences have the same name.
-In addition, the function tries hard to make sure that the two sets of sequences are identical in every ways but the individual 'values' they contain.
-It is therefore notably important to make sure that the sequences are consistent in whether they include N-term and C-term domains IDs/Tags or not.
+The function checks that the two sets of sequences have the same structure
+(names and lengths), so they must also agree on whether they include the
+N- and C-terminal codes.
 }
 \examples{
 repeat_vecs <- list(A1 = c("12", "45", "12"), A2 = c("45", "78"))

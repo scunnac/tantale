@@ -89,28 +89,28 @@ default; see the section above.</p></dd>
     <p>Invisibly, a list with <code>conda</code> and <code>system</code> data frames of the
 checks, and <code>prefix</code>, so the result can be tested as well as read.
 <code>conda</code> is <code>NULL</code> and <code>prefix</code> is <code>NA</code> when no conda/mamba installation,
-or no <code>tantale</code> environment, was found at all – <code>system</code> is always a
-real data frame, since Java and Perl are checked regardless.</p>
+or no <code>tantale</code> environment, was found at all; <code>system</code> is always a
+data frame, since Java and Perl are checked regardless.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p><strong>Why the versions are checked and not just the presence.</strong> MAFFT changed
+    <p><strong>Why versions are checked as well as presence.</strong> MAFFT changed
 its <code>--text</code> mode gap handling after 7.4x, and later versions align TALE
 repeat-code strings differently, leaving the N- and C-termini unanchored.
 An environment built by an older version of this package can therefore
 produce different alignments from the same input, with nothing to indicate
 it. The pins in <code>tantale_conda_env.yaml</code> exist for that reason, and this
-function is what makes them real rather than aspirational.</p>
+function checks them.</p>
 <p><strong>Why three paths are reported.</strong> The conda binary, its default root, and
 the environment actually in use are three different things, and on a
 machine with any history they diverge – <code>reticulate</code> scans several known
 locations, so two roots can each hold an environment named <code>tantale</code>. When
 that happens, a rebuild can honestly report success while the package goes
-on using the other one. Everything here therefore operates on the
-environment's prefix rather than its name.</p>
+on using the other one. Everything here therefore works with the
+environment's prefix (its path), never its name.</p>
 <p><strong>Java and Perl</strong> are checked too. They are hard requirements of the
-AnnoTALE, PrediTALE and TALE-correction wrappers, they are not conda's
-business, and otherwise they fail deep inside a <code><a href="https://rdrr.io/r/base/system.html" class="external-link">system()</a></code> call.</p>
+AnnoTALE, PrediTALE and TALE-correction wrappers, they come from outside
+conda, and without this check they fail deep inside a <code><a href="https://rdrr.io/r/base/system.html" class="external-link">system()</a></code> call.</p>
     </div>
     <div class="section level2">
     <h2 id="installing-conda-itself">Installing conda itself<a class="anchor" aria-label="anchor" href="#installing-conda-itself"></a></h2>
@@ -119,8 +119,8 @@ business, and otherwise they fail deep inside a <code><a href="https://rdrr.io/r
 <p><code>conda = TRUE</code> installs a conda distribution if none is found. It is
 deliberately opt-in and separate from <code>install</code>: putting a package manager
 on someone's machine is a larger side effect than building an environment
-in one that already exists. Note that this installs <strong>miniconda</strong>, via
-<code><a href="https://rstudio.github.io/reticulate/reference/install_miniconda.html" class="external-link">reticulate::install_miniconda()</a></code>, not mamba.</p>
+in one that already exists. It installs <strong>miniconda</strong>, via
+<code><a href="https://rstudio.github.io/reticulate/reference/install_miniconda.html" class="external-link">reticulate::install_miniconda()</a></code>.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

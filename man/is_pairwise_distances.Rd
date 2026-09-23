@@ -2,7 +2,7 @@
 % Please edit documentation in R/pairwise_distances_class.R
 \name{is_pairwise_distances}
 \alias{is_pairwise_distances}
-\title{Is this a pairwise similarity table?}
+\title{Is this a pairwise distance table?}
 \usage{
 is_pairwise_distances(x)
 }
@@ -13,7 +13,7 @@ is_pairwise_distances(x)
 A logical scalar.
 }
 \description{
-Is this a pairwise similarity table?
+Is this a pairwise distance table?
 }
 \seealso{
 Other pairwise distances:

@@ -1,8 +1,6 @@
 # Generates a RVD sequences set from a tale_parts object
 
-Uses a tale_parts object in a
-[`tales_compare_distal`](https://scunnac.github.io/tantale/reference/tales_compare_distal.md)
-output to return a
+Returns a
 [`BStringSet`](https://rdrr.io/pkg/Biostrings/man/XStringSet-class.html)
 of RVD sequences, one per array, ordered by `position_in_array` and
 joined with `sep`.
@@ -17,9 +15,9 @@ tale_parts_to_rvd(tale_parts, sep = "-", rvd_only = FALSE)
 
 - tale_parts:
 
-  The tale_parts object in a
-  [`tales_compare_distal`](https://scunnac.github.io/tantale/reference/tales_compare_distal.md)
-  output.
+  A [`tales`](https://scunnac.github.io/tantale/reference/tales.md)
+  object or data frame with `array_id`, `position_in_array` and `rvd`
+  columns.
 
 - sep:
 

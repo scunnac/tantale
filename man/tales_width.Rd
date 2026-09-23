@@ -14,8 +14,9 @@ An integer scalar, or \code{NULL} if unset.
 }
 \description{
 The number of columns in the alignment, including those that are all gaps in
-the object at hand. Stored rather than derived: subsetting arrays can empty
-the last column, which would silently shrink \code{max(alignment_position)}.
+the object at hand. It is stored with the object, because subsetting arrays
+can empty the last column, which would silently shrink
+\code{max(alignment_position)}. A plain \code{tales} has no width.
 }
 \seealso{
 Other TALE alignment:

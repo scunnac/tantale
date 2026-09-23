@@ -29,14 +29,14 @@ tales_align(
 
 - residue_col:
 
-  Which layer to align on: `"rvd"` (default) or `"dom_code"`. Given
-  explicitly rather than guessed from the values.
+  Which layer to align on: `"rvd"` (default) or `"dom_code"`. It is
+  never guessed from the values.
 
 - domain_distances:
 
   Scoring matrix for the residues being aligned. `NULL` (default) means
   none. Pass `"rvd"` to opt in to the built-in RVD similarity matrix
-  when aligning RVDs, or, when aligning repeat codes, a
+  when aligning RVDs, or, when aligning domain codes, a
   [`domain_distances`](https://scunnac.github.io/tantale/reference/pairwise_distances.md)-class
   object (as returned by
   [`tales_domain_distances`](https://scunnac.github.io/tantale/reference/tales_domain_distances.md))
@@ -70,9 +70,9 @@ tales_align(
 
   Whether to let MAFFT write to the console. It reports its banner, the
   strategy it chose and its progress through the sequences, which is
-  dozens of lines per alignment and rarely what you want. Left `FALSE`
-  that output is captured rather than discarded, and replayed if the
-  alignment fails – so silence costs nothing diagnostically.
+  dozens of lines per alignment and rarely what you want. With `FALSE`,
+  that output is captured and replayed if the alignment fails, so
+  nothing is lost for diagnosis.
 
 - ...:
 

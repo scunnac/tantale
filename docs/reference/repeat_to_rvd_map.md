@@ -1,4 +1,4 @@
-# Generate a mapping between Distal repeat IDs and their cognate RVD.
+# Generate a mapping between Distal repeat IDs and their cognate RVD
 
 Uses Distal repeat sequences and RVD sequences from a set of TALEs to
 return the association between repeat ID and RVD.
@@ -27,11 +27,9 @@ A two columns repeatID - RVD data frame.
 ## Details
 
 Care must be taken that TALEs in the two sets of sequences have the same
-name. In addition, the function tries hard to make sure that the two
-sets of sequences are identical in every ways but the individual
-'values' they contain. It is therefore notably important to make sure
-that the sequences are consistent in whether they include N-term and
-C-term domains IDs/Tags or not.
+name. The function checks that the two sets of sequences have the same
+structure (names and lengths), so they must also agree on whether they
+include the N- and C-terminal codes.
 
 ## See also
 

@@ -3,7 +3,7 @@
 Checks every
 [`validate_tales`](https://scunnac.github.io/tantale/reference/validate_tales.md)
 invariant, then those specific to an alignment. As for `tales`, only
-properties closed under row subsetting are checked here; grid
+properties that still hold on any subset of rows are checked here; grid
 completeness is a precondition of the functions that need it.
 
 ## Usage

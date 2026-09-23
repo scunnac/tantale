@@ -2,7 +2,7 @@
 % Please edit documentation in R/pairwise_distances_class.R
 \name{distances_assert_square}
 \alias{distances_assert_square}
-\title{Assert that a similarity table is complete and square}
+\title{Assert that a distance table is complete and square}
 \usage{
 distances_assert_square(x, arg = "x")
 }
@@ -21,11 +21,9 @@ symmetric subset stays square: filtering both id columns to the same set of
 entities preserves this, while filtering one of them does not.
 }
 \details{
-A \strong{precondition}, not an invariant. \code{conversion.R} filters on
-\code{id1} alone inside a loop over alignment columns, and \code{msa.R}
-filters the two id columns in succession, passing through a non-square
-intermediate. Both are correct; enforcing squareness everywhere would
-outlaw them.
+Squareness is a \strong{precondition} of the functions that need it. The class
+itself does not require it, because filtering the two id columns one
+after the other passes through a legitimate non-square intermediate.
 }
 \examples{
 d <- pairwise_distances(data.frame(

@@ -25,9 +25,9 @@ arrays actually agree.
 }
 \details{
 \strong{Columns with no consensus} is the measure worth having. A column
-has no consensus when no element is strictly more common than the rest --
-see \code{\link{tales_consensus}} -- so the count says how much of the
-alignment is agreement and how much is three different answers.
+has no consensus when no element is strictly more common than the rest
+(see \code{\link{tales_consensus}}), so the count says how much of the
+alignment the arrays agree on.
 
 It is reported per layer, and the two usually differ in a way that means
 something. Repeats that are distinct proteins can carry the same RVD, so a

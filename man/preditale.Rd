@@ -2,7 +2,7 @@
 % Please edit documentation in R/target_predictions.R
 \name{preditale}
 \alias{preditale}
-\title{Run TALE target predictions on DNA sequence(s) using PrediTale.}
+\title{Run TALE target predictions on DNA sequence(s) using PrediTale}
 \usage{
 preditale(
   rvd_seqs,
@@ -40,7 +40,7 @@ program's output in order to homogenize column names across TALE target
 prediction programs in tantale
 }
 \description{
-A R wrapper around the
+An R wrapper around the
 \href{https://www.jstacs.de/index.php/PrediTALE}{PrediTale} 'PrediTALE.jar
 preditale' module. Takes a list of TALE RVD sequences and a fasta file of DNA
 sequences and runs PrediTale.

@@ -2,9 +2,9 @@
 
 As
 [`format.tales`](https://scunnac.github.io/tantale/reference/format.tales.md),
-plus the alignment width, and a preview that shows aligned rows rather
-than bare sequences: gaps are drawn and every cell padded to a common
-width, so the columns line up down the page.
+plus the alignment width, and a preview of aligned rows: gaps are drawn
+and every cell padded to a common width, so the columns line up down the
+page.
 
 ## Usage
 

@@ -16,7 +16,7 @@ A scalar string, or \code{NULL} if the object is not stamped.
 Identifies the run whose \code{dom_code} values this object carries. Objects
 from different runs must not be joined: \code{dom_code} is minted per run, so
 the codes collide across runs and a join would silently succeed against the
-wrong repeats.
+wrong domains.
 }
 \examples{
 rvd_fasta <- system.file("extdata", "TalA_RVDSeqs_AnnoTALE.fasta",

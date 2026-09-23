@@ -21,7 +21,7 @@ correct_tales(
 \item{hmm_path}{Path to the folder containing the profile HMM files. The default
 value points to the ones built from Xanthomonas oryzae pv. oryzae (Xoo) templates.
 Xoc (X. oryzae pv. oryzicola) ones are also available in the parent directory.
-Please see the gitHub
+Please see the GitHub
 \href{https://github.com/Jstacs/Jstacs/tree/master/projects/talecorrect}{page}
 for instructions on building custom profiles.}
 
@@ -37,11 +37,11 @@ A tibble if \code{return_corrections} is \code{TRUE} or the path to the
 corrected sequences file.
 }
 \description{
-As a way faster alternative to run \code{\link[tantale:tell_tales]{tell_tales}}
-in correction mode on error prone sequences such as ONT assembled genomes,
-we provide a wrapper around the java binaries from this gitHub
+A much faster alternative to running \code{\link[tantale:tell_tales]{tell_tales}}
+in correction mode on error-prone sequences such as ONT-assembled genomes:
+a wrapper around the Java TALE correction tool from this GitHub
 \href{https://github.com/Jstacs/Jstacs/tree/master/projects/talecorrect}{page}.
-It takes an input fasta file and output a file with corrected indels in TALE coding sequences
+It takes an input fasta file and writes a file with corrected indels in TALE coding sequences
 using an approach described in the Erkes et al. \href{https://doi.org/10.1186/s12864-023-09228-1}{paper}.
 \code{\link[tantale:tell_tales]{tell_tales}} can subsequently be run on the corrected
 sequences in no correction mode.

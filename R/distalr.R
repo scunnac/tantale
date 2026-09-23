@@ -66,24 +66,25 @@
 #' integer code, recorded in a `dom_code` column, so that the parts can be
 #' compared once each rather than once per occurrence.
 #'
-#' A code names a distinct **domain** sequence, not a repeat: the N- and
-#' C-termini are parts like the repeats are, and they get codes too.
+#' A code names a distinct **domain** sequence, repeats and termini alike:
+#' the N- and C-termini are parts like the repeats are, and they get codes
+#' too.
 #'
 #' @details
 #' TALEs reuse domains heavily, within an array and between arrays, so the
 #' number of distinct sequences is far smaller than the number of parts. That
-#' ratio is what makes [tales_domain_distances()] affordable -- it compares
-#' distinct domains, not parts.
+#' ratio is what makes [tales_domain_distances()] affordable: it compares each
+#' distinct domain once.
 #'
 #' @section The codes are only meaningful within one call:
 #' Codes are assigned with [dplyr::cur_group_id()] over the distinct `aa_seq`
 #' values **present in `x`**. Add an array, remove one, or reorder the
 #' sequences, and the same protein can get a different number. They are
-#' positions in this table's own vocabulary, not identifiers of anything.
+#' positions in this table's own vocabulary.
 #'
-#' So **comparing codes between two calls is an error**, and a similarity
+#' So **comparing codes between two calls is an error**, and a distance
 #' table keyed by one call's codes must never be used with another call's.
-#' This is not a caution to remember: it is enforced. Every object minted
+#' This is enforced: every object minted
 #' here is stamped with a `dom_code_namespace` derived from the sequences
 #' that produced it, and the classes refuse to join across namespaces. Read
 #' the stamp with [tales_namespace()].
@@ -127,9 +128,8 @@ tales_assign_domain_codes <- function(x) {
 #'
 #' @details
 #' This is the expensive step, and the one worth having on its own: the
-#' domain-level distances answer questions about domain diversity that need
-#' no TALE-level alignment at all, and computing them does not require
-#' aligning the arrays.
+#' domain-level distances answer questions about domain diversity without
+#' any array-level alignment.
 #'
 #' Distances are between **distinct domains**, keyed by `dom_code`, so the
 #' cost goes with the number of distinct sequences rather than the number of
@@ -189,7 +189,7 @@ tales_domain_distances <- function(x, aln_method = "DECIPHER", ncores = 1,
 #' array's sequence of `dom_code`s is aligned against every other's; what it
 #' costs to align one domain against a different one is taken from
 #' `domain_distances`, so the TALE-level comparison is built on the
-#' domain-level one rather than computed beside it.
+#' domain-level one.
 #'
 #' The alignment is the minisatellite map alignment of ARLEM (Abouelhoda,
 #' Giegerich, Behzadi and Steyaert,
@@ -204,9 +204,9 @@ tales_domain_distances <- function(x, aln_method = "DECIPHER", ncores = 1,
 #' alignment, and `dissim` divides it by the length of the longer array.
 #'
 #' The domain distances are first passed through a Minkowski distance
-#' (`p = 3.5`) between their rows and rescaled to 0-100. That step is not
-#' cosmetic: the alignment needs substitution costs satisfying the triangle
-#' inequality, and raw pairwise alignment dissimilarities do not.
+#' (`p = 3.5`) between their rows and rescaled to 0-100. That step matters:
+#' the alignment needs substitution costs satisfying the triangle inequality,
+#' and raw pairwise alignment dissimilarities do not.
 #'
 #' @section Both arguments must come from the same call:
 #' `domain_distances` is keyed by `dom_code`, and those codes mean what they
@@ -653,16 +653,12 @@ diag(identSubMat) <- 1
 #' alignment, which makes it much faster (the exact speedup depends on
 #' \code{aln_method}).
 #'
-#' Named for the algorithm, not just historically: \code{\link{tales_compare_functal}}
-#' answers a related but different question -- relatedness by predicted DNA-binding
-#' specificity rather than by domain sequence -- so both need a name that says
-#' which.
+#' The name says which comparison this is: \code{\link{tales_compare_functal}}
+#' compares TALEs by their predicted DNA-binding specificity instead.
 #'
-#' Two products are irreducible and expensive — the pairwise protein alignment
-#' between distinct domains, and the alignment of the coded arrays. Everything else the
-#' former \code{tales_compare()} (this function's name before the DisTAL/FuncTAL
-#' split) returned was a projection of its inputs, so this function returns
-#' only what cannot be recomputed cheaply.
+#' It returns the two expensive products (the pairwise protein alignment
+#' between distinct domains, and the alignment of the coded arrays) with the
+#' coded input; anything else is cheap to derive from these.
 #'
 #' This is where \code{dom_code} is minted, over the whole set of parts
 #' supplied, and where \code{tales}/\code{domain_distances} are stamped with
@@ -670,15 +666,14 @@ diag(identSubMat) <- 1
 #' Passing a subset later is safe; re-running on a different part set mints
 #' different codes, and the differing namespace is what stops the two being
 #' joined by mistake. \code{tale_distances} carries no such stamp: it is
-#' keyed by \code{array_id}, a meaningful name that does not silently
-#' collide across runs the way a \code{dom_code} does.
+#' keyed by \code{array_id}, a name that keeps its meaning across runs.
 #'
 #' @param x A \code{\link{tales}} object whose parts carry amino acid
 #'   sequences.
 #' @param ncores Number of cores for the pairwise alignment step.
-#' @param aln_method Approach for pairwise similarities between part amino acid
+#' @param aln_method Approach for pairwise distances between part amino acid
 #'   sequences: \code{"DECIPHER"} (default), \code{"Biostrings"} or
-#'   \code{"mmseq2"}.
+#'   \code{"mmseq2"}. See \code{\link{tales_domain_distances}}.
 #' @param conda_bin Path to a Conda binary, if \code{reticulate} cannot find it.
 #'
 #' @return A list of three objects, all describing the same run:

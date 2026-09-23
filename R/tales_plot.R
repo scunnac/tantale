@@ -19,8 +19,8 @@
 #'
 #' @description
 #' A compact, information-rich view of the arrays in a \code{tales} object: one
-#' point per part, positioned by its place in the array, coloured by domain type
-#' and filled by amino-acid length, with the RVD printed on each repeat.
+#' point per part, positioned by its place in the array, outlined by domain
+#' type and filled by amino-acid length, with the RVD printed on each repeat.
 #'
 #' A \code{\link{tales_msa}} dispatches to \code{\link{plot.tales_msa}}
 #' instead, being the more specific class.
@@ -101,10 +101,9 @@ plot.tales <- function(x, position = c("array", "alignment"), ...) {
 #'   optionally labelled with another.
 #'
 #' @details
-#' A \code{tales_msa} carries every layer at once -- \code{rvd},
-#' \code{dom_code} and whatever else the object holds -- so \code{fill} and
-#' \code{label} name two of them rather than being passed as separate
-#' matrices.
+#' A \code{tales_msa} carries every layer at once (\code{rvd},
+#' \code{dom_code} and whatever else the object holds), so \code{fill} and
+#' \code{label} simply name two of them.
 #'
 #' Three things are decided independently, and it helps to read the figure
 #' that way: what each cell *says*, what colour that text is, and what colour
@@ -113,14 +112,15 @@ plot.tales <- function(x, position = c("array", "alignment"), ...) {
 #' \strong{Cell text} is whatever \code{label} names, or nothing when
 #' \code{label = NULL}. Termini are relabelled \code{N-} and \code{-C}; an
 #' unidentified terminus keeps its \code{XXXXX} code, which is deliberately
-#' not mistakable for an RVD. Repeat codes are padded to three characters so
+#' not mistakable for an RVD. Domain codes are padded to three characters so
 #' columns line up.
 #'
 #' \strong{Text colour} always answers one question: does this element match
-#' the consensus of its column? Cyan for yes, pink for no. The consensus is
-#' the most frequent element in the column (\code{\link{tales_consensus}}),
-#' taken over the labelled layer -- so the text colour and the text itself
-#' always describe the same thing.
+#' the consensus of its column? Cyan for yes, pink for no, grey where the
+#' column has no consensus (a gap, or a tie). The consensus is the most
+#' frequent element in the column (\code{\link{tales_consensus}}), taken over
+#' the labelled layer, so the text colour and the text itself always describe
+#' the same thing.
 #'
 #' \strong{Block fill} is what \code{fill_type} selects, and it is the only
 #' part that can be unavailable:
@@ -134,8 +134,8 @@ plot.tales <- function(x, position = c("array", "alignment"), ...) {
 #'
 #' Every value here scores across the whole \code{tales_msa}, termini
 #' included: \code{domain_distances} covers every distinct part sequence,
-#' not repeats specifically, and \code{"domain_clust"}/\code{"domain_sim"}
-#' colour a terminus cell exactly like a repeat cell.
+#' and \code{"domain_clust"}/\code{"domain_sim"} colour a terminus cell
+#' exactly like a repeat cell.
 #'
 #' With no \code{domain_distances} and no \code{label}, every block is flat
 #' grey: the text still carries the consensus comparison, but there is
@@ -143,7 +143,9 @@ plot.tales <- function(x, position = c("array", "alignment"), ...) {
 #'
 #' A cell with no value for the chosen layer keeps its text and loses its
 #' colour. In \code{"rvd_sim"} that is the termini, which have no DNA-binding
-#' preference and so no position on a specificity scale.
+#' preference and so no position on a specificity scale, and any RVD the
+#' built-in RVD similarity table does not cover (it holds 17 RVDs), even
+#' where it matches the reference.
 #'
 #' \strong{The reference} matters for both similarity fills.
 #' \code{ref_pattern} is matched against the array names and must identify
@@ -154,9 +156,9 @@ plot.tales <- function(x, position = c("array", "alignment"), ...) {
 #' \strong{Two panels may be attached.} Supplying \code{tale_distances} with
 #' more than one array adds a dendrogram panel on the left; \code{consensus =
 #' TRUE} adds a consensus panel on top. When either is present the return
-#' value is an \code{aplot} composition rather than a single ggplot, so
-#' modify the alignment through its \code{plotlist} element rather than
-#' adding layers to the result directly.
+#' value is an \code{aplot} composition: modify the alignment through its
+#' \code{plotlist} element, since layers added to the composition itself do
+#' not reach it.
 #'
 #' @param x A \code{\link{tales_msa}} object.
 #' @param fill Layer whose values colour the cells. Defaults to
@@ -181,14 +183,14 @@ plot.tales <- function(x, position = c("array", "alignment"), ...) {
 #'   layer, so it always matches what the cells say.
 #' @param fill_type One of \code{"domain_clust"}, \code{"domain_sim"} or
 #'   \code{"rvd_sim"}. The first two colour cells by domain cluster or by
-#'   protein-sequence similarity to the reference -- across every distinct
-#'   part, termini included, not repeats specifically (see Details).
-#'   \code{"rvd_sim"} colours them instead by how alike each RVD's
-#'   *DNA-binding preference* is to the reference TALE's RVD at that
-#'   position, on a diverging scale over \code{[-1, 1]}. The domain- and
-#'   RVD-level views genuinely differ: \code{HD} and \code{ND} are distinct
-#'   domains with identical specificity, while domains differing only at
-#'   positions 12-13 are near-identical proteins targeting different bases.
+#'   protein-sequence similarity to the reference, for every distinct part,
+#'   termini included (see Details). \code{"rvd_sim"} colours them instead
+#'   by how alike each RVD's *DNA-binding preference* is to the reference
+#'   TALE's RVD at that position, on a diverging scale over \code{[-1, 1]}.
+#'   The domain- and RVD-level views genuinely differ: repeats carrying
+#'   \code{HD} and \code{ND} differ in sequence yet both favour cytosine,
+#'   while repeats differing only at positions 12-13 are near-identical
+#'   proteins targeting different bases.
 #' @param ... Unused, present for compatibility with the \code{plot} generic.
 #'
 #' @return The alignment plot, returned invisibly after being printed as a

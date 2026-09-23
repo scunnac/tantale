@@ -5,9 +5,8 @@ Row-binds one or more
 into one, reconciling the invariants that a plain
 [`bind_rows`](https://dplyr.tidyverse.org/reference/bind_rows.html)
 would not check: `array_id` uniqueness across inputs, the `dom_code`
-namespace, and the `group` column. A single input is accepted – it
-round-trips through the same reconciliation and re-validation,
-harmlessly, rather than being rejected as too few to "bind".
+namespace, and the `group` column. A single input is accepted: it goes
+through the same reconciliation and re-validation, harmlessly.
 
 ## Usage
 
@@ -46,32 +45,30 @@ A validated
 
 ## Details
 
-Not named `c.tales()` for two reasons: base
-[`c()`](https://rdrr.io/r/base/c.html) dispatch is leaky (mixing a
-`tales` with an unrelated object can silently drop attributes rather
-than error, the wrong failure mode for a class whose point is invariants
-that must not go silent), and `on_namespace_mismatch` has no room in
-[`c()`](https://rdrr.io/r/base/c.html)'s signature.
+There is no [`c()`](https://rdrr.io/r/base/c.html) method: base
+[`c()`](https://rdrr.io/r/base/c.html) can silently drop attributes when
+a `tales` is mixed with another object, and its signature has no room
+for `on_namespace_mismatch`.
 
-`tales_msa` inputs are refused rather than silently demoted –
-`alignment_width`/`alignment_position` are a coordinate system specific
-to one alignment run, and binding two runs' matrices would produce an
-object that misdescribes what a given column means in each row. Demote
-explicitly with
+`tales_msa` inputs are refused: `alignment_width` and
+`alignment_position` are a coordinate system specific to one alignment
+run, and binding two runs' matrices would produce an object that
+misdescribes what a given column means in each row. Demote explicitly
+with
 [`as_tales`](https://scunnac.github.io/tantale/reference/as_tales.md)
 first if that is really what you want.
 
-`group` is dropped from the result whenever present on any input, not
-reconciled: it is a clustering result over one specific distance matrix
-and one specific set of arrays, so two "group 1"s from separate
+`group` is dropped from the result whenever present on any input: it is
+a clustering result over one specific distance matrix and one specific
+set of arrays, so two "group 1"s from separate
 [`tales_group_hclust`](https://scunnac.github.io/tantale/reference/tales_group_hclust.md)/[`tales_group_kmedoids`](https://scunnac.github.io/tantale/reference/tales_group_kmedoids.md)
-calls are not comparable, not merely at risk of colliding. Recompute it
-with either on the bound result, after re-running
+calls are not comparable. Recompute it with either on the bound result,
+after re-running
 [`tales_compare_distal`](https://scunnac.github.io/tantale/reference/tales_compare_distal.md).
 
 `tale_distances`/`domain_distances` are untouched: this function only
 binds `tales` data. A companion distance table from either input does
-not describe the bound object – re-run
+not describe the bound object; re-run
 [`tales_compare_distal`](https://scunnac.github.io/tantale/reference/tales_compare_distal.md)
 if you need one.
 

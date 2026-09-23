@@ -121,32 +121,32 @@
 #' `install = TRUE` to act on what it finds.
 #'
 #' @details
-#' **Why the versions are checked and not just the presence.** MAFFT changed
+#' **Why versions are checked as well as presence.** MAFFT changed
 #' its `--text` mode gap handling after 7.4x, and later versions align TALE
 #' repeat-code strings differently, leaving the N- and C-termini unanchored.
 #' An environment built by an older version of this package can therefore
 #' produce different alignments from the same input, with nothing to indicate
 #' it. The pins in `tantale_conda_env.yaml` exist for that reason, and this
-#' function is what makes them real rather than aspirational.
+#' function checks them.
 #'
 #' **Why three paths are reported.** The conda binary, its default root, and
 #' the environment actually in use are three different things, and on a
 #' machine with any history they diverge -- `reticulate` scans several known
 #' locations, so two roots can each hold an environment named `tantale`. When
 #' that happens, a rebuild can honestly report success while the package goes
-#' on using the other one. Everything here therefore operates on the
-#' environment's prefix rather than its name.
+#' on using the other one. Everything here therefore works with the
+#' environment's prefix (its path), never its name.
 #'
 #' **Java and Perl** are checked too. They are hard requirements of the
-#' AnnoTALE, PrediTALE and TALE-correction wrappers, they are not conda's
-#' business, and otherwise they fail deep inside a `system()` call.
+#' AnnoTALE, PrediTALE and TALE-correction wrappers, they come from outside
+#' conda, and without this check they fail deep inside a `system()` call.
 #'
 #' @section Installing conda itself:
 #' `conda = TRUE` installs a conda distribution if none is found. It is
 #' deliberately opt-in and separate from `install`: putting a package manager
 #' on someone's machine is a larger side effect than building an environment
-#' in one that already exists. Note that this installs **miniconda**, via
-#' [reticulate::install_miniconda()], not mamba.
+#' in one that already exists. It installs **miniconda**, via
+#' [reticulate::install_miniconda()].
 #'
 #' @param install Build the `tantale` environment if it is missing, and
 #'   repair it if a pinned version is wrong. `FALSE` by default, so the
@@ -157,8 +157,8 @@
 #' @return Invisibly, a list with `conda` and `system` data frames of the
 #'   checks, and `prefix`, so the result can be tested as well as read.
 #'   `conda` is `NULL` and `prefix` is `NA` when no conda/mamba installation,
-#'   or no `tantale` environment, was found at all -- `system` is always a
-#'   real data frame, since Java and Perl are checked regardless.
+#'   or no `tantale` environment, was found at all; `system` is always a
+#'   data frame, since Java and Perl are checked regardless.
 #' @seealso [tell_tales()], [tales_align()], [tales_compare_distal()],
 #'   [talvez()] and [correct_tales()], the entry points that need these
 #'   tools.

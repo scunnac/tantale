@@ -59,17 +59,17 @@ validators.
 Comparing TALEs and their domains, and the typed tables that result.
 
 - [`as.matrix(`*`<pairwise_distances>`*`)`](https://scunnac.github.io/tantale/reference/as.matrix.pairwise_distances.md)
-  : Render a similarity table as a square matrix
+  : Render a distance table as a square matrix
 - [`distances_assert_square()`](https://scunnac.github.io/tantale/reference/distances_assert_square.md)
-  : Assert that a similarity table is complete and square
+  : Assert that a distance table is complete and square
 - [`distances_restrict()`](https://scunnac.github.io/tantale/reference/distances_restrict.md)
-  : Restrict a similarity table to a set of entities
+  : Restrict a distance table to a set of entities
 - [`is_pairwise_distances()`](https://scunnac.github.io/tantale/reference/is_pairwise_distances.md)
-  : Is this a pairwise similarity table?
+  : Is this a pairwise distance table?
 - [`pairwise_distances()`](https://scunnac.github.io/tantale/reference/pairwise_distances.md)
   [`tale_distances()`](https://scunnac.github.io/tantale/reference/pairwise_distances.md)
   [`domain_distances()`](https://scunnac.github.io/tantale/reference/pairwise_distances.md)
-  : Create a pairwise similarity table
+  : Create a pairwise distance table
 - [`rvd_dna_specificity`](https://scunnac.github.io/tantale/reference/rvd_dna_specificity.md)
   : RVD-to-DNA-binding-specificity weights
 - [`` `[`( ``*`<pairwise_distances>`*`)`](https://scunnac.github.io/tantale/reference/sub-.pairwise_distances.md)
@@ -90,7 +90,7 @@ Comparing TALEs and their domains, and the typed tables that result.
 - [`tales_tale_distances()`](https://scunnac.github.io/tantale/reference/tales_tale_distances.md)
   : Pairwise distances between TALE arrays
 - [`validate_pairwise_distances()`](https://scunnac.github.io/tantale/reference/validate_pairwise_distances.md)
-  : Validate a pairwise similarity table
+  : Validate a pairwise distance table
 
 ## Alignment
 
@@ -118,9 +118,9 @@ Multiple alignment of TALE arrays and consensus over it.
 Views derived from a tales object, and format conversions between them.
 
 - [`repeat_to_rvd_map()`](https://scunnac.github.io/tantale/reference/repeat_to_rvd_map.md)
-  : Generate a mapping between Distal repeat IDs and their cognate RVD.
+  : Generate a mapping between Distal repeat IDs and their cognate RVD
 - [`repeat_to_rvd_map_distalr()`](https://scunnac.github.io/tantale/reference/repeat_to_rvd_map_distalr.md)
-  : Generate a mapping between Distal repeat IDs and their cognate RVD.
+  : Generate a mapping between Distal repeat IDs and their cognate RVD
 - [`tale_parts_to_rvd()`](https://scunnac.github.io/tantale/reference/tale_parts_to_rvd.md)
   : Generates a RVD sequences set from a tale_parts object
 - [`tales_coded_strings()`](https://scunnac.github.io/tantale/reference/tales_coded_strings.md)
@@ -148,7 +148,7 @@ Visualising alignments, array composition and talome content.
 - [`plot_target_preds()`](https://scunnac.github.io/tantale/reference/plot_target_preds.md)
   : Plot TALE RVD sequences along a potential DNA target region
 - [`talomes_heatmap()`](https://scunnac.github.io/tantale/reference/talomes_heatmap.md)
-  : Heatmap plotting of rvd sequence variants
+  : Heatmap of RVD sequence variants across strains and TALE groups
 
 ## Target prediction
 
@@ -157,7 +157,7 @@ Predicting EBEs in a promoter set, and plotting the result.
 - [`plot_target_preds()`](https://scunnac.github.io/tantale/reference/plot_target_preds.md)
   : Plot TALE RVD sequences along a potential DNA target region
 - [`preditale()`](https://scunnac.github.io/tantale/reference/preditale.md)
-  : Run TALE target predictions on DNA sequence(s) using PrediTale.
+  : Run TALE target predictions on DNA sequence(s) using PrediTale
 - [`tales_predict_targets()`](https://scunnac.github.io/tantale/reference/tales_predict_targets.md)
   : Predict TALE target boxes
 - [`talvez()`](https://scunnac.github.io/tantale/reference/talvez.md) :
@@ -183,6 +183,6 @@ Package-level documentation.
 Wrappers around AnnoTALE and QueTAL.
 
 - [`run_annotale_build()`](https://scunnac.github.io/tantale/reference/run_annotale_build.md)
-  : Run the "build" stage of AnnoTALE.
+  : Run the "build" stage of AnnoTALE
 - [`run_annotale_predict()`](https://scunnac.github.io/tantale/reference/run_annotale_predict.md)
-  : Runs the "predict" and "analyze" steps of AnnoTALE on a fasta file.
+  : Runs the "predict" and "analyze" steps of AnnoTALE on a fasta file

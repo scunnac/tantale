@@ -99,7 +99,7 @@ tell_tales(
 
 - extremity_codes:
 
-  Set this to `FALSE` if you do not want the N- and C-TREM anchor codes
+  Set this to `FALSE` if you do not want the N- and C-TERM anchor codes
   in the output sequences of RVD
 
 - rvd_sep:
@@ -174,10 +174,10 @@ tell_tales(
   pre-screen. That pre-screen is an approximation, so a low cap trusts
   it to rank the truly best reference near the top.
 
-  When it fails it does not fail by leaving an array uncorrected – it
-  fails by correcting it against a poor reference, which is worse,
-  because the result still looks like a corrected ORF. Against a
-  deliberately small 20-sequence reference, the same four arrays give:
+  When it fails, it corrects the array against a poor reference. That is
+  worse than leaving the array uncorrected, because the result still
+  looks like a corrected ORF. Against a deliberately small 20-sequence
+  reference, the same four arrays give:
 
   |                     |                             |
   |---------------------|-----------------------------|
@@ -187,17 +187,18 @@ tell_tales(
   | 2                   | 9, 11, 0, 15                |
 
   At 2 the aligner cannot reach a decent reference and invents indels
-  wholesale. What matters is therefore not the ratio to the reference
-  set but whether the closest `max_comparisons` are genuinely close: 20
-  of 1057 is ample, 5 of 20 is not. With a large reference set a cap in
-  the tens is safe and very much faster; with a small or a poorly
+  wholesale. What matters is whether the closest `max_comparisons`
+  references are genuinely close, whatever the size of the reference
+  set: 20 of 1057 is ample, 5 of 20 is not. With a large reference set a
+  cap in the tens is safe and very much faster; with a small or a poorly
   matched one, prefer the default and pay for the full search.
 
 - frameshift:
 
-  This is an internal parameter of the
-  [`CorrectFrameshifts`](https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html)
-  function. The default is -11 and fiddle with this at your own risk...
+  Frameshift penalty passed to
+  [`CorrectFrameshifts`](https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html)'s
+  `frameShift`. tantale's default is `-11`, overriding DECIPHER's own
+  `-15`; change it only with a reason.
 
 - ...:
 
@@ -207,9 +208,9 @@ tell_tales(
 
 ## Value
 
-This functions has only side effects (writing files, mostly). However,
-if everything ran smoothly, it will invisibly return the path of the
-directory where output files were written.
+Called for its side effects (writing files). If everything runs
+smoothly, it invisibly returns the path of the directory where output
+files were written.
 
 List of output files:
 
@@ -231,13 +232,13 @@ List of output files:
 - putative_tal_orf.fasta: Tal putative ORFs
 
 - pseudo_tal_cds.fasta: pseudo Tal CDS, putative Tal array ORFs detected
-  by HMMer for whch AnnoTALE analyze failed to find RVD(s).
+  by HMMer for which AnnoTALE analyze failed to find RVD(s).
 
 - rvd_sequences.fas: Sequence of RVDs (separated by rvd_sep) predicted
   to be encoded in the Tal array ORFs by AnnoTALE. Note that if
-  extremity_codes is `TRUE` (by default), the N- and C-TREM anchor codes
-  will be appended at the beginning and end of the sequences if the
-  corresponding domain coding sequence was wound by HMMer at the DNA
+  extremity_codes is `TRUE` (by default), the N- and C-TERM anchor codes
+  will be added at the beginning and end of the sequences if the
+  corresponding domain coding sequence was found by HMMer at the DNA
   level. If no such HMMer hits were found, the "XXXXX" string will be
   appended to denote that AA sequences outside of the RVD array are
   likely to be atypical.
@@ -292,11 +293,11 @@ additional informative output files such as tabular reports.
 
 If `correct_array` is turned on, these talearrays are passed to the
 [`CorrectFrameshifts`](https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html)
-function that attemps to 'correct' potential frameshifts in the
+function that attempts to 'correct' potential frameshifts in the
 taleArray sequences. This conveniently removes many artefactual indels
 but bear in mind that this may also **erroneously** 'correct' genuine
 frame shifts which can be highly relevant especially for truncTALEs or
-iTALES. The resulting 'corrected' taleArray open reading frames are then
+iTALEs. The resulting 'corrected' taleArray open reading frames are then
 passed to AnnoTALE.
 
 Note that occasionally, when a putative open reading frame does not
@@ -336,7 +337,7 @@ tell_tales(subject_file = subj, output_dir = out)
 #> Now running AnnoTALE analyze for ROI_00003
 #> Now running AnnoTALE analyze for ROI_00004
 #> #**************************************** #** tell_tales analysis done **
-#> Current date: Wed Sep 23 02:05:32 2026 #_________Provided I/O parameters
+#> Current date: Wed Sep 23 11:35:39 2026 #_________Provided I/O parameters
 #> __________ File of subject DNA sequences:
 #> /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/bai3_sample_tal_genomic_regions.fasta
 #> TALE N-term CDS region detection HMM file:
@@ -345,7 +346,7 @@ tell_tales(subject_file = subj, output_dir = out)
 #> /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_repeat_CDS_profile.hmm
 #> TALE C-term CDS region detection HMM file:
 #> /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Cterm_CDS_profile.hmm
-#> Output directory: /tmp/RtmpRyXdWZ/tell_tales_example434e4434c2bc2
+#> Output directory: /tmp/RtmpQGqF0J/tell_tales_example556f628853ee8
 #> #____________Other parameters________________ nterm_min_score: 300
 #> repeat_min_score: 20 cterm_min_score: 200 min_domain_hits: 4 min_array_length:
 #> 0 merge_hits: TRUE min_gap: 35 extend_len: 300 correct_array: FALSE

@@ -20,11 +20,10 @@ space or '-' separated string or as a Biostrings XStringSet with sequences
 of RVD similarly formatted.}
 
 \item{subj_file}{Expects a character vector specifying the path to the
-fasta file holding subject DNA sequence(s). Talvez forbids to have
-sequences in the file wrapped at a fixed width. The function uses
-Biostrings to unwrap them but if you use subject sequences longer than
-20kb, this will fail and you are advised to unwrap your sequences before
-hand.}
+fasta file holding subject DNA sequence(s). Talvez does not accept
+sequences wrapped at a fixed width. The function unwraps them with
+Biostrings, but this fails for subject sequences longer than 20 kb:
+unwrap such sequences beforehand.}
 
 \item{opt_param}{An atomic character vector specifying optional parameters
 for the Talvez script (eg "-t 0 -l 19"). \strong{These may not include} the
@@ -48,17 +47,16 @@ program's output in order to homogenize column names across TALE target
 prediction programs in tantale.
 }
 \description{
-A R wrapper around the
-\href{https://doi.org/10.1371/journal.pone.0068464}{Talvez} predictor perl
+An R wrapper around the
+\href{https://doi.org/10.1371/journal.pone.0068464}{Talvez} predictor Perl
 script. Takes a list of TALE RVD sequences and a fasta file of DNA sequences
-and runs Talvez
+and runs Talvez.
 }
 \details{
-Note that this talvez wrapper, uses the RVD - Nucleotide specificity matrices
-used with talvez, it is not possible to use custom ones.
-Note also that the talvez script is run in a conda environment providing the
-necessary dependencies. This environment will be created automatically if
-necessary.
+This wrapper uses the RVD-nucleotide specificity matrices shipped with
+Talvez; custom matrices are not supported. The Talvez script runs in a
+conda environment providing its dependencies, created automatically on
+first use.
 }
 \examples{
 \donttest{

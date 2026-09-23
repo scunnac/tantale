@@ -2,20 +2,21 @@
 % Please edit documentation in R/conversion.R
 \name{repeat_to_rvd_map_distalr}
 \alias{repeat_to_rvd_map_distalr}
-\title{Generate a mapping between Distal repeat IDs and their cognate RVD.}
+\title{Generate a mapping between Distal repeat IDs and their cognate RVD}
 \usage{
 repeat_to_rvd_map_distalr(tale_parts)
 }
 \arguments{
-\item{tale_parts}{The tale_parts object in a \code{\link{tales_compare_distal}} output.}
+\item{tale_parts}{A \code{\link{tales}} object or data frame with
+\code{dom_code} and \code{rvd} columns, such as the \code{tales} element
+of \code{\link{tales_compare_distal}}'s result.}
 }
 \value{
 A two columns repeatID - RVD data frame.
 }
 \description{
-Uses Distal repeat sequences and RVD sequences from a set of TALEs
-analyzed with the \code{\link{tales_compare_distal}} function to return
-the association between repeat ID and RVD.
+Returns the association between each domain code (\code{dom_code}) and
+its RVD, one row per distinct pair.
 }
 \examples{
 parts <- data.frame(dom_code = c(1, 2, 1, 3), rvd = c("HD", "NI", "HD", "NG"))

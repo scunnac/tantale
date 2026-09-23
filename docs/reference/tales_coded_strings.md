@@ -1,8 +1,7 @@
 # Domain-coded strings, one per TALE array
 
 Renders each array as a separated string of its `dom_code`s in part
-order – the encoding the array alignments consume (MAFFT's text mode,
-and
+order: the encoding the array alignments consume (MAFFT's text mode, and
 [`tales_tale_distances()`](https://scunnac.github.io/tantale/reference/tales_tale_distances.md)),
 where each distinct domain sequence is one "residue".
 
@@ -50,8 +49,7 @@ the two projections feed different consumers:
 The separator is free to choose here in a way it is not for RVDs: a
 `dom_code` is a bare integer rendered as text, so `"1 2 3"` and
 `"1-2-3"` are equally unambiguous. It defaults to a space because that
-is what the documented consumers of this encoding expect, not because
-the character matters.
+is what the documented consumers of this encoding expect.
 
 The termini are kept by default, where
 [`tales_rvd_strings()`](https://scunnac.github.io/tantale/reference/tales_rvd_strings.md)

@@ -46,9 +46,8 @@ object, stamped with `x`'s namespace.
 ## Details
 
 This is the expensive step, and the one worth having on its own: the
-domain-level distances answer questions about domain diversity that need
-no TALE-level alignment at all, and computing them does not require
-aligning the arrays.
+domain-level distances answer questions about domain diversity without
+any array-level alignment.
 
 Distances are between **distinct domains**, keyed by `dom_code`, so the
 cost goes with the number of distinct sequences rather than the number

@@ -7,10 +7,12 @@
 \format{
 A tibble with 404 rows and 5 columns:
 \describe{
-\item{rvd}{The two-letter RVD code (or the anchor codes \code{"XX"},
-an unrecognised RVD's fallback, and \code{"H*"}/\code{"N*"}).}
-\item{A, C, G, T}{Relative binding weight for that base. Not
-normalised to sum to one -- \code{\link{tales_compare_functal}} hands
+\item{rvd}{The two-letter RVD code. \code{"N*"} and \code{"H*"} are
+RVDs whose residue 13 is missing; \code{"OO"} is position 0, the base
+just before the first repeat's target, where TALEs prefer a T;
+\code{"XX"} is the flat fallback row used for an unrecognised RVD.}
+\item{A, C, G, T}{Relative binding weight for that base. The weights
+do not sum to one: \code{\link{tales_compare_functal}} hands
 them to \code{\link[universalmotif:create_motif]{create_motif}} as
 raw counts (\code{type = "PCM"}), which normalises internally.}
 }
@@ -24,9 +26,9 @@ bases. This is the table \code{\link{tales_compare_functal}} stacks, one
 row per repeat, to build an array's position weight matrix.
 }
 \details{
-Ported verbatim from QueTAL FuncTAL's own table
-(\code{inst/tools/QueTAL_v1.1/FuncTAL/Info/2014mat18}) -- the values are
-unchanged, only a header and column names added. Conceptually related to
+Taken verbatim from QueTAL FuncTAL's own table (shipped as
+\code{legacy/QueTAL_v1.1/FuncTAL/Info/2014mat18} in the installed
+package): the values are unchanged, only a header and column names added. Conceptually related to
 but distinct from the internal \code{rvdSimDf} used by
 \code{\link{tales_align}}'s RVD scoring: that one is a \emph{derived}
 RVD-vs-RVD similarity (a correlation between two RVDs' base-preference
@@ -34,8 +36,8 @@ profiles, itself built from TALVEZ's much smaller 17-RVD \code{mat1}),
 used to score repeat \emph{substitutions} during sequence alignment. This one
 is the \emph{raw}, per-RVD base preference itself, one level upstream, used to
 build a whole array's binding-specificity model for comparison against
-another array's -- a different consumer, and not interchangeable with
-\code{rvdSimDf}.
+another array's. The two tables serve different consumers and cannot
+replace each other.
 }
 \examples{
 rvd_dna_specificity[rvd_dna_specificity$rvd \%in\% c("HD", "NI", "NG", "NN"), ]

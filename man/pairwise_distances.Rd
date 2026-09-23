@@ -4,7 +4,7 @@
 \alias{pairwise_distances}
 \alias{tale_distances}
 \alias{domain_distances}
-\title{Create a pairwise similarity table}
+\title{Create a pairwise distance table}
 \usage{
 pairwise_distances(x, dom_code_namespace = NULL)
 
@@ -29,15 +29,19 @@ only one copy of the quantity is stored. Further columns
 A validated \code{pairwise_distances} object.
 }
 \description{
-The long form of a square pairwise similarity over one entity set: one row
-per ordered pair of entities, with a \code{sim} score.
+The long form of a square pairwise distance over one entity set: one row
+per ordered pair of entities, with a \code{dissim} value (0 for identical
+entities, larger for more different ones).
 }
 \details{
-\code{tale_distances()} and \code{domain_distances()} are the entity-specific flavours:
-similarity between whole TALE arrays, and between distinct domains --
-repeats and the two termini alike.
-They add no structure, only semantics — every method is written once on the
-parent.
+\code{tale_distances()} and \code{domain_distances()} are the
+entity-specific flavours: distances between whole TALE arrays, and between
+distinct domains, repeats and the two termini alike. For
+\code{domain_distances}, \code{dissim} is the percentage of amino acids
+that differ between two domains (see \code{\link{tales_domain_distances}});
+for \code{tale_distances}, it is the array alignment cost between two TALEs
+(see \code{\link{tales_tale_distances}}). The two flavours add no
+structure, only meaning: every method is written once on the parent.
 
 Legacy column spellings (\code{TAL1}/\code{TAL2}, \code{RepU1}/\code{RepU2},
 \code{Sim}, \code{Dissim}, \code{arlemScore}, ...) are renamed on the way in.

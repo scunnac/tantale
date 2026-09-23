@@ -1,11 +1,11 @@
 # Correct TALE ORFs in error-prone sequences
 
-As a way faster alternative to run
+A much faster alternative to running
 [`tell_tales`](https://scunnac.github.io/tantale/reference/tell_tales.md)
-in correction mode on error prone sequences such as ONT assembled
-genomes, we provide a wrapper around the java binaries from this gitHub
+in correction mode on error-prone sequences such as ONT-assembled
+genomes: a wrapper around the Java TALE correction tool from this GitHub
 [page](https://github.com/Jstacs/Jstacs/tree/master/projects/talecorrect).
-It takes an input fasta file and output a file with corrected indels in
+It takes an input fasta file and writes a file with corrected indels in
 TALE coding sequences using an approach described in the Erkes et al.
 [paper](https://doi.org/10.1186/s12864-023-09228-1).
 [`tell_tales`](https://scunnac.github.io/tantale/reference/tell_tales.md)
@@ -40,7 +40,7 @@ correct_tales(
   Path to the folder containing the profile HMM files. The default value
   points to the ones built from Xanthomonas oryzae pv. oryzae (Xoo)
   templates. Xoc (X. oryzae pv. oryzicola) ones are also available in
-  the parent directory. Please see the gitHub
+  the parent directory. Please see the GitHub
   [page](https://github.com/Jstacs/Jstacs/tree/master/projects/talecorrect)
   for instructions on building custom profiles.
 
@@ -77,6 +77,6 @@ out_fa <- tempfile(fileext = ".fa")
 correct_tales(uncorrected_path = subj, corrected_path = out_fa)
 #> Running nHMMER
 #> Performing TALEs cds correction on provided sequences.
-#> [1] "/tmp/RtmpRyXdWZ/file434e44b5593c5.fa"
+#> [1] "/tmp/RtmpQGqF0J/file556f6668ce0fa.fa"
 # }
 ```

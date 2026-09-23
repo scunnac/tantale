@@ -371,24 +371,24 @@ week). Spot-check against the actual code before trusting a closed
 section, especially before building on top of it.
 
 **Ledger §32** -- four findings from the §30 render check. §32.1
-(`as_tales()` keeping a stale `alignment_width`) is fixed. The other three
-are triaged findings (`rvdSimDf` coverage, the scoring
-matrix displacing an identical half-repeat, the `*` counted in
-`cterm_aa_length`), with the mechanism and options for each.
+(`as_tales()` keeping a stale `alignment_width`) is fixed. §32.3 (the
+scoring matrix displacing an identical half-repeat) is root-caused: the
+default DECIPHER backend of `tales_domain_distances()` ignores gaps
+(`penalizeGapLetterMatches = FALSE`), so a half-repeat is at distance 0
+from any full repeat it is a prefix of. Three fix options and measured
+impact (grouping unchanged, golden baseline would change) are in §32.3,
+**awaiting the maintainer's choice**. §32.2 (`rvdSimDf` covering 17 RVDs)
+and §32.4 (the `*` counted in `cterm_aa_length`) also await decisions.
 
-**§30, 2026-09-23 -- website prose review, articles half DONE.** All 8
-articles, `README.md` and `pkgdown/index.md` re-read against their own
-rendered output (`docs/articles/<name>.md` holds prose *and* chunk
-output; figures read as PNGs), plus the tone checklist in memory
-`feedback_tantale_doc_language`. Several real content errors fixed as
-well as tone (full list in §30). **Still open under §30: the reference-page
-(roxygen) prose sweep**, and six maintainer questions §30 lists (e.g.
-`as_tales()` keeping `alignment_width`, `rvdSimDf` covering only 17 RVDs,
-the scoring matrix displacing an identical half-repeat) -- none acted on.
-`tale_classification.qmd`'s `tales_group` chunk now always recomputes
-(cheap) instead of reading `_cache/group.rds`, so its silhouette plot is
-drawn on every render; it still writes the cache for the other three
-articles.
+**§30, 2026-09-23 -- website prose review DONE (articles and reference
+pages).** All 8 articles, `README.md`, `pkgdown/index.md` and the 63
+published reference pages re-read against rendered output or the code,
+plus the "A, not B" tone rule. Several real content errors fixed along
+with the tone edits (full list in §30). The parallel-phrasing sweep (habit 2 in the
+Documentation rules above) is **deferred by the maintainer as future
+work**. `tale_classification.qmd`'s `tales_group` chunk always recomputes
+(cheap), so its silhouette plot is drawn on every render; it still writes
+the cache for the other three articles.
 
 **§25/§25b, 2026-09-22/23 -- both DONE, published.** A new pkgdown
 article, `vignettes/articles/trunctale_correction.qmd`, compares both

@@ -25,7 +25,7 @@ The two arguments are not independent, and that is the point. Each
 array's sequence of \code{dom_code}s is aligned against every other's; what it
 costs to align one domain against a different one is taken from
 \code{domain_distances}, so the TALE-level comparison is built on the
-domain-level one rather than computed beside it.
+domain-level one.
 
 The alignment is the minisatellite map alignment of ARLEM (Abouelhoda,
 Giegerich, Behzadi and Steyaert,
@@ -40,9 +40,9 @@ identical to those of the original ARLEM program. \code{arlem_score} is the cost
 alignment, and \code{dissim} divides it by the length of the longer array.
 
 The domain distances are first passed through a Minkowski distance
-(\code{p = 3.5}) between their rows and rescaled to 0-100. That step is not
-cosmetic: the alignment needs substitution costs satisfying the triangle
-inequality, and raw pairwise alignment dissimilarities do not.
+(\code{p = 3.5}) between their rows and rescaled to 0-100. That step matters:
+the alignment needs substitution costs satisfying the triangle inequality,
+and raw pairwise alignment dissimilarities do not.
 }
 \section{Both arguments must come from the same call}{
 

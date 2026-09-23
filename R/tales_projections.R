@@ -9,7 +9,7 @@
 
 #' Domain-coded strings, one per TALE array
 #'
-#' Renders each array as a separated string of its `dom_code`s in part order --
+#' Renders each array as a separated string of its `dom_code`s in part order:
 #' the encoding the array alignments consume (MAFFT's text mode, and
 #' [tales_tale_distances()]), where each distinct
 #' domain sequence is one "residue".
@@ -29,8 +29,7 @@
 #' The separator is free to choose here in a way it is not for RVDs: a
 #' `dom_code` is a bare integer rendered as text, so `"1 2 3"` and `"1-2-3"`
 #' are equally unambiguous. It defaults to a space because that is what the
-#' documented consumers of this encoding expect, not because the character
-#' matters.
+#' documented consumers of this encoding expect.
 #'
 #' The termini are kept by default, where [tales_rvd_strings()] drops them.
 #' Target prediction concerns the repeat domain only, so dropping them there
@@ -182,16 +181,15 @@ tales_rvd_strings <- function(x, sep = "-", rvd_only = TRUE) {
 
 #' Whole-array protein sequence, one per TALE array
 #'
-#' Reassembles each array's parts -- N-terminus, repeats and C-terminus, in
-#' order -- into one full-length amino acid sequence, by pasting `aa_seq`
-#' together directly (no separator, unlike [tales_rvd_strings()]'s
-#' hyphen-joined RVDs: this is a real protein sequence, not a token string).
+#' Reassembles each array's parts (N-terminus, repeats and C-terminus, in
+#' order) into one full-length amino acid sequence, by pasting `aa_seq`
+#' together with no separator: the result is a real protein sequence, where
+#' [tales_rvd_strings()] joins RVD tokens with hyphens.
 #'
 #' @details
-#' Ordered by `position_in_array`, not `alignment_position`: an alignment
-#' never reorders an array's parts, only inserts gaps between them (see
-#' `dev/class-design.md`), and a `tales_msa`'s gaps are never rows to begin
-#' with -- a gap is a column with no row for that array. So `position_in_array`
+#' Parts are ordered by `position_in_array`. An alignment never reorders an
+#' array's parts, only inserts gaps between them, and a `tales_msa`'s gaps are
+#' never rows: a gap is a column with no row for that array. So `position_in_array`
 #' gives the same part order `alignment_position` would, without needing to
 #' skip anything, and works unchanged whether `x` is a bare `tales` or a
 #' `tales_msa`.

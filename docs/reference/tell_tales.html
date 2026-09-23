@@ -152,7 +152,7 @@ value, domains are considered "contiguous" and grouped in the same array.</p></d
 
 <dt id="arg-extremity-codes">extremity_codes<a class="anchor" aria-label="anchor" href="#arg-extremity-codes"></a></dt>
 <dd><p>Set this to <code>FALSE</code> if you do not want the
-N- and C-TREM anchor codes in the output sequences of RVD</p></dd>
+N- and C-TERM anchor codes in the output sequences of RVD</p></dd>
 
 
 <dt id="arg-rvd-sep">rvd_sep<a class="anchor" aria-label="anchor" href="#arg-rvd-sep"></a></dt>
@@ -210,22 +210,23 @@ byte-identical corrected sequences:</p>
 reference lies outside the closest <code>max_comparisons</code> by the cheap
 pre-screen. That pre-screen is an approximation, so a low cap trusts it
 to rank the truly best reference near the top.</p>
-<p>When it fails it does not fail by leaving an array uncorrected – it
-fails by correcting it against a poor reference, which is worse, because
-the result still looks like a corrected ORF. Against a deliberately
-small 20-sequence reference, the same four arrays give:</p>
+<p>When it fails, it corrects the array against a poor reference. That is
+worse than leaving the array uncorrected, because the result still looks
+like a corrected ORF. Against a deliberately small 20-sequence
+reference, the same four arrays give:</p>
 <table class="table table"><tr><td><strong>max_comparisons</strong></td><td><strong>indels called per array</strong></td></tr><tr><td>all (20), 20, 10</td><td>2, 2, 0, 1</td></tr><tr><td>5</td><td>2, 2, 0, 2</td></tr><tr><td>2</td><td>9, 11, 0, 15</td></tr></table><p>At 2 the aligner cannot reach a decent reference and invents indels
-wholesale. What matters is therefore not the ratio to the reference set
-but whether the closest <code>max_comparisons</code> are genuinely close: 20
-of 1057 is ample, 5 of 20 is not. With a large reference set a cap in
+wholesale. What matters is whether the closest <code>max_comparisons</code>
+references are genuinely close, whatever the size of the reference set:
+20 of 1057 is ample, 5 of 20 is not. With a large reference set a cap in
 the tens is safe and very much faster; with a small or a poorly matched
 one, prefer the default and pay for the full search.</p></dd>
 
 
 <dt id="arg-frameshift">frameshift<a class="anchor" aria-label="anchor" href="#arg-frameshift"></a></dt>
-<dd><p>This is an internal parameter of the
-<code><a href="https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html" class="external-link">CorrectFrameshifts</a></code> function. The
-default is -11 and fiddle with this at your own risk...</p></dd>
+<dd><p>Frameshift penalty passed to
+<code><a href="https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html" class="external-link">CorrectFrameshifts</a></code>'s
+<code>frameShift</code>. tantale's default is <code>-11</code>, overriding
+DECIPHER's own <code>-15</code>; change it only with a reason.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>
@@ -235,9 +236,9 @@ default is -11 and fiddle with this at your own risk...</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>This functions has only side effects (writing files, mostly).
-However, if everything ran smoothly, it will invisibly return the path of
-the directory where output files were written.</p>
+    <p>Called for its side effects (writing files). If everything runs
+smoothly, it invisibly returns the path of the directory where output
+files were written.</p>
 <p>List of output files:</p><ul><li><p>all_ranges.gff: gff file of all Tal arrays detected by HMMer</p></li>
 <li><p>array_report.tsv: report of all Tal arrays. In array_report.tsv,
 column <em>predicted_dels_count</em>/<em>predicted_ins_count</em> shows the
@@ -248,12 +249,12 @@ function <code><a href="https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html
 <li><p>hits_report.gff: gff file of all hits detected by HMMer</p></li>
 <li><p>domains_report.tsv: report of all Tal amino acid domains detected by AnnoTALE analyze</p></li>
 <li><p>putative_tal_orf.fasta: Tal putative ORFs</p></li>
-<li><p>pseudo_tal_cds.fasta: pseudo Tal CDS, putative Tal array ORFs detected by HMMer for whch
+<li><p>pseudo_tal_cds.fasta: pseudo Tal CDS, putative Tal array ORFs detected by HMMer for which
 AnnoTALE analyze failed to find RVD(s).</p></li>
 <li><p>rvd_sequences.fas: Sequence of RVDs (separated by rvd_sep) predicted to be encoded in the Tal array
 ORFs by AnnoTALE. Note that if extremity_codes is <code>TRUE</code> (by default),
-the N- and C-TREM anchor codes will be appended at the beginning and end of the sequences
-if the corresponding domain coding sequence was wound by HMMer at the DNA level.
+the N- and C-TERM anchor codes will be added at the beginning and end of the sequences
+if the corresponding domain coding sequence was found by HMMer at the DNA level.
 If no such HMMer hits were found, the "XXXXX" string will be appended
 to denote that AA sequences outside of the RVD array are likely to be atypical.</p></li>
 <li><p>c_terminus_aa_alignment.html: protein alignment of all C-termini
@@ -284,10 +285,10 @@ very similar to what would be obtained with AnnoTALE, plus many additional
 informative output files such as tabular reports.</p>
 <p>If <code>correct_array</code> is turned on, these talearrays are passed to the
 <code><a href="https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html" class="external-link">CorrectFrameshifts</a></code> function that
-attemps to 'correct' potential frameshifts in the taleArray sequences. This
+attempts to 'correct' potential frameshifts in the taleArray sequences. This
 conveniently removes many artefactual indels but bear in mind that this may
 also <strong>erroneously</strong> 'correct' genuine frame shifts which can be highly
-relevant especially for truncTALEs or iTALES. The resulting 'corrected'
+relevant especially for truncTALEs or iTALEs. The resulting 'corrected'
 taleArray open reading frames are then passed to AnnoTALE.</p>
 <p>Note that occasionally, when a putative open reading frame does not encode a
 canonical TALE protein (early frame shift, incomplete ORF, etc...), the
@@ -325,7 +326,7 @@ RVD sequence. This should be detected and reported in the tell_tales log.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Now running AnnoTALE analyze for ROI_00003</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Now running AnnoTALE analyze for ROI_00004</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> #**************************************** #** tell_tales analysis done **</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Current date: Wed Sep 23 02:05:32 2026 #_________Provided I/O parameters</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Current date: Wed Sep 23 11:35:39 2026 #_________Provided I/O parameters</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> __________ File of subject DNA sequences:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/bai3_sample_tal_genomic_regions.fasta</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> TALE N-term CDS region detection HMM file:</span>
@@ -334,7 +335,7 @@ RVD sequence. This should be detected and reported in the tell_tales log.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_repeat_CDS_profile.hmm</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> TALE C-term CDS region detection HMM file:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Cterm_CDS_profile.hmm</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Output directory: /tmp/RtmpRyXdWZ/tell_tales_example434e4434c2bc2</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Output directory: /tmp/RtmpQGqF0J/tell_tales_example556f628853ee8</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> #____________Other parameters________________ nterm_min_score: 300</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> repeat_min_score: 20 cterm_min_score: 200 min_domain_hits: 4 min_array_length:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 0 merge_hits: TRUE min_gap: 35 extend_len: 300 correct_array: FALSE</span>

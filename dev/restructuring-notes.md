@@ -8489,7 +8489,7 @@ go-ahead first**, website work included.
 
 ---
 
-## 30. Full website prose review against `feedback_writing_tone` -- articles/README/index DONE, reference pages not started **[A]**
+## 30. Full website prose review against `feedback_writing_tone` -- articles/README/index and reference pages DONE; parallel-phrasing sweep deferred **[V]**
 
 Maintainer's suggestion, 2026-09-22, tentative ("may be worth it") --
 recorded so it isn't lost, not committed to as a scheduled task.
@@ -8596,6 +8596,65 @@ prose** -- the other half of this item's original scope.
 - `pkgdown/index.md`: **dendrogram described as "three clean groups" --
   it shows nine** (8 one-per-strain + 1 pair), caption and alt text fixed.
 - README: typo ("lenght"), minor tone. Both LLM-use statements untouched.
+
+### Reference pages, 2026-09-23 -- DONE
+
+All 63 published reference topics (every `man/*.Rd` without
+`\keyword{internal}`), edited in their roxygen source, one R file at a
+time: the "A, not B" contrast, implementation history, internal pointers
+a reader cannot follow, grammar/typos, and accuracy against the code or
+a run of the example. Method: a helper listing every non-`@noRd`,
+non-internal roxygen block per file; a grep of the generated `man/` for
+the tone patterns before and after (all hits cleared). `devtools::document()` and `tools::checkRd()` clean
+(only the pre-existing UTF-8 notes, declared in `DESCRIPTION`).
+
+**Accuracy fixes, beyond the tone edits:**
+- `pairwise_distances` family: titles and description called the class a
+  "similarity table ... with a `sim` score"; it stores `dissim` (a `Sim`
+  input is converted, 65 -> 35, checked). Renamed to "distance table"
+  throughout, and what `dissim` means for each flavour is now stated.
+- `tales_namespace()`: a join across runs would match "the wrong
+  repeats" -> "domains" (`dom_code` covers termini).
+- `as_tales()`: now says what happens to a `tales_msa` (demoted, width
+  dropped: §32.1). Pointer to `dev/class-design.md` removed.
+- `repeat_to_rvd_map_distalr()`, `tale_parts_to_rvd()`: documented their
+  input as "the tale_parts object in a `tales_compare_distal()` output",
+  which does not exist (it returns `tales`, `domain_distances`,
+  `tale_distances`). Now: a `tales`/data frame with the named columns.
+  (Both functions otherwise untouched: §2/§20 are parked.)
+- `summary.tales()`: cited "251 distinct codes ... on the reference
+  fixture", an internal test fixture; now the shipped example's figures
+  (47 codes: 39 repeats, 8 termini; checked by running it).
+- `plot.tales()`: "coloured by domain type" -> outlined by domain type,
+  filled by length (as in §30's article fix). `plot.tales_msa()`: grey
+  label colour (no consensus) added, and `rvd_sim`'s grey cells for RVDs
+  outside `rvdSimDf`'s 17 (§32.2) documented.
+- `rvd_dna_specificity`: source path was `inst/tools/QueTAL_v1.1/...`,
+  the file lives in `inst/legacy/`; `"H*"`/`"N*"` were called "anchor
+  codes" (they are RVDs lacking residue 13); `"OO"` (position 0)
+  explained.
+- `?tantale` and README: "tantale does not bundle the programs it
+  drives" contradicted the shipped Java tools (AnnoTALE, PrediTALE, TALE
+  correction; the README even said "ships about 60 MB of Java programs"
+  a few lines later). Fixed in both.
+- `talomes_heatmap()`: description and params rewritten from the code
+  (colour = variant rank within the group, `#n` = variant count, grey =
+  absent, `trunc_tales_col` marks "T").
+- `tell_tales()`: `@param frameshift` ("fiddle with this at your own
+  risk...") rewritten with DECIPHER's own default (-15, checked);
+  typos ("C-TREM" x2, "wound by HMMer", "whch", "attemps", "iTALES",
+  "This functions").
+- Development history removed: ledger/`restructuring-notes.md` citations
+  in `tales_compare_functal()`/`tales_to_universalmotif()`, "Previously a
+  hardcoded 7" (`tales_group_kmedoids()` `seed`), "the former
+  `tales_compare()`" and "Named for the algorithm, not just historically"
+  (`tales_compare_distal()`), "replaces the hand-written `acast()` at four
+  call sites" and similar in the distances family, an internal function
+  name (`.tales_group_kmedoids_elbow()`).
+- Four titles ending in a period (`checkRd` note) fixed.
+
+Not done here: the parallel-phrasing sweep (deferred, below), and any
+doc change for §32.3 (waits on the maintainer's choice of fix).
 
 **Future work under this item (maintainer, 2026-09-23): a second tone
 sweep for parallel/paired phrasing** -- balanced doublets and rhetorical
@@ -8789,7 +8848,7 @@ Options, not evaluated:
 Whatever is chosen, the plot legend and the `rvd_sim` docs should say
 what an `NA` (grey) cell means.
 
-### 32.3 The `domain_distances` matrix displaced an identical half-repeat -- **mechanism found, fix not decided** **[P]**
+### 32.3 The `domain_distances` matrix displaced an identical half-repeat -- **root cause found (DECIPHER backend ignores gaps), fix awaiting maintainer's choice** **[P]**
 
 Maintainer: "good catch", elaborate so we can figure out what is going on.
 
@@ -8841,6 +8900,100 @@ Questions to settle:
 4. `R/tales_msa_class.R:536` already notes there is no evidence the
    matrix makes alignments biologically better. This case is a
    concrete counter-example worth turning into a test fixture.
+
+**Investigation, 2026-09-23 -- root cause found.**
+
+*The zero comes from `DECIPHER::DistanceMatrix()`'s gap handling.*
+`.pairwise_align_decipher()` (`R/distalr.R`, the default backend) calls
+`DistanceMatrix(msa, method = "longest", includeTerminalGaps = TRUE)` but
+leaves `penalizeGapLetterMatches` at its default, `FALSE`: "ignores gaps
+paired with letters" (DECIPHER 3.8.0 docs). So `method = "longest"`
+widens the region, yet a gap opposite a residue never counts as a
+difference, and the denominator is effectively the ungapped overlap.
+Reproduced on four sequences, before any `StaggerAlignment()`: 29 vs 24
+is 3 mismatches / 20 = 15%, 29 vs 49 is 1/20 = 5%, 29 vs 31 is 0/20 = 0.
+The same default also ignores *internal* indels between domains, and so
+aberrant repeats with a deletion look identical to the full repeat.
+
+*What each backend gives for the half-repeat (29) against three full
+repeats:*
+
+| 29 vs | 31 (same prefix) | 49 (1 mismatch) | 24 (3 mismatches) |
+|---|---|---|---|
+| DECIPHER as used (`penalizeGapLetterMatches = FALSE`) | 0 | 5 | 15 |
+| DECIPHER, `penalizeGapLetterMatches = TRUE` | 41.2 | 44.1 | 50 |
+| DECIPHER, `penalizeGapLetterMatches = NA` (one penalty per gap run) | 4.8 | 9.5 | 19 |
+| mmseq2 (`100 - pident * min(qcov, tcov)`) | 41.2 | 44.1 | 50 |
+| Biostrings (global, gap open 1 / extend 0.5) | 64.7 | 67.6 | 73.5 |
+
+All backends agree on equal-length pairs (2.94 per mismatch in 34). The
+disagreement is only about length differences and indels.
+
+*What DisTAL intended.* QueTAL paper (Pérez-Quintero et al. 2015,
+doi 10.3389/fpls.2015.00545): repeats are aligned "with the
+Needleman-Wunsch algorithm", "a global alignment with sliding ends (no
+gap penalty)", and the distance is "the percentage of amino acids that
+change between repeats (based on the longest repeat among the two
+aligned)". `.pairwise_align_biostrings()`'s own comment calls its
+`(max_length - score) / max_length` formula "an approximate equivalent of
+how Alvaro computed dissimilarity in distal". Read together: overhanging
+residues count as changed, normalised by the longer repeat, so 29 vs 31
+= 14/34 = **41.2**, which is what mmseq2 and DECIPHER-with-`TRUE` give.
+The current default backend is the one that departs from DisTAL. (The
+original DisTAL code is not in the repo, only FuncTAL, so this is from
+the paper, not the source.) The Biostrings backend is also off DisTAL in
+the other direction: it charges gap penalties that DisTAL's "sliding ends
+(no gap penalty)" does not.
+
+*The MAFFT placement follows directly.* Group 6, BAI3's half-repeat:
+
+| Matrix passed to `tales_align()` | where 29 lands |
+|---|---|
+| none | column 17, opposite MAI1's identical 29 |
+| DECIPHER as used | column 13, opposite MAI1's full `NI` repeat (31) |
+| mmseq2 / Biostrings | column 17 |
+| DECIPHER with `TRUE` or `NA` | column 17 |
+| DECIPHER as used, every dissim +50 (some scores negative) | column 13 |
+
+So the length-blind zero alone causes the displacement. The "all-positive
+matrix" question (point 3 above) is not the cause here: shifting the
+whole matrix changes nothing.
+
+*Impact of fixing the default backend, measured* (script run on the full
+three-genome cached comparison, 26 arrays; DECIPHER backend re-created in
+the script with the one argument changed, package untouched):
+
+| | `TRUE` | `NA` |
+|---|---|---|
+| domain pairs whose distance changes | 8330 of 12769 | 8330 of 12769 |
+| largest change in a domain distance | 44.1 | 9.5 |
+| `tale_distances`: correlation with current | 0.986 | 0.998 |
+| `tale_distances`: largest change (current range 0-7.04) | 1.53 | 0.46 |
+| `k = "auto"` pick / partition | 9, identical | 9, identical |
+
+The classification articles' conclusions would not move (same groups,
+same k). `test_golden.R`'s `tale_distances`/`domain_distances` snapshots
+would change and need a documented re-baseline (golden-rebaseline skill).
+
+**Decision needed (maintainer):**
+1. `penalizeGapLetterMatches = TRUE`: DisTAL-faithful per the paper
+   (overhang counted as changed residues, normalised by the longer
+   repeat); matches the mmseq2 backend exactly on these pairs. A
+   half-repeat is then ~41% from its full-length counterpart.
+2. `NA`: one penalty per gap run, i.e. a truncation or an indel counts
+   as one event whatever its length. Arguably closer to the biology of a
+   single deletion, but not what DisTAL describes.
+3. Leave the distances alone and fix only the MAFFT matrix side (e.g. a
+   length-aware adjustment inside `tales_align()`). Keeps DisTAL numbers
+   as they are now, but they would stay inconsistent with the mmseq2
+   backend and with the paper.
+
+Recommendation: option 1, since it restores agreement with DisTAL's
+published definition and with the mmseq2 backend. Whichever is chosen,
+also decide whether the Biostrings backend should drop its gap penalties
+to match (DisTAL: "no gap penalty"), and add a test pinning 29 vs 31 so
+the backends cannot silently drift apart again (current tests check only
+output dimensions).
 
 ### 32.4 C-terminus length differs by one between `tales` and `array_report.tsv` -- **explained, nothing to fix yet** **[V]**
 

@@ -112,22 +112,22 @@ wrapper around annotale_jar</p></li>
 
 
 
-<p>tantale does not bundle the programs it drives. MAFFT, HMMER, mmseqs2 and
-the Perl dependencies of the target predictors come from a conda
-environment the package builds for itself, so <strong>conda (or mamba, or
-micromamba) is a prerequisite of the main workflow</strong>, not only of
-optional extras. The environment is built on first use rather than at
-install time, so the first call needs a network connection and takes a
-few minutes.</p>
+<p>MAFFT, HMMER, mmseqs2 and the Perl dependencies of the target predictors
+come from a conda environment the package builds for itself, so <strong>conda
+(or mamba, or micromamba) is a prerequisite of the main workflow</strong>. The
+Java tools (AnnoTALE, PrediTALE, TALE correction), which have no conda
+package, ship with tantale itself. The environment is built on first
+use, so the first call needs a network connection and takes a few
+minutes.</p>
 <p>Start with <code><a href="tantale_setup.html">tantale_setup()</a></code>. Called bare it reports what is present and
 changes nothing; <code>tantale_setup(install = TRUE)</code> builds or repairs the
-environment. It checks <strong>versions</strong>, not merely presence, which matters
+environment. It checks <strong>versions</strong> as well as presence, which matters
 because MAFFT changed its <code>--text</code> mode gap handling after 7.4x and later
 versions align TALE repeat strings differently – an environment left
 over from an older tantale gives different alignments from the same
 input, and nothing else would report it.</p>
 <p>If you have no conda at all, <code>reticulate</code> will install one from inside R
-with <code><a href="https://rstudio.github.io/reticulate/reference/install_miniconda.html" class="external-link">reticulate::install_miniconda()</a></code> (miniconda, note, not mamba). An
+with <code><a href="https://rstudio.github.io/reticulate/reference/install_miniconda.html" class="external-link">reticulate::install_miniconda()</a></code> (this installs miniconda). An
 existing conda, mamba or micromamba is found automatically through
 <code><a href="https://rstudio.github.io/reticulate/reference/conda-tools.html" class="external-link">reticulate::conda_binary()</a></code> and used instead.</p>
     </div>

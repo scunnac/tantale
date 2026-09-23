@@ -2,7 +2,7 @@
 % Please edit documentation in R/pairwise_distances_class.R
 \name{as.matrix.pairwise_distances}
 \alias{as.matrix.pairwise_distances}
-\title{Render a similarity table as a square matrix}
+\title{Render a distance table as a square matrix}
 \usage{
 \method{as.matrix}{pairwise_distances}(x, value = PAIRWISE_DISTANCES_VALUE_COL, ...)
 }
@@ -19,14 +19,12 @@ A numeric matrix, square, with sorted ids as dimnames.
 }
 \description{
 Materialises the wide form, with ids as both row and column names, sorted.
-This replaces the hand-written \code{acast(x, id1 ~ id2, value.var = "sim")}
-that appears at four call sites in the package.
 }
 \details{
 \code{x} must be square (see \code{\link{distances_assert_square}}, called
-here for you) -- every id present in both \code{id1} and \code{id2}. A
-table that has been filtered on one id column only, rather than both,
-will not be.
+here for you): every id present in both \code{id1} and \code{id2}. A table
+filtered on one id column only is not; use
+\code{\link{distances_restrict}} to filter both.
 }
 \examples{
 d <- pairwise_distances(data.frame(

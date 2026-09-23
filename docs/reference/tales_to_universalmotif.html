@@ -3,19 +3,17 @@
 weight matrix per array, built by looking up each repeat's RVD in
 rvd_dna_specificity and stacking the rows in repeat order.
 The conversion tales_compare_functal is built on, exposed on
-its own so any universalmotif function – compare_motifs(),
+its own so any universalmotif function (compare_motifs(),
 motif_tree(), view_motifs(), scan_sequences(),
-merge_motifs(), ... – can be run directly on real TALE binding
-models, not just the one comparison tales_compare_functal() does
-with them. Ledger §12b lists several of these as concrete follow-ups."><meta property="og:description" content="One universalmotif position
+merge_motifs(), ...) can be run directly on these TALE binding
+models."><meta property="og:description" content="One universalmotif position
 weight matrix per array, built by looking up each repeat's RVD in
 rvd_dna_specificity and stacking the rows in repeat order.
 The conversion tales_compare_functal is built on, exposed on
-its own so any universalmotif function – compare_motifs(),
+its own so any universalmotif function (compare_motifs(),
 motif_tree(), view_motifs(), scan_sequences(),
-merge_motifs(), ... – can be run directly on real TALE binding
-models, not just the one comparison tales_compare_functal() does
-with them. Ledger §12b lists several of these as concrete follow-ups."><meta property="og:image" content="https://scunnac.github.io/tantale/reference/figures/tantale_logo.png"><meta property="og:image:alt" content="tantale"></head><body>
+merge_motifs(), ...) can be run directly on these TALE binding
+models."><meta property="og:image" content="https://scunnac.github.io/tantale/reference/figures/tantale_logo.png"><meta property="og:image:alt" content="tantale"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -65,11 +63,10 @@ with them. Ledger §12b lists several of these as concrete follow-ups."><meta pr
 weight matrix per array, built by looking up each repeat's RVD in
 <code><a href="rvd_dna_specificity.html">rvd_dna_specificity</a></code> and stacking the rows in repeat order.
 The conversion <code><a href="tales_compare_functal.html">tales_compare_functal</a></code> is built on, exposed on
-its own so any <code>universalmotif</code> function – <code>compare_motifs()</code>,
+its own so any <code>universalmotif</code> function (<code>compare_motifs()</code>,
 <code>motif_tree()</code>, <code>view_motifs()</code>, <code>scan_sequences()</code>,
-<code>merge_motifs()</code>, ... – can be run directly on real TALE binding
-models, not just the one comparison <code><a href="tales_compare_functal.html">tales_compare_functal()</a></code> does
-with them. Ledger §12b lists several of these as concrete follow-ups.</p>
+<code>merge_motifs()</code>, ...) can be run directly on these TALE binding
+models.</p>
     </div>
 
     <div class="section level2">
@@ -88,19 +85,18 @@ with them. Ledger §12b lists several of these as concrete follow-ups.</p>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
     <p>A named list of <code>universalmotif</code> objects, one per array,
-named by <code>array_id</code> – a plain list, since that is what
-<code>compare_motifs()</code>/<code>motif_tree()</code> themselves accept.</p>
+named by <code>array_id</code>: a plain list, which is what
+<code>compare_motifs()</code>/<code>motif_tree()</code> accept.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Only <code>rvd</code>, in repeat order, is used (via
-<code><a href="tales_rvd_strings.html">tales_rvd_strings</a></code>, which drops the two termini by default –
-DNA-binding specificity is a property of the repeat region; QueTAL
-FuncTAL, the tool this table comes from, never scored termini either,
-since its own RVD extraction only ever found repeats). An RVD absent from
-<code><a href="rvd_dna_specificity.html">rvd_dna_specificity</a></code> is scored with a flat, uninformative row
-rather than dropped, so an unusual RVD costs a comparison specificity
-rather than an error.</p>
+<code><a href="tales_rvd_strings.html">tales_rvd_strings</a></code>, which drops the two termini by default):
+DNA-binding specificity is a property of the repeat region, and QueTAL's
+FuncTAL, the tool this table comes from, scored repeats only. An RVD
+absent from <code><a href="rvd_dna_specificity.html">rvd_dna_specificity</a></code> is given a flat,
+uninformative row, so an unusual RVD lowers the specificity of the
+comparison without causing an error.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

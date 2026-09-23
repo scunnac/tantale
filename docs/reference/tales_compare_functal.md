@@ -1,10 +1,11 @@
 # Compare TALEs by predicted DNA-binding specificity (FuncTAL)
 
 Quantifies how TALE arrays relate by the DNA sequence their repeats are
-predicted to bind, rather than by domain sequence identity
-([`tales_compare_distal`](https://scunnac.github.io/tantale/reference/tales_compare_distal.md)).
-Each array's repeats are turned into a position weight matrix (PWM) over
-the RVD-to-base specificity code, and PWMs are compared pairwise with
+predicted to bind.
+([`tales_compare_distal`](https://scunnac.github.io/tantale/reference/tales_compare_distal.md)
+compares them by domain sequence instead.) Each array's repeats are
+turned into a position weight matrix (PWM) over the RVD-to-base
+specificity code, and PWMs are compared pairwise with
 [`compare_motifs`](https://rdrr.io/pkg/universalmotif/man/compare_motifs.html).
 
 ## Usage
@@ -42,17 +43,16 @@ tales_compare_functal(
   fixed reading direction (5' to 3' target, N- to C-terminal repeat
   order), so comparing against a reverse complement asks a different,
   narrower biological question – do these two TALEs target opposite
-  strands of overlapping sites – worth asking on purpose, not folded
-  silently into every comparison.
+  strands of overlapping sites. Ask it deliberately, when it is the
+  question.
 
 - min.overlap:
 
   Minimum aligned width to accept, as `compare_motifs()` defines it.
-  Defaults to `1` (any overlap at all), not `compare_motifs()`'s own
-  default of `6` – generic TF motifs are usually longer than 6
-  positions, but a TALE array legitimately has as few as half a dozen
-  repeats, so the upstream default would silently refuse to compare some
-  real, short arrays.
+  Defaults to `1` (any overlap at all); `compare_motifs()`'s own default
+  is `6`, suited to generic transcription-factor motifs, but a TALE
+  array can have as few as half a dozen repeats, and that default would
+  silently refuse to compare some real, short arrays.
 
 - normalise.scores:
 
@@ -75,7 +75,7 @@ tales_compare_functal(
 
 A
 [`tale_distances`](https://scunnac.github.io/tantale/reference/pairwise_distances.md)
-object – interchangeable with
+object, interchangeable with
 [`tales_compare_distal`](https://scunnac.github.io/tantale/reference/tales_compare_distal.md)'s,
 so it can be handed directly to
 [`tales_group_hclust`](https://scunnac.github.io/tantale/reference/tales_group_hclust.md)/[`tales_group_kmedoids`](https://scunnac.github.io/tantale/reference/tales_group_kmedoids.md).
@@ -85,40 +85,36 @@ own division of labour: compare here, cluster/tree there.
 
 ## Details
 
-This is a reimplementation, not a port, of QueTAL's FuncTAL: the
-original Perl tool could not be kept working (it needs `Bio::Perl`,
-dropped by BioPerl's 1.7 reorganisation; see
-`dev/restructuring-notes.md` §12b), so the comparison itself was rebuilt
-on `universalmotif` rather than patched. **Results diverge from the
-original FuncTAL tool, and this is by design, not an approximation to be
-improved away.** FuncTAL scored two RVD arrays by flattening their
-entire padded, overlapping alignment (positions and bases together) into
-one vector and taking a single Pearson correlation. `compare_motifs()`
-instead correlates matched columns individually and combines the column
-scores (`score.strat`). Verified empirically to disagree on real data
-before writing this function, not assumed to differ only in magnitude.
+This is a reimplementation of QueTAL's FuncTAL comparison on
+`universalmotif`; the original Perl tool depends on BioPerl's
+`Bio::Perl` module, which current BioPerl no longer provides. **Results
+differ from the original FuncTAL tool, by design.** FuncTAL scored two
+RVD arrays by flattening their entire padded, overlapping alignment
+(positions and bases together) into one vector and taking a single
+Pearson correlation. `compare_motifs()` instead correlates matched
+columns individually and combines the column scores (`score.strat`); the
+two disagree on real data.
 
 The PWMs themselves are built by
 [`tales_to_universalmotif`](https://scunnac.github.io/tantale/reference/tales_to_universalmotif.md)
 – see its docs for exactly what drives them (only `rvd`, in repeat
 order, termini dropped) and how an RVD outside
 [`rvd_dna_specificity`](https://scunnac.github.io/tantale/reference/rvd_dna_specificity.md)
-is handled. That conversion is exposed on its own precisely so it is not
-locked inside this one comparison.
+is handled. That conversion is exposed on its own so it can be used with
+any `universalmotif` function.
 
 Only a handful of
 [`compare_motifs`](https://rdrr.io/pkg/universalmotif/man/compare_motifs.html)'s
 many options are exposed here, chosen for what actually varies across
-TALE arrays (their differing repeat counts) rather than mirrored
-wholesale; see `?compare_motifs` for the rest, several of which are
-worth revisiting – ledger §12b lists them as follow-ups.
+TALE arrays (their differing repeat counts); see `?compare_motifs` for
+the rest.
 
 ## See also
 
 [`tales_compare_distal()`](https://scunnac.github.io/tantale/reference/tales_compare_distal.md),
 comparing by domain sequence instead;
 [`tales_to_universalmotif()`](https://scunnac.github.io/tantale/reference/tales_to_universalmotif.md),
-the conversion step this composes – called directly, any other
+the conversion step this uses; called directly, it lets any other
 `universalmotif` function ( `motif_tree()`, `view_motifs()`,
 `scan_sequences()`, `merge_motifs()`, ...) can be run on the same PWMs.
 

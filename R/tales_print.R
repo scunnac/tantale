@@ -80,8 +80,8 @@
 #'
 #' @description
 #' The representation \code{\link{print.tales}} emits, returned as a character
-#' vector rather than written out -- so an object's description can go
-#' somewhere other than the console: a log, an error message, a report.
+#' vector, so an object's description can go somewhere other than the
+#' console: a log, an error message, a report.
 #'
 #' It shows what the class knows and a tibble would not: the number of arrays
 #' as distinct from the number of parts, which residue layers the object
@@ -89,7 +89,7 @@
 #' the first and last arrays as sequences.
 #'
 #' The preview uses \code{dom_code} when present and \code{rvd} otherwise.
-#' Repeat codes are the more discriminating of the two: two arrays can share
+#' Domain codes are the more discriminating of the two: two arrays can share
 #' an RVD sequence while being built from different repeats.
 #'
 #' This replaces the \code{format()} a \code{tales} would otherwise inherit
@@ -131,9 +131,9 @@ format.tales <- function(x, n = 2L, ...) {
 #' Render a tales_msa object as lines of text
 #'
 #' @description
-#' As \code{\link{format.tales}}, plus the alignment width, and a preview that
-#' shows aligned rows rather than bare sequences: gaps are drawn and every
-#' cell padded to a common width, so the columns line up down the page.
+#' As \code{\link{format.tales}}, plus the alignment width, and a preview of
+#' aligned rows: gaps are drawn and every cell padded to a common width, so
+#' the columns line up down the page.
 #'
 #' @param x A \code{\link{tales_msa}} object.
 #' @param n Number of arrays to show at each end.

@@ -20,8 +20,8 @@ default; see the section above.}
 Invisibly, a list with \code{conda} and \code{system} data frames of the
 checks, and \code{prefix}, so the result can be tested as well as read.
 \code{conda} is \code{NULL} and \code{prefix} is \code{NA} when no conda/mamba installation,
-or no \code{tantale} environment, was found at all -- \code{system} is always a
-real data frame, since Java and Perl are checked regardless.
+or no \code{tantale} environment, was found at all; \code{system} is always a
+data frame, since Java and Perl are checked regardless.
 }
 \description{
 Reports whether the external programs tantale drives are present and at the
@@ -32,33 +32,33 @@ Called bare it changes nothing -- it is a diagnostic. Pass
 \code{install = TRUE} to act on what it finds.
 }
 \details{
-\strong{Why the versions are checked and not just the presence.} MAFFT changed
+\strong{Why versions are checked as well as presence.} MAFFT changed
 its \code{--text} mode gap handling after 7.4x, and later versions align TALE
 repeat-code strings differently, leaving the N- and C-termini unanchored.
 An environment built by an older version of this package can therefore
 produce different alignments from the same input, with nothing to indicate
 it. The pins in \code{tantale_conda_env.yaml} exist for that reason, and this
-function is what makes them real rather than aspirational.
+function checks them.
 
 \strong{Why three paths are reported.} The conda binary, its default root, and
 the environment actually in use are three different things, and on a
 machine with any history they diverge -- \code{reticulate} scans several known
 locations, so two roots can each hold an environment named \code{tantale}. When
 that happens, a rebuild can honestly report success while the package goes
-on using the other one. Everything here therefore operates on the
-environment's prefix rather than its name.
+on using the other one. Everything here therefore works with the
+environment's prefix (its path), never its name.
 
 \strong{Java and Perl} are checked too. They are hard requirements of the
-AnnoTALE, PrediTALE and TALE-correction wrappers, they are not conda's
-business, and otherwise they fail deep inside a \code{system()} call.
+AnnoTALE, PrediTALE and TALE-correction wrappers, they come from outside
+conda, and without this check they fail deep inside a \code{system()} call.
 }
 \section{Installing conda itself}{
 
 \code{conda = TRUE} installs a conda distribution if none is found. It is
 deliberately opt-in and separate from \code{install}: putting a package manager
 on someone's machine is a larger side effect than building an environment
-in one that already exists. Note that this installs \strong{miniconda}, via
-\code{\link[reticulate:install_miniconda]{reticulate::install_miniconda()}}, not mamba.
+in one that already exists. It installs \strong{miniconda}, via
+\code{\link[reticulate:install_miniconda]{reticulate::install_miniconda()}}.
 }
 
 \examples{

@@ -51,8 +51,7 @@ tales_group_kmedoids(
 
   Passed to [`set.seed()`](https://rdrr.io/r/base/Random.html) before
   every [`cluster::pam()`](https://rdrr.io/pkg/cluster/man/pam.html)
-  call, so the same candidate always clusters the same way. Previously a
-  hardcoded `7`; now a documented, overridable default.
+  call, so the same candidate always clusters the same way.
 
 - plot_silhouette:
 
@@ -81,19 +80,19 @@ The bare mapping is still one line away if you want it:
 `unique(out[c("array_id", "group")])`.
 
 Unlike a hierarchical tree, PAM has no single structure that can be cut
-at an arbitrary `k` after the fact – `k` is a parameter to the
-clustering itself. So one clustering is computed per candidate in
-`k_range`, and `k` picks which of those to keep:
+at an arbitrary `k` after the fact: `k` is a parameter of the clustering
+itself. So one clustering is computed per candidate in `k_range`, and
+`k` picks which of those to keep:
 
 - `k` a single number uses that candidate directly.
 
-- `k = "auto"` picks the elbow of the silhouette-vs-k curve (a partial,
-  first-step application of the Kneedle algorithm – see
-  `.tales_group_kmedoids_elbow()` – good enough in practice to be worth
-  keeping, not a validated implementation of the full method).
+- `k = "auto"` picks the elbow of the silhouette-vs-k curve, the point
+  after which adding groups stops improving the fit much. It uses the
+  first step of the Kneedle algorithm only, a practical heuristic; check
+  the silhouette plot when the choice matters.
 
 - `k = NULL` (the default) shows the silhouette plot and asks for a
-  number at the console – but only when
+  number at the console, but only when
   [`interactive()`](https://rdrr.io/r/base/interactive.html) is `TRUE`.
   In a script, a test or a vignette render, `k = NULL` errors instead of
   blocking on input that will never arrive.

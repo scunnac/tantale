@@ -1,10 +1,10 @@
 # Validate a tales object
 
-Checks the column contract and every invariant that is closed under row
-subsetting. Properties that hold only of a *complete* object — that an
-array carries all its parts, numbered contiguously from 1 — are
-deliberately not checked here; they are preconditions of the functions
-that need them, such as alignment.
+Checks the column contract and every invariant that still holds on any
+subset of rows. Properties that hold only of a *complete* object (an
+array carrying all its parts, numbered contiguously from 1) are checked
+by the functions that need them, such as alignment; see
+[`tales_assert_complete`](https://scunnac.github.io/tantale/reference/tales_assert_complete.md).
 
 ## Usage
 

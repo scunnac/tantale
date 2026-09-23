@@ -17,9 +17,9 @@ sequences.}
 
 \item{ncores}{Number of cores for the pairwise alignment step.}
 
-\item{aln_method}{Approach for pairwise similarities between part amino acid
+\item{aln_method}{Approach for pairwise distances between part amino acid
 sequences: \code{"DECIPHER"} (default), \code{"Biostrings"} or
-\code{"mmseq2"}.}
+\code{"mmseq2"}. See \code{\link{tales_domain_distances}}.}
 
 \item{conda_bin}{Path to a Conda binary, if \code{reticulate} cannot find it.}
 }
@@ -43,16 +43,12 @@ alignment, which makes it much faster (the exact speedup depends on
 \code{aln_method}).
 }
 \details{
-Named for the algorithm, not just historically: \code{\link{tales_compare_functal}}
-answers a related but different question -- relatedness by predicted DNA-binding
-specificity rather than by domain sequence -- so both need a name that says
-which.
+The name says which comparison this is: \code{\link{tales_compare_functal}}
+compares TALEs by their predicted DNA-binding specificity instead.
 
-Two products are irreducible and expensive — the pairwise protein alignment
-between distinct domains, and the alignment of the coded arrays. Everything else the
-former \code{tales_compare()} (this function's name before the DisTAL/FuncTAL
-split) returned was a projection of its inputs, so this function returns
-only what cannot be recomputed cheaply.
+It returns the two expensive products (the pairwise protein alignment
+between distinct domains, and the alignment of the coded arrays) with the
+coded input; anything else is cheap to derive from these.
 
 This is where \code{dom_code} is minted, over the whole set of parts
 supplied, and where \code{tales}/\code{domain_distances} are stamped with
@@ -60,8 +56,7 @@ a namespace identifying that set — see \code{\link{tales_namespace}}.
 Passing a subset later is safe; re-running on a different part set mints
 different codes, and the differing namespace is what stops the two being
 joined by mistake. \code{tale_distances} carries no such stamp: it is
-keyed by \code{array_id}, a meaningful name that does not silently
-collide across runs the way a \code{dom_code} does.
+keyed by \code{array_id}, a name that keeps its meaning across runs.
 }
 \examples{
 x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",

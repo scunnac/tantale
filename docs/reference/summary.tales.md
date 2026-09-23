@@ -37,18 +37,19 @@ be used as well as read.
 ## Details
 
 **Distinct domains** counts different `dom_code`s against the number of
-parts, broken down by domain type. *Domains*, not repeats: a `dom_code`
-identifies any distinct part sequence, and the two termini are parts
-like the repeats are. On the reference fixture 251 distinct codes cover
-180 repeats and 71 termini, so calling the total a repeat count would
-overstate it by nearly a third.
+parts, broken down by domain type. These are *domains*, repeats and
+termini alike: a `dom_code` identifies any distinct part sequence, and
+the two termini are parts like the repeats are. In the example output
+shipped with the package (see
+[`tales_from_telltale`](https://scunnac.github.io/tantale/reference/tales_from_telltale.md)),
+47 distinct codes cover 39 repeats and 8 termini, so reading the total
+as a count of distinct repeats would overstate repeat diversity.
 
 The ratio to parts is a property of the biology: TALEs reuse repeats
 heavily, within an array and between arrays. It is also what decides the
 cost of
 [`tales_compare_distal`](https://scunnac.github.io/tantale/reference/tales_compare_distal.md),
-whose pairwise comparison runs over distinct domains rather than over
-parts.
+whose pairwise comparison runs over distinct domains.
 
 **Repeats per array** counts repeats only, excluding the termini, so it
 is the number that determines how long a target box each TALE
@@ -58,17 +59,15 @@ log reports array length as the number of domain hits, which includes
 the two termini and is therefore larger by up to two.
 
 **Complete arrays** are those where both an N- and a C-terminus were
-identified. An incomplete one is not necessarily wrong – the array may
+identified. An incomplete one is not necessarily wrong (the array may
 sit at the end of a contig, or a terminus may simply not have been
-detected – but it is the precondition several downstream functions
-depend on.
+detected), but completeness is a precondition several downstream
+functions depend on.
 
 **Anomalies** come from
-[`tales_anomalies`](https://scunnac.github.io/tantale/reference/tales_anomalies.md),
-and are the reason this is a
-[`summary()`](https://rdrr.io/r/base/summary.html) rather than part of
-printing: they are worth computing, and too slow to compute every time
-an object is echoed.
+[`tales_anomalies`](https://scunnac.github.io/tantale/reference/tales_anomalies.md).
+They are worth computing but too slow to compute every time an object is
+printed, which is why they appear here.
 
 ## See also
 

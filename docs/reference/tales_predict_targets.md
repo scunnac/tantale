@@ -47,9 +47,9 @@ backends, plus a `method` column recording which tool produced them.
 ## Details
 
 `talvez` and `preditale` are independent programs, but the package
-already normalises their outputs to a shared set of column names, so
-they are interchangeable backends of one operation rather than two
-separate functions. This is that operation;
+normalises their outputs to a shared set of column names, so they can
+serve as interchangeable backends of one operation. This is that
+operation;
 [`talvez`](https://scunnac.github.io/tantale/reference/talvez.md) and
 [`preditale`](https://scunnac.github.io/tantale/reference/preditale.md)
 remain available and documented individually, and are where each tool's
@@ -78,7 +78,7 @@ subj <- system.file("extdata", "cladeIII_sweet_promoters.fasta",
 head(tales_predict_targets(x, subj_file = subj))
 #> Invoking Talvez using the following command:
 #> '/home/cunnac/mamba/envs/tantale/bin/perl' TALVEZ_3.2.pl -t 0 -l 19 -e mat1 -z
-#> mat2 'rvdSeqsTalvez_434e47ebfb5e7.tsv' 'cladeIII_sweet_promoters.fasta'
+#> mat2 'rvdSeqsTalvez_556f637f603e2.tsv' 'cladeIII_sweet_promoters.fasta'
 #> # A tibble: 6 × 10
 #>   taleId    rvds          subjSeqId score strand start   end ebeSeq  rank method
 #>   <chr>     <chr>         <chr>     <dbl> <chr>  <dbl> <dbl> <chr>  <dbl> <chr> 

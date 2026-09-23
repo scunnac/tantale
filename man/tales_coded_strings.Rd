@@ -18,7 +18,7 @@ tales_coded_strings(x, sep = " ", repeats_only = FALSE)
 A \link[Biostrings:BStringSet]{Biostrings::BStringSet}, named by \code{array_id}.
 }
 \description{
-Renders each array as a separated string of its \code{dom_code}s in part order --
+Renders each array as a separated string of its \code{dom_code}s in part order:
 the encoding the array alignments consume (MAFFT's text mode, and
 \code{\link[=tales_tale_distances]{tales_tale_distances()}}), where each distinct
 domain sequence is one "residue".
@@ -38,8 +38,7 @@ filter \tab \code{rvd_only = TRUE} \tab \code{repeats_only = FALSE} \cr
 The separator is free to choose here in a way it is not for RVDs: a
 \code{dom_code} is a bare integer rendered as text, so \code{"1 2 3"} and \code{"1-2-3"}
 are equally unambiguous. It defaults to a space because that is what the
-documented consumers of this encoding expect, not because the character
-matters.
+documented consumers of this encoding expect.
 
 The termini are kept by default, where \code{\link[=tales_rvd_strings]{tales_rvd_strings()}} drops them.
 Target prediction concerns the repeat domain only, so dropping them there

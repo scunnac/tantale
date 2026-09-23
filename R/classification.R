@@ -51,12 +51,12 @@
 #'
 #' The tree is built directly on the distances
 #' (\code{stats::hclust(stats::as.dist(distMat))}), matching the original
-#' DisTAL clustering this package reimplements -- not the Euclidean distance
-#' between TALEs' distance *profiles*, which groups arrays that relate to the
-#' rest of the population similarly rather than arrays that are directly
-#' close to each other. Cut with \code{stats::cutree(tree, k = k)}, which
-#' always succeeds, including when a tie in merge heights would make a
-#' height-based cut ambiguous.
+#' DisTAL clustering this package reimplements, so arrays that are close to
+#' each other end up together. (A Euclidean distance between the arrays'
+#' distance *profiles* would instead group arrays that relate to the rest of
+#' the population in the same way.) The tree is cut with
+#' \code{stats::cutree(tree, k = k)}, which always succeeds, including when
+#' a tie in merge heights would make a height-based cut ambiguous.
 #'
 #' @param x A [tales] object -- the one whose comparison produced `tale_distances`.
 #' @param tale_distances A [tale_distances] object, as returned by [tales_compare_distal()].
@@ -152,17 +152,17 @@ tales_group_hclust <- function(x, tale_distances, k = NULL, plot_tree = FALSE) {
 #' `unique(out[c("array_id", "group")])`.
 #'
 #' Unlike a hierarchical tree, PAM has no single structure that can be cut at
-#' an arbitrary `k` after the fact -- `k` is a parameter to the clustering
+#' an arbitrary `k` after the fact: `k` is a parameter of the clustering
 #' itself. So one clustering is computed per candidate in `k_range`, and `k`
 #' picks which of those to keep:
 #'
 #' - `k` a single number uses that candidate directly.
-#' - `k = "auto"` picks the elbow of the silhouette-vs-k curve (a partial,
-#'   first-step application of the Kneedle algorithm -- see
-#'   `.tales_group_kmedoids_elbow()` -- good enough in practice to be worth
-#'   keeping, not a validated implementation of the full method).
+#' - `k = "auto"` picks the elbow of the silhouette-vs-k curve, the point
+#'   after which adding groups stops improving the fit much. It uses the
+#'   first step of the Kneedle algorithm only, a practical heuristic; check
+#'   the silhouette plot when the choice matters.
 #' - `k = NULL` (the default) shows the silhouette plot and asks for a number
-#'   at the console -- but only when \code{\link{interactive}()} is `TRUE`.
+#'   at the console, but only when \code{\link{interactive}()} is `TRUE`.
 #'   In a script, a test or a vignette render, `k = NULL` errors instead of
 #'   blocking on input that will never arrive.
 #'
@@ -172,8 +172,7 @@ tales_group_hclust <- function(x, tale_distances, k = NULL, plot_tree = FALSE) {
 #'   (`cluster::pam()`'s own requirement).
 #' @param k See Details.
 #' @param seed Passed to \code{set.seed()} before every \code{cluster::pam()}
-#'   call, so the same candidate always clusters the same way. Previously a
-#'   hardcoded \code{7}; now a documented, overridable default.
+#'   call, so the same candidate always clusters the same way.
 #' @param plot_silhouette Logical, whether to draw the silhouette-vs-k plot.
 #' @return `x` with an added (or replaced) `group` column.
 #' @seealso [tales_group_hclust()], the alternative method;
@@ -335,21 +334,47 @@ tales_group_kmedoids <- function(x, tale_distances, k_range = NULL, k = NULL,
   out[, c(row_var, levels(df[[col_var]]))]
 }
 
-#' Heatmap plotting of rvd sequence variants
-#' @description The function creates a graphical presentation from a tale annotation table. The output is like a heatmap that presents rvd sequence variants in Tal groups as column and respective strains as rows (or vice versa). It is different from a typical heatmap that it can display more than one value in a cell; for example, if one strain has 2 rvd sequence variants belong to 1 group, it will be displayed by 2 colors in 1 cell.
-#' @param tale_annotation a data frame containing at least 3 columns for Tal groups, strain names, and rvd seqs, and 1 row is 1 Tal.
-#' @param group_col "character", column name of \code{tale_annotation} to be displayed as columns in the heatmap (e.g. tal groups).
-#' @param strain_col "character", column name of \code{tale_annotation} to be displayed as rows in the heatmap (e.g. strain names).
-#' @param rvd_col "character", column name for rvdseqs in the \code{tale_annotation}
-#' @param trunc_tales_col (optional, default = NULL) "character", column name of \code{tale_annotation} labeling the truncTales by TRUE/FALSE value. The truncTales are labeled by "T" in the heatmap cells, but if this argument is called.
-#' @param extra_col (optional, default = NULL) "character", column name of \code{tale_annotation} containing other information (e.g. origin). It will be presented in a side bar on the right of the heatmap.
-#' @param x_lab,y_lab,title character for x axis, y axis names and title
-#' @param colors character vector of colors for the cells.
-#' @param margins margin of the heatmap for row dendrogram, col dendrogram, rownames, colnames, respectively. (by default, c(5, 5, 3, 3)).
-#' @param sep_width numeric value for the width of separator between adjacent cells.
-#' @param sep_color character of color for the separator between adjacent cells
-#' @param inner_sep_color character of color for the separator between colors within 1 cell if there are more than 1.
-#' @param save_path (optional) file path to save the plot, format of the image depends on the file extension. If save_path is NULL, the heatmap will be printed. If save_path is specified, the image file will be created.
+#' Heatmap of RVD sequence variants across strains and TALE groups
+#'
+#' @description
+#' Draws a talome overview: one column per TALE group, one row per strain,
+#' each cell showing which RVD sequence variant that strain carries in that
+#' group. A strain's talome is its whole complement of TALEs, so the plot
+#' shows at a glance which groups each strain has and where strains carry
+#' different variants of the same TALE.
+#'
+#' Within a group, variants are ranked by how many strains carry them, and
+#' the cell colour is that rank (the first colour is the most common
+#' variant). The \code{#} after each group label counts its distinct
+#' variants. A grey cell means the strain has no member in that group. A
+#' cell can hold several colours side by side when a strain carries more
+#' than one variant in the same group. Dendrograms order strains and groups
+#' by the similarity of their variant profiles.
+#'
+#' @param tale_annotation A data frame with one row per TALE and at least a
+#'   group, a strain and an RVD-sequence column.
+#' @param group_col Name of the \code{tale_annotation} column holding TALE
+#'   groups, drawn as columns (e.g. the \code{group} from
+#'   \code{\link{tales_group_kmedoids}}).
+#' @param strain_col Name of the column holding strain names, drawn as rows.
+#' @param rvd_col Name of the column holding RVD sequences (e.g. from
+#'   \code{\link{tales_rvd_strings}}).
+#' @param trunc_tales_col Optional name of a logical column marking
+#'   truncated TALEs; those are labelled "T" in their cell (with
+#'   \code{plot_type = "all"}).
+#' @param extra_col Optional name of a column with further information about
+#'   each strain (e.g. origin), drawn as a side bar on the right.
+#' @param x_lab,y_lab,title Axis names and plot title.
+#' @param colors Character vector of colours for the variant ranks.
+#' @param margins Margins for the row dendrogram, column dendrogram, row
+#'   names and column names, in that order. Default \code{c(5, 5, 3, 3)}.
+#' @param sep_width Width of the separator between adjacent cells.
+#' @param sep_color Colour of the separator between adjacent cells.
+#' @param inner_sep_color Colour of the separator between variants within
+#'   one cell.
+#' @param save_path Optional file path; the image format follows the file
+#'   extension. If \code{NULL} (default), the heatmap is drawn on the
+#'   current device.
 #' @param plot_type Either \code{"all"} to draw every allele, or
 #'   \code{"single"} to draw one representative allele per group.
 #' @return \code{NULL}, invisibly. Called for the side effect of drawing the

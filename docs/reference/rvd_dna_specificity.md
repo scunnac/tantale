@@ -17,12 +17,14 @@ A tibble with 404 rows and 5 columns:
 
 - rvd:
 
-  The two-letter RVD code (or the anchor codes `"XX"`, an unrecognised
-  RVD's fallback, and `"H*"`/`"N*"`).
+  The two-letter RVD code. `"N*"` and `"H*"` are RVDs whose residue 13
+  is missing; `"OO"` is position 0, the base just before the first
+  repeat's target, where TALEs prefer a T; `"XX"` is the flat fallback
+  row used for an unrecognised RVD.
 
 - A, C, G, T:
 
-  Relative binding weight for that base. Not normalised to sum to one –
+  Relative binding weight for that base. The weights do not sum to one:
   [`tales_compare_functal`](https://scunnac.github.io/tantale/reference/tales_compare_functal.md)
   hands them to
   [`create_motif`](https://rdrr.io/pkg/universalmotif/man/create_motif.html)
@@ -30,10 +32,11 @@ A tibble with 404 rows and 5 columns:
 
 ## Details
 
-Ported verbatim from QueTAL FuncTAL's own table
-(`inst/tools/QueTAL_v1.1/FuncTAL/Info/2014mat18`) – the values are
-unchanged, only a header and column names added. Conceptually related to
-but distinct from the internal `rvdSimDf` used by
+Taken verbatim from QueTAL FuncTAL's own table (shipped as
+`legacy/QueTAL_v1.1/FuncTAL/Info/2014mat18` in the installed package):
+the values are unchanged, only a header and column names added.
+Conceptually related to but distinct from the internal `rvdSimDf` used
+by
 [`tales_align`](https://scunnac.github.io/tantale/reference/tales_align.md)'s
 RVD scoring: that one is a *derived* RVD-vs-RVD similarity (a
 correlation between two RVDs' base-preference profiles, itself built
@@ -41,7 +44,8 @@ from TALVEZ's much smaller 17-RVD `mat1`), used to score repeat
 *substitutions* during sequence alignment. This one is the *raw*,
 per-RVD base preference itself, one level upstream, used to build a
 whole array's binding-specificity model for comparison against another
-array's – a different consumer, and not interchangeable with `rvdSimDf`.
+array's. The two tables serve different consumers and cannot replace
+each other.
 
 ## References
 

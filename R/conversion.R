@@ -107,14 +107,15 @@
 
 
 
-#' Generate a mapping between Distal repeat IDs and their cognate RVD.
+#' Generate a mapping between Distal repeat IDs and their cognate RVD
 #'
 #' Uses Distal repeat sequences and RVD sequences from a set of TALEs to return
 #' the association between repeat ID and RVD.
 #'
 #' Care must be taken that TALEs in the two sets of sequences have the same name.
-#' In addition, the function tries hard to make sure that the two sets of sequences are identical in every ways but the individual 'values' they contain.
-#' It is therefore notably important to make sure that the sequences are consistent in whether they include N-term and C-term domains IDs/Tags or not.
+#' The function checks that the two sets of sequences have the same structure
+#' (names and lengths), so they must also agree on whether they include the
+#' N- and C-terminal codes.
 #'
 #' @param repeat_vecs Expects a list of Distal repeat IDs character
 #'   vectors. Each \strong{named} element corresponding to a TALE.
@@ -166,13 +167,14 @@ repeat_to_rvd_map <- function(repeat_vecs, rvd_vecs) {
 }
 
 
-#' Generate a mapping between Distal repeat IDs and their cognate RVD.
+#' Generate a mapping between Distal repeat IDs and their cognate RVD
 #'
-#' Uses Distal repeat sequences and RVD sequences from a set of TALEs 
-#' analyzed with the \code{\link{tales_compare_distal}} function to return
-#' the association between repeat ID and RVD.
+#' Returns the association between each domain code (\code{dom_code}) and
+#' its RVD, one row per distinct pair.
 #'
-#' @param tale_parts The tale_parts object in a \code{\link{tales_compare_distal}} output.
+#' @param tale_parts A \code{\link{tales}} object or data frame with
+#'   \code{dom_code} and \code{rvd} columns, such as the \code{tales} element
+#'   of \code{\link{tales_compare_distal}}'s result.
 #' @return A two columns repeatID - RVD data frame.
 #' @export
 #' @family tales projections
@@ -213,11 +215,11 @@ repeat_to_rvd_map_distalr <- function(tale_parts) {
 
 #' Generates a RVD sequences set from a tale_parts object
 #'
-#' Uses a tale_parts object in a \code{\link{tales_compare_distal}} output
-#' to return a \code{\link[Biostrings]{BStringSet}} of RVD sequences, one per
+#' Returns a \code{\link[Biostrings]{BStringSet}} of RVD sequences, one per
 #' array, ordered by \code{position_in_array} and joined with \code{sep}.
 #'
-#' @param tale_parts The tale_parts object in a \code{\link{tales_compare_distal}} output.
+#' @param tale_parts A \code{\link{tales}} object or data frame with
+#'   \code{array_id}, \code{position_in_array} and \code{rvd} columns.
 #' @param sep Separator joining consecutive RVDs within an array's string.
 #' @param rvd_only Return only RVDs and omit N- and C-terminal domains.
 #' @return A \code{\link[Biostrings]{BStringSet}}, one element per array,

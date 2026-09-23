@@ -24,7 +24,8 @@ as_tales(x, sep = "-", residue_col = c("rvd", "dom_code"), ...)
 
   A path to a fasta file, a `BStringSet`/`AAStringSet`, a list of
   strings, or a data frame (which is passed to
-  [`tales`](https://scunnac.github.io/tantale/reference/tales.md)).
+  [`tales`](https://scunnac.github.io/tantale/reference/tales.md),
+  including a `tales_msa`, which is demoted).
 
 - ...:
 
@@ -38,7 +39,7 @@ as_tales(x, sep = "-", residue_col = c("rvd", "dom_code"), ...)
 - residue_col:
 
   Which residue column the parsed elements become: `"rvd"` (default) or
-  `"dom_code"`. Given explicitly rather than guessed from the values.
+  `"dom_code"`. It is never guessed from the values.
 
 ## Value
 
@@ -49,8 +50,14 @@ A validated `tales` object.
 The result is deliberately column-poor: a bare sequence file carries no
 domain types, amino acid sequences or source contigs, so only
 `array_id`, `position_in_array` and the chosen residue column are
-produced. That is a valid `tales` — see `dev/class-design.md` §2.3 for
-why `seqnames` and the rest are optional.
+produced. That is a valid `tales`: `seqnames` and the other columns are
+optional.
+
+A `tales_msa` passed to `as_tales()` is demoted to a plain `tales`:
+`alignment_position` stays as an ordinary column, and the alignment
+width is dropped
+([`tales_width`](https://scunnac.github.io/tantale/reference/tales_width.md)
+returns `NULL`).
 
 ## See also
 

@@ -84,27 +84,28 @@ so they can be used as well as read.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p><strong>Distinct domains</strong> counts different <code>dom_code</code>s against the
-number of parts, broken down by domain type. <em>Domains</em>, not repeats:
-a <code>dom_code</code> identifies any distinct part sequence, and the two
-termini are parts like the repeats are. On the reference fixture 251
-distinct codes cover 180 repeats and 71 termini, so calling the total a
-repeat count would overstate it by nearly a third.</p>
+number of parts, broken down by domain type. These are <em>domains</em>,
+repeats and termini alike: a <code>dom_code</code> identifies any distinct part
+sequence, and the two termini are parts like the repeats are. In the
+example output shipped with the package (see <code><a href="tales_from_telltale.html">tales_from_telltale</a></code>),
+47 distinct codes cover 39 repeats and 8 termini, so reading the total as a
+count of distinct repeats would overstate repeat diversity.</p>
 <p>The ratio to parts is a property of the biology: TALEs reuse repeats
 heavily, within an array and between arrays. It is also what decides the
-cost of <code><a href="tales_compare_distal.html">tales_compare_distal</a></code>, whose pairwise comparison runs over
-distinct domains rather than over parts.</p>
+cost of <code><a href="tales_compare_distal.html">tales_compare_distal</a></code>, whose pairwise comparison runs
+over distinct domains.</p>
 <p><strong>Repeats per array</strong> counts repeats only, excluding the termini, so
 it is the number that determines how long a target box each TALE
 recognises. Note that <code><a href="tell_tales.html">tell_tales()</a></code>'s log reports array length as the
 number of domain hits, which includes the two termini and is therefore
 larger by up to two.</p>
 <p><strong>Complete arrays</strong> are those where both an N- and a C-terminus were
-identified. An incomplete one is not necessarily wrong – the array may sit
-at the end of a contig, or a terminus may simply not have been detected –
-but it is the precondition several downstream functions depend on.</p>
-<p><strong>Anomalies</strong> come from <code><a href="tales_anomalies.html">tales_anomalies</a></code>, and are the
-reason this is a <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> rather than part of printing: they are
-worth computing, and too slow to compute every time an object is echoed.</p>
+identified. An incomplete one is not necessarily wrong (the array may sit
+at the end of a contig, or a terminus may simply not have been detected),
+but completeness is a precondition several downstream functions depend on.</p>
+<p><strong>Anomalies</strong> come from <code><a href="tales_anomalies.html">tales_anomalies</a></code>. They are
+worth computing but too slow to compute every time an object is printed,
+which is why they appear here.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

@@ -14,15 +14,17 @@ A tibble of \code{array_id}, \code{check} and \code{detail}, one
 row per anomaly. Zero rows if the object is clean.
 }
 \description{
-Lists the arrays that are \emph{odd} rather than \emph{unreadable}: missing sequence
-data, impossible domain-type arrangements, coordinate disagreements, an
-amino acid sequence paired with more than one RVD, or an attribute that
-varies within an array when it should not.
+Lists the arrays whose content is biologically odd: missing sequence data,
+impossible domain-type arrangements, coordinate disagreements, an amino
+acid sequence paired with more than one RVD, or an attribute that varies
+within an array when it should not. Structurally broken input (a
+duplicated key, a missing required column) is an error in
+\code{\link{tales}} instead.
 
 Such arrays are accepted by \code{\link{tales}} -- real TALE predictions are
 messy, and refusing to load them would force cleaning outside the package and
-destroy the diagnostic signal. Construction warns about them; this function
-tells you which and why; \code{tales(x, sanitize = TRUE)} removes them.
+destroy the diagnostic signal. Construction warns about them, this function
+tells you which and why, and \code{tales(x, sanitize = TRUE)} removes them.
 }
 \examples{
 # A2 carries two N-termini -- an impossible arrangement.

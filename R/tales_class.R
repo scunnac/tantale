@@ -97,7 +97,7 @@ is_tales <- function(x) inherits(x, "tales")
 #' Identifies the run whose \code{dom_code} values this object carries. Objects
 #' from different runs must not be joined: \code{dom_code} is minted per run, so
 #' the codes collide across runs and a join would silently succeed against the
-#' wrong repeats.
+#' wrong domains.
 #'
 #' @param x A \code{tales} object.
 #' @return A scalar string, or \code{NULL} if the object is not stamped.
@@ -148,9 +148,9 @@ tales_namespace <- function(x) {
 #'   preserved untouched.
 #' @param dom_code_namespace Optional scalar string, see
 #'   \code{\link{tales_namespace}}.
-#' @param sanitize If \code{TRUE}, arrays carrying biological anomalies --
-#'   missing sequences, impossible terminus arrangements, coordinate
-#'   disagreements -- are removed, with a warning naming them and why. If
+#' @param sanitize If \code{TRUE}, arrays carrying biological anomalies (the
+#'   ones \code{\link{tales_anomalies}} lists) are removed, with a warning
+#'   naming them and why. If
 #'   \code{FALSE} (default) they are kept and merely warned about, so odd
 #'   predictions can still be loaded and inspected. Structural corruption is
 #'   an error either way. See \code{\link{tales_anomalies}}.
@@ -214,16 +214,22 @@ tales <- function(x, dom_code_namespace = NULL, sanitize = FALSE) {
 #' The result is deliberately column-poor: a bare sequence file carries no
 #' domain types, amino acid sequences or source contigs, so only
 #' \code{array_id}, \code{position_in_array} and the chosen residue column are
-#' produced. That is a valid \code{tales} — see \code{dev/class-design.md}
-#' §2.3 for why \code{seqnames} and the rest are optional.
+#' produced. That is a valid \code{tales}: \code{seqnames} and the other
+#' columns are optional.
+#'
+#' A \code{tales_msa} passed to \code{as_tales()} is demoted to a plain
+#' \code{tales}: \code{alignment_position} stays as an ordinary column, and
+#' the alignment width is dropped (\code{\link{tales_width}} returns
+#' \code{NULL}).
 #'
 #' @param x A path to a fasta file, a \code{BStringSet}/\code{AAStringSet}, a
-#'   list of strings, or a data frame (which is passed to \code{\link{tales}}).
+#'   list of strings, or a data frame (which is passed to \code{\link{tales}},
+#'   including a \code{tales_msa}, which is demoted).
 #' @param sep Separator between elements of a sequence. Use \code{"-"} for RVD
 #'   sequences and \code{" "} for repeat-code strings.
 #' @param residue_col Which residue column the parsed elements become:
-#'   \code{"rvd"} (default) or \code{"dom_code"}. Given explicitly rather than
-#'   guessed from the values.
+#'   \code{"rvd"} (default) or \code{"dom_code"}. It is never guessed from
+#'   the values.
 #' @param ... Passed to methods.
 #' @return A validated \code{tales} object.
 #' @export
@@ -273,34 +279,31 @@ as_tales.default <- function(x, sep = "-", residue_col = c("rvd", "dom_code"), .
 #' Row-binds one or more \code{\link{tales}} objects into one, reconciling
 #' the invariants that a plain \code{\link[dplyr]{bind_rows}} would not check:
 #' \code{array_id} uniqueness across inputs, the \code{dom_code} namespace,
-#' and the \code{group} column. A single input is accepted -- it round-trips
-#' through the same reconciliation and re-validation, harmlessly, rather
-#' than being rejected as too few to "bind".
+#' and the \code{group} column. A single input is accepted: it goes through
+#' the same reconciliation and re-validation, harmlessly.
 #'
 #' @details
-#' Not named \code{c.tales()} for two reasons: base \code{c()} dispatch is
-#' leaky (mixing a \code{tales} with an unrelated object can silently drop
-#' attributes rather than error, the wrong failure mode for a class whose
-#' point is invariants that must not go silent), and
-#' \code{on_namespace_mismatch} has no room in \code{c()}'s signature.
+#' There is no \code{c()} method: base \code{c()} can silently drop
+#' attributes when a \code{tales} is mixed with another object, and its
+#' signature has no room for \code{on_namespace_mismatch}.
 #'
-#' \code{tales_msa} inputs are refused rather than silently demoted --
-#' \code{alignment_width}/\code{alignment_position} are a coordinate system
+#' \code{tales_msa} inputs are refused: \code{alignment_width} and
+#' \code{alignment_position} are a coordinate system
 #' specific to one alignment run, and binding two runs' matrices would
 #' produce an object that misdescribes what a given column means in each
 #' row. Demote explicitly with \code{\link{as_tales}} first if that is really
 #' what you want.
 #'
-#' \code{group} is dropped from the result whenever present on any input, not
-#' reconciled: it is a clustering result over one specific distance matrix
-#' and one specific set of arrays, so two "group 1"s from separate
+#' \code{group} is dropped from the result whenever present on any input: it
+#' is a clustering result over one specific distance matrix and one specific
+#' set of arrays, so two "group 1"s from separate
 #' \code{\link{tales_group_hclust}}/\code{\link{tales_group_kmedoids}} calls
-#' are not comparable, not merely at risk of colliding. Recompute it with
+#' are not comparable. Recompute it with
 #' either on the bound result, after re-running \code{\link{tales_compare_distal}}.
 #'
 #' \code{tale_distances}/\code{domain_distances} are untouched: this function
 #' only binds \code{tales} data. A companion distance table from either input
-#' does not describe the bound object -- re-run \code{\link{tales_compare_distal}}
+#' does not describe the bound object; re-run \code{\link{tales_compare_distal}}
 #' if you need one.
 #'
 #' @param ... One or more \code{\link{tales}} objects (not \code{tales_msa}).
@@ -422,11 +425,11 @@ tales_bind <- function(..., on_namespace_mismatch = c("recode", "error"), saniti
 
 #' Validate a tales object
 #'
-#' Checks the column contract and every invariant that is closed under row
-#' subsetting. Properties that hold only of a *complete* object — that an array
-#' carries all its parts, numbered contiguously from 1 — are deliberately not
-#' checked here; they are preconditions of the functions that need them, such
-#' as alignment.
+#' Checks the column contract and every invariant that still holds on any
+#' subset of rows. Properties that hold only of a *complete* object (an array
+#' carrying all its parts, numbered contiguously from 1) are checked by the
+#' functions that need them, such as alignment; see
+#' \code{\link{tales_assert_complete}}.
 #'
 #' @param x A \code{tales} object.
 #' @return \code{x}, invisibly, if valid; otherwise an error.
@@ -510,15 +513,17 @@ validate_tales <- function(x) {
 #' Report the biological anomalies in a tales object
 #'
 #' @description
-#' Lists the arrays that are *odd* rather than *unreadable*: missing sequence
-#' data, impossible domain-type arrangements, coordinate disagreements, an
-#' amino acid sequence paired with more than one RVD, or an attribute that
-#' varies within an array when it should not.
+#' Lists the arrays whose content is biologically odd: missing sequence data,
+#' impossible domain-type arrangements, coordinate disagreements, an amino
+#' acid sequence paired with more than one RVD, or an attribute that varies
+#' within an array when it should not. Structurally broken input (a
+#' duplicated key, a missing required column) is an error in
+#' \code{\link{tales}} instead.
 #'
 #' Such arrays are accepted by \code{\link{tales}} -- real TALE predictions are
 #' messy, and refusing to load them would force cleaning outside the package and
-#' destroy the diagnostic signal. Construction warns about them; this function
-#' tells you which and why; \code{tales(x, sanitize = TRUE)} removes them.
+#' destroy the diagnostic signal. Construction warns about them, this function
+#' tells you which and why, and \code{tales(x, sanitize = TRUE)} removes them.
 #'
 #' @param x A \code{\link{tales}} object.
 #' @return A tibble of \code{array_id}, \code{check} and \code{detail}, one
@@ -731,9 +736,10 @@ tales_anomalies <- function(x) {
 #' \code{position_in_crd} are present — \code{position_in_crd} equal to
 #' \code{position_in_array} minus the number of non-repeat parts before it.
 #'
-#' This is a **precondition**, not an invariant: \code{filter(x, domain_type ==
-#' "repeat")} legitimately produces a valid \code{tales} that is no longer
-#' complete. Alignment requires completeness, because the mapping back from a
+#' Completeness is a **precondition** of some functions; the class itself does
+#' not require it: \code{filter(x, domain_type == "repeat")} legitimately
+#' produces a valid \code{tales} that is no longer complete. Alignment
+#' requires completeness, because the mapping back from a
 #' MAFFT alignment is positional — the k-th aligned residue is the k-th part
 #' fed in.
 #'
@@ -829,22 +835,19 @@ dplyr_col_modify.tales <- function(data, cols) {
 #' only while the result still satisfies the \code{tales} contract.
 #'
 #' Row subsetting never breaks anything: every invariant a \code{tales}
-#' checks is closed under keeping a subset of rows, so filtering to one
-#' array, or to its repeats only, is still a valid \code{tales}. Column
-#' subsetting is where it degrades: dropping \code{array_id}, or both
-#' residue columns (\code{rvd}, \code{dom_code}) at once, leaves something
-#' that can no longer be described as a \code{tales}, and the class quietly
-#' steps out of the way rather than continuing to claim invariants it can
-#' no longer keep -- the result is a plain tibble, not an error. Dropping an
-#' optional column (\code{seqnames}, \code{aa_seq}, ...) has no such
-#' consequence. A \code{tales_msa} degrades one step at a time: losing
-#' \code{alignment_position} alone steps it back to a plain \code{tales},
-#' not all the way to a tibble.
+#' checks still holds on any subset of rows, so filtering to one array, or
+#' to its repeats only, is still a valid \code{tales}. Column subsetting is
+#' where it degrades: dropping \code{array_id}, or both residue columns
+#' (\code{rvd}, \code{dom_code}) at once, leaves something that can no
+#' longer be described as a \code{tales}, and the result is a plain tibble,
+#' without an error. Dropping an optional column (\code{seqnames},
+#' \code{aa_seq}, ...) has no such consequence. A \code{tales_msa} degrades
+#' one step at a time: losing \code{alignment_position} alone steps it back
+#' to a plain \code{tales}.
 #'
 #' Attributes travel with a valid subset. \code{dom_code_namespace}
-#' describes the run the codes came from, not which rows happen to be kept
-#' right now, so cutting an object down with \code{[} keeps its namespace
-#' unchanged.
+#' describes the run the codes came from, so cutting an object down with
+#' \code{[} keeps its namespace unchanged.
 #'
 #' @param x A \code{tales} object.
 #' @param ... Passed on to the tibble/data frame method.

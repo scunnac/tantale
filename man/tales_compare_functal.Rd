@@ -28,15 +28,15 @@ the better one. \code{FALSE} by default: an RVD array's specificity
 code has a fixed reading direction (5' to 3' target, N- to C-terminal
 repeat order), so comparing against a reverse complement asks a
 different, narrower biological question -- do these two TALEs target
-opposite strands of overlapping sites -- worth asking on purpose, not
-folded silently into every comparison.}
+opposite strands of overlapping sites. Ask it deliberately, when it is
+the question.}
 
 \item{min.overlap}{Minimum aligned width to accept, as \code{compare_motifs()}
-defines it. Defaults to \code{1} (any overlap at all), not
-\code{compare_motifs()}'s own default of \code{6} -- generic TF motifs
-are usually longer than 6 positions, but a TALE array legitimately has
-as few as half a dozen repeats, so the upstream default would silently
-refuse to compare some real, short arrays.}
+defines it. Defaults to \code{1} (any overlap at all);
+\code{compare_motifs()}'s own default is \code{6}, suited to generic
+transcription-factor motifs, but a TALE array can have as few as half a
+dozen repeats, and that default would silently refuse to compare some
+real, short arrays.}
 
 \item{normalise.scores}{Penalise alignments that leave much of either
 motif unaligned. \code{TRUE} by default: TALE array lengths vary widely
@@ -51,7 +51,7 @@ for no biological reason.}
 \item{nthreads}{Passed to \code{compare_motifs()}.}
 }
 \value{
-A \code{\link{tale_distances}} object -- interchangeable with
+A \code{\link{tale_distances}} object, interchangeable with
 \code{\link{tales_compare_distal}}'s, so it can be handed directly to
 \code{\link{tales_group_hclust}}/\code{\link{tales_group_kmedoids}}.
 No tree is built here, matching \code{tales_compare_distal()}'s own
@@ -59,36 +59,32 @@ division of labour: compare here, cluster/tree there.
 }
 \description{
 Quantifies how TALE arrays relate by the DNA sequence their repeats are
-predicted to bind, rather than by domain sequence identity
-(\code{\link{tales_compare_distal}}). Each array's repeats are turned into
+predicted to bind. (\code{\link{tales_compare_distal}} compares them by
+domain sequence instead.) Each array's repeats are turned into
 a position weight matrix (PWM) over the RVD-to-base specificity code, and
 PWMs are compared pairwise with \code{\link[universalmotif]{compare_motifs}}.
 }
 \details{
-This is a reimplementation, not a port, of QueTAL's FuncTAL: the original
-Perl tool could not be kept working (it needs \code{Bio::Perl}, dropped by
-BioPerl's 1.7 reorganisation; see \code{dev/restructuring-notes.md} §12b),
-so the comparison itself was rebuilt on \code{universalmotif} rather than
-patched. \strong{Results diverge from the original FuncTAL tool, and this
-is by design, not an approximation to be improved away.} FuncTAL scored
-two RVD arrays by flattening their entire padded, overlapping alignment
-(positions and bases together) into one vector and taking a single
-Pearson correlation. \code{compare_motifs()} instead correlates matched
-columns individually and combines the column scores (\code{score.strat}).
-Verified empirically to disagree on real data before writing this
-function, not assumed to differ only in magnitude.
+This is a reimplementation of QueTAL's FuncTAL comparison on
+\code{universalmotif}; the original Perl tool depends on BioPerl's
+\code{Bio::Perl} module, which current BioPerl no longer provides.
+\strong{Results differ from the original FuncTAL tool, by design.} FuncTAL
+scored two RVD arrays by flattening their entire padded, overlapping
+alignment (positions and bases together) into one vector and taking a
+single Pearson correlation. \code{compare_motifs()} instead correlates
+matched columns individually and combines the column scores
+(\code{score.strat}); the two disagree on real data.
 
 The PWMs themselves are built by \code{\link{tales_to_universalmotif}} --
 see its docs for exactly what drives them (only \code{rvd}, in repeat
 order, termini dropped) and how an RVD outside
 \code{\link{rvd_dna_specificity}} is handled. That conversion is exposed
-on its own precisely so it is not locked inside this one comparison.
+on its own so it can be used with any \code{universalmotif} function.
 
 Only a handful of \code{\link[universalmotif]{compare_motifs}}'s many
 options are exposed here, chosen for what actually varies across TALE
-arrays (their differing repeat counts) rather than mirrored wholesale; see
-\code{?compare_motifs} for the rest, several of which are worth revisiting
--- ledger §12b lists them as follow-ups.
+arrays (their differing repeat counts); see \code{?compare_motifs} for the
+rest.
 }
 \examples{
 x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
@@ -98,8 +94,8 @@ fn
 }
 \seealso{
 \code{\link[=tales_compare_distal]{tales_compare_distal()}}, comparing by domain sequence instead;
-\code{\link[=tales_to_universalmotif]{tales_to_universalmotif()}}, the conversion step this composes --
-called directly, any other \code{universalmotif} function (
+\code{\link[=tales_to_universalmotif]{tales_to_universalmotif()}}, the conversion step this uses; called
+directly, it lets any other \code{universalmotif} function (
 \code{motif_tree()}, \code{view_motifs()}, \code{scan_sequences()},
 \code{merge_motifs()}, ...) can be run on the same PWMs.
 

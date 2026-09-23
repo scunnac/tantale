@@ -13,11 +13,11 @@ validate_tales(x)
 \code{x}, invisibly, if valid; otherwise an error.
 }
 \description{
-Checks the column contract and every invariant that is closed under row
-subsetting. Properties that hold only of a \emph{complete} object — that an array
-carries all its parts, numbered contiguously from 1 — are deliberately not
-checked here; they are preconditions of the functions that need them, such
-as alignment.
+Checks the column contract and every invariant that still holds on any
+subset of rows. Properties that hold only of a \emph{complete} object (an array
+carrying all its parts, numbered contiguously from 1) are checked by the
+functions that need them, such as alignment; see
+\code{\link{tales_assert_complete}}.
 }
 \examples{
 parts <- data.frame(

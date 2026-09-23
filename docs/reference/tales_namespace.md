@@ -3,7 +3,7 @@
 Identifies the run whose `dom_code` values this object carries. Objects
 from different runs must not be joined: `dom_code` is minted per run, so
 the codes collide across runs and a join would silently succeed against
-the wrong repeats.
+the wrong domains.
 
 ## Usage
 

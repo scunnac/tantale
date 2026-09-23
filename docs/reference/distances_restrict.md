@@ -1,7 +1,6 @@
-# Restrict a similarity table to a set of entities
+# Restrict a distance table to a set of entities
 
-Filters **both** id columns, which is what keeps the result square. The
-package currently does this by hand at three call sites, in two steps.
+Filters **both** id columns, which is what keeps the result square.
 
 ## Usage
 

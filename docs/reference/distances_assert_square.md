@@ -1,4 +1,4 @@
-# Assert that a similarity table is complete and square
+# Assert that a distance table is complete and square
 
 Checks that the table holds every ordered pair of the ids it contains —
 `n^2` rows for `n` ids. Phrased over the ids *present*, so that a
@@ -27,10 +27,9 @@ distances_assert_square(x, arg = "x")
 
 ## Details
 
-A **precondition**, not an invariant. `conversion.R` filters on `id1`
-alone inside a loop over alignment columns, and `msa.R` filters the two
-id columns in succession, passing through a non-square intermediate.
-Both are correct; enforcing squareness everywhere would outlaw them.
+Squareness is a **precondition** of the functions that need it. The
+class itself does not require it, because filtering the two id columns
+one after the other passes through a legitimate non-square intermediate.
 
 ## See also
 

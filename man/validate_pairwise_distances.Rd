@@ -2,7 +2,7 @@
 % Please edit documentation in R/pairwise_distances_class.R
 \name{validate_pairwise_distances}
 \alias{validate_pairwise_distances}
-\title{Validate a pairwise similarity table}
+\title{Validate a pairwise distance table}
 \usage{
 validate_pairwise_distances(x)
 }
@@ -14,9 +14,9 @@ validate_pairwise_distances(x)
 }
 \description{
 Checks the column contract, and nothing else. Squareness, the diagonal and
-symmetry are deliberately \emph{not} checked here: the package filters these
-tables asymmetrically on purpose, so those properties are preconditions of
-the methods that need them — see \code{\link{distances_assert_square}}.
+symmetry are preconditions of the methods that need them, checked by
+\code{\link{distances_assert_square}}: a table filtered on one id column is
+a legitimate intermediate step.
 }
 \seealso{
 Other pairwise distances:

@@ -13,16 +13,15 @@ tales_get_protein_seq(x)
 An \link[Biostrings:AAStringSet]{Biostrings::AAStringSet}, named by \code{array_id}.
 }
 \description{
-Reassembles each array's parts -- N-terminus, repeats and C-terminus, in
-order -- into one full-length amino acid sequence, by pasting \code{aa_seq}
-together directly (no separator, unlike \code{\link[=tales_rvd_strings]{tales_rvd_strings()}}'s
-hyphen-joined RVDs: this is a real protein sequence, not a token string).
+Reassembles each array's parts (N-terminus, repeats and C-terminus, in
+order) into one full-length amino acid sequence, by pasting \code{aa_seq}
+together with no separator: the result is a real protein sequence, where
+\code{\link[=tales_rvd_strings]{tales_rvd_strings()}} joins RVD tokens with hyphens.
 }
 \details{
-Ordered by \code{position_in_array}, not \code{alignment_position}: an alignment
-never reorders an array's parts, only inserts gaps between them (see
-\code{dev/class-design.md}), and a \code{tales_msa}'s gaps are never rows to begin
-with -- a gap is a column with no row for that array. So \code{position_in_array}
+Parts are ordered by \code{position_in_array}. An alignment never reorders an
+array's parts, only inserts gaps between them, and a \code{tales_msa}'s gaps are
+never rows: a gap is a column with no row for that array. So \code{position_in_array}
 gives the same part order \code{alignment_position} would, without needing to
 skip anything, and works unchanged whether \code{x} is a bare \code{tales} or a
 \code{tales_msa}.

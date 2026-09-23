@@ -1,10 +1,9 @@
-# Validate a pairwise similarity table
+# Validate a pairwise distance table
 
 Checks the column contract, and nothing else. Squareness, the diagonal
-and symmetry are deliberately *not* checked here: the package filters
-these tables asymmetrically on purpose, so those properties are
-preconditions of the methods that need them — see
-[`distances_assert_square`](https://scunnac.github.io/tantale/reference/distances_assert_square.md).
+and symmetry are preconditions of the methods that need them, checked by
+[`distances_assert_square`](https://scunnac.github.io/tantale/reference/distances_assert_square.md):
+a table filtered on one id column is a legitimate intermediate step.
 
 ## Usage
 

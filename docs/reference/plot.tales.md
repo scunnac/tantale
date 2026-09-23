@@ -1,7 +1,7 @@
 # Plot the domain composition of a set of TALE arrays
 
 A compact, information-rich view of the arrays in a `tales` object: one
-point per part, positioned by its place in the array, coloured by domain
+point per part, positioned by its place in the array, outlined by domain
 type and filled by amino-acid length, with the RVD printed on each
 repeat.
 

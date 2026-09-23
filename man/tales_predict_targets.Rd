@@ -32,9 +32,9 @@ and a set of DNA sequences, and returns the predictions as a tibble.
 }
 \details{
 \code{talvez} and \code{preditale} are independent programs, but the package
-already normalises their outputs to a shared set of column names, so they
-are interchangeable backends of one operation rather than two separate
-functions. This is that operation; \code{\link{talvez}} and
+normalises their outputs to a shared set of column names, so they can serve
+as interchangeable backends of one operation. This is that operation;
+\code{\link{talvez}} and
 \code{\link{preditale}} remain available and documented individually, and
 are where each tool's own options and citation live.
 }

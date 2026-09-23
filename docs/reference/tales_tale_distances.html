@@ -82,7 +82,7 @@ returned by <code><a href="tales_domain_distances.html">tales_domain_distances()
 array's sequence of <code>dom_code</code>s is aligned against every other's; what it
 costs to align one domain against a different one is taken from
 <code>domain_distances</code>, so the TALE-level comparison is built on the
-domain-level one rather than computed beside it.</p>
+domain-level one.</p>
 <p>The alignment is the minisatellite map alignment of ARLEM (Abouelhoda,
 Giegerich, Behzadi and Steyaert,
 <a href="https://doi.org/10.1142/S0219720009004060" class="external-link">2009</a>), which DisTAL used
@@ -95,9 +95,9 @@ source, and a domain inserted from elsewhere costs 10. The scores are
 identical to those of the original ARLEM program. <code>arlem_score</code> is the cost of the best
 alignment, and <code>dissim</code> divides it by the length of the longer array.</p>
 <p>The domain distances are first passed through a Minkowski distance
-(<code>p = 3.5</code>) between their rows and rescaled to 0-100. That step is not
-cosmetic: the alignment needs substitution costs satisfying the triangle
-inequality, and raw pairwise alignment dissimilarities do not.</p>
+(<code>p = 3.5</code>) between their rows and rescaled to 0-100. That step matters:
+the alignment needs substitution costs satisfying the triangle inequality,
+and raw pairwise alignment dissimilarities do not.</p>
     </div>
     <div class="section level2">
     <h2 id="both-arguments-must-come-from-the-same-call">Both arguments must come from the same call<a class="anchor" aria-label="anchor" href="#both-arguments-must-come-from-the-same-call"></a></h2>

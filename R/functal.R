@@ -39,26 +39,24 @@
 #' weight matrix per array, built by looking up each repeat's RVD in
 #' \code{\link{rvd_dna_specificity}} and stacking the rows in repeat order.
 #' The conversion \code{\link{tales_compare_functal}} is built on, exposed on
-#' its own so any \code{universalmotif} function -- \code{compare_motifs()},
+#' its own so any \code{universalmotif} function (\code{compare_motifs()},
 #' \code{motif_tree()}, \code{view_motifs()}, \code{scan_sequences()},
-#' \code{merge_motifs()}, ... -- can be run directly on real TALE binding
-#' models, not just the one comparison \code{tales_compare_functal()} does
-#' with them. Ledger §12b lists several of these as concrete follow-ups.
+#' \code{merge_motifs()}, ...) can be run directly on these TALE binding
+#' models.
 #'
 #' @details
 #' Only \code{rvd}, in repeat order, is used (via
-#' \code{\link{tales_rvd_strings}}, which drops the two termini by default --
-#' DNA-binding specificity is a property of the repeat region; QueTAL
-#' FuncTAL, the tool this table comes from, never scored termini either,
-#' since its own RVD extraction only ever found repeats). An RVD absent from
-#' \code{\link{rvd_dna_specificity}} is scored with a flat, uninformative row
-#' rather than dropped, so an unusual RVD costs a comparison specificity
-#' rather than an error.
+#' \code{\link{tales_rvd_strings}}, which drops the two termini by default):
+#' DNA-binding specificity is a property of the repeat region, and QueTAL's
+#' FuncTAL, the tool this table comes from, scored repeats only. An RVD
+#' absent from \code{\link{rvd_dna_specificity}} is given a flat,
+#' uninformative row, so an unusual RVD lowers the specificity of the
+#' comparison without causing an error.
 #'
 #' @param x A \code{\link{tales}} object carrying an \code{rvd} column.
 #' @return A named list of \code{universalmotif} objects, one per array,
-#'   named by \code{array_id} -- a plain list, since that is what
-#'   \code{compare_motifs()}/\code{motif_tree()} themselves accept.
+#'   named by \code{array_id}: a plain list, which is what
+#'   \code{compare_motifs()}/\code{motif_tree()} accept.
 #' @seealso [tales_compare_functal()], the one comparison built on this;
 #'   [tales_rvd_strings()], the sibling projection at the string layer.
 #' @export
@@ -110,36 +108,32 @@ tales_to_universalmotif <- function(x) {
 #'
 #' @description
 #' Quantifies how TALE arrays relate by the DNA sequence their repeats are
-#' predicted to bind, rather than by domain sequence identity
-#' (\code{\link{tales_compare_distal}}). Each array's repeats are turned into
+#' predicted to bind. (\code{\link{tales_compare_distal}} compares them by
+#' domain sequence instead.) Each array's repeats are turned into
 #' a position weight matrix (PWM) over the RVD-to-base specificity code, and
 #' PWMs are compared pairwise with \code{\link[universalmotif]{compare_motifs}}.
 #'
 #' @details
-#' This is a reimplementation, not a port, of QueTAL's FuncTAL: the original
-#' Perl tool could not be kept working (it needs \code{Bio::Perl}, dropped by
-#' BioPerl's 1.7 reorganisation; see \code{dev/restructuring-notes.md} §12b),
-#' so the comparison itself was rebuilt on \code{universalmotif} rather than
-#' patched. \strong{Results diverge from the original FuncTAL tool, and this
-#' is by design, not an approximation to be improved away.} FuncTAL scored
-#' two RVD arrays by flattening their entire padded, overlapping alignment
-#' (positions and bases together) into one vector and taking a single
-#' Pearson correlation. \code{compare_motifs()} instead correlates matched
-#' columns individually and combines the column scores (\code{score.strat}).
-#' Verified empirically to disagree on real data before writing this
-#' function, not assumed to differ only in magnitude.
+#' This is a reimplementation of QueTAL's FuncTAL comparison on
+#' \code{universalmotif}; the original Perl tool depends on BioPerl's
+#' \code{Bio::Perl} module, which current BioPerl no longer provides.
+#' \strong{Results differ from the original FuncTAL tool, by design.} FuncTAL
+#' scored two RVD arrays by flattening their entire padded, overlapping
+#' alignment (positions and bases together) into one vector and taking a
+#' single Pearson correlation. \code{compare_motifs()} instead correlates
+#' matched columns individually and combines the column scores
+#' (\code{score.strat}); the two disagree on real data.
 #'
 #' The PWMs themselves are built by \code{\link{tales_to_universalmotif}} --
 #' see its docs for exactly what drives them (only \code{rvd}, in repeat
 #' order, termini dropped) and how an RVD outside
 #' \code{\link{rvd_dna_specificity}} is handled. That conversion is exposed
-#' on its own precisely so it is not locked inside this one comparison.
+#' on its own so it can be used with any \code{universalmotif} function.
 #'
 #' Only a handful of \code{\link[universalmotif]{compare_motifs}}'s many
 #' options are exposed here, chosen for what actually varies across TALE
-#' arrays (their differing repeat counts) rather than mirrored wholesale; see
-#' \code{?compare_motifs} for the rest, several of which are worth revisiting
-#' -- ledger §12b lists them as follow-ups.
+#' arrays (their differing repeat counts); see \code{?compare_motifs} for the
+#' rest.
 #'
 #' @param x A \code{\link{tales}} object carrying an \code{rvd} column.
 #' @param method One of \code{compare_motifs()}'s comparison metrics
@@ -152,14 +146,14 @@ tales_to_universalmotif <- function(x) {
 #'   code has a fixed reading direction (5' to 3' target, N- to C-terminal
 #'   repeat order), so comparing against a reverse complement asks a
 #'   different, narrower biological question -- do these two TALEs target
-#'   opposite strands of overlapping sites -- worth asking on purpose, not
-#'   folded silently into every comparison.
+#'   opposite strands of overlapping sites. Ask it deliberately, when it is
+#'   the question.
 #' @param min.overlap Minimum aligned width to accept, as `compare_motifs()`
-#'   defines it. Defaults to \code{1} (any overlap at all), not
-#'   \code{compare_motifs()}'s own default of \code{6} -- generic TF motifs
-#'   are usually longer than 6 positions, but a TALE array legitimately has
-#'   as few as half a dozen repeats, so the upstream default would silently
-#'   refuse to compare some real, short arrays.
+#'   defines it. Defaults to \code{1} (any overlap at all);
+#'   \code{compare_motifs()}'s own default is \code{6}, suited to generic
+#'   transcription-factor motifs, but a TALE array can have as few as half a
+#'   dozen repeats, and that default would silently refuse to compare some
+#'   real, short arrays.
 #' @param normalise.scores Penalise alignments that leave much of either
 #'   motif unaligned. \code{TRUE} by default: TALE array lengths vary widely
 #'   (see \code{min.overlap}), so an unnormalised score would favour matches
@@ -169,14 +163,14 @@ tales_to_universalmotif <- function(x) {
 #'   would scale with array length, favouring long-vs-long comparisons
 #'   for no biological reason.
 #' @param nthreads Passed to \code{compare_motifs()}.
-#' @return A \code{\link{tale_distances}} object -- interchangeable with
+#' @return A \code{\link{tale_distances}} object, interchangeable with
 #'   \code{\link{tales_compare_distal}}'s, so it can be handed directly to
 #'   \code{\link{tales_group_hclust}}/\code{\link{tales_group_kmedoids}}.
 #'   No tree is built here, matching \code{tales_compare_distal()}'s own
 #'   division of labour: compare here, cluster/tree there.
 #' @seealso [tales_compare_distal()], comparing by domain sequence instead;
-#'   [tales_to_universalmotif()], the conversion step this composes --
-#'   called directly, any other \code{universalmotif} function (
+#'   [tales_to_universalmotif()], the conversion step this uses; called
+#'   directly, it lets any other \code{universalmotif} function (
 #'   \code{motif_tree()}, \code{view_motifs()}, \code{scan_sequences()},
 #'   \code{merge_motifs()}, ...) can be run on the same PWMs.
 #' @export

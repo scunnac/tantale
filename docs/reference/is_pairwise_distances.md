@@ -1,6 +1,6 @@
-# Is this a pairwise similarity table?
+# Is this a pairwise distance table?
 
-Is this a pairwise similarity table?
+Is this a pairwise distance table?
 
 ## Usage
 

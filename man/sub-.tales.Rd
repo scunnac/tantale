@@ -21,22 +21,19 @@ only while the result still satisfies the \code{tales} contract.
 }
 \details{
 Row subsetting never breaks anything: every invariant a \code{tales}
-checks is closed under keeping a subset of rows, so filtering to one
-array, or to its repeats only, is still a valid \code{tales}. Column
-subsetting is where it degrades: dropping \code{array_id}, or both
-residue columns (\code{rvd}, \code{dom_code}) at once, leaves something
-that can no longer be described as a \code{tales}, and the class quietly
-steps out of the way rather than continuing to claim invariants it can
-no longer keep -- the result is a plain tibble, not an error. Dropping an
-optional column (\code{seqnames}, \code{aa_seq}, ...) has no such
-consequence. A \code{tales_msa} degrades one step at a time: losing
-\code{alignment_position} alone steps it back to a plain \code{tales},
-not all the way to a tibble.
+checks still holds on any subset of rows, so filtering to one array, or
+to its repeats only, is still a valid \code{tales}. Column subsetting is
+where it degrades: dropping \code{array_id}, or both residue columns
+(\code{rvd}, \code{dom_code}) at once, leaves something that can no
+longer be described as a \code{tales}, and the result is a plain tibble,
+without an error. Dropping an optional column (\code{seqnames},
+\code{aa_seq}, ...) has no such consequence. A \code{tales_msa} degrades
+one step at a time: losing \code{alignment_position} alone steps it back
+to a plain \code{tales}.
 
 Attributes travel with a valid subset. \code{dom_code_namespace}
-describes the run the codes came from, not which rows happen to be kept
-right now, so cutting an object down with \code{[} keeps its namespace
-unchanged.
+describes the run the codes came from, so cutting an object down with
+\code{[} keeps its namespace unchanged.
 }
 \examples{
 x <- tales(data.frame(

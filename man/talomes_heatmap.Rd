@@ -2,7 +2,7 @@
 % Please edit documentation in R/classification.R
 \name{talomes_heatmap}
 \alias{talomes_heatmap}
-\title{Heatmap plotting of rvd sequence variants}
+\title{Heatmap of RVD sequence variants across strains and TALE groups}
 \usage{
 talomes_heatmap(
   tale_annotation,
@@ -24,41 +24,64 @@ talomes_heatmap(
 )
 }
 \arguments{
-\item{tale_annotation}{a data frame containing at least 3 columns for Tal groups, strain names, and rvd seqs, and 1 row is 1 Tal.}
+\item{tale_annotation}{A data frame with one row per TALE and at least a
+group, a strain and an RVD-sequence column.}
 
-\item{group_col}{"character", column name of \code{tale_annotation} to be displayed as columns in the heatmap (e.g. tal groups).}
+\item{group_col}{Name of the \code{tale_annotation} column holding TALE
+groups, drawn as columns (e.g. the \code{group} from
+\code{\link{tales_group_kmedoids}}).}
 
-\item{strain_col}{"character", column name of \code{tale_annotation} to be displayed as rows in the heatmap (e.g. strain names).}
+\item{strain_col}{Name of the column holding strain names, drawn as rows.}
 
-\item{rvd_col}{"character", column name for rvdseqs in the \code{tale_annotation}}
+\item{rvd_col}{Name of the column holding RVD sequences (e.g. from
+\code{\link{tales_rvd_strings}}).}
 
-\item{trunc_tales_col}{(optional, default = NULL) "character", column name of \code{tale_annotation} labeling the truncTales by TRUE/FALSE value. The truncTales are labeled by "T" in the heatmap cells, but if this argument is called.}
+\item{trunc_tales_col}{Optional name of a logical column marking
+truncated TALEs; those are labelled "T" in their cell (with
+\code{plot_type = "all"}).}
 
-\item{extra_col}{(optional, default = NULL) "character", column name of \code{tale_annotation} containing other information (e.g. origin). It will be presented in a side bar on the right of the heatmap.}
+\item{extra_col}{Optional name of a column with further information about
+each strain (e.g. origin), drawn as a side bar on the right.}
 
-\item{x_lab, y_lab, title}{character for x axis, y axis names and title}
+\item{x_lab, y_lab, title}{Axis names and plot title.}
 
 \item{plot_type}{Either \code{"all"} to draw every allele, or
 \code{"single"} to draw one representative allele per group.}
 
-\item{colors}{character vector of colors for the cells.}
+\item{colors}{Character vector of colours for the variant ranks.}
 
-\item{margins}{margin of the heatmap for row dendrogram, col dendrogram, rownames, colnames, respectively. (by default, c(5, 5, 3, 3)).}
+\item{margins}{Margins for the row dendrogram, column dendrogram, row
+names and column names, in that order. Default \code{c(5, 5, 3, 3)}.}
 
-\item{sep_width}{numeric value for the width of separator between adjacent cells.}
+\item{sep_width}{Width of the separator between adjacent cells.}
 
-\item{sep_color}{character of color for the separator between adjacent cells}
+\item{sep_color}{Colour of the separator between adjacent cells.}
 
-\item{inner_sep_color}{character of color for the separator between colors within 1 cell if there are more than 1.}
+\item{inner_sep_color}{Colour of the separator between variants within
+one cell.}
 
-\item{save_path}{(optional) file path to save the plot, format of the image depends on the file extension. If save_path is NULL, the heatmap will be printed. If save_path is specified, the image file will be created.}
+\item{save_path}{Optional file path; the image format follows the file
+extension. If \code{NULL} (default), the heatmap is drawn on the
+current device.}
 }
 \value{
 \code{NULL}, invisibly. Called for the side effect of drawing the
 heatmap (or, if \code{save_path} is given, writing it to a file).
 }
 \description{
-The function creates a graphical presentation from a tale annotation table. The output is like a heatmap that presents rvd sequence variants in Tal groups as column and respective strains as rows (or vice versa). It is different from a typical heatmap that it can display more than one value in a cell; for example, if one strain has 2 rvd sequence variants belong to 1 group, it will be displayed by 2 colors in 1 cell.
+Draws a talome overview: one column per TALE group, one row per strain,
+each cell showing which RVD sequence variant that strain carries in that
+group. A strain's talome is its whole complement of TALEs, so the plot
+shows at a glance which groups each strain has and where strains carry
+different variants of the same TALE.
+
+Within a group, variants are ranked by how many strains carry them, and
+the cell colour is that rank (the first colour is the most common
+variant). The \code{#} after each group label counts its distinct
+variants. A grey cell means the strain has no member in that group. A
+cell can hold several colours side by side when a strain carries more
+than one variant in the same group. Dendrograms order strains and groups
+by the similarity of their variant profiles.
 }
 \examples{
 ann <- data.frame(

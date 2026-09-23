@@ -91,9 +91,9 @@ backends, plus a <code>method</code> column recording which tool produced them.<
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p><code>talvez</code> and <code>preditale</code> are independent programs, but the package
-already normalises their outputs to a shared set of column names, so they
-are interchangeable backends of one operation rather than two separate
-functions. This is that operation; <code><a href="talvez.html">talvez</a></code> and
+normalises their outputs to a shared set of column names, so they can serve
+as interchangeable backends of one operation. This is that operation;
+<code><a href="talvez.html">talvez</a></code> and
 <code><a href="preditale.html">preditale</a></code> remain available and documented individually, and
 are where each tool's own options and citation live.</p>
     </div>
@@ -118,7 +118,7 @@ are where each tool's own options and citation live.</p>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fu">tales_predict_targets</span><span class="op">(</span><span class="va">x</span>, subj_file <span class="op">=</span> <span class="va">subj</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Invoking Talvez using the following command:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> '/home/cunnac/mamba/envs/tantale/bin/perl' TALVEZ_3.2.pl -t 0 -l 19 -e mat1 -z</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> mat2 'rvdSeqsTalvez_434e47ebfb5e7.tsv' 'cladeIII_sweet_promoters.fasta'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> mat2 'rvdSeqsTalvez_556f637f603e2.tsv' 'cladeIII_sweet_promoters.fasta'</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 6 × 10</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   taleId    rvds          subjSeqId score strand start   end ebeSeq  rank method</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span>

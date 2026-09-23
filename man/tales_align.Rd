@@ -18,12 +18,12 @@ tales_align(
 \item{x}{A \code{\link{tales}} object holding complete arrays.}
 
 \item{residue_col}{Which layer to align on: \code{"rvd"} (default) or
-\code{"dom_code"}. Given explicitly rather than guessed from the values.}
+\code{"dom_code"}. It is never guessed from the values.}
 
 \item{domain_distances}{Scoring matrix for the residues being aligned.
 \code{NULL} (default) means none. Pass \code{"rvd"} to opt in to the
 built-in RVD similarity matrix when aligning RVDs, or, when aligning
-repeat codes, a \code{\link{domain_distances}}-class object (as
+domain codes, a \code{\link{domain_distances}}-class object (as
 returned by \code{\link{tales_domain_distances}}) or the path to a
 \code{*_Repeatmatrix.mat} file written by Distal.}
 
@@ -49,9 +49,9 @@ alignment unanchored.}
 
 \item{mafft_verbose}{Whether to let MAFFT write to the console. It reports
 its banner, the strategy it chose and its progress through the sequences,
-which is dozens of lines per alignment and rarely what you want. Left
-\code{FALSE} that output is captured rather than discarded, and replayed
-if the alignment fails -- so silence costs nothing diagnostically.}
+which is dozens of lines per alignment and rarely what you want. With
+\code{FALSE}, that output is captured and replayed if the alignment
+fails, so nothing is lost for diagnosis.}
 
 \item{...}{Further arguments to the MAFFT runner, chiefly
 \code{gap_symbol}, the value gaps take in the returned matrix

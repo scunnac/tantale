@@ -80,14 +80,14 @@ an <code>alignment_position</code> column added, so every other layer
 
 <dt id="arg-residue-col">residue_col<a class="anchor" aria-label="anchor" href="#arg-residue-col"></a></dt>
 <dd><p>Which layer to align on: <code>"rvd"</code> (default) or
-<code>"dom_code"</code>. Given explicitly rather than guessed from the values.</p></dd>
+<code>"dom_code"</code>. It is never guessed from the values.</p></dd>
 
 
 <dt id="arg-domain-distances">domain_distances<a class="anchor" aria-label="anchor" href="#arg-domain-distances"></a></dt>
 <dd><p>Scoring matrix for the residues being aligned.
 <code>NULL</code> (default) means none. Pass <code>"rvd"</code> to opt in to the
 built-in RVD similarity matrix when aligning RVDs, or, when aligning
-repeat codes, a <code><a href="pairwise_distances.html">domain_distances</a></code>-class object (as
+domain codes, a <code><a href="pairwise_distances.html">domain_distances</a></code>-class object (as
 returned by <code><a href="tales_domain_distances.html">tales_domain_distances</a></code>) or the path to a
 <code>*_Repeatmatrix.mat</code> file written by Distal.</p></dd>
 
@@ -118,9 +118,9 @@ alignment unanchored.</p></dd>
 <dt id="arg-mafft-verbose">mafft_verbose<a class="anchor" aria-label="anchor" href="#arg-mafft-verbose"></a></dt>
 <dd><p>Whether to let MAFFT write to the console. It reports
 its banner, the strategy it chose and its progress through the sequences,
-which is dozens of lines per alignment and rarely what you want. Left
-<code>FALSE</code> that output is captured rather than discarded, and replayed
-if the alignment fails – so silence costs nothing diagnostically.</p></dd>
+which is dozens of lines per alignment and rarely what you want. With
+<code>FALSE</code>, that output is captured and replayed if the alignment
+fails, so nothing is lost for diagnosis.</p></dd>
 
 
 <dt id="arg--">...<a class="anchor" aria-label="anchor" href="#arg--"></a></dt>

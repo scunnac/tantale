@@ -1,9 +1,9 @@
 # Run TALE target predictions on DNA sequence(s) using Talvez
 
-A R wrapper around the
-[Talvez](https://doi.org/10.1371/journal.pone.0068464) predictor perl
+An R wrapper around the
+[Talvez](https://doi.org/10.1371/journal.pone.0068464) predictor Perl
 script. Takes a list of TALE RVD sequences and a fasta file of DNA
-sequences and runs Talvez
+sequences and runs Talvez.
 
 ## Usage
 
@@ -30,10 +30,10 @@ talvez(
 - subj_file:
 
   Expects a character vector specifying the path to the fasta file
-  holding subject DNA sequence(s). Talvez forbids to have sequences in
-  the file wrapped at a fixed width. The function uses Biostrings to
-  unwrap them but if you use subject sequences longer than 20kb, this
-  will fail and you are advised to unwrap your sequences before hand.
+  holding subject DNA sequence(s). Talvez does not accept sequences
+  wrapped at a fixed width. The function unwraps them with Biostrings,
+  but this fails for subject sequences longer than 20 kb: unwrap such
+  sequences beforehand.
 
 - opt_param:
 
@@ -67,11 +67,10 @@ programs in tantale.
 
 ## Details
 
-Note that this talvez wrapper, uses the RVD - Nucleotide specificity
-matrices used with talvez, it is not possible to use custom ones. Note
-also that the talvez script is run in a conda environment providing the
-necessary dependencies. This environment will be created automatically
-if necessary.
+This wrapper uses the RVD-nucleotide specificity matrices shipped with
+Talvez; custom matrices are not supported. The Talvez script runs in a
+conda environment providing its dependencies, created automatically on
+first use.
 
 ## See also
 
@@ -93,7 +92,7 @@ subj <- system.file("extdata", "cladeIII_sweet_promoters.fasta",
 preds <- talvez(rvd_seqs = rvds, subj_file = subj)
 #> Invoking Talvez using the following command:
 #> '/home/cunnac/mamba/envs/tantale/bin/perl' TALVEZ_3.2.pl -t 0 -l 19 -e mat1 -z
-#> mat2 'rvdSeqsTalvez_434e47603b0bb.tsv' 'cladeIII_sweet_promoters.fasta'
+#> mat2 'rvdSeqsTalvez_556f63e7ee838.tsv' 'cladeIII_sweet_promoters.fasta'
 head(preds)
 #> # A tibble: 6 × 9
 #>   taleId    rvds                 subjSeqId score strand start   end ebeSeq  rank

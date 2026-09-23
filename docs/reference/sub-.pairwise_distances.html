@@ -3,15 +3,11 @@
 only while the result still satisfies the contract: id1/id2
 (both character) and dissim (numeric) all present. Dropping any of
 them leaves something that can no longer be described as a pairwise
-similarity table, and the class quietly steps out of the way rather than
-continuing to claim invariants it can no longer keep – the result is a
-plain tibble, not an error."><meta property="og:description" content="Subsets rows and columns like an ordinary tibble, but the class travels
+distance table, and the result is a plain tibble, without an error."><meta property="og:description" content="Subsets rows and columns like an ordinary tibble, but the class travels
 only while the result still satisfies the contract: id1/id2
 (both character) and dissim (numeric) all present. Dropping any of
 them leaves something that can no longer be described as a pairwise
-similarity table, and the class quietly steps out of the way rather than
-continuing to claim invariants it can no longer keep – the result is a
-plain tibble, not an error."><meta property="og:image" content="https://scunnac.github.io/tantale/reference/figures/tantale_logo.png"><meta property="og:image:alt" content="tantale"></head><body>
+distance table, and the result is a plain tibble, without an error."><meta property="og:image" content="https://scunnac.github.io/tantale/reference/figures/tantale_logo.png"><meta property="og:image:alt" content="tantale"></head><body>
     <a href="#main" class="visually-hidden-focusable">Skip to contents</a>
 
 
@@ -61,9 +57,7 @@ plain tibble, not an error."><meta property="og:image" content="https://scunnac.
 only while the result still satisfies the contract: <code>id1</code>/<code>id2</code>
 (both character) and <code>dissim</code> (numeric) all present. Dropping any of
 them leaves something that can no longer be described as a pairwise
-similarity table, and the class quietly steps out of the way rather than
-continuing to claim invariants it can no longer keep – the result is a
-plain tibble, not an error.</p>
+distance table, and the result is a plain tibble, without an error.</p>
     </div>
 
     <div class="section level2">
@@ -92,10 +86,8 @@ holds, otherwise a plain tibble.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Squareness is never checked here, on purpose (see
-<code><a href="distances_assert_square.html">distances_assert_square</a></code>): subsetting rows is a normal,
-everyday way to end up with a non-square table, and re-checking that on
-every <code>[</code> call would outlaw it.</p>
+    <p>Squareness is not checked here (see <code><a href="distances_assert_square.html">distances_assert_square</a></code>):
+subsetting rows is an everyday way to end up with a non-square table.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

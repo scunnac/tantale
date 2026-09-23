@@ -1184,10 +1184,10 @@
 #'
 #' If \code{correct_array} is turned on, these talearrays are passed to the
 #' \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}} function that
-#' attemps to 'correct' potential frameshifts in the taleArray sequences. This
+#' attempts to 'correct' potential frameshifts in the taleArray sequences. This
 #' conveniently removes many artefactual indels but bear in mind that this may
 #' also \strong{erroneously} 'correct' genuine frame shifts which can be highly
-#' relevant especially for truncTALEs or iTALES. The resulting 'corrected'
+#' relevant especially for truncTALEs or iTALEs. The resulting 'corrected'
 #' taleArray open reading frames are then passed to AnnoTALE.
 #'
 #' Note that occasionally, when a putative open reading frame does not encode a
@@ -1232,7 +1232,7 @@
 #'   them to be considered distinct. If the length of the gap is below this
 #'   value, domains are considered "contiguous" and grouped in the same array.
 #' @param extremity_codes Set this to \code{FALSE} if you do not want the
-#'   N- and C-TREM anchor codes in the output sequences of RVD
+#'   N- and C-TERM anchor codes in the output sequences of RVD
 #' @param rvd_sep Symbol acting as a separator in RVD sequences
 #' @param hmmer_path Specify the path to a directory holding the HMMER executable
 #'   if you do not want to use the ones provided with tantale.
@@ -1289,10 +1289,10 @@
 #'   pre-screen. That pre-screen is an approximation, so a low cap trusts it
 #'   to rank the truly best reference near the top.
 #'
-#'   When it fails it does not fail by leaving an array uncorrected -- it
-#'   fails by correcting it against a poor reference, which is worse, because
-#'   the result still looks like a corrected ORF. Against a deliberately
-#'   small 20-sequence reference, the same four arrays give:
+#'   When it fails, it corrects the array against a poor reference. That is
+#'   worse than leaving the array uncorrected, because the result still looks
+#'   like a corrected ORF. Against a deliberately small 20-sequence
+#'   reference, the same four arrays give:
 #'
 #'   \tabular{ll}{
 #'     \strong{max_comparisons} \tab \strong{indels called per array} \cr
@@ -1302,19 +1302,20 @@
 #'   }
 #'
 #'   At 2 the aligner cannot reach a decent reference and invents indels
-#'   wholesale. What matters is therefore not the ratio to the reference set
-#'   but whether the closest \code{max_comparisons} are genuinely close: 20
-#'   of 1057 is ample, 5 of 20 is not. With a large reference set a cap in
+#'   wholesale. What matters is whether the closest \code{max_comparisons}
+#'   references are genuinely close, whatever the size of the reference set:
+#'   20 of 1057 is ample, 5 of 20 is not. With a large reference set a cap in
 #'   the tens is safe and very much faster; with a small or a poorly matched
 #'   one, prefer the default and pay for the full search.
-#' @param frameshift This is an internal parameter of the
-#'   \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}} function. The
-#'   default is -11 and fiddle with this at your own risk...
+#' @param frameshift Frameshift penalty passed to
+#'   \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}}'s
+#'   \code{frameShift}. tantale's default is \code{-11}, overriding
+#'   DECIPHER's own \code{-15}; change it only with a reason.
 #' @param ... Additional parameters for the
 #'   \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}} function.
-#' @return This functions has only side effects (writing files, mostly).
-#'   However, if everything ran smoothly, it will invisibly return the path of
-#'   the directory where output files were written.
+#' @return Called for its side effects (writing files). If everything runs
+#'   smoothly, it invisibly returns the path of the directory where output
+#'   files were written.
 #'
 #'
 #'   List of output files:
@@ -1329,12 +1330,12 @@
 #'   \item hits_report.gff: gff file of all hits detected by HMMer
 #'   \item domains_report.tsv: report of all Tal amino acid domains detected by AnnoTALE analyze
 #'   \item putative_tal_orf.fasta: Tal putative ORFs
-#'   \item pseudo_tal_cds.fasta: pseudo Tal CDS, putative Tal array ORFs detected by HMMer for whch
+#'   \item pseudo_tal_cds.fasta: pseudo Tal CDS, putative Tal array ORFs detected by HMMer for which
 #'    AnnoTALE analyze failed to find RVD(s).
 #'   \item rvd_sequences.fas: Sequence of RVDs (separated by rvd_sep) predicted to be encoded in the Tal array
 #'    ORFs by AnnoTALE. Note that if extremity_codes is \code{TRUE} (by default),
-#'    the N- and C-TREM anchor codes will be appended at the beginning and end of the sequences
-#'    if the corresponding domain coding sequence was wound by HMMer at the DNA level.
+#'    the N- and C-TERM anchor codes will be added at the beginning and end of the sequences
+#'    if the corresponding domain coding sequence was found by HMMer at the DNA level.
 #'    If no such HMMer hits were found, the "XXXXX" string will be appended
 #'    to denote that AA sequences outside of the RVD array are likely to be atypical.
 #'   \item c_terminus_aa_alignment.html: protein alignment of all C-termini

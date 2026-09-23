@@ -38,8 +38,9 @@ is_tales_msa <- function(x) inherits(x, "tales_msa")
 #' Width of a TALE alignment
 #'
 #' The number of columns in the alignment, including those that are all gaps in
-#' the object at hand. Stored rather than derived: subsetting arrays can empty
-#' the last column, which would silently shrink \code{max(alignment_position)}.
+#' the object at hand. It is stored with the object, because subsetting arrays
+#' can empty the last column, which would silently shrink
+#' \code{max(alignment_position)}. A plain \code{tales} has no width.
 #'
 #' @param x A \code{tales_msa} object.
 #' @return An integer scalar, or \code{NULL} if unset.
@@ -95,9 +96,9 @@ tales_msa <- function(x, alignment_width = NULL, dom_code_namespace = NULL) {
 #' Validate a tales_msa object
 #'
 #' Checks every \code{\link{validate_tales}} invariant, then those specific to
-#' an alignment. As for \code{tales}, only properties closed under row
-#' subsetting are checked here; grid completeness is a precondition of the
-#' functions that need it.
+#' an alignment. As for \code{tales}, only properties that still hold on any
+#' subset of rows are checked here; grid completeness is a precondition of
+#' the functions that need it.
 #'
 #' @param x A \code{tales_msa} object.
 #' @return \code{x}, invisibly, if valid; otherwise an error.
@@ -243,11 +244,11 @@ as.matrix.tales_msa <- function(x, value = NULL, gap = NA, ...) {
 #'
 #' @param x A \code{\link{tales}} object holding complete arrays.
 #' @param residue_col Which layer to align on: \code{"rvd"} (default) or
-#'   \code{"dom_code"}. Given explicitly rather than guessed from the values.
+#'   \code{"dom_code"}. It is never guessed from the values.
 #' @param domain_distances Scoring matrix for the residues being aligned.
 #'   \code{NULL} (default) means none. Pass \code{"rvd"} to opt in to the
 #'   built-in RVD similarity matrix when aligning RVDs, or, when aligning
-#'   repeat codes, a \code{\link{domain_distances}}-class object (as
+#'   domain codes, a \code{\link{domain_distances}}-class object (as
 #'   returned by \code{\link{tales_domain_distances}}) or the path to a
 #'   \code{*_Repeatmatrix.mat} file written by Distal.
 #' @param mafft_opts Command-line options handed to MAFFT. The default,
@@ -270,9 +271,9 @@ as.matrix.tales_msa <- function(x, value = NULL, gap = NA, ...) {
 #'   alignment unanchored.
 #' @param mafft_verbose Whether to let MAFFT write to the console. It reports
 #'   its banner, the strategy it chose and its progress through the sequences,
-#'   which is dozens of lines per alignment and rarely what you want. Left
-#'   \code{FALSE} that output is captured rather than discarded, and replayed
-#'   if the alignment fails -- so silence costs nothing diagnostically.
+#'   which is dozens of lines per alignment and rarely what you want. With
+#'   \code{FALSE}, that output is captured and replayed if the alignment
+#'   fails, so nothing is lost for diagnosis.
 #' @param ... Further arguments to the MAFFT runner, chiefly
 #'   \code{gap_symbol}, the value gaps take in the returned matrix
 #'   (\code{NA} by default).

@@ -21,15 +21,11 @@ Subsets rows and columns like an ordinary tibble, but the class travels
 only while the result still satisfies the contract: \code{id1}/\code{id2}
 (both character) and \code{dissim} (numeric) all present. Dropping any of
 them leaves something that can no longer be described as a pairwise
-similarity table, and the class quietly steps out of the way rather than
-continuing to claim invariants it can no longer keep -- the result is a
-plain tibble, not an error.
+distance table, and the result is a plain tibble, without an error.
 }
 \details{
-Squareness is never checked here, on purpose (see
-\code{\link{distances_assert_square}}): subsetting rows is a normal,
-everyday way to end up with a non-square table, and re-checking that on
-every \code{[} call would outlaw it.
+Squareness is not checked here (see \code{\link{distances_assert_square}}):
+subsetting rows is an everyday way to end up with a non-square table.
 }
 \examples{
 d <- pairwise_distances(data.frame(

@@ -90,9 +90,9 @@ sequences.</p></dd>
 
 
 <dt id="arg-aln-method">aln_method<a class="anchor" aria-label="anchor" href="#arg-aln-method"></a></dt>
-<dd><p>Approach for pairwise similarities between part amino acid
+<dd><p>Approach for pairwise distances between part amino acid
 sequences: <code>"DECIPHER"</code> (default), <code>"Biostrings"</code> or
-<code>"mmseq2"</code>.</p></dd>
+<code>"mmseq2"</code>. See <code><a href="tales_domain_distances.html">tales_domain_distances</a></code>.</p></dd>
 
 
 <dt id="arg-conda-bin">conda_bin<a class="anchor" aria-label="anchor" href="#arg-conda-bin"></a></dt>
@@ -109,23 +109,18 @@ keyed by <code>array_id</code>.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Named for the algorithm, not just historically: <code><a href="tales_compare_functal.html">tales_compare_functal</a></code>
-answers a related but different question – relatedness by predicted DNA-binding
-specificity rather than by domain sequence – so both need a name that says
-which.</p>
-<p>Two products are irreducible and expensive — the pairwise protein alignment
-between distinct domains, and the alignment of the coded arrays. Everything else the
-former <code>tales_compare()</code> (this function's name before the DisTAL/FuncTAL
-split) returned was a projection of its inputs, so this function returns
-only what cannot be recomputed cheaply.</p>
+    <p>The name says which comparison this is: <code><a href="tales_compare_functal.html">tales_compare_functal</a></code>
+compares TALEs by their predicted DNA-binding specificity instead.</p>
+<p>It returns the two expensive products (the pairwise protein alignment
+between distinct domains, and the alignment of the coded arrays) with the
+coded input; anything else is cheap to derive from these.</p>
 <p>This is where <code>dom_code</code> is minted, over the whole set of parts
 supplied, and where <code>tales</code>/<code>domain_distances</code> are stamped with
 a namespace identifying that set — see <code><a href="tales_namespace.html">tales_namespace</a></code>.
 Passing a subset later is safe; re-running on a different part set mints
 different codes, and the differing namespace is what stops the two being
 joined by mistake. <code>tale_distances</code> carries no such stamp: it is
-keyed by <code>array_id</code>, a meaningful name that does not silently
-collide across runs the way a <code>dom_code</code> does.</p>
+keyed by <code>array_id</code>, a name that keeps its meaning across runs.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

@@ -2,7 +2,7 @@
 % Please edit documentation in R/pairwise_distances_class.R
 \name{distances_restrict}
 \alias{distances_restrict}
-\title{Restrict a similarity table to a set of entities}
+\title{Restrict a distance table to a set of entities}
 \usage{
 distances_restrict(x, ids)
 }
@@ -15,8 +15,7 @@ distances_restrict(x, ids)
 A \code{pairwise_distances} over \code{ids} only.
 }
 \description{
-Filters \strong{both} id columns, which is what keeps the result square. The
-package currently does this by hand at three call sites, in two steps.
+Filters \strong{both} id columns, which is what keeps the result square.
 }
 \examples{
 d <- pairwise_distances(data.frame(

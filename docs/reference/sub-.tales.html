@@ -77,21 +77,18 @@ contract holds, otherwise a plain tibble.</p>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
     <p>Row subsetting never breaks anything: every invariant a <code>tales</code>
-checks is closed under keeping a subset of rows, so filtering to one
-array, or to its repeats only, is still a valid <code>tales</code>. Column
-subsetting is where it degrades: dropping <code>array_id</code>, or both
-residue columns (<code>rvd</code>, <code>dom_code</code>) at once, leaves something
-that can no longer be described as a <code>tales</code>, and the class quietly
-steps out of the way rather than continuing to claim invariants it can
-no longer keep – the result is a plain tibble, not an error. Dropping an
-optional column (<code>seqnames</code>, <code>aa_seq</code>, ...) has no such
-consequence. A <code>tales_msa</code> degrades one step at a time: losing
-<code>alignment_position</code> alone steps it back to a plain <code>tales</code>,
-not all the way to a tibble.</p>
+checks still holds on any subset of rows, so filtering to one array, or
+to its repeats only, is still a valid <code>tales</code>. Column subsetting is
+where it degrades: dropping <code>array_id</code>, or both residue columns
+(<code>rvd</code>, <code>dom_code</code>) at once, leaves something that can no
+longer be described as a <code>tales</code>, and the result is a plain tibble,
+without an error. Dropping an optional column (<code>seqnames</code>,
+<code>aa_seq</code>, ...) has no such consequence. A <code>tales_msa</code> degrades
+one step at a time: losing <code>alignment_position</code> alone steps it back
+to a plain <code>tales</code>.</p>
 <p>Attributes travel with a valid subset. <code>dom_code_namespace</code>
-describes the run the codes came from, not which rows happen to be kept
-right now, so cutting an object down with <code>[</code> keeps its namespace
-unchanged.</p>
+describes the run the codes came from, so cutting an object down with
+<code>[</code> keeps its namespace unchanged.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

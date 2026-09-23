@@ -27,11 +27,11 @@ tales_assert_complete(x, arg = "x")
 
 ## Details
 
-This is a **precondition**, not an invariant:
-`filter(x, domain_type == "repeat")` legitimately produces a valid
-`tales` that is no longer complete. Alignment requires completeness,
-because the mapping back from a MAFFT alignment is positional — the k-th
-aligned residue is the k-th part fed in.
+Completeness is a **precondition** of some functions; the class itself
+does not require it: `filter(x, domain_type == "repeat")` legitimately
+produces a valid `tales` that is no longer complete. Alignment requires
+completeness, because the mapping back from a MAFFT alignment is
+positional — the k-th aligned residue is the k-th part fed in.
 
 ## See also
 

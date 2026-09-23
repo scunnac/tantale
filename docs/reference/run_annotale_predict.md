@@ -1,6 +1,6 @@
-# Runs the "predict" and "analyze" steps of AnnoTALE on a fasta file.
+# Runs the "predict" and "analyze" steps of AnnoTALE on a fasta file
 
-A R wrapper around the
+An R wrapper around the
 [AnnoTALE](https://www.ncbi.nlm.nih.gov/pubmed/26876161) 'AnnoTALE.jar
 predict' and 'AnnoTALE.jar analyze' shell calls. The whole AnnoTALE
 workflow can be completed by a subsequent call to the
@@ -28,7 +28,7 @@ run_annotale_predict(
 
 - output_dir:
 
-  Directory where output will be written (created if does not exist).
+  Directory where output will be written (created if it does not exist).
 
 - prefix:
 
@@ -63,13 +63,13 @@ run_annotale_predict(fasta, output_dir = out)
 #>   java -jar
 #>   /home/cunnac/Lab-Related/MyScripts/tantale/inst/tools/AnnoTALEcli-1.5.jar
 #>   predict g=/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/MAI1.fa
-#>   s=MAI1 outdir=/tmp/RtmpRyXdWZ/annotale_predict_example/Predict
+#>   s=MAI1 outdir=/tmp/RtmpQGqF0J/annotale_predict_example/Predict
 #> Running AnnoTALE analyze for "MAI1"
 #>   java -jar
 #>   /home/cunnac/Lab-Related/MyScripts/tantale/inst/tools/AnnoTALEcli-1.5.jar
 #>   analyze
-#>   t='/tmp/RtmpRyXdWZ/annotale_predict_example/Predict/TALE_DNA_sequences_(MAI1).fasta'
-#>   outdir='/tmp/RtmpRyXdWZ/annotale_predict_example/Analyze'
+#>   t='/tmp/RtmpQGqF0J/annotale_predict_example/Predict/TALE_DNA_sequences_(MAI1).fasta'
+#>   outdir='/tmp/RtmpQGqF0J/annotale_predict_example/Analyze'
 list.files(file.path(out, "Predict"))
 #> [1] "GFF__TALE_predictions_(MAI1).gff3"   "Genbank__TALE_predictions_(MAI1).gb"
 #> [3] "TALE_DNA_sequences_(MAI1).fasta"     "TALE_protein_sequences_(MAI1).fasta"

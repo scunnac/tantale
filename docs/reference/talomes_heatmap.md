@@ -1,11 +1,18 @@
-# Heatmap plotting of rvd sequence variants
+# Heatmap of RVD sequence variants across strains and TALE groups
 
-The function creates a graphical presentation from a tale annotation
-table. The output is like a heatmap that presents rvd sequence variants
-in Tal groups as column and respective strains as rows (or vice versa).
-It is different from a typical heatmap that it can display more than one
-value in a cell; for example, if one strain has 2 rvd sequence variants
-belong to 1 group, it will be displayed by 2 colors in 1 cell.
+Draws a talome overview: one column per TALE group, one row per strain,
+each cell showing which RVD sequence variant that strain carries in that
+group. A strain's talome is its whole complement of TALEs, so the plot
+shows at a glance which groups each strain has and where strains carry
+different variants of the same TALE.
+
+Within a group, variants are ranked by how many strains carry them, and
+the cell colour is that rank (the first colour is the most common
+variant). The `#` after each group label counts its distinct variants. A
+grey cell means the strain has no member in that group. A cell can hold
+several colours side by side when a strain carries more than one variant
+in the same group. Dendrograms order strains and groups by the
+similarity of their variant profiles.
 
 ## Usage
 
@@ -34,39 +41,37 @@ talomes_heatmap(
 
 - tale_annotation:
 
-  a data frame containing at least 3 columns for Tal groups, strain
-  names, and rvd seqs, and 1 row is 1 Tal.
+  A data frame with one row per TALE and at least a group, a strain and
+  an RVD-sequence column.
 
 - group_col:
 
-  "character", column name of `tale_annotation` to be displayed as
-  columns in the heatmap (e.g. tal groups).
+  Name of the `tale_annotation` column holding TALE groups, drawn as
+  columns (e.g. the `group` from
+  [`tales_group_kmedoids`](https://scunnac.github.io/tantale/reference/tales_group_kmedoids.md)).
 
 - strain_col:
 
-  "character", column name of `tale_annotation` to be displayed as rows
-  in the heatmap (e.g. strain names).
+  Name of the column holding strain names, drawn as rows.
 
 - rvd_col:
 
-  "character", column name for rvdseqs in the `tale_annotation`
+  Name of the column holding RVD sequences (e.g. from
+  [`tales_rvd_strings`](https://scunnac.github.io/tantale/reference/tales_rvd_strings.md)).
 
 - trunc_tales_col:
 
-  (optional, default = NULL) "character", column name of
-  `tale_annotation` labeling the truncTales by TRUE/FALSE value. The
-  truncTales are labeled by "T" in the heatmap cells, but if this
-  argument is called.
+  Optional name of a logical column marking truncated TALEs; those are
+  labelled "T" in their cell (with `plot_type = "all"`).
 
 - extra_col:
 
-  (optional, default = NULL) "character", column name of
-  `tale_annotation` containing other information (e.g. origin). It will
-  be presented in a side bar on the right of the heatmap.
+  Optional name of a column with further information about each strain
+  (e.g. origin), drawn as a side bar on the right.
 
 - x_lab, y_lab, title:
 
-  character for x axis, y axis names and title
+  Axis names and plot title.
 
 - plot_type:
 
@@ -75,31 +80,29 @@ talomes_heatmap(
 
 - colors:
 
-  character vector of colors for the cells.
+  Character vector of colours for the variant ranks.
 
 - margins:
 
-  margin of the heatmap for row dendrogram, col dendrogram, rownames,
-  colnames, respectively. (by default, c(5, 5, 3, 3)).
+  Margins for the row dendrogram, column dendrogram, row names and
+  column names, in that order. Default `c(5, 5, 3, 3)`.
 
 - sep_width:
 
-  numeric value for the width of separator between adjacent cells.
+  Width of the separator between adjacent cells.
 
 - sep_color:
 
-  character of color for the separator between adjacent cells
+  Colour of the separator between adjacent cells.
 
 - inner_sep_color:
 
-  character of color for the separator between colors within 1 cell if
-  there are more than 1.
+  Colour of the separator between variants within one cell.
 
 - save_path:
 
-  (optional) file path to save the plot, format of the image depends on
-  the file extension. If save_path is NULL, the heatmap will be printed.
-  If save_path is specified, the image file will be created.
+  Optional file path; the image format follows the file extension. If
+  `NULL` (default), the heatmap is drawn on the current device.
 
 ## Value
 

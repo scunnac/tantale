@@ -1,7 +1,8 @@
-# Create a pairwise similarity table
+# Create a pairwise distance table
 
-The long form of a square pairwise similarity over one entity set: one
-row per ordered pair of entities, with a `sim` score.
+The long form of a square pairwise distance over one entity set: one row
+per ordered pair of entities, with a `dissim` value (0 for identical
+entities, larger for more different ones).
 
 ## Usage
 
@@ -38,9 +39,16 @@ A validated `pairwise_distances` object.
 ## Details
 
 `tale_distances()` and `domain_distances()` are the entity-specific
-flavours: similarity between whole TALE arrays, and between distinct
-domains – repeats and the two termini alike. They add no structure, only
-semantics — every method is written once on the parent.
+flavours: distances between whole TALE arrays, and between distinct
+domains, repeats and the two termini alike. For `domain_distances`,
+`dissim` is the percentage of amino acids that differ between two
+domains (see
+[`tales_domain_distances`](https://scunnac.github.io/tantale/reference/tales_domain_distances.md));
+for `tale_distances`, it is the array alignment cost between two TALEs
+(see
+[`tales_tale_distances`](https://scunnac.github.io/tantale/reference/tales_tale_distances.md)).
+The two flavours add no structure, only meaning: every method is written
+once on the parent.
 
 Legacy column spellings (`TAL1`/`TAL2`, `RepU1`/`RepU2`, `Sim`,
 `Dissim`, `arlemScore`, ...) are renamed on the way in.

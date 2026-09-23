@@ -1,9 +1,7 @@
-# Generate a mapping between Distal repeat IDs and their cognate RVD.
+# Generate a mapping between Distal repeat IDs and their cognate RVD
 
-Uses Distal repeat sequences and RVD sequences from a set of TALEs
-analyzed with the
-[`tales_compare_distal`](https://scunnac.github.io/tantale/reference/tales_compare_distal.md)
-function to return the association between repeat ID and RVD.
+Returns the association between each domain code (`dom_code`) and its
+RVD, one row per distinct pair.
 
 ## Usage
 
@@ -15,9 +13,11 @@ repeat_to_rvd_map_distalr(tale_parts)
 
 - tale_parts:
 
-  The tale_parts object in a
-  [`tales_compare_distal`](https://scunnac.github.io/tantale/reference/tales_compare_distal.md)
-  output.
+  A [`tales`](https://scunnac.github.io/tantale/reference/tales.md)
+  object or data frame with `dom_code` and `rvd` columns, such as the
+  `tales` element of
+  [`tales_compare_distal`](https://scunnac.github.io/tantale/reference/tales_compare_distal.md)'s
+  result.
 
 ## Value
 

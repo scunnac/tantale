@@ -55,23 +55,27 @@ new_pairwise_distances <- function(x, subclass = NULL, dom_code_namespace = NULL
   x
 }
 
-#' Is this a pairwise similarity table?
+#' Is this a pairwise distance table?
 #' @param x An object.
 #' @return A logical scalar.
 #' @export
 #' @family pairwise distances
 is_pairwise_distances <- function(x) inherits(x, "pairwise_distances")
 
-#' Create a pairwise similarity table
+#' Create a pairwise distance table
 #'
-#' The long form of a square pairwise similarity over one entity set: one row
-#' per ordered pair of entities, with a \code{sim} score.
+#' The long form of a square pairwise distance over one entity set: one row
+#' per ordered pair of entities, with a \code{dissim} value (0 for identical
+#' entities, larger for more different ones).
 #'
-#' \code{tale_distances()} and \code{domain_distances()} are the entity-specific flavours:
-#' similarity between whole TALE arrays, and between distinct domains --
-#' repeats and the two termini alike.
-#' They add no structure, only semantics — every method is written once on the
-#' parent.
+#' \code{tale_distances()} and \code{domain_distances()} are the
+#' entity-specific flavours: distances between whole TALE arrays, and between
+#' distinct domains, repeats and the two termini alike. For
+#' \code{domain_distances}, \code{dissim} is the percentage of amino acids
+#' that differ between two domains (see \code{\link{tales_domain_distances}});
+#' for \code{tale_distances}, it is the array alignment cost between two TALEs
+#' (see \code{\link{tales_tale_distances}}). The two flavours add no
+#' structure, only meaning: every method is written once on the parent.
 #'
 #' Legacy column spellings (\code{TAL1}/\code{TAL2}, \code{RepU1}/\code{RepU2},
 #' \code{Sim}, \code{Dissim}, \code{arlemScore}, ...) are renamed on the way in.
@@ -172,12 +176,12 @@ domain_distances <- function(x, dom_code_namespace = NULL) {
 
 #### Validator ####
 
-#' Validate a pairwise similarity table
+#' Validate a pairwise distance table
 #'
 #' Checks the column contract, and nothing else. Squareness, the diagonal and
-#' symmetry are deliberately *not* checked here: the package filters these
-#' tables asymmetrically on purpose, so those properties are preconditions of
-#' the methods that need them — see \code{\link{distances_assert_square}}.
+#' symmetry are preconditions of the methods that need them, checked by
+#' \code{\link{distances_assert_square}}: a table filtered on one id column is
+#' a legitimate intermediate step.
 #'
 #' @param x A \code{pairwise_distances} object.
 #' @return \code{x}, invisibly, if valid; otherwise an error.
@@ -217,18 +221,16 @@ validate_pairwise_distances <- function(x) {
 
 #### Preconditions ####
 
-#' Assert that a similarity table is complete and square
+#' Assert that a distance table is complete and square
 #'
 #' Checks that the table holds every ordered pair of the ids it contains —
 #' \code{n^2} rows for \code{n} ids. Phrased over the ids *present*, so that a
 #' symmetric subset stays square: filtering both id columns to the same set of
 #' entities preserves this, while filtering one of them does not.
 #'
-#' A **precondition**, not an invariant. \code{conversion.R} filters on
-#' \code{id1} alone inside a loop over alignment columns, and \code{msa.R}
-#' filters the two id columns in succession, passing through a non-square
-#' intermediate. Both are correct; enforcing squareness everywhere would
-#' outlaw them.
+#' Squareness is a **precondition** of the functions that need it. The class
+#' itself does not require it, because filtering the two id columns one
+#' after the other passes through a legitimate non-square intermediate.
 #'
 #' @param x A \code{pairwise_distances} object.
 #' @param arg Name of the argument being checked, for the error message.
@@ -268,16 +270,14 @@ distances_assert_square <- function(x, arg = "x") {
 
 #### Views ####
 
-#' Render a similarity table as a square matrix
+#' Render a distance table as a square matrix
 #'
 #' Materialises the wide form, with ids as both row and column names, sorted.
-#' This replaces the hand-written \code{acast(x, id1 ~ id2, value.var = "sim")}
-#' that appears at four call sites in the package.
 #'
 #' \code{x} must be square (see \code{\link{distances_assert_square}}, called
-#' here for you) -- every id present in both \code{id1} and \code{id2}. A
-#' table that has been filtered on one id column only, rather than both,
-#' will not be.
+#' here for you): every id present in both \code{id1} and \code{id2}. A table
+#' filtered on one id column only is not; use
+#' \code{\link{distances_restrict}} to filter both.
 #'
 #' @param x A \code{pairwise_distances} object.
 #' @param value Name of the column to fill cells with. Defaults to
@@ -310,10 +310,9 @@ as.matrix.pairwise_distances <- function(x, value = PAIRWISE_DISTANCES_VALUE_COL
   m
 }
 
-#' Restrict a similarity table to a set of entities
+#' Restrict a distance table to a set of entities
 #'
-#' Filters **both** id columns, which is what keeps the result square. The
-#' package currently does this by hand at three call sites, in two steps.
+#' Filters **both** id columns, which is what keeps the result square.
 #'
 #' @param x A \code{pairwise_distances} object.
 #' @param ids A character vector of entity ids to keep.
@@ -368,14 +367,10 @@ dplyr_reconstruct.pairwise_distances <- function(data, template) {
 #' only while the result still satisfies the contract: \code{id1}/\code{id2}
 #' (both character) and \code{dissim} (numeric) all present. Dropping any of
 #' them leaves something that can no longer be described as a pairwise
-#' similarity table, and the class quietly steps out of the way rather than
-#' continuing to claim invariants it can no longer keep -- the result is a
-#' plain tibble, not an error.
+#' distance table, and the result is a plain tibble, without an error.
 #'
-#' Squareness is never checked here, on purpose (see
-#' \code{\link{distances_assert_square}}): subsetting rows is a normal,
-#' everyday way to end up with a non-square table, and re-checking that on
-#' every \code{[} call would outlaw it.
+#' Squareness is not checked here (see \code{\link{distances_assert_square}}):
+#' subsetting rows is an everyday way to end up with a non-square table.
 #'
 #' @param x A \code{pairwise_distances} object.
 #' @param ... Passed on to the tibble/data frame method.

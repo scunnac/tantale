@@ -28,8 +28,8 @@ side effect.
 }
 \description{
 A compact, information-rich view of the arrays in a \code{tales} object: one
-point per part, positioned by its place in the array, coloured by domain type
-and filled by amino-acid length, with the RVD printed on each repeat.
+point per part, positioned by its place in the array, outlined by domain
+type and filled by amino-acid length, with the RVD printed on each repeat.
 
 A \code{\link{tales_msa}} dispatches to \code{\link{plot.tales_msa}}
 instead, being the more specific class.

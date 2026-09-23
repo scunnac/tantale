@@ -25,34 +25,31 @@ A validated \code{\link{tales}} object.
 Row-binds one or more \code{\link{tales}} objects into one, reconciling
 the invariants that a plain \code{\link[dplyr]{bind_rows}} would not check:
 \code{array_id} uniqueness across inputs, the \code{dom_code} namespace,
-and the \code{group} column. A single input is accepted -- it round-trips
-through the same reconciliation and re-validation, harmlessly, rather
-than being rejected as too few to "bind".
+and the \code{group} column. A single input is accepted: it goes through
+the same reconciliation and re-validation, harmlessly.
 }
 \details{
-Not named \code{c.tales()} for two reasons: base \code{c()} dispatch is
-leaky (mixing a \code{tales} with an unrelated object can silently drop
-attributes rather than error, the wrong failure mode for a class whose
-point is invariants that must not go silent), and
-\code{on_namespace_mismatch} has no room in \code{c()}'s signature.
+There is no \code{c()} method: base \code{c()} can silently drop
+attributes when a \code{tales} is mixed with another object, and its
+signature has no room for \code{on_namespace_mismatch}.
 
-\code{tales_msa} inputs are refused rather than silently demoted --
-\code{alignment_width}/\code{alignment_position} are a coordinate system
+\code{tales_msa} inputs are refused: \code{alignment_width} and
+\code{alignment_position} are a coordinate system
 specific to one alignment run, and binding two runs' matrices would
 produce an object that misdescribes what a given column means in each
 row. Demote explicitly with \code{\link{as_tales}} first if that is really
 what you want.
 
-\code{group} is dropped from the result whenever present on any input, not
-reconciled: it is a clustering result over one specific distance matrix
-and one specific set of arrays, so two "group 1"s from separate
+\code{group} is dropped from the result whenever present on any input: it
+is a clustering result over one specific distance matrix and one specific
+set of arrays, so two "group 1"s from separate
 \code{\link{tales_group_hclust}}/\code{\link{tales_group_kmedoids}} calls
-are not comparable, not merely at risk of colliding. Recompute it with
+are not comparable. Recompute it with
 either on the bound result, after re-running \code{\link{tales_compare_distal}}.
 
 \code{tale_distances}/\code{domain_distances} are untouched: this function
 only binds \code{tales} data. A companion distance table from either input
-does not describe the bound object -- re-run \code{\link{tales_compare_distal}}
+does not describe the bound object; re-run \code{\link{tales_compare_distal}}
 if you need one.
 }
 \examples{

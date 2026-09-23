@@ -17,25 +17,26 @@ Step 1 of \code{\link[=tales_compare_distal]{tales_compare_distal()}}. Gives eac
 integer code, recorded in a \code{dom_code} column, so that the parts can be
 compared once each rather than once per occurrence.
 
-A code names a distinct \strong{domain} sequence, not a repeat: the N- and
-C-termini are parts like the repeats are, and they get codes too.
+A code names a distinct \strong{domain} sequence, repeats and termini alike:
+the N- and C-termini are parts like the repeats are, and they get codes
+too.
 }
 \details{
 TALEs reuse domains heavily, within an array and between arrays, so the
 number of distinct sequences is far smaller than the number of parts. That
-ratio is what makes \code{\link[=tales_domain_distances]{tales_domain_distances()}} affordable -- it compares
-distinct domains, not parts.
+ratio is what makes \code{\link[=tales_domain_distances]{tales_domain_distances()}} affordable: it compares each
+distinct domain once.
 }
 \section{The codes are only meaningful within one call}{
 
 Codes are assigned with \code{\link[dplyr:cur_group_id]{dplyr::cur_group_id()}} over the distinct \code{aa_seq}
 values \strong{present in \code{x}}. Add an array, remove one, or reorder the
 sequences, and the same protein can get a different number. They are
-positions in this table's own vocabulary, not identifiers of anything.
+positions in this table's own vocabulary.
 
-So \strong{comparing codes between two calls is an error}, and a similarity
+So \strong{comparing codes between two calls is an error}, and a distance
 table keyed by one call's codes must never be used with another call's.
-This is not a caution to remember: it is enforced. Every object minted
+This is enforced: every object minted
 here is stamped with a \code{dom_code_namespace} derived from the sequences
 that produced it, and the classes refuse to join across namespaces. Read
 the stamp with \code{\link[=tales_namespace]{tales_namespace()}}.

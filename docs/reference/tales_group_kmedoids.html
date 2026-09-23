@@ -95,8 +95,7 @@ must be between 1 and one less than the number of arrays being grouped
 
 <dt id="arg-seed">seed<a class="anchor" aria-label="anchor" href="#arg-seed"></a></dt>
 <dd><p>Passed to <code><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed()</a></code> before every <code><a href="https://rdrr.io/pkg/cluster/man/pam.html" class="external-link">cluster::pam()</a></code>
-call, so the same candidate always clusters the same way. Previously a
-hardcoded <code>7</code>; now a documented, overridable default.</p></dd>
+call, so the same candidate always clusters the same way.</p></dd>
 
 
 <dt id="arg-plot-silhouette">plot_silhouette<a class="anchor" aria-label="anchor" href="#arg-plot-silhouette"></a></dt>
@@ -121,15 +120,15 @@ object is the kind of thing that fails much later and confusingly.</p>
 <p>The bare mapping is still one line away if you want it:
 <code>unique(out[c("array_id", "group")])</code>.</p>
 <p>Unlike a hierarchical tree, PAM has no single structure that can be cut at
-an arbitrary <code>k</code> after the fact – <code>k</code> is a parameter to the clustering
+an arbitrary <code>k</code> after the fact: <code>k</code> is a parameter of the clustering
 itself. So one clustering is computed per candidate in <code>k_range</code>, and <code>k</code>
 picks which of those to keep:</p><ul><li><p><code>k</code> a single number uses that candidate directly.</p></li>
-<li><p><code>k = "auto"</code> picks the elbow of the silhouette-vs-k curve (a partial,
-first-step application of the Kneedle algorithm – see
-<code>.tales_group_kmedoids_elbow()</code> – good enough in practice to be worth
-keeping, not a validated implementation of the full method).</p></li>
+<li><p><code>k = "auto"</code> picks the elbow of the silhouette-vs-k curve, the point
+after which adding groups stops improving the fit much. It uses the
+first step of the Kneedle algorithm only, a practical heuristic; check
+the silhouette plot when the choice matters.</p></li>
 <li><p><code>k = NULL</code> (the default) shows the silhouette plot and asks for a number
-at the console – but only when <code><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive()</a></code> is <code>TRUE</code>.
+at the console, but only when <code><a href="https://rdrr.io/r/base/interactive.html" class="external-link">interactive()</a></code> is <code>TRUE</code>.
 In a script, a test or a vignette render, <code>k = NULL</code> errors instead of
 blocking on input that will never arrive.</p></li>
 </ul></div>

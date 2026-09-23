@@ -62,12 +62,14 @@ row per repeat, to build an array's position weight matrix.</p>
     <div class="section level2">
     <h2 id="format">Format<a class="anchor" aria-label="anchor" href="#format"></a></h2>
     <p>A tibble with 404 rows and 5 columns:</p><dl><dt>rvd</dt>
-<dd><p>The two-letter RVD code (or the anchor codes <code>"XX"</code>,
-an unrecognised RVD's fallback, and <code>"H*"</code>/<code>"N*"</code>).</p></dd>
+<dd><p>The two-letter RVD code. <code>"N*"</code> and <code>"H*"</code> are
+RVDs whose residue 13 is missing; <code>"OO"</code> is position 0, the base
+just before the first repeat's target, where TALEs prefer a T;
+<code>"XX"</code> is the flat fallback row used for an unrecognised RVD.</p></dd>
 
 <dt>A, C, G, T</dt>
-<dd><p>Relative binding weight for that base. Not
-normalised to sum to one – <code><a href="tales_compare_functal.html">tales_compare_functal</a></code> hands
+<dd><p>Relative binding weight for that base. The weights
+do not sum to one: <code><a href="tales_compare_functal.html">tales_compare_functal</a></code> hands
 them to <code><a href="https://rdrr.io/pkg/universalmotif/man/create_motif.html" class="external-link">create_motif</a></code> as
 raw counts (<code>type = "PCM"</code>), which normalises internally.</p></dd>
 
@@ -75,9 +77,9 @@ raw counts (<code>type = "PCM"</code>), which normalises internally.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>Ported verbatim from QueTAL FuncTAL's own table
-(<code>inst/tools/QueTAL_v1.1/FuncTAL/Info/2014mat18</code>) – the values are
-unchanged, only a header and column names added. Conceptually related to
+    <p>Taken verbatim from QueTAL FuncTAL's own table (shipped as
+<code>legacy/QueTAL_v1.1/FuncTAL/Info/2014mat18</code> in the installed
+package): the values are unchanged, only a header and column names added. Conceptually related to
 but distinct from the internal <code>rvdSimDf</code> used by
 <code><a href="tales_align.html">tales_align</a></code>'s RVD scoring: that one is a <em>derived</em>
 RVD-vs-RVD similarity (a correlation between two RVDs' base-preference
@@ -85,8 +87,8 @@ profiles, itself built from TALVEZ's much smaller 17-RVD <code>mat1</code>),
 used to score repeat <em>substitutions</em> during sequence alignment. This one
 is the <em>raw</em>, per-RVD base preference itself, one level upstream, used to
 build a whole array's binding-specificity model for comparison against
-another array's – a different consumer, and not interchangeable with
-<code>rvdSimDf</code>.</p>
+another array's. The two tables serve different consumers and cannot
+replace each other.</p>
     </div>
     <div class="section level2">
     <h2 id="references">References<a class="anchor" aria-label="anchor" href="#references"></a></h2>

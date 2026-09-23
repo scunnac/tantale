@@ -7,7 +7,8 @@
 tale_parts_to_rvd(tale_parts, sep = "-", rvd_only = FALSE)
 }
 \arguments{
-\item{tale_parts}{The tale_parts object in a \code{\link{tales_compare_distal}} output.}
+\item{tale_parts}{A \code{\link{tales}} object or data frame with
+\code{array_id}, \code{position_in_array} and \code{rvd} columns.}
 
 \item{sep}{Separator joining consecutive RVDs within an array's string.}
 
@@ -18,8 +19,7 @@ A \code{\link[Biostrings]{BStringSet}}, one element per array,
 named by \code{array_id}.
 }
 \description{
-Uses a tale_parts object in a \code{\link{tales_compare_distal}} output
-to return a \code{\link[Biostrings]{BStringSet}} of RVD sequences, one per
+Returns a \code{\link[Biostrings]{BStringSet}} of RVD sequences, one per
 array, ordered by \code{position_in_array} and joined with \code{sep}.
 }
 \examples{

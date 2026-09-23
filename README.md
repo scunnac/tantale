@@ -55,9 +55,8 @@ pak::pkg_install("scunnac/tantale", dependencies = TRUE, upgrade = FALSE)
 
 ### 2. Make sure conda is available
 
-tantale does not bundle the programs it drives. MAFFT, HMMER, mmseqs2 and the
-Perl dependencies of the target predictors come from a conda environment the
-package builds for itself, so **conda (or mamba, or micromamba) is a
+MAFFT, HMMER, mmseqs2 and the Perl dependencies of the target predictors come
+from a conda environment the package builds for itself, so **conda (or mamba, or micromamba) is a
 prerequisite of the main workflow**.
 
 You do not have to install it by hand or know anything about it. If you have

@@ -105,12 +105,12 @@ object is the kind of thing that fails much later and confusingly.</p>
 <code>unique(out[c("array_id", "group")])</code>.</p>
 <p>The tree is built directly on the distances
 (<code>stats::hclust(stats::as.dist(distMat))</code>), matching the original
-DisTAL clustering this package reimplements – not the Euclidean distance
-between TALEs' distance <em>profiles</em>, which groups arrays that relate to the
-rest of the population similarly rather than arrays that are directly
-close to each other. Cut with <code>stats::cutree(tree, k = k)</code>, which
-always succeeds, including when a tie in merge heights would make a
-height-based cut ambiguous.</p>
+DisTAL clustering this package reimplements, so arrays that are close to
+each other end up together. (A Euclidean distance between the arrays'
+distance <em>profiles</em> would instead group arrays that relate to the rest of
+the population in the same way.) The tree is cut with
+<code>stats::cutree(tree, k = k)</code>, which always succeeds, including when
+a tie in merge heights would make a height-based cut ambiguous.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

@@ -1,9 +1,7 @@
-# Render a similarity table as a square matrix
+# Render a distance table as a square matrix
 
 Materialises the wide form, with ids as both row and column names,
-sorted. This replaces the hand-written
-`acast(x, id1 ~ id2, value.var = "sim")` that appears at four call sites
-in the package.
+sorted.
 
 ## Usage
 
@@ -34,9 +32,10 @@ A numeric matrix, square, with sorted ids as dimnames.
 
 `x` must be square (see
 [`distances_assert_square`](https://scunnac.github.io/tantale/reference/distances_assert_square.md),
-called here for you) – every id present in both `id1` and `id2`. A table
-that has been filtered on one id column only, rather than both, will not
-be.
+called here for you): every id present in both `id1` and `id2`. A table
+filtered on one id column only is not; use
+[`distances_restrict`](https://scunnac.github.io/tantale/reference/distances_restrict.md)
+to filter both.
 
 ## See also
 

@@ -19,9 +19,9 @@
 A character vector, one element per line.
 }
 \description{
-As \code{\link{format.tales}}, plus the alignment width, and a preview that
-shows aligned rows rather than bare sequences: gaps are drawn and every
-cell padded to a common width, so the columns line up down the page.
+As \code{\link{format.tales}}, plus the alignment width, and a preview of
+aligned rows: gaps are drawn and every cell padded to a common width, so
+the columns line up down the page.
 }
 \examples{
 aligned <- data.frame(

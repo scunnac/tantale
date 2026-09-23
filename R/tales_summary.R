@@ -29,16 +29,17 @@
 #'
 #' @details
 #' \strong{Distinct domains} counts different \code{dom_code}s against the
-#' number of parts, broken down by domain type. \emph{Domains}, not repeats:
-#' a \code{dom_code} identifies any distinct part sequence, and the two
-#' termini are parts like the repeats are. On the reference fixture 251
-#' distinct codes cover 180 repeats and 71 termini, so calling the total a
-#' repeat count would overstate it by nearly a third.
+#' number of parts, broken down by domain type. These are \emph{domains},
+#' repeats and termini alike: a \code{dom_code} identifies any distinct part
+#' sequence, and the two termini are parts like the repeats are. In the
+#' example output shipped with the package (see \code{\link{tales_from_telltale}}),
+#' 47 distinct codes cover 39 repeats and 8 termini, so reading the total as a
+#' count of distinct repeats would overstate repeat diversity.
 #'
 #' The ratio to parts is a property of the biology: TALEs reuse repeats
 #' heavily, within an array and between arrays. It is also what decides the
-#' cost of \code{\link{tales_compare_distal}}, whose pairwise comparison runs over
-#' distinct domains rather than over parts.
+#' cost of \code{\link{tales_compare_distal}}, whose pairwise comparison runs
+#' over distinct domains.
 #'
 #' \strong{Repeats per array} counts repeats only, excluding the termini, so
 #' it is the number that determines how long a target box each TALE
@@ -47,13 +48,13 @@
 #' larger by up to two.
 #'
 #' \strong{Complete arrays} are those where both an N- and a C-terminus were
-#' identified. An incomplete one is not necessarily wrong -- the array may sit
-#' at the end of a contig, or a terminus may simply not have been detected --
-#' but it is the precondition several downstream functions depend on.
+#' identified. An incomplete one is not necessarily wrong (the array may sit
+#' at the end of a contig, or a terminus may simply not have been detected),
+#' but completeness is a precondition several downstream functions depend on.
 #'
-#' \strong{Anomalies} come from \code{\link{tales_anomalies}}, and are the
-#' reason this is a \code{summary()} rather than part of printing: they are
-#' worth computing, and too slow to compute every time an object is echoed.
+#' \strong{Anomalies} come from \code{\link{tales_anomalies}}. They are
+#' worth computing but too slow to compute every time an object is printed,
+#' which is why they appear here.
 #'
 #' @param object A \code{\link{tales}} object.
 #' @param ... Unused.
@@ -157,9 +158,9 @@ print.summary.tales <- function(x, ...) {
 #'
 #' @details
 #' \strong{Columns with no consensus} is the measure worth having. A column
-#' has no consensus when no element is strictly more common than the rest --
-#' see \code{\link{tales_consensus}} -- so the count says how much of the
-#' alignment is agreement and how much is three different answers.
+#' has no consensus when no element is strictly more common than the rest
+#' (see \code{\link{tales_consensus}}), so the count says how much of the
+#' alignment the arrays agree on.
 #'
 #' It is reported per layer, and the two usually differ in a way that means
 #' something. Repeats that are distinct proteins can carry the same RVD, so a

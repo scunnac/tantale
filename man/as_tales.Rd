@@ -14,7 +14,8 @@ as_tales(x, ...)
 }
 \arguments{
 \item{x}{A path to a fasta file, a \code{BStringSet}/\code{AAStringSet}, a
-list of strings, or a data frame (which is passed to \code{\link{tales}}).}
+list of strings, or a data frame (which is passed to \code{\link{tales}},
+including a \code{tales_msa}, which is demoted).}
 
 \item{...}{Passed to methods.}
 
@@ -22,8 +23,8 @@ list of strings, or a data frame (which is passed to \code{\link{tales}}).}
 sequences and \code{" "} for repeat-code strings.}
 
 \item{residue_col}{Which residue column the parsed elements become:
-\code{"rvd"} (default) or \code{"dom_code"}. Given explicitly rather than
-guessed from the values.}
+\code{"rvd"} (default) or \code{"dom_code"}. It is never guessed from
+the values.}
 }
 \value{
 A validated \code{tales} object.
@@ -37,8 +38,13 @@ strings — into a \code{\link{tales}} object, taking sequence order as
 The result is deliberately column-poor: a bare sequence file carries no
 domain types, amino acid sequences or source contigs, so only
 \code{array_id}, \code{position_in_array} and the chosen residue column are
-produced. That is a valid \code{tales} — see \code{dev/class-design.md}
-§2.3 for why \code{seqnames} and the rest are optional.
+produced. That is a valid \code{tales}: \code{seqnames} and the other
+columns are optional.
+
+A \code{tales_msa} passed to \code{as_tales()} is demoted to a plain
+\code{tales}: \code{alignment_position} stays as an ordinary column, and
+the alignment width is dropped (\code{\link{tales_width}} returns
+\code{NULL}).
 }
 \examples{
 rvd_fasta <- system.file("extdata", "TalA_RVDSeqs_AnnoTALE.fasta",

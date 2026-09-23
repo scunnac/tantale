@@ -1,6 +1,6 @@
-# Run TALE target predictions on DNA sequence(s) using PrediTale.
+# Run TALE target predictions on DNA sequence(s) using PrediTale
 
-A R wrapper around the
+An R wrapper around the
 [PrediTale](https://www.jstacs.de/index.php/PrediTALE) 'PrediTALE.jar
 preditale' module. Takes a list of TALE RVD sequences and a fasta file
 of DNA sequences and runs PrediTale.

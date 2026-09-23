@@ -14,9 +14,9 @@ validate_tales_msa(x)
 }
 \description{
 Checks every \code{\link{validate_tales}} invariant, then those specific to
-an alignment. As for \code{tales}, only properties closed under row
-subsetting are checked here; grid completeness is a precondition of the
-functions that need it.
+an alignment. As for \code{tales}, only properties that still hold on any
+subset of rows are checked here; grid completeness is a precondition of
+the functions that need it.
 }
 \seealso{
 Other TALE alignment:

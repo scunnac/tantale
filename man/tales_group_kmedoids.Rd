@@ -27,8 +27,7 @@ must be between 1 and one less than the number of arrays being grouped
 \item{k}{See Details.}
 
 \item{seed}{Passed to \code{set.seed()} before every \code{cluster::pam()}
-call, so the same candidate always clusters the same way. Previously a
-hardcoded \code{7}; now a documented, overridable default.}
+call, so the same candidate always clusters the same way.}
 
 \item{plot_silhouette}{Logical, whether to draw the silhouette-vs-k plot.}
 }
@@ -57,17 +56,17 @@ The bare mapping is still one line away if you want it:
 \code{unique(out[c("array_id", "group")])}.
 
 Unlike a hierarchical tree, PAM has no single structure that can be cut at
-an arbitrary \code{k} after the fact -- \code{k} is a parameter to the clustering
+an arbitrary \code{k} after the fact: \code{k} is a parameter of the clustering
 itself. So one clustering is computed per candidate in \code{k_range}, and \code{k}
 picks which of those to keep:
 \itemize{
 \item \code{k} a single number uses that candidate directly.
-\item \code{k = "auto"} picks the elbow of the silhouette-vs-k curve (a partial,
-first-step application of the Kneedle algorithm -- see
-\code{.tales_group_kmedoids_elbow()} -- good enough in practice to be worth
-keeping, not a validated implementation of the full method).
+\item \code{k = "auto"} picks the elbow of the silhouette-vs-k curve, the point
+after which adding groups stops improving the fit much. It uses the
+first step of the Kneedle algorithm only, a practical heuristic; check
+the silhouette plot when the choice matters.
 \item \code{k = NULL} (the default) shows the silhouette plot and asks for a number
-at the console -- but only when \code{\link{interactive}()} is \code{TRUE}.
+at the console, but only when \code{\link{interactive}()} is \code{TRUE}.
 In a script, a test or a vignette render, \code{k = NULL} errors instead of
 blocking on input that will never arrive.
 }

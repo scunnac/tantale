@@ -2,16 +2,15 @@
 
 The representation
 [`print.tales`](https://scunnac.github.io/tantale/reference/print.tales.md)
-emits, returned as a character vector rather than written out – so an
-object's description can go somewhere other than the console: a log, an
-error message, a report.
+emits, returned as a character vector, so an object's description can go
+somewhere other than the console: a log, an error message, a report.
 
 It shows what the class knows and a tibble would not: the number of
 arrays as distinct from the number of parts, which residue layers the
 object carries, the `dom_code` namespace when it is stamped, and a
 preview of the first and last arrays as sequences.
 
-The preview uses `dom_code` when present and `rvd` otherwise. Repeat
+The preview uses `dom_code` when present and `rvd` otherwise. Domain
 codes are the more discriminating of the two: two arrays can share an
 RVD sequence while being built from different repeats.
 

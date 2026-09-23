@@ -27,12 +27,12 @@ tales(x, dom_code_namespace = NULL, sanitize = FALSE)
 
 - sanitize:
 
-  If `TRUE`, arrays carrying biological anomalies – missing sequences,
-  impossible terminus arrangements, coordinate disagreements – are
-  removed, with a warning naming them and why. If `FALSE` (default) they
-  are kept and merely warned about, so odd predictions can still be
-  loaded and inspected. Structural corruption is an error either way.
-  See
+  If `TRUE`, arrays carrying biological anomalies (the ones
+  [`tales_anomalies`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
+  lists) are removed, with a warning naming them and why. If `FALSE`
+  (default) they are kept and merely warned about, so odd predictions
+  can still be loaded and inspected. Structural corruption is an error
+  either way. See
   [`tales_anomalies`](https://scunnac.github.io/tantale/reference/tales_anomalies.md).
 
 ## Value

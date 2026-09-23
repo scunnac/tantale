@@ -1,5 +1,16 @@
 # tantale (development version)
 
+## Reference pages reviewed
+
+Every exported function's help page was re-read against the code. Among
+the corrections: the `pairwise_distances` family is now described as the
+distance table it is (it stores `dissim`), `repeat_to_rvd_map_distalr()`
+and `tale_parts_to_rvd()` document the input they actually take,
+`rvd_dna_specificity` explains its special rows (`N*`/`H*`, `OO`, `XX`),
+`talomes_heatmap()` explains what its colours mean, and the package page
+and README no longer claim that tantale bundles none of the programs it
+drives (the Java tools ship with it).
+
 ## Array alignment computed in R; the ARLEM executable is no longer bundled
 
 `tales_tale_distances()`, and so `tales_compare_distal()`, aligns the

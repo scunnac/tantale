@@ -33,8 +33,9 @@ tales_compare_distal(
 
 - aln_method:
 
-  Approach for pairwise similarities between part amino acid sequences:
-  `"DECIPHER"` (default), `"Biostrings"` or `"mmseq2"`.
+  Approach for pairwise distances between part amino acid sequences:
+  `"DECIPHER"` (default), `"Biostrings"` or `"mmseq2"`. See
+  [`tales_domain_distances`](https://scunnac.github.io/tantale/reference/tales_domain_distances.md).
 
 - conda_bin:
 
@@ -56,17 +57,13 @@ A list of three objects, all describing the same run:
 
 ## Details
 
-Named for the algorithm, not just historically:
+The name says which comparison this is:
 [`tales_compare_functal`](https://scunnac.github.io/tantale/reference/tales_compare_functal.md)
-answers a related but different question – relatedness by predicted
-DNA-binding specificity rather than by domain sequence – so both need a
-name that says which.
+compares TALEs by their predicted DNA-binding specificity instead.
 
-Two products are irreducible and expensive — the pairwise protein
-alignment between distinct domains, and the alignment of the coded
-arrays. Everything else the former `tales_compare()` (this function's
-name before the DisTAL/FuncTAL split) returned was a projection of its
-inputs, so this function returns only what cannot be recomputed cheaply.
+It returns the two expensive products (the pairwise protein alignment
+between distinct domains, and the alignment of the coded arrays) with
+the coded input; anything else is cheap to derive from these.
 
 This is where `dom_code` is minted, over the whole set of parts
 supplied, and where `tales`/`domain_distances` are stamped with a
@@ -75,8 +72,7 @@ namespace identifying that set — see
 Passing a subset later is safe; re-running on a different part set mints
 different codes, and the differing namespace is what stops the two being
 joined by mistake. `tale_distances` carries no such stamp: it is keyed
-by `array_id`, a meaningful name that does not silently collide across
-runs the way a `dom_code` does.
+by `array_id`, a name that keeps its meaning across runs.
 
 ## References
 

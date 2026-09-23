@@ -76,12 +76,12 @@ plot(
 
   One of `"domain_clust"`, `"domain_sim"` or `"rvd_sim"`. The first two
   colour cells by domain cluster or by protein-sequence similarity to
-  the reference – across every distinct part, termini included, not
-  repeats specifically (see Details). `"rvd_sim"` colours them instead
-  by how alike each RVD's *DNA-binding preference* is to the reference
-  TALE's RVD at that position, on a diverging scale over `[-1, 1]`. The
-  domain- and RVD-level views genuinely differ: `HD` and `ND` are
-  distinct domains with identical specificity, while domains differing
+  the reference, for every distinct part, termini included (see
+  Details). `"rvd_sim"` colours them instead by how alike each RVD's
+  *DNA-binding preference* is to the reference TALE's RVD at that
+  position, on a diverging scale over `[-1, 1]`. The domain- and
+  RVD-level views genuinely differ: repeats carrying `HD` and `ND`
+  differ in sequence yet both favour cytosine, while repeats differing
   only at positions 12-13 are near-identical proteins targeting
   different bases.
 
@@ -99,9 +99,9 @@ effect: a `ggplot` normally, or, when `tale_distances` and/or
 
 ## Details
 
-A `tales_msa` carries every layer at once – `rvd`, `dom_code` and
-whatever else the object holds – so `fill` and `label` name two of them
-rather than being passed as separate matrices.
+A `tales_msa` carries every layer at once (`rvd`, `dom_code` and
+whatever else the object holds), so `fill` and `label` simply name two
+of them.
 
 Three things are decided independently, and it helps to read the figure
 that way: what each cell *says*, what colour that text is, and what
@@ -109,14 +109,15 @@ colour the block behind it is.
 
 **Cell text** is whatever `label` names, or nothing when `label = NULL`.
 Termini are relabelled `N-` and `-C`; an unidentified terminus keeps its
-`XXXXX` code, which is deliberately not mistakable for an RVD. Repeat
+`XXXXX` code, which is deliberately not mistakable for an RVD. Domain
 codes are padded to three characters so columns line up.
 
 **Text colour** always answers one question: does this element match the
-consensus of its column? Cyan for yes, pink for no. The consensus is the
-most frequent element in the column
+consensus of its column? Cyan for yes, pink for no, grey where the
+column has no consensus (a gap, or a tie). The consensus is the most
+frequent element in the column
 ([`tales_consensus`](https://scunnac.github.io/tantale/reference/tales_consensus.md)),
-taken over the labelled layer – so the text colour and the text itself
+taken over the labelled layer, so the text colour and the text itself
 always describe the same thing.
 
 **Block fill** is what `fill_type` selects, and it is the only part that
@@ -130,9 +131,9 @@ can be unavailable:
 | `"rvd_sim"`      | how alike the RVD's DNA-binding preference is to the reference's, -1 to 1 | a `label` layer    |
 
 Every value here scores across the whole `tales_msa`, termini included:
-`domain_distances` covers every distinct part sequence, not repeats
-specifically, and `"domain_clust"`/`"domain_sim"` colour a terminus cell
-exactly like a repeat cell.
+`domain_distances` covers every distinct part sequence, and
+`"domain_clust"`/`"domain_sim"` colour a terminus cell exactly like a
+repeat cell.
 
 With no `domain_distances` and no `label`, every block is flat grey: the
 text still carries the consensus comparison, but there is nothing to
@@ -140,7 +141,9 @@ colour blocks by.
 
 A cell with no value for the chosen layer keeps its text and loses its
 colour. In `"rvd_sim"` that is the termini, which have no DNA-binding
-preference and so no position on a specificity scale.
+preference and so no position on a specificity scale, and any RVD the
+built-in RVD similarity table does not cover (it holds 17 RVDs), even
+where it matches the reference.
 
 **The reference** matters for both similarity fills. `ref_pattern` is
 matched against the array names and must identify exactly one, otherwise
@@ -151,9 +154,8 @@ marked with a trailing `_#`.
 **Two panels may be attached.** Supplying `tale_distances` with more
 than one array adds a dendrogram panel on the left; `consensus = TRUE`
 adds a consensus panel on top. When either is present the return value
-is an `aplot` composition rather than a single ggplot, so modify the
-alignment through its `plotlist` element rather than adding layers to
-the result directly.
+is an `aplot` composition: modify the alignment through its `plotlist`
+element, since layers added to the composition itself do not reach it.
 
 ## See also
 

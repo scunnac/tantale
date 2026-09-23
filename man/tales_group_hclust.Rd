@@ -45,12 +45,12 @@ The bare mapping is still one line away if you want it:
 
 The tree is built directly on the distances
 (\code{stats::hclust(stats::as.dist(distMat))}), matching the original
-DisTAL clustering this package reimplements -- not the Euclidean distance
-between TALEs' distance \emph{profiles}, which groups arrays that relate to the
-rest of the population similarly rather than arrays that are directly
-close to each other. Cut with \code{stats::cutree(tree, k = k)}, which
-always succeeds, including when a tie in merge heights would make a
-height-based cut ambiguous.
+DisTAL clustering this package reimplements, so arrays that are close to
+each other end up together. (A Euclidean distance between the arrays'
+distance \emph{profiles} would instead group arrays that relate to the rest of
+the population in the same way.) The tree is cut with
+\code{stats::cutree(tree, k = k)}, which always succeeds, including when
+a tie in merge heights would make a height-based cut ambiguous.
 }
 \examples{
 x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",

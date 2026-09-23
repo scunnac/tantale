@@ -2,7 +2,7 @@
 % Please edit documentation in R/annotale.R
 \name{run_annotale_predict}
 \alias{run_annotale_predict}
-\title{Runs the "predict" and "analyze" steps of AnnoTALE on a fasta file.}
+\title{Runs the "predict" and "analyze" steps of AnnoTALE on a fasta file}
 \usage{
 run_annotale_predict(
   fasta_file,
@@ -16,7 +16,7 @@ run_annotale_predict(
 \item{fasta_file}{Path to a fasta file containing DNA sequences (e.g. a
 genome assembly) to be analyzed for TALE content.}
 
-\item{output_dir}{Directory where output will be written (created if does not
+\item{output_dir}{Directory where output will be written (created if it does not
 exist).}
 
 \item{prefix}{A scalar character vector containing a prefix that will be
@@ -31,7 +31,7 @@ Returns invisibly the exit code of the shell call to the last
 AnnoTALE step (ie '0' if successful).
 }
 \description{
-A R wrapper around the
+An R wrapper around the
 \href{https://www.ncbi.nlm.nih.gov/pubmed/26876161}{AnnoTALE} 'AnnoTALE.jar
 predict' and 'AnnoTALE.jar analyze' shell calls. The whole AnnoTALE workflow
 can be completed by a subsequent call to the \code{\link{run_annotale_build}}

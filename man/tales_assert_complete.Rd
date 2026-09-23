@@ -21,9 +21,10 @@ running contiguously from 1, and — when \code{domain_type} and
 \code{position_in_array} minus the number of non-repeat parts before it.
 }
 \details{
-This is a \strong{precondition}, not an invariant: \code{filter(x, domain_type ==
-"repeat")} legitimately produces a valid \code{tales} that is no longer
-complete. Alignment requires completeness, because the mapping back from a
+Completeness is a \strong{precondition} of some functions; the class itself does
+not require it: \code{filter(x, domain_type == "repeat")} legitimately
+produces a valid \code{tales} that is no longer complete. Alignment
+requires completeness, because the mapping back from a
 MAFFT alignment is positional — the k-th aligned residue is the k-th part
 fed in.
 }

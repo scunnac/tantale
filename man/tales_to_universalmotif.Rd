@@ -11,29 +11,27 @@ tales_to_universalmotif(x)
 }
 \value{
 A named list of \code{universalmotif} objects, one per array,
-named by \code{array_id} -- a plain list, since that is what
-\code{compare_motifs()}/\code{motif_tree()} themselves accept.
+named by \code{array_id}: a plain list, which is what
+\code{compare_motifs()}/\code{motif_tree()} accept.
 }
 \description{
 One \code{\link[universalmotif:motif-class]{universalmotif}} position
 weight matrix per array, built by looking up each repeat's RVD in
 \code{\link{rvd_dna_specificity}} and stacking the rows in repeat order.
 The conversion \code{\link{tales_compare_functal}} is built on, exposed on
-its own so any \code{universalmotif} function -- \code{compare_motifs()},
+its own so any \code{universalmotif} function (\code{compare_motifs()},
 \code{motif_tree()}, \code{view_motifs()}, \code{scan_sequences()},
-\code{merge_motifs()}, ... -- can be run directly on real TALE binding
-models, not just the one comparison \code{tales_compare_functal()} does
-with them. Ledger §12b lists several of these as concrete follow-ups.
+\code{merge_motifs()}, ...) can be run directly on these TALE binding
+models.
 }
 \details{
 Only \code{rvd}, in repeat order, is used (via
-\code{\link{tales_rvd_strings}}, which drops the two termini by default --
-DNA-binding specificity is a property of the repeat region; QueTAL
-FuncTAL, the tool this table comes from, never scored termini either,
-since its own RVD extraction only ever found repeats). An RVD absent from
-\code{\link{rvd_dna_specificity}} is scored with a flat, uninformative row
-rather than dropped, so an unusual RVD costs a comparison specificity
-rather than an error.
+\code{\link{tales_rvd_strings}}, which drops the two termini by default):
+DNA-binding specificity is a property of the repeat region, and QueTAL's
+FuncTAL, the tool this table comes from, scored repeats only. An RVD
+absent from \code{\link{rvd_dna_specificity}} is given a flat,
+uninformative row, so an unusual RVD lowers the specificity of the
+comparison without causing an error.
 }
 \examples{
 x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
