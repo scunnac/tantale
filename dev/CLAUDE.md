@@ -45,8 +45,10 @@ Agreed direction for the future website. `vignettes/articles/*.qmd` --
 pkgdown 2.2.0 supports quarto vignettes natively (see its NEWS). R's own
 build machinery never descends into `vignettes/articles/`
 (`tools::pkgVignettes()`), so these are never built by `R CMD build`/`check`
-and need no `VignetteBuilder` entry. The numbered `vignettes/*.Rmd` files
-are a separate, older thing -- §7.5, deliberately last -- not yet migrated.
+and need no `VignetteBuilder` entry. The old numbered `vignettes/*.Rmd`
+set is gone, merged into the articles (§7.5b/c). The only traditional
+vignette is `vignettes/getting_started.qmd`, which `R CMD build` does
+render (`VignetteBuilder: quarto`).
 
 **Vignettes come last, and never constrain the code.** They will be rebuilt
 from the finished API, not the other way round. Do not let an existing
@@ -249,9 +251,9 @@ and `git status` before trusting any of it.*
   other RVD scores `NA` (grey) in `plot.tales_msa(fill_type = "rvd_sim")`
   and possibly in the `domain_distances = "rvd"` MAFFT matrix. Four
   options written up in §32.2.
-- **Distribution strategy** (GitHub-only, CRAN or Bioconductor). The
-  ARLEM executable is gone (§33); the bundled Java tools (~60 MB:
-  AnnoTALE, PrediTALE, TALE correction) are the remaining question.
+- **Distribution strategy** (§34). Upstream sources, licences and sizes
+  checked; download-at-setup proposed, not agreed. rOpenSci review
+  parked until the package matures (maintainer finds it tempting).
 
 **Deferred by the maintainer as future work:**
 - **§30, parallel-phrasing sweep** of the site prose (habit 2 of the

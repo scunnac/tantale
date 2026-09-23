@@ -9354,3 +9354,97 @@ The other `docs/` diffs are the navbar version and example temp paths.
 
 **Still open:** an Rcpp version would likely beat the executable. The
 maintainer asked for R, so it is not tried.
+
+## 34. Distribution strategy -- findings, rOpenSci parked, download-at-setup proposed **[P]**
+
+*2026-09-23.* Discussion with the maintainer; nothing decided on the
+channel. This section records what was checked, so it need not be redone.
+
+### What limits the choice
+
+**Size.** The source package, as `git ls-files` minus `docs/`, `dev/`,
+`pkgdown/`, compresses to 57.8 MB. CRAN and Bioconductor both cap the
+source tarball at 5 MB.
+- `inst/tools`: 62 MB, of which 58 MB are three jars (TALEcorrection
+  27 MB, AnnoTALEcli-1.5 16 MB, PrediTALE 15 MB). Jars do not compress.
+- `inst/extdata`: 19 MB, almost all of it four whole genomes (`BAI3.fa`,
+  `BAI3-1-1.fa`, `MAI1.fa`, `PXO86.fa`).
+- `inst/legacy`: 4 MB.
+
+Without the jars, TALVEZ, `talecorrect/`, the four genomes and
+`inst/legacy`, the same estimate gives **1.5 MB**.
+
+**Licences of the bundled tools.**
+- All three jars carry `COPYING.txt`, GPL-3 (Jstacs). Redistribution is
+  allowed with a pointer to the source (github.com/Jstacs/Jstacs), which
+  nothing in the package gives. `LICENSE`/`DESCRIPTION` mention none of
+  them, so the package reads as entirely MIT.
+- TALVEZ 3.2 (A. Pérez-Quintero, IRD): no licence in the script, the
+  zip or the web page. By default that grants no redistribution right,
+  the same position ARLEM was in (§28). Its Java part ships as `.class`
+  files only.
+
+**Upstream sources, verified 2026-09-23 by download and `sha256sum`.**
+Every bundled file is byte-identical to its upstream copy.
+
+| tool | upstream URL | sha256 (first 12) |
+|---|---|---|
+| AnnoTALEcli 1.5 | `https://www.jstacs.de/downloads/AnnoTALEcli-1.5.jar` (older versions also kept online) | `fe99d0840733` |
+| PrediTALE | `https://www.jstacs.de/downloads/PrediTALE.jar` (unversioned URL; Last-Modified 2019-01-16) | `67a3ef81c2ba` |
+| TALEcorrection | only inside `https://www.jstacs.de/downloads/TALECorrection_scripts.zip`, 283 MB (a 227 MB test BAM) | `9adf9de20a41` |
+| TALEcorrection HMMs (Xoo, Xoc, custom fasta) | same zip, `HMMs/` | all identical |
+| TALVEZ 3.2 | `https://bioinfo-web.mpl.ird.fr/xantho/talvez/downloads/TALVEZ_3.2.zip` (http times out, https works; Last-Modified 2016) | zip `5661ca5825e7`; the 19 bundled files identical, the zip adds a `tmp/` of example output |
+
+The Jstacs GitHub releases (v2.3b to v2.4.1) carry no assets. None of
+AnnoTALE, PrediTALE, Jstacs or TALVEZ is on bioconda or conda-forge.
+
+### Channels as discussed
+
+- **GitHub + r-universe** (`scunnac.r-universe.dev`): no review, no size
+  cap known (to check), binaries for Linux/macOS, ordinary
+  `install.packages()`. Zenodo gives each release a DOI.
+- **Bioconductor**: the best audience fit (~15 Bioconductor imports,
+  `biocViews` set). Needs the 5 MB tarball, `BiocCheck`, likely
+  Bioconductor classes at the interfaces, the twice-yearly cycle, and a
+  declared Windows exception (`OS_type: unix`).
+- **CRAN**: poor fit. Every external-tool test would have to skip there,
+  against the fail-don't-skip rule; jars need their sources in `java/`.
+
+### rOpenSci -- parked for later, maintainer finds it tempting
+
+Peer review of the code (open GitHub issue, editor + two reviewers)
+against the rOpenSci dev guide, which tantale already follows for naming
+(§9.0). On acceptance: optional transfer to the `ropensci` org,
+`docs.ropensci.org/tantale`, a badge, promotion, a fast-tracked JOSS
+review with a short paper, and distribution via `ropensci.r-universe.dev`.
+Cross-listing on CRAN or Bioconductor stays possible.
+
+Scope is the open question. The wrappers (AnnoTALE, PrediTALE,
+TALEcorrection, TALVEZ, MAFFT, HMMER, with parsing and a managed
+install) fit "scientific software wrappers"; the guide counts an
+improved installation as added value. Data visualisation and
+statistical/modelling libraries are out of scope, which touches
+`plot.tales_msa()`, the DisTAL distances and the classification. The
+licence of wrapped tools is judged case by case, so TALVEZ would come up.
+A pre-submission inquiry (a short issue) settles scope before any review.
+**Maintainer, 2026-09-23: revisit once the package has matured further.**
+
+### Proposal, not agreed: download the tools at setup
+
+`tantale_setup()` fetches the tools from their authors' pages, checks
+each against a pinned sha256, and installs them under a per-user
+directory. The package then ships none of them. Details and open
+questions are in the discussion reply of 2026-09-23; the main points:
+- TALEcorrection has no standalone download, only the 283 MB zip. Either
+  ask the Jstacs authors (J. Grau) to publish the jar on its own, or
+  mirror jar + HMMs as a tantale GitHub release asset (GPL-3 allows it,
+  with the source pointer).
+- TALVEZ needs an explicit licence from its author; the only upstream
+  is a 2016 IRD server.
+- Genomes: used by the articles, the `@examples` of `annotale.R`, and
+  `test_correct_tales.R`. PXO86 is `NZ_CP007166`; accessions for BAI3,
+  MAI1 and the status of BAI3-1-1 are for the maintainer.
+
+**Side finding:** `tests/testthat/test_correct_tales.R` lines 4 and 17
+read `BAI3-1-1.fa` by an absolute path under `/home/cunnac/...`, so the
+test only runs on this machine. Not fixed yet.
