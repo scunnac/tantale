@@ -1,5 +1,11 @@
 # tantale (development version)
 
+## The interface is now stable
+
+Further changes to exported functions and their arguments follow the
+[lifecycle](https://lifecycle.r-lib.org/articles/stages.html) conventions:
+deprecation with a warning first, removal in a later release.
+
 ## `tales_to_universalmotif()` works without `library(tantale)`
 
 `tales_to_universalmotif()` and `tales_compare_functal()` read the
