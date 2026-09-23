@@ -216,9 +216,11 @@ List of output files:
 
 - all_ranges.gff: gff file of all Tal arrays detected by HMMer
 
-- array_report.tsv: report of all Tal arrays. In array_report.tsv,
-  column *predicted_dels_count*/*predicted_ins_count* shows the number
-  of putative deletions/insertions in the raw sequences that have been
+- array_report.tsv: report of all Tal arrays. Its
+  *nterm_aa_length*/*cterm_aa_length* columns count amino acid residues,
+  excluding a stop codon, as in the `tales` object's `aa_seq`. Columns
+  *predicted_dels_count*/*predicted_ins_count* show the number of
+  putative deletions/insertions in the raw sequences that have been
   corrected in the corrected sequences with the function
   [`CorrectFrameshifts`](https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html).
 
@@ -337,7 +339,7 @@ tell_tales(subject_file = subj, output_dir = out)
 #> Now running AnnoTALE analyze for ROI_00003
 #> Now running AnnoTALE analyze for ROI_00004
 #> #**************************************** #** tell_tales analysis done **
-#> Current date: Wed Sep 23 15:16:07 2026 #_________Provided I/O parameters
+#> Current date: Wed Sep 23 19:00:06 2026 #_________Provided I/O parameters
 #> __________ File of subject DNA sequences:
 #> /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/bai3_sample_tal_genomic_regions.fasta
 #> TALE N-term CDS region detection HMM file:
@@ -346,7 +348,7 @@ tell_tales(subject_file = subj, output_dir = out)
 #> /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_repeat_CDS_profile.hmm
 #> TALE C-term CDS region detection HMM file:
 #> /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Cterm_CDS_profile.hmm
-#> Output directory: /tmp/RtmppnZ7C2/tell_tales_example6d5dc4d8038e1
+#> Output directory: /tmp/Rtmp8AfK5J/tell_tales_example7b3f920c22f56
 #> #____________Other parameters________________ nterm_min_score: 300
 #> repeat_min_score: 20 cterm_min_score: 200 min_domain_hits: 4 min_array_length:
 #> 0 merge_hits: TRUE min_gap: 35 extend_len: 300 correct_array: FALSE

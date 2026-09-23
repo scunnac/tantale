@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9008</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9009</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -46,6 +46,11 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="tantale-development-version">tantale (development version)<a class="anchor" aria-label="anchor" href="#tantale-development-version"></a></h2>
 <div class="section level3">
+<h3 id="array_reporttsv-terminus-lengths-no-longer-count-the-stop-codon-development-version">
+<code>array_report.tsv</code>: terminus lengths no longer count the stop codon<a class="anchor" aria-label="anchor" href="#array_reporttsv-terminus-lengths-no-longer-count-the-stop-codon-development-version"></a></h3>
+<p><code>nterm_aa_length</code> and <code>cterm_aa_length</code> counted AnnoTALE’s <code>*</code> as a residue whenever the stop codon fell inside the terminal part, which is common for C-termini. They now count residues only, matching the <code>tales</code> object’s <code>aa_seq</code>: for example, a 278-residue C-terminus is reported as 278, not 279.</p>
+</div>
+<div class="section level3">
 <h3 id="biostrings-backend-free-end-gaps-as-in-distal-development-version">Biostrings backend: free end gaps, as in DisTAL<a class="anchor" aria-label="anchor" href="#biostrings-backend-free-end-gaps-as-in-distal-development-version"></a></h3>
 <p><code>tales_domain_distances(aln_method = "Biostrings")</code> now aligns with free end gaps (DisTAL’s “sliding ends”) instead of a global alignment that charged a length difference twice. A half-repeat is now about 41 from the full repeat it matches (it was 64.7), as with the other two backends. Pairs differing only by substitutions are unchanged.</p>
 </div>
@@ -64,7 +69,7 @@
 </div>
 <div class="section level3">
 <h3 id="bug-fix-demoting-a-tales_msa-now-drops-its-alignment-width-development-version">Bug fix: demoting a <code>tales_msa</code> now drops its alignment width<a class="anchor" aria-label="anchor" href="#bug-fix-demoting-a-tales_msa-now-drops-its-alignment-width-development-version"></a></h3>
-<p><code><a href="../reference/as_tales.html">as_tales()</a></code> (and <code><a href="../reference/tales.html">tales()</a></code>) on a <code>tales_msa</code> returned a plain <code>tales</code> that still carried the alignment’s width, so <code><a href="../reference/tales_width.html">tales_width()</a></code> kept answering on an object that no longer claims to be an alignment. The width is now removed on demotion, as it already was when <code>alignment_position</code> is dropped with <code><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select()</a></code>.</p>
+<p><code><a href="../reference/as_tales.html">as_tales()</a></code> (and <code><a href="../reference/tales.html">tales()</a></code>) on a <code>tales_msa</code> returned a plain <code>tales</code> that still carried the alignment’s width, so <code><a href="../reference/tales_width.html">tales_width()</a></code> kept answering on an object that no longer claims to be an alignment. The width is now removed on demotion, as it already was when <code>alignment_position</code> is dropped with <code>select()</code>.</p>
 </div>
 <div class="section level3">
 <h3 id="articles-checked-against-their-own-output-development-version">Articles checked against their own output<a class="anchor" aria-label="anchor" href="#articles-checked-against-their-own-output-development-version"></a></h3>

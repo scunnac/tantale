@@ -152,8 +152,8 @@ pxo86_report %>%
 #> # A tibble: 2 × 5
 #>   array_id  has_all_domains nterm_aa_length cterm_aa_length orf_coverage
 #>   <chr>     <lgl>                     <dbl>           <dbl>        <dbl>
-#> 1 ROI_00019 FALSE                       230              43           93
-#> 2 ROI_00001 TRUE                        230             184           83
+#> 1 ROI_00019 FALSE                       230              42           93
+#> 2 ROI_00001 TRUE                        230             183           83
 ```
 
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
@@ -223,10 +223,10 @@ invisible(tell_tales(
 #> Finding the closest reference amino acid sequences:
 #> ================================================================================
 #> 
-#> Time difference of 6.2 secs
+#> Time difference of 8.49 secs
 #> ================================================================================
 #> 
-#> Time difference of 37.67 secs
+#> Time difference of 49.48 secs
 ```
 
 Code
@@ -241,14 +241,13 @@ decipher_report %>%
 #> # A tibble: 2 × 5
 #>   array_id  has_all_domains nterm_aa_length cterm_aa_length orf_coverage
 #>   <chr>     <lgl>                     <dbl>           <dbl>        <dbl>
-#> 1 ROI_00019 FALSE                       230              43           93
-#> 2 ROI_00001 TRUE                        230             217           86
+#> 1 ROI_00019 FALSE                       230              42           93
+#> 2 ROI_00001 TRUE                        230             216           86
 ```
 
-`ROI_00001` is extended: in `array_report.tsv`, its C-terminus grows
-from 184 to 217 aa, and `orf_coverage` improves from 83% to 86%.
-`ROI_00019` is untouched. This is [Section 2](#sec-mechanism)’s
-distinction playing out directly:
+`ROI_00001` is extended: its C-terminus grows from 183 to 216 aa, and
+`orf_coverage` improves from 83% to 86%. `ROI_00019` is untouched. This
+is [Section 2](#sec-mechanism)’s distinction playing out directly:
 [`DECIPHER::CorrectFrameshifts()`](https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html)
 reframes `ROI_00001` into the C-terminus-shaped template nhmmer already
 found, and has no comparable template to work with for `ROI_00019`.
@@ -262,9 +261,9 @@ found, and has no comparable template to work with for `ROI_00019`.
 >
 > | `max_comparisons` | `ROI_00001` C-terminus | `ROI_00019` C-terminus |
 > |-------------------|------------------------|------------------------|
-> | 20                | 217 aa                 | 43 aa                  |
-> | 50                | 217 aa                 | 43 aa                  |
-> | all 494 (default) | 217 aa                 | 43 aa                  |
+> | 20                | 216 aa                 | 42 aa                  |
+> | 50                | 216 aa                 | 42 aa                  |
+> | all 494 (default) | 216 aa                 | 42 aa                  |
 >
 > Whatever makes
 > [`DECIPHER::CorrectFrameshifts()`](https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html)
@@ -323,14 +322,14 @@ java_report %>%
 #> # A tibble: 2 × 5
 #>   array_id  has_all_domains nterm_aa_length cterm_aa_length orf_coverage
 #>   <chr>     <lgl>                     <dbl>           <dbl>        <dbl>
-#> 1 ROI_00019 FALSE                       230              43           93
-#> 2 ROI_00001 TRUE                        230             184           83
+#> 1 ROI_00019 FALSE                       230              42           93
+#> 2 ROI_00001 TRUE                        230             183           83
 ```
 
 A single-base insertion, and it lands inside `ROI_00001`’s own span,
 consistent with [Section 2](#sec-mechanism), since that is the array
 with frameshifted hits for the correction to act on. It has no visible
-effect: `ROI_00001`’s C-terminus stays at 184 aa and its `orf_coverage`
+effect: `ROI_00001`’s C-terminus stays at 183 aa and its `orf_coverage`
 at 83%, against the 33 amino acids `correct_array = TRUE` adds.
 `ROI_00019` is unaffected, as before.
 

@@ -2,6 +2,14 @@
 
 ## tantale (development version)
 
+### `array_report.tsv`: terminus lengths no longer count the stop codon
+
+`nterm_aa_length` and `cterm_aa_length` counted AnnoTALE’s `*` as a
+residue whenever the stop codon fell inside the terminal part, which is
+common for C-termini. They now count residues only, matching the `tales`
+object’s `aa_seq`: for example, a 278-residue C-terminus is reported as
+278, not 279.
+
 ### Biostrings backend: free end gaps, as in DisTAL
 
 `tales_domain_distances(aln_method = "Biostrings")` now aligns with free
@@ -70,8 +78,7 @@ alignment’s width, so
 [`tales_width()`](https://scunnac.github.io/tantale/reference/tales_width.md)
 kept answering on an object that no longer claims to be an alignment.
 The width is now removed on demotion, as it already was when
-`alignment_position` is dropped with
-[`select()`](https://dplyr.tidyverse.org/reference/select.html).
+`alignment_position` is dropped with `select()`.
 
 ### Articles checked against their own output
 

@@ -24,7 +24,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9005</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9009</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -169,8 +169,8 @@
 <span><span class="co">#&gt; # A tibble: 2 × 5</span></span>
 <span><span class="co">#&gt;   array_id  has_all_domains nterm_aa_length cterm_aa_length orf_coverage</span></span>
 <span><span class="co">#&gt;   &lt;chr&gt;     &lt;lgl&gt;                     &lt;dbl&gt;           &lt;dbl&gt;        &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 ROI_00019 FALSE                       230              43           93</span></span>
-<span><span class="co">#&gt; 2 ROI_00001 TRUE                        230             184           83</span></span></code></pre></div>
+<span><span class="co">#&gt; 1 ROI_00019 FALSE                       230              42           93</span></span>
+<span><span class="co">#&gt; 2 ROI_00001 TRUE                        230             183           83</span></span></code></pre></div>
 </details>
 </div>
 <p><code><a href="../reference/tell_tales.html">tell_tales()</a></code> finds TALE loci with three separate profile HMMs (one each for the N-terminus, the repeat unit, and the C-terminus), and <code>has_all_domains</code> records whether every one of the three matched somewhere in an array’s merged hits, independently of how the final protein turns out. <code>hits_report.tsv</code>, one of the three reports <code><a href="../reference/tell_tales.html">tell_tales()</a></code> always writes (the other two are <code>domains_report.tsv</code> and <code>array_report.tsv</code> itself), carries every individual hit with its profile name and <code>frameshift_count</code>, and shows exactly what happened downstream of each array’s last complete repeat:</p>
@@ -216,10 +216,10 @@
 <span><span class="co">#&gt; Finding the closest reference amino acid sequences:</span></span>
 <span><span class="co">#&gt; ================================================================================</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Time difference of 6.2 secs</span></span>
+<span><span class="co">#&gt; Time difference of 8.49 secs</span></span>
 <span><span class="co">#&gt; ================================================================================</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Time difference of 37.67 secs</span></span></code></pre></div>
+<span><span class="co">#&gt; Time difference of 49.48 secs</span></span></code></pre></div>
 </details>
 </div>
 <div class="cell">
@@ -233,11 +233,11 @@
 <span><span class="co">#&gt; # A tibble: 2 × 5</span></span>
 <span><span class="co">#&gt;   array_id  has_all_domains nterm_aa_length cterm_aa_length orf_coverage</span></span>
 <span><span class="co">#&gt;   &lt;chr&gt;     &lt;lgl&gt;                     &lt;dbl&gt;           &lt;dbl&gt;        &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 ROI_00019 FALSE                       230              43           93</span></span>
-<span><span class="co">#&gt; 2 ROI_00001 TRUE                        230             217           86</span></span></code></pre></div>
+<span><span class="co">#&gt; 1 ROI_00019 FALSE                       230              42           93</span></span>
+<span><span class="co">#&gt; 2 ROI_00001 TRUE                        230             216           86</span></span></code></pre></div>
 </details>
 </div>
-<p><code>ROI_00001</code> is extended: in <code>array_report.tsv</code>, its C-terminus grows from 184 to 217 aa, and <code>orf_coverage</code> improves from 83% to 86%. <code>ROI_00019</code> is untouched. This is <a href="#sec-mechanism" class="quarto-xref">Section 2</a>’s distinction playing out directly: <code><a href="https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html" class="external-link">DECIPHER::CorrectFrameshifts()</a></code> reframes <code>ROI_00001</code> into the C-terminus-shaped template nhmmer already found, and has no comparable template to work with for <code>ROI_00019</code>.</p>
+<p><code>ROI_00001</code> is extended: its C-terminus grows from 183 to 216 aa, and <code>orf_coverage</code> improves from 83% to 86%. <code>ROI_00019</code> is untouched. This is <a href="#sec-mechanism" class="quarto-xref">Section 2</a>’s distinction playing out directly: <code><a href="https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html" class="external-link">DECIPHER::CorrectFrameshifts()</a></code> reframes <code>ROI_00001</code> into the C-terminus-shaped template nhmmer already found, and has no comparable template to work with for <code>ROI_00019</code>.</p>
 <div>
 <blockquote>
 <p><strong><code>max_comparisons</code> does not change this</strong></p>
@@ -253,18 +253,18 @@
 <tbody>
 <tr class="odd">
 <td>20</td>
-<td>217 aa</td>
-<td>43 aa</td>
+<td>216 aa</td>
+<td>42 aa</td>
 </tr>
 <tr class="even">
 <td>50</td>
-<td>217 aa</td>
-<td>43 aa</td>
+<td>216 aa</td>
+<td>42 aa</td>
 </tr>
 <tr class="odd">
 <td>all 494 (default)</td>
-<td>217 aa</td>
-<td>43 aa</td>
+<td>216 aa</td>
+<td>42 aa</td>
 </tr>
 </tbody>
 </table>
@@ -317,11 +317,11 @@
 <span><span class="co">#&gt; # A tibble: 2 × 5</span></span>
 <span><span class="co">#&gt;   array_id  has_all_domains nterm_aa_length cterm_aa_length orf_coverage</span></span>
 <span><span class="co">#&gt;   &lt;chr&gt;     &lt;lgl&gt;                     &lt;dbl&gt;           &lt;dbl&gt;        &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 ROI_00019 FALSE                       230              43           93</span></span>
-<span><span class="co">#&gt; 2 ROI_00001 TRUE                        230             184           83</span></span></code></pre></div>
+<span><span class="co">#&gt; 1 ROI_00019 FALSE                       230              42           93</span></span>
+<span><span class="co">#&gt; 2 ROI_00001 TRUE                        230             183           83</span></span></code></pre></div>
 </details>
 </div>
-<p>A single-base insertion, and it lands inside <code>ROI_00001</code>’s own span, consistent with <a href="#sec-mechanism" class="quarto-xref">Section 2</a>, since that is the array with frameshifted hits for the correction to act on. It has no visible effect: <code>ROI_00001</code>’s C-terminus stays at 184 aa and its <code>orf_coverage</code> at 83%, against the 33 amino acids <code>correct_array = TRUE</code> adds. <code>ROI_00019</code> is unaffected, as before.</p>
+<p>A single-base insertion, and it lands inside <code>ROI_00001</code>’s own span, consistent with <a href="#sec-mechanism" class="quarto-xref">Section 2</a>, since that is the array with frameshifted hits for the correction to act on. It has no visible effect: <code>ROI_00001</code>’s C-terminus stays at 183 aa and its <code>orf_coverage</code> at 83%, against the 33 amino acids <code>correct_array = TRUE</code> adds. <code>ROI_00019</code> is unaffected, as before.</p>
 </section></section><section class="section level2" data-number="4"><h2 data-number="4" id="sec-summary">
 <span class="header-section-number">4</span> Summary<a class="anchor" aria-label="anchor" href="#sec-summary"></a>
 </h2>

@@ -966,7 +966,7 @@
 .telltale_add_array_measures <- function(by_array, ends_aa, full_orf, array_seqs) {
   endsAAlength <- lapply(names(ends_aa), function(e) {
     stringset <- ends_aa[e] %>% Biostrings::AAStringSetList(., use.names = FALSE) %>% unlist()
-    df <- data.frame(names(stringset), BiocGenerics::width(stringset))
+    df <- data.frame(names(stringset), .aa_residue_count(stringset))
     # "N-terminus"/"C-terminus" (from .telltale_align_termini()) to the
     # snake_case column names array_report.tsv actually carries.
     lengthCol <- if (e == "N-terminus") "nterm_aa_length" else "cterm_aa_length"
@@ -988,6 +988,23 @@
   rownames(moreInfo) <- moreInfo$array_id
   S4Vectors::mcols(by_array) <- moreInfo[rownames(S4Vectors::mcols(by_array)), ]
   by_array
+}
+
+
+#' Amino acid residues in each sequence, not counting stop codons
+#'
+#' AnnoTALE ends a terminus record with \code{*} when the stop codon falls
+#' inside the part (a truncated C-terminus). The \code{tales} object strips
+#' it (\code{tales_ingest.R}), so the report's lengths must not count it
+#' either, or the two disagree by one on exactly the truncated arrays
+#' (ledger §32.4).
+#'
+#' @param x An \code{AAStringSet}.
+#' @return An integer vector, one count per sequence.
+#' @noRd
+.aa_residue_count <- function(x) {
+  as.integer(Biostrings::width(x) -
+               Biostrings::letterFrequency(x, "*", as.prob = FALSE)[, 1])
 }
 
 
@@ -1321,8 +1338,11 @@
 #'   List of output files:
 #'   \itemize{
 #'   \item all_ranges.gff: gff file of all Tal arrays detected by HMMer
-#'   \item array_report.tsv: report of all Tal arrays. In array_report.tsv,
-#'   column \emph{predicted_dels_count}/\emph{predicted_ins_count} shows the
+#'   \item array_report.tsv: report of all Tal arrays. Its
+#'   \emph{nterm_aa_length}/\emph{cterm_aa_length} columns count amino acid
+#'   residues, excluding a stop codon, as in the \code{tales} object's
+#'   \code{aa_seq}. Columns
+#'   \emph{predicted_dels_count}/\emph{predicted_ins_count} show the
 #'   number of putative deletions/insertions in the raw sequences that have been
 #'   corrected in the corrected sequences with the
 #'   function \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}}.

@@ -186,8 +186,8 @@ decipher_report %>%
   select(array_id, has_all_domains, nterm_aa_length, cterm_aa_length, orf_coverage)
 ```
 
-`ROI_00001` is extended: in `array_report.tsv`, its C-terminus grows from
-184 to 217 aa, and `orf_coverage` improves from 83% to 86%. `ROI_00019` is
+`ROI_00001` is extended: its C-terminus grows from
+183 to 216 aa, and `orf_coverage` improves from 83% to 86%. `ROI_00019` is
 untouched. This
 is @sec-mechanism's distinction playing out directly:
 `DECIPHER::CorrectFrameshifts()` reframes `ROI_00001` into the
@@ -203,9 +203,9 @@ minutes, and not re-run here):
 
 | `max_comparisons` | `ROI_00001` C-terminus | `ROI_00019` C-terminus |
 |---|---|---|
-| 20 | 217 aa | 43 aa |
-| 50 | 217 aa | 43 aa |
-| all 494 (default) | 217 aa | 43 aa |
+| 20 | 216 aa | 42 aa |
+| 50 | 216 aa | 42 aa |
+| all 494 (default) | 216 aa | 42 aa |
 
 Whatever makes `DECIPHER::CorrectFrameshifts()` extend `ROI_00001` is
 insensitive to how many reference sequences it is allowed to consider.
@@ -250,7 +250,7 @@ java_report %>%
 A single-base insertion, and it lands inside `ROI_00001`'s own span,
 consistent with @sec-mechanism, since that is the array with
 frameshifted hits for the correction to act on. It has no visible
-effect: `ROI_00001`'s C-terminus stays at 184 aa and its `orf_coverage` at
+effect: `ROI_00001`'s C-terminus stays at 183 aa and its `orf_coverage` at
 83%, against the 33 amino acids `correct_array = TRUE` adds. `ROI_00019` is
 unaffected, as before.
 

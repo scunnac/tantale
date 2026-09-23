@@ -13,7 +13,7 @@ that would otherwise be missed by conventional tools (eg AnnoTALE)."><meta prope
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9008</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9009</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -240,8 +240,11 @@ DECIPHER's own <code>-15</code>; change it only with a reason.</p></dd>
 smoothly, it invisibly returns the path of the directory where output
 files were written.</p>
 <p>List of output files:</p><ul><li><p>all_ranges.gff: gff file of all Tal arrays detected by HMMer</p></li>
-<li><p>array_report.tsv: report of all Tal arrays. In array_report.tsv,
-column <em>predicted_dels_count</em>/<em>predicted_ins_count</em> shows the
+<li><p>array_report.tsv: report of all Tal arrays. Its
+<em>nterm_aa_length</em>/<em>cterm_aa_length</em> columns count amino acid
+residues, excluding a stop codon, as in the <code>tales</code> object's
+<code>aa_seq</code>. Columns
+<em>predicted_dels_count</em>/<em>predicted_ins_count</em> show the
 number of putative deletions/insertions in the raw sequences that have been
 corrected in the corrected sequences with the
 function <code><a href="https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html" class="external-link">CorrectFrameshifts</a></code>.</p></li>
@@ -326,7 +329,7 @@ RVD sequence. This should be detected and reported in the tell_tales log.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Now running AnnoTALE analyze for ROI_00003</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Now running AnnoTALE analyze for ROI_00004</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> #**************************************** #** tell_tales analysis done **</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Current date: Wed Sep 23 15:16:07 2026 #_________Provided I/O parameters</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Current date: Wed Sep 23 19:00:06 2026 #_________Provided I/O parameters</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> __________ File of subject DNA sequences:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/bai3_sample_tal_genomic_regions.fasta</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> TALE N-term CDS region detection HMM file:</span>
@@ -335,7 +338,7 @@ RVD sequence. This should be detected and reported in the tell_tales log.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_repeat_CDS_profile.hmm</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> TALE C-term CDS region detection HMM file:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Cterm_CDS_profile.hmm</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Output directory: /tmp/RtmppnZ7C2/tell_tales_example6d5dc4d8038e1</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Output directory: /tmp/Rtmp8AfK5J/tell_tales_example7b3f920c22f56</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> #____________Other parameters________________ nterm_min_score: 300</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> repeat_min_score: 20 cterm_min_score: 200 min_domain_hits: 4 min_array_length:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> 0 merge_hits: TRUE min_gap: 35 extend_len: 300 correct_array: FALSE</span>

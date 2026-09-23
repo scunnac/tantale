@@ -9054,7 +9054,7 @@ Biostrings still charges internal gap opening. Version 0.9.9008.
   half-repeat now gets its own domain-cluster colour, separate from the
   full `NI` repeats.
 
-### 32.4 C-terminus length differs by one between `tales` and `array_report.tsv` -- **explained, nothing to fix yet** **[V]**
+### 32.4 C-terminus length differs by one between `tales` and `array_report.tsv` -- **FIXED 2026-09-23 (stop codon no longer counted)** **[V]**
 
 Maintainer's guess ("maybe the array report counts aa differently") is
 right. Checked 2026-09-23 on a fresh PXO86 run:
@@ -9075,6 +9075,42 @@ inside the C-terminal part marks a truncated C-terminus). Either way,
 worth one line in `tell_tales()`'s docs for `array_report.tsv`.
 `trunctale_correction.qmd` already cites each number with its source,
 so it stays correct either way.
+
+
+**Maintainer's decision (2026-09-23): don't count the stop.** Executed:
+new internal `.aa_residue_count()` (`R/telltale.R`) counts residues
+excluding `*`, used by `.telltale_add_array_measures()` for both
+`nterm_aa_length` and `cterm_aa_length`: the same rule
+`tales_ingest.R` applies to `aa_seq`. Version 0.9.9009.
+
+**Wider than first described.** The golden fixture's C-termini (the
+278-aa variant of normal BAI3 TALEs, not truncTALEs) also end in `*`
+in AnnoTALE's record (width 279, `...LPQ*`): the stop falls inside
+AnnoTALE's C-terminal part whenever the CDS ends within it, not only
+for truncated C-termini. The report overcounted those by one too.
+
+Golden re-baseline, every row explained: `test_golden.R:143` (file
+fingerprint) rows 1 `all_ranges.gff` and 22 `array_report.tsv`;
+`:153` (per-column table fingerprint) row 12 = `array_report.tsv`'s
+`cterm_aa_length`; `:217` (correction branch) the same two files. All
+the same single change, `cterm_aa_length` 279 -> 278 (the GFF repeats
+the report's columns as attributes). `golden.md` diff: exactly those
+three values. Accepted, re-run 44/44.
+
+New tests (`test_tell_tales.R`): an end-to-end run on the PXO86 excerpt
+(`data_for_tests/pxo86_roi18_19_excerpt.fa`, copied from
+`dev/fixtures/`, ~23 s) asserting the report's `cterm_aa_length` equals
+`nchar(aa_seq)` of every C-terminus and that the truncated one is 42
+(was 43); and a unit test of `.aa_residue_count()`.
+
+`trunctale_correction.qmd` re-rendered: its report values moved by
+exactly one (ROI_00001 183 -> 216 under `correct_array = TRUE`, still
++33; 183 under `correct_tales()`; ROI_00019 42), prose and the
+`max_comparisons` callout table updated (that table's 50/494 rows are
+the earlier recorded runs, shifted by the same one, since only the
+counting changed). The article's first table (from `tales`) and the
+report now agree. `tell_tales()` docs now say the length columns count
+residues, excluding a stop codon.
 
 ---
 

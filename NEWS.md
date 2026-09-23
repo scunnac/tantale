@@ -1,5 +1,12 @@
 # tantale (development version)
 
+## `array_report.tsv`: terminus lengths no longer count the stop codon
+
+`nterm_aa_length` and `cterm_aa_length` counted AnnoTALE's `*` as a residue
+whenever the stop codon fell inside the terminal part, which is common for
+C-termini. They now count residues only, matching the `tales` object's
+`aa_seq`: for example, a 278-residue C-terminus is reported as 278, not 279.
+
 ## Biostrings backend: free end gaps, as in DisTAL
 
 `tales_domain_distances(aln_method = "Biostrings")` now aligns with free end

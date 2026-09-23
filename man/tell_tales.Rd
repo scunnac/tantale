@@ -173,8 +173,11 @@ files were written.
 List of output files:
 \itemize{
 \item all_ranges.gff: gff file of all Tal arrays detected by HMMer
-\item array_report.tsv: report of all Tal arrays. In array_report.tsv,
-column \emph{predicted_dels_count}/\emph{predicted_ins_count} shows the
+\item array_report.tsv: report of all Tal arrays. Its
+\emph{nterm_aa_length}/\emph{cterm_aa_length} columns count amino acid
+residues, excluding a stop codon, as in the \code{tales} object's
+\code{aa_seq}. Columns
+\emph{predicted_dels_count}/\emph{predicted_ins_count} show the
 number of putative deletions/insertions in the raw sequences that have been
 corrected in the corrected sequences with the
 function \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}}.

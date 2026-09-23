@@ -380,8 +380,9 @@ from any full repeat it is a prefix of. **Fixed 2026-09-23** with
 golden re-baselined with every row explained, articles re-rendered from a
 cleared comparison cache; version 0.9.9007. The Biostrings backend
 followed (free end gaps, `type = "overlap"`; 0.9.9008), so all three
-backends now count a length difference once. §32.2 (`rvdSimDf` covering 17 RVDs)
-and §32.4 (the `*` counted in `cterm_aa_length`) also await decisions.
+backends now count a length difference once. §32.4 (the `*` counted
+in `cterm_aa_length`) is fixed too (0.9.9009). §32.2 (`rvdSimDf` covering 17 RVDs)
+still awaits a decision.
 
 **§30, 2026-09-23 -- website prose review DONE (articles and reference
 pages).** All 8 articles, `README.md`, `pkgdown/index.md` and the 63
