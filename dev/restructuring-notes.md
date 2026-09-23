@@ -143,6 +143,24 @@ from 1.0.0 on it needs a lifecycle deprecation (START HERE item 8).
   substitution costs (up to 99) is a modelling choice about how TALE
   arrays evolve (§6).
 - **Distribution channel** and the one-archive plan (§34).
+- **A beta of 1.0.0**, if wanted: number it **0.99.0** (then 0.99.1, ...).
+  R versions are numeric only (`1.0.0-beta` is invalid, `1.0.0-1` sorts
+  after 1.0.0); 0.9.9010 < 0.99.0 < 1.0.0; Bioconductor also requires
+  0.99.z for new submissions. Mark it with a `# tantale 0.99.0` NEWS
+  heading, a `v0.99.0` tag and a GitHub *pre-release*. Hard renames are
+  still allowed at 0.99.x (lifecycle rules start at 1.0.0).
+
+### Housekeeping pending (2026-09-24)
+
+- **`docs/` is behind 0.9.9010**: reference pages (the `run_annotale_*()`
+  return values, `talomes_heatmap()`), home page (README's stability
+  note) and news. Partial rebuild per `dev/CLAUDE.md` (reinstall first;
+  no page added or removed, so no wipe). The site may be offline anyway
+  while the repository is private.
+- **Re-run `dev/function-graph-dataflow.R`** (now ~10 min, the suite is
+  longer) so the §29.2 data-flow view records the functions tested since:
+  `talomes_heatmap()`, `preditale()`, `plot_target_preds()`,
+  `run_annotale_*()`.
 
 ### Worth investigating, no deadline
 
