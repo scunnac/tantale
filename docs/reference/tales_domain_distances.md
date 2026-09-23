@@ -59,9 +59,11 @@ for that ratio on a given object.
 change between two domains, normalised by the longer one, with residues
 one domain lacks counted as changes. A 20-residue half-repeat that is an
 exact prefix of a 34-residue repeat is therefore 14/34, about 41
-percent, from it. The `"DECIPHER"` and `"mmseq2"` backends compute this;
-`"Biostrings"` uses a global alignment with gap penalties and scores
-length differences more severely.
+percent, from it. All three backends follow this definition. They still
+differ slightly pair by pair: `"DECIPHER"` measures distances inside one
+multiple alignment of all domains, the other two align each pair
+separately, and `"Biostrings"` also charges a cost for opening an
+internal gap.
 
 ## See also
 

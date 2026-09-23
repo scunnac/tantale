@@ -378,7 +378,9 @@ default DECIPHER backend of `tales_domain_distances()` ignores gaps
 from any full repeat it is a prefix of. **Fixed 2026-09-23** with
 `penalizeGapLetterMatches = TRUE` (DisTAL's definition, matches mmseq2),
 golden re-baselined with every row explained, articles re-rendered from a
-cleared comparison cache; version 0.9.9007. §32.2 (`rvdSimDf` covering 17 RVDs)
+cleared comparison cache; version 0.9.9007. The Biostrings backend
+followed (free end gaps, `type = "overlap"`; 0.9.9008), so all three
+backends now count a length difference once. §32.2 (`rvdSimDf` covering 17 RVDs)
 and §32.4 (the `*` counted in `cterm_aa_length`) also await decisions.
 
 **§30, 2026-09-23 -- website prose review DONE (articles and reference

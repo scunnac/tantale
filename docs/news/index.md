@@ -2,6 +2,14 @@
 
 ## tantale (development version)
 
+### Biostrings backend: free end gaps, as in DisTAL
+
+`tales_domain_distances(aln_method = "Biostrings")` now aligns with free
+end gaps (DisTAL’s “sliding ends”) instead of a global alignment that
+charged a length difference twice. A half-repeat is now about 41 from
+the full repeat it matches (it was 64.7), as with the other two
+backends. Pairs differing only by substitutions are unchanged.
+
 ### Domain distances now count missing residues (DECIPHER backend)
 
 [`tales_domain_distances()`](https://scunnac.github.io/tantale/reference/tales_domain_distances.md)’s

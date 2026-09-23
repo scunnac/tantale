@@ -9,7 +9,7 @@ every other and returns their pairwise dissimilarity."><meta property="og:image"
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9007</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9008</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -99,9 +99,10 @@ parts. See <a href="summary.tales.html">summary()</a> for that ratio on a given 
 change between two domains, normalised by the longer one, with residues
 one domain lacks counted as changes. A 20-residue half-repeat that is an
 exact prefix of a 34-residue repeat is therefore 14/34, about 41 percent, from
-it. The <code>"DECIPHER"</code> and <code>"mmseq2"</code> backends compute this; <code>"Biostrings"</code>
-uses a global alignment with gap penalties and scores length differences
-more severely.</p>
+it. All three backends follow this definition. They still differ slightly
+pair by pair: <code>"DECIPHER"</code> measures distances inside one multiple
+alignment of all domains, the other two align each pair separately, and
+<code>"Biostrings"</code> also charges a cost for opening an internal gap.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>

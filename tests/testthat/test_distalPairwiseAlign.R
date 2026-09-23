@@ -25,7 +25,8 @@ test_that(".pairwise_align_decipher output a tibble with the expected dims", {
 
 # A 20-aa half-repeat that is an exact prefix of a 34-aa full repeat. DisTAL
 # counts the 14 unmatched residues as changed, normalised by the longer
-# repeat: 14/34. DECIPHER used to ignore the gap and report 0 (ledger §32.3).
+# repeat: 14/34. DECIPHER used to ignore the gap and report 0, Biostrings to
+# charge it twice and report 64.7 (ledger §32.3).
 half_vs_full <- Biostrings::AAStringSet(c(
   half = "LTPAQVVAIASNIGGKQALE",
   full = "LTPAQVVAIASNIGGKQALETVQRLLPVLCQAHG",
@@ -33,9 +34,10 @@ half_vs_full <- Biostrings::AAStringSet(c(
 ))
 dissim_of <- function(tbl, a, b) tbl$dissim[tbl$id1 == a & tbl$id2 == b]
 
-test_that("DECIPHER and mmseq2 count a half-repeat's missing residues (§32.3)", {
+test_that("all three backends count a half-repeat's missing residues once (§32.3)", {
   for (tbl in list(.pairwise_align_decipher(half_vs_full),
-                   .pairwise_align_mmseq2(half_vs_full, conda_bin = "auto"))) {
+                   .pairwise_align_mmseq2(half_vs_full, conda_bin = "auto"),
+                   .pairwise_align_biostrings(half_vs_full))) {
     expect_true("dissim" %in% names(tbl))
     expect_equal(dissim_of(tbl, "half", "full"), 100 * 14 / 34, tolerance = 0.05)
     expect_equal(dissim_of(tbl, "full", "one_mismatch"), 100 * 1 / 34, tolerance = 0.05)

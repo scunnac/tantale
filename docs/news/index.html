@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9007</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9008</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -45,6 +45,10 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="development version" id="tantale-development-version">tantale (development version)<a class="anchor" aria-label="anchor" href="#tantale-development-version"></a></h2>
+<div class="section level3">
+<h3 id="biostrings-backend-free-end-gaps-as-in-distal-development-version">Biostrings backend: free end gaps, as in DisTAL<a class="anchor" aria-label="anchor" href="#biostrings-backend-free-end-gaps-as-in-distal-development-version"></a></h3>
+<p><code>tales_domain_distances(aln_method = "Biostrings")</code> now aligns with free end gaps (DisTAL’s “sliding ends”) instead of a global alignment that charged a length difference twice. A half-repeat is now about 41 from the full repeat it matches (it was 64.7), as with the other two backends. Pairs differing only by substitutions are unchanged.</p>
+</div>
 <div class="section level3">
 <h3 id="domain-distances-now-count-missing-residues-decipher-backend-development-version">Domain distances now count missing residues (DECIPHER backend)<a class="anchor" aria-label="anchor" href="#domain-distances-now-count-missing-residues-decipher-backend-development-version"></a></h3>
 <p><code><a href="../reference/tales_domain_distances.html">tales_domain_distances()</a></code>’s default <code>"DECIPHER"</code> backend ignored gaps, so a half-repeat was at distance 0 from any full repeat it is a prefix of, and indels between domains went uncounted. It now follows DisTAL’s published definition (percentage of amino acids that change, normalised by the longer domain), as the <code>"mmseq2"</code> backend already did: a 20-residue half-repeat is about 41 from the 34-residue repeat it matches. Domain and array distances change for pairs that differ in length or align with gaps; on the three genomes in the articles the grouping is unchanged. With a <code>domain_distances</code> scoring matrix, <code><a href="../reference/tales_align.html">tales_align()</a></code> no longer pulls a half-repeat away from its identical match.</p>

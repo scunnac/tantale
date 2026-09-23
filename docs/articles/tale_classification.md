@@ -275,12 +275,12 @@ backend_dists <- tibble::tibble(
 )
 cor(backend_dists)
 #>             DECIPHER Biostrings    mmseq2
-#> DECIPHER   1.0000000  0.9996585 0.9994917
-#> Biostrings 0.9996585  1.0000000 0.9994692
-#> mmseq2     0.9994917  0.9994692 1.0000000
+#> DECIPHER   1.0000000  0.9986910 0.9994917
+#> Biostrings 0.9986910  1.0000000 0.9988094
+#> mmseq2     0.9994917  0.9988094 1.0000000
 ```
 
-All three agree closely on this fixture (correlations of 0.999 and
+All three agree closely on this fixture (correlations of 0.998 and
 above), so the default gives up nothing in accuracy here, at least on
 data this size.
 

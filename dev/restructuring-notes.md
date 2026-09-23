@@ -9015,11 +9015,32 @@ output dimensions).
   a pair whose alignment has a gap opposite a residue, every change an
   increase; no equal-length ungapped pair changed and no gapped pair
   stayed the same. Accepted, re-run: 44/44.
-- `tales_domain_distances()` docs now state DisTAL's `dissim` definition
-  and that the Biostrings backend (gap penalties) scores length
-  differences more severely. **Still open:** whether the Biostrings
-  backend should drop its gap penalties to match DisTAL's "no gap
-  penalty" (not part of this decision).
+- `tales_domain_distances()` docs now state DisTAL's `dissim` definition.
+
+**Follow-up, same day, maintainer's decision: Biostrings backend aligned
+with DisTAL too.** Context measured first. The backend ran a *global*
+pairwise alignment (identity scores, gap opening 1, extension 0.5) and
+normalised `(longer length - score)`, so a length difference was charged
+twice: as unmatched residues and as gap cost (half-repeat vs full repeat
+64.7 instead of 41.2; last residue missing 7.4 instead of 2.9; a 5-aa
+terminal insertion 21.8 instead of 12.8). Substitution-only pairs already
+agreed with DECIPHER. Variants tried over the full three-genome dataset
+(12769 pairs), each against the fixed DECIPHER distances: as it was, max
+difference 27.3; free end gaps (`type = "overlap"`, internal gap costs
+kept), max 4.9; free end gaps with 1 per gap position, max 8.3. Grouping
+identical (k = 9) under all of them. About 7300 pairs still differ by a
+median of ~1 point with any variant, because DECIPHER measures distances
+inside one multiple alignment of all domains while Biostrings aligns each
+pair separately: the backends can be made consistent, not identical.
+
+Executed: `type = "global"` -> `"overlap"` in
+`.pairwise_align_biostrings()` (DisTAL's "sliding ends (no gap
+penalty)"; internal gaps keep their cost). The §32.3 regression test now
+covers all three backends (half vs full = 14/34). Golden baseline
+unaffected (it uses the default backend). The classification article's
+backend correlations are now >= 0.9987 (text: "0.998 and above"). Docs
+updated: all three backends follow the definition; they differ slightly pair by pair, and
+Biostrings still charges internal gap opening. Version 0.9.9008.
 - Articles: `_cache/compare.rds` and `group.rds` deleted (discovery
   unaffected) and the four cache-dependent articles re-rendered,
   classification first. Grouping identical (k = 9, same partition, same

@@ -42,9 +42,10 @@ parts. See \link[=summary.tales]{summary()} for that ratio on a given object.
 change between two domains, normalised by the longer one, with residues
 one domain lacks counted as changes. A 20-residue half-repeat that is an
 exact prefix of a 34-residue repeat is therefore 14/34, about 41 percent, from
-it. The \code{"DECIPHER"} and \code{"mmseq2"} backends compute this; \code{"Biostrings"}
-uses a global alignment with gap penalties and scores length differences
-more severely.
+it. All three backends follow this definition. They still differ slightly
+pair by pair: \code{"DECIPHER"} measures distances inside one multiple
+alignment of all domains, the other two align each pair separately, and
+\code{"Biostrings"} also charges a cost for opening an internal gap.
 }
 \examples{
 x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",

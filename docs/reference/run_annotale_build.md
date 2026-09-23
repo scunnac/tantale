@@ -58,13 +58,13 @@ run_annotale_predict(fasta, output_dir = predict_out)
 #>   java -jar
 #>   /home/cunnac/Lab-Related/MyScripts/tantale/inst/tools/AnnoTALEcli-1.5.jar
 #>   predict g=/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/MAI1.fa
-#>   s=MAI1 outdir=/tmp/RtmpIwVEbi/annotale_build_example/predict/Predict
+#>   s=MAI1 outdir=/tmp/RtmppnZ7C2/annotale_build_example/predict/Predict
 #> Running AnnoTALE analyze for "MAI1"
 #>   java -jar
 #>   /home/cunnac/Lab-Related/MyScripts/tantale/inst/tools/AnnoTALEcli-1.5.jar
 #>   analyze
-#>   t='/tmp/RtmpIwVEbi/annotale_build_example/predict/Predict/TALE_DNA_sequences_(MAI1).fasta'
-#>   outdir='/tmp/RtmpIwVEbi/annotale_build_example/predict/Analyze'
+#>   t='/tmp/RtmppnZ7C2/annotale_build_example/predict/Predict/TALE_DNA_sequences_(MAI1).fasta'
+#>   outdir='/tmp/RtmppnZ7C2/annotale_build_example/predict/Analyze'
 predicted <- list.files(file.path(predict_out, "Predict"),
                         pattern = "^TALE_DNA_sequences_", full.names = TRUE)
 build_out <- file.path(tempdir(), "annotale_build_example", "build")
@@ -73,8 +73,8 @@ run_annotale_build(predicted, output_dir = build_out)
 #>   java -Xms512M -Xmx6G -jar
 #>   /home/cunnac/Lab-Related/MyScripts/tantale/inst/tools/AnnoTALEcli-1.5.jar
 #>   build
-#>   t='/tmp/RtmpIwVEbi/annotale_build_example/predict/Predict/TALE_DNA_sequences_(MAI1).fasta'
-#>   outdir='/tmp/RtmpIwVEbi/annotale_build_example/build'
+#>   t='/tmp/RtmppnZ7C2/annotale_build_example/predict/Predict/TALE_DNA_sequences_(MAI1).fasta'
+#>   outdir='/tmp/RtmppnZ7C2/annotale_build_example/build'
 list.files(build_out)
 #>  [1] "Class_1"             "Class_2"             "Class_3"            
 #>  [4] "Class_4"             "Class_5"             "Class_6"            

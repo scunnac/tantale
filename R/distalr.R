@@ -139,9 +139,10 @@ tales_assign_domain_codes <- function(x) {
 #' change between two domains, normalised by the longer one, with residues
 #' one domain lacks counted as changes. A 20-residue half-repeat that is an
 #' exact prefix of a 34-residue repeat is therefore 14/34, about 41 percent, from
-#' it. The `"DECIPHER"` and `"mmseq2"` backends compute this; `"Biostrings"`
-#' uses a global alignment with gap penalties and scores length differences
-#' more severely.
+#' it. All three backends follow this definition. They still differ slightly
+#' pair by pair: `"DECIPHER"` measures distances inside one multiple
+#' alignment of all domains, the other two align each pair separately, and
+#' `"Biostrings"` also charges a cost for opening an internal gap.
 #'
 #' @param x A [tales] object carrying `dom_code`, as returned by
 #'   [tales_assign_domain_codes()].
@@ -433,11 +434,17 @@ diag(identSubMat) <- 1
   pair_align_scores <- BiocParallel::bplapply(
     X = 1:length(part_aa_set),
     FUN = function(i) {
+      # "overlap": end gaps are free, DisTAL's "global alignment with sliding
+      # ends (no gap penalty)". Unmatched overhang still counts as change
+      # through the normalisation below. With type = "global" a length
+      # difference was charged twice, as unmatched residues and as gap cost
+      # (a half-repeat scored 64.7 from its full repeat instead of 41.2;
+      # ledger §32.3). Internal gaps keep their cost.
       singleSubAln <- pwalign::pairwiseAlignment(pattern = part_aa_set,
                                                     subject = part_aa_set[i],
                                                     substitutionMatrix = identSubMat, #"BLOSUM62",
                                                     gapOpening = 1, gapExtension = 0.5,
-                                                    type = "global", scoreOnly = FALSE)
+                                                    type = "overlap", scoreOnly = FALSE)
       tibble::tibble(id1 = names(part_aa_set[i]),
                      id2 = names(pwalign::alignedPattern(singleSubAln)),
                      score = BiocGenerics::score(singleSubAln),
