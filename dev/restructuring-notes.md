@@ -9448,3 +9448,19 @@ questions are in the discussion reply of 2026-09-23; the main points:
 **Side finding:** `tests/testthat/test_correct_tales.R` lines 4 and 17
 read `BAI3-1-1.fa` by an absolute path under `/home/cunnac/...`, so the
 test only runs on this machine. Not fixed yet.
+
+### Maintainer, 2026-09-23 (later): one archive on GitHub, TALVEZ settled
+
+- **TALVEZ:** the maintainer will ask A. Pérez-Quintero for permission
+  to redistribute; treat it as settled.
+- **Concern with the proposal above:** it depends on several third-party
+  servers (jstacs.de, the 2016 IRD server) staying up and keeping the
+  same files. **Preferred instead:** bundle everything into one archive
+  attached to a GitHub release of `scunnac/tantale`. The only server
+  involved is then github.com.
+- GitHub limits, checked in its docs: each asset under 2 GiB, up to 1000
+  assets per release, "no limit on the total size of a release, nor
+  bandwidth usage". An *immutable* release (repository setting) locks
+  its assets and tag after publication.
+- Still to decide: whether genomes go in the same archive; the tag
+  scheme; a second copy on Zenodo. Options in the reply of the same day.
