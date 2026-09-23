@@ -1,7 +1,8 @@
 
 
 test_that("correct_tales output a tibble of expected shape when return_corrections is TRUE", {
-  t <- correct_tales(uncorrected_path = "/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/BAI3-1-1.fa",
+  t <- correct_tales(uncorrected_path = system.file("extdata", "BAI3-1-1.fa",
+                                                   package = "tantale", mustWork = TRUE),
                 corrected_path = tempfile(), return_corrections = TRUE,
                 conda_bin = "auto")
   # 70, not the pre-fix 63: correct_tales() was feeding the repeat and
@@ -14,8 +15,9 @@ test_that("correct_tales output a tibble of expected shape when return_correctio
 })
 
 test_that("correct_tales output a the path of an existing file when return_corrections is FALSE", {
-  f <- correct_tales(uncorrected_path = "/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/BAI3-1-1.fa",
-                corrected_path = tempfile(tmpdir = "~"), return_corrections = FALSE,
+  f <- correct_tales(uncorrected_path = system.file("extdata", "BAI3-1-1.fa",
+                                                   package = "tantale", mustWork = TRUE),
+                corrected_path = tempfile(fileext = ".fa"), return_corrections = FALSE,
                 conda_bin = "auto")
   expect_true(fs::file_exists(f))
   unlink(f)

@@ -9449,12 +9449,32 @@ The maintainer's objection, which led to the replacement: the tools
 would depend on several third-party servers staying up and keeping the
 same files.
 
-### Side finding: absolute path in `test_correct_tales.R` -- open
+### Side finding: absolute path in `test_correct_tales.R` -- FIXED 2026-09-23 **[V]**
 
 `tests/testthat/test_correct_tales.R` lines 4 and 17 read `BAI3-1-1.fa`
-by an absolute path under `/home/cunnac/...`, so the test only runs on
-this machine. Not fixed yet. Relevant to the plan below, which moves the
-genomes out of `inst/extdata`.
+by an absolute path under `/home/cunnac/...`, so the test only ran on
+this machine. The second test also wrote its output to
+`tempfile(tmpdir = "~")`, into the user's home directory. Both now use
+`system.file("extdata", "BAI3-1-1.fa", ...)` and a plain `tempfile()`.
+The file passes under `load_all()` (real nhmmer + TALEcorrection run,
+1 min 13 s), and nothing is left in `~`. The plan below moves the
+genomes out of `inst/extdata`, so this test will need its fixture again
+then.
+
+Sweep for the same kind of bug, same day:
+- `R/`, `tests/testthat/*.R`, the articles, `getting_started.qmd`,
+  README, `pkgdown/index.md`, `_pkgdown.yml`, `DESCRIPTION`: no other
+  absolute path in executed code or in `@examples`. No other test writes
+  to `~`, calls `setwd()`, or writes into the working directory.
+- Commented-out developer snippets still carry `/home/cunnac/...`
+  paths: `R/target_predictions.R` (102-104, 249-253), `R/telltale.R`
+  (22-23), `R/distalr.R` (620, 624), `R/tantale_conda_env.R` (44-45).
+  Never executed; left alone, a cleanup candidate for the maintainer.
+- Fixtures echo old absolute paths as provenance only:
+  `tell_tales.log`, AnnoTALE's `protocol_analyze.txt`, HMMER output,
+  and the `source_directory` column of `sampleDistalrOutput.rds` and
+  `sampleTalesMsa.rds`. Nothing reads a path back out of them (checked
+  with grep over `R/` and `tests/`); the golden test already masks them.
 
 ### Maintainer, 2026-09-23 (later): one archive on GitHub, TALVEZ settled
 
