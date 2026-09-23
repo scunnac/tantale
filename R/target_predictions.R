@@ -76,7 +76,7 @@ preditale <- function(rvd_seqs, subj_file, opt_param = "", output_dir = NULL,
   cmd <- glue::glue("java -Xms512M -Xmx2G -jar {shQuote(predictor_path)} preditale {opt_param} TALEs={shQuote(rvdSeqsFile)} s={shQuote(subj_file)} outdir={shQuote(output_dir)}")
   glue::glue("## Invoking Preditale using the following command:\n", stringr::str_wrap(cmd, 80), "\n")
   # Running Preditale
-  system(command = cmd)
+  .tantale_exec(cmd, what = "PrediTALE")
   # Parsing output
   predFiles <- list.files(path = output_dir, pattern = "^Predicted_binding.*tsv$", full.names = TRUE)
   predictions <- lapply(predFiles, function(f) {

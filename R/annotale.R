@@ -32,8 +32,10 @@
 #'   to guess the prefix from the input file name.
 #' @param annotale_jar Path to the AnnoTALE jar file if you want to use another
 #'   version than the one provided with tantale.
-#' @return Returns invisibly the exit code of the shell call to the last
-#'   AnnoTALE step (ie '0' if successful).
+#' @return \code{0}, invisibly; called for the files it writes to
+#'   \code{output_dir}. If either stage exits with a non-zero status, the
+#'   function stops with an error of class
+#'   \code{tantale_error_annotale_failed}.
 #' @export
 #' @family external TALE tools
 #' @examples
@@ -59,18 +61,14 @@ run_annotale_predict <- function(fasta_file,
   }
   # Run the "predict" stage of AnnoTALE
   comPredict <- paste0(
-    "java -jar ", annotale_jar,
+    "java -jar ", shQuote(annotale_jar),
     " predict",
-    " g=", fasta_file,
-    " s=", prefix,
-    " outdir=", predict_dir
+    " g=", shQuote(fasta_file),
+    " s=", shQuote(prefix),
+    " outdir=", shQuote(predict_dir)
   )
   cli::cli_inform(c("Running AnnoTALE predict for {.val {prefix}}", " " = "{comPredict}"))
-  exitPredict <- system(comPredict)
-  if (exitPredict != 0) {
-    cli::cli_abort("AnnoTALE predict failed with exit status {exitPredict}.",
-                   class = c("tantale_error_annotale_failed", "tantale_error"))
-  }
+  .annotale_exec(comPredict, "predict")
 
   # Run the "analyze" stage of AnnoTALE
   comAnalyze <- paste0(
@@ -80,8 +78,7 @@ run_annotale_predict <- function(fasta_file,
     " outdir=", shQuote(analyze_dir)
   )
   cli::cli_inform(c("Running AnnoTALE analyze for {.val {prefix}}", " " = "{comAnalyze}"))
-  exitAnalyze <- system(comAnalyze)
-  return(invisible(exitAnalyze))
+  .annotale_exec(comAnalyze, "analyze")
 }
 
 
@@ -102,7 +99,10 @@ run_annotale_predict <- function(fasta_file,
 #'   exist).
 #' @param annotale_jar Path to the AnnoTALE jar file if you want to use another
 #'   version than the one provided with tantale.
-#' @return Returns invisibly the exit code of the shell call to Annotale (ie '0' if successful).
+#' @return \code{0}, invisibly; called for the files it writes to
+#'   \code{output_dir}. If AnnoTALE exits with a non-zero status, the
+#'   function stops with an error of class
+#'   \code{tantale_error_annotale_failed}.
 #' @export
 #' @family external TALE tools
 #' @examples
@@ -124,12 +124,49 @@ run_annotale_build <- function(fasta_file,
                           ) {
   if(! dir.exists(output_dir)) dir.create(path = output_dir, showWarnings = TRUE, recursive = TRUE, mode = "775")
   comBuild <- paste0(
-    "java -Xms512M -Xmx6G -jar ", annotale_jar,
+    "java -Xms512M -Xmx6G -jar ", shQuote(annotale_jar),
     " build ",
     " t=", shQuote(fasta_file),
     " outdir=", shQuote(output_dir)
   )
   cli::cli_inform(c("Running AnnoTALE build", " " = "{comBuild}"))
-  exitBuild <- system(comBuild)
-  return(invisible(exitBuild))
+  .annotale_exec(comBuild, "build")
+}
+
+
+#' Run one AnnoTALE stage and stop if it fails
+#'
+#' AnnoTALE's jar is run with the system Java, outside the conda
+#' environment, so it goes through \code{.tantale_exec()} for the exit
+#' status check and then raises AnnoTALE's own condition class.
+#'
+#' @param command The shell command.
+#' @param stage The AnnoTALE stage, for the message ("predict", "analyze",
+#'   "build").
+#' @param quiet If \code{TRUE}, discard AnnoTALE's standard output and keep
+#'   its standard error for the error message; if \code{FALSE}, both reach
+#'   the console as they are written.
+#' @return \code{0}, invisibly.
+#' @noRd
+.annotale_exec <- function(command, stage, quiet = FALSE) {
+  errFile <- NULL
+  if (quiet) {
+    errFile <- tempfile("annotale_stderr")
+    on.exit(unlink(errFile), add = TRUE)
+    command <- paste(command, "> /dev/null")
+  }
+  status <- .tantale_exec(command, stderr_file = errFile, check = FALSE)
+  if (!identical(as.integer(status), 0L)) {
+    saidWhy <- if (!is.null(errFile) && file.exists(errFile)) {
+      utils::tail(readLines(errFile, warn = FALSE), 5)
+    } else character()
+    # AnnoTALE's text is shown verbatim, braces included.
+    saidWhy <- gsub("}", "}}", gsub("{", "{{", saidWhy, fixed = TRUE), fixed = TRUE)
+    cli::cli_abort(
+      c("AnnoTALE {stage} failed with exit status {status}.",
+        if (length(saidWhy)) c("i" = "It said:"),
+        stats::setNames(saidWhy, rep(" ", length(saidWhy)))),
+      class = c("tantale_error_annotale_failed", "tantale_error"))
+  }
+  invisible(0L)
 }

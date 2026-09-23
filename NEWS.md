@@ -1,5 +1,18 @@
 # tantale (development version)
 
+## External programs: a failure now stops the call
+
+nHMMER (in `tell_tales()` and `correct_tales()`), AnnoTALE
+(`run_annotale_predict()`, `run_annotale_build()`), PrediTALE
+(`preditale()`) and TALEcorrection (`correct_tales()`) were run without
+checking their exit status, so a failing program could leave empty or
+partial output for later steps to trip over. Each call now stops with an
+error naming the program. Inside `tell_tales()`, an AnnoTALE failure on
+one array still skips that array with a warning, which now gives
+AnnoTALE's own error as its cause. `run_annotale_predict()` and
+`run_annotale_build()` return `0` invisibly on success; their paths are
+now quoted in the shell command, so paths with spaces work.
+
 ## Plots: no more ggplot2 deprecation warnings
 
 `plot.tales_msa()` and `plot_target_preds()` used arguments ggplot2 has

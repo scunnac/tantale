@@ -23,7 +23,10 @@ exist).}
 version than the one provided with tantale.}
 }
 \value{
-Returns invisibly the exit code of the shell call to Annotale (ie '0' if successful).
+\code{0}, invisibly; called for the files it writes to
+\code{output_dir}. If AnnoTALE exits with a non-zero status, the
+function stops with an error of class
+\code{tantale_error_annotale_failed}.
 }
 \description{
 An R wrapper around the \href{https://www.ncbi.nlm.nih.gov/pubmed/26876161}{AnnoTALE} 'AnnoTALE.jar build' program.

@@ -81,7 +81,7 @@
                      shQuote(readable_out_file),
                      sep = " "
   )
-  system(command = searchCmd, ignore.stderr = FALSE, intern = TRUE)
+  .tantale_exec(searchCmd, what = "nHMMER search")
 }
 
 
@@ -660,7 +660,10 @@
 #' @param output_dir Where AnnoTALE writes its parts and RVD files.
 #' @param prefix TALE name prefix; taken from the file name when absent.
 #' @param annotale_jar Path to the AnnoTALE jar.
-#' @return AnnoTALE's exit status, invisibly.
+#' @return \code{0}, invisibly. Stops with
+#'   \code{tantale_error_annotale_failed} if AnnoTALE exits with a non-zero
+#'   status; \code{.telltale_run_annotale()} catches that and skips the
+#'   array.
 #' @noRd
 .run_annotale_analyze <- function(fasta_file,
                                   output_dir = getwd(),
@@ -681,7 +684,7 @@
     " t=", shQuote(fasta_file),
     " outdir=", shQuote(output_dir)
   )
-  invisible(system(comAnalyze, ignore.stdout = TRUE, ignore.stderr = TRUE))
+  .annotale_exec(comAnalyze, "analyze", quiet = TRUE)
 }
 
 
@@ -746,7 +749,9 @@
     )) {
       messages <<- c(messages,
                      (m <- glue::glue("Annotale failed to parse TALE domains for {talOrfID}.")))
-      cli::cli_warn(m)
+      cli::cli_warn(m, parent = if (inherits(checkAnnoTale, "try-error")) {
+        attr(checkAnnoTale, "condition")
+      })
       return(list(rvds = Biostrings::AAStringSet(), domains = data.frame()))
     }
     names(seqOfRVDs) <- talOrfID
