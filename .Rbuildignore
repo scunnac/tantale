@@ -12,7 +12,6 @@
 ^LICENSE\.md$
 ^Rplots\.pdf$
 ^\.claude$
-^CLAUDE\.md$
 ^vignettes/_quarto\.yaml$
 ^vignettes/\.quarto$
 ^vignettes/.*_files$
