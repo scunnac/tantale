@@ -1,5 +1,12 @@
 # tantale (development version)
 
+## Plots: no more ggplot2 deprecation warnings
+
+`plot.tales_msa()` and `plot_target_preds()` used arguments ggplot2 has
+deprecated (`label.size`, and `size` for a line width), so every plot
+raised warnings. They now use `linewidth`, and the figures are unchanged.
+tantale now requires ggplot2 3.5.0 or later.
+
 ## `array_report.tsv`: terminus lengths no longer count the stop codon
 
 `nterm_aa_length` and `cterm_aa_length` counted AnnoTALE's `*` as a residue

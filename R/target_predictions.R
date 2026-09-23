@@ -438,7 +438,7 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
                         ),
                         height = 0.4,
                         colour = "grey30",
-                        size = 0.2,
+                        linewidth = 0.2,
                         fill = "khaki3", #  "yellowgreen",
                         alpha = 0.2,
     ) +
@@ -456,7 +456,7 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
               fontface = "bold",
               color = "white",
               label.padding = ggplot2::unit(0.1, "lines"),
-              label.size = 0) +
+              linewidth = 0) +
     ggplot2::scale_fill_viridis_d(name = "RVD-DNA base match score",
                          option = "magma",
                          end = 0.5,
@@ -471,7 +471,7 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
                         fontface = "bold",
                         color = "black",
                         label.padding = ggplot2::unit(0.1, "lines"),
-                        label.size = 0.2) +
+                        linewidth = 0.2) +
 
     ggplot2::scale_x_continuous( #<--------- x axis
       name = paste0("Position on subject DNA sequence: '", unique(as.character(filteredPreds$subjSeqId)), "'"),
