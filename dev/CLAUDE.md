@@ -252,8 +252,9 @@ and `git status` before trusting any of it.*
   and possibly in the `domain_distances = "rvd"` MAFFT matrix. Four
   options written up in §32.2.
 - **Distribution strategy** (§34). Upstream sources, licences and sizes
-  checked; download-at-setup proposed, not agreed. rOpenSci review
-  parked until the package matures (maintainer finds it tempting).
+  checked. Plan written up and parked by the maintainer: ship the tools
+  as one archive on a GitHub release, fetched by `tantale_setup()`.
+  rOpenSci review parked until the package matures.
 
 **Deferred by the maintainer as future work:**
 - **§30, parallel-phrasing sweep** of the site prose (habit 2 of the
