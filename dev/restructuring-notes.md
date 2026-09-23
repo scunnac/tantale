@@ -9355,10 +9355,13 @@ The other `docs/` diffs are the navbar version and example temp paths.
 **Still open:** an Rcpp version would likely beat the executable. The
 maintainer asked for R, so it is not tried.
 
-## 34. Distribution strategy -- findings, rOpenSci parked, download-at-setup proposed **[P]**
+## 34. Distribution strategy -- findings recorded; one-archive plan and rOpenSci both parked **[P]**
 
 *2026-09-23.* Discussion with the maintainer; nothing decided on the
 channel. This section records what was checked, so it need not be redone.
+Current state: the tools-archive plan at the end of this section is
+written up and parked by the maintainer; rOpenSci is parked until the
+package matures; the channel itself is open.
 
 ### What limits the choice
 
@@ -9382,7 +9385,8 @@ Without the jars, TALVEZ, `talecorrect/`, the four genomes and
 - TALVEZ 3.2 (A. Pérez-Quintero, IRD): no licence in the script, the
   zip or the web page. By default that grants no redistribution right,
   the same position ARLEM was in (§28). Its Java part ships as `.class`
-  files only.
+  files only. The maintainer is asking the author for permission (see
+  below).
 
 **Upstream sources, verified 2026-09-23 by download and `sha256sum`.**
 Every bundled file is byte-identical to its upstream copy.
@@ -9429,31 +9433,34 @@ licence of wrapped tools is judged case by case, so TALVEZ would come up.
 A pre-submission inquiry (a short issue) settles scope before any review.
 **Maintainer, 2026-09-23: revisit once the package has matured further.**
 
-### Proposal, not agreed: download the tools at setup
+### First proposal: download each tool from its upstream **[superseded]**
 
-`tantale_setup()` fetches the tools from their authors' pages, checks
-each against a pinned sha256, and installs them under a per-user
-directory. The package then ships none of them. Details and open
-questions are in the discussion reply of 2026-09-23; the main points:
-- TALEcorrection has no standalone download, only the 283 MB zip. Either
-  ask the Jstacs authors (J. Grau) to publish the jar on its own, or
-  mirror jar + HMMs as a tantale GitHub release asset (GPL-3 allows it,
-  with the source pointer).
-- TALVEZ needs an explicit licence from its author; the only upstream
-  is a 2016 IRD server.
-- Genomes: used by the articles, the `@examples` of `annotale.R`, and
-  `test_correct_tales.R`. PXO86 is `NZ_CP007166`; accessions for BAI3,
-  MAI1 and the status of BAI3-1-1 are for the maintainer.
+Superseded the same day by the one-archive plan below. `tantale_setup()`
+would have fetched each tool from its authors' page, checked it against
+a pinned sha256, and installed it under a per-user directory. Two
+problems showed up:
+- TALEcorrection has no standalone download, only the 283 MB zip. The
+  options were to ask the Jstacs authors (J. Grau) to publish the jar on
+  its own, or to mirror jar + HMMs as a tantale GitHub release asset
+  (GPL-3 allows it, with the source pointer).
+- TALVEZ's only upstream is a 2016 IRD server.
 
-**Side finding:** `tests/testthat/test_correct_tales.R` lines 4 and 17
-read `BAI3-1-1.fa` by an absolute path under `/home/cunnac/...`, so the
-test only runs on this machine. Not fixed yet.
+The maintainer's objection, which led to the replacement: the tools
+would depend on several third-party servers staying up and keeping the
+same files.
+
+### Side finding: absolute path in `test_correct_tales.R` -- open
+
+`tests/testthat/test_correct_tales.R` lines 4 and 17 read `BAI3-1-1.fa`
+by an absolute path under `/home/cunnac/...`, so the test only runs on
+this machine. Not fixed yet. Relevant to the plan below, which moves the
+genomes out of `inst/extdata`.
 
 ### Maintainer, 2026-09-23 (later): one archive on GitHub, TALVEZ settled
 
 - **TALVEZ:** the maintainer will ask A. Pérez-Quintero for permission
   to redistribute; treat it as settled.
-- **Concern with the proposal above:** it depends on several third-party
+- **Concern with the first proposal:** it depends on several third-party
   servers (jstacs.de, the 2016 IRD server) staying up and keeping the
   same files. **Preferred instead:** bundle everything into one archive
   attached to a GitHub release of `scunnac/tantale`. The only server
@@ -9462,8 +9469,8 @@ test only runs on this machine. Not fixed yet.
   assets per release, "no limit on the total size of a release, nor
   bandwidth usage". An *immutable* release (repository setting) locks
   its assets and tag after publication.
-- Still to decide: whether genomes go in the same archive; the tag
-  scheme; a second copy on Zenodo. Options in the reply of the same day.
+- The plan that came out of this follows. Its last paragraph lists what
+  is still to decide.
 
 ### The one-archive plan, as proposed 2026-09-23 -- parked by the maintainer
 
@@ -9513,10 +9520,11 @@ command-line tool is not installed on this machine).
 - One internal resolver (`.tantale_tool("annotale")`) returns each
   tool's path, or aborts with `tantale_error_tool_missing` pointing to
   `tantale_setup()`. The defaults of `run_annotale_predict()`,
-  `run_annotale_analyze()`, `tell_tales()`, `preditale()`, `talvez()`
-  and `correct_tales()` (including `hmm_path`) move from
-  `system.file(..., mustWork = TRUE)` to that resolver. The arguments
-  stay, so a user can still point to their own copy.
+  `run_annotale_build()`, the internal `.run_annotale_analyze()` (called
+  by `tell_tales()`), `preditale()`, `talvez()` and `correct_tales()`
+  (including `hmm_path`) move from `system.file(..., mustWork = TRUE)`
+  to that resolver. The arguments stay, so a user can still point to
+  their own copy.
 - The files leave `inst/`. `inst/tools/talecorrect/`'s upstream `.java`
   sources and shell scripts, which tantale does not call, move to
   `inst/legacy/`. `inst/legacy` goes into `.Rbuildignore`.
@@ -9528,6 +9536,11 @@ examples need the genomes.
 **Still depends on a server:** github.com, the one download location,
 and conda-forge/bioconda for the conda tools, unchanged. Removing the
 jars from `inst/` does not shrink `.git` (~60 MB of history).
+
+**Genomes.** Used by the articles, the `@examples` of `annotale.R`, and
+`test_correct_tales.R`. Articles and examples would fetch them on first
+use; tests would use a subset cut around the TALE loci, like
+`bai3_sample_tal_genomic_regions.fasta`. PXO86 is `NZ_CP007166`.
 
 **Open decisions when this is picked up:** one asset or two; whether to
 deposit the same archive on Zenodo as a fallback URL with a DOI; the
