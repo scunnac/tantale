@@ -33,7 +33,8 @@ of this file against the code.
 
 ### Pending issues deserving urgent action
 
-Ranked by risk. Each was re-checked against the code on 2026-09-23.
+Ranked by risk; re-checked against the code on 2026-09-23. Items 2, 3, 4
+and 6 were done on 2026-09-24 (outcomes kept below); the rest are open.
 
 1. **Licence notices for the bundled tools (§34).** The three jars
    (AnnoTALE, PrediTALE, TALEcorrection) are GPL-3 and may be
@@ -45,37 +46,66 @@ Ranked by risk. Each was re-checked against the code on 2026-09-23.
    channel §34 ends up choosing. Cheap interim fix: a third-party notice
    (licence text, upstream URL, source link per tool) shipped with the
    package and referenced from `LICENSE`/README.
-2. **External programs still run through a bare `system()`** with no
-   exit-status check, the bug class §12 fixed for MAFFT/HMMER-via-conda
-   and §28 for ARLEM. Remaining sites: `.run_nhmmer_search()` and
-   `.check_hmmer()` (`R/telltale.R:60-84`, the core discovery search);
-   `.run_annotale_analyze()` (`R/telltale.R:684`, output and status both
-   discarded); `run_annotale_predict()`'s analyze stage and
-   `run_annotale_build()` (`R/annotale.R:83`, `:133`, status returned,
-   never checked); `preditale()` (`R/target_predictions.R:79`);
-   `correct_tales()` (`R/talecorrection_java.R:90`, wrapped in `try()`).
-   A failing tool can surface as empty or partial output further down.
-   Route them through `.tantale_exec()`.
-3. **A fresh full `devtools::check()`.** The last one ran 2026-09-22
-   (§27). Since then: ARLEM in R, `matrixStats` in `Imports`, the §32
-   fixes, new tests and fixtures. §27 showed that the isolated check
-   library finds problems `load_all()` never sees. Also confirms whether
-   item 5's directory ends up in the tarball.
-4. **Deprecated ggplot2 arguments in the two main plots.** `label.size`
-   (7 sites in `plot.tales_msa()`, `R/tales_plot.R:462-540`; 2 in
-   `plot_target_preds()`) and `size` for a line width
-   (`R/target_predictions.R:441`). They warn on every render and test run
-   today; a future ggplot2 release can turn them into errors, the way
-   ggplot2 4.0.3 once broke every `plot_tales_msa()` call (§6).
+2. **DONE 2026-09-24: every external program's exit status is checked.**
+   nHMMER (`.run_nhmmer_search()`, `correct_tales()`), PrediTALE and
+   TALEcorrection go through `.tantale_exec()`; AnnoTALE's three stages
+   through a new `.annotale_exec()` (`R/annotale.R`), which keeps the
+   `tantale_error_annotale_failed` class and, in quiet mode, replays
+   AnnoTALE's stderr. Inside `tell_tales()` an AnnoTALE failure still
+   skips the array with a warning, which now carries AnnoTALE's error as
+   its parent. `correct_tales()`'s three nHMMER searches were joined with
+   `"; "`, so only the last one's status was ever seen; now `&&`.
+   `run_annotale_predict()`/`run_annotale_build()` also had unquoted paths
+   (contradicting §8.0b's "every command quotes its paths"); fixed.
+   Checked: golden baseline unchanged; PXO86 still gives 18 arrays;
+   `test_external_exit_status.R` (8 tests) fails on the old code for
+   every path the old code left unchecked. `.check_hmmer()` already
+   checked its status and is unchanged.
+3. **DONE 2026-09-24: full `devtools::check()`** (0.9.9010, `--as-cran`,
+   17 min): tests pass in the isolated library (0 failures), all examples
+   including `\donttest{}` pass, vignette builds. It found:
+   - a real bug: `.functal_pwm()` read `rvd_dna_specificity` by its bare
+     name, which resolves only when tantale is attached, so
+     `tantale::tales_to_universalmotif()` (and `tales_compare_functal()`)
+     failed without `library(tantale)`. Now `tantale::rvd_dna_specificity`;
+     a test in `test_tales_compare_functal.R` fails if any package
+     function reads a dataset by bare name;
+   - a broken Rd link (`universalmotif-class`), four undeclared globals
+     (`:=` now imported from rlang; `alignment_position`, `sq_len` in
+     `R/globals.R`). Fixed; a quick re-check shows neither any more;
+   - **still open, a decision:** NOTE "No news entries found in NEWS.md".
+     R's news parser wants bullet items under the version heading; our
+     entries are `##` headings with paragraphs. Converting them to
+     bullets changes how the pkgdown news page looks.
+   - INFO only: 38 non-default Imports; installed size 88 MB (§34).
+4. **DONE 2026-09-24: ggplot2 deprecations.** `label.size` and the line
+   `size` replaced by `linewidth`; `ggplot2 (>= 3.5.0)` declared (the
+   first version where `geom_label()` takes `linewidth`). Five
+   representative figures pixel-identical before and after; no
+   deprecation warning left in the plot tests.
 5. **`inst/legacy/docs_temp/`** (3.8 MB of old notebooks, untracked and
-   gitignored) sits inside `inst/`, so any tarball built from this
-   checkout ships it. The maintainer's files: delete, or move to `extra/`.
-6. **Exported functions no test calls** (confirmed by the §29.2
-   recorder): `talomes_heatmap()`, `plot_target_preds()`, `preditale()`,
-   `run_annotale_build()`, `run_annotale_predict()`. `tales_consensus()`/
-   `tales_consensus_match()` are exercised only through the plot tests.
-   Refresh the static 73.96% coverage badge afterwards (§7.6), since it
-   predates most of the recent work.
+   gitignored) sits inside `inst/`. **Confirmed 2026-09-24:** a tarball
+   built from this checkout contains its 18 files. The maintainer's
+   files: delete them, or move them out of the package tree. Note that
+   `extra/` does not exist in this checkout (untracked since §26); it
+   survives only in `tantale-old-before-reset/extra` (274 MB).
+6. **DONE 2026-09-24: tests for the untested exports.**
+   `test_talomes_heatmap.R`, `test_annotale.R`, `test_tales_consensus.R`,
+   and `preditale()`/`plot_target_preds()` tests in
+   `test_target_predictions.R`, written against known answers where one
+   exists (a site covers position 0 plus one base per RVD; the toy
+   regions' frameshifted copy is AnnoTALE's pseudogene; the
+   `tales_msa`-native consensus equals the matrix one). Writing them found
+   three `talomes_heatmap()` bugs, fixed with the default figure
+   pixel-identical: with `plot_type = "all"` the `title`/`x_lab`/`y_lab`
+   arguments were ignored; `par()` read before the output device was
+   chosen left an extra device open after `save_path`; an explicit
+   `save_path = NULL` failed. An unknown `plot_type` is now an error.
+   Coverage re-measured 2026-09-24: 90.03% (was 73.96%); README badge
+   updated. Lowest files: `tantale_conda_env.R` 59% and
+   `tantale_setup.R` 67% (install branches, which would modify the
+   machine), `requirements.R` 73%, `tales_ingest.R` 76%, `conversion.R`
+   78%.
 7. **§32.2 decision** (`rvdSimDf`, 17 RVDs). Narrower than first thought:
    the alignment side already scores an unknown RVD pair as neutral (0)
    and any RVD against itself as 1 (`.rvd_score_table()`). Only
@@ -345,8 +375,8 @@ All items closed. Kept for reference:
   `h_cut` default moved 90 -> 10.
 - **ggplot2 API drift**: `plot_tales_msa()` aborted on every call under
   ggplot2 4.0.3 (`palette =` passed to `scale_fill_manual()`); replaced by
-  `discrete_scale()`. The same kind of drift is live again: see START
-  HERE item 4.
+  `discrete_scale()`. The same kind of drift (deprecated `label.size`/
+  `size`) was fixed on 2026-09-24 (START HERE item 4).
 - `.build_repeat_msa()` takes the residue type from `tales_align()`
   instead of guessing from six frequent RVDs.
 - `aa_seq` -> `rvd` consistency is a soft anomaly
@@ -491,13 +521,12 @@ Done: README section on the use of large language models; a dedicated
 install instructions; README and `?tantale` descriptions reconciled on the
 two concrete errors (tool-name styling left to drift, maintainer's
 choice); lifecycle badge `stable` (maintainer's call); a static coverage
-badge, 73.96% measured 2026-09-21 with a dated caveat in README.
+badge with a dated caveat in README (73.96% on 2026-09-21, 90.03% on
+2026-09-24).
 
 Open:
 - The "stable" badge against README's own "interfaces may still change"
   (`README.md:116`). START HERE item 8.
-- The coverage badge predates ARLEM in R, the §32 fixes and several test
-  files. START HERE item 6.
 - **`man/figures/pipeline.svg`/`.png`** show pre-restructuring function
   names and are referenced from nowhere outside `dev/`. Redraw, remove,
   or replace with the §29.2 data-flow view. Re-exporting the PNG needs
@@ -552,7 +581,8 @@ quantity" instead of their own class (fixed with `{cli::qty()}`).
 ### 8.0b Quoting paths in shell commands — DONE **[V]**
 
 Every shell command built by the package quotes its interpolated paths
-(`shQuote()`); paths are built with `file.path()` before quoting.
+(`shQuote()`); paths are built with `file.path()` before quoting. (The
+AnnoTALE wrappers were missed and fixed on 2026-09-24.)
 
 ### 8.1 A purpose-built fixture for `tell_tales()` -- DONE **[V]**
 
@@ -808,9 +838,9 @@ TALEcorrection's three calls). Shipped: `.tantale_bin(tools)` (absolute
 paths inside the prefix, naming everything missing at once) and
 `.tantale_exec()` (runs and **checks the exit status**; `conda_run2()`
 does so only on its micromamba branch). The environment's programs run
-correctly from a scrubbed environment (`env -i`). **Not covered:** the
-Java tools and the nHMMER search of `tell_tales()`, which still call
-`system()` directly (START HERE item 2).
+correctly from a scrubbed environment (`env -i`). The Java tools and the
+nHMMER search of `tell_tales()` were brought under the same check on
+2026-09-24 (START HERE item 2).
 
 ### 12a The environment-choosing rule was broken **[V]**
 
@@ -920,10 +950,9 @@ Fixes with consequences beyond wording:
   `.telltale_paths()`; `talomes_heatmap()` now returns `invisible(NULL)`.
 - `AnnoTALE_QueTAL_functions_library.R` renamed `annotale.R`.
 
-Noted, not acted on (still true 2026-09-23): no test for
-`talomes_heatmap()`, `run_annotale_predict()`/`run_annotale_build()`
-(START HERE item 6); the analyze stage's exit status unchecked (item 2);
-`plot_target_preds()`'s ggplot2 deprecations (item 4).
+Noted here and closed on 2026-09-24 (START HERE items 2, 4, 6): no test
+for `talomes_heatmap()` or `run_annotale_*()`, the analyze stage's exit
+status unchecked, `plot_target_preds()`'s ggplot2 deprecations.
 
 ---
 

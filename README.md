@@ -1,10 +1,10 @@
 <!-- badges: start -->
 [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
-![Coverage: 73.96%](https://img.shields.io/badge/coverage-73.96%25-yellowgreen.svg)
+![Coverage: 90.03%](https://img.shields.io/badge/coverage-90.03%25-brightgreen.svg)
 <!-- badges: end -->
 
 Test coverage measured locally with `covr::package_coverage()` on
-2026-09-21; this repo has no CI yet, so the badge is a manual snapshot.
+2026-09-24; this repo has no CI yet, so the badge is a manual snapshot.
 <p align="right">
   <img src="./man/figures/tantale_logo_small.gif">
 

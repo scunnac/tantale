@@ -232,12 +232,14 @@ and `git status` before trusting any of it.*
 
 ### State
 
-- Branch `main`, in sync with `origin/main`, working tree clean. Version
-  **0.9.9009**. The `tantale` package installed on this machine is that
-  version.
-- Full test suite last run 2026-09-23: 380 tests, 0 failed, 0 skipped
-  (before the small §32.4 change; its targeted files and `test_golden.R`
-  pass since). `pkgdown::check_pkgdown()` and `check_built_site()` clean.
+- Branch `main`, version **0.9.9010** (commits of 2026-09-23/24 not
+  pushed as of this writing; check `git status -sb`). The installed
+  `tantale` may be older: reinstall before rendering articles.
+- Full `devtools::check()` on 0.9.9010, 2026-09-24: tests 0 failures,
+  examples (with `--run-donttest`) and vignette OK. One NOTE left: R's
+  news parser finds no entries in `NEWS.md` (ledger START HERE item 3).
+  The two check fixes made afterwards were re-checked with a quick,
+  no-tests `R CMD check`.
 - The site in `docs/` was rebuilt piecewise this session (articles one by
   one, reference, home, news, llm docs, search), not wiped and rebuilt in
   full. No pages were added or removed except `docs/CLAUDE.*`, deleted.
@@ -250,20 +252,14 @@ and `git status` before trusting any of it.*
 The full, ranked list is in the ledger's START HERE block (reviewed
 against the code 2026-09-23). Headlines:
 
-**Pending issues deserving urgent action:**
+**Pending issues deserving urgent action** (items 2, 3, 4, 6 done
+2026-09-24):
 1. Licence notices for the bundled GPL-3 jars and TALVEZ (§34): nothing
    in the package gives the licence or source pointer the GPL requires.
-2. Bare `system()` calls with no exit-status check: the nHMMER search and
-   AnnoTALE analyze inside `tell_tales()`, `run_annotale_*()`,
-   `preditale()`, `correct_tales()`. Route through `.tantale_exec()`.
-3. A fresh full `devtools::check()` (last one: §27, before ARLEM in R).
-4. Deprecated ggplot2 `label.size`/`size` in `plot.tales_msa()` and
-   `plot_target_preds()`.
-5. `inst/legacy/docs_temp/` (untracked, 3.8 MB) would ship in a tarball
-   built from this checkout.
-6. Five exports no test calls (`talomes_heatmap()`,
-   `plot_target_preds()`, `preditale()`, `run_annotale_*()`); coverage
-   badge stale.
+3. (residue) `NEWS.md` format: R's news parser wants bullets; a
+   decision, since it changes the pkgdown news page.
+5. `inst/legacy/docs_temp/` (untracked, 3.8 MB) ships in any tarball
+   built from this checkout (confirmed: 18 files).
 7. §32.2 `rvdSimDf` decision, now limited to the `rvd_sim` plot fill.
 8. README's "stable" badge against its "interfaces may still change".
 
