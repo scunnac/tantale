@@ -9464,3 +9464,71 @@ test only runs on this machine. Not fixed yet.
   its assets and tag after publication.
 - Still to decide: whether genomes go in the same archive; the tag
   scheme; a second copy on Zenodo. Options in the reply of the same day.
+
+### The one-archive plan, as proposed 2026-09-23 -- parked by the maintainer
+
+*Copied from the discussion at the maintainer's request, as a record.
+Not to be acted on until the maintainer says so.*
+
+**The release.** A dedicated GitHub release on `scunnac/tantale` with a
+tag of its own, for example `tools-1`, kept separate from package
+versions. The archive changes only when a tool does, while the package
+changes much more often. The package pins the archive's URL and SHA-256.
+A new PrediTALE, say, would mean a `tools-2` release and a new pin in the
+package.
+
+GitHub's own documentation sets these limits:
+- each file must be under 2 GiB;
+- "there is no limit on the total size of a release, nor bandwidth
+  usage";
+- a repository setting, *immutable releases*, locks a release's assets
+  and tag once it is published, so the file behind the URL can never
+  change.
+
+**What the archive contains**
+- the three jars, the Xoo and Xoc HMMs, and TALVEZ 3.2;
+- `README`: for each tool, its upstream URL, upstream SHA-256, version,
+  licence, citation and source link;
+- `LICENSES/`: the GPL-3 text for the Jstacs tools and Alvaro
+  Pérez-Quintero's permission for TALVEZ. GPL-3 allows redistributing
+  the jars as long as the licence travels with them and the notice says
+  where the source is;
+- `MANIFEST`: a SHA-256 for every file, so an unpacked copy can be
+  checked later.
+
+**How it gets built.** A script in `dev/` assembles the archive, from
+upstream or from the current `inst/` copies (shown identical to upstream
+above), writes the README and prints the archive's SHA-256. The
+maintainer uploads the archive through the GitHub web page (the `gh`
+command-line tool is not installed on this machine).
+
+**Package side.**
+- `tantale_setup()` fetches the archive once, checks its SHA-256, unpacks
+  it into `tools::R_user_dir("tantale", "data")/tools-1/` (`"data"`
+  rather than `"cache"`, which users and operating systems clean), and
+  checks the per-file hashes.
+- `tantale_setup(tools_from = "path/to/archive.tar.gz")` installs from a
+  local copy, for machines without internet or a cluster where one
+  person downloads for everyone.
+- One internal resolver (`.tantale_tool("annotale")`) returns each
+  tool's path, or aborts with `tantale_error_tool_missing` pointing to
+  `tantale_setup()`. The defaults of `run_annotale_predict()`,
+  `run_annotale_analyze()`, `tell_tales()`, `preditale()`, `talvez()`
+  and `correct_tales()` (including `hmm_path`) move from
+  `system.file(..., mustWork = TRUE)` to that resolver. The arguments
+  stay, so a user can still point to their own copy.
+- The files leave `inst/`. `inst/tools/talecorrect/`'s upstream `.java`
+  sources and shell scripts, which tantale does not call, move to
+  `inst/legacy/`. `inst/legacy` goes into `.Rbuildignore`.
+
+**Sizes, compressed:** tools 50 MB, the four genomes 5.6 MB. Suggested:
+the same release, two assets, since only the articles and a few
+examples need the genomes.
+
+**Still depends on a server:** github.com, the one download location,
+and conda-forge/bioconda for the conda tools, unchanged. Removing the
+jars from `inst/` does not shrink `.git` (~60 MB of history).
+
+**Open decisions when this is picked up:** one asset or two; whether to
+deposit the same archive on Zenodo as a fallback URL with a DOI; the
+genome accessions for BAI3 and MAI1, and whether BAI3-1-1 is public.
