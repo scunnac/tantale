@@ -8419,7 +8419,7 @@ class at all.
 
 ---
 
-## 29. Function dependency diagram, to rebuild the maintainer's mental map -- phase 1 built (29.1), phase 2 deferred **[V]**
+## 29. Function dependency diagram, to rebuild the maintainer's mental map -- phase 1 (29.1) and phase 2 (29.2) built **[V]**
 
 Maintainer's request, 2026-09-22: the package has grown enough (24 `R/`
 files, 9144 lines, 51 exports + 19 S3 methods + **107** internal `.xxx()`
@@ -8556,6 +8556,72 @@ are not followed.
 **Still open:** phase 2 (class objects as nodes) remains deferred.
 `man/figures/pipeline.svg` (§7.6) is a separate item; this graph does not
 replace a curated workflow figure.
+
+### 29.2 Phase 2: data-flow view -- built, 2026-09-23 **[V]**
+
+**Maintainer's decision:** a separate, smaller view (exported functions
+plus the five classes), placed first in `dev/function-graph.qmd`. It may
+later be reproduced on the site's home or getting-started page, so its
+code is kept self-contained.
+
+**Method.** Three were considered: static reading of the source, run-time
+recording during the test suite, and a hand-written table. Static reading
+was the first proposal and was dropped after a look at the code: 17
+functions, internals included, run the same `is_tales()` check, and
+returned classes are often attached indirectly. The Rd `\value` sections
+were also scanned for class names; they mention classes that are not
+returned (`plot.tales_msa` names `tale_distances`) and do not separate
+the parts of a returned list (`tales_compare_distal()`). Run-time
+recording was chosen: `dev/function-graph-dataflow.R` traces every
+exported function and S3 method during `testthat::test_dir()` and writes
+the class of the first argument and of the return value (and of a
+returned list's elements) to `dev/function-graph-dataflow.tsv`, which is
+committed. Rendering the page stays fast; the page lists exported
+functions absent from the TSV so a stale recording shows. Coverage is
+whatever the tests exercise.
+
+**Recorder, as built.** `trace()` with an entry tracer and an exit
+expression on each of the 70 exported functions and registered S3
+methods, then `testthat::test_dir(load_package = "none")` after
+`pkgload::load_all()`. Two corrections after the first run: the argument
+class is taken on entry, since a body may reassign its argument
+(`plot.tales()` does `x <- tales(x)`); and supplied arguments other than
+the first are recorded when they belong to a tracked class. The second
+brought in the links that make the pipeline readable:
+`domain_distances` into `tales_tale_distances()` and `tales_align()`,
+`tale_distances` into `tales_group_hclust()` and `plot.tales_msa()`.
+For a function whose first formal is `...` (`tales_bind()`), `..1` is
+recorded. Full suite, 0 failures, about 4 minutes.
+
+Not recorded: the three `dplyr_*` methods (dplyr dispatches through its
+own copy of the registered method, which `trace()` does not reach) and
+five exported functions no test calls: `plot_target_preds()`,
+`preditale()`, `run_annotale_build()`, `run_annotale_predict()`,
+`talomes_heatmap()`. The page lists these.
+
+**View.** First section of the page. Nodes: the five tantale classes and
+the three Biostrings sets that link functions (`BStringSet` from
+`tales_rvd_strings()` into `talvez()`), plus the exported functions and
+S3 methods that take or return one of them (44 nodes). Plain R types
+(tibbles, character, ggplot) are not nodes; a shared "tibble" node would
+draw false paths such as `tales_anomalies()` into `tales()`. They are in
+each function's tooltip. One hand-declared link, `tell_tales()` to
+`tales_from_telltale()` through the results folder, guarded by a
+`stopifnot()` on both names. Validators, predicates, `print`/`format`/`[`
+methods and the two `as_tales` methods are left out by a name pattern.
+
+Layout: vis.js hierarchical layout (left to right, directed sort) was
+tried first and drew a single long line, because of cycles such as
+`tales` into `tales_group_hclust()` and back. Force layout used instead.
+Constructors share their class's name (`tales()` makes a `tales`), so the
+first draft merged each constructor into its class node; node ids now
+carry `fn:`/`class:` prefixes and function labels end in `()`.
+
+**For reuse on the site** (home or getting-started page, maintainer's
+idea): the chunk reads only the TSV and `NAMESPACE`. It would need the
+TSV moved somewhere the site build can read, prose written for users,
+and a check that `visNetwork` renders inside pkgdown's Bootstrap 5 page
+(DT tables break in pkgdown pages through a jQuery conflict).
 
 ---
 

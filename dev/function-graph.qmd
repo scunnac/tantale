@@ -1,5 +1,5 @@
 ---
-title: "tantale function-call graph"
+title: "tantale function maps"
 format:
   html:
     embed-resources: true
@@ -10,15 +10,162 @@ execute:
   warning: false
 ---
 
-A map of which function calls which in `R/`, internals included, for
-finding one's way around the package. Dev-only (`dev/` is in
-`.Rbuildignore`) and not part of the pkgdown site. Ledger §29 has the
-decisions behind it.
+Two maps of the package for finding one's way around it. Dev-only (`dev/`
+is in `.Rbuildignore`) and not part of the pkgdown site. Ledger §29 has
+the decisions behind both.
 
-Render it from the package root with `quarto render dev/function-graph.qmd`.
-The graph is rebuilt from the source files every time, so it cannot go
-stale the way a drawn figure does. Nothing needs to be installed or loaded:
-the files in `R/` are parsed, never run.
+- **Data flow:** the exported functions and the objects they pass to each
+  other, from reading TALE sequences to classes, alignments and target
+  predictions.
+- **Call graph:** which function calls which in `R/`, internals included.
+
+Render the page from the package root with
+`quarto render dev/function-graph.qmd`.
+
+## Data flow
+
+Which object each exported function takes and returns. Boxes are object
+classes, dots are functions. An arrow into a function is an argument
+(labelled when it is not the first one); an arrow out of it is the return
+value (labelled `$name` for an element of a returned list).
+
+The links were recorded by running the test suite with every exported
+function traced (`dev/function-graph-dataflow.R`), so they show what the
+functions actually received and returned. Rerun that script after adding
+an exported function or changing what one takes or returns; the lists
+under the graph show when the recording is out of date. Plain R types
+(tibbles, character vectors, plots) are left out of the drawing and given
+in each function's tooltip, apart from one link through files on disk:
+`tell_tales()` writes a results folder that `tales_from_telltale()` reads.
+
+Validators, predicates, and the `print`, `format` and `[` methods are left
+out: they take an object and return it unchanged, or return a logical.
+
+```{r dataflow}
+#| code-summary: "Code: data-flow view"
+library(visNetwork)
+
+# The recording, and what NAMESPACE exports now.
+flow <- read.delim("function-graph-dataflow.tsv", comment.char = "#",
+                   colClasses = "character", na.strings = "NA")
+recorded_on <- sub("^# ", "", readLines("function-graph-dataflow.tsv", n = 1))
+ns_now <- readLines(file.path("..", "NAMESPACE"))
+exported_now <- sub("^export\\((.*)\\)$", "\\1", grep("^export\\(", ns_now, value = TRUE))
+s3_now <- sub("^S3method\\((.*),(.*)\\)$", "\\1.\\2",
+              grep("^S3method\\(", ns_now, value = TRUE))
+s3_now <- gsub("\"|^[a-z]+::", "", s3_now)
+
+package_classes <- c("tales", "tales_msa", "pairwise_distances",
+                     "tale_distances", "domain_distances")
+bioc_classes <- c("BStringSet", "DNAStringSet", "AAStringSet")
+drawn_classes <- c(package_classes, bioc_classes)
+
+left_out <- "^is_|^validate_|_assert_|^print\\.|^format\\.|^\\[\\.|^dplyr_|^as_tales\\."
+shown <- flow[!grepl(left_out, flow$fn) & flow$fn %in% c(exported_now, s3_now), ]
+
+# Links between classes and functions. Constructors share their class's
+# name (`tales()` makes a `tales`), so node ids carry a prefix.
+cls_id <- function(x) paste0("class:", x)
+fn_id <- function(x) paste0("fn:", x)
+split_pairs <- function(x) {
+  x <- x[nzchar(x)]
+  if (!length(x)) return(matrix(character(), 0, 2))
+  do.call(rbind, strsplit(unlist(strsplit(x, ";")), "="))
+}
+links <- list()
+for (i in seq_len(nrow(shown))) {
+  r <- shown[i, ]
+  if (!is.na(r$arg_class) && r$arg_class %in% drawn_classes)
+    links[[length(links) + 1]] <- c(cls_id(r$arg_class), fn_id(r$fn), "")
+  for (p in seq_len(nrow(op <- split_pairs(r$other_args))))
+    if (op[p, 2] %in% drawn_classes)
+      links[[length(links) + 1]] <- c(cls_id(op[p, 2]), fn_id(r$fn), op[p, 1])
+  if (r$return_class %in% drawn_classes)
+    links[[length(links) + 1]] <- c(fn_id(r$fn), cls_id(r$return_class), "")
+  for (p in seq_len(nrow(rp <- split_pairs(r$return_parts))))
+    if (rp[p, 2] %in% drawn_classes)
+      links[[length(links) + 1]] <- c(fn_id(r$fn), cls_id(rp[p, 2]), paste0("$", rp[p, 1]))
+}
+links <- unique(as.data.frame(do.call(rbind, links)))
+names(links) <- c("from", "to", "label")
+
+# The one link through files on disk.
+stopifnot(all(c("tell_tales", "tales_from_telltale") %in% exported_now))
+links <- rbind(links, data.frame(from = fn_id("tell_tales"),
+                                 to = fn_id("tales_from_telltale"),
+                                 label = "results folder"))
+
+ids <- unique(c(links$from, links$to))
+fns <- sort(sub("^fn:", "", grep("^fn:", ids, value = TRUE)))
+io_summary <- function(f) {
+  r <- flow[flow$fn == f, ]
+  paste(sprintf("%s &rarr; %s", ifelse(is.na(r$arg_class), "(no argument)", r$arg_class),
+                r$return_class), collapse = "<br>")
+}
+fn_nodes <- data.frame(
+  id = fn_id(fns), label = paste0(fns, "()"),
+  group = ifelse(fns %in% exported_now, "exported function", "S3 method"),
+  shape = "dot", size = 12,
+  title = vapply(fns, function(f) sprintf("<b>%s</b><br>%s", f, io_summary(f)), "")
+)
+class_nodes <- data.frame(
+  id = cls_id(drawn_classes), label = drawn_classes,
+  group = ifelse(drawn_classes %in% package_classes, "tantale class", "Biostrings class"),
+  shape = "box", size = 20,
+  title = sprintf("<b>%s</b>", drawn_classes)
+)
+class_nodes <- class_nodes[class_nodes$id %in% ids, ]
+flow_nodes <- rbind(class_nodes, fn_nodes)
+
+flow_edges <- data.frame(
+  from = links$from, to = links$to, label = links$label, arrows = "to",
+  dashes = links$label == "results folder",
+  color = "#7a7a7a", font.size = 11, font.color = "#555555"
+)
+
+visNetwork(flow_nodes, flow_edges, width = "100%", height = "80vh") |>
+  visGroups(groupname = "tantale class", color = "#5b4a8b",
+            font = list(color = "white", size = 16)) |>
+  visGroups(groupname = "Biostrings class", color = "#a79bd0",
+            font = list(color = "black", size = 14)) |>
+  visGroups(groupname = "exported function", color = "#2a78c1") |>
+  visGroups(groupname = "S3 method", color = "#1b9e77") |>
+  visEdges(smooth = FALSE, arrows = list(to = list(scaleFactor = 0.5))) |>
+  visPhysics(solver = "forceAtlas2Based",
+             forceAtlas2Based = list(gravitationalConstant = -120, springLength = 140),
+             stabilization = list(iterations = 600)) |>
+  visOptions(highlightNearest = list(enabled = TRUE, degree = 1,
+                                     algorithm = "hierarchical"),
+             nodesIdSelection = list(enabled = TRUE, main = "Select a node")) |>
+  visInteraction(navigationButtons = TRUE, tooltipDelay = 150) |>
+  visLegend(useGroups = FALSE, position = "left", width = 0.12,
+            addNodes = data.frame(
+              label = c("tantale\nclass", "Biostrings\nclass", "exported", "S3\nmethod"),
+              color = c("#5b4a8b", "#a79bd0", "#2a78c1", "#1b9e77"),
+              shape = c("box", "box", "dot", "dot"), font.size = 14,
+              font.color = c("white", "black", "black", "black")))
+```
+
+`r recorded_on`.
+
+```{r dataflow-coverage}
+#| results: asis
+#| code-summary: "Code: recording coverage"
+not_recorded <- setdiff(exported_now, flow$fn)
+gone <- setdiff(unique(flow$fn), c(exported_now, s3_now))
+code_list <- function(x, suffix = "") {
+  if (length(x)) paste0("`", x, suffix, "`", collapse = ", ") else "none"
+}
+cat(paste0(
+  "- Exported functions the test suite never calls, so absent from the recording: ",
+  code_list(not_recorded, "()"), "\n",
+  "- Recorded functions no longer exported or registered: ", code_list(gone), "\n"))
+```
+
+## Call graph
+
+The call graph is rebuilt from the source files on every render. Nothing
+is loaded or run: the files in `R/` are parsed.
 
 ```{r setup}
 #| code-summary: "Code: parse R/ into nodes and edges"
@@ -127,8 +274,6 @@ define functions, `r nrow(defs)` in all:
 `r sum(defs$kind == "internal")` internal. They are linked by
 `r nrow(edges)` edges, of which `r sum(edges$cross_file)`
 cross from one file to another.
-
-## Graph
 
 The graph opens with one node per file, sized by its number of functions.
 An arrow from A to B means code in A calls code in B.

@@ -269,20 +269,19 @@ and `git status` before trusting any of it.*
 - **§20** `tale_parts_to_rvd()` as a rename/refactor candidate.
 - **§2** `repeat_to_rvd_map()` retirement.
 
-**Deferred, phase 2 of a done item:**
-- **§29** class objects (`tales`, `tales_msa`, `pairwise_distances`...)
-  as nodes in the function graph.
-
 **Planned, not started:**
 - **§7.6** `man/figures/pipeline.svg` is stale (old function names):
   redraw or remove.
 
 ### Done recently (details in the ledger)
 
-- **§29.1** `dev/function-graph.qmd`: interactive call graph of all 187
-  functions, parsed from `R/`, folded by file. Render with
-  `quarto render dev/function-graph.qmd`; the HTML is gitignored. It also
-  lists internals with no caller in `R/`.
+- **§29.1/§29.2** `dev/function-graph.qmd`: a data-flow view (exported
+  functions and the classes they take and return, recorded from the test
+  suite by `dev/function-graph-dataflow.R` into a committed TSV) and a
+  call graph of all 187 functions parsed from `R/`, folded by file.
+  Render with `quarto render dev/function-graph.qmd`; the HTML is
+  gitignored. Rerun the recorder after changing what an export takes or
+  returns. Possible later reuse on the site (§29.2).
 - **§30** site prose review: 8 articles, README, `pkgdown/index.md` and
   all 63 published reference pages checked against rendered output or the
   code; many content errors fixed along with tone.
