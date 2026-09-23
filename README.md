@@ -113,11 +113,12 @@ correction) that have no conda package, which is most of its footprint.
 
 **NOTE** :
 
-- The interface of tantale is stable. Any further change to it follows the
-  conventions of the [lifecycle](https://lifecycle.r-lib.org/articles/stages.html)
-  package: a function or argument to be removed or renamed is first
-  deprecated, with a warning that names its replacement, and only removed
-  in a later release.
+- The interface of tantale is stable. From version 1.0.0 on, any further
+  change to it follows the conventions of the
+  [lifecycle](https://lifecycle.r-lib.org/articles/stages.html) package: a
+  function or argument to be removed or renamed is first deprecated, with
+  a warning that names its replacement, and only removed in a later
+  release.
 - Documentation could be improved and extended.
 - If you feel like contributing, that is great, please send me an email: sebastien.cunnac@ird.fr
 

@@ -191,12 +191,12 @@ to `docs/` as intended.
 rOpenSci guidelines (ledger §9.0): `object_verb()` naming, **data first**,
 snake_case for arguments and columns, no clashes with base or tidyverse.
 
-**The exported interface is stable (maintainer, 2026-09-24).** Renaming or
-removing an exported function or argument now follows the lifecycle
-package's conventions: keep the old name working with a deprecation
-warning that names the replacement (`lifecycle::deprecate_warn()`), and
-remove it only in a later release. Hard renames with no alias, as done
-throughout the restructuring, are no longer the practice.
+**The exported interface is declared stable (maintainer, 2026-09-24), but
+no deprecation cycle before 1.0.0.** Until the 1.0.0 release, renames and
+removals stay hard (no alias, no `lifecycle` warnings), recorded in
+`NEWS.md` as before. From 1.0.0 on, they follow the lifecycle package's
+conventions: keep the old name working with a warning that names the
+replacement (`lifecycle::deprecate_warn()`), remove it in a later release.
 
 Two S3 class families: `tales` → `tales_msa`, and `pairwise_distances` →
 `tale_distances` / `domain_distances`.
@@ -268,7 +268,8 @@ against the code 2026-09-23). Headlines:
 5. `inst/legacy/docs_temp/` (untracked, 3.8 MB) ships in any tarball
    built from this checkout (confirmed: 18 files).
 7. §32.2 `rvdSimDf` decision, now limited to the `rvd_sim` plot fill.
-8. Done: README declares the interface stable (lifecycle conventions).
+8. Done: README declares the interface stable; lifecycle conventions
+   from 1.0.0 on.
 
 **Decisions to make before 1.0.0:** `tales_rvd_strings(rvd_only =)` ->
 `repeats_only`; §2; §20; the "Position in array" axis title (§22); §21

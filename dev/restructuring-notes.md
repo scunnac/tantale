@@ -111,18 +111,17 @@ and 6 were done on 2026-09-24 (outcomes kept below); the rest are open.
    and any RVD against itself as 1 (`.rvd_score_table()`). Only
    `plot.tales_msa(fill_type = "rvd_sim")` still greys out identical RVDs.
 8. **DONE 2026-09-24, maintainer's decision: the interface is stable.**
-   README now says so, and that further changes follow the lifecycle
-   package's conventions (deprecate with a warning first, remove later);
-   `NEWS.md` announces it; rule added to `dev/CLAUDE.md`'s API
-   conventions.
+   README now says so, and that from 1.0.0 on changes follow the
+   lifecycle package's conventions (deprecate with a warning first,
+   remove later). **No deprecation cycle before 1.0.0** (maintainer): until
+   then renames stay hard. `NEWS.md` announces it; rule in
+   `dev/CLAUDE.md`'s API conventions.
 
 ### Decisions to make before 1.0.0 (breaking or user-visible)
 
-Not urgent in themselves. Since 2026-09-24 the interface is declared
-stable (START HERE item 8), so any rename or removal below goes through a
-lifecycle deprecation (old name kept with a warning for at least one
-release), which the `lifecycle` package would provide (not yet a
-dependency).
+Not urgent in themselves, but cheaper before the release: until 1.0.0 a
+rename is a hard rename (no deprecation cycle, maintainer 2026-09-24);
+from 1.0.0 on it needs a lifecycle deprecation (START HERE item 8).
 
 - **`tales_rvd_strings(rvd_only =)`** means "repeats only"; its sibling
   says `repeats_only` (§8.2b).
