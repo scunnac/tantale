@@ -430,11 +430,15 @@ Recorded by running the test suite with every function in the namespace
 traced (`dev/function-graph-shapes.R`): an argument is listed when a test
 passed it a value of one of these shapes, a return value when the function
 returned one (`$name` for an element of a returned list). Rerun the script
-after changing what a function takes or returns. `category` says whether
-the function takes, returns, or does both.
+after changing what a function takes or returns.
 
-Shapes are given with the type of their elements, e.g.
-`matrix<character>`. A `list of scalars` is a list whose elements all
+`input` and `output` give the structure a function takes and returns
+("none" when neither side is one of these shapes; two structures joined
+by `+` when arguments differ). Rows are sorted by `output`. Expand a row
+for each argument's name and the element type (`matrix<character>`), and
+the source file.
+
+A `list of scalars` is a list whose elements all
 have length 1. It covers two different things: one string per array (the
 space-separated repeat codes `.build_repeat_msa()` and `as_tales()`
 take), and records of file paths or settings (`tell_tales()`'s internal
@@ -464,26 +468,50 @@ describe_side <- function(d) {
     if (a == "<value>") s else paste0(a, ": ", s)
   }, ""), collapse = "; ")
 }
+# The structure alone, without element types: "matrix<double>" -> "matrix".
+structure_of <- function(x) {
+  x <- unique(sub("<.*$", "", x))
+  if (length(x)) paste(sort(x), collapse = " + ") else "none"
+}
 shape_tab <- do.call(rbind, lapply(split(shapes, shapes$fn), function(d) {
-  takes <- describe_side(d[d$direction == "in", ])
-  returns <- describe_side(d[d$direction == "out", ])
-  data.frame(name = d$fn[1], takes = takes, returns = returns,
-             category = if (nzchar(takes) && nzchar(returns)) "takes and returns"
-                        else if (nzchar(takes)) "takes only" else "returns only")
+  ins <- d[d$direction == "in", ]
+  outs <- d[d$direction == "out", ]
+  data.frame(input = structure_of(ins$shape), output = structure_of(outs$shape),
+             function_name = d$fn[1],
+             takes = describe_side(ins), returns = describe_side(outs))
 }))
-shape_tab <- merge(shape_tab, defs[, c("name", "kind", "file")], by = "name", all.x = TRUE)
+shape_tab <- merge(shape_tab, defs[, c("name", "kind", "file")],
+                   by.x = "function_name", by.y = "name", all.x = TRUE)
 shape_tab$kind[is.na(shape_tab$kind)] <- "not in R/ any more"
-category_order <- c("takes and returns", "takes only", "returns only")
-shape_tab <- shape_tab[order(match(shape_tab$category, category_order),
-                             shape_tab$kind != "exported", shape_tab$name),
-                       c("name", "kind", "category", "takes", "returns", "file")]
+shape_tab$`exported?` <- c(exported = "yes", `S3 method` = "S3 method",
+                           internal = "no")[shape_tab$kind]
+shape_tab$`exported?`[is.na(shape_tab$`exported?`)] <- shape_tab$kind[is.na(shape_tab$`exported?`)]
+# Sorted by output, then input, then name; "none" after every shape.
+shape_tab <- shape_tab[order(shape_tab$output == "none", shape_tab$output,
+                             shape_tab$input == "none", shape_tab$input,
+                             shape_tab$function_name),
+                       c("input", "output", "exported?", "function_name",
+                         "takes", "returns", "file", "kind")]
+rownames(shape_tab) <- NULL
+mono <- list(fontFamily = "monospace")
 reactable(shape_tab, filterable = TRUE, pagination = FALSE, compact = TRUE,
-          striped = TRUE, groupBy = "category",
-          columns = list(name = colDef(minWidth = 190, style = list(fontFamily = "monospace")),
-                         kind = colDef(width = 95),
-                         takes = colDef(minWidth = 260, style = list(fontFamily = "monospace")),
-                         returns = colDef(minWidth = 200, style = list(fontFamily = "monospace")),
-                         file = colDef(width = 150)))
+          striped = TRUE,
+          columns = list(input = colDef(minWidth = 170),
+                         output = colDef(minWidth = 150),
+                         `exported?` = colDef(width = 100),
+                         function_name = colDef(minWidth = 220, style = mono),
+                         takes = colDef(show = FALSE), returns = colDef(show = FALSE),
+                         file = colDef(show = FALSE), kind = colDef(show = FALSE)),
+          details = function(i) {
+            r <- shape_tab[i, ]
+            htmltools::div(
+              style = "padding: 4px 12px; font-size: 0.9em",
+              htmltools::div(htmltools::strong("takes: "),
+                             htmltools::code(if (nzchar(r$takes)) r$takes else "none")),
+              htmltools::div(htmltools::strong("returns: "),
+                             htmltools::code(if (nzchar(r$returns)) r$returns else "none")),
+              htmltools::div(htmltools::strong("file: "), r$file))
+          })
 ```
 
 `r shapes_recorded_on`.

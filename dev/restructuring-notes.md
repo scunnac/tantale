@@ -1299,8 +1299,11 @@ and exported/internal, kept updatable. Built the same way as §29.2:
 `dev/function-graph-shapes.R` traces all 187 namespace functions during
 the test suite (~9 min) and writes `dev/function-graph-shapes.tsv`
 (dated, with commit); the new section of `dev/function-graph.qmd` builds
-the table from it (grouped: takes and returns / takes only / returns
-only) and lists the functions the tests never call.
+the table from it and lists the functions the tests never call. Columns
+at the maintainer's request: `input`, `output` (structure only, "none"
+where a side has none of these shapes), `exported?`, `function_name`;
+sorted by `output`, "none" last. Argument names, element types and file
+are in each row's expandable detail.
 
 Shapes: `matrix<type>`, `list of vectors<type>`, `list of matrices<type>`,
 and `list of scalars<type>` (all elements of length 1). The last covers
