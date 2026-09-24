@@ -247,8 +247,8 @@ and `git status` before trusting any of it.*
   works only with access; GitHub Pages for a private repository needs a
   paid plan, so the published site may be offline until it is public.
 - Full `devtools::check()` on 0.9.9010, 2026-09-24: tests 0 failures,
-  examples (with `--run-donttest`) and vignette OK. One NOTE left: R's
-  news parser finds no entries in `NEWS.md` (ledger START HERE item 3).
+  examples (with `--run-donttest`) and vignette OK. Its one remaining
+  NOTE (no news entries in `NEWS.md`) is fixed: see "NEWS.md" below.
   The two check fixes made afterwards were re-checked with a quick,
   no-tests `R CMD check`.
 - The site in `docs/` was rebuilt piecewise this session (articles one by
@@ -268,10 +268,9 @@ against the code 2026-09-23). Headlines:
 1. Licence notices for the bundled GPL-3 jars and TALVEZ (§34): nothing
    in the package gives the licence or source pointer the GPL requires.
    Needed before the repository is made public again.
-3. (residue) `NEWS.md` format: R's news parser wants bullets; a
-   decision, since it changes the pkgdown news page.
-5. `inst/legacy/docs_temp/` (untracked, 3.8 MB) ships in any tarball
-   built from this checkout (confirmed: 18 files).
+3. Done 2026-09-24: `NEWS.md`'s top heading now carries the version
+   number, which R's news parser needs (rule under "NEWS.md" below).
+5. Done 2026-09-24: `inst/legacy/docs_temp/` deleted.
 7. §32.2 `rvdSimDf` decision, now limited to the `rvd_sim` plot fill.
 8. Done: README declares the interface stable; lifecycle conventions
    from 1.0.0 on.
@@ -384,6 +383,19 @@ run only what changed: `build_article()` for edited articles,
 before a full build matters: it is the only thing that removes pages whose
 source is gone. `docs/articles/articles/<name>.html` files are
 deliberate redirect stubs from `build_redirects()`.
+
+## NEWS.md
+
+**The top heading carries the current version number: `# tantale
+0.9.9010`, never `# tantale (development version)`.** R's news parser
+(`tools:::.build_news_db_from_package_NEWS_md()`) ignores every heading
+without a version number, so a development-version heading makes
+`R CMD check` report "No news entries found in NEWS.md". Whenever
+`Version:` in `DESCRIPTION` changes, change the top heading to match, in
+the same commit. Entries since the last release stay under that one
+heading; at a release, the heading keeps the released number and the
+next version starts a new one above it. Entries are `##` sections with
+prose; each counts as one news entry, so bullets are not needed.
 
 ## Commits
 

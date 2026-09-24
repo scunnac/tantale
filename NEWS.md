@@ -1,4 +1,4 @@
-# tantale (development version)
+# tantale 0.9.9010
 
 ## The interface is now stable
 

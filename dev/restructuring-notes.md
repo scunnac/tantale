@@ -78,17 +78,32 @@ and 6 were done on 2026-09-24 (outcomes kept below); the rest are open.
      (`:=` now imported from rlang; `alignment_position`, `sq_len` in
      `R/globals.R`). Fixed; a quick re-check shows neither any more;
    - **still open, a decision:** NOTE "No news entries found in NEWS.md".
-     R's news parser wants bullet items under the version heading; our
-     entries are `##` headings with paragraphs. Converting them to
-     bullets changes how the pkgdown news page looks.
+     The first diagnosis here (the parser wants bullets) was wrong.
+     **Re-checked 2026-09-24** by reading
+     `tools:::.build_news_db_from_package_NEWS_md()`: it skips every
+     heading until one contains a version number, and our only top
+     heading is `# tantale (development version)`, so it finds nothing.
+     Under a version heading, each `##` section becomes one entry
+     (category = heading, text = its paragraphs); bullets are not needed.
+     With the first line changed to `# tantale 0.9.9010`, the parser
+     returns 21 entries, one per `##` section. The fix is the heading;
+     bullets are a separate, purely stylistic choice.
+     **DONE 2026-09-24 (maintainer's decision):** top heading changed
+     to `# tantale 0.9.9010`; prose sections kept. Standing rule in
+     `dev/CLAUDE.md` ("NEWS.md"): the heading follows `DESCRIPTION`'s
+     version at every bump.
    - INFO only: 38 non-default Imports; installed size 88 MB (§34).
 4. **DONE 2026-09-24: ggplot2 deprecations.** `label.size` and the line
    `size` replaced by `linewidth`; `ggplot2 (>= 3.5.0)` declared (the
    first version where `geom_label()` takes `linewidth`). Five
    representative figures pixel-identical before and after; no
    deprecation warning left in the plot tests.
-5. **`inst/legacy/docs_temp/`** (3.8 MB of old notebooks, untracked and
-   gitignored) sits inside `inst/`. **Confirmed 2026-09-24:** a tarball
+5. **DONE 2026-09-24: `inst/legacy/docs_temp/` deleted** (maintainer's
+   decision). An identical copy (plus an `.Rhistory`) is in
+   `tantale-old-before-reset/docs_temp/`. The `.gitignore`/`.Rbuildignore`
+   entries are kept. Record of the problem:
+   **`inst/legacy/docs_temp/`** (3.8 MB of old notebooks, untracked and
+   gitignored) sat inside `inst/`. **Confirmed 2026-09-24:** a tarball
    built from this checkout contains its 18 files. The maintainer's
    files: delete them, or move them out of the package tree. Note that
    `extra/` does not exist in this checkout (untracked since §26); it
