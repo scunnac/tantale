@@ -43,8 +43,9 @@ run_annotale_predict(
 
 ## Value
 
-Returns invisibly the exit code of the shell call to the last AnnoTALE
-step (ie '0' if successful).
+`0`, invisibly; called for the files it writes to `output_dir`. If
+either stage exits with a non-zero status, the function stops with an
+error of class `tantale_error_annotale_failed`.
 
 ## See also
 
@@ -61,15 +62,15 @@ out <- file.path(tempdir(), "annotale_predict_example")
 run_annotale_predict(fasta, output_dir = out)
 #> Running AnnoTALE predict for "MAI1"
 #>   java -jar
-#>   /home/cunnac/Lab-Related/MyScripts/tantale/inst/tools/AnnoTALEcli-1.5.jar
-#>   predict g=/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/MAI1.fa
-#>   s=MAI1 outdir=/tmp/Rtmp8AfK5J/annotale_predict_example/Predict
+#>   '/home/cunnac/Lab-Related/MyScripts/tantale/inst/tools/AnnoTALEcli-1.5.jar'
+#>   predict g='/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/MAI1.fa'
+#>   s='MAI1' outdir='/tmp/Rtmp7yJiVv/annotale_predict_example/Predict'
 #> Running AnnoTALE analyze for "MAI1"
 #>   java -jar
 #>   /home/cunnac/Lab-Related/MyScripts/tantale/inst/tools/AnnoTALEcli-1.5.jar
 #>   analyze
-#>   t='/tmp/Rtmp8AfK5J/annotale_predict_example/Predict/TALE_DNA_sequences_(MAI1).fasta'
-#>   outdir='/tmp/Rtmp8AfK5J/annotale_predict_example/Analyze'
+#>   t='/tmp/Rtmp7yJiVv/annotale_predict_example/Predict/TALE_DNA_sequences_(MAI1).fasta'
+#>   outdir='/tmp/Rtmp7yJiVv/annotale_predict_example/Analyze'
 list.files(file.path(out, "Predict"))
 #> [1] "GFF__TALE_predictions_(MAI1).gff3"   "Genbank__TALE_predictions_(MAI1).gb"
 #> [3] "TALE_DNA_sequences_(MAI1).fasta"     "TALE_protein_sequences_(MAI1).fasta"

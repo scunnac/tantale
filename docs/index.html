@@ -24,7 +24,7 @@
 
     <a class="navbar-brand me-2" href="index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9009</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9010</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -81,6 +81,15 @@ tantale
 </h2>
 <p><a href="articles/getting_started.html">Getting started with tantale</a> is a two-minute tour using data already bundled with the package, with no external tools to install first. From there, <a href="articles/index.html">Learn tantale</a> walks through the full pipeline on real genomes (discovery and frameshift correction, classification into groups, multiple alignment, and target prediction), with deep dives into the two central object classes, <code>tales</code>/<code>tales_msa</code>, and a case study on naturally truncated TALEs.</p>
 <p>See the <a href="https://github.com/scunnac/tantale#readme" class="external-link">README</a> for installation instructions, including the conda environment tantale builds for itself to drive its external tools.</p>
+</div>
+<div class="section level2">
+<h2 id="licence">Licence<a class="anchor" aria-label="anchor" href="#licence"></a>
+</h2>
+<p>tantale’s own code is under the MIT licence. The programs and data it bundles from other projects keep their own terms, listed file by file, with upstream sources, in <a href="https://github.com/scunnac/tantale/blob/main/inst/COPYRIGHTS" class="external-link"><code>inst/COPYRIGHTS</code></a>:</p>
+<ul>
+<li>AnnoTALE, PrediTALE and TALEcorrection, from the <a href="https://www.jstacs.de" class="external-link">Jstacs</a> project, are under the GNU GPL, version 3 or later. Their source code is at <a href="https://github.com/Jstacs/Jstacs" class="external-link uri">https://github.com/Jstacs/Jstacs</a>; the licence text ships as <a href="https://github.com/scunnac/tantale/blob/main/inst/tools/COPYING.GPL-3" class="external-link"><code>inst/tools/COPYING.GPL-3</code></a>.</li>
+<li>TALVEZ 3.2 and the QueTAL FuncTAL table behind <code>rvd_dna_specificity</code> carry no licence and are redistributed by permission of their author, Alvaro L. Pérez-Quintero.</li>
+</ul>
 </div>
 <div class="section level2">
 <h2 id="use-of-large-language-models">Use of large language models<a class="anchor" aria-label="anchor" href="#use-of-large-language-models"></a>

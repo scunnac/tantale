@@ -37,8 +37,9 @@ run_annotale_build(
 
 ## Value
 
-Returns invisibly the exit code of the shell call to Annotale (ie '0' if
-successful).
+`0`, invisibly; called for the files it writes to `output_dir`. If
+AnnoTALE exits with a non-zero status, the function stops with an error
+of class `tantale_error_annotale_failed`.
 
 ## See also
 
@@ -56,25 +57,25 @@ predict_out <- file.path(tempdir(), "annotale_build_example", "predict")
 run_annotale_predict(fasta, output_dir = predict_out)
 #> Running AnnoTALE predict for "MAI1"
 #>   java -jar
-#>   /home/cunnac/Lab-Related/MyScripts/tantale/inst/tools/AnnoTALEcli-1.5.jar
-#>   predict g=/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/MAI1.fa
-#>   s=MAI1 outdir=/tmp/Rtmp8AfK5J/annotale_build_example/predict/Predict
+#>   '/home/cunnac/Lab-Related/MyScripts/tantale/inst/tools/AnnoTALEcli-1.5.jar'
+#>   predict g='/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/MAI1.fa'
+#>   s='MAI1' outdir='/tmp/Rtmp7yJiVv/annotale_build_example/predict/Predict'
 #> Running AnnoTALE analyze for "MAI1"
 #>   java -jar
 #>   /home/cunnac/Lab-Related/MyScripts/tantale/inst/tools/AnnoTALEcli-1.5.jar
 #>   analyze
-#>   t='/tmp/Rtmp8AfK5J/annotale_build_example/predict/Predict/TALE_DNA_sequences_(MAI1).fasta'
-#>   outdir='/tmp/Rtmp8AfK5J/annotale_build_example/predict/Analyze'
+#>   t='/tmp/Rtmp7yJiVv/annotale_build_example/predict/Predict/TALE_DNA_sequences_(MAI1).fasta'
+#>   outdir='/tmp/Rtmp7yJiVv/annotale_build_example/predict/Analyze'
 predicted <- list.files(file.path(predict_out, "Predict"),
                         pattern = "^TALE_DNA_sequences_", full.names = TRUE)
 build_out <- file.path(tempdir(), "annotale_build_example", "build")
 run_annotale_build(predicted, output_dir = build_out)
 #> Running AnnoTALE build
 #>   java -Xms512M -Xmx6G -jar
-#>   /home/cunnac/Lab-Related/MyScripts/tantale/inst/tools/AnnoTALEcli-1.5.jar
+#>   '/home/cunnac/Lab-Related/MyScripts/tantale/inst/tools/AnnoTALEcli-1.5.jar'
 #>   build
-#>   t='/tmp/Rtmp8AfK5J/annotale_build_example/predict/Predict/TALE_DNA_sequences_(MAI1).fasta'
-#>   outdir='/tmp/Rtmp8AfK5J/annotale_build_example/build'
+#>   t='/tmp/Rtmp7yJiVv/annotale_build_example/predict/Predict/TALE_DNA_sequences_(MAI1).fasta'
+#>   outdir='/tmp/Rtmp7yJiVv/annotale_build_example/build'
 list.files(build_out)
 #>  [1] "Class_1"             "Class_2"             "Class_3"            
 #>  [4] "Class_4"             "Class_5"             "Class_6"            

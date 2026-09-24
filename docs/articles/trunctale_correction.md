@@ -223,10 +223,10 @@ invisible(tell_tales(
 #> Finding the closest reference amino acid sequences:
 #> ================================================================================
 #> 
-#> Time difference of 8.49 secs
+#> Time difference of 7.44 secs
 #> ================================================================================
 #> 
-#> Time difference of 49.48 secs
+#> Time difference of 42.44 secs
 ```
 
 Code

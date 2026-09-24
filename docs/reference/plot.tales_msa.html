@@ -11,7 +11,7 @@ optionally labelled with another."><meta property="og:image" content="https://sc
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9009</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9010</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -172,11 +172,11 @@ exactly like a repeat cell.</p>
 <p>With no <code>domain_distances</code> and no <code>label</code>, every block is flat
 grey: the text still carries the consensus comparison, but there is
 nothing to colour blocks by.</p>
-<p>A cell with no value for the chosen layer keeps its text and loses its
-colour. In <code>"rvd_sim"</code> that is the termini, which have no DNA-binding
-preference and so no position on a specificity scale, and any RVD the
-built-in RVD similarity table does not cover (it holds 17 RVDs), even
-where it matches the reference.</p>
+<p>A cell with no value for the chosen layer keeps its text and is filled
+grey. In <code>"rvd_sim"</code> that is the termini, which have no DNA-binding
+preference and so no position on a specificity scale. The RVD similarity
+table is TALVEZ's and covers 17 RVDs; a rarer RVD (<code>NV</code>, say) scores
+1 where it is identical to the reference's RVD and is grey elsewhere.</p>
 <p><strong>The reference</strong> matters for both similarity fills.
 <code>ref_pattern</code> is matched against the array names and must identify
 exactly one, otherwise the default is used with a warning; by default it is

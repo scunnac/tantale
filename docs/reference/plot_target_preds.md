@@ -80,10 +80,6 @@ preds <- preditale(rvd_seqs = rvds, subj_file = subj)
 best <- preds[order(-preds$score), ][1, ]
 plot_target_preds(preds = best, subj_file = subj,
                   filter_range = paste0(best$subjSeqId, ":1-2000"))
-#> Warning: Using `size` aesthetic for lines was deprecated in ggplot2 3.4.0.
-#> ℹ Please use `linewidth` instead.
-#> ℹ The deprecated feature was likely used in the tantale package.
-#>   Please report the issue at <https://github.com/scunnac/tantale/issues>.
 
 # }
 ```

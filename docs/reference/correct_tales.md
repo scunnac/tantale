@@ -77,6 +77,6 @@ out_fa <- tempfile(fileext = ".fa")
 correct_tales(uncorrected_path = subj, corrected_path = out_fa)
 #> Running nHMMER
 #> Performing TALEs cds correction on provided sequences.
-#> [1] "/tmp/Rtmp8AfK5J/file7b3f9a8adeb.fa"
+#> [1] "/tmp/Rtmp7yJiVv/file10f6c94d88c97.fa"
 # }
 ```

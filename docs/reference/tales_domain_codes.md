@@ -18,8 +18,9 @@ tales_domain_codes(x)
 
 ## Value
 
-A [`tibble`](https://rdrr.io/pkg/tibble/man/tibble.html) with `dom_code`
-and `aa_seq` columns, plus `rvd` when `x` carries one, one row per code.
+A [`tibble`](https://tibble.tidyverse.org/reference/tibble.html) with
+`dom_code` and `aa_seq` columns, plus `rvd` when `x` carries one, one
+row per code.
 
 ## See also
 

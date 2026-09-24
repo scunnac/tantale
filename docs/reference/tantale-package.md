@@ -73,10 +73,10 @@ nothing else would report it.
 
 If you have no conda at all, `reticulate` will install one from inside R
 with
-[`reticulate::install_miniconda()`](https://rdrr.io/pkg/reticulate/man/install_miniconda.html)
+[`reticulate::install_miniconda()`](https://rstudio.github.io/reticulate/reference/install_miniconda.html)
 (this installs miniconda). An existing conda, mamba or micromamba is
 found automatically through
-[`reticulate::conda_binary()`](https://rdrr.io/pkg/reticulate/man/conda-tools.html)
+[`reticulate::conda_binary()`](https://rstudio.github.io/reticulate/reference/conda-tools.html)
 and used instead.
 
 ## See also

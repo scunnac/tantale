@@ -1,6 +1,97 @@
 # Changelog
 
-## tantale (development version)
+## tantale 0.9.9010
+
+### Licences of the bundled programs are now stated
+
+`inst/COPYRIGHTS` lists every program and data file tantale bundles from
+other projects, with its authors, licence, upstream download and source
+code: AnnoTALE, PrediTALE and TALEcorrection (GNU GPL 3 or later, from
+the Jstacs project), TALVEZ 3.2 and QueTAL FuncTAL (redistributed by
+permission of their author). The GPL text ships as
+`inst/tools/COPYING.GPL-3`. tantale’s own code stays under the MIT
+licence.
+
+### `rvd_dna_specificity`: the RVD NA has its row back
+
+The row for the RVD `NA` (Asn-Ala) had a missing name, because the table
+was read with the string `"NA"` taken as a missing value. As a result,
+[`tales_to_universalmotif()`](https://scunnac.github.io/tantale/reference/tales_to_universalmotif.md)
+and
+[`tales_compare_functal()`](https://scunnac.github.io/tantale/reference/tales_compare_functal.md)
+gave every `NA` repeat the flat `XX` profile instead of its own
+(1/2/1/0). Fixed; no other row changed.
+
+### `rvd_sim` fill: a rare RVD identical to the reference now scores 1
+
+`plot.tales_msa(fill_type = "rvd_sim")` takes its RVD similarities from
+TALVEZ’s table, which covers 17 RVDs. Any other RVD (`NV`, for example)
+was left grey, even where it was identical to the reference’s. It now
+scores 1 there, as it already did in
+[`tales_align()`](https://scunnac.github.io/tantale/reference/tales_align.md)’s
+RVD scoring matrix; other pairs involving it stay grey. The legend says
+what grey means.
+
+### The interface is now stable
+
+From version 1.0.0 on, changes to exported functions and their arguments
+follow the [lifecycle](https://lifecycle.r-lib.org/articles/stages.html)
+conventions: deprecation with a warning first, removal in a later
+release.
+
+### `tales_to_universalmotif()` works without `library(tantale)`
+
+[`tales_to_universalmotif()`](https://scunnac.github.io/tantale/reference/tales_to_universalmotif.md)
+and
+[`tales_compare_functal()`](https://scunnac.github.io/tantale/reference/tales_compare_functal.md)
+read the `rvd_dna_specificity` table by a name that resolved only once
+tantale was attached, so calling them as
+[`tantale::tales_to_universalmotif()`](https://scunnac.github.io/tantale/reference/tales_to_universalmotif.md)
+failed with “object ‘rvd_dna_specificity’ not found”. Fixed.
+
+### `talomes_heatmap()` fixes
+
+With the default `plot_type = "all"`, the `title`, `x_lab` and `y_lab`
+arguments were ignored (the default text was drawn whatever was passed),
+and saving to `save_path` left an extra graphics device open. Both
+fixed; the default figure is unchanged. An explicit `save_path = NULL`
+now draws on the current device, and an unknown `plot_type` is an error
+instead of drawing nothing.
+
+### External programs: a failure now stops the call
+
+nHMMER (in
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
+and
+[`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)),
+AnnoTALE
+([`run_annotale_predict()`](https://scunnac.github.io/tantale/reference/run_annotale_predict.md),
+[`run_annotale_build()`](https://scunnac.github.io/tantale/reference/run_annotale_build.md)),
+PrediTALE
+([`preditale()`](https://scunnac.github.io/tantale/reference/preditale.md))
+and TALEcorrection
+([`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md))
+were run without checking their exit status, so a failing program could
+leave empty or partial output for later steps to trip over. Each call
+now stops with an error naming the program. Inside
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md),
+an AnnoTALE failure on one array still skips that array with a warning,
+which now gives AnnoTALE’s own error as its cause.
+[`run_annotale_predict()`](https://scunnac.github.io/tantale/reference/run_annotale_predict.md)
+and
+[`run_annotale_build()`](https://scunnac.github.io/tantale/reference/run_annotale_build.md)
+return `0` invisibly on success; their paths are now quoted in the shell
+command, so paths with spaces work.
+
+### Plots: no more ggplot2 deprecation warnings
+
+[`plot.tales_msa()`](https://scunnac.github.io/tantale/reference/plot.tales_msa.md)
+and
+[`plot_target_preds()`](https://scunnac.github.io/tantale/reference/plot_target_preds.md)
+used arguments ggplot2 has deprecated (`label.size`, and `size` for a
+line width), so every plot raised warnings. They now use `linewidth`,
+and the figures are unchanged. tantale now requires ggplot2 3.5.0 or
+later.
 
 ### `array_report.tsv`: terminus lengths no longer count the stop codon
 

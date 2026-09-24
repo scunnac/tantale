@@ -324,9 +324,10 @@ Figure 4: The same alignment, coloured by RVD specificity relative to
 the reference.
 
 Here every repeat carries the same RVD as the reference’s at its
-position, so all score 1. Termini have no DNA-binding preference and
-stay grey, as do RVDs the built-in similarity table does not cover (here
-`NV`).
+position, so all score 1. That includes `NV`, which the built-in
+similarity table (TALVEZ’s, 17 RVDs) does not cover: an RVD identical to
+the reference’s always scores 1. Termini have no DNA-binding preference
+and stay grey.
 
 The domain- and RVD-level views genuinely differ: repeats carrying `HD`
 and `ND` differ in sequence yet both favour cytosine, while repeats

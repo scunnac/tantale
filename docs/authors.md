@@ -13,13 +13,13 @@ Source:
 [`DESCRIPTION`](https://github.com/scunnac/tantale/blob/HEAD/DESCRIPTION)
 
 Vi BT, Cunnac S (2026). *tantale: Transcription Activator-Like Effectors
-(TALEs) tools*. R package version 0.9.9009,
+(TALEs) tools*. R package version 0.9.9010,
 <https://scunnac.github.io/tantale>.
 
     @Manual{,
       title = {tantale: Transcription Activator-Like Effectors (TALEs) tools},
       author = {Bao Tram Vi and Sebastien Cunnac},
       year = {2026},
-      note = {R package version 0.9.9009},
+      note = {R package version 0.9.9010},
       url = {https://scunnac.github.io/tantale},
     }

@@ -36,5 +36,6 @@ A numeric matrix with the dimensions and dimnames of `rvd_align`.
 
 Wired through `fill_type = "rvd_sim"` in
 [`plot.tales_msa`](https://scunnac.github.io/tantale/reference/plot.tales_msa.md)
-– the RVD-level counterpart of `"domain_sim"`. It is the only consumer
-of the internal `rvdSimDf` dataset.
+– the RVD-level counterpart of `"domain_sim"`. The internal `rvdSimDf`
+dataset it reads also feeds
+[`.rvd_score_table()`](https://scunnac.github.io/tantale/reference/dot-rvd_score_table.md).

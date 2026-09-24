@@ -38,7 +38,12 @@ tracked <- c("tales", "tales_msa", "pairwise_distances", "tale_distances",
 
 # On entry, before the body can reassign an argument. Only supplied
 # arguments are evaluated, so defaults are left to the body.
+# R turns tracing off while a tracer runs. Evaluating an argument can run
+# another traced function (tales_align(tales_compare_distal(x)$tales)), so
+# tracing is turned back on for the duration, or that call goes unrecorded.
 entry_args <- function(fn, env) {
+  old <- tracingState(TRUE)
+  on.exit(tracingState(old))
   args <- names(formals(get(fn, ns)))
   if (!length(args)) return(c(first = NA_character_, other = ""))
   what <- if (args[1] == "...") quote(..1) else as.name(args[1])
@@ -69,10 +74,27 @@ for (fn in traced) {
     fn, where = ns, print = FALSE,
     tracer = bquote(.tantale_flow_in <- .GlobalEnv$.tantale_flow_entry(.(fn), environment())),
     exit = bquote({
-      .v <- tryCatch(returnValue(), error = function(e) NULL)
-      if (!is.null(.v)) .GlobalEnv$.tantale_flow_record(.(fn), .tantale_flow_in, .v)
+      # A function that returns NULL (talomes_heatmap() draws and returns
+      # invisible(NULL)) is recorded too; only an exit by error is skipped.
+      .v <- returnValue(default = quote(.tantale_no_value))
+      if (!identical(.v, quote(.tantale_no_value)))
+        .GlobalEnv$.tantale_flow_record(.(fn), .tantale_flow_in, .v)
     })
   ))
+}
+# A generic in another package (print(), dplyr_reconstruct()) can find a
+# method through the S3 registry, which still holds the untraced function.
+generic_home <- function(g) {
+  if (exists(g, envir = ns, mode = "function")) return(ns)
+  for (p in loadedNamespaces())
+    if (exists(g, envir = asNamespace(p), mode = "function", inherits = FALSE))
+      return(asNamespace(p))
+  NULL
+}
+for (i in seq_len(nrow(s3))) {
+  home <- generic_home(s3$generic[i])
+  if (is.null(home)) next
+  registerS3method(s3$generic[i], s3$class[i], get(s3$method[i], ns), envir = home)
 }
 assign(".tantale_flow_entry", entry_args, envir = .GlobalEnv)
 assign(".tantale_flow_record", record, envir = .GlobalEnv)

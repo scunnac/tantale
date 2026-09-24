@@ -1,7 +1,9 @@
 # Convert a tales object to a list of predicted DNA-binding-specificity PWMs
 
-One `universalmotif` position weight matrix per array, built by looking
-up each repeat's RVD in
+One
+[`universalmotif`](https://rdrr.io/pkg/universalmotif/man/universalmotif-class.html)
+position weight matrix per array, built by looking up each repeat's RVD
+in
 [`rvd_dna_specificity`](https://scunnac.github.io/tantale/reference/rvd_dna_specificity.md)
 and stacking the rows in repeat order. The conversion
 [`tales_compare_functal`](https://scunnac.github.io/tantale/reference/tales_compare_functal.md)

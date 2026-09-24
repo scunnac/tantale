@@ -234,13 +234,13 @@ stamp exists to catch cross-run mixing, and is enforced, not advisory.
 
 ## Where things stand
 
-*Updated 2026-09-23, end of session. Re-check with `git log --oneline -5`
+*Updated 2026-09-24, end of session. Re-check with `git log --oneline -5`
 and `git status` before trusting any of it.*
 
 ### State
 
-- Branch `main`, version **0.9.9010** (commits of 2026-09-23/24 not
-  pushed as of this writing; check `git status -sb`). The installed
+- Branch `main`, version **0.9.9010**, everything pushed at the end of
+  2026-09-24 (check `git status -sb`). The installed
   `tantale` may be older: reinstall before rendering articles.
 - **The GitHub repository is private** since 2026-09-24 (maintainer's
   choice, to change things without users). The README's install command
@@ -251,9 +251,9 @@ and `git status` before trusting any of it.*
   NOTE (no news entries in `NEWS.md`) is fixed: see "NEWS.md" below.
   The two check fixes made afterwards were re-checked with a quick,
   no-tests `R CMD check`.
-- The site in `docs/` was rebuilt piecewise this session (articles one by
-  one, reference, home, news, llm docs, search), not wiped and rebuilt in
-  full. No pages were added or removed except `docs/CLAUDE.*`, deleted.
+- The site in `docs/` is current with 0.9.9010 as of 2026-09-24 (partial
+  rebuilds: reference, home, news, llm docs, search, articles re-rendered
+  one by one). It has not been wiped and rebuilt in full recently.
 - The Claude Code pointer file is `.claude/CLAUDE.md` (it imports this
   file). It was moved out of the repo root because pkgdown publishes every
   root `.md` as a page, whatever `.Rbuildignore` says.

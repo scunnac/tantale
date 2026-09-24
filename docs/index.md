@@ -60,6 +60,22 @@ See the [README](https://github.com/scunnac/tantale#readme) for
 installation instructions, including the conda environment tantale
 builds for itself to drive its external tools.
 
+## Licence
+
+tantale’s own code is under the MIT licence. The programs and data it
+bundles from other projects keep their own terms, listed file by file,
+with upstream sources, in
+[`inst/COPYRIGHTS`](https://github.com/scunnac/tantale/blob/main/inst/COPYRIGHTS):
+
+- AnnoTALE, PrediTALE and TALEcorrection, from the
+  [Jstacs](https://www.jstacs.de) project, are under the GNU GPL,
+  version 3 or later. Their source code is at
+  <https://github.com/Jstacs/Jstacs>; the licence text ships as
+  [`inst/tools/COPYING.GPL-3`](https://github.com/scunnac/tantale/blob/main/inst/tools/COPYING.GPL-3).
+- TALVEZ 3.2 and the QueTAL FuncTAL table behind `rvd_dna_specificity`
+  carry no licence and are redistributed by permission of their author,
+  Alvaro L. Pérez-Quintero.
+
 ## Use of large language models
 
 The authors used large language models (Claude, Anthropic – including

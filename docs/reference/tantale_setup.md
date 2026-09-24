@@ -67,7 +67,7 @@ conda, and without this check they fail deep inside a
 deliberately opt-in and separate from `install`: putting a package
 manager on someone's machine is a larger side effect than building an
 environment in one that already exists. It installs **miniconda**, via
-[`reticulate::install_miniconda()`](https://rdrr.io/pkg/reticulate/man/install_miniconda.html).
+[`reticulate::install_miniconda()`](https://rstudio.github.io/reticulate/reference/install_miniconda.html).
 
 ## See also
 

@@ -198,14 +198,19 @@ from 1.0.0 on it needs a lifecycle deprecation (START HERE item 8).
   heading, a `v0.99.0` tag and a GitHub *pre-release*. Hard renames are
   still allowed at 0.99.x (lifecycle rules start at 1.0.0).
 
-### Housekeeping pending (2026-09-24)
+### Housekeeping pending (2026-09-24) -- both DONE the same day
 
-- **`docs/` is behind 0.9.9010**: reference pages (the `run_annotale_*()`
+- **DONE:** partial rebuild (reinstall; reference, home, news, llm docs,
+  search; `trunctale_correction` re-rendered, only its printed timings
+  changed). `pkgdown/index.md` got README's Licence section, since the
+  home page is built from it and showed no licence information.
+  Record of the item: **`docs/` is behind 0.9.9010**: reference pages (the `run_annotale_*()`
   return values, `talomes_heatmap()`), home page (README's stability
   note) and news. Partial rebuild per `dev/CLAUDE.md` (reinstall first;
   no page added or removed, so no wipe). The site may be offline anyway
   while the repository is private.
-- **Re-run `dev/function-graph-dataflow.R`** (now ~10 min, the suite is
+- **DONE** (see §29.3, "Done 2026-09-24"). Record of the item:
+  **Re-run `dev/function-graph-dataflow.R`** (now ~10 min, the suite is
   longer) so the §29.2 data-flow view records the functions tested since:
   `talomes_heatmap()`, `preditale()`, `plot_target_preds()`,
   `run_annotale_*()`.
@@ -1332,10 +1337,13 @@ recording):
   method with `registerS3method()`, looking the generic up in its own
   namespace.
 
-**Open:** `dev/function-graph-dataflow.R` (§29.2) has the second and third
-pitfalls (its tracer evaluates the first argument; S3 methods are not
-re-registered). Worth the same two fixes when it is rerun (housekeeping
-item: its TSV predates the tests of 2026-09-24).
+**Done 2026-09-24:** `dev/function-graph-dataflow.R` (§29.2) got the same
+two fixes (`tracingState(TRUE)` in the entry tracer, S3 methods
+re-registered) and was rerun at 4c1b60b: 69 of 70 exports recorded. The
+one missing, `talomes_heatmap()`, is a fourth pitfall: the exit tracer
+skipped `NULL` return values, and it returns `invisible(NULL)`. Fixed
+afterwards (`returnValue(default = )`, so only an exit by error is
+skipped) but not rerun; it will appear at the next recording.
 
 ## 30. Full website prose review against `feedback_writing_tone` -- articles/README/index and reference pages DONE; parallel-phrasing sweep deferred **[V]**
 
