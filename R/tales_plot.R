@@ -141,11 +141,11 @@ plot.tales <- function(x, position = c("array", "alignment"), ...) {
 #' grey: the text still carries the consensus comparison, but there is
 #' nothing to colour blocks by.
 #'
-#' A cell with no value for the chosen layer keeps its text and loses its
-#' colour. In \code{"rvd_sim"} that is the termini, which have no DNA-binding
-#' preference and so no position on a specificity scale, and any RVD the
-#' built-in RVD similarity table does not cover (it holds 17 RVDs), even
-#' where it matches the reference.
+#' A cell with no value for the chosen layer keeps its text and is filled
+#' grey. In \code{"rvd_sim"} that is the termini, which have no DNA-binding
+#' preference and so no position on a specificity scale. The RVD similarity
+#' table is TALVEZ's and covers 17 RVDs; a rarer RVD (\code{NV}, say) scores
+#' 1 where it is identical to the reference's RVD and is grey elsewhere.
 #'
 #' \strong{The reference} matters for both similarity fills.
 #' \code{ref_pattern} is matched against the array names and must identify
@@ -431,7 +431,7 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
   # The RVD score is a correlation on [-1, 1], so it wants a diverging scale
   # centred on zero rather than the sequential one used for domain similarity.
   rvdSimFillScale <- ggplot2::scale_fill_gradient2(
-    name = "RVD specificity vs reference",
+    name = "RVD specificity vs reference\n(grey: no score)",
     limits = c(-1, 1), midpoint = 0,
     low = "#B2182B", mid = "grey92", high = "#2166AC", na.value = "grey80")
   # labelConsensusColorScale <- ggplot2::scale_color_manual(name = "Match consensus?",
@@ -709,8 +709,8 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
 #' positions 12-13.
 #'
 #' Wired through \code{fill_type = "rvd_sim"} in \code{\link{plot.tales_msa}}
-#' -- the RVD-level counterpart of \code{"domain_sim"}. It is the only
-#' consumer of the internal \code{rvdSimDf} dataset.
+#' -- the RVD-level counterpart of \code{"domain_sim"}. The internal
+#' \code{rvdSimDf} dataset it reads also feeds \code{.rvd_score_table()}.
 #'
 #' @param rvd_align A character matrix of aligned RVDs.
 #' @param rvd_sims A data frame of pairwise RVD similarity with columns
@@ -727,7 +727,14 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
                     function(column) {
                       refState <- column[refRowIdx]
                       relevantSims <- subset(rvd_sims, subset = rvd1 == refState)
-                      relevantSims$Cor[match(column, relevantSims$rvd2, nomatch = NA)]
+                      sims <- relevantSims$Cor[match(column, relevantSims$rvd2, nomatch = NA)]
+                      # An RVD outside rvd_sims (rare RVDs such as NV) still
+                      # scores 1 against an identical reference RVD, as in
+                      # .rvd_score_table(). Gaps and termini stay NA.
+                      same <- is.na(sims) & !is.na(refState) & !is.na(column) &
+                        column == refState & !refState %in% tales_anchor_codes()
+                      sims[same] <- 1
+                      sims
                     }
   )
   simAlign <- matrix(simAlign, nrow = nrow(rvd_align)) # in case of 1-row matrix

@@ -30,7 +30,7 @@ positions 12-13.
 }
 \details{
 Wired through \code{fill_type = "rvd_sim"} in \code{\link{plot.tales_msa}}
--- the RVD-level counterpart of \code{"domain_sim"}. It is the only
-consumer of the internal \code{rvdSimDf} dataset.
+-- the RVD-level counterpart of \code{"domain_sim"}. The internal
+\code{rvdSimDf} dataset it reads also feeds \code{.rvd_score_table()}.
 }
 \keyword{internal}

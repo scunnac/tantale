@@ -143,6 +143,19 @@ test_that("opposite specificities score strongly negative", {
   expect_lt(min(sc, na.rm = TRUE), -0.9)
 })
 
+test_that("an RVD outside the similarity table scores 1 only where identical", {
+  # NV is not among rvdSimDf's 17 RVDs. The reference row sets each
+  # column's RVD; termini and gaps are never scored.
+  m <- rbind(ref = c("NTERM", "NV", "NV", "NI", "CTERM"),
+             a   = c("NTERM", "NV", "NN", NA,   "CTERM"),
+             b   = c("NTERM", "NG", "NV", "NI", NA))
+  colnames(m) <- 1:5
+  sc <- tantale:::.rvd_to_match_align(m, ref_tag = "ref")
+  expect_equal(unname(sc["a", ]), c(NA, 1, NA, NA, NA))
+  expect_equal(unname(sc["b", ]), c(NA, NA, 1, 1, NA))
+  expect_equal(unname(sc["ref", ]), c(NA, 1, 1, 1, NA))
+})
+
 test_that("rvd_sim needs a labelled RVD layer", {
   expect_error(plot(msa, label = NULL, fill_type = "rvd_sim"),
                class = "tantale_error_msa_layer")

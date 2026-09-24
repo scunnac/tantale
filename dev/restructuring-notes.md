@@ -33,8 +33,8 @@ of this file against the code.
 
 ### Pending issues deserving urgent action
 
-Ranked by risk; re-checked against the code on 2026-09-23. Items 2, 3, 4
-and 6 were done on 2026-09-24 (outcomes kept below); the rest are open.
+Ranked by risk; re-checked against the code on 2026-09-23. All but item 1
+were done on 2026-09-24 (outcomes kept below).
 
 1. **Licence notices for the bundled tools (§34).** The three jars
    (AnnoTALE, PrediTALE, TALEcorrection) are GPL-3 and may be
@@ -125,7 +125,9 @@ and 6 were done on 2026-09-24 (outcomes kept below); the rest are open.
    `tantale_setup.R` 67% (install branches, which would modify the
    machine), `requirements.R` 73%, `tales_ingest.R` 76%, `conversion.R`
    78%.
-7. **§32.2 decision** (`rvdSimDf`, 17 RVDs). Narrower than first thought:
+7. **DONE 2026-09-24: §32.2, option 2**, plus a fix for the nameless
+   `NA` row of `rvd_dna_specificity` found on the way. Record of the
+   question: **§32.2 decision** (`rvdSimDf`, 17 RVDs). Narrower than first thought:
    the alignment side already scores an unknown RVD pair as neutral (0)
    and any RVD against itself as 1 (`.rvd_score_table()`). Only
    `plot.tales_msa(fill_type = "rvd_sim")` still greys out identical RVDs.
@@ -1290,7 +1292,7 @@ no `quiet` argument. `docs/articles/articles/<name>.html` files are
 
 ---
 
-## 32. Four findings from §30's render check -- 32.1, 32.3, 32.4 fixed; 32.2 awaits a decision **[P]**
+## 32. Four findings from §30's render check -- all four fixed **[V]**
 
 ### 32.1 `as_tales()` keeps `alignment_width` on a demoted object -- **FIXED 2026-09-23** **[V]**
 
@@ -1299,7 +1301,7 @@ class but keeps attributes; `new_tales()` now removes `alignment_width`.
 `dom_code_namespace` still survives demotion, as intended. Test in
 `test_tales_msa_class.R`.
 
-### 32.2 `rvdSimDf` covers 17 RVDs, `rvd_dna_specificity` covers 404 -- **undecided, options below** **[P]**
+### 32.2 `rvdSimDf` covers 17 RVDs, `rvd_dna_specificity` covers 404 -- **DONE 2026-09-24, option 2** **[V]**
 
 Maintainer: known; unsure what is best; describe the options so a
 decision can be made later.
@@ -1337,6 +1339,44 @@ Options, not evaluated:
 
 Whatever is chosen, the plot legend and the `rvd_sim` docs should say what
 a grey cell means.
+
+**Facts gathered 2026-09-24, for the decision:**
+- The 17 are exactly the RVDs of TALVEZ's own `inst/tools/TALVEZ_3.2/mat1`
+  (`data-raw/sysdata.R`: Spearman over its rows). So `rvd_sim` uses the
+  same RVD model as TALVEZ target prediction.
+- `rvd_dna_specificity` is a different table (FuncTAL's `2014mat18`).
+  Spearman recomputed from it for the same 17 RVDs differs from
+  `rvdSimDf$Cor` by up to 1.07; option 1 would therefore change the
+  existing 17 values as well.
+- Of its 404 profiles, 78 are flat (1/1/1/1, correlation undefined) and
+  81 have a row sum of 4 or less; only 210 profiles are distinct. A
+  4-point rank correlation on such counts is mostly noise.
+- In the three article genomes (`_cache/discovery.rds`), 510 RVDs, 9
+  distinct; the only one outside the 17 is `NV` (5 occurrences).
+- Side finding: `rvd_dna_specificity` had
+  no `"NA"` row. `readr::read_tsv()` read the RVD name `NA` (Asn-Ala) as
+  a missing value (`data-raw/rvd_dna_specificity.R`, default `na =`), so
+  the row survives with `rvd = NA_character_` and
+  `tales_to_universalmotif()` gives NA repeats the flat fallback profile
+  instead of 1/2/1/0.
+
+**Outcome 2026-09-24 (maintainer chose option 2 and the NA fix):**
+- `.rvd_to_match_align()` (`R/tales_plot.R`): a cell with no value in
+  `rvdSimDf` scores 1 when its RVD equals the reference's; gaps and
+  termini (`tales_anchor_codes()`) stay `NA`. `XX` needed no special
+  case: `rvdSimDf` already holds `XX`-`XX` = 1. Legend title now reads
+  "RVD specificity vs reference (grey: no score)"; `plot.tales_msa()`
+  details and `tales_msa_class.qmd` updated (its `NV` column now scores
+  1; figure re-rendered and checked). Test in `test_plot_tales_msa.R`,
+  failing on the old code.
+- NA row: `data-raw/rvd_dna_specificity.R` reads with `na = character()`
+  (and now points at `inst/legacy/`, where the source table moved with
+  FuncTAL); `.rda` rebuilt, identical except the restored name. Test in
+  `test_tales_compare_functal.R`, failing on the old data. The article
+  genomes carry no `NA` RVD, so no article output changes. RVDs read at
+  run time come from FASTA by string splitting and were never affected.
+- The docs of `.rvd_to_match_align()` said it was `rvdSimDf`'s only
+  consumer; corrected (`.rvd_score_table()` reads it too).
 
 ### 32.3 The `domain_distances` matrix displaced an identical half-repeat -- **FIXED 2026-09-23 (option 1, `penalizeGapLetterMatches = TRUE`)** **[V]**
 

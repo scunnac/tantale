@@ -1,5 +1,22 @@
 # tantale 0.9.9010
 
+## `rvd_dna_specificity`: the RVD NA has its row back
+
+The row for the RVD `NA` (Asn-Ala) had a missing name, because the table
+was read with the string `"NA"` taken as a missing value. As a result,
+`tales_to_universalmotif()` and `tales_compare_functal()` gave every `NA`
+repeat the flat `XX` profile instead of its own (1/2/1/0). Fixed; no
+other row changed.
+
+## `rvd_sim` fill: a rare RVD identical to the reference now scores 1
+
+`plot.tales_msa(fill_type = "rvd_sim")` takes its RVD similarities from
+TALVEZ's table, which covers 17 RVDs. Any other RVD (`NV`, for example)
+was left grey, even where it was identical to the reference's. It now
+scores 1 there, as it already did in `tales_align()`'s RVD scoring
+matrix; other pairs involving it stay grey. The legend says what grey
+means.
+
 ## The interface is now stable
 
 From version 1.0.0 on, changes to exported functions and their arguments

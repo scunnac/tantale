@@ -112,11 +112,11 @@ With no \code{domain_distances} and no \code{label}, every block is flat
 grey: the text still carries the consensus comparison, but there is
 nothing to colour blocks by.
 
-A cell with no value for the chosen layer keeps its text and loses its
-colour. In \code{"rvd_sim"} that is the termini, which have no DNA-binding
-preference and so no position on a specificity scale, and any RVD the
-built-in RVD similarity table does not cover (it holds 17 RVDs), even
-where it matches the reference.
+A cell with no value for the chosen layer keeps its text and is filled
+grey. In \code{"rvd_sim"} that is the termini, which have no DNA-binding
+preference and so no position on a specificity scale. The RVD similarity
+table is TALVEZ's and covers 17 RVDs; a rarer RVD (\code{NV}, say) scores
+1 where it is identical to the reference's RVD and is grey elsewhere.
 
 \strong{The reference} matters for both similarity fills.
 \code{ref_pattern} is matched against the array names and must identify

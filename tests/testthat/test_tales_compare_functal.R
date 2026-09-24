@@ -121,6 +121,15 @@ test_that("an RVD absent from the specificity table is scored, not dropped", {
   expect_equal(nrow(out), 4L)
 })
 
+test_that("the RVD NA has its own row, not the flat fallback", {
+  # readr reads the string "NA" as missing unless told otherwise, which
+  # left the Asn-Ala row nameless and sent NA repeats to the "XX" row.
+  spec <- tantale::rvd_dna_specificity
+  expect_false(anyNA(spec$rvd))
+  expect_true("NA" %in% spec$rvd)
+  expect_equal(unname(.functal_pwm("NA")[, 1]), c(1, 2, 1, 0))
+})
+
 test_that("an all-terminus array (no repeats) errors rather than being silently dropped", {
   # tales_rvd_strings() itself just omits an array with nothing to render --
   # fine for a projection, not fine for a comparison that must cover every

@@ -263,7 +263,7 @@ and `git status` before trusting any of it.*
 The full, ranked list is in the ledger's START HERE block (reviewed
 against the code 2026-09-23). Headlines:
 
-**Pending issues deserving urgent action** (items 2, 3, 4, 6 done
+**Pending issues deserving urgent action** (all but item 1 done
 2026-09-24):
 1. Licence notices for the bundled GPL-3 jars and TALVEZ (§34): nothing
    in the package gives the licence or source pointer the GPL requires.
@@ -271,7 +271,8 @@ against the code 2026-09-23). Headlines:
 3. Done 2026-09-24: `NEWS.md`'s top heading now carries the version
    number, which R's news parser needs (rule under "NEWS.md" below).
 5. Done 2026-09-24: `inst/legacy/docs_temp/` deleted.
-7. §32.2 `rvdSimDf` decision, now limited to the `rvd_sim` plot fill.
+7. Done 2026-09-24: §32.2 option 2 (identical rare RVDs score 1 in the
+   `rvd_sim` fill); `rvd_dna_specificity`'s `NA` row fixed.
 8. Done: README declares the interface stable; lifecycle conventions
    from 1.0.0 on.
 
