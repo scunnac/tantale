@@ -266,8 +266,7 @@ against the code 2026-09-23). Headlines:
 **Pending issues deserving urgent action** (all done 2026-09-24):
 1. Done: `inst/COPYRIGHTS` lists every bundled third-party file with its
    licence and source; GPL-3 text in `inst/tools/COPYING.GPL-3`; TALVEZ
-   and QueTAL redistributed with their author's permission. Two residual
-   points in the ledger (START HERE item 1).
+   and QueTAL redistributed with their author's permission.
 3. Done 2026-09-24: `NEWS.md`'s top heading now carries the version
    number, which R's news parser needs (rule under "NEWS.md" below).
 5. Done 2026-09-24: `inst/legacy/docs_temp/` deleted.

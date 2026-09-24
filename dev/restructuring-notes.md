@@ -34,8 +34,7 @@ of this file against the code.
 ### Pending issues deserving urgent action
 
 Ranked by risk; re-checked against the code on 2026-09-23. All eight
-were done on 2026-09-24 (outcomes kept below; item 1 has two residual
-points).
+were done on 2026-09-24 (outcomes kept below).
 
 1. **DONE 2026-09-24: licence notices for the bundled tools (§34).**
    - `inst/COPYRIGHTS`: every bundled third-party file with its
@@ -56,7 +55,9 @@ points).
    - Checked: all three tools' sources are in github.com/Jstacs/Jstacs
      (`projects/xanthogenomes/`, `projects/tals/prediction/`,
      `projects/talecorrect/`); the jars hold no `.java` files.
-   - **Two residual points, recorded, not acted on:**
+   - **Two residual points, both closed by the maintainer 2026-09-24**
+     (no further action: (a) "no need to go further"; (b) due diligence
+     considered done):
      (a) the source pointer is Jstacs' `master`, not the exact revision
      each jar was built from (Jstacs publishes no versioned source for
      them). Usual practice for unmodified redistribution; a source
