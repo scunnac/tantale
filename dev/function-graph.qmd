@@ -10,14 +10,17 @@ execute:
   warning: false
 ---
 
-Two maps of the package for finding one's way around it. Dev-only (`dev/`
+Maps of the package for finding one's way around it. Dev-only (`dev/`
 is in `.Rbuildignore`) and not part of the pkgdown site. Ledger §29 has
-the decisions behind both.
+the decisions behind them.
 
 - **Data flow:** the exported functions and the objects they pass to each
   other, from reading TALE sequences to classes, alignments and target
   predictions.
 - **Call graph:** which function calls which in `R/`, internals included.
+- **Matrices and lists of vectors:** the functions, internals included,
+  that take or return a matrix or a plain list of vectors, recorded from
+  the test suite.
 
 Render the page from the package root with
 `quarto render dev/function-graph.qmd`.
@@ -412,6 +415,98 @@ reactable(tab, searchable = TRUE, filterable = TRUE, pagination = FALSE,
                          line = colDef(width = 60),
                          callers = colDef(width = 75),
                          callees = colDef(width = 75)))
+```
+
+## Matrices and lists of vectors
+
+Functions, exported or internal, that take or return a matrix, an
+unclassed list of atomic vectors (`list(c("NI", "HD"), c("NG"))`), or an
+unclassed list of matrices. These are the pre-class representations of
+alignments and RVD strings. Data frames and classed objects (`tales`,
+`tales_msa`, `pairwise_distances`, ggplot objects) do not count, even
+though some are lists underneath.
+
+Recorded by running the test suite with every function in the namespace
+traced (`dev/function-graph-shapes.R`): an argument is listed when a test
+passed it a value of one of these shapes, a return value when the function
+returned one (`$name` for an element of a returned list). Rerun the script
+after changing what a function takes or returns. `category` says whether
+the function takes, returns, or does both.
+
+Shapes are given with the type of their elements, e.g.
+`matrix<character>`. A `list of scalars` is a list whose elements all
+have length 1. It covers two different things: one string per array (the
+space-separated repeat codes `.build_repeat_msa()` and `as_tales()`
+take), and records of file paths or settings (`tell_tales()`'s internal
+`paths` and `params`).
+
+```{r shapes}
+#| code-summary: "Code: matrix and list-of-vectors table"
+shapes_file <- "function-graph-shapes.tsv"
+shapes <- read.delim(shapes_file, comment.char = "#", colClasses = "character")
+shapes_recorded_on <- sub("^# ", "", readLines(shapes_file, n = 1))
+never_called <- shapes$fn[shapes$direction == "never called"]
+shapes <- shapes[shapes$direction %in% c("in", "out"), ]
+# Where an argument was a list of vectors in some calls and a list of
+# scalars in others, the scalar calls are short instances of the same
+# thing and are not listed separately.
+slot <- paste(shapes$fn, shapes$direction, shapes$arg)
+short <- startsWith(shapes$shape, "list of scalars") &
+  slot %in% slot[startsWith(shapes$shape, "list of vectors")]
+shapes <- shapes[!short, ]
+
+describe_side <- function(d) {
+  if (!nrow(d)) return("")
+  # one entry per argument, its shapes pooled over calls
+  by_arg <- split(d$shape, d$arg)
+  paste(vapply(names(by_arg), function(a) {
+    s <- paste(sort(unique(by_arg[[a]])), collapse = " | ")
+    if (a == "<value>") s else paste0(a, ": ", s)
+  }, ""), collapse = "; ")
+}
+shape_tab <- do.call(rbind, lapply(split(shapes, shapes$fn), function(d) {
+  takes <- describe_side(d[d$direction == "in", ])
+  returns <- describe_side(d[d$direction == "out", ])
+  data.frame(name = d$fn[1], takes = takes, returns = returns,
+             category = if (nzchar(takes) && nzchar(returns)) "takes and returns"
+                        else if (nzchar(takes)) "takes only" else "returns only")
+}))
+shape_tab <- merge(shape_tab, defs[, c("name", "kind", "file")], by = "name", all.x = TRUE)
+shape_tab$kind[is.na(shape_tab$kind)] <- "not in R/ any more"
+category_order <- c("takes and returns", "takes only", "returns only")
+shape_tab <- shape_tab[order(match(shape_tab$category, category_order),
+                             shape_tab$kind != "exported", shape_tab$name),
+                       c("name", "kind", "category", "takes", "returns", "file")]
+reactable(shape_tab, filterable = TRUE, pagination = FALSE, compact = TRUE,
+          striped = TRUE, groupBy = "category",
+          columns = list(name = colDef(minWidth = 190, style = list(fontFamily = "monospace")),
+                         kind = colDef(width = 95),
+                         takes = colDef(minWidth = 260, style = list(fontFamily = "monospace")),
+                         returns = colDef(minWidth = 200, style = list(fontFamily = "monospace")),
+                         file = colDef(width = 150)))
+```
+
+`r shapes_recorded_on`.
+`r nrow(shape_tab)` functions take or return one of these shapes:
+`r sum(shape_tab$kind == "exported")` exported,
+`r sum(shape_tab$kind == "S3 method")` S3 methods and
+`r sum(shape_tab$kind == "internal")` internal.
+
+**Not covered by the recording.** The test suite never calls the
+`r length(never_called)` functions below, so their shapes are unknown;
+some of them may take or return a matrix or a list of vectors.
+
+```{r shapes-never-called}
+#| code-summary: "Code: functions the tests never call"
+unseen <- defs[defs$name %in% never_called, c("name", "kind", "file", "title")]
+unseen <- unseen[order(unseen$kind != "exported", unseen$file, unseen$name), ]
+if (nrow(unseen)) {
+  reactable(unseen, pagination = FALSE, compact = TRUE,
+            columns = list(name = colDef(minWidth = 190, style = list(fontFamily = "monospace")),
+                           title = colDef(minWidth = 300)))
+} else {
+  cat("None.")
+}
 ```
 
 ## Internal functions with no caller in `R/`

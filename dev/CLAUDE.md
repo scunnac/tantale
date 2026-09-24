@@ -295,6 +295,11 @@ ARLEM (§33); rOpenSci and the one-archive plan (§34); §5.2.
   Render with `quarto render dev/function-graph.qmd`; the HTML is
   gitignored. Rerun the recorder after changing what an export takes or
   returns. Possible later reuse on the site (§29.2).
+- **§29.3** `dev/function-graph.qmd` also lists every function,
+  internals included, that takes or returns a matrix or a list of
+  vectors, from `dev/function-graph-shapes.R` (traces all functions
+  during the test suite, ~9 min, writes a dated TSV). Rerun it after
+  changing what a function takes or returns.
 - **§30** site prose review: 8 articles, README, `pkgdown/index.md` and
   all 63 published reference pages checked against rendered output or the
   code; many content errors fixed along with tone.

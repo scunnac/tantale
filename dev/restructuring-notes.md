@@ -1212,7 +1212,7 @@ default branch switched before deleting `master`/`dev`/`v0.1.9553`;
 
 ---
 
-## 29. Function dependency diagram, to rebuild the maintainer's mental map -- phase 1 (29.1) and phase 2 (29.2) built **[V]**
+## 29. Function dependency diagram, to rebuild the maintainer's mental map -- phase 1 (29.1), phase 2 (29.2) and the matrix/list table (29.3) built **[V]**
 
 Maintainer's request (2026-09-22): a map of the package covering
 internals, and the class objects if legible. Decisions: a dev-only `.qmd`
@@ -1290,6 +1290,49 @@ check that `visNetwork` works inside pkgdown's Bootstrap 5 pages (DT
 tables break there through a jQuery conflict).
 
 ---
+
+### 29.3 Matrices and lists of vectors -- built, 2026-09-24 **[V]**
+
+Maintainer asked for a table of every function, internals included, that
+takes or returns a matrix or a list of vectors, classified by input/output
+and exported/internal, kept updatable. Built the same way as §29.2:
+`dev/function-graph-shapes.R` traces all 187 namespace functions during
+the test suite (~9 min) and writes `dev/function-graph-shapes.tsv`
+(dated, with commit); the new section of `dev/function-graph.qmd` builds
+the table from it (grouped: takes and returns / takes only / returns
+only) and lists the functions the tests never call.
+
+Shapes: `matrix<type>`, `list of vectors<type>`, `list of matrices<type>`,
+and `list of scalars<type>` (all elements of length 1). The last covers
+both one repeat-code string per array (`.build_repeat_msa()`,
+`as_tales()`) and records such as `tell_tales()`'s internal `paths` and
+`params`; a length-based rule cannot tell them apart, so the page shows
+it as its own shape and says so. Only unclassed lists count.
+
+First recording (e30603f): 36 functions (4 exported, 4 S3 methods, 28
+internal); 182 of 187 functions called. The 5 never called
+(`.format_domain_distances_mat()`, `.rvds_from_annotale_file()`,
+`.greet_startup_cli()`, `.abort_no_env()`, `.tantale_repair()`) were
+read: none takes or returns one of these shapes.
+
+**Three tracing pitfalls found on the way** (each gave a wrong first
+recording):
+- `ls(env)` hides names starting with `.`: every internal came out
+  "never called". Use `all.names = TRUE`.
+- R turns tracing off while a tracer runs. A tracer that forces argument
+  promises runs any package code in them untraced, so
+  `validate_tales(new_tales(x))` never recorded `new_tales()`. Fixed with
+  `tracingState(TRUE)` inside the entry tracer.
+- `trace(fn, where = ns)` replaces the namespace binding only. A generic
+  from another package (`dplyr_reconstruct()`) dispatches through the S3
+  registry, which keeps the untraced method: re-register each traced
+  method with `registerS3method()`, looking the generic up in its own
+  namespace.
+
+**Open:** `dev/function-graph-dataflow.R` (§29.2) has the second and third
+pitfalls (its tracer evaluates the first argument; S3 methods are not
+re-registered). Worth the same two fixes when it is rerun (housekeeping
+item: its TSV predates the tests of 2026-09-24).
 
 ## 30. Full website prose review against `feedback_writing_tone` -- articles/README/index and reference pages DONE; parallel-phrasing sweep deferred **[V]**
 
