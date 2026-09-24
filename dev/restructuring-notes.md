@@ -204,6 +204,22 @@ from 1.0.0 on it needs a lifecycle deprecation (START HERE item 8).
   search; `trunctale_correction` re-rendered, only its printed timings
   changed). `pkgdown/index.md` got README's Licence section, since the
   home page is built from it and showed no licence information.
+  **Correction, same evening:** that partial rebuild left six articles
+  and the articles index rendered with 0.9.9005-0.9.9008 (the check only
+  looked for 0.9.9009). A **full rebuild** followed (`docs/` and
+  `_cache/` emptied, every step of "Site builds", 16 min): every page is
+  now 0.9.9010. Compared with the previous build: same file list, all 25
+  figures byte-identical, article outputs differ only in printed run
+  times and in source line numbers inside printed error messages
+  (`tales_class`). **Finding:** on a cold cache,
+  `tale_classification.qmd`'s `discover_all` chunk prints DECIPHER's
+  progress bars and timings (21 lines; printed output, which
+  `message = FALSE` does not hide). A warm-cache render does not, so the
+  article was re-rendered once more and is identical to the previous
+  one. A lasting fix (e.g. `results = "hide"` on that chunk, or
+  `capture.output()`) is left for later. To check stamps after a partial
+  rebuild: `grep -rL "0.9.9010</small>" docs --include=*.html` (the
+  redirect stubs in `docs/reference/` carry no stamp).
   Record of the item: **`docs/` is behind 0.9.9010**: reference pages (the `run_annotale_*()`
   return values, `talomes_heatmap()`), home page (README's stability
   note) and news. Partial rebuild per `dev/CLAUDE.md` (reinstall first;

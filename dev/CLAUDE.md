@@ -251,9 +251,10 @@ and `git status` before trusting any of it.*
   NOTE (no news entries in `NEWS.md`) is fixed: see "NEWS.md" below.
   The two check fixes made afterwards were re-checked with a quick,
   no-tests `R CMD check`.
-- The site in `docs/` is current with 0.9.9010 as of 2026-09-24 (partial
-  rebuilds: reference, home, news, llm docs, search, articles re-rendered
-  one by one). It has not been wiped and rebuilt in full recently.
+- The site in `docs/` was wiped and rebuilt in full on 2026-09-24: every
+  page is at 0.9.9010. After a partial rebuild, check for stale pages with
+  `grep -rL "<version></small>" docs --include=*.html` (redirect stubs in
+  `docs/reference/` carry no stamp).
 - The Claude Code pointer file is `.claude/CLAUDE.md` (it imports this
   file). It was moved out of the repo root because pkgdown publishes every
   root `.md` as a page, whatever `.Rbuildignore` says.

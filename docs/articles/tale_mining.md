@@ -289,10 +289,10 @@ invisible(tell_tales(subject_file = bai311_fa, output_dir = bai311_corr_dir,
 #> Finding the closest reference amino acid sequences:
 #> ================================================================================
 #> 
-#> Time difference of 0.46 secs
+#> Time difference of 0.43 secs
 #> ================================================================================
 #> 
-#> Time difference of 18.26 secs
+#> Time difference of 16.86 secs
 bai311_corr <- suppressWarnings(tales_from_telltale(bai311_corr_dir))
 ```
 
@@ -419,10 +419,10 @@ invisible(tell_tales(subject_file = bai311_fa, output_dir = bai311_best_dir,
 #> Finding the closest reference amino acid sequences:
 #> ================================================================================
 #> 
-#> Time difference of 0.42 secs
+#> Time difference of 0.43 secs
 #> ================================================================================
 #> 
-#> Time difference of 44.57 secs
+#> Time difference of 42.69 secs
 bai311_best <- suppressWarnings(tales_from_telltale(bai311_best_dir))
 ```
 

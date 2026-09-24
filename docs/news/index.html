@@ -106,7 +106,7 @@
 </div>
 <div class="section level3">
 <h3 id="bug-fix-demoting-a-tales_msa-now-drops-its-alignment-width-0-9-9010">Bug fix: demoting a <code>tales_msa</code> now drops its alignment width<a class="anchor" aria-label="anchor" href="#bug-fix-demoting-a-tales_msa-now-drops-its-alignment-width-0-9-9010"></a></h3>
-<p><code><a href="../reference/as_tales.html">as_tales()</a></code> (and <code><a href="../reference/tales.html">tales()</a></code>) on a <code>tales_msa</code> returned a plain <code>tales</code> that still carried the alignment’s width, so <code><a href="../reference/tales_width.html">tales_width()</a></code> kept answering on an object that no longer claims to be an alignment. The width is now removed on demotion, as it already was when <code>alignment_position</code> is dropped with <code>select()</code>.</p>
+<p><code><a href="../reference/as_tales.html">as_tales()</a></code> (and <code><a href="../reference/tales.html">tales()</a></code>) on a <code>tales_msa</code> returned a plain <code>tales</code> that still carried the alignment’s width, so <code><a href="../reference/tales_width.html">tales_width()</a></code> kept answering on an object that no longer claims to be an alignment. The width is now removed on demotion, as it already was when <code>alignment_position</code> is dropped with <code><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select()</a></code>.</p>
 </div>
 <div class="section level3">
 <h3 id="articles-checked-against-their-own-output-0-9-9010">Articles checked against their own output<a class="anchor" aria-label="anchor" href="#articles-checked-against-their-own-output-0-9-9010"></a></h3>

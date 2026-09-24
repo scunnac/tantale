@@ -109,13 +109,13 @@ function stops with an error of class
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   java -jar</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   '/home/cunnac/Lab-Related/MyScripts/tantale/inst/tools/AnnoTALEcli-1.5.jar'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   predict g='/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/MAI1.fa'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   s='MAI1' outdir='/tmp/Rtmp7yJiVv/annotale_build_example/predict/Predict'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   s='MAI1' outdir='/tmp/Rtmpbthxm1/annotale_build_example/predict/Predict'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Running AnnoTALE analyze for <span style="color: #0000BB;">"MAI1"</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   java -jar</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   /home/cunnac/Lab-Related/MyScripts/tantale/inst/tools/AnnoTALEcli-1.5.jar</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   analyze</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   t='/tmp/Rtmp7yJiVv/annotale_build_example/predict/Predict/TALE_DNA_sequences_(MAI1).fasta'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   outdir='/tmp/Rtmp7yJiVv/annotale_build_example/predict/Analyze'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   t='/tmp/Rtmpbthxm1/annotale_build_example/predict/Predict/TALE_DNA_sequences_(MAI1).fasta'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   outdir='/tmp/Rtmpbthxm1/annotale_build_example/predict/Analyze'</span>
 <span class="r-in"><span><span class="va">predicted</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">predict_out</span>, <span class="st">"Predict"</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                        pattern <span class="op">=</span> <span class="st">"^TALE_DNA_sequences_"</span>, full.names <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">build_out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"annotale_build_example"</span>, <span class="st">"build"</span><span class="op">)</span></span></span>
@@ -124,8 +124,8 @@ function stops with an error of class
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   java -Xms512M -Xmx6G -jar</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   '/home/cunnac/Lab-Related/MyScripts/tantale/inst/tools/AnnoTALEcli-1.5.jar'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   build</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   t='/tmp/Rtmp7yJiVv/annotale_build_example/predict/Predict/TALE_DNA_sequences_(MAI1).fasta'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   outdir='/tmp/Rtmp7yJiVv/annotale_build_example/build'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   t='/tmp/Rtmpbthxm1/annotale_build_example/predict/Predict/TALE_DNA_sequences_(MAI1).fasta'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   outdir='/tmp/Rtmpbthxm1/annotale_build_example/build'</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="va">build_out</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "Class_1"             "Class_2"             "Class_3"            </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>  [4] "Class_4"             "Class_5"             "Class_6"            </span>

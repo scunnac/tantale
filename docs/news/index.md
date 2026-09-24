@@ -169,7 +169,8 @@ alignment’s width, so
 [`tales_width()`](https://scunnac.github.io/tantale/reference/tales_width.md)
 kept answering on an object that no longer claims to be an alignment.
 The width is now removed on demotion, as it already was when
-`alignment_position` is dropped with `select()`.
+`alignment_position` is dropped with
+[`select()`](https://dplyr.tidyverse.org/reference/select.html).
 
 ### Articles checked against their own output
 
