@@ -406,3 +406,33 @@ prose; each counts as one news entry, so bullets are not needed.
 
 Commit when a piece of work is coherent and its tests pass. Say what moved
 and why; reference the ledger section. Do not push without being asked.
+
+## Catching up after the maintainer's own changes
+
+Agreed 2026-09-24. The maintainer also changes the package without
+Claude. A local git tag, `claude-reviewed`, marks the last commit a
+Claude session has reviewed (local only, not pushed).
+
+**Maintainer, while working alone:** small commits whose messages say
+what changed and why; a `NEWS.md` entry for anything a user would
+notice; after each change, the covering test file
+(`devtools::test(filter = "...")`); `devtools::document()` after roxygen
+edits, `pkgdown::check_pkgdown()` after adding or removing an export;
+the full `devtools::test()` before pushing a batch. A failing golden test
+is left for Claude to re-baseline. Uncommitted work is mentioned at the
+start of the next session.
+
+**Claude, when asked to catch up** ("catch up since claude-reviewed"):
+1. `git log --stat claude-reviewed..HEAD` and `git status`; read the
+   diffs. Leave uncommitted work alone unless the maintainer says it is
+   finished.
+2. Review the changes for correctness and against the standing rules
+   above (cli conditions, naming, no deleted code, doc language).
+3. Full `devtools::test()`, then `devtools::check()`. A golden change goes
+   through the `golden-rebaseline` skill.
+4. If what a function takes or returns changed, rerun
+   `dev/function-graph-dataflow.R` and `dev/function-graph-shapes.R`
+   (~10 min each).
+5. Update `NEWS.md` where an entry is missing, the ledger and "Where
+   things stand"; rebuild the affected site pages (see "Site builds").
+6. Commit, then move the tag: `git tag -f claude-reviewed HEAD`.
