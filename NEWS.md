@@ -1,5 +1,15 @@
 # tantale 0.9.9010
 
+## Licences of the bundled programs are now stated
+
+`inst/COPYRIGHTS` lists every program and data file tantale bundles from
+other projects, with its authors, licence, upstream download and source
+code: AnnoTALE, PrediTALE and TALEcorrection (GNU GPL 3 or later, from
+the Jstacs project), TALVEZ 3.2 and QueTAL FuncTAL (redistributed by
+permission of their author). The GPL text ships as
+`inst/tools/COPYING.GPL-3`. tantale's own code stays under the MIT
+licence.
+
 ## `rvd_dna_specificity`: the RVD NA has its row back
 
 The row for the RVD `NA` (Asn-Ala) had a missing name, because the table

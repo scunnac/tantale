@@ -1,0 +1,103 @@
+tantale: copyright and licences of bundled third-party files
+============================================================
+
+tantale's own code is distributed under the MIT licence (files LICENSE
+and LICENSE.md, copyright the tantale authors). The package also
+bundles programs and data written by others, listed below. They are
+not covered by the MIT licence: each keeps its own terms. The paths
+are those of the source package; in an installed package, drop the
+leading "inst/".
+
+
+1. AnnoTALE, PrediTALE and TALEcorrection (Jstacs)
+--------------------------------------------------
+
+Files:
+  inst/tools/AnnoTALEcli-1.5.jar
+      AnnoTALE 1.5, command-line version
+      sha256 fe99d084073343a7018226e221b0bf291af92300c9f6f1bb701bd0923e32e135
+      upstream https://www.jstacs.de/downloads/AnnoTALEcli-1.5.jar
+  inst/tools/PrediTALE.jar
+      sha256 67a3ef81c2badbd635a7dca6ecba3ec65a773ca7eae05d70aeab09275d654a21
+      upstream https://www.jstacs.de/downloads/PrediTALE.jar
+  inst/tools/talecorrect/TALEcorrection.jar
+      sha256 9adf9de20a41caa21bc0e93946cdf3802d1d83ed77476eca856a95a2d9383312
+      upstream https://www.jstacs.de/downloads/TALECorrection_scripts.zip
+  inst/tools/talecorrect/ (the other files: HMMs/, *.java, *.sh,
+      TALEcorrection.xml), which accompany TALEcorrection.
+
+Each jar is an unmodified copy of its upstream file, and the HMMs are
+identical to those in the zip archive above (checked by sha256,
+2026-09-23).
+
+Copyright: the Jstacs authors (https://www.jstacs.de).
+
+Licence: GNU General Public License, version 3 or (at your option) any
+later version. The full text is in inst/tools/COPYING.GPL-3, identical
+to the COPYING.txt file inside each jar.
+
+Source code: the jars contain compiled classes only. Their source is
+part of the Jstacs project, https://github.com/Jstacs/Jstacs:
+  projects/xanthogenomes/  (AnnoTALE)
+  projects/tals/prediction/  (PrediTALE)
+  projects/talecorrect/  (TALEcorrection)
+
+The jars also contain third-party Java libraries (BioJava, Colt, Jama,
+the Rserve client, Apache libraries and others), under their own
+licences; the licence and notice files that came with them are inside
+each jar (META-INF/ and the jar root).
+
+References:
+  AnnoTALE: Grau J. et al. (2016). Scientific Reports 6, 21077.
+    https://doi.org/10.1038/srep21077
+  PrediTALE: Erkes A. et al. (2019). PLoS Computational Biology 15,
+    e1007206. https://doi.org/10.1371/journal.pcbi.1007206
+  TALEcorrection: Erkes A. et al. (2023). BMC Genomics 24.
+    https://doi.org/10.1186/s12864-023-09228-1
+
+
+2. TALVEZ 3.2
+-------------
+
+Files:
+  inst/tools/TALVEZ_3.2/ (TALVEZ_3.2.pl, mat1, mat2, TALCONTROL_*,
+      simplescancode/)
+  upstream https://bioinfo-web.mpl.ird.fr/xantho/talvez/downloads/TALVEZ_3.2.zip
+  The bundled files are identical to those of the upstream archive.
+
+Copyright: Alvaro L. Pérez-Quintero (author of TALVEZ_3.2.pl).
+
+The Java classes in simplescancode/ are, according to the header of
+TALVEZ_3.2.pl, "java code from Matzieu and Hatzigeorgiu 2010",
+available at http://www.diana.pcbi.upenn.edu/Tools/PlantTFBS/.
+
+Licence: no licence is stated in the files, the archive or the
+download page. Redistributed with tantale by permission of the author.
+
+tantale's internal RVD similarity table (rvdSimDf, used by
+plot.tales_msa() and tales_align()) is computed from TALVEZ's mat1.
+
+Reference:
+  Pérez-Quintero A.L. et al. (2013). PLoS ONE 8, e68464.
+  https://doi.org/10.1371/journal.pone.0068464
+
+
+3. QueTAL (FuncTAL) 1.1
+-----------------------
+
+Files:
+  inst/legacy/QueTAL_v1.1/FuncTAL/ (FuncTAL_v.1.1.pl, Statistics.pm,
+      Info/, example files). Kept for reference; tantale no longer
+      runs it.
+  data/rvd_dna_specificity.rda: the exported dataset
+      rvd_dna_specificity, the table Info/2014mat18 with column names
+      added and values unchanged.
+
+Copyright: Alvaro L. Pérez-Quintero (author of FuncTAL_v.1.1.pl).
+
+Licence: no licence is stated in the files. Redistributed with tantale
+by permission of the author.
+
+Reference:
+  Pérez-Quintero A.L. et al. (2015). Frontiers in Plant Science 6, 545.
+  https://doi.org/10.3389/fpls.2015.00545

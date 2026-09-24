@@ -33,10 +33,40 @@ of this file against the code.
 
 ### Pending issues deserving urgent action
 
-Ranked by risk; re-checked against the code on 2026-09-23. All but item 1
-were done on 2026-09-24 (outcomes kept below).
+Ranked by risk; re-checked against the code on 2026-09-23. All eight
+were done on 2026-09-24 (outcomes kept below; item 1 has two residual
+points).
 
-1. **Licence notices for the bundled tools (§34).** The three jars
+1. **DONE 2026-09-24: licence notices for the bundled tools (§34).**
+   - `inst/COPYRIGHTS`: every bundled third-party file with its
+     copyright holder, licence, upstream URL, sha256 and reference
+     (citations checked against doi.org). Covers the three Jstacs jars
+     and `talecorrect/`, TALVEZ 3.2, and QueTAL FuncTAL in
+     `inst/legacy/` plus the `rvd_dna_specificity` dataset taken from it.
+   - `inst/tools/COPYING.GPL-3`: the GPL-3 text, byte-identical to the
+     `COPYING.txt` inside each jar (it differs from R's own copy only in
+     `http`/`https` URLs).
+   - DESCRIPTION `Copyright:` field pointing to `inst/COPYRIGHTS`;
+     README "Licence" section. `LICENSE`/`LICENSE.md` untouched (CRAN's
+     MIT template; GitHub's licence detection).
+   - **Maintainer, 2026-09-24:** permission to redistribute TALVEZ and
+     QueTAL obtained from A. L. Pérez-Quintero (the maintainer co-authored
+     both papers); the notice says so. No `cph` entries in `Authors@R`
+     (maintainer's choice).
+   - Checked: all three tools' sources are in github.com/Jstacs/Jstacs
+     (`projects/xanthogenomes/`, `projects/tals/prediction/`,
+     `projects/talecorrect/`); the jars hold no `.java` files.
+   - **Two residual points, recorded, not acted on:**
+     (a) the source pointer is Jstacs' `master`, not the exact revision
+     each jar was built from (Jstacs publishes no versioned source for
+     them). Usual practice for unmodified redistribution; a source
+     snapshot could go into the one-archive release if wanted.
+     (b) TALVEZ's `simplescancode/*.class` are, per the script's header,
+     "java code from Matzieu and Hatzigeorgiu 2010" (DIANA PlantTFBS).
+     The permission obtained is the TALVEZ author's; whether it covers
+     that third-party code is not established.
+   Record of the problem:
+   **Licence notices for the bundled tools (§34).** The three jars
    (AnnoTALE, PrediTALE, TALEcorrection) are GPL-3 and may be
    redistributed only with the licence and a pointer to their source
    (github.com/Jstacs/Jstacs). Nothing in the package gives either, and
