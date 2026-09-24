@@ -356,7 +356,84 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
 
 
 #### Running MAFFT to produce the alignment ####
-#
+
+
+
+
+
+.format_domain_distances_mat <- function(dist_mat_file) {
+  # Distal-1.2 repeat distance matrix is 'almost' symetrical but does not contains the diagonal
+  # Top triangle of a symetrical :   Symetrical :
+  # 1234                              1234
+  #  234                              2234
+  #   34                              3334
+  #    4                              4444
+  # It is like this:
+  # 234
+  # 34
+  # 4
+  # So, we need to do a few transformations:
+  # Loading file content as a matrix
+  distalRepeatDist <- as.matrix(
+    read.table(dist_mat_file,
+               sep = " ",
+               fill = TRUE,
+               blank.lines.skip = TRUE,
+               header = FALSE,
+               check.names = FALSE,
+               comment.char = "#"
+    )
+  )
+  # Getting ride of the last columns that appears because the lines in the file have a final space
+  distalRepeatDist <- distalRepeatDist[, -ncol(distalRepeatDist)]
+  # Adding a first column
+  distalRepeatDist <- cbind(V0 = NA, distalRepeatDist)
+  # Adding a last line
+  distalRepeatDist <- rbind(distalRepeatDist, NA)
+  
+  # Shifting values to the right in rows with NAs
+  distalRepeatDist <- t(apply(distalRepeatDist, 1, function(x) {
+    row <- x
+    c(row[is.na(row)], row[!is.na(row)])
+  }))
+  # Filling diagonal with 0 values
+  diag(distalRepeatDist) <- 0
+  # Filling NA values with diagonal symetric values
+  newmat <- distalRepeatDist
+  for (i in 1:nrow(distalRepeatDist)) {
+    for (j in 1:ncol(distalRepeatDist)) {
+      if (is.na(distalRepeatDist[i, j])) {
+        distalRepeatDist[i, j] <- distalRepeatDist[j, i]
+      } else {
+        next()
+      }
+    }
+  }
+  # Names
+  stopifnot(exprs= all.equal(nrow(distalRepeatDist), ncol(distalRepeatDist)))
+  rownames(distalRepeatDist) <- 0:(nrow(distalRepeatDist) - 1)
+  colnames(distalRepeatDist) <- 0:(ncol(distalRepeatDist) - 1)
+  # Similarity rather than dissimilarity (that is what Alvaro does in his scripts)
+  distalRepeatSim <- 100 - distalRepeatDist
+  # str(distalRepeatSim)
+  # image(t(apply(distalRepeatSim, 2, rev)))
+  
+  # Output in 'long format'
+  distalRepeatSimTable <- as.data.frame(as.table(distalRepeatSim), stringsAsFactors = FALSE)
+  colnames(distalRepeatSimTable) <- c("id1", "id2", "sim")
+  # str(distalRepeatSimTable)
+  return(distalRepeatSimTable)
+}
+
+
+
+
+
+
+
+
+
+
 # tales_align() is the only caller of .build_repeat_msa(), and
 # .build_repeat_msa() the only caller of the two score-table helpers, so the
 # three live here beside it rather than in msa.R, which is about drawing an
