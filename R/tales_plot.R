@@ -61,8 +61,8 @@ plot.tales <- function(x, position = c("array", "alignment"), ...) {
     dplyr::mutate(label = dplyr::if_else(domain_type == "repeat", rvd, ""),
                   aa_length = factor(nchar(aa_seq)),
                   .x = if (identical(position, "alignment")) .data$alignment_position
-                       else .data$position_in_array)
-
+                  else .data$position_in_array)
+  
   p <- partsForPlots %>%
     ggplot2::ggplot(mapping = ggplot2::aes(fill = aa_length,
                                            color = domain_type,
@@ -80,13 +80,13 @@ plot.tales <- function(x, position = c("array", "alignment"), ...) {
     ggplot2::geom_text(size = 2.1, color = "white") +
     ggplot2::labs(title = "Overview of TALE composition by genome") +
     ggplot2::theme_light()
-
+  
   # seqnames groups arrays by source contig. It is optional in a tales, so the
   # facet is added only when it is there -- a fasta-derived object has none.
   if ("seqnames" %in% names(x)) {
     p <- p + ggplot2::facet_grid(seqnames ~ ., scales = "free_y", space = "free")
   }
-
+  
   print(p)
   invisible(p)
 }
@@ -216,7 +216,7 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
                            consensus = FALSE,
                            fill_type = "domain_clust",
                            ...) {
-
+  
   # Resolve the two layers against what this alignment actually carries.
   available <- intersect(TALES_RESIDUE_COLS, names(x))
   if (is.null(fill)) fill <- if ("dom_code" %in% available) "dom_code" else available[1]
@@ -232,7 +232,7 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
       )
     }
   }
-
+  
   arrayNames <- unique(x$array_id)
   countOfTales <- length(arrayNames)
   if (countOfTales < 1L) {
@@ -241,7 +241,7 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
       class = c("tantale_error_msa_empty", "tantale_error")
     )
   }
-
+  
   # The drawing code below still needs one matrix per layer for the
   # domain-cluster/similarity helpers below, which genuinely need a
   # domain-by-position layout to substitute values column by column.
@@ -251,13 +251,13 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
   rvd_align <- if (!is.null(label)) as.matrix(x, value = label) else NULL
   arrayNames <- rownames(domain_align)
   countOfTales <- nrow(domain_align)
-
+  
   # Both tables are addressed as id1/id2/dissim below. pairwise_distances()
   # also accepts the older TAL1/RepU1/Sim spellings, so either is allowed in.
   if (!is.null(tale_distances))   tale_distances   <- tibble::as_tibble(pairwise_distances(tale_distances))
   if (!is.null(domain_distances)) domain_distances <- tibble::as_tibble(pairwise_distances(domain_distances))
-
-
+  
+  
   # domainAlignLong/rvdAlignLong's second column used to be named
   # "position_in_array" -- a pre-existing mislabel: as.matrix.tales_msa()
   # indexes its columns by x$alignment_position, not each array's own
@@ -266,35 +266,35 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
   # this function to match (ledger §21's closing note; class-design.md
   # §4.6). The visible x-axis title below, "Position in array", is left
   # exactly as it was -- a separate, user-facing call not made here.
-
+  
   # Getting domain align
   if (!is.null(domain_align)) {
     domainAlignLong <- .matrix_to_long(domain_align) %>%
-    dplyr::as_tibble()
-  colnames(domainAlignLong) <- c("array_id", "alignment_position", "dom_code")
-  domainAlignLong %<>% dplyr::mutate(array_id = as.character(array_id),
-                                     dom_code = stringr::str_pad(dom_code, 3, "left"))
-  # Consensus match computed straight off x, the tales_msa itself: no need to
-  # wait for domain_align/domainAlignLong above, since
-  # .tales_consensus_match_long() takes a tales_msa directly and does its own
-  # sparse-to-complete accounting for gaps -- this is the specific piece of
-  # plot.tales_msa() that no longer touches the array-by-position matrix at all.
-  domainMatchConsensusLong <- .tales_consensus_match_long(x, value_col = fill)
-  colnames(domainMatchConsensusLong) <- c("array_id", "alignment_position", "matchConsensusDomain")
-  domainAlignLong %<>% dplyr::left_join(domainMatchConsensusLong,
-                                        by = dplyr::join_by(array_id, alignment_position))
+      dplyr::as_tibble()
+    colnames(domainAlignLong) <- c("array_id", "alignment_position", "dom_code")
+    domainAlignLong %<>% dplyr::mutate(array_id = as.character(array_id),
+                                       dom_code = stringr::str_pad(dom_code, 3, "left"))
+    # Consensus match computed straight off x, the tales_msa itself: no need to
+    # wait for domain_align/domainAlignLong above, since
+    # .tales_consensus_match_long() takes a tales_msa directly and does its own
+    # sparse-to-complete accounting for gaps -- this is the specific piece of
+    # plot.tales_msa() that no longer touches the array-by-position matrix at all.
+    domainMatchConsensusLong <- .tales_consensus_match_long(x, value_col = fill)
+    colnames(domainMatchConsensusLong) <- c("array_id", "alignment_position", "matchConsensusDomain")
+    domainAlignLong %<>% dplyr::left_join(domainMatchConsensusLong,
+                                          by = dplyr::join_by(array_id, alignment_position))
   }
-
-
+  
+  
   # Getting rvd align if available
   if (!is.null(rvd_align)) {
     rvdAlignLong <- .matrix_to_long(rvd_align) %>%
       dplyr::as_tibble()
     colnames(rvdAlignLong) <- c("array_id", "alignment_position", "rvd")
     rvdAlignLong %<>% dplyr::mutate(rvd = gsub("NTERM", "N-", rvd),
-                                       rvd = gsub("CTERM", "-C", rvd)
+                                    rvd = gsub("CTERM", "-C", rvd)
     )
-
+    
     # Tale rvd text color if possible: coloring of RVDs in alignment depending
     # on whether they match the consensus at the position. Computed off x
     # directly, same as the domain case above -- see the comment there.
@@ -302,15 +302,15 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
     colnames(rvdMatchConsensusLong) <- c("array_id", "alignment_position", "matchConsensusRvd")
     # Join with rvd tible
     rvdAlignLong %<>% dplyr::left_join(rvdMatchConsensusLong,
-                                          by = dplyr::join_by(array_id, alignment_position))
+                                       by = dplyr::join_by(array_id, alignment_position))
   }
-
+  
   # Assign main alignment object in long format
   if (!is.null(domain_align) & !is.null(rvd_align)) {
     domainAlignLong %<>% dplyr::inner_join(rvdAlignLong,
-                                          by = dplyr::join_by(array_id, alignment_position),
-                                          unmatched = "error",
-                                          relationship = "one-to-one")
+                                           by = dplyr::join_by(array_id, alignment_position),
+                                           unmatched = "error",
+                                           relationship = "one-to-one")
   } else if (!is.null(domain_align) & is.null(rvd_align)) {
     domainAlignLong <- domainAlignLong
   } else if (is.null(domain_align)) {
@@ -321,7 +321,7 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
         "i" = "Check {.arg fill}, {.arg label} and {.arg fill_type} against the object's layers."),
       class = c("tantale_error_bad_argument", "tantale_error"))
   }
-
+  
   # joining domain cluster if possible
   # joining domain similarity relative to ref
   if (!is.null(domain_distances) & !is.null(domain_align)) {
@@ -330,17 +330,17 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
     # reassigned to the maintainer (ledger §21 closing note, §19). Only the
     # outer variable being passed in is renamed.
     domainClusterAlignLong <- .domain_to_cluster_align(domain_align = domain_align,
-                                                           domain_sim = domain_distances,
-                                                           h_cut = h_cut) %>%
+                                                       domain_sim = domain_distances,
+                                                       h_cut = h_cut) %>%
       .matrix_to_long() %>%
       dplyr::as_tibble() %>%
       dplyr::mutate(value = as.character(value))
     colnames(domainClusterAlignLong) <- c("array_id", "alignment_position", "domainClusterId")
-
+    
     refTaleId <- .pick_ref_name(align = domain_align, ref_tag = ref_pattern)
     domainSimAlignLong <- .domain_to_sim_align(domain_align = domain_align,
-                                                 domain_sim = domain_distances,
-                                                 ref_tag = ref_pattern) %>%
+                                               domain_sim = domain_distances,
+                                               ref_tag = ref_pattern) %>%
       .matrix_to_long() %>%
       dplyr::as_tibble()
     colnames(domainSimAlignLong) <- c("array_id", "alignment_position", "domainSimVsRef")
@@ -351,8 +351,8 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
       dplyr::left_join(domainSimAlignLong,
                        by = dplyr::join_by(array_id, alignment_position))
   }
-
-
+  
+  
   # joining RVD similarity relative to the reference
   # This is the RVD-level counterpart of domainSimVsRef: that one scores protein
   # sequence similarity, this one scores how alike two RVDs' DNA-binding
@@ -372,7 +372,7 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
     domainAlignLong %<>% dplyr::left_join(rvdSimAlignLong,
                                           by = dplyr::join_by(array_id, alignment_position))
   }
-
+  
   # Building TALE tree if possible
   if (!is.null(tale_distances) & countOfTales > 1) {
     taleDistForDendo <- tale_distances[tale_distances$id1 %in% arrayNames, ]
@@ -382,8 +382,8 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
     taleDist <- taleDist[, arrayNames]
     taleshclust <- stats::hclust(as.dist(taleDist))
   }
-
-
+  
+  
   # Add a symbol to designate the reference if necessary
   if (exists("refTaleId")) { # in the tibble
     domainAlignLong$array_id[domainAlignLong$array_id == refTaleId] <-  paste0(
@@ -397,7 +397,7 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
       "_#"
     )
   }
-
+  
   # Create base plot
   bp <- domainAlignLong %>% ggplot2::ggplot(mapping = ggplot2::aes(
     x = alignment_position, y = array_id)
@@ -409,7 +409,7 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
     ggplot2::scale_y_discrete(name = NULL) +
     ggplot2::theme_minimal() +
     ggplot2::theme(legend.position = "bottom")
-
+  
   # COLORS in plots
   domainClusterFillPaletteFunct <- colorRampPalette(c("#421727", "#6e2742", "#9a365c", "#b03e69", "azure2"))
   # scale_fill_manual() takes `values`, not `palette`: the name collided with
@@ -444,7 +444,7 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
                                                                      `TRUE` = "cyan3")
   )
   # Add aesthetics as requested AND possible
-
+  
   if (identical(fill_type, "rvd_sim")) {
     if (is.null(rvd_align)) {
       cli::cli_abort(
@@ -552,7 +552,7 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
   } else {
     finalPlot <- p
   }
-
+  
   # Consensus as its own panel on top. See .consensus_panel() for why it cannot
   # simply be another row of the alignment.
   if (isTRUE(consensus)) {
@@ -569,7 +569,7 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
       height = consensusHeight
     )
   }
-
+  
   # aplot composes panels with patchwork's guide collection, which places the
   # collected legend by the *combined* object's own theme, not by any
   # individual panel's -- so the "bottom" position set on the main panel above
@@ -659,7 +659,7 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
   # is defined as a reference in the alignment. This function takes as input, the
   # domain alignment and the df output by `.format_domain_distances_mat()` This
   # function outputs the modified alignment matrix
-
+  
   refRowIdx <- match(.pick_ref_name(domain_align, ref_tag = ref_tag), rownames(domain_align))
   simAlign <- apply(domain_align, 2,
                     function(column) {
@@ -751,7 +751,7 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
   #   - the reference could be defined by name or by a string match in the name (eg a strain ID)
   #   - the reference could by default be defined as the longest tal and picked by
   #     ordering their names in case of ties...
-
+  
   # Find ref_tag in seq names if provided and output the corresponding unique match
   if (!is.null(ref_tag)) {
     match <- grepl(ref_tag, rownames(align))
