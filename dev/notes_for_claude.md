@@ -37,6 +37,8 @@ in plot.tales_msa the content of both 'if (!is.null(rvd_align)) {' blocks should
 
 # What kind of shape conversion do we need? What do we have?
 
+ -> NOTHING TO DO HERE, just to be kept as a note.
+
   - vector of seq (rvd, dom_code) with separator -> list of vectors
       * .split_list
 
