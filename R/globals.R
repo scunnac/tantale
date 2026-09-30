@@ -18,5 +18,6 @@ utils::globalVariables(c(
   "domainClusterId", "repeatID", "domainSimVsRef", "rvd",
   "rvd2ntMatchScore", "rvdFileLength", "rvdfac", "rvds", "rvdseq", "score",
   "seqnames", "strain", "strand", "string", "subjSeqId", "subjectHits", "subtree", "taleId", "target", "target_name",
-  "tcov", "value", "variable", "xPos", "yPos", "yPosOnSeq"
+  "tcov", "value", "variable", "xPos", "yPos", "yPosOnSeq",
+  "evalue", "hit", "is_hit", "nterm_aa_hit", "cterm_aa_hit"
 ))

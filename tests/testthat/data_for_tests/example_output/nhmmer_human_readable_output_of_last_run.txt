@@ -1,11 +1,11 @@
 # nhmmer :: search a DNA model, alignment, or sequence against a DNA database
-# HMMER 3.3 (Nov 2019); http://hmmer.org/
-# Copyright (C) 2019 Howard Hughes Medical Institute.
+# HMMER 3.3.2 (Nov 2020); http://hmmer.org/
+# Copyright (C) 2020 Howard Hughes Medical Institute.
 # Freely distributed under the BSD open source license.
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# query file:                      /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/tellTaleExampleOutput/TALE_CDS_all_diagnostic_regions_hmmfile.out
-# target sequence database:        /tmp/RtmpdPtkT2/file1ec1a7d293ba9
-# hits tabular output:             /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/tellTaleExampleOutput/hmmerSearchOut.txt
+# query file:                      /tmp/RtmpbBwxGs/tell_tales_example/tale_cds_all_diagnostic_regions_hmmfile.out
+# target sequence database:        /tmp/RtmpbBwxGs/file12787b583f6163
+# hits tabular output:             /tmp/RtmpbBwxGs/tell_tales_example/hmmer_search_out.txt
 # number of worker threads:        2
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -319,8 +319,8 @@ Residues passing bias filter:          16557  (0.0714); expected (0.02)
 Residues passing Vit filter:            5382  (0.0232); expected (0.003)
 Residues passing Fwd filter:            5382  (0.0232); expected (3e-05)
 Total number of hits:                      4  (0.0149)
-# CPU time: 0.13u 0.00s 00:00:00.13 Elapsed: 00:00:00.12
-# Mc/sec: 1607.99
+# CPU time: 0.10u 0.01s 00:00:00.11 Elapsed: 00:00:00.11
+# Mc/sec: 1777.33
 //
 Query:       TALE_repeat_CDS_aligned_curated  [M=102]
 Scores for complete hits:
@@ -2087,8 +2087,8 @@ Residues passing bias filter:          47609  (0.205); expected (0.02)
 Residues passing Vit filter:           19387  (0.0836); expected (0.003)
 Residues passing Fwd filter:           13236  (0.0571); expected (3e-05)
 Total number of hits:                    102  (0.0399)
-# CPU time: 0.06u 0.00s 00:00:00.06 Elapsed: 00:00:00.06
-# Mc/sec: 349.49
+# CPU time: 0.08u 0.00s 00:00:00.08 Elapsed: 00:00:00.07
+# Mc/sec: 320.79
 //
 Query:       TALE_C-terminus_CDS_aligned_curated_long  [M=861]
 Scores for complete hits:
@@ -2415,7 +2415,7 @@ Residues passing bias filter:          11049  (0.0477); expected (0.02)
 Residues passing Vit filter:           10263  (0.0443); expected (0.003)
 Residues passing Fwd filter:            4457  (0.0192); expected (3e-05)
 Total number of hits:                      4  (0.0147)
-# CPU time: 0.07u 0.00s 00:00:00.07 Elapsed: 00:00:00.08
-# Mc/sec: 2341.38
+# CPU time: 0.09u 0.00s 00:00:00.09 Elapsed: 00:00:00.09
+# Mc/sec: 2097.68
 //
 [ok]

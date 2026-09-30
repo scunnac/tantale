@@ -82,9 +82,8 @@ the block behind it is.
 
 \strong{Cell text} is whatever \code{label} names, or nothing when
 \code{label = NULL}. Termini are relabelled \code{N-} and \code{-C}; an
-unidentified terminus keeps its \code{XXXXX} code, which is deliberately
-not mistakable for an RVD. Domain codes are padded to three characters so
-columns line up.
+unidentified terminus keeps its \code{XXXXX} code.
+Domain codes are padded to three characters so columns line up.
 
 \strong{Text colour} always answers one question: does this element match
 the consensus of its column? Cyan for yes, pink for no, grey where the

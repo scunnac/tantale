@@ -12,7 +12,8 @@ tell_tales(
   nterm_min_score = 300,
   repeat_min_score = 20,
   cterm_min_score = 200,
-  min_domain_hits = 4,
+  terminus_max_evalue = 1e-05,
+  min_dna_hits = 4,
   min_array_length = 0,
   merge_hits = TRUE,
   min_gap = 35,
@@ -35,8 +36,14 @@ presence of TALE coding sequences (CDS).}
 \item{output_dir}{Path of the output directory. If not specified, results will
 be written to current working folder.}
 
-\item{hmm_dir}{Specify the path to a folder holding the hmmfiles if you
-do not want to use the ones provided with tantale.}
+\item{hmm_dir}{Folder holding the profile HMMs, if you do not want the
+ones provided with tantale. It must hold files with the same names: the
+three DNA profiles of the nhmmer search
+(\code{Xo_TALE_Nterm_CDS_profile.hmm},
+\code{Xo_TALE_repeat_CDS_profile.hmm},
+\code{Xo_TALE_Cterm_CDS_profile.hmm}) and the two protein profiles of
+the terminus check (\code{Xo_TALE_Nterm_AA_profile.hmm},
+\code{Xo_TALE_Cterm_AA_profile.hmm}).}
 
 \item{nterm_min_score}{Minimal nhmmer score cut_off value to
 consider the hit as genuine}
@@ -47,7 +54,15 @@ the hit as genuine}
 \item{cterm_min_score}{Minimal nhmmer score cut_off value to
 consider the hit as genuine}
 
-\item{min_domain_hits}{Minimum number of nhmmer hits for a subject
+\item{terminus_max_evalue}{Maximum \code{hmmsearch} E-value for the
+segment AnnoTALE reports on either side of the repeats to count as a TALE
+N- or C-terminus. The segments are searched with the TALE terminal-domain
+protein profiles of \code{hmm_dir}; this decides the \code{NTERM},
+\code{CTERM} and \code{XXXXX} codes (see \code{\link{tales_anchor_codes}}).
+Genuine termini truncated to about 40 residues still match with E-values
+below 1e-18.}
+
+\item{min_dna_hits}{Minimum number of nhmmer hits for a subject
 sequence (a contig, a chromosome) to be considered further. A cheap way
 to discard whole sequences that carry nothing but stray matches, before
 any expensive work is done on them. It says nothing about the length of
@@ -75,7 +90,8 @@ them to be considered distinct. If the length of the gap is below this
 value, domains are considered "contiguous" and grouped in the same array.}
 
 \item{extremity_codes}{Set this to \code{FALSE} if you do not want the
-N- and C-TERM anchor codes in the output sequences of RVD}
+terminus codes in the RVD strings of \code{rvd_sequences.fas} and
+\code{array_report.tsv}.}
 
 \item{rvd_sep}{Symbol acting as a separator in RVD sequences}
 
@@ -173,26 +189,61 @@ files were written.
 List of output files:
 \itemize{
 \item all_ranges.gff: gff file of all Tal arrays detected by HMMer
-\item array_report.tsv: report of all Tal arrays. Its
-\emph{nterm_aa_length}/\emph{cterm_aa_length} columns count amino acid
-residues, excluding a stop codon, as in the \code{tales} object's
-\code{aa_seq}. Columns
-\emph{predicted_dels_count}/\emph{predicted_ins_count} show the
-number of putative deletions/insertions in the raw sequences that have been
-corrected in the corrected sequences with the
-function \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}}.
+\item array_report.tsv: one row per candidate TALE array. Columns
+named \code{*_dna_*} describe the nhmmer search of the subject DNA;
+columns named \code{*_aa_*} describe the protein segments AnnoTALE
+extracted from the array's longest ORF.
+\itemize{
+\item \emph{array_id}, \emph{seqnames}, \emph{start}, \emph{end},
+\emph{strand}: the array's identifier and the span of its nhmmer hits
+on the subject sequence.
+\item \emph{n_dna_hits}: number of nhmmer hits (N-terminus, repeats and
+C-terminus profiles together) grouped in the array.
+\item \emph{array_seq}: DNA sequence of that span.
+\item \emph{nterm_dna_hit}, \emph{cterm_dna_hit}: whether an nhmmer hit
+of the N- (C-) terminus DNA profile is part of the array, anywhere in
+it.
+\item \emph{rvd_string}: the RVDs AnnoTALE read, separated by
+\code{rvd_sep}, with the terminus codes described under
+\emph{rvd_sequences.fas}. Empty when AnnoTALE found no RVD.
+\item \emph{has_aberrant_repeat}: whether AnnoTALE flagged a repeat of
+non-canonical length (a lowercase letter in its RVD).
+\item \emph{nterm_aa_evalue}, \emph{cterm_aa_evalue}: E-value of the
+\code{hmmsearch} match between the segment AnnoTALE reported upstream
+(downstream) of the repeats and the TALE N- (C-) terminal protein
+profile. \code{NA} when there is no segment, or no match with an
+E-value up to 10.
+\item \emph{nterm_aa_hit}, \emph{cterm_aa_hit}: \code{TRUE} when that
+E-value is at most \code{terminus_max_evalue}, \code{FALSE} for a
+segment that does not match, \code{NA} when AnnoTALE reported no
+segment on that side.
+\item \emph{nterm_aa_length}, \emph{cterm_aa_length}: length of those
+segments in amino acid residues, excluding a stop codon, as in the
+\code{tales} object's \code{aa_seq}.
+\item \emph{longest_orf_length}, \emph{longest_orf_seq}: the longest
+ORF found in the array region extended by \code{extend_len}
+nucleotides at its 3' end.
+\item \emph{orf_coverage}: that ORF's length as a percentage of the
+extended region's length.
+\item \emph{predicted_dels_count}, \emph{predicted_ins_count} (with
+\code{correct_array = TRUE}): number of putative deletions/insertions
+in the raw sequence that
+\code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}}
+corrected.
+}
 \item hits_report.tsv: report of all hits detected by HMMer
 \item hits_report.gff: gff file of all hits detected by HMMer
 \item domains_report.tsv: report of all Tal amino acid domains detected by AnnoTALE analyze
 \item putative_tal_orf.fasta: Tal putative ORFs
 \item pseudo_tal_cds.fasta: pseudo Tal CDS, putative Tal array ORFs detected by HMMer for which
 AnnoTALE analyze failed to find RVD(s).
-\item rvd_sequences.fas: Sequence of RVDs (separated by rvd_sep) predicted to be encoded in the Tal array
-ORFs by AnnoTALE. Note that if extremity_codes is \code{TRUE} (by default),
-the N- and C-TERM anchor codes will be added at the beginning and end of the sequences
-if the corresponding domain coding sequence was found by HMMer at the DNA level.
-If no such HMMer hits were found, the "XXXXX" string will be appended
-to denote that AA sequences outside of the RVD array are likely to be atypical.
+\item rvd_sequences.fas: the RVDs (separated by \code{rvd_sep}) of each
+array for which AnnoTALE found at least one. With \code{extremity_codes
+   = TRUE} (the default), each string is bracketed by terminus codes (see
+\code{\link{tales_anchor_codes}}): \code{NTERM} (\code{CTERM}) when the
+segment AnnoTALE reported upstream (downstream) of the repeats matches
+the TALE N- (C-) terminal protein profile, \code{XXXXX} when it does
+not, and no code when AnnoTALE reported no segment on that side.
 \item c_terminus_aa_alignment.html: protein alignment of all C-termini
 (only written when at least 2 were found; skipped with a warning otherwise)
 \item c_terminus_dna_alignment.html: DNA alignment of all C-termini (same condition)

@@ -1773,3 +1773,180 @@ answered HTTP 502 that day.
 - **Tools archive:** keep it on GitHub releases (plus Zenodo) whatever
   the code host. An institutional server is the kind of dependency the
   one-archive plan was chosen to avoid.
+
+## 35. Catch-up review of 42deefd..b54f277 and the termini audit (`dev/notes_for_claude.md`) -- plan A+B done **[V]**
+
+Reviewed 2026-09-30 (the maintainer's four commits since `claude-reviewed`).
+`dev/notes_for_claude.md` is the maintainer's road map for this phase:
+retirements, renames, `tales_from_annotale()`, the size proposal and the
+`tell_tales()`/`tales_from_telltale()` termini audit.
+
+**Full `devtools::test()` at b54f277: 2 errors**, both from the
+work-in-progress tightening of `.tale_parts()` (`R/tales_ingest.R`):
+- `test_tale_parts.R:7` (`err_array_count` fixture): `unmatched = "error"`
+  in the RVD join now aborts in dplyr where the test expects a warning.
+- `test_tell_tales.R:31` (PXO86 excerpt, real run): the re-enabled
+  `stopifnot(nrow(taleProtString) == nrow(taleDnaString))` fails.
+
+Other points in the same diff: the missing-terminus warning says "missing a
+N-terminus and C-terminus domains" when both are missing (cli takes the
+quantity from `{array_id}`); the array-length warning carries the error
+class `tantale_error_parts_inconsistent`; `tales_anchor_codes()` now
+returns a named vector (`N-`, `-C`, `??`), which the tests accept.
+
+**The PXO86 excerpt shows both directions of the termini disagreement**
+(`tests/testthat/data_for_tests/pxo86_roi18_19_excerpt.fa`, default
+parameters):
+- `ROI_00001` (a partial array cut by the excerpt's start): nhmmer hits are
+  one N-terminus and two repeats, no C-terminus. AnnoTALE writes a DNA
+  parts file with `N-terminus`, `repeat 1`, `C-terminus`, no protein parts
+  file and no RVD entry. So AnnoTALE names a C-terminus that no nhmmer hit
+  supports, and the protein and DNA files disagree in row count.
+- `ROI_00003` (the genuine truncTALE, PXO86 ROI_00019): AnnoTALE reports a
+  42-aa C-terminus; nhmmer has no C-terminus hit above `cterm_min_score`,
+  so the RVD string ends in `XXXXX`. Here the terminus is real and the
+  hit is missing, so "no supporting hit" cannot by itself mean "not a
+  terminus" for short, truncated termini.
+
+**Mechanism confirmed in the code.** `.telltale_finish_rvd_strings()`
+writes `NTERM`/`CTERM` when a hit of that type exists anywhere in the
+array's hits; `.tale_parts()` then attaches that code to whatever
+AnnoTALE called the terminus of the longest ORF. Nothing compares the two
+positions.
+
+**Maintainer's decisions, 2026-10-01.** (Q1) A terminus that fails the
+check is recoded `XXXXX`. The criterion is biological: whatever AnnoTALE
+extracts on either side of the repeat region of a predicted ORF is a real
+terminal segment by definition (the ORF is assumed translated); the open
+question is whether that segment resembles a canonical TALE N- or
+C-terminal domain. Test that with the *protein* profiles already shipped
+in `inst/extdata/hmmProfile/` (`Xo_TALE_Nterm_AA_profile.hmm`, 288
+positions; `Xo_TALE_Cterm_AA_profile.hmm`, 279; built 2020 from 357/359
+X. oryzae sequences; unused by any code so far). The position overlap
+with nhmmer DNA hits proposed first is dropped. (Q2) Finish the
+`.tale_parts()` tightening, while the maintainer keeps thinking about it.
+(Q3) Order: termini check and `array_report.tsv` renames, then the two
+stray `tell_tales()` warnings, then `tales_from_annotale()`, renames and
+retirements. **No coding until the plan is agreed.**
+
+**Feasibility run, 2026-10-01** (scratchpad script, `hmmsearch` 3.3.2
+from the env, `-T 0 --domT 0`, one row per terminus, best domain):
+- MAI1 (clean, 10 arrays): every AnnoTALE terminus hits its profile,
+  E < 1e-163, 535-632 bits, full profile length.
+- PXO86 excerpt `ROI_00003` (genuine truncTALE): the 42-aa C-terminus hits
+  at E = 6.6e-19 (55 bits, profile 1-37). The nhmmer DNA search missed it,
+  so the current code writes `XXXXX`; the protein check would write `CTERM`.
+- BAI3-1-1 raw (`cterm_min_score = 300`): six termini now coded
+  `NTERM`/`CTERM` have **no hit at all**, even at bit threshold 0:
+  C-termini of `ROI_00001` (226 aa), `ROI_00007` (137 aa), `ROI_00008`
+  (26 aa); N-termini of `ROI_00006` and `ROI_00009` (24 aa each). The
+  N-terminus of `ROI_00001` (247 aa) hits only profile 103-150 (68 bits,
+  E = 4e-22). Genuine short fragments (42-45 aa) score E < 1e-18, so an
+  E-value cutoff around 1e-5 separates the two groups on this data.
+
+**First proposal, superseded by the maintainer's decision above:** place each AnnoTALE terminus on the
+genome (the ORF's offset within the array region plus the part's offset
+within the ORF, or a `matchPattern()` of the part's DNA in the array
+sequence) and test overlap with the nhmmer hit of the same type. Record
+the outcome per terminus as a column of the `tales` object and of
+`array_report.tsv`, which also answers the note's request for
+per-terminus nhmmer columns in place of `rvd_string`. Open question for
+the maintainer: whether an unsupported terminus stays in the object
+flagged, or is recoded.
+
+**Plan review, 2026-10-01 (maintainer's answers; still no coding).**
+- A2 corrected: `XXXXX` marks an AnnoTALE terminus with no protein-profile
+  hit, and nothing else. When AnnoTALE reports no terminus there is
+  probably nothing on that side of the repeats: `.tale_parts_from_file()`
+  drops that row (today it adds an all-`NA` row).
+  `position_in_array` must then be renumbered per array (repeats are
+  numbered `position_in_crd + 1` on the assumption of an N-terminus row).
+  In the three runs examined, AnnoTALE reported both termini for every
+  array it analysed; the missing-terminus case exists only in the
+  synthetic fixture `err_missing_nterm`.
+- A3, A4, A7, B2, Q4 (E <= 1e-5), Q7 (`min_domain_hits` -> `min_dna_hits`)
+  agreed. Q5: `rvd_string` stays; after plan A its terminus codes describe
+  protein-profile matches, and the `array_report.tsv` columns get
+  documented one by one.
+- A5 (anomaly for `XXXXX`) postponed: `tales_anomalies()` and the checks
+  in `.tale_parts()` are to be re-examined one by one.
+- **B3: AnnoTALE's RVD count equals its repeat-part count** in all 21
+  arrays examined (MAI1, PXO86 excerpt, BAI3-1-1 raw). With both read from
+  AnnoTALE (A4), the separate length check is redundant with a join that
+  errors on unmatched rows on either side.
+- **B1: AnnoTALE `analyze` behaviour understood** (PXO86 excerpt
+  `ROI_00001`, `protocol_analyze.txt`). It splits the ORF DNA into parts,
+  then translates it. The split produced a 9-nt "repeat 1"; translation
+  failed ("Both RVD positions are gaps"), then "Protein version ... could
+  not be analyzed, splitting into regions failed". It wrote
+  `TALE_DNA_parts.fasta` anyway, and neither `TALE_Protein_parts.fasta`
+  nor `TALE_RVDs.fasta`. `.telltale_run_annotale()` warns and skips the
+  array, but leaves the DNA parts file, which `.tale_parts()` then reads.
+  Different case, BAI3-1-1 `ROI_00003`/`ROI_00005`: protein and DNA parts
+  hold an N-terminus (285 aa) and a 3-aa "C-terminus", no repeat, no RVD
+  file.
+- Q8: `tales_get_protein_seq()`/`tales_get_dna_seq()` already abort with
+  `tantale_error_projection_na` on an `NA` sequence, and
+  `tales(x, sanitize = TRUE)` removes anomalous arrays.
+- Agreed 2026-10-01: A1 in `tell_tales()`; A2 drop the row and recompute
+  positions; A6 wording as drafted; Q6 abort on an old directory with a
+  message to rerun `tell_tales()`; Q9 (a) `tell_tales()` removes the DNA
+  parts file of an array it skips for lack of protein parts. B1: parts
+  lacking either the DNA or the protein sequence are filtered out, at the
+  level of the whole array (dropping a single part would leave a hole in
+  the array and shift the positions). The consolidated plan A+B is in the
+  reply of the same day; awaiting final approval.
+
+**Plan A+B executed 2026-10-01 (0.9.9011).** Coding approved by the
+maintainer, with one more instruction: a helper called from one place goes
+back into its caller (`.telltale_finish_rvd_strings()` inlined into
+`tell_tales()`).
+- `R/telltale.R`: `.tale_termini_hmmsearch()` (kept as a function for the
+  future `tales_from_annotale()`), called in `tell_tales()` on the termini
+  already read by `.telltale_align_termini(type = "AA")`, now run before
+  the RVD strings. New argument `terminus_max_evalue = 1e-5`;
+  `min_domain_hits` -> `min_dna_hits`; `array_report.tsv`: `n_dna_hits`,
+  `nterm_dna_hit`, `cterm_dna_hit`, `nterm_aa_evalue`, `cterm_aa_evalue`,
+  `nterm_aa_hit`, `cterm_aa_hit`. `.telltale_run_annotale()` deletes
+  `TALE_DNA_parts.fasta` along with an absent/empty protein parts file.
+  Run log: counts of arrays whose termini match the protein profiles.
+  `?tell_tales` documents every `array_report.tsv` column and what
+  `hmm_dir` must hold.
+- `R/tales_ingest.R`: `.tale_parts()` rewritten as planned (B1-B5):
+  RVDs from `TALE_RVDs.fasta`, codes from `array_report.tsv`
+  (`tantale_error_telltale_outdated` without the columns), whole arrays
+  dropped on a protein/DNA disagreement (`tantale_warning_parts_inconsistent`),
+  absent termini warned about (`tantale_warning_terminus_absent`) and
+  positions counted per array, RVD/repeat mismatch an error
+  (`tantale_error_parts_inconsistent`). `rvd_sequences.fas` is no longer
+  read by the package. `.tale_parts_from_file()` no longer adds rows.
+- Fixtures: `data-raw/make_telltale_test_fixtures.R` regenerates
+  `inst/extdata/tellTaleExampleOutput` and `example_output` from
+  `bai3_sample_tal_genomic_regions.fasta` (RVD strings byte-identical to
+  the 2022 run) and derives the three `err_*` directories from it, keeping
+  only what `.tale_parts()` reads. `err_array_count` now plants an RVD
+  missing from `TALE_RVDs.fasta`. The old fixtures used the pre-rename
+  column names (`SeqOfRVD`, `AllDomains`...); none remain in tests or
+  examples, which bears on the maintainer's question whether
+  `.tales_rename_legacy()`/`.pairwise_distances_rename_legacy()` are still
+  needed (not examined further). New fixture
+  `termini_profile_cases.fa` (four real segments from MAI1, PXO86,
+  BAI3-1-1).
+- Seen on BAI3-1-1 raw: `ROI_00001`'s 247-aa N-terminus matches only
+  profile positions 103-150 (E = 4e-22) and is coded `NTERM`. The check
+  has no coverage criterion; a partial match counts as a terminus.
+- Left for the maintainer: `tale_mining.qmd` and
+  `trunctale_correction.qmd` select `has_all_domains`, and will fail to
+  render until updated; the articles' cache (`discovery.rds` included)
+  is stale.
+- Checks: full `devtools::test()` (only the golden tests changed), then
+  quick `R CMD check` (no tests, no vignettes): 0 errors, 0 warnings, 0
+  notes. **Golden re-baselined**, every row explained: `all_ranges.gff`
+  (array attributes renamed/added), `array_report.tsv` (renamed and new
+  columns; all old columns keep their digests), `tell_tales.log` (+3
+  lines: `terminus_max_evalue` and two protein-profile counts), in both
+  the plain and the corrected run. The first run of the golden test also
+  caught a bug of the inlined code, `has_aberrant_repeat` all `NA`
+  (`nzchar()` drops names), fixed before accepting. Weakness noticed: the
+  fingerprint rounds doubles to 8 decimals, so the E-value columns (around
+  1e-190) all digest as 0.

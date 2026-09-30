@@ -9,7 +9,7 @@
 # nterm_min_score = 300
 # repeat_min_score = 20
 # cterm_min_score = 200
-# min_domain_hits = 4
+# min_dna_hits = 4
 # merge_hits = TRUE
 # min_gap = 35
 # taleArrayStartAnchorCode = "NTERM"
@@ -29,7 +29,7 @@
 # nterm_min_score = 300
 # repeat_min_score = 20
 # cterm_min_score = 200
-# min_domain_hits = 4
+# min_dna_hits = 4
 # merge_hits = TRUE
 # min_gap = 35
 # extremity_codes = TRUE
@@ -170,7 +170,7 @@
 #'   creating it on first use.
 #' @param nterm_min_score,repeat_min_score,cterm_min_score Per-domain score
 #'   thresholds.
-#' @param min_domain_hits A subject sequence is kept when it carries at least
+#' @param min_dna_hits A subject sequence is kept when it carries at least
 #'   this many hits. Counts hits per subject sequence, not per TALE array --
 #'   it is a cheap pre-filter that discards whole contigs carrying nothing but
 #'   stray matches. Short *arrays* are filtered separately, after grouping.
@@ -180,7 +180,7 @@
 #' @noRd
 .telltale_find_domain_hits <- function(subject_file, hmm, paths, hmmer_path,
                                        nterm_min_score, repeat_min_score,
-                                       cterm_min_score, min_domain_hits) {
+                                       cterm_min_score, min_dna_hits) {
   .run_nhmmer_search(hmmer_path = hmmer_path,
                      subject_file = subject_file,
                      hmm_file = paths$merged_hmm,
@@ -223,13 +223,13 @@
   perSubject <- dplyr::count(hits, target_name, sq_len, name = "V1")
   # >=, not >: the argument is documented as a minimum, and a sequence
   # carrying exactly that many hits used to be dropped.
-  hits <- subset(hits, target_name %in% perSubject[perSubject$V1 >= min_domain_hits, "target_name"])
+  hits <- subset(hits, target_name %in% perSubject[perSubject$V1 >= min_dna_hits, "target_name"])
   hits <- droplevels(hits)
   if (nrow(hits) == 0L) {
     # Unguarded before: the run carried on and died several stages later
     # inside Bioconductor with "Rle of type 'NULL' is not supported".
-    cli::cli_warn(c("No subject sequence carries at least {min_domain_hits} TALE domain hit{?s}.",
-                    "i" = "{.arg min_domain_hits} counts hits per subject sequence, not per TALE array.",
+    cli::cli_warn(c("No subject sequence carries at least {min_dna_hits} nhmmer DNA hit{?s}.",
+                    "i" = "{.arg min_dna_hits} counts hits per subject sequence, not per TALE array.",
                     "x" = "Nothing left to analyse. Exitting..."))
     return(NULL)
   }
@@ -369,16 +369,10 @@
     start = BiocGenerics::start(arraysGR),
     end = BiocGenerics::end(arraysGR),
     strand = BiocGenerics::strand(arraysGR),
-    n_domain_hits = S4Vectors::elementNROWS(byArray),
+    n_dna_hits = S4Vectors::elementNROWS(byArray),
     array_seq = BSgenome::getSeq(subject_seqs, arraysGR),
-    has_all_domains = sapply(byArray,
-                        function(x) {
-                          all(
-                            c(hmm$nterm, hmm$repeats,
-                              hmm$cterm) %in% as.character(x$query_name)
-                          )
-                        }
-    )
+    nterm_dna_hit = sapply(byArray, function(x) hmm$nterm %in% as.character(x$query_name)),
+    cterm_dna_hit = sapply(byArray, function(x) hmm$cterm %in% as.character(x$query_name))
   )
 
   list(arrays = arraysGR, by_array = byArray)
@@ -411,9 +405,9 @@
   ## Total count of repeat CDS after filtering for uniformative subject seqs for the log file
   numberOfRepeatHitsAfterFiltering <- length(subset(unlist(by_array), query_name == hmm$repeats))
   ## Distribution of the number of hits per array
-  countsHitsByArrayDistri <- summary(S4Vectors::mcols(by_array)$n_domain_hits)
+  countsHitsByArrayDistri <- summary(S4Vectors::mcols(by_array)$n_dna_hits)
   ## Number of domains in arrays that display all domain types
-  # completeArrayLengths <- subset(S4Vectors::mcols(by_array), has_all_domains)$n_domain_hits
+  # completeArrayLengths <- subset(S4Vectors::mcols(by_array), nterm_dna_hit & cterm_dna_hit)$n_dna_hits
   
   
   ## might have been cleaner with a glue approach
@@ -433,7 +427,8 @@
     paste("nterm_min_score:", params$nterm_min_score, sep = "\t"),
     paste("repeat_min_score:", params$repeat_min_score, sep = "\t"),
     paste("cterm_min_score:", params$cterm_min_score, sep = "\t"),
-    paste("min_domain_hits:", params$min_domain_hits, sep = "\t"),
+    paste("terminus_max_evalue:", params$terminus_max_evalue, sep = "\t"),
+    paste("min_dna_hits:", params$min_dna_hits, sep = "\t"),
     paste("min_array_length:", params$min_array_length, sep = "\t"),
     paste("merge_hits:", params$merge_hits, sep = "\t"),
     paste("min_gap:", params$min_gap, sep = "\t"),
@@ -454,14 +449,19 @@
     paste("Total number of subject seqs with TALE motif hits after low hit number filtering:",
           length(GenomeInfoDb::seqlevels(arrays)), sep = "\t"),
     paste("Total number of distinct regions (repeat arrays) with adjacent TALE motifs :", nrow(array_report), sep = "\t"),
-    paste("Total number of 'complete' arrays (with both N- and C-term flanking motifs):",
-          sum(S4Vectors::mcols(by_array)$has_all_domains),	sep = "\t"),
+    paste("Number of arrays with nhmmer DNA hits for both termini:",
+          sum(S4Vectors::mcols(by_array)$nterm_dna_hit & S4Vectors::mcols(by_array)$cterm_dna_hit),
+          sep = "\t"),
+    paste("Number of arrays whose AnnoTALE N-terminus matches the TALE N-terminal protein profile:",
+          sum(S4Vectors::mcols(by_array)$nterm_aa_hit, na.rm = TRUE), sep = "\t"),
+    paste("Number of arrays whose AnnoTALE C-terminus matches the TALE C-terminal protein profile:",
+          sum(S4Vectors::mcols(by_array)$cterm_aa_hit, na.rm = TRUE), sep = "\t"),
     
     #paste("Total number of distinct types of RVD:", nrow(RVDtbl), sep = "\t"),
     
-    paste("Minimum array length (number of TALE domain hits):", min(array_report$n_domain_hits), sep = "\t"),
-    paste("Maximum array length:", max(array_report$n_domain_hits), sep = "\t"),
-    paste("Median array length:", median(array_report$n_domain_hits), sep = "\t"),
+    paste("Minimum array length (number of nhmmer DNA hits):", min(array_report$n_dna_hits), sep = "\t"),
+    paste("Maximum array length:", max(array_report$n_dna_hits), sep = "\t"),
+    paste("Median array length:", median(array_report$n_dna_hits), sep = "\t"),
     # paste("Length of the longest 'complete' array:", max(completeArrayLengths),	sep = "\t"),
     # paste("Length of the shortest 'complete' array:", min(completeArrayLengths),	sep = "\t"),
     
@@ -724,6 +724,7 @@
     checkAnnoTale <- try(.run_annotale_analyze(correctedTalOrfFile, AnnotaleDir), silent = TRUE)
 
     prot_parts_files <- file.path(AnnotaleDir, "TALE_Protein_parts.fasta")
+    dna_parts_file <- file.path(AnnotaleDir, "TALE_DNA_parts.fasta")
     annoTaleRVD_file <- file.path(AnnotaleDir, "TALE_RVDs.fasta")
     seqOfRVDs <- try(Biostrings::readAAStringSet(annoTaleRVD_file,
                                                  seek.first.rec = TRUE,
@@ -733,13 +734,14 @@
 
     if (any(
       inherits(checkAnnoTale, "try-error"), # in case annotale does not work
-      if (inherits(prot_parts, "try-error")) { # in case annotale does not return a prot_parts file or if it is empty.
+      if (inherits(prot_parts, "try-error") || length(prot_parts) == 0L) {
+        # No protein parts: AnnoTALE splits the DNA before translating, and
+        # still writes the DNA parts when the protein cannot be split. Those
+        # DNA parts are not trustworthy (a 9-nt "repeat" was seen), so both
+        # files go, and the array stays out of the tales object.
         file.exists(prot_parts_files) && file.remove(prot_parts_files)
+        file.exists(dna_parts_file) && file.remove(dna_parts_file)
         TRUE
-      } else {
-        if (file.exists(prot_parts_files) && length(prot_parts) == 0L) {
-          file.remove(prot_parts_files) # should also return TRUE
-        }
       },
       if (inherits(seqOfRVDs, "try-error")) { # in case annotale works but cannot find rvds or rvd seq file is empty.
         file.exists(annoTaleRVD_file) && file.remove(annoTaleRVD_file)
@@ -833,68 +835,76 @@
 }
 
 
-#' Finish the RVD strings and attach them to the arrays
+#' Does each terminus look like a canonical TALE terminal domain?
 #'
-#' AnnoTALE reports the RVDs of an array as a dash-separated string. Three
-#' things are done to it here.
+#' AnnoTALE calls "N-terminus" whatever the ORF encodes upstream of the first
+#' repeat, and "C-terminus" whatever it encodes downstream of the last one.
+#' The ORF is taken to be translated, so these segments exist, but nothing
+#' says they resemble the terminal domains of a TALE: an ORF that starts or
+#' ends inside a frameshifted region yields segments of unrelated sequence.
+#' Each segment is therefore searched with \code{hmmsearch} against the TALE
+#' N- or C-terminal protein profile.
 #'
-#' A lowercase letter in an RVD is AnnoTALE's way of flagging a repeat whose
-#' length departs from the canonical ~34 aa. Such an array is marked
-#' \code{has_aberrant_repeat}, because an aberrant repeat changes how the array
-#' should be read and is worth knowing about before the RVDs are used to
-#' predict targets.
+#' Kept as a function because it is meant to serve every reader of AnnoTALE
+#' output, \code{tell_tales()} first.
 #'
-#' The separator becomes \code{rvd_sep}, whatever the caller asked for.
-#'
-#' Finally, with \code{extremity_codes}, each string is bracketed by codes
-#' standing for the termini, so that a string of RVDs and a string of repeat
-#' codes describe the same number of parts. Where a terminus was detected the
-#' code names it; where the array simply ends without one, the code is
-#' \code{XXXXX} -- a terminus is presumed present but was not identified,
-#' which is a different statement from its absence.
-#'
-#' @param rvds The RVD strings as AnnoTALE reported them.
-#' @param by_array The grouped hits; gains \code{rvd_string} and
-#'   \code{has_aberrant_repeat}.
-#' @param hmm What \code{.telltale_hmm_profiles()} returned, for recognising
-#'   which termini a given array actually has.
-#' @param rvd_sep Separator between RVDs.
-#' @param extremity_codes Whether to bracket with terminus codes.
-#' @return A list of the finished \code{rvds} and the updated
-#'   \code{by_array}.
+#' @param termini A list of two \code{AAStringSet}s named \code{"N-terminus"}
+#'   and \code{"C-terminus"}, each named by array, as
+#'   \code{.telltale_align_termini(type = "AA")} returns them. A stop codon
+#'   is removed before the search.
+#' @param max_evalue A terminus matches when \code{hmmsearch}'s per-sequence
+#'   E-value is at most this.
+#' @param hmm_dir Directory holding \code{Xo_TALE_Nterm_AA_profile.hmm} and
+#'   \code{Xo_TALE_Cterm_AA_profile.hmm}.
+#' @param hmmer_path Directory holding the \code{hmmsearch} binary;
+#'   \code{NULL} uses the tantale conda environment.
+#' @return A tibble with one row per array holding at least one terminus:
+#'   \code{array_id}, \code{nterm_aa_evalue}, \code{cterm_aa_evalue} (\code{NA}
+#'   when there is no segment or \code{hmmsearch} reports no match),
+#'   \code{nterm_aa_hit}, \code{cterm_aa_hit} (\code{TRUE} for a match,
+#'   \code{FALSE} for a segment without one, \code{NA} without a segment).
 #' @noRd
-.telltale_finish_rvd_strings <- function(rvds, by_array, hmm, rvd_sep,
-                                         extremity_codes) {
-  # a lowercase letter marks a repeat of non-canonical length
-  has_aberrant_repeat <- sapply(rvds, function(s) {
-    ifelse(length(s) > 0, grepl("[a-z]", s), NA)
-  })
-
-  rvds <- gsub("\\-", rvd_sep, rvds) %>% Biostrings::AAStringSet()
-
-  if (extremity_codes) {
-    # This is necessary for other tantale utilities that can operate on 'full'
-    # domains sequences, ie downstream of distal, for TALE domains sequences
-    # alignments.
-    anchors <- tales_anchor_codes()   # NTERM, CTERM, XXXXX
-    for (s in names(rvds)) {
-      present <- as.character(by_array[[s]]$query_name)
-      rvds[s] <- paste(ifelse(hmm$nterm %in% present, anchors[1], anchors[3]),
-                       rvds[s], sep = rvd_sep)
-      rvds[s] <- paste(rvds[s],
-                       ifelse(hmm$cterm %in% present, anchors[2], anchors[3]),
-                       sep = rvd_sep)
-    }
+.tale_termini_hmmsearch <- function(termini, max_evalue, hmm_dir, hmmer_path = NULL) {
+  if (is.null(hmmer_path)) hmmer_path <- .get_hmmer()
+  profiles <- c(`N-terminus` = file.path(hmm_dir, "Xo_TALE_Nterm_AA_profile.hmm"),
+                `C-terminus` = file.path(hmm_dir, "Xo_TALE_Cterm_AA_profile.hmm"))
+  if (!all(file.exists(profiles))) {
+    cli::cli_abort(
+      c("Cannot find the TALE terminus protein profile{?s} {.file {profiles[!file.exists(profiles)]}}.",
+        "i" = "{.arg hmm_dir} must hold them next to the DNA profiles."),
+      class = c("tantale_error_hmm_missing", "tantale_error"))
   }
 
-  S4Vectors::mcols(by_array) <- merge(
-    S4Vectors::mcols(by_array),
-    data.frame(rvd_string = rvds, has_aberrant_repeat = has_aberrant_repeat,
-               array_id = names(rvds)),
-    by = "array_id", all.x = TRUE)
-  S4Vectors::mcols(by_array)$rvd_string[is.na(S4Vectors::mcols(by_array)$rvd_string)] <- ""
+  evalues <- lapply(c("N-terminus", "C-terminus"), function(part) {
+    seqs <- Biostrings::AAStringSet(gsub("*", "", as.character(termini[[part]]), fixed = TRUE))
+    found <- tibble::tibble(array_id = as.character(names(seqs)), evalue = NA_real_)
+    # hmmsearch cannot take an empty sequence; such a segment simply matches nothing
+    seqs <- seqs[Biostrings::width(seqs) > 0L]
+    if (length(seqs) > 0L) {
+      seqFile <- tempfile(fileext = ".fasta")
+      tblFile <- tempfile(fileext = ".tbl")
+      on.exit(unlink(c(seqFile, tblFile)), add = TRUE)
+      Biostrings::writeXStringSet(seqs, seqFile)
+      searchCmd <- paste(shQuote(file.path(hmmer_path, "hmmsearch")),
+                         "--noali --tblout", shQuote(tblFile),
+                         shQuote(profiles[[part]]), shQuote(seqFile),
+                         "> /dev/null")
+      .tantale_exec(searchCmd, what = glue::glue("hmmsearch of the {part} profile"))
+      # --tblout: target name in field 1, full-sequence E-value in field 5
+      tbl <- grep("^#", readLines(tblFile), value = TRUE, invert = TRUE)
+      fields <- strsplit(tbl, "\\s+")
+      hits <- tibble::tibble(array_id = vapply(fields, `[`, character(1), 1),
+                             evalue = as.numeric(vapply(fields, `[`, character(1), 5)))
+      found$evalue <- hits$evalue[match(found$array_id, hits$array_id)]
+    }
+    found %>%
+      dplyr::mutate(hit = !is.na(evalue) & evalue <= max_evalue) %>%
+      dplyr::rename_with(~ paste0(if (part == "N-terminus") "nterm" else "cterm", "_aa_", .x),
+                         c(evalue, hit))
+  })
 
-  list(rvds = rvds, by_array = by_array)
+  dplyr::full_join(evalues[[1]], evalues[[2]], by = "array_id") %>%
+    dplyr::arrange(array_id)
 }
 
 
@@ -929,7 +939,7 @@
   arrayReport <- as.data.frame(
     S4Vectors::mcols(by_array)[
       order(S4Vectors::mcols(by_array)$seqnames,
-            S4Vectors::mcols(by_array)$n_domain_hits), ]
+            S4Vectors::mcols(by_array)$n_dna_hits), ]
   )
   readr::write_tsv(x = arrayReport, file = paths$array_report)
 
@@ -1223,15 +1233,28 @@
 #'   presence of TALE coding sequences (CDS).
 #' @param output_dir Path of the output directory. If not specified, results will
 #'   be written to current working folder.
-#' @param hmm_dir Specify the path to a folder holding the hmmfiles if you
-#'   do not want to use the ones provided with tantale.
+#' @param hmm_dir Folder holding the profile HMMs, if you do not want the
+#'   ones provided with tantale. It must hold files with the same names: the
+#'   three DNA profiles of the nhmmer search
+#'   (\code{Xo_TALE_Nterm_CDS_profile.hmm},
+#'   \code{Xo_TALE_repeat_CDS_profile.hmm},
+#'   \code{Xo_TALE_Cterm_CDS_profile.hmm}) and the two protein profiles of
+#'   the terminus check (\code{Xo_TALE_Nterm_AA_profile.hmm},
+#'   \code{Xo_TALE_Cterm_AA_profile.hmm}).
 #' @param nterm_min_score Minimal nhmmer score cut_off value to
 #'   consider the hit as genuine
 #' @param repeat_min_score Minimal nhmmer score cut_off value to consider
 #'   the hit as genuine
 #' @param cterm_min_score Minimal nhmmer score cut_off value to
 #'   consider the hit as genuine
-#' @param min_domain_hits Minimum number of nhmmer hits for a subject
+#' @param terminus_max_evalue Maximum \code{hmmsearch} E-value for the
+#'   segment AnnoTALE reports on either side of the repeats to count as a TALE
+#'   N- or C-terminus. The segments are searched with the TALE terminal-domain
+#'   protein profiles of \code{hmm_dir}; this decides the \code{NTERM},
+#'   \code{CTERM} and \code{XXXXX} codes (see \code{\link{tales_anchor_codes}}).
+#'   Genuine termini truncated to about 40 residues still match with E-values
+#'   below 1e-18.
+#' @param min_dna_hits Minimum number of nhmmer hits for a subject
 #'   sequence (a contig, a chromosome) to be considered further. A cheap way
 #'   to discard whole sequences that carry nothing but stray matches, before
 #'   any expensive work is done on them. It says nothing about the length of
@@ -1255,7 +1278,8 @@
 #'   them to be considered distinct. If the length of the gap is below this
 #'   value, domains are considered "contiguous" and grouped in the same array.
 #' @param extremity_codes Set this to \code{FALSE} if you do not want the
-#'   N- and C-TERM anchor codes in the output sequences of RVD
+#'   terminus codes in the RVD strings of \code{rvd_sequences.fas} and
+#'   \code{array_report.tsv}.
 #' @param rvd_sep Symbol acting as a separator in RVD sequences
 #' @param hmmer_path Specify the path to a directory holding the HMMER executable
 #'   if you do not want to use the ones provided with tantale.
@@ -1344,26 +1368,61 @@
 #'   List of output files:
 #'   \itemize{
 #'   \item all_ranges.gff: gff file of all Tal arrays detected by HMMer
-#'   \item array_report.tsv: report of all Tal arrays. Its
-#'   \emph{nterm_aa_length}/\emph{cterm_aa_length} columns count amino acid
-#'   residues, excluding a stop codon, as in the \code{tales} object's
-#'   \code{aa_seq}. Columns
-#'   \emph{predicted_dels_count}/\emph{predicted_ins_count} show the
-#'   number of putative deletions/insertions in the raw sequences that have been
-#'   corrected in the corrected sequences with the
-#'   function \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}}.
+#'   \item array_report.tsv: one row per candidate TALE array. Columns
+#'   named \code{*_dna_*} describe the nhmmer search of the subject DNA;
+#'   columns named \code{*_aa_*} describe the protein segments AnnoTALE
+#'   extracted from the array's longest ORF.
+#'   \itemize{
+#'     \item \emph{array_id}, \emph{seqnames}, \emph{start}, \emph{end},
+#'     \emph{strand}: the array's identifier and the span of its nhmmer hits
+#'     on the subject sequence.
+#'     \item \emph{n_dna_hits}: number of nhmmer hits (N-terminus, repeats and
+#'     C-terminus profiles together) grouped in the array.
+#'     \item \emph{array_seq}: DNA sequence of that span.
+#'     \item \emph{nterm_dna_hit}, \emph{cterm_dna_hit}: whether an nhmmer hit
+#'     of the N- (C-) terminus DNA profile is part of the array, anywhere in
+#'     it.
+#'     \item \emph{rvd_string}: the RVDs AnnoTALE read, separated by
+#'     \code{rvd_sep}, with the terminus codes described under
+#'     \emph{rvd_sequences.fas}. Empty when AnnoTALE found no RVD.
+#'     \item \emph{has_aberrant_repeat}: whether AnnoTALE flagged a repeat of
+#'     non-canonical length (a lowercase letter in its RVD).
+#'     \item \emph{nterm_aa_evalue}, \emph{cterm_aa_evalue}: E-value of the
+#'     \code{hmmsearch} match between the segment AnnoTALE reported upstream
+#'     (downstream) of the repeats and the TALE N- (C-) terminal protein
+#'     profile. \code{NA} when there is no segment, or no match with an
+#'     E-value up to 10.
+#'     \item \emph{nterm_aa_hit}, \emph{cterm_aa_hit}: \code{TRUE} when that
+#'     E-value is at most \code{terminus_max_evalue}, \code{FALSE} for a
+#'     segment that does not match, \code{NA} when AnnoTALE reported no
+#'     segment on that side.
+#'     \item \emph{nterm_aa_length}, \emph{cterm_aa_length}: length of those
+#'     segments in amino acid residues, excluding a stop codon, as in the
+#'     \code{tales} object's \code{aa_seq}.
+#'     \item \emph{longest_orf_length}, \emph{longest_orf_seq}: the longest
+#'     ORF found in the array region extended by \code{extend_len}
+#'     nucleotides at its 3' end.
+#'     \item \emph{orf_coverage}: that ORF's length as a percentage of the
+#'     extended region's length.
+#'     \item \emph{predicted_dels_count}, \emph{predicted_ins_count} (with
+#'     \code{correct_array = TRUE}): number of putative deletions/insertions
+#'     in the raw sequence that
+#'     \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}}
+#'     corrected.
+#'   }
 #'   \item hits_report.tsv: report of all hits detected by HMMer
 #'   \item hits_report.gff: gff file of all hits detected by HMMer
 #'   \item domains_report.tsv: report of all Tal amino acid domains detected by AnnoTALE analyze
 #'   \item putative_tal_orf.fasta: Tal putative ORFs
 #'   \item pseudo_tal_cds.fasta: pseudo Tal CDS, putative Tal array ORFs detected by HMMer for which
 #'    AnnoTALE analyze failed to find RVD(s).
-#'   \item rvd_sequences.fas: Sequence of RVDs (separated by rvd_sep) predicted to be encoded in the Tal array
-#'    ORFs by AnnoTALE. Note that if extremity_codes is \code{TRUE} (by default),
-#'    the N- and C-TERM anchor codes will be added at the beginning and end of the sequences
-#'    if the corresponding domain coding sequence was found by HMMer at the DNA level.
-#'    If no such HMMer hits were found, the "XXXXX" string will be appended
-#'    to denote that AA sequences outside of the RVD array are likely to be atypical.
+#'   \item rvd_sequences.fas: the RVDs (separated by \code{rvd_sep}) of each
+#'    array for which AnnoTALE found at least one. With \code{extremity_codes
+#'    = TRUE} (the default), each string is bracketed by terminus codes (see
+#'    \code{\link{tales_anchor_codes}}): \code{NTERM} (\code{CTERM}) when the
+#'    segment AnnoTALE reported upstream (downstream) of the repeats matches
+#'    the TALE N- (C-) terminal protein profile, \code{XXXXX} when it does
+#'    not, and no code when AnnoTALE reported no segment on that side.
 #'   \item c_terminus_aa_alignment.html: protein alignment of all C-termini
 #'   (only written when at least 2 were found; skipped with a warning otherwise)
 #'   \item c_terminus_dna_alignment.html: DNA alignment of all C-termini (same condition)
@@ -1396,7 +1455,8 @@ tell_tales <- function(
   nterm_min_score = 300,
   repeat_min_score = 20,
   cterm_min_score = 200,
-  min_domain_hits = 4,
+  terminus_max_evalue = 1e-5,
+  min_dna_hits = 4,
   min_array_length = 0,
   merge_hits = TRUE,
   min_gap = 35,
@@ -1447,7 +1507,7 @@ tell_tales <- function(
     subject_file = subject_file, hmm = hmm, paths = paths,
     hmmer_path = hmmer_path,
     nterm_min_score = nterm_min_score, repeat_min_score = repeat_min_score,
-    cterm_min_score = cterm_min_score, min_domain_hits = min_domain_hits)
+    cterm_min_score = cterm_min_score, min_dna_hits = min_dna_hits)
   # Every stage below assumes at least one hit.
   if (is.null(nhmmerTabularOutput)) return(invisible(output_dir))
 
@@ -1514,14 +1574,49 @@ tell_tales <- function(
   # save tals that DO NOT have rvds
   Biostrings::writeXStringSet(extdCompleteArraysSeqs[!names(extdCompleteArraysSeqs) %in% names(seqsOfRVDs)], paths$pseudo_tal)
   
-  rvdResult <- .telltale_finish_rvd_strings(seqsOfRVDs, hitsByArraysLst, hmm,
-                                            rvd_sep, extremity_codes)
-  seqsOfRVDs <- rvdResult$rvds
-  hitsByArraysLst <- rvdResult$by_array
-
   #### Align N-term and C-term ####
   .telltale_align_termini(paths$annotale, paths, type = "DNA")
   endsAA <- .telltale_align_termini(paths$annotale, paths, type = "AA")
+
+  #### Do the termini look like TALE terminal domains? ####
+  terminiHits <- .tale_termini_hmmsearch(endsAA, max_evalue = terminus_max_evalue,
+                                         hmm_dir = hmm_dir, hmmer_path = hmmer_path)
+
+  #### RVD strings ####
+  # A lowercase letter in an RVD is AnnoTALE's way of flagging a repeat whose
+  # length departs from the canonical ~34 aa. An aberrant repeat changes how
+  # the array should be read, which is worth knowing before the RVDs are used
+  # to predict targets.
+  rvdStrings <- as.character(seqsOfRVDs)
+  hasAberrantRepeat <- ifelse(nzchar(rvdStrings), grepl("[a-z]", rvdStrings), NA) %>%
+    stats::setNames(names(rvdStrings))
+  rvdStrings <- gsub("-", rvd_sep, rvdStrings, fixed = TRUE)
+
+  # Terminus codes, so that a string of RVDs and a string of repeat codes
+  # describe the same number of parts: NTERM/CTERM for a segment matching the
+  # TALE terminus profile, XXXXX for a segment that does not, nothing when
+  # AnnoTALE reported no segment on that side of the repeats.
+  if (extremity_codes) {
+    anchors <- unname(tales_anchor_codes())   # NTERM, CTERM, XXXXX
+    endHits <- terminiHits[match(names(rvdStrings), terminiHits$array_id), ]
+    ntermCode <- ifelse(endHits$nterm_aa_hit, anchors[1], anchors[3])
+    ctermCode <- ifelse(endHits$cterm_aa_hit, anchors[2], anchors[3])
+    rvdStrings <- paste0(ifelse(is.na(ntermCode), "", paste0(ntermCode, rvd_sep)),
+                         rvdStrings,
+                         ifelse(is.na(ctermCode), "", paste0(rvd_sep, ctermCode))) %>%
+      stats::setNames(names(rvdStrings))
+  }
+
+  arrayMeta <- S4Vectors::mcols(hitsByArraysLst)
+  arrayMeta$rvd_string <- unname(rvdStrings[arrayMeta$array_id])
+  arrayMeta$rvd_string[is.na(arrayMeta$rvd_string)] <- ""
+  arrayMeta$has_aberrant_repeat <- unname(hasAberrantRepeat[arrayMeta$array_id])
+  endHits <- terminiHits[match(arrayMeta$array_id, terminiHits$array_id), ]
+  arrayMeta$nterm_aa_evalue <- endHits$nterm_aa_evalue
+  arrayMeta$cterm_aa_evalue <- endHits$cterm_aa_evalue
+  arrayMeta$nterm_aa_hit <- endHits$nterm_aa_hit
+  arrayMeta$cterm_aa_hit <- endHits$cterm_aa_hit
+  S4Vectors::mcols(hitsByArraysLst) <- arrayMeta
 
   #### Per-array measures from the ORF and the termini ####
   hitsByArraysLst <- .telltale_add_array_measures(
@@ -1544,7 +1639,8 @@ tell_tales <- function(
                   nterm_min_score = nterm_min_score,
                   repeat_min_score = repeat_min_score,
                   cterm_min_score = cterm_min_score,
-                  min_domain_hits = min_domain_hits,
+                  terminus_max_evalue = terminus_max_evalue,
+                  min_dna_hits = min_dna_hits,
                   min_array_length = min_array_length, merge_hits = merge_hits,
                   min_gap = min_gap, extend_len = extend_len,
                   correct_array = correct_array, correction_ref = correction_ref,

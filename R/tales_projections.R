@@ -253,7 +253,8 @@ tales_get_dna_seq <- function(x) {
   if (anyNA(x[[col]])) {
     cli::cli_abort(
       c("{.field {col}} must not contain {.val NA}.",
-        "i" = "A missing sequence would be pasted into the assembled sequence as the literal text {.val NA}."),
+        "i" = "A missing sequence would be pasted into the assembled sequence as the literal text {.val NA}.",
+        "i" = "{.fn tales_anomalies} lists the arrays concerned; {.code tales(x, sanitize = TRUE)} removes them."),
       class = c("tantale_error_projection_na", "tantale_error")
     )
   }

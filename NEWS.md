@@ -1,4 +1,40 @@
-# tantale 0.9.9010
+# tantale 0.9.9011
+
+## Terminus codes say whether a terminus resembles a TALE terminal domain
+
+`tell_tales()` now searches the segment AnnoTALE reports on each side of
+the repeats with the TALE N- and C-terminal protein profiles shipped in
+`inst/extdata/hmmProfile/` (`hmmsearch`). `NTERM` and `CTERM` mark a
+segment that matches its profile with an E-value at most
+`terminus_max_evalue` (new argument, default 1e-5); `XXXXX` marks a
+segment that does not match. The codes used to record whether an nhmmer
+hit of that terminus type was found anywhere in the array's DNA. That
+labelled as termini some segments of unrelated sequence, where the ORF
+starts or ends in a frameshifted region, and coded as `XXXXX` genuine
+termini too short for the DNA search, such as a C-terminus truncated to
+42 residues.
+
+`tales_from_telltale()` reads the codes from `array_report.tsv`. A
+directory written by an earlier `tell_tales()` is an error; run
+`tell_tales()` again on the same sequences.
+
+## `array_report.tsv` and `tell_tales()`: renamed and new columns
+
+`n_domain_hits` is now `n_dna_hits`, and `has_all_domains` is replaced by
+`nterm_dna_hit` and `cterm_dna_hit`. New columns `nterm_aa_evalue`,
+`cterm_aa_evalue`, `nterm_aa_hit` and `cterm_aa_hit` hold the result of
+the protein-profile search. `?tell_tales` describes every column. The
+argument `min_domain_hits` of `tell_tales()` is now `min_dna_hits`.
+
+## `tales_from_telltale()`: absent termini and inconsistent arrays
+
+When AnnoTALE reports no terminus on one side of the repeats, the array
+now has no part on that side, with a warning, and its positions are
+counted from its first part. It used to receive an empty part. An array
+whose AnnoTALE protein and DNA parts disagree is left out with a warning,
+and `tell_tales()` deletes the DNA parts AnnoTALE writes for an ORF it
+could not translate. Repeat RVDs are read from AnnoTALE's own RVD file.
+
 
 ## Licences of the bundled programs are now stated
 

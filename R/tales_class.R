@@ -38,16 +38,24 @@ TALES_LEGACY_NAMES <- c(
 
 #' Codes marking a TALE array terminus
 #'
-#' The values a \code{rvd} column takes on non-repeat parts. \code{"NTERM"} and
-#' \code{"CTERM"} mark identified termini; \code{"XXXXX"} marks a terminus whose
-#' CDS was detected but for which no HMMer hit was found, so it's probably not
-#' a standard TALE protein domain (see \code{\link[tantale:tell_tales]{tell_tales}}).
+#' The values a \code{rvd} column takes on non-repeat parts.
+#'
+#' AnnoTALE reports as N-terminus whatever the ORF encodes upstream of the
+#' first repeat, and as C-terminus whatever it encodes downstream of the last
+#' one. \code{\link[tantale:tell_tales]{tell_tales}} searches each of these
+#' segments with the TALE N- or C-terminal protein profile (\code{hmmsearch},
+#' E-value at most \code{terminus_max_evalue}). \code{"NTERM"} and
+#' \code{"CTERM"} mark a segment that matches its profile, a canonical TALE
+#' terminal domain, complete or truncated. \code{"XXXXX"} marks a segment
+#' that does not match, typically unrelated sequence where the ORF starts or
+#' ends inside a frameshifted region. An array for which AnnoTALE reported no
+#' segment on one side has no terminus part on that side.
 #'
 #' These share the \code{rvd} column with real RVDs, so code that distinguishes
 #' repeats from termini by value should use this function rather than spelling
 #' the codes out.
 #'
-#' @return A character vector of anchor codes.
+#' @return A named character vector of the three codes.
 #' @export
 #' @examples
 #' tales_anchor_codes()

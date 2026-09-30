@@ -23,6 +23,19 @@ Reads the AnnoTALE/telltale part files of a single
 validated \code{\link{tales}} object.
 }
 \details{
+One row per part: the N-terminus, each repeat and the C-terminus, as
+AnnoTALE split the array's longest ORF. The \code{rvd} column holds the RVD
+of a repeat, or a terminus code (see \code{\link{tales_anchor_codes}}):
+\code{NTERM}/\code{CTERM} when the terminus matches the TALE
+terminal-domain protein profile, \code{XXXXX} when it does not. When
+AnnoTALE reported no terminus on one side, the array has no part there, with
+a warning. An array whose protein and DNA parts disagree is left out, with
+a warning.
+
+The directory must have been written by the current version of
+\code{tell_tales()}, whose \code{array_report.tsv} holds the terminus
+check; an older one is an error.
+
 The result carries no \code{dom_code}: that surrogate key is minted later,
 by the relatedness computation, over the whole set of parts being analysed.
 }

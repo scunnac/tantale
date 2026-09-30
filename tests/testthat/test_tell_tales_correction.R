@@ -50,7 +50,7 @@ toy_run <- local({
 
 # the real arrays, dropping the single-hit fragments each region also yields
 toy_arrays <- function(report) {
-  a <- report[report$n_domain_hits > 4, ]
+  a <- report[report$n_dna_hits > 4, ]
   a[match(c("toy_intact", "toy_frameshift"), a$seqnames), ]
 }
 
@@ -90,7 +90,7 @@ test_that("the inserted base truncates the ORF when correction is off", {
   expect_gt(intact$orf_coverage, shifted$orf_coverage)
   # both still found as arrays -- the frameshift breaks the ORF, not the
   # HMMER-level detection of the repeats
-  expect_equal(intact$n_domain_hits, shifted$n_domain_hits)
+  expect_equal(intact$n_dna_hits, shifted$n_dna_hits)
 })
 
 

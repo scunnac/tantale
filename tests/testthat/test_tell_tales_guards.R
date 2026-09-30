@@ -31,12 +31,12 @@ test_that("a score threshold that rejects everything is reported", {
     regexp = "No record remains after filtering")
 })
 
-test_that("min_domain_hits rejecting every subject sequence is reported", {
+test_that("min_dna_hits rejecting every subject sequence is reported", {
   # Regression, restructuring-notes.md 8.0: this filter had no guard.
   out <- tempfile()
   expect_warning(
     suppressMessages(tell_tales(subject_file = subject(), output_dir = out,
-                                min_domain_hits = 1000)),
+                                min_dna_hits = 1000)),
     regexp = "No subject sequence carries at least")
 })
 
@@ -45,7 +45,7 @@ test_that("giving up still returns the output directory, invisibly", {
   expect_invisible(
     res <- suppressWarnings(suppressMessages(
       tell_tales(subject_file = subject(), output_dir = out,
-                 min_domain_hits = 1000))))
+                 min_dna_hits = 1000))))
   expect_identical(res, out)
 })
 
@@ -89,12 +89,12 @@ test_that("min_array_length rejecting every array is reported, not crashed on", 
     regexp = "No TALE array has at least")
 })
 
-test_that("min_domain_hits is inclusive, as documented", {
+test_that("min_dna_hits is inclusive, as documented", {
   # talRegion6 carries 24 hits. At 24 it must be kept; the filter used to be
   # strictly greater-than, which dropped it.
   out <- tempfile()
   suppressWarnings(suppressMessages(
-    tell_tales(subject_file = subject(), output_dir = out, min_domain_hits = 24)))
+    tell_tales(subject_file = subject(), output_dir = out, min_dna_hits = 24)))
   report <- readr::read_tsv(file.path(out, "hits_report.tsv"),
                             show_col_types = FALSE, progress = FALSE)
   expect_true("talRegion6" %in% report$seqnames)
