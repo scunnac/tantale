@@ -40,8 +40,8 @@ TALES_LEGACY_NAMES <- c(
 #'
 #' The values a \code{rvd} column takes on non-repeat parts. \code{"NTERM"} and
 #' \code{"CTERM"} mark identified termini; \code{"XXXXX"} marks a terminus whose
-#' CDS was detected but for which no HMMer hit was found, so its identity is
-#' unknown (see \code{\link[tantale:tell_tales]{tell_tales}}).
+#' CDS was detected but for which no HMMer hit was found, so it's probably not
+#' a standard TALE protein domain (see \code{\link[tantale:tell_tales]{tell_tales}}).
 #'
 #' These share the \code{rvd} column with real RVDs, so code that distinguishes
 #' repeats from termini by value should use this function rather than spelling
@@ -53,8 +53,9 @@ TALES_LEGACY_NAMES <- c(
 #' tales_anchor_codes()
 #' @family tales objects
 tales_anchor_codes <- function() {
-  c("NTERM", "CTERM", "XXXXX")
+  c(`N-` = "NTERM", `-C` = "CTERM", "??" = "XXXXX")
 }
+
 
 
 #### Constructors ####

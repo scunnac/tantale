@@ -34,7 +34,7 @@
   )
   missingTerm <- setdiff(c("N-terminus", "C-terminus"), unique(tbl$domain_type))
   if (length(missingTerm) != 0L) {
-    cli::cli_warn("Array {unique(tbl$array_id)} is missing a {missingTerm} domain in {fasta}")
+    cli::cli_warn("Array {unique(tbl$array_id)} is missing {?no/a/} {missingTerm} domain{?s} in {fasta}")
     missingTerm <- tibble::tibble(array_id = unique(tbl$array_id),
                                   domain_type = missingTerm,
                                   position_in_crd = NA,
@@ -67,6 +67,10 @@
   return(rvdTble)
 }
 
+
+
+
+
 #' Read TALE parts from a tell_tales output directory
 #'
 #' Implementation behind \code{\link{tales_from_telltale}} and the deprecated
@@ -84,14 +88,21 @@
   # Fetch info from annotale/telltale files with .tale_parts_from_file
   taleProtString <- lapply(protPartsFiles, .tale_parts_from_file) %>% dplyr::bind_rows()
   taleDnaString <- lapply(dnaPartsFiles, .tale_parts_from_file) %>% dplyr::bind_rows()
-  #stopifnot(nrow(taleProtString) == nrow(taleDnaString))
+  stopifnot(nrow(taleProtString) == nrow(taleDnaString))
   # Join info in a table with one domain per row
   tale_parts <- dplyr::full_join(taleDnaString %>% dplyr::rename(dna_seq = string),
                                 taleProtString %>% dplyr::rename(aa_seq = string),
-                                by = c("array_id", "domain_type", "position_in_array", "position_in_crd", "source_directory"),
+                                by = c("array_id", "domain_type", "position_in_array",
+                                       "position_in_crd", "source_directory"),
                                 relationship = "one-to-one") %>%
     dplyr::mutate(aa_seq = gsub("[*]", "", aa_seq))
 
+  #### NOW we check an report on
+  # Is dna_seq for domain_type
+  
+  
+  
+  
   # Get RVDs
   # NOTE: could be easier to get the RVDs directly from AnnoTALE output with
   # .rvds_from_annotale_file() but I currently feel that it is good to
@@ -104,24 +115,26 @@
                              ) %>%
     lapply(function(x) tibble::tibble(rvd = x, position_in_array = 1:length(x) )) %>%
     dplyr::bind_rows(.id = "array_id")  
-  anchorCodes <- tales_anchor_codes()
-  
+
   
   # Some checks on the consistency between parts and rvd sequences
   # if nhmmer did not report on a C-Term CDS, the corresponding domain
   # "CTERM" tag will not be written in the rvd slot of the table.
-  arraysConsistency <- dplyr::full_join(tale_parts %>% dplyr::count(array_id, name = "AnnoTALELength"),
+  lengthsConsistency <- dplyr::full_join(tale_parts %>% dplyr::count(array_id, name = "AnnoTALELength"),
                                         rvds %>% dplyr::count(array_id, name = "rvdFileLength"),
                                         by = dplyr::join_by(array_id)) %>%
     dplyr::mutate(sameLength = AnnoTALELength == rvdFileLength)
   
-  if (any(is.na(arraysConsistency$sameLength))) {
-    cli::cli_warn("There are mismatches in array IDs between rvd seq file and AnnoTALE parts files:")
-    cli::cli_warn("There are mismatches in array IDs between rvd seq file and AnnoTALE parts files.")
-  } else if (!all(arraysConsistency$sameLength, na.rm = TRUE)) {
+    if (any(is.na(lengthsConsistency$sameLength))) {
+    cli::cli_warn(
+      c("There are mismatches in array lengths between rvd seq file and AnnoTALE parts files.",
+        "i" = "Affected array{?s}: {.val {lengthsConsistency$array_id[is.na(lengthsConsistency$sameLength)]}}"),
+      class = c("tantale_error_parts_inconsistent", "tantale_error")
+      )
+  } else if (!all(lengthsConsistency$sameLength, na.rm = TRUE)) {
     cli::cli_abort(
       c("Array lengths are inconsistent between the rvd seq file and the AnnoTALE parts files.",
-        "i" = "Affected arrays: {.val {arraysConsistency$array_id[!arraysConsistency$sameLength]}}"),
+        "i" = "Affected array{?s}: {.val {lengthsConsistency$array_id[!lengthsConsistency$sameLength]}}"),
       class = c("tantale_error_parts_inconsistent", "tantale_error"))
   }
   
@@ -129,7 +142,7 @@
   tale_parts <- dplyr::left_join(tale_parts, 
                                 rvds,
                                 by = c("array_id", "position_in_array"),
-                                unmatched = "drop", relationship = "one-to-one")
+                                unmatched = "error", relationship = "one-to-one")
   # Include seqnames in the talParts tibble
   tale_parts %<>% dplyr::left_join(
     readr::read_tsv(list.files(telltale_dir, "hits_report.tsv", recursive = T, full.names = T),
@@ -143,7 +156,7 @@
   partsWithMissingDnaSeq <- tale_parts %>% dplyr::filter(is.na(dna_seq)) %>% dplyr::pull(array_id) %>% unique()
   partsWithMissingRvdSeq <- tale_parts %>% dplyr::filter(is.na(rvd)) %>% dplyr::pull(array_id) %>% unique()
   if (any(sapply(list(partsWithMissingAaSeq, partsWithMissingDnaSeq, partsWithMissingRvdSeq), length) != 0L)) {
-    cli::cli_warn(c("The returned tale_parts has records with missing sequences.",
+    cli::cli_warn(c("The returned {.fn tantale::tales} object has records with missing sequences.",
                     "i" = "Affected array{?s}: {.val {unique(c(partsWithMissingAaSeq, partsWithMissingDnaSeq, partsWithMissingRvdSeq))}}"))
   }
   return(tale_parts)

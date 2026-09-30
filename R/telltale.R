@@ -69,7 +69,9 @@
   }
 }
 
-.run_nhmmer_search <- function(hmmer_path = NULL, subject_file, hmm_file, search_out_file, readable_out_file) {
+.run_nhmmer_search <- function(hmmer_path = NULL,
+                               subject_file, hmm_file,
+                               search_out_file, readable_out_file) {
   if (is.null(hmmer_path)) hmmer_path <- .get_hmmer()
   .check_hmmer(hmmer_path)
   searchCmd <- paste(shQuote(file.path(hmmer_path, "nhmmer")),
@@ -191,7 +193,6 @@
                   class = "tantale_warning_no_hits")
     return(NULL)
   }
-
   colnames(hits) <- c("target_name", "accession", "query_name", "accession", "hmmfrom", "hmm_to", "alifrom",
                       "ali_to", "envfrom", "env_to", "sq_len", "strand", "Evalue", "score", "bias", "description_of_target")
 
