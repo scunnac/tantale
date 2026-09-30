@@ -22,8 +22,7 @@ in the set are side branches: deep dives into a single class (`tales`,
 `tales_msa`) and one case study on naturally truncated TALEs. Each is
 linked from the point where it becomes relevant.
 
-This article covers TALE discovery with `tell_tales()`, and something
-discovery cannot avoid: real assemblies are not always clean, and
+This article covers TALE discovery with `tell_tales()`. Because of their repetitive nature *tal* genes cannot be assembled from short read sequencing technologies data. This is why now most of the genomes of *tal* bearing bacteria are sequenced with long read technologies which may be error prone. Those assemblies are not always clean, and
 `tell_tales()` can sometimes be fooled. tantale offers two ways to correct
 frameshifts. They work differently, neither is guaranteed to succeed, and
 `tales_anomalies()` tells you which arrays still need attention after
@@ -159,8 +158,10 @@ invisible(tell_tales(subject_file = bai311_fa, output_dir = bai311_raw_dir,
                      cterm_min_score = 300))
 ```
 
+A first sign that there is something unexpected with these TALEs predictions are the warnings obtained when importing `tell_tales` results as a `tales` object:
+
 ```{r tales_from_bai311_raw}
-bai311_raw <- suppressWarnings(tales_from_telltale(bai311_raw_dir))
+bai311_raw <- tales_from_telltale(bai311_raw_dir)
 ```
 
 `tales_anomalies()` reports arrays whose content is inconsistent: missing
@@ -172,7 +173,7 @@ tales_anomalies(bai311_raw)
 ```
 
 Two arrays have no `rvd` at all: AnnoTALE could not parse a repeat-array
-structure out of their ORF. Their `orf_coverage` shows why:
+structure out of the longest predicted ORF. Their `orf_coverage` shows why:
 
 ```{r orf_coverage_raw}
 readr::read_tsv(file.path(bai311_raw_dir, "array_report.tsv"),
@@ -180,12 +181,26 @@ readr::read_tsv(file.path(bai311_raw_dir, "array_report.tsv"),
   select(array_id, has_all_domains, longest_orf_length, orf_coverage)
 ```
 
-`ROI_00003` and `ROI_00005` cover 19% and 23% of their candidate region.
-A single inserted or deleted base early in the array shifts every codon
-downstream of it, and the ORF finder stops at the first premature stop
-codon it meets. No array in this assembly reaches MAI1's 91-93%: the
-others fall between 38% and 70%, short but long enough for AnnoTALE to
-parse, while these two break too early. A premature stop could also be
+`ROI_00003` and `ROI_00005` predicted ORFs cover 19% and 23% of their candidate region.
+
+No array in this assembly reaches MAI1's 91-93%: the
+others fall between 38% and 70%. This is unusual and a sign also deserving further scrutiny even if `tales_anomalies` did not report any problem.
+A close look at the 'array_report.tsv' table indicates that `ROI_00001` and `ROI_00007` have a predicted ORF encoding very few repeats (4-6) even if both termini profiles where found at the DNA level (the "has_all_domains" columns reports `TRUE`).
+
+Because, in practice this barely happens in high quality genomes, in the absence of any further evidence, this could be explained by several in/dels along the CDS that completely break it.
+
+```{r rvd_strings}
+
+readr::read_tsv(file.path(bai311_raw_dir, "array_report.tsv"),
+                show_col_types = FALSE) %>%
+  select(array_id, has_all_domains, orf_coverage, rvd_string)
+```
+
+
+
+
+
+A premature stop could also be
 genuine: some strains carry naturally truncated TALEs (see
 [Genuine truncTALEs and frameshift correction](trunctale_correction.html)).
 In BAI3-1-1 the corrections below settle it: once repaired, both arrays
@@ -227,8 +242,15 @@ bai311_corr_dir <- file.path(out, "BAI3-1-1_corrected")
 invisible(tell_tales(subject_file = bai311_fa, output_dir = bai311_corr_dir,
                      cterm_min_score = 300,
                      correct_array = TRUE, max_comparisons = 20))
-bai311_corr <- suppressWarnings(tales_from_telltale(bai311_corr_dir))
 ```
+
+Something is odd:
+
+```{r correct_inside warnings}
+bai311_corr <- tales_from_telltale(bai311_corr_dir)
+```
+
+Anomalies reported:
 
 ```{r anomalies_corr_inside}
 tales_anomalies(bai311_corr)
@@ -312,7 +334,7 @@ bai311_best_dir <- file.path(out, "BAI3-1-1_best")
 invisible(tell_tales(subject_file = bai311_fa, output_dir = bai311_best_dir,
                      cterm_min_score = 300,
                      correct_array = TRUE, max_comparisons = 50))
-bai311_best <- suppressWarnings(tales_from_telltale(bai311_best_dir))
+bai311_best <- tales_from_telltale(bai311_best_dir)
 ```
 
 ```{r anomalies_best}
@@ -325,26 +347,7 @@ every array in this genome, in about a minute. Either this run or
 of this set of articles; `bai311_best` (built here) is the one used from
 here on.
 
-::: {.callout-tip}
-## Chaining both correction paths
-Running `correct_tales()` first and feeding its output into
-`tell_tales(correct_array = TRUE)` also reaches zero anomalies, and lets
-the per-array step use a smaller `max_comparisons`, since most of the
-damage is already gone before it runs. Measured on this same genome, and
-not re-run here, to keep this article's build time down:
 
-| route | time | anomalies |
-|---|---|---|
-| `correct_tales()` alone | ~41 s | 0 |
-| `max_comparisons = 50` alone | ~66-79 s | 0 |
-| `correct_tales()` (~27 s) then `max_comparisons = 20` (~40 s) | ~67 s combined | 0 |
-| `correct_tales()` (~27 s) then `max_comparisons = 50` (~66 s) | ~93 s combined | 0 |
-
-On this genome `correct_tales()` alone already gets to zero anomalies, so
-chaining does not add anything beyond confirming the combination still
-works. The technique remains available for a genome where a single pass
-falls short.
-:::
 
 ## How much did either correction actually help? {#sec-improvement}
 
@@ -357,7 +360,7 @@ Read it back for the two originally-broken arrays, across all three runs:
 read_coverage <- function(dir, method) {
   readr::read_tsv(file.path(dir, "array_report.tsv"), show_col_types = FALSE) |>
     select(array_id, orf_coverage) |>
-    filter(array_id %in% c("ROI_00003", "ROI_00005")) |>
+    filter(array_id %in% c("ROI_00001", "ROI_00005")) |>
     mutate(method = method)
 }
 ```
@@ -394,7 +397,7 @@ ggplot2::ggplot(coverage, ggplot2::aes(x = method, y = orf_coverage, fill = meth
   ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 30, hjust = 1))
 ```
 
-In @fig-coverage-improvement, all three routes bring `ROI_00003` and
+In @fig-coverage-improvement, all three routes bring `ROI_00001` and
 `ROI_00005` to identical coverage, 93% and 91%. On these two numbers
 alone the three routes look interchangeable. What separates them is the
 new anomaly `max_comparisons = 20` introduced in a different array,

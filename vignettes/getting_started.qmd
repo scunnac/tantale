@@ -6,8 +6,8 @@ format:
     code-fold: show
 vignette: >
   %\VignetteIndexEntry{Getting started with tantale}
-  %\VignetteEngine{quarto::html}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{quarto::html}
 editor_options:
   chunk_output_type: console
 ---
@@ -16,8 +16,7 @@ editor_options:
 knitr::opts_chunk$set(collapse = TRUE, comment = "#>", warning = FALSE)
 ```
 
-A TALE (transcription activator-like effector) gene, once translated, is
-a modular protein: a central array of near-identical ~34-residue repeats,
+A TALE (Transcription Activator-Like Effector) is a modular protein: a central array of near-identical ~34-residue repeats,
 each one specifying a single DNA base through two variable residues (its
 RVD), flanked by an N- and a C-terminal region. tantale's job is to find
 these arrays in genomic sequence, and to represent them as data you can
@@ -50,7 +49,7 @@ x <- tales_from_telltale(example_dir)
 x
 ```
 
-Every row is one *part* of one array: a repeat or a terminus. `summary()`
+Every row is one *part* of one TALE *array* (the domains composing the full protein, ie the *array*): a repeat or a terminus. `summary()`
 gives the array-level view:
 
 ```{r summary}
@@ -61,7 +60,7 @@ summary(x)
 
 Real assemblies are not always clean: a frameshift can leave AnnoTALE
 unable to parse a repeat structure out of a candidate array, or a terminus
-can go missing. `tales_anomalies()` reports which arrays, if any, need a
+can be truncated. `tales_anomalies()` reports which arrays, if any, need a
 second look:
 
 ```{r anomalies}
@@ -71,8 +70,7 @@ tales_anomalies(x)
 Zero rows means none did, here. The [mining
 article](https://scunnac.github.io/tantale/articles/tale_mining.html)
 covers what to do when this table is not empty -- tantale has two
-different ways to correct a frameshifted array, and they do not always
-agree with each other.
+different ways to correct a frameshifted array.
 
 ## Looking at the arrays
 

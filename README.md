@@ -8,14 +8,21 @@ Test coverage measured locally with `covr::package_coverage()` on
 <p align="right">
   <img src="./man/figures/tantale_logo_small.gif">
 
+
+#### ⚠️ This is major revision of the package with breaking changes to the previous interface. Broad refactoring, bug fixes and improvements brought the package to its first stable release. The previous prototypical version is still available as the [tantale-full-history-2026-09-22.bundle](https://github.com/scunnac/tantale/releases/download/v0.9.9004) in a release asset.
+
+
+
+
+
 ## An integrated collection of functions for [TALE](https://en.wikipedia.org/wiki/Transcription_activator-like_effector) mining and analysis with the R language
 
 
-Analyzing TALEs in (mostly *Xanthomonas*) genomes typically means coordinating several concurrent and complementary tools running on different platforms (Java, Perl), which is cumbersome to script and automate. Making sense of the output is harder still, since there is no easy way to graphically represent the various objects of the analysis.
+Analyzing TALEs in  *Xanthomonas* genomes (mostly) typically means coordinating several concurrent and complementary tools running on different platforms (Java, Perl), which is cumbersome to script and automate. Making sense of the output is harder still, since there is no easy way to graphically represent the various objects of the analysis.
 
 With `tantale`, we compiled and extended our previous code wrapping TALE analysis tools into an integrated R interface that further provides an extensive list of utilities for easy plotting. This enables a moderately proficient R programmer to perform entire analysis pipelines directly in R and access result objects for custom manipulations.
 
-Here is a snapshot of the topics that are or will (hopefully) be covered in the future:
+Here is a snapshot of the topics that are covered:
 
 
 - A TALE-oriented OOP framework:
@@ -25,12 +32,13 @@ Here is a snapshot of the topics that are or will (hopefully) be covered in the 
 - TALE mining in bacterial sequences:
     - Wrapper around [AnnoTALE](https://doi.org/10.1038/srep21077) and [correcTALE](https://doi.org/10.1186/s12864-023-09228-1)
     - tell_tales, an R function similar to AnnoTALE
-    - Analysis tools for RVD inventory, repeat length
+    - Analysis tools for RVD inventory, repeat length.
+    - Compact 'talome' plots
 
 
 - TALEs classification, phylogeny:
     - R reimplementations of [DisTAL](https://doi.org/10.3389/fpls.2015.00545) and [functal](https://doi.org/10.3389/fpls.2015.00545) comparisons, plus a wrapper around AnnoTALE
-    - TALE groups inference
+    - TALE groups inference with several methods
     - Easily build multiple alignments and generate nice plots
 
 
@@ -86,16 +94,9 @@ is absent, but it is worth doing once, for two reasons:
 - **The first real call would otherwise be the slow one.** The environment is
   built on first use, so that first call needs the network and takes a few
   minutes.
-- **It checks versions as well as presence.** MAFFT changed its `--text` mode
-  gap handling after 7.4x, and later versions align TALE repeat strings
-  differently. An environment left over from an older version of tantale
-  produces different alignments from the same input, and nothing else would
-  tell you.
+- **It checks versions as well as presence.** A worry free setup and you are good to go.
 
-> **If you have both conda and micromamba**, note they keep **separate
-> roots**. An environment named `tantale` in one is not the one in the other,
-> and a rebuild can report success while the package goes on using the other
-> copy. `tantale_setup()` prints the binary, the default root and the
+> **If you have both conda and micromamba**, `tantale_setup()` prints the binary, the default root and the
 > environment actually in use, precisely so this is visible.
 
 ### Also needed
@@ -103,8 +104,7 @@ is absent, but it is worth doing once, for two reasons:
 - **Java and Perl on the PATH.** Several wrappers (AnnoTALE, PrediTALE, TALE
   correction, the target predictors) are written in other languages.
   `tantale_setup()` checks for these too.
-- **Linux.** tantale has been written with only Linux in mind and will very
-  likely not work on other operating systems.
+- **Linux.** tantale has been written with only Linux in mind. Its functionality with other operating systems has not been tested.
 
 tantale ships about 60 MB of Java programs (AnnoTALE, PrediTALE and TALE
 correction) that have no conda package, which is most of its footprint.
@@ -119,7 +119,6 @@ correction) that have no conda package, which is most of its footprint.
   function or argument to be removed or renamed is first deprecated, with
   a warning that names its replacement, and only removed in a later
   release.
-- Documentation could be improved and extended.
 - If you feel like contributing, that is great, please send me an email: sebastien.cunnac@ird.fr
 
 ---
@@ -136,21 +135,15 @@ with upstream sources, in
   version 3 or later. Their source code is at
   <https://github.com/Jstacs/Jstacs>; the licence text ships as
   [`inst/tools/COPYING.GPL-3`](https://github.com/scunnac/tantale/blob/main/inst/tools/COPYING.GPL-3).
-- TALVEZ 3.2 and the QueTAL FuncTAL table behind `rvd_dna_specificity`
-  carry no licence and are redistributed by permission of their author,
+- TALVEZ 3.2, QueTAL and FuncTAL carry no licence and portions of their code are redistributed by permission of their author,
   Alvaro L. Pérez-Quintero.
 
 ## Use of large language models
 
 The authors used large language models (Claude, Anthropic -- including
 Claude Sonnet 5) to assist with code development, debugging, and
-documentation writing throughout this package. Where LLM assistance
-extends to a manuscript describing this work, it is limited to the
-copy-editing stage; the manuscript itself is written entirely by the
-authors. Any figures are prepared by the authors, with LLMs used only to
-help write the scripts that generate them. The authors affirm that they
-are fully responsible for the content of the codebase, its documentation,
-and any accompanying manuscript.
+documentation writing throughout this package. The authors affirm that they
+are fully responsible for the content of the codebase and its documentation.
 
 
 
