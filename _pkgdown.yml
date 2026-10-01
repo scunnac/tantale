@@ -22,7 +22,6 @@ articles:
 - title: Learn tantale
   navbar: ~
   contents:
-  - getting_started
   - articles/tale_mining
   - articles/tales_class
   - articles/trunctale_correction

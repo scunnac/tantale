@@ -46,7 +46,7 @@ alignable symbol, which lets it open and close gaps freely.
 Same three genomes (MAI1, BAI3, BAI3-1-1), same correction settings, and
 the same comparison and grouping as
 [the classification article](tale_classification.html), reused here from
-its cached result; see [the getting-started article](getting_started.html)
+its cached result; see [the getting-started article](tantale.html)
 for how these four articles are linked.
 
 ```{r cached_pipeline, include = FALSE}

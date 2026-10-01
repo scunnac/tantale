@@ -37,8 +37,8 @@ Same three genomes (MAI1, BAI3, BAI3-1-1), same correction settings, and
 the same comparison and grouping as [the classification
 article](https://scunnac.github.io/tantale/articles/tale_classification.md),
 reused here from its cached result; see [the getting-started
-article](https://scunnac.github.io/tantale/articles/getting_started.md)
-for how these four articles are linked.
+article](https://scunnac.github.io/tantale/articles/tantale.md) for how
+these four articles are linked.
 
 This group holds one member from each of MAI1, BAI3 and BAI3-1-1 (the
 same locus, present in all three related African strains) and, usefully

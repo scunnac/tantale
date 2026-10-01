@@ -95,6 +95,18 @@ n_distinct(all_tales$array_id)
 ```
 
 Nine arrays each come from MAI1 and BAI3, and eight from BAI3-1-1.
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html) with
+`facet_by = "strain"` draws one panel per strain:
+
+Code
+
+``` r
+plot(all_tales, facet_by = "strain")
+```
+
+[![](tale_classification_files/figure-html/fig-strain-composition-1.png)](https://scunnac.github.io/tantale/articles/tale_classification_files/figure-html/fig-strain-composition-1.png "Figure 1: Domain composition of the TALE arrays of the three strains.")
+
+Figure 1: Domain composition of the TALE arrays of the three strains.
 
 ## 2 Quantifying relatedness: `tales_compare_distal()`
 
@@ -352,9 +364,9 @@ invisible(tales_group_hclust(cmp$tales, cmp$tale_distances,
                              plot_tree = TRUE))
 ```
 
-[![](tale_classification_files/figure-html/fig-tale-dendrogram-1.png)](https://scunnac.github.io/tantale/articles/tale_classification_files/figure-html/fig-tale-dendrogram-1.png "Figure 1: Hierarchical clustering of the same three-genome comparison, cut at the k tales_group_kmedoids() picked automatically above.")
+[![](tale_classification_files/figure-html/fig-tale-dendrogram-1.png)](https://scunnac.github.io/tantale/articles/tale_classification_files/figure-html/fig-tale-dendrogram-1.png "Figure 2: Hierarchical clustering of the same three-genome comparison, cut at the k tales_group_kmedoids() picked automatically above.")
 
-Figure 1: Hierarchical clustering of the same three-genome comparison,
+Figure 2: Hierarchical clustering of the same three-genome comparison,
 cut at the k tales_group_kmedoids() picked automatically above.
 
 ## 4 An overview across strains: `talomes_heatmap()`
@@ -380,12 +392,12 @@ talomes_heatmap(tale_annotation, group_col = "group", strain_col = "strain",
                 rvd_col = "rvdseq")
 ```
 
-[![](tale_classification_files/figure-html/fig-talomes-heatmap-1.png)](https://scunnac.github.io/tantale/articles/tale_classification_files/figure-html/fig-talomes-heatmap-1.png "Figure 2: RVD sequence variant carried by each strain, in each classification group.")
+[![](tale_classification_files/figure-html/fig-talomes-heatmap-1.png)](https://scunnac.github.io/tantale/articles/tale_classification_files/figure-html/fig-talomes-heatmap-1.png "Figure 3: RVD sequence variant carried by each strain, in each classification group.")
 
-Figure 2: RVD sequence variant carried by each strain, in each
+Figure 3: RVD sequence variant carried by each strain, in each
 classification group.
 
-Each cell in [Figure 2](#fig-talomes-heatmap) is one strain’s RVD
+Each cell in [Figure 3](#fig-talomes-heatmap) is one strain’s RVD
 sequence variant in one group, coloured by the variant’s rank within
 that group (the darkest is the most common); the `#` after each group
 name counts its distinct variants. A grey cell means the strain has no
@@ -452,9 +464,9 @@ universalmotif::motif_tree(motifs, layout = "rectangular", linecol = "none",
   ggplot2::scale_x_continuous(expand = ggplot2::expansion(mult = c(0.02, 0.6)))
 ```
 
-[![](tale_classification_files/figure-html/fig-functal-tree-1.png)](https://scunnac.github.io/tantale/articles/tale_classification_files/figure-html/fig-functal-tree-1.png "Figure 3: Predicted-binding-specificity relatedness tree for the same three arrays, from universalmotif::motif_tree(). Topology only: branch lengths are not drawn to scale.")
+[![](tale_classification_files/figure-html/fig-functal-tree-1.png)](https://scunnac.github.io/tantale/articles/tale_classification_files/figure-html/fig-functal-tree-1.png "Figure 4: Predicted-binding-specificity relatedness tree for the same three arrays, from universalmotif::motif_tree(). Topology only: branch lengths are not drawn to scale.")
 
-Figure 3: Predicted-binding-specificity relatedness tree for the same
+Figure 4: Predicted-binding-specificity relatedness tree for the same
 three arrays, from universalmotif::motif_tree(). Topology only: branch
 lengths are not drawn to scale.
 
@@ -468,9 +480,9 @@ Code
 universalmotif::view_motifs(motifs)
 ```
 
-[![](tale_classification_files/figure-html/fig-functal-logos-1.png)](https://scunnac.github.io/tantale/articles/tale_classification_files/figure-html/fig-functal-logos-1.png "Figure 4: Predicted DNA-binding preference at each RVD position, one logo per array.")
+[![](tale_classification_files/figure-html/fig-functal-logos-1.png)](https://scunnac.github.io/tantale/articles/tale_classification_files/figure-html/fig-functal-logos-1.png "Figure 5: Predicted DNA-binding preference at each RVD position, one logo per array.")
 
-Figure 4: Predicted DNA-binding preference at each RVD position, one
+Figure 5: Predicted DNA-binding preference at each RVD position, one
 logo per array.
 
 [`tales_to_universalmotif()`](https://scunnac.github.io/tantale/reference/tales_to_universalmotif.md)’s

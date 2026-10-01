@@ -15,7 +15,7 @@ instead, being the more specific class.
 
 ``` r
 # S3 method for class 'tales'
-plot(x, position = c("array", "alignment"), ...)
+plot(x, position = c("array", "alignment"), facet_by = "seqnames", ...)
 ```
 
 ## Arguments
@@ -41,6 +41,15 @@ plot(x, position = c("array", "alignment"), ...)
   features line up. Aberrant repeats, for instance, are visible as a
   column in the aligned layout and scattered in the unaligned one.
 
+- facet_by:
+
+  Names of the columns whose values split the plot into panels, stacked
+  in rows whose height follows the number of arrays. Each column must
+  hold one value per array: `"seqnames"` (the default, one panel per
+  source sequence) or `"strain"` for a set of genomes, for instance, and
+  `c("strain", "seqnames")` for both. `NULL` draws a single panel, as
+  does the default when `x` has no `seqnames` column.
+
 - ...:
 
   Unused, present for compatibility with the `plot` generic.
@@ -63,4 +72,6 @@ Other TALE plots:
 x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
                                       package = "tantale"))
 plot(x)
+
+plot(x, facet_by = NULL)
 ```

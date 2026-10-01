@@ -15,11 +15,11 @@
     </button>
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
-      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
+      <ul class="navbar-nav me-auto"><li class="nav-item"><a class="nav-link" href="../articles/tantale.html">Get started</a></li>
+<li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
-  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/getting_started.html">Getting started with tantale</a></li>
-    <li><a class="dropdown-item" href="../articles/tale_mining.html">Mining TALE sequences in genomes</a></li>
+  <ul class="dropdown-menu" aria-labelledby="dropdown-articles"><li><a class="dropdown-item" href="../articles/tale_mining.html">Mining TALE sequences in genomes</a></li>
     <li><a class="dropdown-item" href="../articles/tales_class.html">The tales class</a></li>
     <li><a class="dropdown-item" href="../articles/trunctale_correction.html">Genuine truncTALEs and frameshift correction</a></li>
     <li><a class="dropdown-item" href="../articles/tale_classification.html">Classifying TALE sequences from genomes</a></li>
@@ -45,6 +45,15 @@
 
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.9.9011" id="tantale-099011">tantale 0.9.9011<a class="anchor" aria-label="anchor" href="#tantale-099011"></a></h2>
+<div class="section level3">
+<h3 id="plot-on-a-tales-chooses-its-panels-0-9-9011">
+<code>plot()</code> on a <code>tales</code> chooses its panels<a class="anchor" aria-label="anchor" href="#plot-on-a-tales-chooses-its-panels-0-9-9011"></a></h3>
+<p>The new <code>facet_by</code> argument of <code><a href="../reference/plot.tales.html">plot.tales()</a></code> names the columns that split the plot into panels: <code>"seqnames"</code> (the default, as before), <code>"strain"</code> for a set of genomes, several columns at once, or <code>NULL</code> for a single panel. Each column must hold one value per array.</p>
+</div>
+<div class="section level3">
+<h3 id="get-started-page-0-9-9011">“Get started” page<a class="anchor" aria-label="anchor" href="#get-started-page-0-9-9011"></a></h3>
+<p>The main vignette is now <code>vignettes/tantale.qmd</code>, which the website links as “Get started” in its menu bar.</p>
+</div>
 <div class="section level3">
 <h3 id="non-standard-tales-are-reported-as-anomalies-0-9-9011">Non-standard TALEs are reported as anomalies<a class="anchor" aria-label="anchor" href="#non-standard-tales-are-reported-as-anomalies-0-9-9011"></a></h3>
 <p><code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code>, and so the warning of <code><a href="../reference/tales.html">tales()</a></code>, now report every array that is not a standard TALE: an N-terminus, one or more repeats and a C-terminus, both termini matched by the profile of their TALE domain. The new checks are <code>terminus_absent</code>, <code>no_repeat</code> and <code>terminus_unmatched</code> (a terminus coded <code>XXXXX</code>). They need a <code>domain_type</code> column, and <code>terminus_unmatched</code> an <code>rvd</code> column. <code>tales(x, sanitize = TRUE)</code> drops these arrays. <code><a href="../reference/tales_assign_domain_codes.html">tales_assign_domain_codes()</a></code> and <code><a href="../reference/tales_align.html">tales_align()</a></code> no longer repeat the anomaly warning already given when their input was built.</p>

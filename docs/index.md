@@ -47,9 +47,9 @@ for how this is built, from raw genomic FASTA to this tree.
 ## Getting started
 
 [Getting started with
-tantale](https://scunnac.github.io/tantale/articles/getting_started.md)
-is a two-minute tour using data already bundled with the package, with
-no external tools to install first. From there, [Learn
+tantale](https://scunnac.github.io/tantale/articles/tantale.md) is a
+two-minute tour using data already bundled with the package, with no
+external tools to install first. From there, [Learn
 tantale](https://scunnac.github.io/tantale/articles/index.md) walks
 through the full pipeline on real genomes (discovery and frameshift
 correction, classification into groups, multiple alignment, and target

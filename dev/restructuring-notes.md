@@ -2258,3 +2258,27 @@ checked. Consequences: `tales()` warns about such arrays, and
   `tell_tales()` calls in one session was a misreading of the diff: no
   leak (raw then corrected in one session gives the same result as a
   fresh session; three repeated corrected runs agree).
+
+## 39. Road map R5, R2, R3, R10 (Q25) **[V]**
+
+Agreed 2026-10-01 (Q25, Q28-Q32). Done the same day:
+- R5: `vignettes/getting_started.qmd` renamed `vignettes/tantale.qmd`;
+  pkgdown links a vignette named after the package as "Get started" in
+  the navbar and exempts it from the articles index, so it left the
+  "Learn tantale" list. Links in `tale_msa`, `tales_msa_class`,
+  `tale_target_prediction`, `pkgdown/index.md`, `dev/CLAUDE.md` and
+  `dev/dev-notes.Rmd` updated. Full site wiped and rebuilt (17 min).
+- R2: `plot.tales_msa()` builds every RVD column (consensus match and
+  `rvdSimVsRef`) in one block. `refTaleId` comes from `rvd_align` there
+  and is overridden by the domain block when domain distances are given,
+  the same final value as before. Golden: plot data identical, only
+  `rvdSimVsRef`'s column position moved.
+- R3: `plot.tales(facet_by = "seqnames")`, a character vector of column
+  names or `NULL` (Q30: name `facet_by`, vectors accepted). The default
+  gives no panels when `seqnames` is absent; an explicit absent column,
+  or one that varies within an array, is an error
+  (`tantale_error_plot_facet`). Panels stay `facet_grid()` rows with free
+  heights (Q31). Example added to `tale_classification.qmd` (Q32):
+  `plot(all_tales, facet_by = "strain")`.
+- R10: README "TALE mining" bullets reworded without function names
+  (Q28).

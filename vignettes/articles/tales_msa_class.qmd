@@ -39,7 +39,7 @@ library(dplyr)
 Same three genomes and the same group as
 [the walkthrough](tale_msa.html), reused here from the cached result of
 [the classification article](tale_classification.html); see
-[the getting-started article](getting_started.html) for how these four
+[the getting-started article](tantale.html) for how these four
 articles are linked.
 
 ```{r cached_pipeline, include = FALSE}

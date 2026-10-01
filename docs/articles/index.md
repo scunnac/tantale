@@ -2,8 +2,6 @@
 
 ### Learn tantale
 
-- [Getting started with
-  tantale](https://scunnac.github.io/tantale/articles/getting_started.md):
 - [Mining TALE sequences in
   genomes](https://scunnac.github.io/tantale/articles/tale_mining.md):
 - [The tales

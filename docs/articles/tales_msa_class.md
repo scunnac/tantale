@@ -29,8 +29,8 @@ walkthrough](https://scunnac.github.io/tantale/articles/tale_msa.md),
 reused here from the cached result of [the classification
 article](https://scunnac.github.io/tantale/articles/tale_classification.md);
 see [the getting-started
-article](https://scunnac.github.io/tantale/articles/getting_started.md)
-for how these four articles are linked.
+article](https://scunnac.github.io/tantale/articles/tantale.md) for how
+these four articles are linked.
 
 [`tales_align()`](https://scunnac.github.io/tantale/reference/tales_align.md)
 takes a `tales` and returns a `tales_msa`: the same rows, plus one new

@@ -47,7 +47,7 @@ the repeats bind DNA. This reuses the same three genomes as
 [the classification](tale_classification.html) and
 [alignment](tale_msa.html) articles, from the classification article's
 cached discovery result (see
-[the getting-started article](getting_started.html) for how these four
+[the getting-started article](tantale.html) for how these four
 articles are linked).
 
 ```{r cached_pipeline, include = FALSE}

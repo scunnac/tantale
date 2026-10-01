@@ -36,6 +36,13 @@
 #'   which keeps the column): gaps then appear as empty columns and shared
 #'   features line up. Aberrant repeats, for instance, are visible as a column
 #'   in the aligned layout and scattered in the unaligned one.
+#' @param facet_by Names of the columns whose values split the plot into
+#'   panels, stacked in rows whose height follows the number of arrays.
+#'   Each column must hold one value per array: \code{"seqnames"} (the
+#'   default, one panel per source sequence) or \code{"strain"} for a set of
+#'   genomes, for instance, and \code{c("strain", "seqnames")} for both.
+#'   \code{NULL} draws a single panel, as does the default when \code{x}
+#'   has no \code{seqnames} column.
 #' @param ... Unused, present for compatibility with the \code{plot} generic.
 #' @return The ggplot object, returned invisibly after being printed as a
 #'   side effect.
@@ -46,10 +53,31 @@
 #' x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
 #'                                       package = "tantale"))
 #' plot(x)
-plot.tales <- function(x, position = c("array", "alignment"), ...) {
+#' plot(x, facet_by = NULL)
+plot.tales <- function(x, position = c("array", "alignment"), facet_by = "seqnames", ...) {
   position <- match.arg(position)
   if (!is_tales(x)) x <- tales(x)
   .tales_require(x, "plot.tales")
+  if (missing(facet_by) && !"seqnames" %in% names(x)) facet_by <- NULL
+  if (!is.null(facet_by)) {
+    if (!is.character(facet_by) || !length(facet_by) || anyNA(facet_by)) {
+      cli::cli_abort("{.arg facet_by} must be a character vector of column names, or {.code NULL}.",
+                     class = c("tantale_error_plot_facet", "tantale_error"))
+    }
+    absent <- setdiff(facet_by, names(x))
+    if (length(absent)) {
+      cli::cli_abort("{.arg facet_by} names {?a column/columns} absent from {.arg x}: {.field {absent}}.",
+                     class = c("tantale_error_plot_facet", "tantale_error"))
+    }
+    # a column varying within an array would split that array across panels
+    varying <- facet_by[vapply(facet_by, function(nm) {
+      any(tapply(x[[nm]], x$array_id, function(z) length(unique(z))) > 1L)
+    }, logical(1))]
+    if (length(varying)) {
+      cli::cli_abort("{.arg facet_by} {?column/columns} {.field {varying}} must hold one value per array.",
+                     class = c("tantale_error_plot_facet", "tantale_error"))
+    }
+  }
   if (identical(position, "alignment") && !"alignment_position" %in% names(x)) {
     cli::cli_abort(
       c("{.code position = \"alignment\"} needs the {.field alignment_position} column.",
@@ -81,10 +109,9 @@ plot.tales <- function(x, position = c("array", "alignment"), ...) {
     ggplot2::labs(title = "Overview of TALE composition by genome") +
     ggplot2::theme_light()
   
-  # seqnames groups arrays by source contig. It is optional in a tales, so the
-  # facet is added only when it is there -- a fasta-derived object has none.
-  if ("seqnames" %in% names(x)) {
-    p <- p + ggplot2::facet_grid(seqnames ~ ., scales = "free_y", space = "free")
+  if (!is.null(facet_by)) {
+    p <- p + ggplot2::facet_grid(rows = ggplot2::vars(!!!rlang::syms(facet_by)),
+                                 scales = "free_y", space = "free")
   }
   
   print(p)

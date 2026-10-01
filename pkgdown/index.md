@@ -41,7 +41,7 @@ for how this is built, from raw genomic FASTA to this tree.
 
 ## Getting started
 
-[Getting started with tantale](articles/getting_started.html) is a
+[Getting started with tantale](articles/tantale.html) is a
 two-minute tour using data already bundled with the package, with no
 external tools to install first. From there, [Learn tantale](articles/index.html)
 walks through the full pipeline on real genomes (discovery and frameshift

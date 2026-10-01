@@ -99,7 +99,7 @@ Code
 plot(x)
 ```
 
-![](getting_started_files/figure-html/fig-composition-1.png)
+![](tantale_files/figure-html/fig-composition-1.png)
 
 Figure 1: Domain composition of the four TALE arrays in the bundled
 example.

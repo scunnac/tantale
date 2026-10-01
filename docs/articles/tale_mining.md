@@ -403,10 +403,10 @@ invisible(tell_tales(subject_file = bai311_fa, output_dir = bai311_corr_dir,
 #> Finding the closest reference amino acid sequences:
 #> ================================================================================
 #> 
-#> Time difference of 0.45 secs
+#> Time difference of 0.48 secs
 #> ================================================================================
 #> 
-#> Time difference of 17.7 secs
+#> Time difference of 18.36 secs
 ```
 
 Something is odd:
@@ -543,10 +543,10 @@ invisible(tell_tales(subject_file = bai311_fa, output_dir = bai311_best_dir,
 #> Finding the closest reference amino acid sequences:
 #> ================================================================================
 #> 
-#> Time difference of 0.54 secs
+#> Time difference of 0.45 secs
 #> ================================================================================
 #> 
-#> Time difference of 45.46 secs
+#> Time difference of 50.23 secs
 bai311_best <- tales_from_telltales(bai311_best_dir)
 ```
 

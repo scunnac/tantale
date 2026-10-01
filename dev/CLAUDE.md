@@ -48,7 +48,7 @@ build machinery never descends into `vignettes/articles/`
 (`tools::pkgVignettes()`), so these are never built by `R CMD build`/`check`
 and need no `VignetteBuilder` entry. The old numbered `vignettes/*.Rmd`
 set is gone, merged into the articles (§7.5b/c). The only traditional
-vignette is `vignettes/getting_started.qmd`, which `R CMD build` does
+vignette is `vignettes/tantale.qmd` (the "Get started" page), which `R CMD build` does
 render (`VignetteBuilder: quarto`).
 
 **Vignettes come last, and never constrain the code.** They will be rebuilt
@@ -139,7 +139,7 @@ motif section) a second time for nothing. `build_article(name, pkg =
 ".")` renders exactly one file directly -- confirmed by reading its
 `build_quarto_articles(pkg, article = ...)` branch -- so looping it over
 all seven names (`articles/tale_classification` first, the rest and
-`getting_started` in any order) plus one call to
+`tantale` in any order) plus one call to
 `build_articles_index(pkg)` for the listing page builds every article
 exactly once, in a chosen order, with no double rendering and no
 dependence on `quarto`'s own (uncontrollable) project order. Verified
@@ -249,17 +249,18 @@ before trusting any of it.*
   (`tales_from_telltales`, `tales_msa_width`, `repeats_only`,
   `.repeat_to_rvd_align`) and retirements, legacy column names included
   (§37). All three done 2026-10-01. Still on the list, not started:
-  `.tidy_biostrings_msa`'s unimplemented file input, merging the two
-  `rvd_align` blocks of `plot.tales_msa()`, a facet argument for
-  `plot.tales()`, the package-size proposal (§34). The maintainer wants
+  `.tidy_biostrings_msa`'s unimplemented file input, `tell_tales()`'s
+  log line breaks in RStudio, vdiffr plot tests, CI, the package-size
+  proposal (§34), the JOSS manuscript. The maintainer wants
   to agree each plan before any coding.
 - §38 done 2026-10-01: `tales_anomalies()` reports every non-standard
-  TALE (`terminus_absent`, `no_repeat`, `terminus_unmatched`). Next,
-  agreed (Q25): R5 "Get started" link (rename the main vignette), R2
-  merge of `plot.tales_msa()`'s `rvd_align` blocks, R3 panel argument
-  for `plot.tales()`, R10 `tales_from_annotale()` in the README.
-- The full site in `docs/` was rebuilt at 0.9.9011 on 2026-10-01; the
-  four articles touched by §38 re-rendered since. `tale_mining.qmd`
+  TALE (`terminus_absent`, `no_repeat`, `terminus_unmatched`). §39 done
+  the same day: R5 "Get started" (main vignette is now
+  `vignettes/tantale.qmd`), R2 (`plot.tales_msa()`'s RVD blocks merged),
+  R3 (`plot.tales(facet_by =)`), R10 (README mining bullets).
+- The full site in `docs/` was wiped and rebuilt at 0.9.9011 on
+  2026-10-01 after the vignette rename; `tale_classification` re-rendered
+  since (strain-faceted figure). `tale_mining.qmd`
   still has mismatches the maintainer is revising (ledger §38, end).
 - **The GitHub repository is private** since 2026-09-24 (maintainer's
   choice, to change things without users). The README's install command

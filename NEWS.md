@@ -1,5 +1,17 @@
 # tantale 0.9.9011
 
+## `plot()` on a `tales` chooses its panels
+
+The new `facet_by` argument of `plot.tales()` names the columns that split
+the plot into panels: `"seqnames"` (the default, as before), `"strain"`
+for a set of genomes, several columns at once, or `NULL` for a single
+panel. Each column must hold one value per array.
+
+## "Get started" page
+
+The main vignette is now `vignettes/tantale.qmd`, which the website links
+as "Get started" in its menu bar.
+
 ## Non-standard TALEs are reported as anomalies
 
 `tales_anomalies()`, and so the warning of `tales()`, now report every

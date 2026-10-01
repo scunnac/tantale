@@ -4,7 +4,7 @@
 \alias{plot.tales}
 \title{Plot the domain composition of a set of TALE arrays}
 \usage{
-\method{plot}{tales}(x, position = c("array", "alignment"), ...)
+\method{plot}{tales}(x, position = c("array", "alignment"), facet_by = "seqnames", ...)
 }
 \arguments{
 \item{x}{A \code{\link{tales}} object, as returned by
@@ -19,6 +19,14 @@ requires an aligned object (or one demoted from a \code{\link{tales_msa}},
 which keeps the column): gaps then appear as empty columns and shared
 features line up. Aberrant repeats, for instance, are visible as a column
 in the aligned layout and scattered in the unaligned one.}
+
+\item{facet_by}{Names of the columns whose values split the plot into
+panels, stacked in rows whose height follows the number of arrays.
+Each column must hold one value per array: \code{"seqnames"} (the
+default, one panel per source sequence) or \code{"strain"} for a set of
+genomes, for instance, and \code{c("strain", "seqnames")} for both.
+\code{NULL} draws a single panel, as does the default when \code{x}
+has no \code{seqnames} column.}
 
 \item{...}{Unused, present for compatibility with the \code{plot} generic.}
 }
@@ -38,6 +46,7 @@ instead, being the more specific class.
 x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
                                       package = "tantale"))
 plot(x)
+plot(x, facet_by = NULL)
 }
 \seealso{
 Other TALE plots:

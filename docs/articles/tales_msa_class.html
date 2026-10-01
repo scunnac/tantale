@@ -35,12 +35,12 @@
 
     <div id="navbar" class="collapse navbar-collapse ms-3">
       <ul class="navbar-nav me-auto">
+<li class="nav-item"><a class="nav-link" href="../articles/tantale.html">Get started</a></li>
 <li class="nav-item"><a class="nav-link" href="../reference/index.html">Reference</a></li>
 <li class="active nav-item dropdown">
   <button class="nav-link dropdown-toggle" type="button" id="dropdown-articles" data-bs-toggle="dropdown" aria-expanded="false" aria-haspopup="true">Articles</button>
   <ul class="dropdown-menu" aria-labelledby="dropdown-articles">
-<li><a class="dropdown-item" href="../articles/getting_started.html">Getting started with tantale</a></li>
-    <li><a class="dropdown-item" href="../articles/tale_mining.html">Mining TALE sequences in genomes</a></li>
+<li><a class="dropdown-item" href="../articles/tale_mining.html">Mining TALE sequences in genomes</a></li>
     <li><a class="dropdown-item" href="../articles/tales_class.html">The tales class</a></li>
     <li><a class="dropdown-item" href="../articles/trunctale_correction.html">Genuine truncTALEs and frameshift correction</a></li>
     <li><a class="dropdown-item" href="../articles/tale_classification.html">Classifying TALE sequences from genomes</a></li>
@@ -95,7 +95,7 @@
 <section class="level2" data-number="1"><h2 data-number="1" id="building-the-alignment-this-article-examines">
 <span class="header-section-number">1</span> Building the alignment this article examines<a class="anchor" aria-label="anchor" href="#building-the-alignment-this-article-examines"></a>
 </h2>
-<p>Same three genomes and the same group as <a href="tale_msa.html">the walkthrough</a>, reused here from the cached result of <a href="tale_classification.html">the classification article</a>; see <a href="getting_started.html">the getting-started article</a> for how these four articles are linked.</p>
+<p>Same three genomes and the same group as <a href="tale_msa.html">the walkthrough</a>, reused here from the cached result of <a href="tale_classification.html">the classification article</a>; see <a href="tantale.html">the getting-started article</a> for how these four articles are linked.</p>
 <p><code><a href="../reference/tales_align.html">tales_align()</a></code> takes a <code>tales</code> and returns a <code>tales_msa</code>: the same rows, plus one new column, <code>alignment_position</code>. Nothing else changes: every column the input carried, <code>rvd</code> and <code>dom_code</code> both included, survives the trip, because the alignment is computed on <em>one</em> residue layer (<code>residue_col</code>) and the object it returns is still the whole table.</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
@@ -451,7 +451,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script><script>var lightboxQuarto = GLightbox({"loop":false,"selector":".lightbox","closeEffect":"zoom","openEffect":"zoom","descPosition":"bottom"});
+</script><script>var lightboxQuarto = GLightbox({"selector":".lightbox","openEffect":"zoom","closeEffect":"zoom","loop":false,"descPosition":"bottom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

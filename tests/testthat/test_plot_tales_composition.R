@@ -97,3 +97,28 @@ test_that("the default layout is unchanged", {
   x <- tales_quietly(out$tale_parts)
   expect_identical(plot(x)$data$.x, x$position_in_array)
 })
+
+test_that("facet_by chooses the panel columns", {
+  skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
+  out <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
+  x <- tales_quietly(out$tale_parts)
+  x$strain <- sub("_ROI_.*", "", x$array_id)
+  p <- plot(x, facet_by = "strain")
+  expect_identical(names(p$facet$params$rows), "strain")
+  p <- plot(x, facet_by = c("strain", "seqnames"))
+  expect_identical(names(p$facet$params$rows), c("strain", "seqnames"))
+  expect_s3_class(plot(x, facet_by = NULL)$facet, "FacetNull")
+})
+
+test_that("facet_by refuses an absent column and one that varies within an array", {
+  skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
+  out <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
+  x <- tales_quietly(out$tale_parts)
+  expect_error(plot(x, facet_by = "strain"), class = "tantale_error_plot_facet")
+  expect_error(plot(x, facet_by = "domain_type"), class = "tantale_error_plot_facet")
+  expect_error(plot(x, facet_by = 1), class = "tantale_error_plot_facet")
+  # an explicit request for an absent seqnames is an error, the default is not
+  y <- x[, setdiff(names(x), "seqnames")]
+  expect_error(plot(y, facet_by = "seqnames"), class = "tantale_error_plot_facet")
+  expect_s3_class(plot(y)$facet, "FacetNull")
+})

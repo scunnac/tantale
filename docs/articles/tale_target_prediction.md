@@ -40,8 +40,8 @@ classification](https://scunnac.github.io/tantale/articles/tale_classification.m
 and [alignment](https://scunnac.github.io/tantale/articles/tale_msa.md)
 articles, from the classification article’s cached discovery result (see
 [the getting-started
-article](https://scunnac.github.io/tantale/articles/getting_started.md)
-for how these four articles are linked).
+article](https://scunnac.github.io/tantale/articles/tantale.md) for how
+these four articles are linked).
 
 Code
 

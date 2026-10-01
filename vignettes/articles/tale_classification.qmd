@@ -107,6 +107,15 @@ n_distinct(all_tales$array_id)
 ```
 
 Nine arrays each come from MAI1 and BAI3, and eight from BAI3-1-1.
+`plot()` with `facet_by = "strain"` draws one panel per strain:
+
+```{r}
+#| label: fig-strain-composition
+#| fig-cap: "Domain composition of the TALE arrays of the three strains."
+#| fig-width: 9
+#| fig-height: 8
+plot(all_tales, facet_by = "strain")
+```
 
 ## Quantifying relatedness: `tales_compare_distal()`
 
