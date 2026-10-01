@@ -30,8 +30,8 @@ Here is a snapshot of the topics that are covered:
 
 
 - TALE mining in bacterial sequences:
-    - Wrapper around [AnnoTALE](https://doi.org/10.1038/srep21077) and [correcTALE](https://doi.org/10.1186/s12864-023-09228-1)
-    - tell_tales, an R function similar to AnnoTALE
+    - Wrappers around [AnnoTALE](https://doi.org/10.1038/srep21077) and [correcTALE](https://doi.org/10.1186/s12864-023-09228-1); AnnoTALE's predictions load as a `tales` object
+    - A TALE finder built for error-prone assemblies: it locates TALE arrays from DNA evidence and can correct frameshifts before AnnoTALE reads them
     - Analysis tools for RVD inventory, repeat length.
     - Compact 'talome' plots
 
