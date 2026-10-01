@@ -20,7 +20,7 @@ Depends:
 Imports:
     magrittr, fs, dplyr, ggplot2 (>= 3.5.0), tibble, stringr, readr, glue,
     biovizBase, IRanges, Biostrings, pwalign, GenomicRanges, BSgenome, plyranges,
-    Rsamtools, systemPipeR, DECIPHER,
+    systemPipeR, DECIPHER,
     ape, ggtree, tidytree, aplot, universalmotif,
     gplots, cluster, viridis, ggnewscale, matrixStats,
     reticulate, cli, digest, methods, rlang, tidyr, stats, utils, grDevices, graphics,

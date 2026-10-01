@@ -241,8 +241,9 @@
 #' Merge hits of the same domain type that overlap each other
 #'
 #' nhmmer can report the same repeat twice, as two overlapping hits. Left
-#' alone those become two repeats in the array, and the inferred RVD sequence
-#' gains a residue that is not there.
+#' alone, that repeat is counted twice in \code{n_dna_hits} and by the
+#' \code{min_array_length} filter, and listed twice in \code{hits_report.tsv}.
+#' The RVDs are unaffected: AnnoTALE reads them from the array's ORF.
 #'
 #' Merging is done per domain type, never across types: an N-terminus hit
 #' overlapping a repeat hit is a real feature of where one domain ends and the
@@ -295,10 +296,11 @@
 #' \code{min_gap} are taken to belong to the same array, and each array
 #' becomes a region of interest, \code{ROI_*}.
 #'
-#' Hits within an array should not overlap -- the merge stage exists to make
-#' sure of that -- so any that still do are reported. They matter because the
-#' RVD sequence is read off the repeats in order, and two overlapping hits
-#' put a residue in it that is not in the protein.
+#' Hits of the same domain type should not overlap within an array (the
+#' merge stage joins them), so any that still do are reported: they inflate
+#' \code{n_dna_hits}. A terminus hit overlapping the adjacent repeat hit by a
+#' few nucleotides is where one domain ends and the next begins, and is not
+#' reported.
 #'
 #' @param gr Domain hits, merged.
 #' @param min_gap Largest gap, in bases, still counted as contiguous.
@@ -352,12 +354,15 @@
     names(arraysGR) <- names(byArray)
   }
 
-  ## Make sure that hits do not overlap for some weird reason
-  doHitsOverlap <- !GenomicRanges::isDisjoint(byArray)
+  ## Overlaps between hits of the same domain type only (§36)
+  doHitsOverlap <- vapply(byArray, function(x) {
+    !all(GenomicRanges::isDisjoint(GenomicRanges::split(x, as.character(x$query_name))))
+  }, logical(1))
   if (any(doHitsOverlap)) {
     cli::cli_warn(
-      c("Some HMMER hits overlap, so the inferred RVD sequences may carry artefactual insertions.",
-        "i" = "Check these region{?s}: {.val {names(doHitsOverlap)[doHitsOverlap]}}"),
+      c("Some nhmmer hits of the same domain type overlap, so {.field n_dna_hits} counts these domains twice.",
+        "i" = "Region{?s}: {.val {names(doHitsOverlap)[doHitsOverlap]}}",
+        "i" = "{.fn tell_tales} merges such hits unless {.code merge_hits = FALSE}."),
       class = "tantale_warning_overlapping_hits")
   }
 
@@ -1070,8 +1075,11 @@
     df = hits, keep.extra.columns = TRUE, seqnames.field = "target_name")
   names(gr) <- gr$hit_id
 
-  ## Updating seqinfo with original seqinfo from the sequences before renaming
-  gr <- GenomeInfoDb::renameSeqlevels(gr, value = seqlevels)
+  ## Updating seqinfo with original seqinfo from the sequences before renaming.
+  ## Only the sequences carrying hits are in gr; renameSeqlevels() warns about
+  ## any other name it is given (§36).
+  gr <- GenomeInfoDb::renameSeqlevels(
+    gr, value = seqlevels[names(seqlevels) %in% GenomeInfoDb::seqlevels(gr)])
   GenomeInfoDb::seqinfo(gr, pruning.mode = "coarse") <- seqinfo[GenomeInfoDb::seqlevels(gr)]
   gr
 }
@@ -1113,8 +1121,20 @@
 .telltale_prepare_subject <- function(subject_file) {
   cli::cli_inform("HMMER is very picky about forbiden characters in sequence name. Renaming sequences in {subject_file}.")
   originalSeqs <- Biostrings::readDNAStringSet(filepath = subject_file)
-  Rsamtools::indexFa(subject_file)
-  originalSeqInfo <- Rsamtools::seqinfo(Rsamtools::FaFile(subject_file))
+  seqNames <- names(originalSeqs)
+  dupNames <- unique(seqNames[duplicated(seqNames)])
+  if (length(dupNames) > 0L || !all(nzchar(seqNames))) {
+    cli::cli_abort(
+      c("Every sequence in {.file {subject_file}} needs a unique, non-empty name.",
+        "x" = if (length(dupNames) > 0L) "Duplicated: {.val {dupNames}}",
+        "x" = if (!all(nzchar(seqNames))) "{sum(!nzchar(seqNames))} sequence{?s} without a name."),
+      class = c("tantale_error_seqnames", "tantale_error"))
+  }
+  # From the sequences in memory, with their full headers (the names the hits
+  # are restored to). A samtools index would key on the first word of each
+  # header only, and would be written next to the user's file (§36).
+  originalSeqInfo <- GenomeInfoDb::Seqinfo(seqnames = names(originalSeqs),
+                                           seqlengths = Biostrings::width(originalSeqs))
 
   originalSeqlevels <- names(originalSeqs)
   foolproofSeqlevels <- paste0("seq", 1:length(originalSeqlevels))
@@ -1272,8 +1292,10 @@
 #'   judgement about the biology, which is why nothing is discarded unless you
 #'   ask. A pseudogene with three surviving repeats is real, and may be what
 #'   you are looking for.
-#' @param merge_hits Perform overlapping hits merging per domain type. Should not
-#'   be modified.
+#' @param merge_hits Merge overlapping nhmmer hits of the same domain type,
+#'   since nhmmer can report one repeat as two overlapping hits. With
+#'   \code{FALSE}, such a repeat is counted twice in \code{n_dna_hits} and
+#'   by \code{min_array_length}, and a warning names the arrays concerned.
 #' @param min_gap Minimum gap in base pairs between two tale domain hits for
 #'   them to be considered distinct. If the length of the gap is below this
 #'   value, domains are considered "contiguous" and grouped in the same array.
@@ -1377,7 +1399,9 @@
 #'     \emph{strand}: the array's identifier and the span of its nhmmer hits
 #'     on the subject sequence.
 #'     \item \emph{n_dna_hits}: number of nhmmer hits (N-terminus, repeats and
-#'     C-terminus profiles together) grouped in the array.
+#'     C-terminus profiles together) grouped in the array. A terminus hit
+#'     usually overlaps the adjacent repeat hit by a few nucleotides, at the
+#'     boundary between the two domains.
 #'     \item \emph{array_seq}: DNA sequence of that span.
 #'     \item \emph{nterm_dna_hit}, \emph{cterm_dna_hit}: whether an nhmmer hit
 #'     of the N- (C-) terminus DNA profile is part of the array, anywhere in

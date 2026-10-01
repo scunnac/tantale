@@ -1960,7 +1960,7 @@ back into its caller (`.telltale_finish_rvd_strings()` inlined into
   fingerprint rounds doubles to 8 decimals, so the E-value columns (around
   1e-190) all digest as 0.
 
-## 36. The two stray `tell_tales()` warnings (road map step 2) **[P]**
+## 36. The two stray `tell_tales()` warnings (road map step 2) **[V]**
 
 Investigated 2026-10-01; plan awaiting the maintainer's approval.
 
@@ -2004,3 +2004,60 @@ with and without `merge_hits`. P3 build the seqinfo from the sequences in
 memory, no `indexFa()`. **Open:** Q10, terminus/repeat overlaps never
 reported (recommended) or reported above a threshold (e.g. > 30 nt);
 Q11, include P3 and remove the 7 tracked `.fai` files.
+
+**Maintainer, 2026-10-01:** P1 and P2 agreed. Q10: terminus/repeat
+overlaps are never reported. P3 questioned ("indexing is the standard
+way"), then agreed after these arguments (Q11 follows P3: the 7 `.fai`
+files are removed):
+- the `.fai` is written next to the input, which CRAN's policy forbids
+  outside `tempdir()` in examples, tests and vignettes. Examples on
+  `system.file()` data write into the installed library, which is how
+  the 7 tracked `.fai` files arose. On a read-only directory the call
+  fails;
+- the index serves only to get the sequence lengths, and the sequences
+  are already in memory one line earlier (`Biostrings::readDNAStringSet()`);
+- **latent bug found while checking:** the `.fai` names a sequence by the
+  first word of its header, `readDNAStringSet()` by the whole header. For
+  a header with a space (`>ctg1 plasmid pXO1`), `seqinfo[...]` in
+  `.telltale_hits_to_ranges()` finds no match and the ranges get
+  `seqlengths` `NA`, silently. This is the very case the renaming step
+  exists for. Building the seqinfo from `names()`/`width()` of the
+  sequences in memory fixes both.
+  Consequence (read from the code, not run): `tell_tales()` extends each
+  array by `extend_len` and relies on `GenomicRanges::trim()` to clip it
+  at the contig end; with `seqlengths` `NA` it cannot, so an array within
+  `extend_len` of the end of such a contig would be extended past it
+  before `getSeq()`.
+
+**Done 2026-10-01 (P1-P3):**
+- P1: `.telltale_hits_to_ranges()` passes `renameSeqlevels()` only the
+  names present in the ranges.
+- P2: `.telltale_group_arrays()` checks `isDisjoint()` per domain type
+  within each array; new message names `n_dna_hits` and `merge_hits`.
+  The obsolete RVD rationale is gone from the merge/group docs;
+  `?tell_tales` says, under `n_dna_hits`, that terminus/repeat overlaps
+  are normal; `merge_hits` documented. On the PXO86 excerpt, the default
+  run gives no overlap warning, `merge_hits = FALSE` flags ROI_00003.
+- P3: seqinfo from `names()`/`width()` of the sequences in memory;
+  Rsamtools dropped from Imports (it had no other use). The 7 `.fai`
+  files removed; test runs leave none behind.
+- New guard: a subject with duplicated or empty sequence names is an
+  error (`tantale_error_seqnames`). `Seqinfo()` rejects both; the old
+  index accepted them, but a hit on an unnamed sequence already failed
+  in `renameSeqlevels()`. Two tests wrote an unnamed random sequence;
+  they now name it.
+- Tests in `test_tell_tales.R`: subject preparation (full headers, no
+  file written, name guard), hit ranges on a sequence without hits,
+  overlap check on synthetic arrays (terminus/repeat quiet, repeat/repeat
+  reported), and a `merge_hits = FALSE` run. `tell_tales`,
+  `tell_tales_guards`, `tell_tales_correction`, `golden`, `annotale`,
+  `external_exit_status`, `tale_parts` pass; golden unchanged. Quick
+  `R CMD check` (no tests, no vignettes): 0/0/0.
+- **New finding, not fixed (to discuss):** a third stray warning,
+  "GRanges object contains N out-of-bound ranges", from
+  `GenomicRanges::resize()` in `tell_tales()`'s array extension (seen on
+  the PXO86 excerpt and `toy_tal_regions.fasta`, at HEAD too). The
+  following `trim()` clips the range, so the result is right; the
+  warning is emitted before the clip. Fix: compute the extended end
+  clipped to the sequence length, or muffle only that warning around
+  `resize()`.

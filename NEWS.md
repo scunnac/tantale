@@ -35,6 +35,22 @@ whose AnnoTALE protein and DNA parts disagree is left out with a warning,
 and `tell_tales()` deletes the DNA parts AnnoTALE writes for an ORF it
 could not translate. Repeat RVDs are read from AnnoTALE's own RVD file.
 
+## `tell_tales()`: fewer spurious warnings, no index file next to the input
+
+The warning about overlapping nhmmer hits now concerns only hits of the
+same domain type, which make `n_dna_hits` count a domain twice; it
+appears only with `merge_hits = FALSE`. A terminus hit overlapping the
+adjacent repeat hit by a few nucleotides is normal and no longer
+reported. The warning "invalid seqlevels ... ignored", issued when a
+subject sequence carried no TALE, is gone.
+
+`tell_tales()` no longer writes a `.fai` index next to the subject file,
+and Rsamtools is no longer a dependency. Sequence lengths now come from
+the full fasta headers: with a header containing a space, they used to
+be lost, so an array near the end of such a sequence could be extended
+past it. A subject file with duplicated or empty sequence names is an
+error.
+
 
 ## Licences of the bundled programs are now stated
 

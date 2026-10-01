@@ -3,7 +3,7 @@
 test_that("send message if no hmmer hit", {
   # a random dna sequence file
   fasta <- tempfile()
-  Biostrings::DNAStringSet(x = paste(sample(Biostrings::DNA_BASES, size = 10000, replace = TRUE), collapse = "")) %>%
+  Biostrings::DNAStringSet(x = c(random = paste(sample(Biostrings::DNA_BASES, size = 10000, replace = TRUE), collapse = ""))) %>%
   Biostrings::writeXStringSet(filepath = fasta)
   expect_warning(tell_tales(subject_file = fasta, output_dir = tempfile()),
                  class = "tantale_warning_no_hits")
@@ -72,9 +72,10 @@ test_that("the terminus check needs the protein profiles", {
 
 test_that("tell_tales() codes termini from the protein profiles and drops DNA-only AnnoTALE output", {
   out <- tempfile()
-  suppressWarnings(suppressMessages(tell_tales(
+  # the terminus/repeat overlaps are normal, and the duplicate repeat hits merged (§36)
+  suppressWarnings(expect_no_warning(suppressMessages(tell_tales(
     subject_file = test_path("data_for_tests", "pxo86_roi18_19_excerpt.fa"),
-    output_dir = out)))
+    output_dir = out)), class = "tantale_warning_overlapping_hits"))
   report <- readr::read_tsv(file.path(out, "array_report.tsv"),
                             show_col_types = FALSE, progress = FALSE)
   expect_true(all(c("n_dna_hits", "nterm_dna_hit", "cterm_dna_hit", "nterm_aa_evalue",
@@ -92,4 +93,73 @@ test_that("tell_tales() codes termini from the protein profiles and drops DNA-on
   x <- tales_from_telltale(out)
   expect_false("ROI_00001" %in% x$array_id)
   expect_identical(x$rvd[x$array_id == truncated$array_id & x$domain_type == "C-terminus"], "CTERM")
+})
+
+
+#### Subject preparation and hit ranges (§36) ####
+
+test_that("subject preparation keeps full headers and writes nothing next to the input", {
+  dir <- withr::local_tempdir()
+  fa <- file.path(dir, "subject.fa")
+  writeLines(c(">ctg1 plasmid pXO1", "ACGTACGTAC", ">ctg2 chromosome", "ACGTAC"), fa)
+  subject <- suppressMessages(.telltale_prepare_subject(fa))
+  expect_identical(list.files(dir), "subject.fa")
+  expect_identical(GenomeInfoDb::seqnames(subject$seqinfo), c("ctg1 plasmid pXO1", "ctg2 chromosome"))
+  expect_identical(unname(GenomeInfoDb::seqlengths(subject$seqinfo)), c(10L, 6L))
+})
+
+test_that("subject preparation refuses duplicated or empty sequence names", {
+  fa <- withr::local_tempfile(fileext = ".fa")
+  writeLines(c(">ctg1", "ACGT", ">ctg1", "ACGT"), fa)
+  expect_error(suppressMessages(.telltale_prepare_subject(fa)),
+               class = "tantale_error_seqnames")
+  writeLines(c(">ctg1", "ACGT", ">", "ACGT"), fa)
+  expect_error(suppressMessages(.telltale_prepare_subject(fa)),
+               class = "tantale_error_seqnames")
+})
+
+test_that("hit ranges carry the original names and lengths, quietly, when a sequence has no hit", {
+  fa <- withr::local_tempfile(fileext = ".fa")
+  writeLines(c(">ctg1 plasmid pXO1", strrep("ACGT", 50), ">ctg2 chromosome", strrep("ACGT", 25)), fa)
+  subject <- suppressMessages(.telltale_prepare_subject(fa))
+  # hits on seq1 only
+  hits <- data.frame(target_name = "seq1", start = c(11, 51), end = c(40, 90),
+                     strand = "+", query_name = "repeat", hit_id = c("DOM_1", "DOM_2"))
+  expect_no_warning(gr <- .telltale_hits_to_ranges(hits, NULL, subject$seqlevels, subject$seqinfo))
+  expect_identical(GenomeInfoDb::seqlevels(gr), "ctg1 plasmid pXO1")
+  expect_identical(unname(GenomeInfoDb::seqlengths(gr)), 200L)
+})
+
+
+#### Overlapping hits within an array (§36) ####
+
+overlap_case <- function(ranges, types) {
+  gr <- GenomicRanges::GRanges("ctg1", IRanges::IRanges(ranges[, 1], ranges[, 2]), strand = "+",
+                               query_name = types, hit_id = paste0("DOM_", seq_along(types)))
+  list(gr = gr, seqs = Biostrings::DNAStringSet(c(ctg1 = strrep("ACGT", 100))),
+       hmm = list(nterm = "nterm", repeats = "repeat", cterm = "cterm"))
+}
+
+test_that("a terminus hit overlapping the adjacent repeat hit is not reported", {
+  x <- overlap_case(rbind(c(1, 100), c(97, 198), c(199, 300), c(281, 380)),
+                    c("nterm", "repeat", "repeat", "cterm"))
+  expect_no_warning(out <- .telltale_group_arrays(x$gr, min_gap = 50, subject_seqs = x$seqs, hmm = x$hmm))
+  expect_identical(unname(S4Vectors::mcols(out$by_array)$n_dna_hits), 4L)
+})
+
+test_that("overlapping hits of the same domain type are reported", {
+  x <- overlap_case(rbind(c(1, 100), c(101, 202), c(150, 251), c(252, 350)),
+                    c("nterm", "repeat", "repeat", "cterm"))
+  expect_warning(.telltale_group_arrays(x$gr, min_gap = 50, subject_seqs = x$seqs, hmm = x$hmm),
+                 class = "tantale_warning_overlapping_hits")
+})
+
+# PXO86's ROI_00003 carries two overlapping repeat hits, merged by default
+# (the merged run is checked in the termini test above).
+test_that("tell_tales() reports overlapping hits of one domain type when they are not merged", {
+  expect_warning(suppressMessages(tell_tales(
+    subject_file = test_path("data_for_tests", "pxo86_roi18_19_excerpt.fa"),
+    output_dir = withr::local_tempdir(), merge_hits = FALSE)),
+    class = "tantale_warning_overlapping_hits") %>%
+    suppressWarnings()
 })
