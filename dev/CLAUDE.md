@@ -245,8 +245,10 @@ before trusting any of it.*
 - **Current road map: `dev/notes_for_claude.md`** (the maintainer's
   list), worked through in the order agreed in ledger §35: (1) termini
   check and `array_report.tsv` renames, done 2026-10-01; (2) the two stray
-  `tell_tales()` warnings (`renameSeqlevels` "invalid seqlevels 'seq2'",
-  overlapping hits on nearly every array); (3) `tales_from_annotale()`,
+  `tell_tales()` warnings: investigated, plan P1-P3 in ledger §36 awaits
+  the maintainer's answers to Q10 (terminus/repeat overlaps: never report,
+  recommended, or above a threshold) and Q11 (include P3, the `.fai`
+  written next to the input; remove the 7 tracked `.fai` files); (3) `tales_from_annotale()`,
   the renames (`tales_from_telltales`, `tales_msa_width`,
   `.repeat_to_rvd_align`) and the retirements. The maintainer wants to
   agree each plan before any coding.
@@ -289,7 +291,7 @@ against the code 2026-09-23). Headlines:
 8. Done: README declares the interface stable; lifecycle conventions
    from 1.0.0 on.
 
-**Decisions to make before 1.0.0:** `tales_rvd_strings(rvd_only =)` ->
+**Decisions to make before 1.0.0:** the terminus check's missing minimum coverage (to discuss, ledger START HERE); `tales_rvd_strings(rvd_only =)` ->
 `repeats_only`; §2; §20; the "Position in array" axis title (§22); §21
 option (c); `tell_tales()`'s argument list; exposing ARLEM's
 duplication/insertion costs; the distribution channel (§34).

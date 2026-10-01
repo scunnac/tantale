@@ -191,6 +191,15 @@ from 1.0.0 on it needs a lifecycle deprecation (START HERE item 8).
   substitution costs (up to 99) is a modelling choice about how TALE
   arrays evolve (§6).
 - **Distribution channel** and the one-archive plan (§34).
+- **To discuss (maintainer, 2026-10-01): the terminus check has no
+  minimum coverage.** A terminus counts as `NTERM`/`CTERM` whenever its
+  best `hmmsearch` match has E <= `terminus_max_evalue`, however little of
+  the profile it covers. Example: BAI3-1-1 raw `ROI_00001`, 247-aa
+  N-terminus matching profile positions 103-150 only (E = 4e-22), coded
+  `NTERM`. Genuine truncated termini also cover part of the profile (the
+  PXO86 truncTALE's 42-aa C-terminus: positions 1-37), so a coverage rule
+  would need to say which end of the profile must be covered (the end
+  adjacent to the repeats) (§35).
 - **A beta of 1.0.0**, if wanted: number it **0.99.0** (then 0.99.1, ...).
   R versions are numeric only (`1.0.0-beta` is invalid, `1.0.0-1` sorts
   after 1.0.0); 0.9.9010 < 0.99.0 < 1.0.0; Bioconductor also requires
@@ -1950,3 +1959,48 @@ back into its caller (`.telltale_finish_rvd_strings()` inlined into
   (`nzchar()` drops names), fixed before accepting. Weakness noticed: the
   fingerprint rounds doubles to 8 decimals, so the E-value columns (around
   1e-190) all digest as 0.
+
+## 36. The two stray `tell_tales()` warnings (road map step 2) **[P]**
+
+Investigated 2026-10-01; plan awaiting the maintainer's approval.
+
+**36.1 "invalid seqlevels 'seq2' ignored"** (`GenomeInfoDb::renameSeqlevels()`
+in `.telltale_hits_to_ranges()`). `.telltale_prepare_subject()` renames
+every subject sequence `seq1..seqN` and returns the whole renaming
+vector. The hit ranges only carry the sequences with hits (the hit table
+was `droplevels()`'d after the `min_dna_hits` filter), and
+`renameSeqlevels()` warns about every name it is given that the ranges do
+not have. Harmless: BAI3-1-1's second sequence carries no hit. Fix:
+pass only the names present in the ranges.
+
+**36.2 "Some HMMER hits overlap, so the inferred RVD sequences may carry
+artefactual insertions"** fires on nearly every array (PXO86 17/18, BAI3
+9/10, MAI1 9/10, BAI3-1-1 raw 8/9). Measured on the merged hits of those
+four genomes: 51 overlapping pairs, **all between a terminus hit and the
+adjacent repeat hit, none between two repeats**. C-terminus/repeat: 43
+pairs, 16-20 nt; N-terminus/repeat: 8 pairs, 1-4 nt. The merge step
+(`.telltale_merge_overlapping_hits()`) merges overlaps within a domain
+type only, by design (its own doc calls a terminus/repeat overlap "a real
+feature of where one domain ends and the next begins"), so the check in
+`.telltale_group_arrays()` contradicts it. The message's rationale is also
+obsolete: RVDs are read by AnnoTALE from the ORF; the nhmmer hits only
+delimit the array and feed `n_dna_hits`, the `*_dna_hit` columns and
+`hits_report.tsv`. The merge step does act on same-type duplicates
+(6 merged hits in PXO86, 1 in BAI3 and in MAI1).
+
+**36.3 Side finding:** `.telltale_prepare_subject()` calls
+`Rsamtools::indexFa(subject_file)`, which writes `<subject>.fai` next to
+the user's input file, and fails where that directory is read-only. This
+is where the `.fai` files in `inst/extdata/` and `data_for_tests/` come
+from.
+
+**Plan proposed 2026-10-01:** P1 pass `renameSeqlevels()` only the names
+present (test: `toy_tal_regions.fasta`, which has a sequence without a
+TALE). P2 check overlaps between hits of the same type only (possible
+with `merge_hits = FALSE`), new message naming `n_dna_hits` and
+`merge_hits`; correct the obsolete RVD rationale in the merge/group docs;
+one sentence in `?tell_tales` on normal terminus/repeat overlaps; tests
+with and without `merge_hits`. P3 build the seqinfo from the sequences in
+memory, no `indexFa()`. **Open:** Q10, terminus/repeat overlaps never
+reported (recommended) or reported above a threshold (e.g. > 30 nt);
+Q11, include P3 and remove the 7 tracked `.fai` files.
