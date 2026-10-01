@@ -8,7 +8,7 @@ output directory and returns a validated
 ## Usage
 
 ``` r
-tales_from_telltale(telltale_dir, sanitize = FALSE)
+tales_from_telltales(telltale_dir, sanitize = FALSE)
 ```
 
 ## Arguments
@@ -32,6 +32,20 @@ A validated `tales` object.
 
 ## Details
 
+One row per part: the N-terminus, each repeat and the C-terminus, as
+AnnoTALE split the array's longest ORF. The `rvd` column holds the RVD
+of a repeat, or a terminus code (see
+[`tales_anchor_codes`](https://scunnac.github.io/tantale/reference/tales_anchor_codes.md)):
+`NTERM`/`CTERM` when the terminus matches the TALE terminal-domain
+protein profile, `XXXXX` when it does not. When AnnoTALE reported no
+terminus on one side, the array has no part there, with a warning. An
+array whose protein and DNA parts disagree is left out, with a warning.
+
+The directory must have been written by the current version of
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md),
+whose `array_report.tsv` holds the terminus check; an older one is an
+error.
+
 The result carries no `dom_code`: that surrogate key is minted later, by
 the relatedness computation, over the whole set of parts being analysed.
 
@@ -39,13 +53,14 @@ the relatedness computation, over the whole set of parts being analysed.
 
 Other TALE discovery:
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md),
+[`tales_from_annotale()`](https://scunnac.github.io/tantale/reference/tales_from_annotale.md),
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
 
 ## Examples
 
 ``` r
-tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-                                package = "tantale"))
+tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+                                 package = "tantale"))
 #> <tales> 4 arrays, 96 parts
 #>   layers: rvd   |   6 other columns
 #>              rvd

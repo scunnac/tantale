@@ -40,9 +40,6 @@ is a bare `tales` or a `tales_msa`.
 for the DNA sequence sibling.
 
 Other tales projections:
-[`repeat_to_rvd_map()`](https://scunnac.github.io/tantale/reference/repeat_to_rvd_map.md),
-[`repeat_to_rvd_map_distalr()`](https://scunnac.github.io/tantale/reference/repeat_to_rvd_map_distalr.md),
-[`tale_parts_to_rvd()`](https://scunnac.github.io/tantale/reference/tale_parts_to_rvd.md),
 [`tales_coded_strings()`](https://scunnac.github.io/tantale/reference/tales_coded_strings.md),
 [`tales_domain_codes()`](https://scunnac.github.io/tantale/reference/tales_domain_codes.md),
 [`tales_get_dna_seq()`](https://scunnac.github.io/tantale/reference/tales_get_dna_seq.md),
@@ -52,8 +49,8 @@ Other tales projections:
 ## Examples
 
 ``` r
-x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-                                     package = "tantale"))
+x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+                                      package = "tantale"))
 tales_get_protein_seq(x)[1]
 #> AAStringSet object of length 1:
 #>     width seq                                               names               

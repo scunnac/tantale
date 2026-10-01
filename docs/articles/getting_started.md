@@ -1,12 +1,11 @@
 # Getting started with tantale
 
-A TALE (transcription activator-like effector) gene, once translated, is
-a modular protein: a central array of near-identical ~34-residue
-repeats, each one specifying a single DNA base through two variable
-residues (its RVD), flanked by an N- and a C-terminal region. tantale’s
-job is to find these arrays in genomic sequence, and to represent them
-as data you can subset, compare and plot like any other tibble, with one
-row per repeat or terminus.
+A TALE (Transcription Activator-Like Effector) is a modular protein: a
+central array of near-identical ~34-residue repeats, each one specifying
+a single DNA base through two variable residues (its RVD), flanked by an
+N- and a C-terminal region. tantale’s job is to find these arrays in
+genomic sequence, and to represent them as data you can subset, compare
+and plot like any other tibble, with one row per repeat or terminus.
 
 This article is a two-minute tour. It loads a small result already
 sitting on disk, so there are no external tools to install first. The
@@ -26,7 +25,7 @@ library(tantale)
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
 searches a genome for TALE-coding regions and writes its findings to a
 directory of reports and FASTA files;
-[`tales_from_telltale()`](https://scunnac.github.io/tantale/reference/tales_from_telltale.md)
+[`tales_from_telltales()`](https://scunnac.github.io/tantale/reference/tales_from_telltales.md)
 reads that directory back into R. The package ships one such directory
 already computed (four arrays found across two short input sequences),
 so this tour can start from the object and skip a multi-minute search:
@@ -35,7 +34,7 @@ Code
 
 ``` r
 example_dir <- system.file("extdata", "tellTaleExampleOutput", package = "tantale")
-x <- tales_from_telltale(example_dir)
+x <- tales_from_telltales(example_dir)
 x
 #> <tales> 4 arrays, 96 parts
 #>   layers: rvd   |   6 other columns
@@ -46,7 +45,8 @@ x
 #>   ROI_00004  NTERM NI HD NN NS NN NG HD NG HD NG NN NG HD NS HD NI NG HD H ...
 ```
 
-Every row is one *part* of one array: a repeat or a terminus.
+Every row is one *part* of one TALE *array* (the domains composing the
+full protein, ie the *array*): a repeat or a terminus.
 [`summary()`](https://rdrr.io/r/base/summary.html) gives the array-level
 view:
 
@@ -67,7 +67,7 @@ summary(x)
 
 Real assemblies are not always clean: a frameshift can leave AnnoTALE
 unable to parse a repeat structure out of a candidate array, or a
-terminus can go missing.
+terminus can be truncated.
 [`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
 reports which arrays, if any, need a second look:
 
@@ -82,8 +82,7 @@ tales_anomalies(x)
 Zero rows means none did, here. The [mining
 article](https://scunnac.github.io/tantale/articles/tale_mining.html)
 covers what to do when this table is not empty – tantale has two
-different ways to correct a frameshifted array, and they do not always
-agree with each other.
+different ways to correct a frameshifted array.
 
 ## Looking at the arrays
 

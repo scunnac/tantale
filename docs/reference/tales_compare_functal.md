@@ -137,8 +137,8 @@ Other pairwise distances:
 ## Examples
 
 ``` r
-x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-                                     package = "tantale"))
+x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+                                      package = "tantale"))
 fn <- tales_compare_functal(x)
 fn
 #> # A tibble: 16 × 3

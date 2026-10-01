@@ -9,8 +9,11 @@ class (`tales`, `tales_msa`) and one case study on naturally truncated
 TALEs. Each is linked from the point where it becomes relevant.
 
 This article covers TALE discovery with
-[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md),
-and something discovery cannot avoid: real assemblies are not always
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md).
+Because of their repetitive nature *tal* genes cannot be assembled from
+short read sequencing technologies data. This is why now most of the
+genomes of *tal* bearing bacteria are sequenced with long read
+technologies which may be error prone. Those assemblies are not always
 clean, and
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
 can sometimes be fooled. tantale offers two ways to correct frameshifts.
@@ -76,7 +79,7 @@ in R is a `tales` object, with one row per part (repeat or terminus):
 Code
 
 ``` r
-mai1 <- suppressWarnings(tales_from_telltale(mai1_dir))
+mai1 <- suppressWarnings(tales_from_telltales(mai1_dir))
 mai1
 #> <tales> 9 arrays, 198 parts
 #>   layers: rvd   |   6 other columns
@@ -121,15 +124,15 @@ parts within each array independently.
 Besides the RVD sequences and the TALE ORFs themselves,
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
 writes three tab-separated reports, which
-[`tales_from_telltale()`](https://scunnac.github.io/tantale/reference/tales_from_telltale.md)
+[`tales_from_telltales()`](https://scunnac.github.io/tantale/reference/tales_from_telltales.md)
 reads back to build the object above. They are worth knowing about
 directly, since they carry a few things the `tales` object does not.
 
-| file                 | one row per            | worth knowing                                                                                                                |
-|:---------------------|:-----------------------|:-----------------------------------------------------------------------------------------------------------------------------|
-| `hits_report.tsv`    | raw `nhmmer` hit       | `codon_count`, `frameshift_count` per hit – before any merging or correction                                                 |
-| `domains_report.tsv` | domain, after AnnoTALE | what AnnoTALE actually parsed out of the ORF                                                                                 |
-| `array_report.tsv`   | candidate array        | `has_all_domains`, `has_aberrant_repeat`, `orf_coverage`, and (with correction) `predicted_ins_count`/`predicted_dels_count` |
+| file                 | one row per            | worth knowing                                                                                                                                                             |
+|:---------------------|:-----------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `hits_report.tsv`    | raw `nhmmer` hit       | `codon_count`, `frameshift_count` per hit – before any merging or correction                                                                                              |
+| `domains_report.tsv` | domain, after AnnoTALE | what AnnoTALE actually parsed out of the ORF                                                                                                                              |
+| `array_report.tsv`   | candidate array        | `nterm_dna_hit`/`cterm_dna_hit`, `nterm_aa_hit`/`cterm_aa_hit`, `has_aberrant_repeat`, `orf_coverage`, and (with correction) `predicted_ins_count`/`predicted_dels_count` |
 
 `array_report.tsv` is the one this article leans on most, so it is worth
 reading directly:
@@ -140,20 +143,20 @@ Code
 array_report <- readr::read_tsv(file.path(mai1_dir, "array_report.tsv"),
                                 show_col_types = FALSE)
 array_report %>%
-  select(array_id, has_all_domains, longest_orf_length, orf_coverage)
-#> # A tibble: 10 × 4
-#>    array_id  has_all_domains longest_orf_length orf_coverage
-#>    <chr>     <lgl>                        <dbl>        <dbl>
-#>  1 ROI_00005 FALSE                           NA           NA
-#>  2 ROI_00003 TRUE                          3087           91
-#>  3 ROI_00007 TRUE                          3288           91
-#>  4 ROI_00006 TRUE                          3393           91
-#>  5 ROI_00010 TRUE                          3492           92
-#>  6 ROI_00008 TRUE                          3594           92
-#>  7 ROI_00001 TRUE                          3825           92
-#>  8 ROI_00009 TRUE                          3903           92
-#>  9 ROI_00002 TRUE                          4302           93
-#> 10 ROI_00004 TRUE                          4305           93
+  select(array_id, nterm_dna_hit, cterm_dna_hit, longest_orf_length, orf_coverage)
+#> # A tibble: 10 × 5
+#>    array_id  nterm_dna_hit cterm_dna_hit longest_orf_length orf_coverage
+#>    <chr>     <lgl>         <lgl>                      <dbl>        <dbl>
+#>  1 ROI_00005 FALSE         FALSE                         NA           NA
+#>  2 ROI_00003 TRUE          TRUE                        3087           91
+#>  3 ROI_00007 TRUE          TRUE                        3288           91
+#>  4 ROI_00006 TRUE          TRUE                        3393           91
+#>  5 ROI_00010 TRUE          TRUE                        3492           92
+#>  6 ROI_00008 TRUE          TRUE                        3594           92
+#>  7 ROI_00001 TRUE          TRUE                        3825           92
+#>  8 ROI_00009 TRUE          TRUE                        3903           92
+#>  9 ROI_00002 TRUE          TRUE                        4302           93
+#> 10 ROI_00004 TRUE          TRUE                        4305           93
 ```
 
 `orf_coverage` is the longest ORF found, as a percentage of the whole
@@ -161,8 +164,9 @@ candidate array region; a clean array’s ORF covers 91-93% of it here.
 That number is about to matter a great deal.
 
 The report has one more row than the `tales` object has arrays.
-`ROI_00005` is a candidate region with `has_all_domains` `FALSE` and no
-ORF length; it yields no parts, so it is absent from the object and from
+`ROI_00005` is a candidate region with no terminus hit (`nterm_dna_hit`
+and `cterm_dna_hit` both `FALSE`) and no ORF length; it yields no parts,
+so it is absent from the object and from
 [Figure 1](#fig-mai1-composition).
 
 ## 3 When discovery goes wrong: detecting anomalies
@@ -186,10 +190,14 @@ invisible(tell_tales(subject_file = bai311_fa, output_dir = bai311_raw_dir,
                      cterm_min_score = 300))
 ```
 
+A first sign that there is something unexpected with these TALEs
+predictions are the warnings obtained when importing `tell_tales`
+results as a `tales` object:
+
 Code
 
 ``` r
-bai311_raw <- suppressWarnings(tales_from_telltale(bai311_raw_dir))
+bai311_raw <- tales_from_telltales(bai311_raw_dir)
 ```
 
 [`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
@@ -200,44 +208,72 @@ Code
 
 ``` r
 tales_anomalies(bai311_raw)
-#> # A tibble: 2 × 3
-#>   array_id  check       detail             
-#>   <chr>     <chr>       <chr>              
-#> 1 ROI_00003 missing_rvd part(s) with no rvd
-#> 2 ROI_00005 missing_rvd part(s) with no rvd
+#> # A tibble: 0 × 3
+#> # ℹ 3 variables: array_id <chr>, check <chr>, detail <chr>
 ```
 
 Two arrays have no `rvd` at all: AnnoTALE could not parse a repeat-array
-structure out of their ORF. Their `orf_coverage` shows why:
+structure out of the longest predicted ORF. Their `orf_coverage` shows
+why:
 
 Code
 
 ``` r
 readr::read_tsv(file.path(bai311_raw_dir, "array_report.tsv"),
                 show_col_types = FALSE) %>%
-  select(array_id, has_all_domains, longest_orf_length, orf_coverage)
-#> # A tibble: 9 × 4
-#>   array_id  has_all_domains longest_orf_length orf_coverage
-#>   <chr>     <lgl>                        <dbl>        <dbl>
-#> 1 ROI_00004 FALSE                           NA           NA
-#> 2 ROI_00006 TRUE                          1446           45
-#> 3 ROI_00002 TRUE                          2385           70
-#> 4 ROI_00005 TRUE                           864           23
-#> 5 ROI_00009 TRUE                          1791           47
-#> 6 ROI_00007 TRUE                          1827           47
-#> 7 ROI_00008 TRUE                          2841           67
-#> 8 ROI_00001 TRUE                          1764           38
-#> 9 ROI_00003 TRUE                           864           19
+  select(array_id, nterm_dna_hit, cterm_dna_hit, longest_orf_length, orf_coverage)
+#> # A tibble: 9 × 5
+#>   array_id  nterm_dna_hit cterm_dna_hit longest_orf_length orf_coverage
+#>   <chr>     <lgl>         <lgl>                      <dbl>        <dbl>
+#> 1 ROI_00004 FALSE         FALSE                         NA           NA
+#> 2 ROI_00006 TRUE          TRUE                        1446           45
+#> 3 ROI_00002 TRUE          TRUE                        2385           70
+#> 4 ROI_00005 TRUE          TRUE                         864           23
+#> 5 ROI_00009 TRUE          TRUE                        1791           47
+#> 6 ROI_00007 TRUE          TRUE                        1827           47
+#> 7 ROI_00008 TRUE          TRUE                        2841           67
+#> 8 ROI_00001 TRUE          TRUE                        1764           38
+#> 9 ROI_00003 TRUE          TRUE                         864           19
 ```
 
-`ROI_00003` and `ROI_00005` cover 19% and 23% of their candidate region.
-A single inserted or deleted base early in the array shifts every codon
-downstream of it, and the ORF finder stops at the first premature stop
-codon it meets. No array in this assembly reaches MAI1’s 91-93%: the
-others fall between 38% and 70%, short but long enough for AnnoTALE to
-parse, while these two break too early. A premature stop could also be
-genuine: some strains carry naturally truncated TALEs (see [Genuine
-truncTALEs and frameshift
+`ROI_00003` and `ROI_00005` predicted ORFs cover 19% and 23% of their
+candidate region.
+
+No array in this assembly reaches MAI1’s 91-93%: the others fall between
+38% and 70%. This is unusual and a sign also deserving further scrutiny
+even if `tales_anomalies` did not report any problem. A close look at
+the ‘array_report.tsv’ table indicates that `ROI_00001` and `ROI_00007`
+have a predicted ORF encoding very few repeats (4-6) even if both
+termini profiles where found at the DNA level (`nterm_dna_hit` and
+`cterm_dna_hit` are both `TRUE`).
+
+Because, in practice this barely happens in high quality genomes, in the
+absence of any further evidence, this could be explained by several
+in/dels along the CDS that completely break it.
+
+Code
+
+``` r
+
+readr::read_tsv(file.path(bai311_raw_dir, "array_report.tsv"),
+                show_col_types = FALSE) %>%
+  select(array_id, nterm_dna_hit, cterm_dna_hit, orf_coverage, rvd_string)
+#> # A tibble: 9 × 5
+#>   array_id  nterm_dna_hit cterm_dna_hit orf_coverage rvd_string                 
+#>   <chr>     <lgl>         <lgl>                <dbl> <chr>                      
+#> 1 ROI_00004 FALSE         FALSE                   NA <NA>                       
+#> 2 ROI_00006 TRUE          TRUE                    45 XXXXX-NV-HD-NI-NG-NI-NN-NS…
+#> 3 ROI_00002 TRUE          TRUE                    70 NTERM-NN-HD-NI-NN-HD-NG-HD…
+#> 4 ROI_00005 TRUE          TRUE                    23 <NA>                       
+#> 5 ROI_00009 TRUE          TRUE                    47 XXXXX-NV-HD-NI-NN-HD-HD-HD…
+#> 6 ROI_00007 TRUE          TRUE                    47 NTERM-NN-HD-HD-NN-NN-PG-XX…
+#> 7 ROI_00008 TRUE          TRUE                    67 NTERM-NI-HD-NN-NS-NN-NG-HD…
+#> 8 ROI_00001 TRUE          TRUE                    38 NTERM-NN-NG-NN-PG-XXXXX    
+#> 9 ROI_00003 TRUE          TRUE                    19 <NA>
+```
+
+A premature stop could also be genuine: some strains carry naturally
+truncated TALEs (see [Genuine truncTALEs and frameshift
 correction](https://scunnac.github.io/tantale/articles/trunctale_correction.md)).
 In BAI3-1-1 the corrections below settle it: once repaired, both arrays
 recover the coverage of a clean MAI1 array, as expected of assembly
@@ -289,22 +325,28 @@ invisible(tell_tales(subject_file = bai311_fa, output_dir = bai311_corr_dir,
 #> Finding the closest reference amino acid sequences:
 #> ================================================================================
 #> 
-#> Time difference of 0.43 secs
+#> Time difference of 0.46 secs
 #> ================================================================================
 #> 
-#> Time difference of 16.86 secs
-bai311_corr <- suppressWarnings(tales_from_telltale(bai311_corr_dir))
+#> Time difference of 17.68 secs
 ```
+
+Something is odd:
+
+Code
+
+``` r
+bai311_corr <- tales_from_telltales(bai311_corr_dir)
+```
+
+Anomalies reported:
 
 Code
 
 ``` r
 tales_anomalies(bai311_corr)
-#> # A tibble: 2 × 3
-#>   array_id  check          detail                
-#>   <chr>     <chr>          <chr>                 
-#> 1 ROI_00001 missing_rvd    part(s) with no rvd   
-#> 2 ROI_00001 missing_aa_seq part(s) with no aa_seq
+#> # A tibble: 0 × 3
+#> # ℹ 3 variables: array_id <chr>, check <chr>, detail <chr>
 ```
 
 Correction did fix the two frameshifted arrays – `ROI_00003` and
@@ -381,7 +423,7 @@ Code
 ``` r
 invisible(tell_tales(subject_file = bai311_java_fa, output_dir = bai311_java_dir,
                      cterm_min_score = 300, correct_array = FALSE))
-bai311_java <- suppressWarnings(tales_from_telltale(bai311_java_dir))
+bai311_java <- suppressWarnings(tales_from_telltales(bai311_java_dir))
 ```
 
 Code
@@ -422,8 +464,8 @@ invisible(tell_tales(subject_file = bai311_fa, output_dir = bai311_best_dir,
 #> Time difference of 0.43 secs
 #> ================================================================================
 #> 
-#> Time difference of 42.69 secs
-bai311_best <- suppressWarnings(tales_from_telltale(bai311_best_dir))
+#> Time difference of 43.97 secs
+bai311_best <- tales_from_telltales(bai311_best_dir)
 ```
 
 Code
@@ -440,29 +482,6 @@ every array in this genome, in about a minute. Either this run or
 own result above is a reasonable choice for the rest of this set of
 articles; `bai311_best` (built here) is the one used from here on.
 
-> **Chaining both correction paths**
->
-> Running
-> [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
-> first and feeding its output into `tell_tales(correct_array = TRUE)`
-> also reaches zero anomalies, and lets the per-array step use a smaller
-> `max_comparisons`, since most of the damage is already gone before it
-> runs. Measured on this same genome, and not re-run here, to keep this
-> article’s build time down:
->
-> | route                                                                                                                         | time           | anomalies |
-> |-------------------------------------------------------------------------------------------------------------------------------|----------------|-----------|
-> | [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md) alone                                       | ~41 s          | 0         |
-> | `max_comparisons = 50` alone                                                                                                  | ~66-79 s       | 0         |
-> | [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md) (~27 s) then `max_comparisons = 20` (~40 s) | ~67 s combined | 0         |
-> | [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md) (~27 s) then `max_comparisons = 50` (~66 s) | ~93 s combined | 0         |
->
-> On this genome
-> [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
-> alone already gets to zero anomalies, so chaining does not add
-> anything beyond confirming the combination still works. The technique
-> remains available for a genome where a single pass falls short.
-
 ## 5 How much did either correction actually help?
 
 Anomaly counts say whether AnnoTALE could parse an array at all, which
@@ -477,7 +496,7 @@ Code
 read_coverage <- function(dir, method) {
   readr::read_tsv(file.path(dir, "array_report.tsv"), show_col_types = FALSE) |>
     select(array_id, orf_coverage) |>
-    filter(array_id %in% c("ROI_00003", "ROI_00005")) |>
+    filter(array_id %in% c("ROI_00001", "ROI_00005")) |>
     mutate(method = method)
 }
 ```
@@ -507,7 +526,7 @@ coverage |>
 | array_id  | uncorrected | max_comparisons = 20 | correct_tales() | max_comparisons = 50 |
 |:----------|------------:|---------------------:|----------------:|---------------------:|
 | ROI_00005 |          23 |                   91 |              91 |                   91 |
-| ROI_00003 |          19 |                   93 |              93 |                   93 |
+| ROI_00001 |          38 |                   72 |              93 |                   93 |
 
 Code
 
@@ -528,7 +547,7 @@ and after each correction attempt. All three routes bring both arrays to
 the 91-93% of a clean MAI1 array.
 
 In [Figure 2](#fig-coverage-improvement), all three routes bring
-`ROI_00003` and `ROI_00005` to identical coverage, 93% and 91%. On these
+`ROI_00001` and `ROI_00005` to identical coverage, 93% and 91%. On these
 two numbers alone the three routes look interchangeable. What separates
 them is the new anomaly `max_comparisons = 20` introduced in a different
 array, `ROI_00001`, and coverage of these two arrays cannot show it;
@@ -552,7 +571,7 @@ Code
 ``` r
 bai311_clean <- tales(bai311_corr, sanitize = TRUE)
 n_distinct(bai311_corr$array_id) - n_distinct(bai311_clean$array_id)
-#> [1] 1
+#> [1] 0
 ```
 
 > **What the rest of this set of articles uses**

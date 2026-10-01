@@ -1,8 +1,7 @@
 # Create a tales object
 
 Builds a `tales` object from a data frame of TALE array parts: one row
-per (array, slot). Column names still using the legacy camelCase
-spelling (`arrayID`, `positionInArray`, ...) are renamed on the way in.
+per (array, slot).
 
 ## Usage
 

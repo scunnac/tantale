@@ -56,7 +56,7 @@ discover_strain <- function(strain) {
   invisible(tell_tales(subject_file = genome_files[strain], output_dir = strain_dir,
                        cterm_min_score = 300,
                        correct_array = TRUE, max_comparisons = 50))
-  tales_from_telltale(strain_dir) |>
+  tales_from_telltales(strain_dir) |>
     mutate(array_id = paste0(strain, "_", array_id), strain = strain)
 }
 ```
@@ -152,8 +152,8 @@ checks that:
 Code
 
 ``` r
-small <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-                                         package = "tantale"))
+small <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+                                          package = "tantale"))
 ```
 
 Code

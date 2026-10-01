@@ -244,17 +244,20 @@ before trusting any of it.*
   before rendering articles.
 - **Current road map: `dev/notes_for_claude.md`** (the maintainer's
   list), worked through in the order agreed in ledger §35: (1) termini
-  check and `array_report.tsv` renames, done 2026-10-01; (2) the two stray
-  `tell_tales()` warnings, done 2026-10-01 (§36, plus a third one from
-  `resize()`); (3) `tales_from_annotale()`,
-  the renames (`tales_from_telltales`, `tales_msa_width`,
-  `.repeat_to_rvd_align`) and the retirements. The maintainer wants to
-  agree each plan before any coding.
-- `tale_mining.qmd` and `trunctale_correction.qmd` still select
-  `has_all_domains` (renamed in 0.9.9011) and will not render until
-  updated; the maintainer is revising the articles. The articles' cache
-  is stale.
-- The full site in `docs/` is at 0.9.9010 (not rebuilt for 0.9.9011).
+  check and `array_report.tsv` renames; (2) the stray `tell_tales()`
+  warnings (§36); (3) `tales_from_annotale()`, renames
+  (`tales_from_telltales`, `tales_msa_width`, `repeats_only`,
+  `.repeat_to_rvd_align`) and retirements, legacy column names included
+  (§37). All three done 2026-10-01. Still on the list, not started:
+  `.tidy_biostrings_msa`'s unimplemented file input, merging the two
+  `rvd_align` blocks of `plot.tales_msa()`, a facet argument for
+  `plot.tales()`, the package-size proposal (§34). The maintainer wants
+  to agree each plan before any coding.
+- The full site in `docs/` was wiped and rebuilt at 0.9.9011 on
+  2026-10-01 (§37), cache primed. **`tale_mining.qmd`'s anomaly
+  narrative no longer matches its render** (BAI3-1-1 raw and the
+  `max_comparisons = 20` run report no anomaly; see §37); the
+  maintainer is revising that article.
 - **The GitHub repository is private** since 2026-09-24 (maintainer's
   choice, to change things without users). The README's install command
   works only with access; GitHub Pages for a private repository needs a

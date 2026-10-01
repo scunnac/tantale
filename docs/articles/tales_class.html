@@ -24,7 +24,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9010</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -107,7 +107,7 @@
 </div>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="../reference/tales_from_telltale.html">tales_from_telltale</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="../reference/tales_from_telltales.html">tales_from_telltales</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">x</span></span>
 <span><span class="co">#&gt; &lt;tales&gt; 4 arrays, 96 parts</span></span>
 <span><span class="co">#&gt;   layers: rvd   |   6 other columns</span></span>
@@ -175,7 +175,7 @@
 </section><section class="section level2" data-number="3"><h2 data-number="3" id="three-ways-to-build-one">
 <span class="header-section-number">3</span> Three ways to build one<a class="anchor" aria-label="anchor" href="#three-ways-to-build-one"></a>
 </h2>
-<p><strong>From a <code><a href="../reference/tell_tales.html">tell_tales()</a></code> run</strong>, as above, with <code><a href="../reference/tales_from_telltale.html">tales_from_telltale()</a></code>. This is the richest route: it carries sequences, source coordinates and both position columns.</p>
+<p><strong>From a <code><a href="../reference/tell_tales.html">tell_tales()</a></code> run</strong>, as above, with <code><a href="../reference/tales_from_telltales.html">tales_from_telltales()</a></code>. This is the richest route: it carries sequences, source coordinates and both position columns.</p>
 <p><strong>From bare sequences</strong>, with <code><a href="../reference/as_tales.html">as_tales()</a></code>: a fasta of RVD or repeat-code strings, sequence names becoming <code>array_id</code>:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
@@ -274,7 +274,7 @@
 <p>Some consumers want a <code>tales</code> as a table; others want each array back as a single string. Three functions bridge the gap:</p>
 <ul>
 <li>
-<code><a href="../reference/tales_rvd_strings.html">tales_rvd_strings()</a></code>: one RVD string per array, the form target-prediction tools consume. Drops the termini by default (<code>rvd_only = TRUE</code>), since only the repeats bind DNA.</li>
+<code><a href="../reference/tales_rvd_strings.html">tales_rvd_strings()</a></code>: one RVD string per array, the form target-prediction tools consume. Drops the termini by default (<code>repeats_only = TRUE</code>), since only the repeats bind DNA.</li>
 <li>
 <code><a href="../reference/tales_coded_strings.html">tales_coded_strings()</a></code>: the <code>dom_code</code> equivalent, for the array alignments (MAFFT’s text mode, and <code><a href="../reference/tales_tale_distances.html">tales_tale_distances()</a></code>). Keeps the termini by default, since alignment uses them as anchors, and separates codes with a space, which is what MAFFT’s text mode splits on.</li>
 <li>
@@ -429,7 +429,7 @@
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">xa</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>position_in_array <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error in `.tales_check_key()` at tantale/R/tales_class.R:828:3:</span></span>
+<span><span class="co">#&gt; Error in `.tales_check_key()` at tantale/R/tales_class.R:800:3:</span></span>
 <span><span class="co">#&gt; ! array_id and position_in_array must together be unique.</span></span>
 <span><span class="co">#&gt; ✖ 92 duplicated rows in 4 arrays: "ROI_00001", "ROI_00002", "ROI_00003", and</span></span>
 <span><span class="co">#&gt;   "ROI_00004"</span></span></code></pre></div>

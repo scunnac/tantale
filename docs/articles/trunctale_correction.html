@@ -24,7 +24,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9010</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -110,7 +110,7 @@
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="fu"><a href="../reference/tell_tales.html">tell_tales</a></span><span class="op">(</span>subject_file <span class="op">=</span> <span class="va">pxo86_fa</span>, output_dir <span class="op">=</span> <span class="va">pxo86_raw_dir</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">pxo86</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="../reference/tales_from_telltale.html">tales_from_telltale</a></span><span class="op">(</span><span class="va">pxo86_raw_dir</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">pxo86</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="../reference/tales_from_telltales.html">tales_from_telltales</a></span><span class="op">(</span><span class="va">pxo86_raw_dir</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </details>
 </div>
 <p>Comparing the amino-acid length of every array’s N- and C-terminus finds them immediately: two arrays with a shortened C-terminus and a reduced N-terminus:</p>
@@ -157,7 +157,7 @@
 </section><section class="section level2" data-number="2"><h2 data-number="2" id="sec-mechanism">
 <span class="header-section-number">2</span> Not the same kind of short<a class="anchor" aria-label="anchor" href="#sec-mechanism"></a>
 </h2>
-<p><code>array_report.tsv</code>’s <code>has_all_domains</code> column already distinguishes the two arrays, and the reason is worth tracing back to discovery:</p>
+<p><code>array_report.tsv</code>’s <code>cterm_dna_hit</code> column already distinguishes the two arrays, and the reason is worth tracing back to discovery:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pxo86_report</span> <span class="op">&lt;-</span> <span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_tsv</a></span><span class="op">(</span></span>
@@ -165,15 +165,15 @@
 <span><span class="op">)</span></span>
 <span><span class="va">pxo86_report</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">array_id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ROI_00001"</span>, <span class="st">"ROI_00019"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">array_id</span>, <span class="va">has_all_domains</span>, <span class="va">nterm_aa_length</span>, <span class="va">cterm_aa_length</span>, <span class="va">orf_coverage</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">array_id</span>, <span class="va">nterm_dna_hit</span>, <span class="va">cterm_dna_hit</span>, <span class="va">cterm_aa_length</span>, <span class="va">orf_coverage</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 2 × 5</span></span>
-<span><span class="co">#&gt;   array_id  has_all_domains nterm_aa_length cterm_aa_length orf_coverage</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;     &lt;lgl&gt;                     &lt;dbl&gt;           &lt;dbl&gt;        &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 ROI_00019 FALSE                       230              42           93</span></span>
-<span><span class="co">#&gt; 2 ROI_00001 TRUE                        230             183           83</span></span></code></pre></div>
+<span><span class="co">#&gt;   array_id  nterm_dna_hit cterm_dna_hit cterm_aa_length orf_coverage</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;     &lt;lgl&gt;         &lt;lgl&gt;                   &lt;dbl&gt;        &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 ROI_00019 TRUE          FALSE                      42           93</span></span>
+<span><span class="co">#&gt; 2 ROI_00001 TRUE          TRUE                      183           83</span></span></code></pre></div>
 </details>
 </div>
-<p><code><a href="../reference/tell_tales.html">tell_tales()</a></code> finds TALE loci with three separate profile HMMs (one each for the N-terminus, the repeat unit, and the C-terminus), and <code>has_all_domains</code> records whether every one of the three matched somewhere in an array’s merged hits, independently of how the final protein turns out. <code>hits_report.tsv</code>, one of the three reports <code><a href="../reference/tell_tales.html">tell_tales()</a></code> always writes (the other two are <code>domains_report.tsv</code> and <code>array_report.tsv</code> itself), carries every individual hit with its profile name and <code>frameshift_count</code>, and shows exactly what happened downstream of each array’s last complete repeat:</p>
+<p><code><a href="../reference/tell_tales.html">tell_tales()</a></code> finds TALE loci with three separate profile HMMs (one each for the N-terminus, the repeat unit, and the C-terminus), and <code>nterm_dna_hit</code> and <code>cterm_dna_hit</code> record whether the N- and C-terminus profiles matched somewhere in an array’s merged hits, independently of how the final protein turns out. <code>hits_report.tsv</code>, one of the three reports <code><a href="../reference/tell_tales.html">tell_tales()</a></code> always writes (the other two are <code>domains_report.tsv</code> and <code>array_report.tsv</code> itself), carries every individual hit with its profile name and <code>frameshift_count</code>, and shows exactly what happened downstream of each array’s last complete repeat:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">hits</span> <span class="op">&lt;-</span> <span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_tsv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">pxo86_raw_dir</span>, <span class="st">"hits_report.tsv"</span><span class="op">)</span>, show_col_types <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
@@ -216,10 +216,10 @@
 <span><span class="co">#&gt; Finding the closest reference amino acid sequences:</span></span>
 <span><span class="co">#&gt; ================================================================================</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Time difference of 8.01 secs</span></span>
+<span><span class="co">#&gt; Time difference of 6.06 secs</span></span>
 <span><span class="co">#&gt; ================================================================================</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Time difference of 39.94 secs</span></span></code></pre></div>
+<span><span class="co">#&gt; Time difference of 35.79 secs</span></span></code></pre></div>
 </details>
 </div>
 <div class="cell">
@@ -229,12 +229,12 @@
 <span><span class="op">)</span></span>
 <span><span class="va">decipher_report</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">array_id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ROI_00001"</span>, <span class="st">"ROI_00019"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">array_id</span>, <span class="va">has_all_domains</span>, <span class="va">nterm_aa_length</span>, <span class="va">cterm_aa_length</span>, <span class="va">orf_coverage</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">array_id</span>, <span class="va">nterm_dna_hit</span>, <span class="va">cterm_dna_hit</span>, <span class="va">cterm_aa_length</span>, <span class="va">orf_coverage</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 2 × 5</span></span>
-<span><span class="co">#&gt;   array_id  has_all_domains nterm_aa_length cterm_aa_length orf_coverage</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;     &lt;lgl&gt;                     &lt;dbl&gt;           &lt;dbl&gt;        &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 ROI_00019 FALSE                       230              42           93</span></span>
-<span><span class="co">#&gt; 2 ROI_00001 TRUE                        230             216           86</span></span></code></pre></div>
+<span><span class="co">#&gt;   array_id  nterm_dna_hit cterm_dna_hit cterm_aa_length orf_coverage</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;     &lt;lgl&gt;         &lt;lgl&gt;                   &lt;dbl&gt;        &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 ROI_00019 TRUE          FALSE                      42           93</span></span>
+<span><span class="co">#&gt; 2 ROI_00001 TRUE          TRUE                      216           86</span></span></code></pre></div>
 </details>
 </div>
 <p><code>ROI_00001</code> is extended: its C-terminus grows from 183 to 216 aa, and <code>orf_coverage</code> improves from 83% to 86%. <code>ROI_00019</code> is untouched. This is <a href="#sec-mechanism" class="quarto-xref">Section 2</a>’s distinction playing out directly: <code><a href="https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html" class="external-link">DECIPHER::CorrectFrameshifts()</a></code> reframes <code>ROI_00001</code> into the C-terminus-shaped template nhmmer already found, and has no comparable template to work with for <code>ROI_00019</code>.</p>
@@ -313,12 +313,12 @@
 <span><span class="op">)</span></span>
 <span><span class="va">java_report</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">array_id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ROI_00001"</span>, <span class="st">"ROI_00019"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">array_id</span>, <span class="va">has_all_domains</span>, <span class="va">nterm_aa_length</span>, <span class="va">cterm_aa_length</span>, <span class="va">orf_coverage</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">array_id</span>, <span class="va">nterm_dna_hit</span>, <span class="va">cterm_dna_hit</span>, <span class="va">cterm_aa_length</span>, <span class="va">orf_coverage</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 2 × 5</span></span>
-<span><span class="co">#&gt;   array_id  has_all_domains nterm_aa_length cterm_aa_length orf_coverage</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;     &lt;lgl&gt;                     &lt;dbl&gt;           &lt;dbl&gt;        &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 ROI_00019 FALSE                       230              42           93</span></span>
-<span><span class="co">#&gt; 2 ROI_00001 TRUE                        230             183           83</span></span></code></pre></div>
+<span><span class="co">#&gt;   array_id  nterm_dna_hit cterm_dna_hit cterm_aa_length orf_coverage</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;     &lt;lgl&gt;         &lt;lgl&gt;                   &lt;dbl&gt;        &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 ROI_00019 TRUE          FALSE                      42           93</span></span>
+<span><span class="co">#&gt; 2 ROI_00001 TRUE          TRUE                      183           83</span></span></code></pre></div>
 </details>
 </div>
 <p>A single-base insertion, and it lands inside <code>ROI_00001</code>’s own span, consistent with <a href="#sec-mechanism" class="quarto-xref">Section 2</a>, since that is the array with frameshifted hits for the correction to act on. It has no visible effect: <code>ROI_00001</code>’s C-terminus stays at 183 aa and its <code>orf_coverage</code> at 83%, against the 33 amino acids <code>correct_array = TRUE</code> adds. <code>ROI_00019</code> is unaffected, as before.</p>
@@ -358,10 +358,10 @@
 </div>
 </div>
 <p>Two genuine truncTALEs in the same genome respond differently to the same correction tool, because they arose from different underlying DNA-level events. A clean early stop leaves nothing downstream that resembles a C-terminus, so a frameshift corrector has nothing to reframe into. A genuine, evolved frameshift leaves exactly the kind of disrupted-but-recognisable signal these tools exist to fix. <code>correct_array = TRUE</code> cannot tell that signal from a sequencing error, and “fixes” it.</p>
-<p><strong>On this evidence, <code><a href="../reference/correct_tales.html">correct_tales()</a></code> is the more transparent choice for a genome suspected of carrying real truncTALEs.</strong> It left both arrays’ sequence alone, where <code>tell_tales(correct_array = TRUE)</code> rewrote the genuine frameshift’s C-terminus as though it were an assembly error. One genome and two arrays is a narrow base for a general rule. In practice: check <code>has_all_domains</code> and <code>orf_coverage</code> in <code>array_report.tsv</code> before correcting, and verify any change a correction makes to a documented or suspected truncTALE’s sequence.</p>
+<p><strong>On this evidence, <code><a href="../reference/correct_tales.html">correct_tales()</a></code> is the more transparent choice for a genome suspected of carrying real truncTALEs.</strong> It left both arrays’ sequence alone, where <code>tell_tales(correct_array = TRUE)</code> rewrote the genuine frameshift’s C-terminus as though it were an assembly error. One genome and two arrays is a narrow base for a general rule. In practice: check <code>cterm_dna_hit</code> and <code>orf_coverage</code> in <code>array_report.tsv</code> before correcting, and verify any change a correction makes to a documented or suspected truncTALE’s sequence.</p>
 <ul>
-<li>A short array with <code>has_all_domains = FALSE</code> and <code>orf_coverage</code> in the normal range is very likely a genuine short protein. Any sequence a correction adds to it was never there.</li>
-<li>A short array with <code>has_all_domains = TRUE</code> but reduced <code>orf_coverage</code> may carry a genuine frameshift that is part of the strain’s biology. <code>correct_array = TRUE</code> will extend it regardless of whether that is what your analysis needs.</li>
+<li>A short array with <code>cterm_dna_hit = FALSE</code> and <code>orf_coverage</code> in the normal range is very likely a genuine short protein. Any sequence a correction adds to it was never there.</li>
+<li>A short array with <code>cterm_dna_hit = TRUE</code> but reduced <code>orf_coverage</code> may carry a genuine frameshift that is part of the strain’s biology. <code>correct_array = TRUE</code> will extend it regardless of whether that is what your analysis needs.</li>
 </ul>
 <p>Neither correction path can make the underlying biological judgement call for you.</p>
 </section><section class="section level2" data-number="5"><h2 data-number="5" id="next">

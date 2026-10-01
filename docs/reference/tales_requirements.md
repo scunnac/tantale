@@ -43,14 +43,6 @@ A tibble of function, requirement kind, and columns.
   `rvd`, `aa_seq`, `domain_type`; `seqnames` adds a facet,
   `alignment_position` enables the aligned layout
 
-- [`tale_parts_to_rvd()`](https://scunnac.github.io/tantale/reference/tale_parts_to_rvd.md):
-
-  `rvd`
-
-- [`repeat_to_rvd_map_distalr()`](https://scunnac.github.io/tantale/reference/repeat_to_rvd_map_distalr.md):
-
-  `dom_code`, `rvd`
-
 ## See also
 
 Other tales objects:
@@ -76,17 +68,15 @@ Other tales objects:
 
 ``` r
 tales_requirements()
-#> # A tibble: 10 × 3
-#>    fn                        requirement columns                     
-#>    <chr>                     <chr>       <chr>                       
-#>  1 plot.tales                all_of      rvd, aa_seq, domain_type    
-#>  2 plot.tales                optional    seqnames, alignment_position
-#>  3 repeat_to_rvd_map_distalr all_of      dom_code, rvd               
-#>  4 tale_parts_to_rvd         all_of      rvd                         
-#>  5 tales_align               any_of      rvd, dom_code               
-#>  6 tales_coded_strings       all_of      dom_code                    
-#>  7 tales_compare_distal      any_of      aa_seq, dna_seq             
-#>  8 tales_domain_codes        all_of      dom_code, aa_seq            
-#>  9 tales_domain_codes        optional    rvd                         
-#> 10 tales_rvd_strings         all_of      rvd                         
+#> # A tibble: 8 × 3
+#>   fn                   requirement columns                     
+#>   <chr>                <chr>       <chr>                       
+#> 1 plot.tales           all_of      rvd, aa_seq, domain_type    
+#> 2 plot.tales           optional    seqnames, alignment_position
+#> 3 tales_align          any_of      rvd, dom_code               
+#> 4 tales_coded_strings  all_of      dom_code                    
+#> 5 tales_compare_distal any_of      aa_seq, dna_seq             
+#> 6 tales_domain_codes   all_of      dom_code, aa_seq            
+#> 7 tales_domain_codes   optional    rvd                         
+#> 8 tales_rvd_strings    all_of      rvd                         
 ```

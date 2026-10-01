@@ -1,4 +1,4 @@
-# Recorded 2026-09-24 at commit e30603f by dev/function-graph-shapes.R
+# Recorded 2026-10-01 at commit 6550ce9 by dev/function-graph-shapes.R
 fn	direction	arg	shape	calls
 .abort_no_env	never called			0
 .arlem_align	in	hr	list of matrices<double>	7799
@@ -25,29 +25,27 @@ fn	direction	arg	shape	calls
 .matrix_to_long	in	mat	matrix<logical>	2
 .pairwise_long_to_matrix	out	<value>	matrix<double>	38
 .pick_ref_name	in	align	matrix<character>	34
+.repeat_to_rvd_align	in	repeat_align	matrix<character>	5
+.repeat_to_rvd_align	out	<value>	matrix<character>	5
 .rvd_to_match_align	in	rvd_align	matrix<character>	16
 .rvd_to_match_align	out	<value>	matrix<double>	16
-.rvd_to_repeat_align	in	repeat_vecs	list of vectors<character>	3
-.rvd_to_repeat_align	in	rvd_msa_by_group	matrix<character>	3
-.rvd_to_repeat_align	out	<value>	matrix<character>	1
-.rvds_from_annotale_file	never called			0
 .split_list	in	strings	list of scalars<character>	32
 .split_list	in	strings	list of vectors<character>	1
-.split_list	out	<value>	list of vectors<character>	75
+.split_list	out	<value>	list of vectors<character>	186
 .tales_group_distmat	out	<value>	matrix<double>	27
 .tantale_repair	never called			0
-.telltale_align_termini	in	paths	list of scalars<character>	28
-.telltale_array_gaps	out	<value>	list of vectors<double/integer>	14
-.telltale_array_orfs	in	paths	list of scalars<character>	14
-.telltale_find_domain_hits	in	hmm	list of vectors<character>	20
-.telltale_find_domain_hits	in	paths	list of scalars<character>	20
-.telltale_finish_rvd_strings	in	hmm	list of vectors<character>	14
-.telltale_group_arrays	in	hmm	list of vectors<character>	15
-.telltale_hmm_profiles	out	<value>	list of vectors<character>	20
-.telltale_log	in	hmm	list of vectors<character>	14
+.telltale_align_termini	in	paths	list of scalars<character>	32
+.telltale_array_gaps	out	<value>	list of vectors<double/integer>	16
+.telltale_array_orfs	in	paths	list of scalars<character>	16
+.telltale_find_domain_hits	in	hmm	list of vectors<character>	22
+.telltale_find_domain_hits	in	paths	list of scalars<character>	22
+.telltale_group_arrays	in	hmm	list of vectors<character>	17
+.telltale_group_arrays	in	hmm	list of scalars<character>	2
+.telltale_hmm_profiles	out	<value>	list of vectors<character>	22
+.telltale_log	in	hmm	list of vectors<character>	16
 .telltale_log	in	params	list of scalars<character/double/logical>	3
-.telltale_paths	out	<value>	list of scalars<character>	20
-.telltale_write_reports	in	paths	list of scalars<character>	14
+.telltale_paths	out	<value>	list of scalars<character>	22
+.telltale_write_reports	in	paths	list of scalars<character>	16
 as_tales	in	x	list of scalars<character>	3
 as_tales.default	in	x	list of scalars<character>	3
 as.matrix.pairwise_distances	out	<value>	matrix<double>	34
@@ -56,10 +54,6 @@ dplyr_col_modify.tales	in	cols	list of vectors<character/integer>	10
 dplyr_col_modify.tales	in	cols	list of vectors<integer>	1
 dplyr_col_modify.tales	in	cols	list of vectors<character>	1
 dplyr_col_modify.tales	in	cols	list of vectors<double>	1
-repeat_to_rvd_align	in	repeat_align	matrix<character>	5
-repeat_to_rvd_align	out	<value>	matrix<character>	5
-repeat_to_rvd_map	in	repeat_vecs	list of vectors<character>	2
-repeat_to_rvd_map	in	rvd_vecs	list of vectors<character>	2
 tales_consensus	in	align	matrix<character>	54
 tales_consensus_match	in	align	matrix<character>	13
 tales_consensus_match	out	<value>	matrix<logical>	11

@@ -18,12 +18,11 @@ domain_distances(x, dom_code_namespace = NULL)
 
 - x:
 
-  A data frame with `id1`, `id2` and `dissim` columns. Legacy spellings
-  and the similarity vocabulary are accepted and converted: a table
-  carrying `Sim` or `normArlemScore` instead of a distance is folded
-  into `dissim`, and those restatements are then dropped so only one
-  copy of the quantity is stored. Further columns (`arlem_score`,
-  `max_length`, or anything else) are preserved.
+  A data frame with `id1`, `id2` and `dissim` columns. A similarity is
+  accepted and converted: a table carrying `sim` or `norm_arlem_score`
+  instead of a distance is folded into `dissim`, and those restatements
+  are then dropped so only one copy of the quantity is stored. Further
+  columns (`arlem_score`, `max_length`, or anything else) are preserved.
 
 - dom_code_namespace:
 
@@ -49,9 +48,6 @@ for `tale_distances`, it is the array alignment cost between two TALEs
 [`tales_tale_distances`](https://scunnac.github.io/tantale/reference/tales_tale_distances.md)).
 The two flavours add no structure, only meaning: every method is written
 once on the parent.
-
-Legacy column spellings (`TAL1`/`TAL2`, `RepU1`/`RepU2`, `Sim`,
-`Dissim`, `arlemScore`, ...) are renamed on the way in.
 
 ## See also
 
@@ -82,7 +78,7 @@ d <- data.frame(
 pairwise_distances(d)
 domain_distances(d, dom_code_namespace = "example")
 
-# Legacy spellings are recognised and folded in.
-legacy <- data.frame(TAL1 = "A1", TAL2 = "A2", Sim = 65)
-tale_distances(legacy)
+# A similarity is folded into the distance.
+similar <- data.frame(id1 = "A1", id2 = "A2", sim = 65)
+tale_distances(similar)
 ```

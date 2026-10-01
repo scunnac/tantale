@@ -24,10 +24,11 @@ plot(x, position = c("array", "alignment"), ...)
 
   A [`tales`](https://scunnac.github.io/tantale/reference/tales.md)
   object, as returned by
-  [`tales_from_telltale`](https://scunnac.github.io/tantale/reference/tales_from_telltale.md)
+  [`tales_from_telltales`](https://scunnac.github.io/tantale/reference/tales_from_telltales.md)
   or in the `tales` element of
   [`tales_compare_distal`](https://scunnac.github.io/tantale/reference/tales_compare_distal.md)'s
-  output. A legacy `tale_parts` data frame is accepted and converted.
+  output. A data frame of parts is accepted and converted with
+  [`tales`](https://scunnac.github.io/tantale/reference/tales.md).
 
 - position:
 
@@ -59,7 +60,7 @@ Other TALE plots:
 ## Examples
 
 ``` r
-x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-                                     package = "tantale"))
+x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+                                      package = "tantale"))
 plot(x)
 ```

@@ -37,7 +37,7 @@ Other TALE alignment:
 [`tales_align()`](https://scunnac.github.io/tantale/reference/tales_align.md),
 [`tales_consensus()`](https://scunnac.github.io/tantale/reference/tales_consensus.md),
 [`tales_msa()`](https://scunnac.github.io/tantale/reference/tales_msa.md),
-[`tales_width()`](https://scunnac.github.io/tantale/reference/tales_width.md),
+[`tales_msa_width()`](https://scunnac.github.io/tantale/reference/tales_msa_width.md),
 [`validate_tales_msa()`](https://scunnac.github.io/tantale/reference/validate_tales_msa.md)
 
 ## Examples

@@ -27,9 +27,6 @@ row per code.
 [`tales_coded_strings`](https://scunnac.github.io/tantale/reference/tales_coded_strings.md)
 
 Other tales projections:
-[`repeat_to_rvd_map()`](https://scunnac.github.io/tantale/reference/repeat_to_rvd_map.md),
-[`repeat_to_rvd_map_distalr()`](https://scunnac.github.io/tantale/reference/repeat_to_rvd_map_distalr.md),
-[`tale_parts_to_rvd()`](https://scunnac.github.io/tantale/reference/tale_parts_to_rvd.md),
 [`tales_coded_strings()`](https://scunnac.github.io/tantale/reference/tales_coded_strings.md),
 [`tales_get_dna_seq()`](https://scunnac.github.io/tantale/reference/tales_get_dna_seq.md),
 [`tales_get_protein_seq()`](https://scunnac.github.io/tantale/reference/tales_get_protein_seq.md),
@@ -39,8 +36,8 @@ Other tales projections:
 ## Examples
 
 ``` r
-x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-                                     package = "tantale"))
+x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+                                      package = "tantale"))
 xa <- tales_assign_domain_codes(x)
 head(tales_domain_codes(xa))
 #> # A tibble: 6 × 3

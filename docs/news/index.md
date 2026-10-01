@@ -1,6 +1,119 @@
 # Changelog
 
-## tantale 0.9.9010
+## tantale 0.9.9011
+
+### New `tales_from_annotale()`
+
+[`tales_from_annotale()`](https://scunnac.github.io/tantale/reference/tales_from_annotale.md)
+builds a `tales` object from AnnoTALE’s own TALE predictions, the output
+of
+[`run_annotale_predict()`](https://scunnac.github.io/tantale/reference/run_annotale_predict.md).
+Termini are coded as in
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md),
+from a search with the TALE N- and C-terminal protein profiles.
+`array_id` is AnnoTALE’s TALE name, and `seqnames` comes from AnnoTALE’s
+GFF3 file when it is present. An example output ships in
+`inst/extdata/annotaleExampleOutput`.
+
+### Renamed functions and arguments
+
+`tales_from_telltale()` is now
+[`tales_from_telltales()`](https://scunnac.github.io/tantale/reference/tales_from_telltales.md),
+since it reads the output of
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md).
+`tales_width()` is now
+[`tales_msa_width()`](https://scunnac.github.io/tantale/reference/tales_msa_width.md),
+since it applies to `tales_msa` objects only. The `rvd_only` argument of
+[`tales_rvd_strings()`](https://scunnac.github.io/tantale/reference/tales_rvd_strings.md)
+is now `repeats_only`, as in
+[`tales_coded_strings()`](https://scunnac.github.io/tantale/reference/tales_coded_strings.md).
+
+### Retired functions
+
+`tale_parts_to_rvd()` is gone;
+`tales_rvd_strings(x, repeats_only = FALSE)` returns the same strings.
+`repeat_to_rvd_map()` and `repeat_to_rvd_map_distalr()` are gone: the
+`dom_code` and `rvd` columns of a `tales` object hold that mapping, and
+[`tales()`](https://scunnac.github.io/tantale/reference/tales.md)
+reports an amino acid sequence paired with more than one RVD as an
+anomaly.
+
+### Old column names are no longer converted
+
+[`tales()`](https://scunnac.github.io/tantale/reference/tales.md) and
+[`pairwise_distances()`](https://scunnac.github.io/tantale/reference/pairwise_distances.md)
+(with
+[`tale_distances()`](https://scunnac.github.io/tantale/reference/pairwise_distances.md)
+and
+[`domain_distances()`](https://scunnac.github.io/tantale/reference/pairwise_distances.md))
+no longer rename the camelCase columns of earlier versions (`arrayID`,
+`positionInArray`, `TAL1`, `RepU1`, `Sim`, `arlemScore`…). A table saved
+by an earlier version needs its columns renamed to the current names
+first (`array_id`, `position_in_array`, `id1`, `sim`, `arlem_score`…).
+
+### Terminus codes say whether a terminus resembles a TALE terminal domain
+
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
+now searches the segment AnnoTALE reports on each side of the repeats
+with the TALE N- and C-terminal protein profiles shipped in
+`inst/extdata/hmmProfile/` (`hmmsearch`). `NTERM` and `CTERM` mark a
+segment that matches its profile with an E-value at most
+`terminus_max_evalue` (new argument, default 1e-5); `XXXXX` marks a
+segment that does not match. The codes used to record whether an nhmmer
+hit of that terminus type was found anywhere in the array’s DNA. That
+labelled as termini some segments of unrelated sequence, where the ORF
+starts or ends in a frameshifted region, and coded as `XXXXX` genuine
+termini too short for the DNA search, such as a C-terminus truncated to
+42 residues.
+
+[`tales_from_telltales()`](https://scunnac.github.io/tantale/reference/tales_from_telltales.md)
+reads the codes from `array_report.tsv`. A directory written by an
+earlier
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
+is an error; run
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
+again on the same sequences.
+
+### `array_report.tsv` and `tell_tales()`: renamed and new columns
+
+`n_domain_hits` is now `n_dna_hits`, and `has_all_domains` is replaced
+by `nterm_dna_hit` and `cterm_dna_hit`. New columns `nterm_aa_evalue`,
+`cterm_aa_evalue`, `nterm_aa_hit` and `cterm_aa_hit` hold the result of
+the protein-profile search.
+[`?tell_tales`](https://scunnac.github.io/tantale/reference/tell_tales.md)
+describes every column. The argument `min_domain_hits` of
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
+is now `min_dna_hits`.
+
+### `tales_from_telltales()`: absent termini and inconsistent arrays
+
+When AnnoTALE reports no terminus on one side of the repeats, the array
+now has no part on that side, with a warning, and its positions are
+counted from its first part. It used to receive an empty part. An array
+whose AnnoTALE protein and DNA parts disagree is left out with a
+warning, and
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
+deletes the DNA parts AnnoTALE writes for an ORF it could not translate.
+Repeat RVDs are read from AnnoTALE’s own RVD file.
+
+### `tell_tales()`: fewer spurious warnings, no index file next to the input
+
+The warning about overlapping nhmmer hits now concerns only hits of the
+same domain type, which make `n_dna_hits` count a domain twice; it
+appears only with `merge_hits = FALSE`. A terminus hit overlapping the
+adjacent repeat hit by a few nucleotides is normal and no longer
+reported. Two warnings from the underlying Bioconductor packages are
+gone: “invalid seqlevels … ignored”, issued when a subject sequence
+carried no TALE, and “GRanges object contains … out-of-bound ranges”,
+issued when an array lies within `extend_len` of a sequence end (the
+extended range was, and still is, clipped to the sequence).
+
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
+no longer writes a `.fai` index next to the subject file, and Rsamtools
+is no longer a dependency. Sequence lengths now come from the full fasta
+headers: with a header containing a space, they used to be lost, so an
+array near the end of such a sequence could be extended past it. A
+subject file with duplicated or empty sequence names is an error.
 
 ### Licences of the bundled programs are now stated
 
@@ -128,12 +241,9 @@ no longer pulls a half-repeat away from its identical match.
 
 Every exported function’s help page was re-read against the code. Among
 the corrections: the `pairwise_distances` family is now described as the
-distance table it is (it stores `dissim`),
-[`repeat_to_rvd_map_distalr()`](https://scunnac.github.io/tantale/reference/repeat_to_rvd_map_distalr.md)
-and
-[`tale_parts_to_rvd()`](https://scunnac.github.io/tantale/reference/tale_parts_to_rvd.md)
-document the input they actually take, `rvd_dna_specificity` explains
-its special rows (`N*`/`H*`, `OO`, `XX`),
+distance table it is (it stores `dissim`), `repeat_to_rvd_map_distalr()`
+and `tale_parts_to_rvd()` document the input they actually take,
+`rvd_dna_specificity` explains its special rows (`N*`/`H*`, `OO`, `XX`),
 [`talomes_heatmap()`](https://scunnac.github.io/tantale/reference/talomes_heatmap.md)
 explains what its colours mean, and the package page and README no
 longer claim that tantale bundles none of the programs it drives (the
@@ -166,7 +276,7 @@ unchanged (`arlem_score`, `max_length`).
 (and [`tales()`](https://scunnac.github.io/tantale/reference/tales.md))
 on a `tales_msa` returned a plain `tales` that still carried the
 alignment’s width, so
-[`tales_width()`](https://scunnac.github.io/tantale/reference/tales_width.md)
+[`tales_msa_width()`](https://scunnac.github.io/tantale/reference/tales_msa_width.md)
 kept answering on an object that no longer claims to be an alignment.
 The width is now removed on demotion, as it already was when
 `alignment_position` is dropped with
@@ -294,13 +404,13 @@ These were deprecated in an earlier development commit and are now gone.
 There is no alias; `master` still carries the old API if you need a
 reference.
 
-| removed              | replacement                                                                                   |
-|----------------------|-----------------------------------------------------------------------------------------------|
-| `distalr()`          | `tales_compare()`                                                                             |
-| `tale_parts()`       | [`tales_from_telltale()`](https://scunnac.github.io/tantale/reference/tales_from_telltale.md) |
-| `split_list()`       | [`as_tales()`](https://scunnac.github.io/tantale/reference/as_tales.md)                       |
-| `build_repeat_msa()` | [`tales_align()`](https://scunnac.github.io/tantale/reference/tales_align.md)                 |
-| `group_tales()`      | `tales_group()`                                                                               |
+| removed              | replacement                                                                                     |
+|----------------------|-------------------------------------------------------------------------------------------------|
+| `distalr()`          | `tales_compare()`                                                                               |
+| `tale_parts()`       | [`tales_from_telltales()`](https://scunnac.github.io/tantale/reference/tales_from_telltales.md) |
+| `split_list()`       | [`as_tales()`](https://scunnac.github.io/tantale/reference/as_tales.md)                         |
+| `build_repeat_msa()` | [`tales_align()`](https://scunnac.github.io/tantale/reference/tales_align.md)                   |
+| `group_tales()`      | `tales_group()`                                                                                 |
 
 `distalr()`’s six-element list is reduced to the three typed elements
 above. `coded.repeats.str`, `repeats.code` and `repeats.cluster` were
@@ -458,11 +568,9 @@ name need updating.**
 - `.tale_parts_from_file()` named its column `arrayIDs` when the input
   was empty and `arrayID` otherwise, so the two returns had incompatible
   schemas.
-- [`repeat_to_rvd_map_distalr()`](https://scunnac.github.io/tantale/reference/repeat_to_rvd_map_distalr.md)
-  and
-  [`tale_parts_to_rvd()`](https://scunnac.github.io/tantale/reference/tale_parts_to_rvd.md)
-  are documented as taking a `tales_compare()` result but read the
-  pre-class column names, so both had been broken against that result.
+- `repeat_to_rvd_map_distalr()` and `tale_parts_to_rvd()` are documented
+  as taking a `tales_compare()` result but read the pre-class column
+  names, so both had been broken against that result.
 - `.repeat_to_cluster_align()` recovered a distance by computing
   `100 - Sim` before clustering, which assumed the scale ran 0-100. It
   now reads the stored distance.
@@ -483,31 +591,31 @@ while you update.
 
 #### Exported function renames
 
-| Old name                                                                                                                                                    | New name                                                                                                  |
-|-------------------------------------------------------------------------------------------------------------------------------------------------------------|-----------------------------------------------------------------------------------------------------------|
-| `FuncTAL()`                                                                                                                                                 | `functal()`                                                                                               |
-| `analyzeAnnoTALE()`                                                                                                                                         | [`run_annotale_predict()`](https://scunnac.github.io/tantale/reference/run_annotale_predict.md)           |
-| `buildAnnoTALE()`                                                                                                                                           | [`run_annotale_build()`](https://scunnac.github.io/tantale/reference/run_annotale_build.md)               |
-| `buildRepeatMsa()`                                                                                                                                          | `build_repeat_msa()`                                                                                      |
-| `convertRepeat2RvdAlign()`                                                                                                                                  | `repeat_to_rvd_align()`                                                                                   |
-| `correcTales()`                                                                                                                                             | [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)                         |
-| `diagnoseTaleParts()`                                                                                                                                       | `diagnose_tale_parts()`                                                                                   |
-| `getRepeat2RvdMapping()`                                                                                                                                    | [`repeat_to_rvd_map()`](https://scunnac.github.io/tantale/reference/repeat_to_rvd_map.md)                 |
-| `getRepeat2RvdMappingFromDistalr()`                                                                                                                         | [`repeat_to_rvd_map_distalr()`](https://scunnac.github.io/tantale/reference/repeat_to_rvd_map_distalr.md) |
-| `getTaleParts()`                                                                                                                                            | `tale_parts()`                                                                                            |
-| `ggplotTalesMsa()`                                                                                                                                          | `plot_tales_msa()`                                                                                        |
-| `groupTales()`                                                                                                                                              | `group_tales()`                                                                                           |
-| `heatmap_msa()`                                                                                                                                             | `msa_heatmap()`                                                                                           |
-| `heatmap_talomes()`                                                                                                                                         | [`talomes_heatmap()`](https://scunnac.github.io/tantale/reference/talomes_heatmap.md)                     |
-| `matchConsensus()`                                                                                                                                          | [`tales_consensus_match()`](https://scunnac.github.io/tantale/reference/tales_consensus_match.md)         |
-| `plotTaleComposition()`                                                                                                                                     | `plot_tale_composition()`                                                                                 |
-| `plotTaleTargetPred()`                                                                                                                                      | [`plot_target_preds()`](https://scunnac.github.io/tantale/reference/plot_target_preds.md)                 |
-| `taleAlignConsensus()`                                                                                                                                      | [`tales_consensus()`](https://scunnac.github.io/tantale/reference/tales_consensus.md)                     |
-| `taleParts2RvdStringSet()`                                                                                                                                  | [`tale_parts_to_rvd()`](https://scunnac.github.io/tantale/reference/tale_parts_to_rvd.md)                 |
-| `tellTale()`                                                                                                                                                | [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)                               |
-| `tellTale2()`                                                                                                                                               | removed (was a deprecated alias for `tellTale()`)                                                         |
-| `toListOfSplitedStr()`                                                                                                                                      | `split_list()`                                                                                            |
-| [`preditale()`](https://scunnac.github.io/tantale/reference/preditale.md), [`talvez()`](https://scunnac.github.io/tantale/reference/talvez.md), `distalr()` | unchanged                                                                                                 |
+| Old name                                                                                                                                                    | New name                                                                                          |
+|-------------------------------------------------------------------------------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------|
+| `FuncTAL()`                                                                                                                                                 | `functal()`                                                                                       |
+| `analyzeAnnoTALE()`                                                                                                                                         | [`run_annotale_predict()`](https://scunnac.github.io/tantale/reference/run_annotale_predict.md)   |
+| `buildAnnoTALE()`                                                                                                                                           | [`run_annotale_build()`](https://scunnac.github.io/tantale/reference/run_annotale_build.md)       |
+| `buildRepeatMsa()`                                                                                                                                          | `build_repeat_msa()`                                                                              |
+| `convertRepeat2RvdAlign()`                                                                                                                                  | `repeat_to_rvd_align()`                                                                           |
+| `correcTales()`                                                                                                                                             | [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)                 |
+| `diagnoseTaleParts()`                                                                                                                                       | `diagnose_tale_parts()`                                                                           |
+| `getRepeat2RvdMapping()`                                                                                                                                    | `repeat_to_rvd_map()`                                                                             |
+| `getRepeat2RvdMappingFromDistalr()`                                                                                                                         | `repeat_to_rvd_map_distalr()`                                                                     |
+| `getTaleParts()`                                                                                                                                            | `tale_parts()`                                                                                    |
+| `ggplotTalesMsa()`                                                                                                                                          | `plot_tales_msa()`                                                                                |
+| `groupTales()`                                                                                                                                              | `group_tales()`                                                                                   |
+| `heatmap_msa()`                                                                                                                                             | `msa_heatmap()`                                                                                   |
+| `heatmap_talomes()`                                                                                                                                         | [`talomes_heatmap()`](https://scunnac.github.io/tantale/reference/talomes_heatmap.md)             |
+| `matchConsensus()`                                                                                                                                          | [`tales_consensus_match()`](https://scunnac.github.io/tantale/reference/tales_consensus_match.md) |
+| `plotTaleComposition()`                                                                                                                                     | `plot_tale_composition()`                                                                         |
+| `plotTaleTargetPred()`                                                                                                                                      | [`plot_target_preds()`](https://scunnac.github.io/tantale/reference/plot_target_preds.md)         |
+| `taleAlignConsensus()`                                                                                                                                      | [`tales_consensus()`](https://scunnac.github.io/tantale/reference/tales_consensus.md)             |
+| `taleParts2RvdStringSet()`                                                                                                                                  | `tale_parts_to_rvd()`                                                                             |
+| `tellTale()`                                                                                                                                                | [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)                       |
+| `tellTale2()`                                                                                                                                               | removed (was a deprecated alias for `tellTale()`)                                                 |
+| `toListOfSplitedStr()`                                                                                                                                      | `split_list()`                                                                                    |
+| [`preditale()`](https://scunnac.github.io/tantale/reference/preditale.md), [`talvez()`](https://scunnac.github.io/tantale/reference/talvez.md), `distalr()` | unchanged                                                                                         |
 
 #### Argument renames (package-wide conventions)
 
@@ -546,7 +654,7 @@ the actual backend instead of an arbitrary number) -
 `convertRepeat2SimAlign()`, `convertRepeat2ClusterIDAlign()`,
 `convertRvd2RepeatAlign()`, `convertRvd2MatchAlign()` -\>
 `.repeat_to_sim_align()`, `.repeat_to_cluster_align()`,
-[`.rvd_to_repeat_align()`](https://scunnac.github.io/tantale/reference/dot-rvd_to_repeat_align.md),
+`.rvd_to_repeat_align()`,
 [`.rvd_to_match_align()`](https://scunnac.github.io/tantale/reference/dot-rvd_to_match_align.md)
 (joining the `_to_` naming family used by the exported conversion
 functions) - `computeRVDSeqEBESeqMatchQualityString()` -\>

@@ -33,8 +33,7 @@ tales_group_kmedoids(
   [tale_distances](https://scunnac.github.io/tantale/reference/pairwise_distances.md)
   object, as returned by
   [`tales_compare_distal()`](https://scunnac.github.io/tantale/reference/tales_compare_distal.md).
-  A plain data frame using the legacy `TAL1`/`TAL2`/`Sim` column names
-  is also accepted and coerced.
+  A plain data frame with the same columns is also accepted and coerced.
 
 - k_range:
 
@@ -123,8 +122,8 @@ Other pairwise distances:
 ## Examples
 
 ``` r
-x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-                                     package = "tantale"))
+x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+                                      package = "tantale"))
 cmp <- tales_compare_distal(x)
 #> Computing a distance matrix between TALE parts amino acid sequences using:
 #> DECIPHER

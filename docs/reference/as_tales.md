@@ -56,7 +56,7 @@ optional.
 A `tales_msa` passed to `as_tales()` is demoted to a plain `tales`:
 `alignment_position` stays as an ordinary column, and the alignment
 width is dropped
-([`tales_width`](https://scunnac.github.io/tantale/reference/tales_width.md)
+([`tales_msa_width`](https://scunnac.github.io/tantale/reference/tales_msa_width.md)
 returns `NULL`).
 
 ## See also

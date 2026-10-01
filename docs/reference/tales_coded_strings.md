@@ -44,7 +44,7 @@ the two projections feed different consumers:
 |--------|-------------------------------------------------------------------------------------------|--------------------------------------|
 |        | [`tales_rvd_strings()`](https://scunnac.github.io/tantale/reference/tales_rvd_strings.md) | `tales_coded_strings()`              |
 | `sep`  | `"-"`, the AnnoTALE convention                                                            | `" "`, what MAFFT `--text` splits on |
-| filter | `rvd_only = TRUE`                                                                         | `repeats_only = FALSE`               |
+| filter | `repeats_only = TRUE`                                                                     | `repeats_only = FALSE`               |
 
 The separator is free to choose here in a way it is not for RVDs: a
 `dom_code` is a bare integer rendered as text, so `"1 2 3"` and
@@ -66,9 +66,6 @@ for the code-to-sequence lookup,
 for the sibling projection.
 
 Other tales projections:
-[`repeat_to_rvd_map()`](https://scunnac.github.io/tantale/reference/repeat_to_rvd_map.md),
-[`repeat_to_rvd_map_distalr()`](https://scunnac.github.io/tantale/reference/repeat_to_rvd_map_distalr.md),
-[`tale_parts_to_rvd()`](https://scunnac.github.io/tantale/reference/tale_parts_to_rvd.md),
 [`tales_domain_codes()`](https://scunnac.github.io/tantale/reference/tales_domain_codes.md),
 [`tales_get_dna_seq()`](https://scunnac.github.io/tantale/reference/tales_get_dna_seq.md),
 [`tales_get_protein_seq()`](https://scunnac.github.io/tantale/reference/tales_get_protein_seq.md),
@@ -78,8 +75,8 @@ Other tales projections:
 ## Examples
 
 ``` r
-x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-                                     package = "tantale"))
+x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+                                      package = "tantale"))
 xa <- tales_assign_domain_codes(x)
 tales_coded_strings(xa)[1]
 #> BStringSet object of length 1:

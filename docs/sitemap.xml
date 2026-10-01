@@ -23,7 +23,6 @@
 <url><loc>https://scunnac.github.io/tantale/reference/dot-as_mafft_score_table.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/dot-rvd_score_table.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/dot-rvd_to_match_align.html</loc></url>
-<url><loc>https://scunnac.github.io/tantale/reference/dot-rvd_to_repeat_align.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/dot-tales_anomalies.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/dot-tales_check_crd_unique.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/dot-tales_report_anomalies.html</loc></url>
@@ -45,8 +44,6 @@
 <url><loc>https://scunnac.github.io/tantale/reference/preditale.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/print.tales.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/print.tales_msa.html</loc></url>
-<url><loc>https://scunnac.github.io/tantale/reference/repeat_to_rvd_map.html</loc></url>
-<url><loc>https://scunnac.github.io/tantale/reference/repeat_to_rvd_map_distalr.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/run_annotale_build.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/run_annotale_predict.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/rvd_dna_specificity.html</loc></url>
@@ -54,7 +51,6 @@
 <url><loc>https://scunnac.github.io/tantale/reference/sub-.tales.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/summary.tales.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/summary.tales_msa.html</loc></url>
-<url><loc>https://scunnac.github.io/tantale/reference/tale_parts_to_rvd.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/tales.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/tales_align.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/tales_anchor_codes.html</loc></url>
@@ -69,19 +65,20 @@
 <url><loc>https://scunnac.github.io/tantale/reference/tales_consensus_match.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/tales_domain_codes.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/tales_domain_distances.html</loc></url>
-<url><loc>https://scunnac.github.io/tantale/reference/tales_from_telltale.html</loc></url>
+<url><loc>https://scunnac.github.io/tantale/reference/tales_from_annotale.html</loc></url>
+<url><loc>https://scunnac.github.io/tantale/reference/tales_from_telltales.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/tales_get_dna_seq.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/tales_get_protein_seq.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/tales_group_hclust.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/tales_group_kmedoids.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/tales_msa.html</loc></url>
+<url><loc>https://scunnac.github.io/tantale/reference/tales_msa_width.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/tales_namespace.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/tales_predict_targets.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/tales_requirements.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/tales_rvd_strings.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/tales_tale_distances.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/tales_to_universalmotif.html</loc></url>
-<url><loc>https://scunnac.github.io/tantale/reference/tales_width.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/talomes_heatmap.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/talvez.html</loc></url>
 <url><loc>https://scunnac.github.io/tantale/reference/tantale-package.html</loc></url>

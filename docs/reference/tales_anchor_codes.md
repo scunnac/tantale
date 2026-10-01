@@ -1,10 +1,6 @@
 # Codes marking a TALE array terminus
 
-The values a `rvd` column takes on non-repeat parts. `"NTERM"` and
-`"CTERM"` mark identified termini; `"XXXXX"` marks a terminus whose CDS
-was detected but for which no HMMer hit was found, so its identity is
-unknown (see
-[`tell_tales`](https://scunnac.github.io/tantale/reference/tell_tales.md)).
+The values a `rvd` column takes on non-repeat parts.
 
 ## Usage
 
@@ -14,9 +10,21 @@ tales_anchor_codes()
 
 ## Value
 
-A character vector of anchor codes.
+A named character vector of the three codes.
 
 ## Details
+
+AnnoTALE reports as N-terminus whatever the ORF encodes upstream of the
+first repeat, and as C-terminus whatever it encodes downstream of the
+last one.
+[`tell_tales`](https://scunnac.github.io/tantale/reference/tell_tales.md)
+searches each of these segments with the TALE N- or C-terminal protein
+profile (`hmmsearch`, E-value at most `terminus_max_evalue`). `"NTERM"`
+and `"CTERM"` mark a segment that matches its profile, a canonical TALE
+terminal domain, complete or truncated. `"XXXXX"` marks a segment that
+does not match, typically unrelated sequence where the ORF starts or
+ends inside a frameshifted region. An array for which AnnoTALE reported
+no segment on one side has no terminus part on that side.
 
 These share the `rvd` column with real RVDs, so code that distinguishes
 repeats from termini by value should use this function rather than
@@ -47,5 +55,6 @@ Other tales objects:
 
 ``` r
 tales_anchor_codes()
-#> [1] "NTERM" "CTERM" "XXXXX"
+#>      N-      -C      ?? 
+#> "NTERM" "CTERM" "XXXXX" 
 ```

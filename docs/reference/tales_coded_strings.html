@@ -13,7 +13,7 @@ domain sequence is one &quot;residue&quot;."><meta property="og:image" content="
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9010</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -89,7 +89,7 @@ domain sequence is one "residue".</p>
 arguments, but <strong>both defaults differ</strong>, because the two projections feed
 different consumers:</p>
 <table class="table table"><tr><td></td><td><code><a href="tales_rvd_strings.html">tales_rvd_strings()</a></code></td><td><code>tales_coded_strings()</code></td></tr><tr><td><code>sep</code></td><td><code>"-"</code>, the AnnoTALE convention</td><td><code>" "</code>, what MAFFT
-<code>--text</code> splits on</td></tr><tr><td>filter</td><td><code>rvd_only = TRUE</code></td><td><code>repeats_only = FALSE</code></td></tr></table><p>The separator is free to choose here in a way it is not for RVDs: a
+<code>--text</code> splits on</td></tr><tr><td>filter</td><td><code>repeats_only = TRUE</code></td><td><code>repeats_only = FALSE</code></td></tr></table><p>The separator is free to choose here in a way it is not for RVDs: a
 <code>dom_code</code> is a bare integer rendered as text, so <code>"1 2 3"</code> and <code>"1-2-3"</code>
 are equally unambiguous. It defaults to a space because that is what the
 documented consumers of this encoding expect.</p>
@@ -104,9 +104,6 @@ to compare bare repeat arrays.</p>
     <div class="dont-index"><p><code><a href="tales_domain_codes.html">tales_domain_codes()</a></code> for the code-to-sequence lookup,
 <code><a href="tales_rvd_strings.html">tales_rvd_strings()</a></code> for the sibling projection.</p>
 <p>Other tales projections:
-<code><a href="repeat_to_rvd_map.html">repeat_to_rvd_map()</a></code>,
-<code><a href="repeat_to_rvd_map_distalr.html">repeat_to_rvd_map_distalr()</a></code>,
-<code><a href="tale_parts_to_rvd.html">tale_parts_to_rvd()</a></code>,
 <code><a href="tales_domain_codes.html">tales_domain_codes()</a></code>,
 <code><a href="tales_get_dna_seq.html">tales_get_dna_seq()</a></code>,
 <code><a href="tales_get_protein_seq.html">tales_get_protein_seq()</a></code>,
@@ -116,8 +113,8 @@ to compare bare repeat arrays.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="tales_from_telltale.html">tales_from_telltale</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"tellTaleExampleOutput"</span>,</span></span>
-<span class="r-in"><span>                                     package <span class="op">=</span> <span class="st">"tantale"</span><span class="op">)</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="tales_from_telltales.html">tales_from_telltales</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"tellTaleExampleOutput"</span>,</span></span>
+<span class="r-in"><span>                                      package <span class="op">=</span> <span class="st">"tantale"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">xa</span> <span class="op">&lt;-</span> <span class="fu"><a href="tales_assign_domain_codes.html">tales_assign_domain_codes</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">tales_coded_strings</span><span class="op">(</span><span class="va">xa</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> BStringSet object of length 1:</span>

@@ -45,7 +45,7 @@ Other TALE alignment:
 [`tales_align()`](https://scunnac.github.io/tantale/reference/tales_align.md),
 [`tales_consensus()`](https://scunnac.github.io/tantale/reference/tales_consensus.md),
 [`tales_consensus_match()`](https://scunnac.github.io/tantale/reference/tales_consensus_match.md),
-[`tales_width()`](https://scunnac.github.io/tantale/reference/tales_width.md),
+[`tales_msa_width()`](https://scunnac.github.io/tantale/reference/tales_msa_width.md),
 [`validate_tales_msa()`](https://scunnac.github.io/tantale/reference/validate_tales_msa.md)
 
 ## Examples
@@ -59,7 +59,7 @@ aligned <- data.frame(
   rvd = c("NTERM", "HD", "CTERM", "NTERM", "CTERM")
 )
 msa <- tales_msa(aligned)
-tales_width(msa)
+tales_msa_width(msa)
 #> [1] 3
 as.matrix(msa)
 #>    1       2    3      

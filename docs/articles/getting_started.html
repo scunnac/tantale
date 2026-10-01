@@ -24,7 +24,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9010</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -77,7 +77,7 @@
 
 
 
-    <p>A TALE (transcription activator-like effector) gene, once translated, is a modular protein: a central array of near-identical ~34-residue repeats, each one specifying a single DNA base through two variable residues (its RVD), flanked by an N- and a C-terminal region. tantale’s job is to find these arrays in genomic sequence, and to represent them as data you can subset, compare and plot like any other tibble, with one row per repeat or terminus.</p>
+    <p>A TALE (Transcription Activator-Like Effector) is a modular protein: a central array of near-identical ~34-residue repeats, each one specifying a single DNA base through two variable residues (its RVD), flanked by an N- and a C-terminal region. tantale’s job is to find these arrays in genomic sequence, and to represent them as data you can subset, compare and plot like any other tibble, with one row per repeat or terminus.</p>
 <p>This article is a two-minute tour. It loads a small result already sitting on disk, so there are no external tools to install first. The <a href="https://scunnac.github.io/tantale">package website</a> has the full set of articles, which start from raw genomic FASTA and carry a handful of real <em>Xanthomonas oryzae</em> genomes through discovery, classification, alignment and target prediction.</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
@@ -86,11 +86,11 @@
 </div>
 <section class="level2"><h2 id="a-tales-object">A <code>tales</code> object<a class="anchor" aria-label="anchor" href="#a-tales-object"></a>
 </h2>
-<p><code><a href="../reference/tell_tales.html">tell_tales()</a></code> searches a genome for TALE-coding regions and writes its findings to a directory of reports and FASTA files; <code><a href="../reference/tales_from_telltale.html">tales_from_telltale()</a></code> reads that directory back into R. The package ships one such directory already computed (four arrays found across two short input sequences), so this tour can start from the object and skip a multi-minute search:</p>
+<p><code><a href="../reference/tell_tales.html">tell_tales()</a></code> searches a genome for TALE-coding regions and writes its findings to a directory of reports and FASTA files; <code><a href="../reference/tales_from_telltales.html">tales_from_telltales()</a></code> reads that directory back into R. The package ships one such directory already computed (four arrays found across two short input sequences), so this tour can start from the object and skip a multi-minute search:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">example_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"tellTaleExampleOutput"</span>, package <span class="op">=</span> <span class="st">"tantale"</span><span class="op">)</span></span>
-<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tales_from_telltale.html">tales_from_telltale</a></span><span class="op">(</span><span class="va">example_dir</span><span class="op">)</span></span>
+<span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tales_from_telltales.html">tales_from_telltales</a></span><span class="op">(</span><span class="va">example_dir</span><span class="op">)</span></span>
 <span><span class="va">x</span></span>
 <span><span class="co">#&gt; &lt;tales&gt; 4 arrays, 96 parts</span></span>
 <span><span class="co">#&gt;   layers: rvd   |   6 other columns</span></span>
@@ -101,7 +101,7 @@
 <span><span class="co">#&gt;   ROI_00004  NTERM NI HD NN NS NN NG HD NG HD NG NN NG HD NS HD NI NG HD H ...</span></span></code></pre></div>
 </details>
 </div>
-<p>Every row is one <em>part</em> of one array: a repeat or a terminus. <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> gives the array-level view:</p>
+<p>Every row is one <em>part</em> of one TALE <em>array</em> (the domains composing the full protein, ie the <em>array</em>): a repeat or a terminus. <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> gives the array-level view:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
@@ -116,7 +116,7 @@
 </div>
 </section><section class="level2"><h2 id="checking-for-trouble">Checking for trouble<a class="anchor" aria-label="anchor" href="#checking-for-trouble"></a>
 </h2>
-<p>Real assemblies are not always clean: a frameshift can leave AnnoTALE unable to parse a repeat structure out of a candidate array, or a terminus can go missing. <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> reports which arrays, if any, need a second look:</p>
+<p>Real assemblies are not always clean: a frameshift can leave AnnoTALE unable to parse a repeat structure out of a candidate array, or a terminus can be truncated. <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> reports which arrays, if any, need a second look:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/tales_anomalies.html">tales_anomalies</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>
@@ -124,7 +124,7 @@
 <span><span class="co">#&gt; # ℹ 3 variables: array_id &lt;chr&gt;, check &lt;chr&gt;, detail &lt;chr&gt;</span></span></code></pre></div>
 </details>
 </div>
-<p>Zero rows means none did, here. The <a href="https://scunnac.github.io/tantale/articles/tale_mining.html">mining article</a> covers what to do when this table is not empty – tantale has two different ways to correct a frameshifted array, and they do not always agree with each other.</p>
+<p>Zero rows means none did, here. The <a href="https://scunnac.github.io/tantale/articles/tale_mining.html">mining article</a> covers what to do when this table is not empty – tantale has two different ways to correct a frameshifted array.</p>
 </section><section class="level2"><h2 id="looking-at-the-arrays">Looking at the arrays<a class="anchor" aria-label="anchor" href="#looking-at-the-arrays"></a>
 </h2>
 <p><code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> on a <code>tales</code> object lays out every array’s parts in order. The outline of each circle gives the domain type, its fill the part’s length in amino acids, and each repeat carries its RVD. The last repeat of each array is shorter (20 residues here): it is the half-repeat that ends every TALE repeat region:</p>

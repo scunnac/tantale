@@ -21,7 +21,7 @@ models."><meta property="og:image" content="https://scunnac.github.io/tantale/re
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9010</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -103,9 +103,6 @@ comparison without causing an error.</p>
     <div class="dont-index"><p><code><a href="tales_compare_functal.html">tales_compare_functal()</a></code>, the one comparison built on this;
 <code><a href="tales_rvd_strings.html">tales_rvd_strings()</a></code>, the sibling projection at the string layer.</p>
 <p>Other tales projections:
-<code><a href="repeat_to_rvd_map.html">repeat_to_rvd_map()</a></code>,
-<code><a href="repeat_to_rvd_map_distalr.html">repeat_to_rvd_map_distalr()</a></code>,
-<code><a href="tale_parts_to_rvd.html">tale_parts_to_rvd()</a></code>,
 <code><a href="tales_coded_strings.html">tales_coded_strings()</a></code>,
 <code><a href="tales_domain_codes.html">tales_domain_codes()</a></code>,
 <code><a href="tales_get_dna_seq.html">tales_get_dna_seq()</a></code>,
@@ -115,8 +112,8 @@ comparison without causing an error.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="tales_from_telltale.html">tales_from_telltale</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"tellTaleExampleOutput"</span>,</span></span>
-<span class="r-in"><span>                                     package <span class="op">=</span> <span class="st">"tantale"</span><span class="op">)</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="tales_from_telltales.html">tales_from_telltales</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"tellTaleExampleOutput"</span>,</span></span>
+<span class="r-in"><span>                                      package <span class="op">=</span> <span class="st">"tantale"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">motifs</span> <span class="op">&lt;-</span> <span class="fu">tales_to_universalmotif</span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">motifs</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> </span>

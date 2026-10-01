@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9010</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -44,103 +44,141 @@
     </div>
 
     <div class="section level2">
-<h2 class="pkg-version" data-toc-text="0.9.9010" id="tantale-099010">tantale 0.9.9010<a class="anchor" aria-label="anchor" href="#tantale-099010"></a></h2>
+<h2 class="pkg-version" data-toc-text="0.9.9011" id="tantale-099011">tantale 0.9.9011<a class="anchor" aria-label="anchor" href="#tantale-099011"></a></h2>
 <div class="section level3">
-<h3 id="licences-of-the-bundled-programs-are-now-stated-0-9-9010">Licences of the bundled programs are now stated<a class="anchor" aria-label="anchor" href="#licences-of-the-bundled-programs-are-now-stated-0-9-9010"></a></h3>
+<h3 id="new-tales_from_annotale-0-9-9011">New <code>tales_from_annotale()</code>
+<a class="anchor" aria-label="anchor" href="#new-tales_from_annotale-0-9-9011"></a></h3>
+<p><code><a href="../reference/tales_from_annotale.html">tales_from_annotale()</a></code> builds a <code>tales</code> object from AnnoTALE’s own TALE predictions, the output of <code><a href="../reference/run_annotale_predict.html">run_annotale_predict()</a></code>. Termini are coded as in <code><a href="../reference/tell_tales.html">tell_tales()</a></code>, from a search with the TALE N- and C-terminal protein profiles. <code>array_id</code> is AnnoTALE’s TALE name, and <code>seqnames</code> comes from AnnoTALE’s GFF3 file when it is present. An example output ships in <code>inst/extdata/annotaleExampleOutput</code>.</p>
+</div>
+<div class="section level3">
+<h3 id="renamed-functions-and-arguments-0-9-9011">Renamed functions and arguments<a class="anchor" aria-label="anchor" href="#renamed-functions-and-arguments-0-9-9011"></a></h3>
+<p><code>tales_from_telltale()</code> is now <code><a href="../reference/tales_from_telltales.html">tales_from_telltales()</a></code>, since it reads the output of <code><a href="../reference/tell_tales.html">tell_tales()</a></code>. <code>tales_width()</code> is now <code><a href="../reference/tales_msa_width.html">tales_msa_width()</a></code>, since it applies to <code>tales_msa</code> objects only. The <code>rvd_only</code> argument of <code><a href="../reference/tales_rvd_strings.html">tales_rvd_strings()</a></code> is now <code>repeats_only</code>, as in <code><a href="../reference/tales_coded_strings.html">tales_coded_strings()</a></code>.</p>
+</div>
+<div class="section level3">
+<h3 id="retired-functions-0-9-9011">Retired functions<a class="anchor" aria-label="anchor" href="#retired-functions-0-9-9011"></a></h3>
+<p><code>tale_parts_to_rvd()</code> is gone; <code>tales_rvd_strings(x, repeats_only = FALSE)</code> returns the same strings. <code>repeat_to_rvd_map()</code> and <code>repeat_to_rvd_map_distalr()</code> are gone: the <code>dom_code</code> and <code>rvd</code> columns of a <code>tales</code> object hold that mapping, and <code><a href="../reference/tales.html">tales()</a></code> reports an amino acid sequence paired with more than one RVD as an anomaly.</p>
+</div>
+<div class="section level3">
+<h3 id="old-column-names-are-no-longer-converted-0-9-9011">Old column names are no longer converted<a class="anchor" aria-label="anchor" href="#old-column-names-are-no-longer-converted-0-9-9011"></a></h3>
+<p><code><a href="../reference/tales.html">tales()</a></code> and <code><a href="../reference/pairwise_distances.html">pairwise_distances()</a></code> (with <code><a href="../reference/pairwise_distances.html">tale_distances()</a></code> and <code><a href="../reference/pairwise_distances.html">domain_distances()</a></code>) no longer rename the camelCase columns of earlier versions (<code>arrayID</code>, <code>positionInArray</code>, <code>TAL1</code>, <code>RepU1</code>, <code>Sim</code>, <code>arlemScore</code>…). A table saved by an earlier version needs its columns renamed to the current names first (<code>array_id</code>, <code>position_in_array</code>, <code>id1</code>, <code>sim</code>, <code>arlem_score</code>…).</p>
+</div>
+<div class="section level3">
+<h3 id="terminus-codes-say-whether-a-terminus-resembles-a-tale-terminal-domain-0-9-9011">Terminus codes say whether a terminus resembles a TALE terminal domain<a class="anchor" aria-label="anchor" href="#terminus-codes-say-whether-a-terminus-resembles-a-tale-terminal-domain-0-9-9011"></a></h3>
+<p><code><a href="../reference/tell_tales.html">tell_tales()</a></code> now searches the segment AnnoTALE reports on each side of the repeats with the TALE N- and C-terminal protein profiles shipped in <code>inst/extdata/hmmProfile/</code> (<code>hmmsearch</code>). <code>NTERM</code> and <code>CTERM</code> mark a segment that matches its profile with an E-value at most <code>terminus_max_evalue</code> (new argument, default 1e-5); <code>XXXXX</code> marks a segment that does not match. The codes used to record whether an nhmmer hit of that terminus type was found anywhere in the array’s DNA. That labelled as termini some segments of unrelated sequence, where the ORF starts or ends in a frameshifted region, and coded as <code>XXXXX</code> genuine termini too short for the DNA search, such as a C-terminus truncated to 42 residues.</p>
+<p><code><a href="../reference/tales_from_telltales.html">tales_from_telltales()</a></code> reads the codes from <code>array_report.tsv</code>. A directory written by an earlier <code><a href="../reference/tell_tales.html">tell_tales()</a></code> is an error; run <code><a href="../reference/tell_tales.html">tell_tales()</a></code> again on the same sequences.</p>
+</div>
+<div class="section level3">
+<h3 id="array_reporttsv-and-tell_tales-renamed-and-new-columns-0-9-9011">
+<code>array_report.tsv</code> and <code>tell_tales()</code>: renamed and new columns<a class="anchor" aria-label="anchor" href="#array_reporttsv-and-tell_tales-renamed-and-new-columns-0-9-9011"></a></h3>
+<p><code>n_domain_hits</code> is now <code>n_dna_hits</code>, and <code>has_all_domains</code> is replaced by <code>nterm_dna_hit</code> and <code>cterm_dna_hit</code>. New columns <code>nterm_aa_evalue</code>, <code>cterm_aa_evalue</code>, <code>nterm_aa_hit</code> and <code>cterm_aa_hit</code> hold the result of the protein-profile search. <code><a href="../reference/tell_tales.html">?tell_tales</a></code> describes every column. The argument <code>min_domain_hits</code> of <code><a href="../reference/tell_tales.html">tell_tales()</a></code> is now <code>min_dna_hits</code>.</p>
+</div>
+<div class="section level3">
+<h3 id="tales_from_telltales-absent-termini-and-inconsistent-arrays-0-9-9011">
+<code>tales_from_telltales()</code>: absent termini and inconsistent arrays<a class="anchor" aria-label="anchor" href="#tales_from_telltales-absent-termini-and-inconsistent-arrays-0-9-9011"></a></h3>
+<p>When AnnoTALE reports no terminus on one side of the repeats, the array now has no part on that side, with a warning, and its positions are counted from its first part. It used to receive an empty part. An array whose AnnoTALE protein and DNA parts disagree is left out with a warning, and <code><a href="../reference/tell_tales.html">tell_tales()</a></code> deletes the DNA parts AnnoTALE writes for an ORF it could not translate. Repeat RVDs are read from AnnoTALE’s own RVD file.</p>
+</div>
+<div class="section level3">
+<h3 id="tell_tales-fewer-spurious-warnings-no-index-file-next-to-the-input-0-9-9011">
+<code>tell_tales()</code>: fewer spurious warnings, no index file next to the input<a class="anchor" aria-label="anchor" href="#tell_tales-fewer-spurious-warnings-no-index-file-next-to-the-input-0-9-9011"></a></h3>
+<p>The warning about overlapping nhmmer hits now concerns only hits of the same domain type, which make <code>n_dna_hits</code> count a domain twice; it appears only with <code>merge_hits = FALSE</code>. A terminus hit overlapping the adjacent repeat hit by a few nucleotides is normal and no longer reported. Two warnings from the underlying Bioconductor packages are gone: “invalid seqlevels … ignored”, issued when a subject sequence carried no TALE, and “GRanges object contains … out-of-bound ranges”, issued when an array lies within <code>extend_len</code> of a sequence end (the extended range was, and still is, clipped to the sequence).</p>
+<p><code><a href="../reference/tell_tales.html">tell_tales()</a></code> no longer writes a <code>.fai</code> index next to the subject file, and Rsamtools is no longer a dependency. Sequence lengths now come from the full fasta headers: with a header containing a space, they used to be lost, so an array near the end of such a sequence could be extended past it. A subject file with duplicated or empty sequence names is an error.</p>
+</div>
+<div class="section level3">
+<h3 id="licences-of-the-bundled-programs-are-now-stated-0-9-9011">Licences of the bundled programs are now stated<a class="anchor" aria-label="anchor" href="#licences-of-the-bundled-programs-are-now-stated-0-9-9011"></a></h3>
 <p><code>inst/COPYRIGHTS</code> lists every program and data file tantale bundles from other projects, with its authors, licence, upstream download and source code: AnnoTALE, PrediTALE and TALEcorrection (GNU GPL 3 or later, from the Jstacs project), TALVEZ 3.2 and QueTAL FuncTAL (redistributed by permission of their author). The GPL text ships as <code>inst/tools/COPYING.GPL-3</code>. tantale’s own code stays under the MIT licence.</p>
 </div>
 <div class="section level3">
-<h3 id="rvd_dna_specificity-the-rvd-na-has-its-row-back-0-9-9010">
-<code>rvd_dna_specificity</code>: the RVD NA has its row back<a class="anchor" aria-label="anchor" href="#rvd_dna_specificity-the-rvd-na-has-its-row-back-0-9-9010"></a></h3>
+<h3 id="rvd_dna_specificity-the-rvd-na-has-its-row-back-0-9-9011">
+<code>rvd_dna_specificity</code>: the RVD NA has its row back<a class="anchor" aria-label="anchor" href="#rvd_dna_specificity-the-rvd-na-has-its-row-back-0-9-9011"></a></h3>
 <p>The row for the RVD <code>NA</code> (Asn-Ala) had a missing name, because the table was read with the string <code>"NA"</code> taken as a missing value. As a result, <code><a href="../reference/tales_to_universalmotif.html">tales_to_universalmotif()</a></code> and <code><a href="../reference/tales_compare_functal.html">tales_compare_functal()</a></code> gave every <code>NA</code> repeat the flat <code>XX</code> profile instead of its own (1/2/1/0). Fixed; no other row changed.</p>
 </div>
 <div class="section level3">
-<h3 id="rvd_sim-fill-a-rare-rvd-identical-to-the-reference-now-scores-0-9-9010">
-<code>rvd_sim</code> fill: a rare RVD identical to the reference now scores 1<a class="anchor" aria-label="anchor" href="#rvd_sim-fill-a-rare-rvd-identical-to-the-reference-now-scores-0-9-9010"></a></h3>
+<h3 id="rvd_sim-fill-a-rare-rvd-identical-to-the-reference-now-scores-0-9-9011">
+<code>rvd_sim</code> fill: a rare RVD identical to the reference now scores 1<a class="anchor" aria-label="anchor" href="#rvd_sim-fill-a-rare-rvd-identical-to-the-reference-now-scores-0-9-9011"></a></h3>
 <p><code>plot.tales_msa(fill_type = "rvd_sim")</code> takes its RVD similarities from TALVEZ’s table, which covers 17 RVDs. Any other RVD (<code>NV</code>, for example) was left grey, even where it was identical to the reference’s. It now scores 1 there, as it already did in <code><a href="../reference/tales_align.html">tales_align()</a></code>’s RVD scoring matrix; other pairs involving it stay grey. The legend says what grey means.</p>
 </div>
 <div class="section level3">
-<h3 id="the-interface-is-now-stable-0-9-9010">The interface is now stable<a class="anchor" aria-label="anchor" href="#the-interface-is-now-stable-0-9-9010"></a></h3>
+<h3 id="the-interface-is-now-stable-0-9-9011">The interface is now stable<a class="anchor" aria-label="anchor" href="#the-interface-is-now-stable-0-9-9011"></a></h3>
 <p>From version 1.0.0 on, changes to exported functions and their arguments follow the <a href="https://lifecycle.r-lib.org/articles/stages.html" class="external-link">lifecycle</a> conventions: deprecation with a warning first, removal in a later release.</p>
 </div>
 <div class="section level3">
-<h3 id="tales_to_universalmotif-works-without-librarytantale-0-9-9010">
+<h3 id="tales_to_universalmotif-works-without-librarytantale-0-9-9011">
 <code>tales_to_universalmotif()</code> works without <code>library(tantale)</code>
-<a class="anchor" aria-label="anchor" href="#tales_to_universalmotif-works-without-librarytantale-0-9-9010"></a></h3>
+<a class="anchor" aria-label="anchor" href="#tales_to_universalmotif-works-without-librarytantale-0-9-9011"></a></h3>
 <p><code><a href="../reference/tales_to_universalmotif.html">tales_to_universalmotif()</a></code> and <code><a href="../reference/tales_compare_functal.html">tales_compare_functal()</a></code> read the <code>rvd_dna_specificity</code> table by a name that resolved only once tantale was attached, so calling them as <code><a href="../reference/tales_to_universalmotif.html">tantale::tales_to_universalmotif()</a></code> failed with “object ‘rvd_dna_specificity’ not found”. Fixed.</p>
 </div>
 <div class="section level3">
-<h3 id="talomes_heatmap-fixes-0-9-9010">
-<code>talomes_heatmap()</code> fixes<a class="anchor" aria-label="anchor" href="#talomes_heatmap-fixes-0-9-9010"></a></h3>
+<h3 id="talomes_heatmap-fixes-0-9-9011">
+<code>talomes_heatmap()</code> fixes<a class="anchor" aria-label="anchor" href="#talomes_heatmap-fixes-0-9-9011"></a></h3>
 <p>With the default <code>plot_type = "all"</code>, the <code>title</code>, <code>x_lab</code> and <code>y_lab</code> arguments were ignored (the default text was drawn whatever was passed), and saving to <code>save_path</code> left an extra graphics device open. Both fixed; the default figure is unchanged. An explicit <code>save_path = NULL</code> now draws on the current device, and an unknown <code>plot_type</code> is an error instead of drawing nothing.</p>
 </div>
 <div class="section level3">
-<h3 id="external-programs-a-failure-now-stops-the-call-0-9-9010">External programs: a failure now stops the call<a class="anchor" aria-label="anchor" href="#external-programs-a-failure-now-stops-the-call-0-9-9010"></a></h3>
+<h3 id="external-programs-a-failure-now-stops-the-call-0-9-9011">External programs: a failure now stops the call<a class="anchor" aria-label="anchor" href="#external-programs-a-failure-now-stops-the-call-0-9-9011"></a></h3>
 <p>nHMMER (in <code><a href="../reference/tell_tales.html">tell_tales()</a></code> and <code><a href="../reference/correct_tales.html">correct_tales()</a></code>), AnnoTALE (<code><a href="../reference/run_annotale_predict.html">run_annotale_predict()</a></code>, <code><a href="../reference/run_annotale_build.html">run_annotale_build()</a></code>), PrediTALE (<code><a href="../reference/preditale.html">preditale()</a></code>) and TALEcorrection (<code><a href="../reference/correct_tales.html">correct_tales()</a></code>) were run without checking their exit status, so a failing program could leave empty or partial output for later steps to trip over. Each call now stops with an error naming the program. Inside <code><a href="../reference/tell_tales.html">tell_tales()</a></code>, an AnnoTALE failure on one array still skips that array with a warning, which now gives AnnoTALE’s own error as its cause. <code><a href="../reference/run_annotale_predict.html">run_annotale_predict()</a></code> and <code><a href="../reference/run_annotale_build.html">run_annotale_build()</a></code> return <code>0</code> invisibly on success; their paths are now quoted in the shell command, so paths with spaces work.</p>
 </div>
 <div class="section level3">
-<h3 id="plots-no-more-ggplot2-deprecation-warnings-0-9-9010">Plots: no more ggplot2 deprecation warnings<a class="anchor" aria-label="anchor" href="#plots-no-more-ggplot2-deprecation-warnings-0-9-9010"></a></h3>
+<h3 id="plots-no-more-ggplot2-deprecation-warnings-0-9-9011">Plots: no more ggplot2 deprecation warnings<a class="anchor" aria-label="anchor" href="#plots-no-more-ggplot2-deprecation-warnings-0-9-9011"></a></h3>
 <p><code><a href="../reference/plot.tales_msa.html">plot.tales_msa()</a></code> and <code><a href="../reference/plot_target_preds.html">plot_target_preds()</a></code> used arguments ggplot2 has deprecated (<code>label.size</code>, and <code>size</code> for a line width), so every plot raised warnings. They now use <code>linewidth</code>, and the figures are unchanged. tantale now requires ggplot2 3.5.0 or later.</p>
 </div>
 <div class="section level3">
-<h3 id="array_reporttsv-terminus-lengths-no-longer-count-the-stop-codon-0-9-9010">
-<code>array_report.tsv</code>: terminus lengths no longer count the stop codon<a class="anchor" aria-label="anchor" href="#array_reporttsv-terminus-lengths-no-longer-count-the-stop-codon-0-9-9010"></a></h3>
+<h3 id="array_reporttsv-terminus-lengths-no-longer-count-the-stop-codon-0-9-9011">
+<code>array_report.tsv</code>: terminus lengths no longer count the stop codon<a class="anchor" aria-label="anchor" href="#array_reporttsv-terminus-lengths-no-longer-count-the-stop-codon-0-9-9011"></a></h3>
 <p><code>nterm_aa_length</code> and <code>cterm_aa_length</code> counted AnnoTALE’s <code>*</code> as a residue whenever the stop codon fell inside the terminal part, which is common for C-termini. They now count residues only, matching the <code>tales</code> object’s <code>aa_seq</code>: for example, a 278-residue C-terminus is reported as 278, not 279.</p>
 </div>
 <div class="section level3">
-<h3 id="biostrings-backend-free-end-gaps-as-in-distal-0-9-9010">Biostrings backend: free end gaps, as in DisTAL<a class="anchor" aria-label="anchor" href="#biostrings-backend-free-end-gaps-as-in-distal-0-9-9010"></a></h3>
+<h3 id="biostrings-backend-free-end-gaps-as-in-distal-0-9-9011">Biostrings backend: free end gaps, as in DisTAL<a class="anchor" aria-label="anchor" href="#biostrings-backend-free-end-gaps-as-in-distal-0-9-9011"></a></h3>
 <p><code>tales_domain_distances(aln_method = "Biostrings")</code> now aligns with free end gaps (DisTAL’s “sliding ends”) instead of a global alignment that charged a length difference twice. A half-repeat is now about 41 from the full repeat it matches (it was 64.7), as with the other two backends. Pairs differing only by substitutions are unchanged.</p>
 </div>
 <div class="section level3">
-<h3 id="domain-distances-now-count-missing-residues-decipher-backend-0-9-9010">Domain distances now count missing residues (DECIPHER backend)<a class="anchor" aria-label="anchor" href="#domain-distances-now-count-missing-residues-decipher-backend-0-9-9010"></a></h3>
+<h3 id="domain-distances-now-count-missing-residues-decipher-backend-0-9-9011">Domain distances now count missing residues (DECIPHER backend)<a class="anchor" aria-label="anchor" href="#domain-distances-now-count-missing-residues-decipher-backend-0-9-9011"></a></h3>
 <p><code><a href="../reference/tales_domain_distances.html">tales_domain_distances()</a></code>’s default <code>"DECIPHER"</code> backend ignored gaps, so a half-repeat was at distance 0 from any full repeat it is a prefix of, and indels between domains went uncounted. It now follows DisTAL’s published definition (percentage of amino acids that change, normalised by the longer domain), as the <code>"mmseq2"</code> backend already did: a 20-residue half-repeat is about 41 from the 34-residue repeat it matches. Domain and array distances change for pairs that differ in length or align with gaps; on the three genomes in the articles the grouping is unchanged. With a <code>domain_distances</code> scoring matrix, <code><a href="../reference/tales_align.html">tales_align()</a></code> no longer pulls a half-repeat away from its identical match.</p>
 </div>
 <div class="section level3">
-<h3 id="reference-pages-reviewed-0-9-9010">Reference pages reviewed<a class="anchor" aria-label="anchor" href="#reference-pages-reviewed-0-9-9010"></a></h3>
-<p>Every exported function’s help page was re-read against the code. Among the corrections: the <code>pairwise_distances</code> family is now described as the distance table it is (it stores <code>dissim</code>), <code><a href="../reference/repeat_to_rvd_map_distalr.html">repeat_to_rvd_map_distalr()</a></code> and <code><a href="../reference/tale_parts_to_rvd.html">tale_parts_to_rvd()</a></code> document the input they actually take, <code>rvd_dna_specificity</code> explains its special rows (<code>N*</code>/<code>H*</code>, <code>OO</code>, <code>XX</code>), <code><a href="../reference/talomes_heatmap.html">talomes_heatmap()</a></code> explains what its colours mean, and the package page and README no longer claim that tantale bundles none of the programs it drives (the Java tools ship with it).</p>
+<h3 id="reference-pages-reviewed-0-9-9011">Reference pages reviewed<a class="anchor" aria-label="anchor" href="#reference-pages-reviewed-0-9-9011"></a></h3>
+<p>Every exported function’s help page was re-read against the code. Among the corrections: the <code>pairwise_distances</code> family is now described as the distance table it is (it stores <code>dissim</code>), <code>repeat_to_rvd_map_distalr()</code> and <code>tale_parts_to_rvd()</code> document the input they actually take, <code>rvd_dna_specificity</code> explains its special rows (<code>N*</code>/<code>H*</code>, <code>OO</code>, <code>XX</code>), <code><a href="../reference/talomes_heatmap.html">talomes_heatmap()</a></code> explains what its colours mean, and the package page and README no longer claim that tantale bundles none of the programs it drives (the Java tools ship with it).</p>
 </div>
 <div class="section level3">
-<h3 id="array-alignment-computed-in-r-the-arlem-executable-is-no-longer-bundled-0-9-9010">Array alignment computed in R; the ARLEM executable is no longer bundled<a class="anchor" aria-label="anchor" href="#array-alignment-computed-in-r-the-arlem-executable-is-no-longer-bundled-0-9-9010"></a></h3>
+<h3 id="array-alignment-computed-in-r-the-arlem-executable-is-no-longer-bundled-0-9-9011">Array alignment computed in R; the ARLEM executable is no longer bundled<a class="anchor" aria-label="anchor" href="#array-alignment-computed-in-r-the-arlem-executable-is-no-longer-bundled-0-9-9011"></a></h3>
 <p><code><a href="../reference/tales_tale_distances.html">tales_tale_distances()</a></code>, and so <code><a href="../reference/tales_compare_distal.html">tales_compare_distal()</a></code>, aligns the coded arrays with an R implementation of ARLEM’s minisatellite alignment model (Abouelhoda et al., <a href="https://doi.org/10.1142/S0219720009004060" class="external-link">2009</a>) in place of the ARLEM 1.0 executable that shipped in <code>inst/tools/arlem/</code>. The scores are identical to the executable’s: checked on about 6000 random array pairs and on real TALE arrays, and recorded in a test fixture. The executable ran only on Linux x86-64, and its licence did not clearly allow redistribution; it has been removed from the package. This also clears the “undeclared executable file” warning from <code>R CMD check</code>.</p>
 <p>The R version takes about 4 ms per pair of 20-domain arrays, roughly five times the executable’s time; the domain-level alignment in <code><a href="../reference/tales_domain_distances.html">tales_domain_distances()</a></code> remains the slow step. <code>matrixStats</code> is now imported. Column names are unchanged (<code>arlem_score</code>, <code>max_length</code>).</p>
 </div>
 <div class="section level3">
-<h3 id="bug-fix-demoting-a-tales_msa-now-drops-its-alignment-width-0-9-9010">Bug fix: demoting a <code>tales_msa</code> now drops its alignment width<a class="anchor" aria-label="anchor" href="#bug-fix-demoting-a-tales_msa-now-drops-its-alignment-width-0-9-9010"></a></h3>
-<p><code><a href="../reference/as_tales.html">as_tales()</a></code> (and <code><a href="../reference/tales.html">tales()</a></code>) on a <code>tales_msa</code> returned a plain <code>tales</code> that still carried the alignment’s width, so <code><a href="../reference/tales_width.html">tales_width()</a></code> kept answering on an object that no longer claims to be an alignment. The width is now removed on demotion, as it already was when <code>alignment_position</code> is dropped with <code><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select()</a></code>.</p>
+<h3 id="bug-fix-demoting-a-tales_msa-now-drops-its-alignment-width-0-9-9011">Bug fix: demoting a <code>tales_msa</code> now drops its alignment width<a class="anchor" aria-label="anchor" href="#bug-fix-demoting-a-tales_msa-now-drops-its-alignment-width-0-9-9011"></a></h3>
+<p><code><a href="../reference/as_tales.html">as_tales()</a></code> (and <code><a href="../reference/tales.html">tales()</a></code>) on a <code>tales_msa</code> returned a plain <code>tales</code> that still carried the alignment’s width, so <code><a href="../reference/tales_msa_width.html">tales_msa_width()</a></code> kept answering on an object that no longer claims to be an alignment. The width is now removed on demotion, as it already was when <code>alignment_position</code> is dropped with <code><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select()</a></code>.</p>
 </div>
 <div class="section level3">
-<h3 id="articles-checked-against-their-own-output-0-9-9010">Articles checked against their own output<a class="anchor" aria-label="anchor" href="#articles-checked-against-their-own-output-0-9-9010"></a></h3>
+<h3 id="articles-checked-against-their-own-output-0-9-9011">Articles checked against their own output<a class="anchor" aria-label="anchor" href="#articles-checked-against-their-own-output-0-9-9011"></a></h3>
 <p>Every article, the README and the home page were re-read against what their code actually renders. Statements that disagreed with a table or a figure are corrected, notably: the truncTALE article (<code>ROI_00001</code>’s N-terminus is reduced like <code>ROI_00019</code>’s; <code><a href="../reference/correct_tales.html">correct_tales()</a></code> leaves <code>ROI_00001</code>’s C-terminus length unchanged), the alignment article (a <code>domain_distances</code> scoring matrix does not make this group’s alignment more compact; it moves the final half-repeat away from its identical match), and the home-page dendrogram description (it shows nine groups). The classification article’s motif tree now has tip labels, and its silhouette plot is described and drawn on every build.</p>
 </div>
 <div class="section level3">
-<h3 id="new-article-genuine-trunctales-and-frameshift-correction-0-9-9010">New article: genuine truncTALEs and frameshift correction<a class="anchor" aria-label="anchor" href="#new-article-genuine-trunctales-and-frameshift-correction-0-9-9010"></a></h3>
+<h3 id="new-article-genuine-trunctales-and-frameshift-correction-0-9-9011">New article: genuine truncTALEs and frameshift correction<a class="anchor" aria-label="anchor" href="#new-article-genuine-trunctales-and-frameshift-correction-0-9-9011"></a></h3>
 <p>TALEs are not always broken when they are short. <code>PXO86</code> carries two naturally truncated TAL effectors (truncTALEs), documented in <a href="https://doi.org/10.1038/ncomms13435" class="external-link">Ji et al. 2016</a> and <a href="https://doi.org/10.3389/fpls.2016.01516" class="external-link">Read et al. 2016</a>, and the two differ enough at the DNA level that they respond differently to automatic frameshift correction: <code>tell_tales(correct_array = TRUE)</code> extends one of them as if it were an assembly error, while <code><a href="../reference/correct_tales.html">correct_tales()</a></code> leaves both alone. See the new <a href="articles/trunctale_correction.html">Genuine truncTALEs and frameshift correction</a> article for the full comparison.</p>
 </div>
 <div class="section level3">
-<h3 id="tale_miningqmds-correction-sections-updated-for-the-correct_tales-fix-0-9-9010">
-<code>tale_mining.qmd</code>’s correction sections updated for the <code>correct_tales()</code> fix<a class="anchor" aria-label="anchor" href="#tale_miningqmds-correction-sections-updated-for-the-correct_tales-fix-0-9-9010"></a></h3>
+<h3 id="tale_miningqmds-correction-sections-updated-for-the-correct_tales-fix-0-9-9011">
+<code>tale_mining.qmd</code>’s correction sections updated for the <code>correct_tales()</code> fix<a class="anchor" aria-label="anchor" href="#tale_miningqmds-correction-sections-updated-for-the-correct_tales-fix-0-9-9011"></a></h3>
 <p>The “Correcting frameshifts, two ways” and “How much did either correction actually help?” sections were written against the pre-fix, swapped-flags <code><a href="../reference/correct_tales.html">correct_tales()</a></code> (see the bug fix entry below) and described it as fixing only one of BAI3-1-1’s two frameshifted arrays. With the flags corrected, <code><a href="../reference/correct_tales.html">correct_tales()</a></code> fixes both on its own; the article’s prose, timing table and coverage figure are updated to match, verified against a real re-run rather than assumed.</p>
 </div>
 <div class="section level3">
-<h3 id="plottales_msa-internal-column-names-corrected-consensus-computation-simplified-0-9-9010">
-<code>plot.tales_msa()</code>: internal column names corrected, consensus computation simplified<a class="anchor" aria-label="anchor" href="#plottales_msa-internal-column-names-corrected-consensus-computation-simplified-0-9-9010"></a></h3>
+<h3 id="plottales_msa-internal-column-names-corrected-consensus-computation-simplified-0-9-9011">
+<code>plot.tales_msa()</code>: internal column names corrected, consensus computation simplified<a class="anchor" aria-label="anchor" href="#plottales_msa-internal-column-names-corrected-consensus-computation-simplified-0-9-9011"></a></h3>
 <p>Some of <code><a href="../reference/plot.tales_msa.html">plot.tales_msa()</a></code>’s internal column names claimed a repeat-specificity the underlying computation never had (termini are scored identically to repeats) – <code>matchConsensusRepeat</code>, <code>repeatClusterId</code> and <code>repeatSimVsRef</code> are now <code>matchConsensusDomain</code>, <code>domainClusterId</code> and <code>domainSimVsRef</code>. This only affects code reading <code>plot(msa)</code>’s returned <code>$data</code>/<code>$plotlist[[i]]$data</code> by column name to compose further layers, per its own documented pattern – the figure itself, and every other argument and return value, are unchanged. The consensus/match computation behind the alignment’s text colour no longer round-trips through a matrix internally; not user-visible, part of an ongoing internal simplification (<code>dev/restructuring-notes.md</code> §21, not finished this round).</p>
 </div>
 <div class="section level3">
-<h3 id="bug-fix-correct_tales-had-its-nhmmer-inputs-swapped-0-9-9010">Bug fix: <code>correct_tales()</code> had its nHMMER inputs swapped<a class="anchor" aria-label="anchor" href="#bug-fix-correct_tales-had-its-nhmmer-inputs-swapped-0-9-9010"></a></h3>
+<h3 id="bug-fix-correct_tales-had-its-nhmmer-inputs-swapped-0-9-9011">Bug fix: <code>correct_tales()</code> had its nHMMER inputs swapped<a class="anchor" aria-label="anchor" href="#bug-fix-correct_tales-had-its-nhmmer-inputs-swapped-0-9-9011"></a></h3>
 <p><code><a href="../reference/correct_tales.html">correct_tales()</a></code> built its call to <code>TALEcorrection.jar</code> with the repeat- and C-terminus-domain nHMMER search results assigned to the wrong CLI flags – confirmed against the tool’s own printed usage, which documents <code>r=</code> as wanting the repeats file and <code>c=</code> the C-terminus file, exactly backwards from what every prior call supplied. Every correction run has therefore been telling the external tool the wrong domain for those two inputs. Fixed; corrected sequences from <code><a href="../reference/correct_tales.html">correct_tales()</a></code> may now differ from previous runs on the same input.</p>
 </div>
 <div class="section level3">
-<h3 id="in-depth-documentation-review-of-every-exported-function-0-9-9010">In-depth documentation review of every exported function<a class="anchor" aria-label="anchor" href="#in-depth-documentation-review-of-every-exported-function-0-9-9010"></a></h3>
+<h3 id="in-depth-documentation-review-of-every-exported-function-0-9-9011">In-depth documentation review of every exported function<a class="anchor" aria-label="anchor" href="#in-depth-documentation-review-of-every-exported-function-0-9-9011"></a></h3>
 <p>Every exported function and S3 method’s documentation was checked for accuracy against its actual current behaviour, completeness (arguments, return value, a real runnable example), and consistency of tone – several stale or copy-pasted descriptions, wrong defaults, and missing <code>@examples</code> fixed along the way. See <code>dev/restructuring-notes.md</code> §17 for the full record.</p>
 </div>
 <div class="section level3">
-<h3 id="tale-comparison-by-predicted-binding-specificity-reworked-0-9-9010">TALE comparison by predicted binding specificity, reworked<a class="anchor" aria-label="anchor" href="#tale-comparison-by-predicted-binding-specificity-reworked-0-9-9010"></a></h3>
+<h3 id="tale-comparison-by-predicted-binding-specificity-reworked-0-9-9011">TALE comparison by predicted binding specificity, reworked<a class="anchor" aria-label="anchor" href="#tale-comparison-by-predicted-binding-specificity-reworked-0-9-9011"></a></h3>
 <p><code>functal()</code>, the wrapper around QueTAL’s vendored Perl <code>FuncTAL</code> script, is retired: moved to <code>inst/legacy/</code> along with the Perl tool itself (<code>inst/tools/QueTAL_v1.1/</code> -&gt; <code>inst/legacy/QueTAL_v1.1/</code>), unexported, no longer built. It could not be fixed in place – the script needs <code>Bio::Perl</code>, dropped by BioPerl in the 1.7 reorganisation, and no perl/bioperl combination available restores it.</p>
 <p>In its place: <code><a href="../reference/tales_to_universalmotif.html">tales_to_universalmotif()</a></code> converts a <code>tales</code> object into a list of <code>universalmotif</code> PWMs (one per array, from each array’s RVD-to-DNA binding-specificity weights), and <code><a href="../reference/tales_compare_functal.html">tales_compare_functal()</a></code> compares them via <code><a href="https://rdrr.io/pkg/universalmotif/man/compare_motifs.html" class="external-link">universalmotif::compare_motifs()</a></code>. This is not a port of the old script’s numbers – <code>compare_motifs()</code>’s Pearson correlation over matched columns is a different statistic from FuncTAL’s single correlation over the whole flattened, padded region, and the two do not agree. Once a <code>tales</code> object is a list of real <code>universalmotif</code> motifs, the rest of that package’s toolkit becomes directly usable: <code>motif_tree()</code>, <code>view_motifs()</code>, <code>scan_sequences()</code>, <code>merge_motifs()</code>, and more.</p>
 </div>
 <div class="section level3">
-<h3 id="breaking-change-the-tales-class-system-replaces-the-list-of-tables-api-0-9-9010">Breaking change: the <code>tales</code> class system replaces the list-of-tables API<a class="anchor" aria-label="anchor" href="#breaking-change-the-tales-class-system-replaces-the-list-of-tables-api-0-9-9010"></a></h3>
+<h3 id="breaking-change-the-tales-class-system-replaces-the-list-of-tables-api-0-9-9011">Breaking change: the <code>tales</code> class system replaces the list-of-tables API<a class="anchor" aria-label="anchor" href="#breaking-change-the-tales-class-system-replaces-the-list-of-tables-api-0-9-9011"></a></h3>
 <p>The pipeline now passes typed objects rather than named lists of plain data frames. <code>tales_compare()</code> (formerly <code>distalr()</code>) returns three of them:</p>
 <table class="table"><colgroup><col width="50%"><col width="50%"></colgroup><thead><tr class="header"><th>element</th>
 <th>class</th>
@@ -156,14 +194,14 @@
 <code>tale_distances</code> / <code>pairwise_distances</code>
 </td>
 </tr></tbody></table><div class="section level4">
-<h4 id="removed-functions-0-9-9010">Removed functions<a class="anchor" aria-label="anchor" href="#removed-functions-0-9-9010"></a></h4>
+<h4 id="removed-functions-0-9-9011">Removed functions<a class="anchor" aria-label="anchor" href="#removed-functions-0-9-9011"></a></h4>
 <p>These were deprecated in an earlier development commit and are now gone. There is no alias; <code>master</code> still carries the old API if you need a reference.</p>
 <table class="table"><thead><tr class="header"><th>removed</th>
 <th>replacement</th>
 </tr></thead><tbody><tr class="odd"><td><code>distalr()</code></td>
 <td><code>tales_compare()</code></td>
 </tr><tr class="even"><td><code>tale_parts()</code></td>
-<td><code><a href="../reference/tales_from_telltale.html">tales_from_telltale()</a></code></td>
+<td><code><a href="../reference/tales_from_telltales.html">tales_from_telltales()</a></code></td>
 </tr><tr class="odd"><td><code>split_list()</code></td>
 <td><code><a href="../reference/as_tales.html">as_tales()</a></code></td>
 </tr><tr class="even"><td><code>build_repeat_msa()</code></td>
@@ -173,15 +211,15 @@
 </tr></tbody></table><p><code>distalr()</code>’s six-element list is reduced to the three typed elements above. <code>coded.repeats.str</code>, <code>repeats.code</code> and <code>repeats.cluster</code> were verified to be pure projections of the parts table or to have no consumer at all, and are replaced by <code><a href="../reference/tales_coded_strings.html">tales_coded_strings()</a></code>, <code><a href="../reference/tales_domain_codes.html">tales_domain_codes()</a></code> and an explicit clustering call respectively.</p>
 </div>
 <div class="section level4">
-<h4 id="bug-fix-repeat-clustering-was-computed-on-an-inverted-matrix-0-9-9010">Bug fix: repeat clustering was computed on an inverted matrix<a class="anchor" aria-label="anchor" href="#bug-fix-repeat-clustering-was-computed-on-an-inverted-matrix-0-9-9010"></a></h4>
+<h4 id="bug-fix-repeat-clustering-was-computed-on-an-inverted-matrix-0-9-9011">Bug fix: repeat clustering was computed on an inverted matrix<a class="anchor" aria-label="anchor" href="#bug-fix-repeat-clustering-was-computed-on-an-inverted-matrix-0-9-9011"></a></h4>
 <p><code>.repeat_to_cluster_align()</code>, which colours the repeat-cluster fill in <code>plot_tales_msa()</code> and <code>msa_heatmap()</code>, passed a <strong>similarity</strong> matrix straight to <code><a href="https://rdrr.io/r/stats/dist.html" class="external-link">as.dist()</a></code>. <code><a href="https://rdrr.io/r/stats/dist.html" class="external-link">as.dist()</a></code> expects a distance, so the dendrogram was built upside down and the resulting clusters were wrong.</p>
 <p>Fixed by inverting to a distance first. Because the cut height is now read on a distance scale, the <code>h_cut</code> default changes from <strong>90 to 10</strong> in both plotting functions; if you pass <code>h_cut</code> explicitly, subtract it from 100.</p>
 <p>The clusters change: on the reference output, cutting the corrected tree yields 45 clusters where the old code gave 59, with 93.8% pair-agreement between the two partitions.</p>
 <p><code>.cluster_repeats()</code> had the same defect but became unreachable when <code>distalr()</code> was removed, and has been deleted.</p>
 </div>
 <div class="section level4">
-<h4 id="msa_heatmap-is-retired-0-9-9010">
-<code>msa_heatmap()</code> is retired<a class="anchor" aria-label="anchor" href="#msa_heatmap-is-retired-0-9-9010"></a></h4>
+<h4 id="msa_heatmap-is-retired-0-9-9011">
+<code>msa_heatmap()</code> is retired<a class="anchor" aria-label="anchor" href="#msa_heatmap-is-retired-0-9-9011"></a></h4>
 <p>Superseded by <code>plot_tales_msa()</code> and moved to <code>inst/legacy/</code>. Its six <code>plot_type</code> values were combinations of features that <code>plot_tales_msa()</code> exposes as orthogonal arguments; the one thing it did that `plot_tales_msa() could not – draw the consensus row – is now implemented there.</p>
 <table class="table"><thead><tr class="header"><th><code>msa_heatmap(plot_type =)</code></th>
 <th><code>plot_tales_msa()</code></th>
@@ -202,20 +240,20 @@
 </tr></tbody></table><p><code>save_path</code> has no equivalent because none is needed: the returned ggplot is <code>ggsave()</code>-able. <code>note_colors</code> likewise – add a scale to the returned plot.</p>
 </div>
 <div class="section level4">
-<h4 id="plot_tales_msa-can-draw-the-consensus-0-9-9010">
-<code>plot_tales_msa()</code> can draw the consensus<a class="anchor" aria-label="anchor" href="#plot_tales_msa-can-draw-the-consensus-0-9-9010"></a></h4>
+<h4 id="plot_tales_msa-can-draw-the-consensus-0-9-9011">
+<code>plot_tales_msa()</code> can draw the consensus<a class="anchor" aria-label="anchor" href="#plot_tales_msa-can-draw-the-consensus-0-9-9011"></a></h4>
 <p><code>consensus = TRUE</code> now adds a consensus row above the alignment, where it previously did nothing and the argument was documented as “NOT IMPLEMENTED YET”. The consensus is the most frequent element per column, taken from <code>rvd_align</code> when supplied and <code>repeat_align</code> otherwise, so it always matches what the cells are labelled with.</p>
 <p>It is drawn as its own panel above the alignment rather than as an extra row. That is not cosmetic: <code>aplot</code> reorders the alignment’s y axis onto the tree’s leaves, so a row the tree has no leaf for is silently dropped.</p>
 <p>This was the one feature <code>msa_heatmap()</code> still provided that <code>plot_tales_msa()</code> did not.</p>
 </div>
 <div class="section level4">
-<h4 id="messaging-is-now-cli-throughout-0-9-9010">Messaging is now cli throughout<a class="anchor" aria-label="anchor" href="#messaging-is-now-cli-throughout-0-9-9010"></a></h4>
+<h4 id="messaging-is-now-cli-throughout-0-9-9011">Messaging is now cli throughout<a class="anchor" aria-label="anchor" href="#messaging-is-now-cli-throughout-0-9-9011"></a></h4>
 <p>The package mixed four messaging idioms: <code>logger</code>, <code><a href="https://rdrr.io/r/base/cat.html" class="external-link">cat()</a></code>, base <code><a href="https://rdrr.io/r/base/message.html" class="external-link">message()</a></code> and base <code><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop()</a></code>/<code><a href="https://rdrr.io/r/base/warning.html" class="external-link">warning()</a></code>. It now uses <code>cli</code> only, and <code>logger</code> has been dropped from <code>Imports</code>.</p>
 <p>This also fixes a class of bug rather than being cosmetic. Twenty-three call sites wrote their diagnostic to the logger and then raised a bare <code><a href="https://rdrr.io/r/base/stop.html" class="external-link">stop()</a></code> or <code><a href="https://rdrr.io/r/base/warning.html" class="external-link">warning()</a></code> – conditions whose message was the empty string. <code><a href="https://rdrr.io/r/base/conditions.html" class="external-link">tryCatch()</a></code> saw nothing, tests could not assert on them, and if your logger threshold excluded ERROR the failure was silent. Errors now carry their message on the condition, with a <code>tantale_error</code> class.</p>
 <p>One guard was simply broken: <code>distalr()</code> tested <code>aln_method</code> with <code>logger::log_errors() &amp;&amp; stop("...")</code>. <code>log_errors()</code> installs a global error handler rather than returning a predicate, so the helpful message was unreachable and an invalid <code>aln_method</code> produced an unrelated complaint about calling handlers.</p>
 </div>
 <div class="section level4">
-<h4 id="similarity-became-distance-0-9-9010">Similarity became distance<a class="anchor" aria-label="anchor" href="#similarity-became-distance-0-9-9010"></a></h4>
+<h4 id="similarity-became-distance-0-9-9011">Similarity became distance<a class="anchor" aria-label="anchor" href="#similarity-became-distance-0-9-9011"></a></h4>
 <p><code>pairwise_distances</code> (formerly <code>pairwise_sim</code>) stores <code>dissim</code>, not <code>sim</code>, and <code>tale_sim</code>/<code>repeat_sim</code> are now <code>tale_distances</code>/<code>domain_distances</code>.</p>
 <p>Two reasons. First, <code>repeat_sim</code> understated its content: 71 of the 251 ids in the reference output (28%) are terminus domains rather than repeats, so <code>domain</code> is the accurate word. Second, the distance is the <em>native</em> quantity in both tables — the aligners emit a dissimilarity, and the TALE-level score is an ARLEM cost divided by array length — while <code>Sim</code> was a derived <code>100 - x</code> that every consumer immediately inverted back. Storing one quantity rather than two also removes the risk of the two drifting apart.</p>
 <p>Legacy tables are still accepted on input: a data frame carrying <code>Sim</code>, <code>TAL1</code>/<code>TAL2</code>, <code>RepU1</code>/<code>RepU2</code> or <code>normArlemScore</code> is converted to the canonical <code>id1</code>/<code>id2</code>/<code>dissim</code> form at construction.</p>
@@ -223,39 +261,39 @@
 </div>
 </div>
 <div class="section level3">
-<h3 id="breaking-change-every-column-is-now-snake_case-0-9-9010">Breaking change: every column is now <code>snake_case</code>
-<a class="anchor" aria-label="anchor" href="#breaking-change-every-column-is-now-snake_case-0-9-9010"></a></h3>
+<h3 id="breaking-change-every-column-is-now-snake_case-0-9-9011">Breaking change: every column is now <code>snake_case</code>
+<a class="anchor" aria-label="anchor" href="#breaking-change-every-column-is-now-snake_case-0-9-9011"></a></h3>
 <p>The tables <code>tantale</code> returns used four naming conventions at once, one of them with a literal space in a column name. They now use one.</p>
 <div class="section level4">
-<h4 id="the-tales-table-0-9-9010">The <code>tales</code> table<a class="anchor" aria-label="anchor" href="#the-tales-table-0-9-9010"></a></h4>
+<h4 id="the-tales-table-0-9-9011">The <code>tales</code> table<a class="anchor" aria-label="anchor" href="#the-tales-table-0-9-9011"></a></h4>
 <p><code>arrayID</code>, <code>domainType</code>, <code>positionInCrd</code>, <code>dnaSeq</code>, <code>sourceDirectory</code>, <code>positionInArray</code>, <code>aaSeq</code> and <code>domCode</code> become <code>array_id</code>, <code>domain_type</code>, <code>position_in_crd</code>, <code>dna_seq</code>, <code>source_directory</code>, <code>position_in_array</code>, <code>aa_seq</code> and <code>dom_code</code>.</p>
 <p><code><a href="../reference/tales.html">tales()</a></code> still accepts the old spellings and renames them, so a <code><a href="../reference/tell_tales.html">tell_tales()</a></code> output directory written by an earlier version still loads.</p>
 </div>
 <div class="section level4">
-<h4 id="the-distance-tables-0-9-9010">The distance tables<a class="anchor" aria-label="anchor" href="#the-distance-tables-0-9-9010"></a></h4>
+<h4 id="the-distance-tables-0-9-9011">The distance tables<a class="anchor" aria-label="anchor" href="#the-distance-tables-0-9-9011"></a></h4>
 <p><code>domain_distances</code> and <code>tale_distances</code> previously disagreed about how to name the pair being compared – <code>RepU1</code>/<code>RepU2</code> in one, <code>TAL1</code>/<code>TAL2</code> in the other, and in opposite column orders. Both now use <code>id1</code>, <code>id2</code> and <code>dissim</code>, with <code>arlem_score</code> and <code>max_length</code> alongside for the TALE table.</p>
 <p><code><a href="../reference/pairwise_distances.html">pairwise_distances()</a></code> accepts <code>TAL1</code>/<code>RepU1</code>/<code>Sim</code>/<code>Dissim</code>/<code>arlemScore</code> and renames them, and <code>plot_tales_msa()</code> puts its <code>tal_sim</code> and <code>repeat_sim</code> arguments through it, so passing an old-format table still works.</p>
 </div>
 <div class="section level4">
-<h4 id="on-disk-output-0-9-9010">On-disk output<a class="anchor" aria-label="anchor" href="#on-disk-output-0-9-9010"></a></h4>
+<h4 id="on-disk-output-0-9-9011">On-disk output<a class="anchor" aria-label="anchor" href="#on-disk-output-0-9-9011"></a></h4>
 <p><code><a href="../reference/tell_tales.html">tell_tales()</a></code> writes <code>array_id</code> instead of <code>arrayID</code> in <code>arrayReport.tsv</code>, <code>domainsReport.tsv</code> and <code>hitsReport.tsv</code>, and the GFFs derived from them carry an <code>array_id</code> attribute. <strong>Scripts that read these files by column name need updating.</strong></p>
 </div>
 <div class="section level4">
-<h4 id="fixed-along-the-way-0-9-9010">Fixed along the way<a class="anchor" aria-label="anchor" href="#fixed-along-the-way-0-9-9010"></a></h4>
+<h4 id="fixed-along-the-way-0-9-9011">Fixed along the way<a class="anchor" aria-label="anchor" href="#fixed-along-the-way-0-9-9011"></a></h4>
 <ul><li>
 <code>.tale_parts_from_file()</code> named its column <code>arrayIDs</code> when the input was empty and <code>arrayID</code> otherwise, so the two returns had incompatible schemas.</li>
 <li>
-<code><a href="../reference/repeat_to_rvd_map_distalr.html">repeat_to_rvd_map_distalr()</a></code> and <code><a href="../reference/tale_parts_to_rvd.html">tale_parts_to_rvd()</a></code> are documented as taking a <code>tales_compare()</code> result but read the pre-class column names, so both had been broken against that result.</li>
+<code>repeat_to_rvd_map_distalr()</code> and <code>tale_parts_to_rvd()</code> are documented as taking a <code>tales_compare()</code> result but read the pre-class column names, so both had been broken against that result.</li>
 <li>
 <code>.repeat_to_cluster_align()</code> recovered a distance by computing <code>100 - Sim</code> before clustering, which assumed the scale ran 0-100. It now reads the stored distance.</li>
 <li>Six <code>if (class(x) == "...")</code> comparisons became <code><a href="https://rdrr.io/r/base/class.html" class="external-link">inherits()</a></code>.</li>
 </ul></div>
 </div>
 <div class="section level3">
-<h3 id="breaking-change-package-wide-naming-overhaul-0-9-9010">Breaking change: package-wide naming overhaul<a class="anchor" aria-label="anchor" href="#breaking-change-package-wide-naming-overhaul-0-9-9010"></a></h3>
+<h3 id="breaking-change-package-wide-naming-overhaul-0-9-9011">Breaking change: package-wide naming overhaul<a class="anchor" aria-label="anchor" href="#breaking-change-package-wide-naming-overhaul-0-9-9011"></a></h3>
 <p>The package had accumulated two incompatible naming styles (camelCase, snake_case, and some dot.case) across its history, which made the API hard to predict and, in argument names, occasionally collided with R’s own S3 dispatch conventions. Every exported function, and most internal ones, have been renamed to a single consistent <code>snake_case</code> style. There is no backward-compatible alias for any old name — this is a clean break, not a deprecation cycle. If you have scripts using the old API, use the <code>master</code> branch, which still has the old names, as a reference while you update.</p>
 <div class="section level4">
-<h4 id="exported-function-renames-0-9-9010">Exported function renames<a class="anchor" aria-label="anchor" href="#exported-function-renames-0-9-9010"></a></h4>
+<h4 id="exported-function-renames-0-9-9011">Exported function renames<a class="anchor" aria-label="anchor" href="#exported-function-renames-0-9-9011"></a></h4>
 <table class="table"><thead><tr class="header"><th>Old name</th>
 <th>New name</th>
 </tr></thead><tbody><tr class="odd"><td><code>FuncTAL()</code></td>
@@ -273,9 +311,9 @@
 </tr><tr class="odd"><td><code>diagnoseTaleParts()</code></td>
 <td><code>diagnose_tale_parts()</code></td>
 </tr><tr class="even"><td><code>getRepeat2RvdMapping()</code></td>
-<td><code><a href="../reference/repeat_to_rvd_map.html">repeat_to_rvd_map()</a></code></td>
+<td><code>repeat_to_rvd_map()</code></td>
 </tr><tr class="odd"><td><code>getRepeat2RvdMappingFromDistalr()</code></td>
-<td><code><a href="../reference/repeat_to_rvd_map_distalr.html">repeat_to_rvd_map_distalr()</a></code></td>
+<td><code>repeat_to_rvd_map_distalr()</code></td>
 </tr><tr class="even"><td><code>getTaleParts()</code></td>
 <td><code>tale_parts()</code></td>
 </tr><tr class="odd"><td><code>ggplotTalesMsa()</code></td>
@@ -295,7 +333,7 @@
 </tr><tr class="even"><td><code>taleAlignConsensus()</code></td>
 <td><code><a href="../reference/tales_consensus.html">tales_consensus()</a></code></td>
 </tr><tr class="odd"><td><code>taleParts2RvdStringSet()</code></td>
-<td><code><a href="../reference/tale_parts_to_rvd.html">tale_parts_to_rvd()</a></code></td>
+<td><code>tale_parts_to_rvd()</code></td>
 </tr><tr class="even"><td><code>tellTale()</code></td>
 <td><code><a href="../reference/tell_tales.html">tell_tales()</a></code></td>
 </tr><tr class="odd"><td><code>tellTale2()</code></td>
@@ -308,7 +346,7 @@
 <td>unchanged</td>
 </tr></tbody></table></div>
 <div class="section level4">
-<h4 id="argument-renames-package-wide-conventions-0-9-9010">Argument renames (package-wide conventions)<a class="anchor" aria-label="anchor" href="#argument-renames-package-wide-conventions-0-9-9010"></a></h4>
+<h4 id="argument-renames-package-wide-conventions-0-9-9011">Argument renames (package-wide conventions)<a class="anchor" aria-label="anchor" href="#argument-renames-package-wide-conventions-0-9-9011"></a></h4>
 <ul><li>
 <code>condaBinPath</code> -&gt; <code>conda_bin</code>
 </li>
@@ -332,11 +370,11 @@
 </ul><p>Plus function-specific cleanups, notably: - <code><a href="../reference/tell_tales.html">tell_tales()</a></code>’s verbose scoring arguments (e.g. <code>TALE_NtermDNAHitMinScore</code> -&gt; <code>nterm_min_score</code>, <code>minDomainHitsPerSubjSeq</code> -&gt; <code>min_domain_hits</code>). - <code><a href="../reference/talomes_heatmap.html">talomes_heatmap()</a></code>’s cryptic column-selector arguments (<code>col</code>/<code>row</code>/<code>value</code> -&gt; <code>group_col</code>/<code>strain_col</code>/<code>rvd_col</code>; <code>truncTaleLab</code> -&gt; <code>trunc_tales_col</code>; <code>mapcol</code>/<code>sepwid</code>/<code>sepcol</code>/<code>mar.side</code> -&gt; <code>colors</code>/<code>sep_width</code>/<code>sep_color</code>/<code>margins</code>).</p>
 </div>
 <div class="section level4">
-<h4 id="internal-functions-0-9-9010">Internal functions<a class="anchor" aria-label="anchor" href="#internal-functions-0-9-9010"></a></h4>
-<p>Roughly 35 non-exported helper functions were also renamed to <code>snake_case</code>, and every non-exported function now consistently starts with a leading <code>.</code> (this was previously applied only in some files). Since these were never part of the public API, this isn’t a breaking change for package users, but it’s listed here for anyone reading the source or a diff against an older version. Notable ones, since they change <em>behavior</em>-adjacent naming rather than pure casing: - <code>.distalPairwiseAlign()</code> / <code>2</code> / <code>3</code> -&gt; <code>.pairwise_align_biostrings()</code> / <code>.pairwise_align_mmseq2()</code> / <code>.pairwise_align_decipher()</code> (named after the actual backend instead of an arbitrary number) - <code>convertRepeat2SimAlign()</code>, <code>convertRepeat2ClusterIDAlign()</code>, <code>convertRvd2RepeatAlign()</code>, <code>convertRvd2MatchAlign()</code> -&gt; <code>.repeat_to_sim_align()</code>, <code>.repeat_to_cluster_align()</code>, <code><a href="../reference/dot-rvd_to_repeat_align.html">.rvd_to_repeat_align()</a></code>, <code><a href="../reference/dot-rvd_to_match_align.html">.rvd_to_match_align()</a></code> (joining the <code>_to_</code> naming family used by the exported conversion functions) - <code>computeRVDSeqEBESeqMatchQualityString()</code> -&gt; <code>.compute_match_string()</code> - <code>systemInCondaEnv()</code> / <code>createTantaleEnv()</code> -&gt; <code>.run_in_conda()</code> / <code>.create_tantale_env()</code></p>
+<h4 id="internal-functions-0-9-9011">Internal functions<a class="anchor" aria-label="anchor" href="#internal-functions-0-9-9011"></a></h4>
+<p>Roughly 35 non-exported helper functions were also renamed to <code>snake_case</code>, and every non-exported function now consistently starts with a leading <code>.</code> (this was previously applied only in some files). Since these were never part of the public API, this isn’t a breaking change for package users, but it’s listed here for anyone reading the source or a diff against an older version. Notable ones, since they change <em>behavior</em>-adjacent naming rather than pure casing: - <code>.distalPairwiseAlign()</code> / <code>2</code> / <code>3</code> -&gt; <code>.pairwise_align_biostrings()</code> / <code>.pairwise_align_mmseq2()</code> / <code>.pairwise_align_decipher()</code> (named after the actual backend instead of an arbitrary number) - <code>convertRepeat2SimAlign()</code>, <code>convertRepeat2ClusterIDAlign()</code>, <code>convertRvd2RepeatAlign()</code>, <code>convertRvd2MatchAlign()</code> -&gt; <code>.repeat_to_sim_align()</code>, <code>.repeat_to_cluster_align()</code>, <code>.rvd_to_repeat_align()</code>, <code><a href="../reference/dot-rvd_to_match_align.html">.rvd_to_match_align()</a></code> (joining the <code>_to_</code> naming family used by the exported conversion functions) - <code>computeRVDSeqEBESeqMatchQualityString()</code> -&gt; <code>.compute_match_string()</code> - <code>systemInCondaEnv()</code> / <code>createTantaleEnv()</code> -&gt; <code>.run_in_conda()</code> / <code>.create_tantale_env()</code></p>
 </div>
 <div class="section level4">
-<h4 id="other-fixes-made-alongside-the-rename-0-9-9010">Other fixes made alongside the rename<a class="anchor" aria-label="anchor" href="#other-fixes-made-alongside-the-rename-0-9-9010"></a></h4>
+<h4 id="other-fixes-made-alongside-the-rename-0-9-9011">Other fixes made alongside the rename<a class="anchor" aria-label="anchor" href="#other-fixes-made-alongside-the-rename-0-9-9011"></a></h4>
 <ul><li>
 <code>group_tales()</code> and <code><a href="../reference/talomes_heatmap.html">talomes_heatmap()</a></code> called <code><a href="https://rdrr.io/pkg/cluster/man/pam.html" class="external-link">cluster::pam()</a></code>, <code><a href="https://sjmgarnier.github.io/viridis/reference/scale_viridis.html" class="external-link">viridis::scale_color_viridis()</a></code> and <code><a href="https://rdrr.io/pkg/tidytree/man/MRCA.html" class="external-link">tidytree::MRCA()</a></code>/<code>groupClade()</code> without declaring <code>cluster</code>, <code>viridis</code>, or <code>tidytree</code> in <code>DESCRIPTION</code>. Fixed.</li>
 <li>Fixed a handful of prose/log messages that referred to the AnnoTALE tool by name and would otherwise have been corrupted by the <code>annoTALE</code> -&gt; <code>annotale_jar</code> argument rename (e.g. “Now running AnnoTALE predict for…” was at risk of becoming “Now running annotale_jar predict for…”).</li>

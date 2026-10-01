@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9010</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -114,7 +114,7 @@
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="fu"><a href="../reference/tell_tales.html">tell_tales</a></span><span class="op">(</span>subject_file <span class="op">=</span> <span class="va">genome_files</span><span class="op">[</span><span class="va">strain</span><span class="op">]</span>, output_dir <span class="op">=</span> <span class="va">strain_dir</span>,</span>
 <span>                       cterm_min_score <span class="op">=</span> <span class="fl">300</span>,</span>
 <span>                       correct_array <span class="op">=</span> <span class="cn">TRUE</span>, max_comparisons <span class="op">=</span> <span class="fl">50</span><span class="op">)</span><span class="op">)</span></span>
-<span>  <span class="fu"><a href="../reference/tales_from_telltale.html">tales_from_telltale</a></span><span class="op">(</span><span class="va">strain_dir</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>  <span class="fu"><a href="../reference/tales_from_telltales.html">tales_from_telltales</a></span><span class="op">(</span><span class="va">strain_dir</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>array_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="va">strain</span>, <span class="st">"_"</span>, <span class="va">array_id</span><span class="op">)</span>, strain <span class="op">=</span> <span class="va">strain</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 </details>
@@ -183,8 +183,8 @@
 <p>Comparing domain sequences, the step just run, is the expensive part, and three backends can do it: <code>"DECIPHER"</code> (the default, used above), <code>"Biostrings"</code>, and <code>"mmseq2"</code>. All three score pairwise protein alignments between domains, so the choice should depend on what is installed and how large the dataset is, and should not change the answer. A small independent fixture, on which all three run quickly, checks that:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">small</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tales_from_telltale.html">tales_from_telltale</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"tellTaleExampleOutput"</span>,</span>
-<span>                                         package <span class="op">=</span> <span class="st">"tantale"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">small</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tales_from_telltales.html">tales_from_telltales</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"tellTaleExampleOutput"</span>,</span>
+<span>                                          package <span class="op">=</span> <span class="st">"tantale"</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </details>
 </div>
 <div class="cell">
@@ -554,7 +554,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script><script>var lightboxQuarto = GLightbox({"descPosition":"bottom","closeEffect":"zoom","openEffect":"zoom","selector":".lightbox","loop":false});
+</script><script>var lightboxQuarto = GLightbox({"loop":false,"openEffect":"zoom","descPosition":"bottom","closeEffect":"zoom","selector":".lightbox"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

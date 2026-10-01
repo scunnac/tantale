@@ -6,7 +6,9 @@ Find TALE genes in genomic sequence and parse them into arrays of parts.
 
 - [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
   : Correct TALE ORFs in error-prone sequences
-- [`tales_from_telltale()`](https://scunnac.github.io/tantale/reference/tales_from_telltale.md)
+- [`tales_from_annotale()`](https://scunnac.github.io/tantale/reference/tales_from_annotale.md)
+  : Build a tales object from AnnoTALE's own TALE predictions
+- [`tales_from_telltales()`](https://scunnac.github.io/tantale/reference/tales_from_telltales.md)
   : Build a tales object from a tell_tales run directory
 - [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
   : Search and report on the features of TALE protein domains
@@ -108,7 +110,7 @@ Multiple alignment of TALE arrays and consensus over it.
   : Do elements in a TALE msa match the consensus?
 - [`tales_msa()`](https://scunnac.github.io/tantale/reference/tales_msa.md)
   : Create a tales_msa object
-- [`tales_width()`](https://scunnac.github.io/tantale/reference/tales_width.md)
+- [`tales_msa_width()`](https://scunnac.github.io/tantale/reference/tales_msa_width.md)
   : Width of a TALE alignment
 - [`validate_tales_msa()`](https://scunnac.github.io/tantale/reference/validate_tales_msa.md)
   : Validate a tales_msa object
@@ -117,12 +119,6 @@ Multiple alignment of TALE arrays and consensus over it.
 
 Views derived from a tales object, and format conversions between them.
 
-- [`repeat_to_rvd_map()`](https://scunnac.github.io/tantale/reference/repeat_to_rvd_map.md)
-  : Generate a mapping between Distal repeat IDs and their cognate RVD
-- [`repeat_to_rvd_map_distalr()`](https://scunnac.github.io/tantale/reference/repeat_to_rvd_map_distalr.md)
-  : Generate a mapping between Distal repeat IDs and their cognate RVD
-- [`tale_parts_to_rvd()`](https://scunnac.github.io/tantale/reference/tale_parts_to_rvd.md)
-  : Generates a RVD sequences set from a tale_parts object
 - [`tales_coded_strings()`](https://scunnac.github.io/tantale/reference/tales_coded_strings.md)
   : Domain-coded strings, one per TALE array
 - [`tales_domain_codes()`](https://scunnac.github.io/tantale/reference/tales_domain_codes.md)

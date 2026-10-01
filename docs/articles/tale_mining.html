@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9010</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -80,7 +80,7 @@
 
 
     <p>This is the first of a set of articles walking through a typical study of TALE diversity: finding TALE genes in a genome (here), classifying the arrays found into groups of related sequences, aligning those groups, and predicting the DNA targets of the TALEs they contain. The other articles in the set are side branches: deep dives into a single class (<code>tales</code>, <code>tales_msa</code>) and one case study on naturally truncated TALEs. Each is linked from the point where it becomes relevant.</p>
-<p>This article covers TALE discovery with <code><a href="../reference/tell_tales.html">tell_tales()</a></code>, and something discovery cannot avoid: real assemblies are not always clean, and <code><a href="../reference/tell_tales.html">tell_tales()</a></code> can sometimes be fooled. tantale offers two ways to correct frameshifts. They work differently, neither is guaranteed to succeed, and <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> tells you which arrays still need attention after either one.</p>
+<p>This article covers TALE discovery with <code><a href="../reference/tell_tales.html">tell_tales()</a></code>. Because of their repetitive nature <em>tal</em> genes cannot be assembled from short read sequencing technologies data. This is why now most of the genomes of <em>tal</em> bearing bacteria are sequenced with long read technologies which may be error prone. Those assemblies are not always clean, and <code><a href="../reference/tell_tales.html">tell_tales()</a></code> can sometimes be fooled. tantale offers two ways to correct frameshifts. They work differently, neither is guaranteed to succeed, and <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> tells you which arrays still need attention after either one.</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://scunnac.github.io/tantale">tantale</a></span><span class="op">)</span></span>
@@ -118,7 +118,7 @@
 <p>The result on disk is a directory of reports and fasta files. The result in R is a <code>tales</code> object, with one row per part (repeat or terminus):</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">mai1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="../reference/tales_from_telltale.html">tales_from_telltale</a></span><span class="op">(</span><span class="va">mai1_dir</span><span class="op">)</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="va">mai1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="../reference/tales_from_telltales.html">tales_from_telltales</a></span><span class="op">(</span><span class="va">mai1_dir</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">mai1</span></span>
 <span><span class="co">#&gt; &lt;tales&gt; 9 arrays, 198 parts</span></span>
 <span><span class="co">#&gt;   layers: rvd   |   6 other columns</span></span>
@@ -155,14 +155,14 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 </section><section class="level2" data-number="2"><h2 data-number="2" id="what-tell_tales-writes-to-disk">
 <span class="header-section-number">2</span> What <code>tell_tales()</code> writes to disk<a class="anchor" aria-label="anchor" href="#what-tell_tales-writes-to-disk"></a>
 </h2>
-<p>Besides the RVD sequences and the TALE ORFs themselves, <code><a href="../reference/tell_tales.html">tell_tales()</a></code> writes three tab-separated reports, which <code><a href="../reference/tales_from_telltale.html">tales_from_telltale()</a></code> reads back to build the object above. They are worth knowing about directly, since they carry a few things the <code>tales</code> object does not.</p>
+<p>Besides the RVD sequences and the TALE ORFs themselves, <code><a href="../reference/tell_tales.html">tell_tales()</a></code> writes three tab-separated reports, which <code><a href="../reference/tales_from_telltales.html">tales_from_telltales()</a></code> reads back to build the object above. They are worth knowing about directly, since they carry a few things the <code>tales</code> object does not.</p>
 <div class="cell">
 <div class="cell-output-display">
 <table class="table caption-top">
 <colgroup>
-<col style="width: 12%">
-<col style="width: 13%">
-<col style="width: 73%">
+<col style="width: 9%">
+<col style="width: 10%">
+<col style="width: 79%">
 </colgroup>
 <thead><tr class="header">
 <th style="text-align: left;">file</th>
@@ -185,7 +185,7 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 <td style="text-align: left;"><code>array_report.tsv</code></td>
 <td style="text-align: left;">candidate array</td>
 <td style="text-align: left;">
-<code>has_all_domains</code>, <code>has_aberrant_repeat</code>, <code>orf_coverage</code>, and (with correction) <code>predicted_ins_count</code>/<code>predicted_dels_count</code>
+<code>nterm_dna_hit</code>/<code>cterm_dna_hit</code>, <code>nterm_aa_hit</code>/<code>cterm_aa_hit</code>, <code>has_aberrant_repeat</code>, <code>orf_coverage</code>, and (with correction) <code>predicted_ins_count</code>/<code>predicted_dels_count</code>
 </td>
 </tr>
 </tbody>
@@ -198,24 +198,24 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 <code class="sourceCode R"><span><span class="va">array_report</span> <span class="op">&lt;-</span> <span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_tsv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">mai1_dir</span>, <span class="st">"array_report.tsv"</span><span class="op">)</span>,</span>
 <span>                                show_col_types <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span><span class="va">array_report</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">array_id</span>, <span class="va">has_all_domains</span>, <span class="va">longest_orf_length</span>, <span class="va">orf_coverage</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 10 × 4</span></span>
-<span><span class="co">#&gt;    array_id  has_all_domains longest_orf_length orf_coverage</span></span>
-<span><span class="co">#&gt;    &lt;chr&gt;     &lt;lgl&gt;                        &lt;dbl&gt;        &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt;  1 ROI_00005 FALSE                           NA           NA</span></span>
-<span><span class="co">#&gt;  2 ROI_00003 TRUE                          3087           91</span></span>
-<span><span class="co">#&gt;  3 ROI_00007 TRUE                          3288           91</span></span>
-<span><span class="co">#&gt;  4 ROI_00006 TRUE                          3393           91</span></span>
-<span><span class="co">#&gt;  5 ROI_00010 TRUE                          3492           92</span></span>
-<span><span class="co">#&gt;  6 ROI_00008 TRUE                          3594           92</span></span>
-<span><span class="co">#&gt;  7 ROI_00001 TRUE                          3825           92</span></span>
-<span><span class="co">#&gt;  8 ROI_00009 TRUE                          3903           92</span></span>
-<span><span class="co">#&gt;  9 ROI_00002 TRUE                          4302           93</span></span>
-<span><span class="co">#&gt; 10 ROI_00004 TRUE                          4305           93</span></span></code></pre></div>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">array_id</span>, <span class="va">nterm_dna_hit</span>, <span class="va">cterm_dna_hit</span>, <span class="va">longest_orf_length</span>, <span class="va">orf_coverage</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 10 × 5</span></span>
+<span><span class="co">#&gt;    array_id  nterm_dna_hit cterm_dna_hit longest_orf_length orf_coverage</span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;     &lt;lgl&gt;         &lt;lgl&gt;                      &lt;dbl&gt;        &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt;  1 ROI_00005 FALSE         FALSE                         NA           NA</span></span>
+<span><span class="co">#&gt;  2 ROI_00003 TRUE          TRUE                        3087           91</span></span>
+<span><span class="co">#&gt;  3 ROI_00007 TRUE          TRUE                        3288           91</span></span>
+<span><span class="co">#&gt;  4 ROI_00006 TRUE          TRUE                        3393           91</span></span>
+<span><span class="co">#&gt;  5 ROI_00010 TRUE          TRUE                        3492           92</span></span>
+<span><span class="co">#&gt;  6 ROI_00008 TRUE          TRUE                        3594           92</span></span>
+<span><span class="co">#&gt;  7 ROI_00001 TRUE          TRUE                        3825           92</span></span>
+<span><span class="co">#&gt;  8 ROI_00009 TRUE          TRUE                        3903           92</span></span>
+<span><span class="co">#&gt;  9 ROI_00002 TRUE          TRUE                        4302           93</span></span>
+<span><span class="co">#&gt; 10 ROI_00004 TRUE          TRUE                        4305           93</span></span></code></pre></div>
 </details>
 </div>
 <p><code>orf_coverage</code> is the longest ORF found, as a percentage of the whole candidate array region; a clean array’s ORF covers 91-93% of it here. That number is about to matter a great deal.</p>
-<p>The report has one more row than the <code>tales</code> object has arrays. <code>ROI_00005</code> is a candidate region with <code>has_all_domains</code> <code>FALSE</code> and no ORF length; it yields no parts, so it is absent from the object and from <a href="#fig-mai1-composition" class="quarto-xref">Figure 1</a>.</p>
+<p>The report has one more row than the <code>tales</code> object has arrays. <code>ROI_00005</code> is a candidate region with no terminus hit (<code>nterm_dna_hit</code> and <code>cterm_dna_hit</code> both <code>FALSE</code>) and no ORF length; it yields no parts, so it is absent from the object and from <a href="#fig-mai1-composition" class="quarto-xref">Figure 1</a>.</p>
 </section><section class="level2" data-number="3"><h2 data-number="3" id="sec-anomalies">
 <span class="header-section-number">3</span> When discovery goes wrong: detecting anomalies<a class="anchor" aria-label="anchor" href="#sec-anomalies"></a>
 </h2>
@@ -232,43 +232,64 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 <span>                     cterm_min_score <span class="op">=</span> <span class="fl">300</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </details>
 </div>
+<p>A first sign that there is something unexpected with these TALEs predictions are the warnings obtained when importing <code>tell_tales</code> results as a <code>tales</code> object:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">bai311_raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="../reference/tales_from_telltale.html">tales_from_telltale</a></span><span class="op">(</span><span class="va">bai311_raw_dir</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">bai311_raw</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tales_from_telltales.html">tales_from_telltales</a></span><span class="op">(</span><span class="va">bai311_raw_dir</span><span class="op">)</span></span></code></pre></div>
 </details>
 </div>
 <p><code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> reports arrays whose content is inconsistent: missing sequence data, impossible terminus arrangements, coordinate disagreements:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/tales_anomalies.html">tales_anomalies</a></span><span class="op">(</span><span class="va">bai311_raw</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 2 × 3</span></span>
-<span><span class="co">#&gt;   array_id  check       detail             </span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;     &lt;chr&gt;       &lt;chr&gt;              </span></span>
-<span><span class="co">#&gt; 1 ROI_00003 missing_rvd part(s) with no rvd</span></span>
-<span><span class="co">#&gt; 2 ROI_00005 missing_rvd part(s) with no rvd</span></span></code></pre></div>
+<span><span class="co">#&gt; # A tibble: 0 × 3</span></span>
+<span><span class="co">#&gt; # ℹ 3 variables: array_id &lt;chr&gt;, check &lt;chr&gt;, detail &lt;chr&gt;</span></span></code></pre></div>
 </details>
 </div>
-<p>Two arrays have no <code>rvd</code> at all: AnnoTALE could not parse a repeat-array structure out of their ORF. Their <code>orf_coverage</code> shows why:</p>
+<p>Two arrays have no <code>rvd</code> at all: AnnoTALE could not parse a repeat-array structure out of the longest predicted ORF. Their <code>orf_coverage</code> shows why:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_tsv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">bai311_raw_dir</span>, <span class="st">"array_report.tsv"</span><span class="op">)</span>,</span>
 <span>                show_col_types <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">array_id</span>, <span class="va">has_all_domains</span>, <span class="va">longest_orf_length</span>, <span class="va">orf_coverage</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 9 × 4</span></span>
-<span><span class="co">#&gt;   array_id  has_all_domains longest_orf_length orf_coverage</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;     &lt;lgl&gt;                        &lt;dbl&gt;        &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 ROI_00004 FALSE                           NA           NA</span></span>
-<span><span class="co">#&gt; 2 ROI_00006 TRUE                          1446           45</span></span>
-<span><span class="co">#&gt; 3 ROI_00002 TRUE                          2385           70</span></span>
-<span><span class="co">#&gt; 4 ROI_00005 TRUE                           864           23</span></span>
-<span><span class="co">#&gt; 5 ROI_00009 TRUE                          1791           47</span></span>
-<span><span class="co">#&gt; 6 ROI_00007 TRUE                          1827           47</span></span>
-<span><span class="co">#&gt; 7 ROI_00008 TRUE                          2841           67</span></span>
-<span><span class="co">#&gt; 8 ROI_00001 TRUE                          1764           38</span></span>
-<span><span class="co">#&gt; 9 ROI_00003 TRUE                           864           19</span></span></code></pre></div>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">array_id</span>, <span class="va">nterm_dna_hit</span>, <span class="va">cterm_dna_hit</span>, <span class="va">longest_orf_length</span>, <span class="va">orf_coverage</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 9 × 5</span></span>
+<span><span class="co">#&gt;   array_id  nterm_dna_hit cterm_dna_hit longest_orf_length orf_coverage</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;     &lt;lgl&gt;         &lt;lgl&gt;                      &lt;dbl&gt;        &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 ROI_00004 FALSE         FALSE                         NA           NA</span></span>
+<span><span class="co">#&gt; 2 ROI_00006 TRUE          TRUE                        1446           45</span></span>
+<span><span class="co">#&gt; 3 ROI_00002 TRUE          TRUE                        2385           70</span></span>
+<span><span class="co">#&gt; 4 ROI_00005 TRUE          TRUE                         864           23</span></span>
+<span><span class="co">#&gt; 5 ROI_00009 TRUE          TRUE                        1791           47</span></span>
+<span><span class="co">#&gt; 6 ROI_00007 TRUE          TRUE                        1827           47</span></span>
+<span><span class="co">#&gt; 7 ROI_00008 TRUE          TRUE                        2841           67</span></span>
+<span><span class="co">#&gt; 8 ROI_00001 TRUE          TRUE                        1764           38</span></span>
+<span><span class="co">#&gt; 9 ROI_00003 TRUE          TRUE                         864           19</span></span></code></pre></div>
 </details>
 </div>
-<p><code>ROI_00003</code> and <code>ROI_00005</code> cover 19% and 23% of their candidate region. A single inserted or deleted base early in the array shifts every codon downstream of it, and the ORF finder stops at the first premature stop codon it meets. No array in this assembly reaches MAI1’s 91-93%: the others fall between 38% and 70%, short but long enough for AnnoTALE to parse, while these two break too early. A premature stop could also be genuine: some strains carry naturally truncated TALEs (see <a href="trunctale_correction.html">Genuine truncTALEs and frameshift correction</a>). In BAI3-1-1 the corrections below settle it: once repaired, both arrays recover the coverage of a clean MAI1 array, as expected of assembly frameshifts.</p>
+<p><code>ROI_00003</code> and <code>ROI_00005</code> predicted ORFs cover 19% and 23% of their candidate region.</p>
+<p>No array in this assembly reaches MAI1’s 91-93%: the others fall between 38% and 70%. This is unusual and a sign also deserving further scrutiny even if <code>tales_anomalies</code> did not report any problem. A close look at the ‘array_report.tsv’ table indicates that <code>ROI_00001</code> and <code>ROI_00007</code> have a predicted ORF encoding very few repeats (4-6) even if both termini profiles where found at the DNA level (<code>nterm_dna_hit</code> and <code>cterm_dna_hit</code> are both <code>TRUE</code>).</p>
+<p>Because, in practice this barely happens in high quality genomes, in the absence of any further evidence, this could be explained by several in/dels along the CDS that completely break it.</p>
+<div class="cell">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span></span>
+<span><span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_tsv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">bai311_raw_dir</span>, <span class="st">"array_report.tsv"</span><span class="op">)</span>,</span>
+<span>                show_col_types <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">array_id</span>, <span class="va">nterm_dna_hit</span>, <span class="va">cterm_dna_hit</span>, <span class="va">orf_coverage</span>, <span class="va">rvd_string</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 9 × 5</span></span>
+<span><span class="co">#&gt;   array_id  nterm_dna_hit cterm_dna_hit orf_coverage rvd_string                 </span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;     &lt;lgl&gt;         &lt;lgl&gt;                &lt;dbl&gt; &lt;chr&gt;                      </span></span>
+<span><span class="co">#&gt; 1 ROI_00004 FALSE         FALSE                   NA &lt;NA&gt;                       </span></span>
+<span><span class="co">#&gt; 2 ROI_00006 TRUE          TRUE                    45 XXXXX-NV-HD-NI-NG-NI-NN-NS…</span></span>
+<span><span class="co">#&gt; 3 ROI_00002 TRUE          TRUE                    70 NTERM-NN-HD-NI-NN-HD-NG-HD…</span></span>
+<span><span class="co">#&gt; 4 ROI_00005 TRUE          TRUE                    23 &lt;NA&gt;                       </span></span>
+<span><span class="co">#&gt; 5 ROI_00009 TRUE          TRUE                    47 XXXXX-NV-HD-NI-NN-HD-HD-HD…</span></span>
+<span><span class="co">#&gt; 6 ROI_00007 TRUE          TRUE                    47 NTERM-NN-HD-HD-NN-NN-PG-XX…</span></span>
+<span><span class="co">#&gt; 7 ROI_00008 TRUE          TRUE                    67 NTERM-NI-HD-NN-NS-NN-NG-HD…</span></span>
+<span><span class="co">#&gt; 8 ROI_00001 TRUE          TRUE                    38 NTERM-NN-NG-NN-PG-XXXXX    </span></span>
+<span><span class="co">#&gt; 9 ROI_00003 TRUE          TRUE                    19 &lt;NA&gt;</span></span></code></pre></div>
+</details>
+</div>
+<p>A premature stop could also be genuine: some strains carry naturally truncated TALEs (see <a href="trunctale_correction.html">Genuine truncTALEs and frameshift correction</a>). In BAI3-1-1 the corrections below settle it: once repaired, both arrays recover the coverage of a clean MAI1 array, as expected of assembly frameshifts.</p>
 </section><section class="level2" data-number="4"><h2 data-number="4" id="correcting-frameshifts-two-ways">
 <span class="header-section-number">4</span> Correcting frameshifts, two ways<a class="anchor" aria-label="anchor" href="#correcting-frameshifts-two-ways"></a>
 </h2>
@@ -285,33 +306,36 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 </blockquote>
 </div>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bai311_corr_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out</span>, <span class="st">"BAI3-1-1_corrected"</span><span class="op">)</span></span></code></pre></div>
 </details>
 </div>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="fu"><a href="../reference/tell_tales.html">tell_tales</a></span><span class="op">(</span>subject_file <span class="op">=</span> <span class="va">bai311_fa</span>, output_dir <span class="op">=</span> <span class="va">bai311_corr_dir</span>,</span>
 <span>                     cterm_min_score <span class="op">=</span> <span class="fl">300</span>,</span>
 <span>                     correct_array <span class="op">=</span> <span class="cn">TRUE</span>, max_comparisons <span class="op">=</span> <span class="fl">20</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Finding the closest reference amino acid sequences:</span></span>
 <span><span class="co">#&gt; ================================================================================</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Time difference of 0.43 secs</span></span>
+<span><span class="co">#&gt; Time difference of 0.46 secs</span></span>
 <span><span class="co">#&gt; ================================================================================</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Time difference of 16.86 secs</span></span>
-<span><span class="va">bai311_corr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="../reference/tales_from_telltale.html">tales_from_telltale</a></span><span class="op">(</span><span class="va">bai311_corr_dir</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co">#&gt; Time difference of 17.68 secs</span></span></code></pre></div>
 </details>
 </div>
+<p>Something is odd:</p>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">bai311_corr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tales_from_telltales.html">tales_from_telltales</a></span><span class="op">(</span><span class="va">bai311_corr_dir</span><span class="op">)</span></span></code></pre></div>
+</details>
+</div>
+<p>Anomalies reported:</p>
+<div class="cell">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/tales_anomalies.html">tales_anomalies</a></span><span class="op">(</span><span class="va">bai311_corr</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 2 × 3</span></span>
-<span><span class="co">#&gt;   array_id  check          detail                </span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;     &lt;chr&gt;          &lt;chr&gt;                 </span></span>
-<span><span class="co">#&gt; 1 ROI_00001 missing_rvd    part(s) with no rvd   </span></span>
-<span><span class="co">#&gt; 2 ROI_00001 missing_aa_seq part(s) with no aa_seq</span></span></code></pre></div>
+<span><span class="co">#&gt; # A tibble: 0 × 3</span></span>
+<span><span class="co">#&gt; # ℹ 3 variables: array_id &lt;chr&gt;, check &lt;chr&gt;, detail &lt;chr&gt;</span></span></code></pre></div>
 </details>
 </div>
 <p>Correction did fix the two frameshifted arrays – <code>ROI_00003</code> and <code>ROI_00005</code> are no longer flagged. But a <em>different</em> array, <code>ROI_00001</code>, now is: it was clean in the uncorrected run above, and 20 references were, for this particular array, not enough to find a good match. The aligner corrected it against a poor reference instead. That is worse than leaving it alone, because the output still looks like a corrected ORF right up until AnnoTALE tries to parse domains out of it and cannot.</p>
@@ -321,12 +345,12 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 </h3>
 <p><code><a href="../reference/correct_tales.html">correct_tales()</a></code> takes a different, faster route. It wraps the Java <code>TALEcorrection</code> tool, which scans the <em>whole input genome</em> against profile HMMs and repairs the frameshifts it finds, before <code><a href="../reference/tell_tales.html">tell_tales()</a></code> ever runs. As a genome-wide pre-processing step that needs no candidate arrays, it is worth trying first on a large or especially error-prone assembly (an ONT-sequenced genome, say).</p>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bai311_java_fa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out</span>, <span class="st">"BAI3-1-1_java_corrected.fa"</span><span class="op">)</span></span></code></pre></div>
 </details>
 </div>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">corrections</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/correct_tales.html">correct_tales</a></span><span class="op">(</span>uncorrected_path <span class="op">=</span> <span class="va">bai311_fa</span>,</span>
 <span>                             corrected_path <span class="op">=</span> <span class="va">bai311_java_fa</span>,</span>
 <span>                             return_corrections <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></code></pre></div>
@@ -334,7 +358,7 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 </div>
 <p><code><a href="../reference/correct_tales.html">correct_tales()</a></code> reports every edit it made, genome-wide, as a table of positions and inserted or deleted bases. This genome needed 70:</p>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb20"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">corrections</span>, <span class="fl">4</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 4 × 4</span></span>
 <span><span class="co">#&gt;   seqName  posInOriginSeq type      substitution</span></span>
@@ -347,19 +371,19 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 </div>
 <p><code><a href="../reference/tell_tales.html">tell_tales()</a></code> then runs on the corrected genome exactly as it would on any other, with no <code>correct_array</code>, because the correction already happened upstream:</p>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb19"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bai311_java_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out</span>, <span class="st">"BAI3-1-1_java_tell_tales"</span><span class="op">)</span></span></code></pre></div>
 </details>
 </div>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb20"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb22"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="fu"><a href="../reference/tell_tales.html">tell_tales</a></span><span class="op">(</span>subject_file <span class="op">=</span> <span class="va">bai311_java_fa</span>, output_dir <span class="op">=</span> <span class="va">bai311_java_dir</span>,</span>
 <span>                     cterm_min_score <span class="op">=</span> <span class="fl">300</span>, correct_array <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="va">bai311_java</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="../reference/tales_from_telltale.html">tales_from_telltale</a></span><span class="op">(</span><span class="va">bai311_java_dir</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="va">bai311_java</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="../reference/tales_from_telltales.html">tales_from_telltales</a></span><span class="op">(</span><span class="va">bai311_java_dir</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </details>
 </div>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb21"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/tales_anomalies.html">tales_anomalies</a></span><span class="op">(</span><span class="va">bai311_java</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 0 × 3</span></span>
 <span><span class="co">#&gt; # ℹ 3 variables: array_id &lt;chr&gt;, check &lt;chr&gt;, detail &lt;chr&gt;</span></span></code></pre></div>
@@ -371,12 +395,12 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 </h3>
 <p><code><a href="../reference/correct_tales.html">correct_tales()</a></code> above already reached zero anomalies in under a minute. <code>max_comparisons = 50</code> is a second, independent route to the same outcome, useful when the Java correction tool is not available:</p>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb22"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb24"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bai311_best_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out</span>, <span class="st">"BAI3-1-1_best"</span><span class="op">)</span></span></code></pre></div>
 </details>
 </div>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb23"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="fu"><a href="../reference/tell_tales.html">tell_tales</a></span><span class="op">(</span>subject_file <span class="op">=</span> <span class="va">bai311_fa</span>, output_dir <span class="op">=</span> <span class="va">bai311_best_dir</span>,</span>
 <span>                     cterm_min_score <span class="op">=</span> <span class="fl">300</span>,</span>
 <span>                     correct_array <span class="op">=</span> <span class="cn">TRUE</span>, max_comparisons <span class="op">=</span> <span class="fl">50</span><span class="op">)</span><span class="op">)</span></span>
@@ -386,79 +410,34 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 <span><span class="co">#&gt; Time difference of 0.43 secs</span></span>
 <span><span class="co">#&gt; ================================================================================</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Time difference of 42.69 secs</span></span>
-<span><span class="va">bai311_best</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="../reference/tales_from_telltale.html">tales_from_telltale</a></span><span class="op">(</span><span class="va">bai311_best_dir</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span><span class="co">#&gt; Time difference of 43.97 secs</span></span>
+<span><span class="va">bai311_best</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tales_from_telltales.html">tales_from_telltales</a></span><span class="op">(</span><span class="va">bai311_best_dir</span><span class="op">)</span></span></code></pre></div>
 </details>
 </div>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb24"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb26"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/tales_anomalies.html">tales_anomalies</a></span><span class="op">(</span><span class="va">bai311_best</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 0 × 3</span></span>
 <span><span class="co">#&gt; # ℹ 3 variables: array_id &lt;chr&gt;, check &lt;chr&gt;, detail &lt;chr&gt;</span></span></code></pre></div>
 </details>
 </div>
 <p>Zero anomalies: raising the cap from 20 to 50 references was enough for every array in this genome, in about a minute. Either this run or <code><a href="../reference/correct_tales.html">correct_tales()</a></code>’s own result above is a reasonable choice for the rest of this set of articles; <code>bai311_best</code> (built here) is the one used from here on.</p>
-<div>
-<blockquote>
-<p><strong>Chaining both correction paths</strong></p>
-<p>Running <code><a href="../reference/correct_tales.html">correct_tales()</a></code> first and feeding its output into <code>tell_tales(correct_array = TRUE)</code> also reaches zero anomalies, and lets the per-array step use a smaller <code>max_comparisons</code>, since most of the damage is already gone before it runs. Measured on this same genome, and not re-run here, to keep this article’s build time down:</p>
-<table class="table caption-top">
-<colgroup>
-<col style="width: 33%">
-<col style="width: 33%">
-<col style="width: 33%">
-</colgroup>
-<thead><tr class="header">
-<th>route</th>
-<th>time</th>
-<th>anomalies</th>
-</tr></thead>
-<tbody>
-<tr class="odd">
-<td>
-<code><a href="../reference/correct_tales.html">correct_tales()</a></code> alone</td>
-<td>~41 s</td>
-<td>0</td>
-</tr>
-<tr class="even">
-<td>
-<code>max_comparisons = 50</code> alone</td>
-<td>~66-79 s</td>
-<td>0</td>
-</tr>
-<tr class="odd">
-<td>
-<code><a href="../reference/correct_tales.html">correct_tales()</a></code> (~27 s) then <code>max_comparisons = 20</code> (~40 s)</td>
-<td>~67 s combined</td>
-<td>0</td>
-</tr>
-<tr class="even">
-<td>
-<code><a href="../reference/correct_tales.html">correct_tales()</a></code> (~27 s) then <code>max_comparisons = 50</code> (~66 s)</td>
-<td>~93 s combined</td>
-<td>0</td>
-</tr>
-</tbody>
-</table>
-<p>On this genome <code><a href="../reference/correct_tales.html">correct_tales()</a></code> alone already gets to zero anomalies, so chaining does not add anything beyond confirming the combination still works. The technique remains available for a genome where a single pass falls short.</p>
-</blockquote>
-</div>
 </section></section><section class="level2" data-number="5"><h2 data-number="5" id="sec-improvement">
 <span class="header-section-number">5</span> How much did either correction actually help?<a class="anchor" aria-label="anchor" href="#sec-improvement"></a>
 </h2>
 <p>Anomaly counts say whether AnnoTALE could parse an array at all, which is a pass/fail signal. <code>orf_coverage</code> is more informative, since it is a number and can be compared <em>before</em> an array even becomes an anomaly. Read it back for the two originally-broken arrays, across all three runs:</p>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb25"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb27"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">read_coverage</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">dir</span>, <span class="va">method</span><span class="op">)</span> <span class="op">{</span></span>
 <span>  <span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_tsv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">dir</span>, <span class="st">"array_report.tsv"</span><span class="op">)</span>, show_col_types <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">array_id</span>, <span class="va">orf_coverage</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">array_id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ROI_00003"</span>, <span class="st">"ROI_00005"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
+<span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">array_id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ROI_00001"</span>, <span class="st">"ROI_00005"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>    <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>method <span class="op">=</span> <span class="va">method</span><span class="op">)</span></span>
 <span><span class="op">}</span></span></code></pre></div>
 </details>
 </div>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb26"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">coverage</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/bind_rows.html" class="external-link">bind_rows</a></span><span class="op">(</span></span>
 <span>  <span class="fu">read_coverage</span><span class="op">(</span><span class="va">bai311_raw_dir</span>,  <span class="st">"uncorrected"</span><span class="op">)</span>,</span>
 <span>  <span class="fu">read_coverage</span><span class="op">(</span><span class="va">bai311_corr_dir</span>, <span class="st">"max_comparisons = 20"</span><span class="op">)</span>,</span>
@@ -471,7 +450,7 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 </details>
 </div>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb27"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">coverage</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">tidyr</span><span class="fu">::</span><span class="fu"><a href="https://tidyr.tidyverse.org/reference/pivot_wider.html" class="external-link">pivot_wider</a></span><span class="op">(</span>names_from <span class="op">=</span> <span class="va">method</span>, values_from <span class="op">=</span> <span class="va">orf_coverage</span><span class="op">)</span> <span class="op">|&gt;</span></span>
 <span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
@@ -500,9 +479,9 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 <td style="text-align: right;">91</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">ROI_00003</td>
-<td style="text-align: right;">19</td>
-<td style="text-align: right;">93</td>
+<td style="text-align: left;">ROI_00001</td>
+<td style="text-align: right;">38</td>
+<td style="text-align: right;">72</td>
 <td style="text-align: right;">93</td>
 <td style="text-align: right;">93</td>
 </tr>
@@ -511,7 +490,7 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 </div>
 </div>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb28"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/ggplot.html" class="external-link">ggplot</a></span><span class="op">(</span><span class="va">coverage</span>, <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/aes.html" class="external-link">aes</a></span><span class="op">(</span>x <span class="op">=</span> <span class="va">method</span>, y <span class="op">=</span> <span class="va">orf_coverage</span>, fill <span class="op">=</span> <span class="va">method</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/geom_bar.html" class="external-link">geom_col</a></span><span class="op">(</span><span class="op">)</span> <span class="op">+</span></span>
 <span>  <span class="fu">ggplot2</span><span class="fu">::</span><span class="fu"><a href="https://ggplot2.tidyverse.org/reference/facet_wrap.html" class="external-link">facet_wrap</a></span><span class="op">(</span><span class="op">~</span> <span class="va">array_id</span><span class="op">)</span> <span class="op">+</span></span>
@@ -530,16 +509,16 @@ Figure 2: ORF coverage of the two frameshifted BAI3-1-1 arrays, before and afte
 </div>
 </div>
 </div>
-<p>In <a href="#fig-coverage-improvement" class="quarto-xref">Figure 2</a>, all three routes bring <code>ROI_00003</code> and <code>ROI_00005</code> to identical coverage, 93% and 91%. On these two numbers alone the three routes look interchangeable. What separates them is the new anomaly <code>max_comparisons = 20</code> introduced in a different array, <code>ROI_00001</code>, and coverage of these two arrays cannot show it; only <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> catches it.</p>
+<p>In <a href="#fig-coverage-improvement" class="quarto-xref">Figure 2</a>, all three routes bring <code>ROI_00001</code> and <code>ROI_00005</code> to identical coverage, 93% and 91%. On these two numbers alone the three routes look interchangeable. What separates them is the new anomaly <code>max_comparisons = 20</code> introduced in a different array, <code>ROI_00001</code>, and coverage of these two arrays cannot show it; only <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> catches it.</p>
 </section><section class="level2" data-number="6"><h2 data-number="6" id="moving-on-with-what-you-have">
 <span class="header-section-number">6</span> Moving on with what you have<a class="anchor" aria-label="anchor" href="#moving-on-with-what-you-have"></a>
 </h2>
 <p><code>bai311_best</code> needs none of this: it is already clean, and so is <code><a href="../reference/correct_tales.html">correct_tales()</a></code>’s own result above. A route that stops short of that, such as <code>bai311_corr</code> (the <code>max_comparisons = 20</code> run, which fixed the two original frameshifts but broke <code>ROI_00001</code>), still needs a decision about what to do with what remains flagged. <code>tales(x, sanitize = TRUE)</code> drops it so an analysis can proceed on what is clean, with a warning naming each dropped array and the reason:</p>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb29"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bai311_clean</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tales.html">tales</a></span><span class="op">(</span><span class="va">bai311_corr</span>, sanitize <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">bai311_corr</span><span class="op">$</span><span class="va">array_id</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">bai311_clean</span><span class="op">$</span><span class="va">array_id</span><span class="op">)</span></span>
-<span><span class="co">#&gt; [1] 1</span></span></code></pre></div>
+<span><span class="co">#&gt; [1] 0</span></span></code></pre></div>
 </details>
 </div>
 <div>
@@ -653,7 +632,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script><script>var lightboxQuarto = GLightbox({"descPosition":"bottom","closeEffect":"zoom","selector":".lightbox","loop":false,"openEffect":"zoom"});
+</script><script>var lightboxQuarto = GLightbox({"openEffect":"zoom","selector":".lightbox","descPosition":"bottom","loop":false,"closeEffect":"zoom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

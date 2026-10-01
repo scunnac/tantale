@@ -60,7 +60,7 @@ number:
 - **`alignment_position`**: where this part sits in the alignment. It
   agrees with `position_in_array` up to the first gap and diverges after
   it.
-- **[`tales_width()`](https://scunnac.github.io/tantale/reference/tales_width.md)**:
+- **[`tales_msa_width()`](https://scunnac.github.io/tantale/reference/tales_msa_width.md)**:
   the alignment’s total column count. It is stored, because
   `max(alignment_position)` over a *subset* of arrays can under-report a
   width whose last columns happen to be all gaps in that subset.
@@ -68,7 +68,7 @@ number:
 Code
 
 ``` r
-tales_width(msa)
+tales_msa_width(msa)
 #> [1] 18
 ```
 
@@ -198,7 +198,7 @@ single coherent alignment, and the stored width goes with it:
 Code
 
 ``` r
-tales_width(demoted)
+tales_msa_width(demoted)
 #> NULL
 ```
 

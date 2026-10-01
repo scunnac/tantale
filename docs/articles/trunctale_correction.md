@@ -75,7 +75,7 @@ Code
 
 ``` r
 invisible(tell_tales(subject_file = pxo86_fa, output_dir = pxo86_raw_dir))
-pxo86 <- suppressWarnings(tales_from_telltale(pxo86_raw_dir))
+pxo86 <- suppressWarnings(tales_from_telltales(pxo86_raw_dir))
 ```
 
 Comparing the amino-acid length of every array’s N- and C-terminus finds
@@ -137,7 +137,7 @@ nothing for either array here: both are short, coherent proteins.
 
 ## 2 Not the same kind of short
 
-`array_report.tsv`’s `has_all_domains` column already distinguishes the
+`array_report.tsv`’s `cterm_dna_hit` column already distinguishes the
 two arrays, and the reason is worth tracing back to discovery:
 
 Code
@@ -148,20 +148,20 @@ pxo86_report <- readr::read_tsv(
 )
 pxo86_report %>%
   filter(array_id %in% c("ROI_00001", "ROI_00019")) %>%
-  select(array_id, has_all_domains, nterm_aa_length, cterm_aa_length, orf_coverage)
+  select(array_id, nterm_dna_hit, cterm_dna_hit, cterm_aa_length, orf_coverage)
 #> # A tibble: 2 × 5
-#>   array_id  has_all_domains nterm_aa_length cterm_aa_length orf_coverage
-#>   <chr>     <lgl>                     <dbl>           <dbl>        <dbl>
-#> 1 ROI_00019 FALSE                       230              42           93
-#> 2 ROI_00001 TRUE                        230             183           83
+#>   array_id  nterm_dna_hit cterm_dna_hit cterm_aa_length orf_coverage
+#>   <chr>     <lgl>         <lgl>                   <dbl>        <dbl>
+#> 1 ROI_00019 TRUE          FALSE                      42           93
+#> 2 ROI_00001 TRUE          TRUE                      183           83
 ```
 
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
 finds TALE loci with three separate profile HMMs (one each for the
-N-terminus, the repeat unit, and the C-terminus), and `has_all_domains`
-records whether every one of the three matched somewhere in an array’s
-merged hits, independently of how the final protein turns out.
-`hits_report.tsv`, one of the three reports
+N-terminus, the repeat unit, and the C-terminus), and `nterm_dna_hit`
+and `cterm_dna_hit` record whether the N- and C-terminus profiles
+matched somewhere in an array’s merged hits, independently of how the
+final protein turns out. `hits_report.tsv`, one of the three reports
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
 always writes (the other two are `domains_report.tsv` and
 `array_report.tsv` itself), carries every individual hit with its
@@ -223,10 +223,10 @@ invisible(tell_tales(
 #> Finding the closest reference amino acid sequences:
 #> ================================================================================
 #> 
-#> Time difference of 8.01 secs
+#> Time difference of 6.06 secs
 #> ================================================================================
 #> 
-#> Time difference of 39.94 secs
+#> Time difference of 35.79 secs
 ```
 
 Code
@@ -237,12 +237,12 @@ decipher_report <- readr::read_tsv(
 )
 decipher_report %>%
   filter(array_id %in% c("ROI_00001", "ROI_00019")) %>%
-  select(array_id, has_all_domains, nterm_aa_length, cterm_aa_length, orf_coverage)
+  select(array_id, nterm_dna_hit, cterm_dna_hit, cterm_aa_length, orf_coverage)
 #> # A tibble: 2 × 5
-#>   array_id  has_all_domains nterm_aa_length cterm_aa_length orf_coverage
-#>   <chr>     <lgl>                     <dbl>           <dbl>        <dbl>
-#> 1 ROI_00019 FALSE                       230              42           93
-#> 2 ROI_00001 TRUE                        230             216           86
+#>   array_id  nterm_dna_hit cterm_dna_hit cterm_aa_length orf_coverage
+#>   <chr>     <lgl>         <lgl>                   <dbl>        <dbl>
+#> 1 ROI_00019 TRUE          FALSE                      42           93
+#> 2 ROI_00001 TRUE          TRUE                      216           86
 ```
 
 `ROI_00001` is extended: its C-terminus grows from 183 to 216 aa, and
@@ -318,12 +318,12 @@ java_report <- readr::read_tsv(
 )
 java_report %>%
   filter(array_id %in% c("ROI_00001", "ROI_00019")) %>%
-  select(array_id, has_all_domains, nterm_aa_length, cterm_aa_length, orf_coverage)
+  select(array_id, nterm_dna_hit, cterm_dna_hit, cterm_aa_length, orf_coverage)
 #> # A tibble: 2 × 5
-#>   array_id  has_all_domains nterm_aa_length cterm_aa_length orf_coverage
-#>   <chr>     <lgl>                     <dbl>           <dbl>        <dbl>
-#> 1 ROI_00019 FALSE                       230              42           93
-#> 2 ROI_00001 TRUE                        230             183           83
+#>   array_id  nterm_dna_hit cterm_dna_hit cterm_aa_length orf_coverage
+#>   <chr>     <lgl>         <lgl>                   <dbl>        <dbl>
+#> 1 ROI_00019 TRUE          FALSE                      42           93
+#> 2 ROI_00001 TRUE          TRUE                      183           83
 ```
 
 A single-base insertion, and it lands inside `ROI_00001`’s own span,
@@ -356,14 +356,14 @@ truncTALEs.** It left both arrays’ sequence alone, where
 `tell_tales(correct_array = TRUE)` rewrote the genuine frameshift’s
 C-terminus as though it were an assembly error. One genome and two
 arrays is a narrow base for a general rule. In practice: check
-`has_all_domains` and `orf_coverage` in `array_report.tsv` before
+`cterm_dna_hit` and `orf_coverage` in `array_report.tsv` before
 correcting, and verify any change a correction makes to a documented or
 suspected truncTALE’s sequence.
 
-- A short array with `has_all_domains = FALSE` and `orf_coverage` in the
+- A short array with `cterm_dna_hit = FALSE` and `orf_coverage` in the
   normal range is very likely a genuine short protein. Any sequence a
   correction adds to it was never there.
-- A short array with `has_all_domains = TRUE` but reduced `orf_coverage`
+- A short array with `cterm_dna_hit = TRUE` but reduced `orf_coverage`
   may carry a genuine frameshift that is part of the strain’s biology.
   `correct_array = TRUE` will extend it regardless of whether that is
   what your analysis needs.

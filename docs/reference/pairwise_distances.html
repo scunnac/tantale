@@ -11,7 +11,7 @@ entities, larger for more different ones)."><meta property="og:image" content="h
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9010</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,8 +69,8 @@ entities, larger for more different ones).</p>
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>A data frame with <code>id1</code>, <code>id2</code> and <code>dissim</code> columns.
-Legacy spellings and the similarity vocabulary are accepted and converted:
-a table carrying <code>Sim</code> or <code>normArlemScore</code> instead of a distance
+A similarity is accepted and converted: a table carrying <code>sim</code> or
+<code>norm_arlem_score</code> instead of a distance
 is folded into <code>dissim</code>, and those restatements are then dropped so
 only one copy of the quantity is stored. Further columns
 (<code>arlem_score</code>, <code>max_length</code>, or anything else) are preserved.</p></dd>
@@ -97,8 +97,6 @@ that differ between two domains (see <code><a href="tales_domain_distances.html"
 for <code>tale_distances</code>, it is the array alignment cost between two TALEs
 (see <code><a href="tales_tale_distances.html">tales_tale_distances</a></code>). The two flavours add no
 structure, only meaning: every method is written once on the parent.</p>
-<p>Legacy column spellings (<code>TAL1</code>/<code>TAL2</code>, <code>RepU1</code>/<code>RepU2</code>,
-<code>Sim</code>, <code>Dissim</code>, <code>arlemScore</code>, ...) are renamed on the way in.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -129,9 +127,9 @@ structure, only meaning: every method is written once on the parent.</p>
 <span class="r-in"><span><span class="fu">pairwise_distances</span><span class="op">(</span><span class="va">d</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">domain_distances</span><span class="op">(</span><span class="va">d</span>, dom_code_namespace <span class="op">=</span> <span class="st">"example"</span><span class="op">)</span></span></span>
 <span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="co"># Legacy spellings are recognised and folded in.</span></span></span>
-<span class="r-in"><span><span class="va">legacy</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>TAL1 <span class="op">=</span> <span class="st">"A1"</span>, TAL2 <span class="op">=</span> <span class="st">"A2"</span>, Sim <span class="op">=</span> <span class="fl">65</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="fu">tale_distances</span><span class="op">(</span><span class="va">legacy</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># A similarity is folded into the distance.</span></span></span>
+<span class="r-in"><span><span class="va">similar</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>id1 <span class="op">=</span> <span class="st">"A1"</span>, id2 <span class="op">=</span> <span class="st">"A2"</span>, sim <span class="op">=</span> <span class="fl">65</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">tale_distances</span><span class="op">(</span><span class="va">similar</span><span class="op">)</span></span></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

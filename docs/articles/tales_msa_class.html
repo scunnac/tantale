@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9010</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -118,11 +118,11 @@
 <li>
 <strong><code>alignment_position</code></strong>: where this part sits in the alignment. It agrees with <code>position_in_array</code> up to the first gap and diverges after it.</li>
 <li>
-<strong><code><a href="../reference/tales_width.html">tales_width()</a></code></strong>: the alignment’s total column count. It is stored, because <code>max(alignment_position)</code> over a <em>subset</em> of arrays can under-report a width whose last columns happen to be all gaps in that subset.</li>
+<strong><code><a href="../reference/tales_msa_width.html">tales_msa_width()</a></code></strong>: the alignment’s total column count. It is stored, because <code>max(alignment_position)</code> over a <em>subset</em> of arrays can under-report a width whose last columns happen to be all gaps in that subset.</li>
 </ul>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/tales_width.html">tales_width</a></span><span class="op">(</span><span class="va">msa</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/tales_msa_width.html">tales_msa_width</a></span><span class="op">(</span><span class="va">msa</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 18</span></span></code></pre></div>
 </details>
 </div>
@@ -213,7 +213,7 @@
 <p><code>alignment_position</code> survives as an ordinary column, so demoting keeps where things were aligned. What goes is the object’s claim to be a single coherent alignment, and the stored width goes with it:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/tales_width.html">tales_width</a></span><span class="op">(</span><span class="va">demoted</span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/tales_msa_width.html">tales_msa_width</a></span><span class="op">(</span><span class="va">demoted</span><span class="op">)</span></span>
 <span><span class="co">#&gt; NULL</span></span></code></pre></div>
 </details>
 </div>
@@ -451,7 +451,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script><script>var lightboxQuarto = GLightbox({"openEffect":"zoom","selector":".lightbox","loop":false,"closeEffect":"zoom","descPosition":"bottom"});
+</script><script>var lightboxQuarto = GLightbox({"loop":false,"selector":".lightbox","closeEffect":"zoom","openEffect":"zoom","descPosition":"bottom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

@@ -71,14 +71,14 @@ Other target prediction:
 # \donttest{
 # Needs the tantale conda environment (for talvez) and a Java runtime
 # (for preditale), both built on first use.
-x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-                                     package = "tantale"))
+x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+                                      package = "tantale"))
 subj <- system.file("extdata", "cladeIII_sweet_promoters.fasta",
                     package = "tantale")
 head(tales_predict_targets(x, subj_file = subj))
 #> Invoking Talvez using the following command:
 #> '/home/cunnac/mamba/envs/tantale/bin/perl' TALVEZ_3.2.pl -t 0 -l 19 -e mat1 -z
-#> mat2 'rvdSeqsTalvez_11d8127c64ea6.tsv' 'cladeIII_sweet_promoters.fasta'
+#> mat2 'rvdSeqsTalvez_1860b16c9f450c.tsv' 'cladeIII_sweet_promoters.fasta'
 #> # A tibble: 6 × 10
 #>   taleId    rvds          subjSeqId score strand start   end ebeSeq  rank method
 #>   <chr>     <chr>         <chr>     <dbl> <chr>  <dbl> <dbl> <chr>  <dbl> <chr> 

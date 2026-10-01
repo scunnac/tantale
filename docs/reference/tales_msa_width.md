@@ -8,7 +8,7 @@ subsetting arrays can empty the last column, which would silently shrink
 ## Usage
 
 ``` r
-tales_width(x)
+tales_msa_width(x)
 ```
 
 ## Arguments

@@ -53,7 +53,7 @@ invisible(tell_tales(
 Code
 
 ``` r
-x <- suppressWarnings(tales_from_telltale(out))
+x <- suppressWarnings(tales_from_telltales(out))
 x
 #> <tales> 4 arrays, 96 parts
 #>   layers: rvd   |   6 other columns
@@ -113,7 +113,7 @@ accumulate on this table via ordinary
 **From a
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
 run**, as above, with
-[`tales_from_telltale()`](https://scunnac.github.io/tantale/reference/tales_from_telltale.md).
+[`tales_from_telltales()`](https://scunnac.github.io/tantale/reference/tales_from_telltales.md).
 This is the richest route: it carries sequences, source coordinates and
 both position columns.
 
@@ -267,7 +267,7 @@ a single string. Three functions bridge the gap:
 
 - [`tales_rvd_strings()`](https://scunnac.github.io/tantale/reference/tales_rvd_strings.md):
   one RVD string per array, the form target-prediction tools consume.
-  Drops the termini by default (`rvd_only = TRUE`), since only the
+  Drops the termini by default (`repeats_only = TRUE`), since only the
   repeats bind DNA.
 - [`tales_coded_strings()`](https://scunnac.github.io/tantale/reference/tales_coded_strings.md):
   the `dom_code` equivalent, for the array alignments (MAFFT’s text
@@ -532,7 +532,7 @@ Code
 
 ``` r
 xa %>% mutate(position_in_array = 1L)
-#> Error in `.tales_check_key()` at tantale/R/tales_class.R:828:3:
+#> Error in `.tales_check_key()` at tantale/R/tales_class.R:800:3:
 #> ! array_id and position_in_array must together be unique.
 #> ✖ 92 duplicated rows in 4 arrays: "ROI_00001", "ROI_00002", "ROI_00003", and
 #>   "ROI_00004"

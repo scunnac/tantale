@@ -1,10 +1,10 @@
 # Normalise a pairwise table to what MAFFT's –textmatrix wants
 
 MAFFT scores matches, so it wants a *similarity*: higher means more
-alike. Accepts either the canonical
+alike. Takes the
 [`pairwise_distances`](https://scunnac.github.io/tantale/reference/pairwise_distances.md)
-vocabulary (`id1`, `id2`, `dissim`) or the legacy one (`RepU1`, `RepU2`,
-`Sim`), inverting the distance on the way in.
+columns (`id1`, `id2`, `dissim`, or `sim`), inverting the distance on
+the way in.
 
 ## Usage
 

@@ -137,7 +137,8 @@ candidate array region; a clean array's ORF covers 91-93% of it here.
 That number is about to matter a great deal.
 
 The report has one more row than the `tales` object has arrays.
-`ROI_00005` is a candidate region with `has_all_domains` `FALSE` and no
+`ROI_00005` is a candidate region with no terminus hit (`nterm_dna_hit`
+and `cterm_dna_hit` both `FALSE`) and no
 ORF length; it yields no parts, so it is absent from
 the object and from @fig-mai1-composition.
 
@@ -185,7 +186,7 @@ readr::read_tsv(file.path(bai311_raw_dir, "array_report.tsv"),
 
 No array in this assembly reaches MAI1's 91-93%: the
 others fall between 38% and 70%. This is unusual and a sign also deserving further scrutiny even if `tales_anomalies` did not report any problem.
-A close look at the 'array_report.tsv' table indicates that `ROI_00001` and `ROI_00007` have a predicted ORF encoding very few repeats (4-6) even if both termini profiles where found at the DNA level (the "has_all_domains" columns reports `TRUE`).
+A close look at the 'array_report.tsv' table indicates that `ROI_00001` and `ROI_00007` have a predicted ORF encoding very few repeats (4-6) even if both termini profiles where found at the DNA level (`nterm_dna_hit` and `cterm_dna_hit` are both `TRUE`).
 
 Because, in practice this barely happens in high quality genomes, in the absence of any further evidence, this could be explained by several in/dels along the CDS that completely break it.
 

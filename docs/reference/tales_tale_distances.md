@@ -91,8 +91,8 @@ Other pairwise distances:
 ## Examples
 
 ``` r
-x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-                                     package = "tantale"))
+x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+                                      package = "tantale"))
 xa <- tales_assign_domain_codes(x)
 dd <- tales_domain_distances(xa)
 #> Computing a distance matrix between TALE parts amino acid sequences using:

@@ -84,15 +84,15 @@ Other target prediction:
 ``` r
 # \donttest{
 # Needs the tantale conda environment, built on first use.
-x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-                                     package = "tantale"))
+x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+                                      package = "tantale"))
 rvds <- tales_rvd_strings(x)
 subj <- system.file("extdata", "cladeIII_sweet_promoters.fasta",
                     package = "tantale")
 preds <- talvez(rvd_seqs = rvds, subj_file = subj)
 #> Invoking Talvez using the following command:
 #> '/home/cunnac/mamba/envs/tantale/bin/perl' TALVEZ_3.2.pl -t 0 -l 19 -e mat1 -z
-#> mat2 'rvdSeqsTalvez_11d81229cd975e.tsv' 'cladeIII_sweet_promoters.fasta'
+#> mat2 'rvdSeqsTalvez_1860b12a5b3b47.tsv' 'cladeIII_sweet_promoters.fasta'
 head(preds)
 #> # A tibble: 6 × 9
 #>   taleId    rvds                 subjSeqId score strand start   end ebeSeq  rank

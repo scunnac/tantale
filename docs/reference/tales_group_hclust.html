@@ -13,7 +13,7 @@ result attached as its group column."><meta property="og:image" content="https:/
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9010</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -72,8 +72,7 @@ result attached as its <code>group</code> column.</p>
 
 <dt id="arg-tale-distances">tale_distances<a class="anchor" aria-label="anchor" href="#arg-tale-distances"></a></dt>
 <dd><p>A <a href="pairwise_distances.html">tale_distances</a> object, as returned by <code><a href="tales_compare_distal.html">tales_compare_distal()</a></code>.
-A plain data frame using the legacy <code>TAL1</code>/<code>TAL2</code>/<code>Sim</code> column names is
-also accepted and coerced.</p></dd>
+A plain data frame with the same columns is also accepted and coerced.</p></dd>
 
 
 <dt id="arg-k">k<a class="anchor" aria-label="anchor" href="#arg-k"></a></dt>
@@ -135,8 +134,8 @@ a tie in merge heights would make a height-based cut ambiguous.</p>
 
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
-    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="tales_from_telltale.html">tales_from_telltale</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"tellTaleExampleOutput"</span>,</span></span>
-<span class="r-in"><span>                                     package <span class="op">=</span> <span class="st">"tantale"</span><span class="op">)</span><span class="op">)</span></span></span>
+    <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="tales_from_telltales.html">tales_from_telltales</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"tellTaleExampleOutput"</span>,</span></span>
+<span class="r-in"><span>                                      package <span class="op">=</span> <span class="st">"tantale"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">cmp</span> <span class="op">&lt;-</span> <span class="fu"><a href="tales_compare_distal.html">tales_compare_distal</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Computing a distance matrix between TALE parts amino acid sequences using:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> DECIPHER</span>

@@ -1,10 +1,10 @@
-# Recorded 2026-09-24 at commit 4c1b60b by dev/function-graph-dataflow.R
+# Recorded 2026-10-01 at commit 6550ce9 by dev/function-graph-dataflow.R
 fn	arg_class	other_args	return_class	return_parts	calls
 [.pairwise_distances	tale_distances		tale_distances		6
 [.pairwise_distances	pairwise_distances		pairwise_distances		5
 [.pairwise_distances	tale_distances		tbl_df		1
-[.tales	tales		tbl_df		513
-[.tales	tales		tales		265
+[.tales	tales		tbl_df		525
+[.tales	tales		tales		272
 [.tales	tales_msa		tbl_df		114
 [.tales	tales_msa		tales_msa		4
 [.tales	tales_msa		tales		1
@@ -28,7 +28,7 @@ distances_assert_square	tale_distances		tale_distances		34
 distances_assert_square	pairwise_distances		pairwise_distances		5
 distances_assert_square	domain_distances		domain_distances		3
 distances_restrict	pairwise_distances		pairwise_distances		1
-domain_distances	tbl_df		domain_distances		27
+domain_distances	tbl_df		domain_distances		26
 dplyr_col_modify.tales	tales		tales		12
 dplyr_reconstruct.pairwise_distances	data.frame	template=pairwise_distances	pairwise_distances		1
 dplyr_reconstruct.pairwise_distances	data.frame	template=domain_distances	domain_distances		1
@@ -40,7 +40,7 @@ is_pairwise_distances	tale_distances		logical		34
 is_pairwise_distances	pairwise_distances		logical		10
 is_pairwise_distances	domain_distances		logical		3
 is_pairwise_distances	tbl_df		logical		1
-is_tales	tales		logical		346
+is_tales	tales		logical		351
 is_tales	tbl_df		logical		7
 is_tales	data.frame		logical		6
 is_tales	tales_msa		logical		5
@@ -60,24 +60,20 @@ print.summary.tales	summary.tales		summary.tales	class_name=character;n_arrays=i
 print.summary.tales_msa	summary.tales_msa		summary.tales_msa	class_name=character;n_arrays=integer;width=integer;n_gaps=integer;n_cells=integer;n_ungapped_columns=integer;layers=list;namespace=NULL;anomalies=tbl_df	2
 print.tales	tales		tales		32
 print.tales_msa	tales_msa		tales_msa		3
-repeat_to_rvd_map	list		tbl_df		1
-repeat_to_rvd_map_distalr	tbl_df		tbl_df		7
 run_annotale_build	character		integer		1
 run_annotale_predict	character		integer		1
 summary.tales	tales		summary.tales	class_name=character;n_arrays=integer;n_parts=integer;n_distinct_domains=integer;n_distinct_by_type=integer;n_distinct_rvds=integer;repeats_per_array=numeric;n_complete=integer;n_seqnames=integer;n_groups=NULL;namespace=NULL;anomalies=tbl_df	10
 summary.tales_msa	tales_msa		summary.tales_msa	class_name=character;n_arrays=integer;width=integer;n_gaps=integer;n_cells=integer;n_ungapped_columns=integer;layers=list;namespace=NULL;anomalies=tbl_df	2
-tale_distances	tbl_df		tale_distances		51
+tale_distances	tbl_df		tale_distances		49
 tale_distances	data.frame		tale_distances		8
 tale_distances	tale_distances		tale_distances		1
-tale_parts_to_rvd	tbl_df		BStringSet		4
-tales	tbl_df		tales		226
+tales	tbl_df		tales		256
 tales	tales		tales		25
-tales	rowwise_df		tales		24
 tales	data.frame		tales		5
 tales	tales_msa		tales		3
 tales_align	tales		tales_msa		22
 tales_align	tales	domain_distances=domain_distances	tales_msa		1
-tales_anchor_codes	NA		character		469
+tales_anchor_codes	NA		character		480
 tales_anomalies	tales		tbl_df		23
 tales_anomalies	tales_msa		tbl_df		2
 tales_assert_complete	tales		tales		28
@@ -91,7 +87,8 @@ tales_consensus_match	matrix		matrix		11
 tales_consensus_match	matrix		tbl_df		2
 tales_domain_codes	tales		tbl_df		6
 tales_domain_distances	tales		domain_distances		16
-tales_from_telltale	character		tales		24
+tales_from_annotale	character		tales		4
+tales_from_telltales	character		tales		26
 tales_get_dna_seq	tales		DNAStringSet		4
 tales_get_dna_seq	tales_msa		DNAStringSet		1
 tales_get_protein_seq	tales		AAStringSet		4
@@ -102,24 +99,31 @@ tales_group_kmedoids	tales		tales		6
 tales_msa	tales		tales_msa		23
 tales_msa	tbl_df		tales_msa		12
 tales_msa	data.frame		tales_msa		1
+tales_msa_width	tales_msa		integer		169
+tales_msa_width	tales		NULL		3
+tales_namespace	tales		NULL		395
 tales_namespace	tales		character		70
 tales_namespace	domain_distances		character		18
+tales_namespace	tales_msa		NULL		13
+tales_namespace	tale_distances		NULL		8
+tales_namespace	pairwise_distances		NULL		6
+tales_namespace	domain_distances		NULL		1
 tales_namespace	tales_msa		character		1
 tales_predict_targets	tales		tbl_df		1
 tales_predict_targets	character		tbl_df		1
 tales_requirements	NA		tbl_df		2
-tales_rvd_strings	tales		BStringSet		20
+tales_rvd_strings	tales		BStringSet		24
 tales_tale_distances	tales	domain_distances=domain_distances	tale_distances		13
 tales_to_universalmotif	tales		list	ROI_00001=universalmotif;ROI_00002=universalmotif;ROI_00003=universalmotif;ROI_00004=universalmotif	9
 tales_to_universalmotif	tales		list	A1=universalmotif;A2=universalmotif	1
-tales_width	tales_msa		integer		169
+talomes_heatmap	data.frame		NULL		10
 talvez	character		tbl_df		3
 talvez	BStringSet		tbl_df		1
 tantale_setup	logical		list	conda=data.frame;system=data.frame;prefix=character	1
-tell_tales	character		character		20
-validate_pairwise_distances	tale_distances		tale_distances		60
-validate_pairwise_distances	domain_distances		domain_distances		28
+tell_tales	character		character		22
+validate_pairwise_distances	tale_distances		tale_distances		58
+validate_pairwise_distances	domain_distances		domain_distances		27
 validate_pairwise_distances	pairwise_distances		pairwise_distances		21
-validate_tales	tales		tales		285
+validate_tales	tales		tales		291
 validate_tales	tales_msa		tales_msa		42
 validate_tales_msa	tales_msa		tales_msa		37

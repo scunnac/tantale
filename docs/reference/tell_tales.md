@@ -16,7 +16,8 @@ tell_tales(
   nterm_min_score = 300,
   repeat_min_score = 20,
   cterm_min_score = 200,
-  min_domain_hits = 4,
+  terminus_max_evalue = 1e-05,
+  min_dna_hits = 4,
   min_array_length = 0,
   merge_hits = TRUE,
   min_gap = 35,
@@ -47,8 +48,12 @@ tell_tales(
 
 - hmm_dir:
 
-  Specify the path to a folder holding the hmmfiles if you do not want
-  to use the ones provided with tantale.
+  Folder holding the profile HMMs, if you do not want the ones provided
+  with tantale. It must hold files with the same names: the three DNA
+  profiles of the nhmmer search (`Xo_TALE_Nterm_CDS_profile.hmm`,
+  `Xo_TALE_repeat_CDS_profile.hmm`, `Xo_TALE_Cterm_CDS_profile.hmm`) and
+  the two protein profiles of the terminus check
+  (`Xo_TALE_Nterm_AA_profile.hmm`, `Xo_TALE_Cterm_AA_profile.hmm`).
 
 - nterm_min_score:
 
@@ -62,7 +67,17 @@ tell_tales(
 
   Minimal nhmmer score cut_off value to consider the hit as genuine
 
-- min_domain_hits:
+- terminus_max_evalue:
+
+  Maximum `hmmsearch` E-value for the segment AnnoTALE reports on either
+  side of the repeats to count as a TALE N- or C-terminus. The segments
+  are searched with the TALE terminal-domain protein profiles of
+  `hmm_dir`; this decides the `NTERM`, `CTERM` and `XXXXX` codes (see
+  [`tales_anchor_codes`](https://scunnac.github.io/tantale/reference/tales_anchor_codes.md)).
+  Genuine termini truncated to about 40 residues still match with
+  E-values below 1e-18.
+
+- min_dna_hits:
 
   Minimum number of nhmmer hits for a subject sequence (a contig, a
   chromosome) to be considered further. A cheap way to discard whole
@@ -88,8 +103,10 @@ tell_tales(
 
 - merge_hits:
 
-  Perform overlapping hits merging per domain type. Should not be
-  modified.
+  Merge overlapping nhmmer hits of the same domain type, since nhmmer
+  can report one repeat as two overlapping hits. With `FALSE`, such a
+  repeat is counted twice in `n_dna_hits` and by `min_array_length`, and
+  a warning names the arrays concerned.
 
 - min_gap:
 
@@ -99,8 +116,8 @@ tell_tales(
 
 - extremity_codes:
 
-  Set this to `FALSE` if you do not want the N- and C-TERM anchor codes
-  in the output sequences of RVD
+  Set this to `FALSE` if you do not want the terminus codes in the RVD
+  strings of `rvd_sequences.fas` and `array_report.tsv`.
 
 - rvd_sep:
 
@@ -216,13 +233,55 @@ List of output files:
 
 - all_ranges.gff: gff file of all Tal arrays detected by HMMer
 
-- array_report.tsv: report of all Tal arrays. Its
-  *nterm_aa_length*/*cterm_aa_length* columns count amino acid residues,
-  excluding a stop codon, as in the `tales` object's `aa_seq`. Columns
-  *predicted_dels_count*/*predicted_ins_count* show the number of
-  putative deletions/insertions in the raw sequences that have been
-  corrected in the corrected sequences with the function
-  [`CorrectFrameshifts`](https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html).
+- array_report.tsv: one row per candidate TALE array. Columns named
+  `*_dna_*` describe the nhmmer search of the subject DNA; columns named
+  `*_aa_*` describe the protein segments AnnoTALE extracted from the
+  array's longest ORF.
+
+  - *array_id*, *seqnames*, *start*, *end*, *strand*: the array's
+    identifier and the span of its nhmmer hits on the subject sequence.
+
+  - *n_dna_hits*: number of nhmmer hits (N-terminus, repeats and
+    C-terminus profiles together) grouped in the array. A terminus hit
+    usually overlaps the adjacent repeat hit by a few nucleotides, at
+    the boundary between the two domains.
+
+  - *array_seq*: DNA sequence of that span.
+
+  - *nterm_dna_hit*, *cterm_dna_hit*: whether an nhmmer hit of the N-
+    (C-) terminus DNA profile is part of the array, anywhere in it.
+
+  - *rvd_string*: the RVDs AnnoTALE read, separated by `rvd_sep`, with
+    the terminus codes described under *rvd_sequences.fas*. Empty when
+    AnnoTALE found no RVD.
+
+  - *has_aberrant_repeat*: whether AnnoTALE flagged a repeat of
+    non-canonical length (a lowercase letter in its RVD).
+
+  - *nterm_aa_evalue*, *cterm_aa_evalue*: E-value of the `hmmsearch`
+    match between the segment AnnoTALE reported upstream (downstream) of
+    the repeats and the TALE N- (C-) terminal protein profile. `NA` when
+    there is no segment, or no match with an E-value up to 10.
+
+  - *nterm_aa_hit*, *cterm_aa_hit*: `TRUE` when that E-value is at most
+    `terminus_max_evalue`, `FALSE` for a segment that does not match,
+    `NA` when AnnoTALE reported no segment on that side.
+
+  - *nterm_aa_length*, *cterm_aa_length*: length of those segments in
+    amino acid residues, excluding a stop codon, as in the `tales`
+    object's `aa_seq`.
+
+  - *longest_orf_length*, *longest_orf_seq*: the longest ORF found in
+    the array region extended by `extend_len` nucleotides at its 3' end.
+
+  - *orf_coverage*: that ORF's length as a percentage of the extended
+    region's length.
+
+  - *predicted_dels_count*, *predicted_ins_count* (with
+    `correct_array = TRUE`): number of putative deletions/insertions in
+    the raw sequence that
+    [`CorrectFrameshifts`](https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html)
+    corrected.
 
 - hits_report.tsv: report of all hits detected by HMMer
 
@@ -236,14 +295,14 @@ List of output files:
 - pseudo_tal_cds.fasta: pseudo Tal CDS, putative Tal array ORFs detected
   by HMMer for which AnnoTALE analyze failed to find RVD(s).
 
-- rvd_sequences.fas: Sequence of RVDs (separated by rvd_sep) predicted
-  to be encoded in the Tal array ORFs by AnnoTALE. Note that if
-  extremity_codes is `TRUE` (by default), the N- and C-TERM anchor codes
-  will be added at the beginning and end of the sequences if the
-  corresponding domain coding sequence was found by HMMer at the DNA
-  level. If no such HMMer hits were found, the "XXXXX" string will be
-  appended to denote that AA sequences outside of the RVD array are
-  likely to be atypical.
+- rvd_sequences.fas: the RVDs (separated by `rvd_sep`) of each array for
+  which AnnoTALE found at least one. With `extremity_codes = TRUE` (the
+  default), each string is bracketed by terminus codes (see
+  [`tales_anchor_codes`](https://scunnac.github.io/tantale/reference/tales_anchor_codes.md)):
+  `NTERM` (`CTERM`) when the segment AnnoTALE reported upstream
+  (downstream) of the repeats matches the TALE N- (C-) terminal protein
+  profile, `XXXXX` when it does not, and no code when AnnoTALE reported
+  no segment on that side.
 
 - c_terminus_aa_alignment.html: protein alignment of all C-termini (only
   written when at least 2 were found; skipped with a warning otherwise)
@@ -312,7 +371,8 @@ in the tell_tales log.
 
 Other TALE discovery:
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md),
-[`tales_from_telltale()`](https://scunnac.github.io/tantale/reference/tales_from_telltale.md)
+[`tales_from_annotale()`](https://scunnac.github.io/tantale/reference/tales_from_annotale.md),
+[`tales_from_telltales()`](https://scunnac.github.io/tantale/reference/tales_from_telltales.md)
 
 ## Examples
 
@@ -331,15 +391,12 @@ tell_tales(subject_file = subj, output_dir = out)
 #> Dummy seq names : seq1 ; seq2
 #> HMMER 3.3.2 (Nov 2020); http://hmmer.org/
 #> Copyright (C) 2020 Howard Hughes Medical Institute.
-#> Warning: Some HMMER hits overlap, so the inferred RVD sequences may carry artefactual
-#> insertions.
-#> ℹ Check these regions: "ROI_00001", "ROI_00002", "ROI_00003", and "ROI_00004"
 #> Now running AnnoTALE analyze for ROI_00001
 #> Now running AnnoTALE analyze for ROI_00002
 #> Now running AnnoTALE analyze for ROI_00003
 #> Now running AnnoTALE analyze for ROI_00004
 #> #**************************************** #** tell_tales analysis done **
-#> Current date: Thu Sep 24 22:50:08 2026 #_________Provided I/O parameters
+#> Current date: Thu Oct 1 11:56:50 2026 #_________Provided I/O parameters
 #> __________ File of subject DNA sequences:
 #> /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/bai3_sample_tal_genomic_regions.fasta
 #> TALE N-term CDS region detection HMM file:
@@ -348,25 +405,28 @@ tell_tales(subject_file = subj, output_dir = out)
 #> /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_repeat_CDS_profile.hmm
 #> TALE C-term CDS region detection HMM file:
 #> /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Cterm_CDS_profile.hmm
-#> Output directory: /tmp/RtmpT7zug3/tell_tales_example11d8125b391489
+#> Output directory: /tmp/Rtmp5o83zd/tell_tales_example1860b114a5d238
 #> #____________Other parameters________________ nterm_min_score: 300
-#> repeat_min_score: 20 cterm_min_score: 200 min_domain_hits: 4 min_array_length:
-#> 0 merge_hits: TRUE min_gap: 35 extend_len: 300 correct_array: FALSE
-#> correction_ref:
+#> repeat_min_score: 20 cterm_min_score: 200 terminus_max_evalue: 1e-05
+#> min_dna_hits: 4 min_array_length: 0 merge_hits: TRUE min_gap: 35 extend_len:
+#> 300 correct_array: FALSE correction_ref:
 #> /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/tale_correction_ref.fa.gz
 #> max_comparisons: all frameshift: -11 #__________Summary measures of TALE search
 #> outcome__________ Number of analysed subject sequences : 2 Total number of TALE
 #> repeat DNA coding sequence motif hits found with the nhmmer approach: 88 Total
 #> number of subject seqs with TALE motif hits after low hit number filtering: 2
 #> Total number of distinct regions (repeat arrays) with adjacent TALE motifs : 4
-#> Total number of 'complete' arrays (with both N- and C-term flanking motifs): 4
-#> Minimum array length (number of TALE domain hits): 16 Maximum array length: 28
-#> Median array length: 26 Number of gaps of size below 500nt between TALE motifs
-#> arrays: 1.5 First quartile of size of gaps (below 500nt) between TALE motifs
-#> arrays: 108 Median size of gaps (below 500nt) between TALE motifs arrays: 108
-#> Upper quartile of size of gaps (below 500nt) between TALE motifs arrays: 108
-#> #__________Noteworthy AnnoTale issues__________ # #*************************
-tales_from_telltale(out)
+#> Number of arrays with nhmmer DNA hits for both termini: 4 Number of arrays
+#> whose AnnoTALE N-terminus matches the TALE N-terminal protein profile: 4 Number
+#> of arrays whose AnnoTALE C-terminus matches the TALE C-terminal protein
+#> profile: 4 Minimum array length (number of nhmmer DNA hits): 16 Maximum array
+#> length: 28 Median array length: 26 Number of gaps of size below 500nt between
+#> TALE motifs arrays: 1.5 First quartile of size of gaps (below 500nt) between
+#> TALE motifs arrays: 108 Median size of gaps (below 500nt) between TALE motifs
+#> arrays: 108 Upper quartile of size of gaps (below 500nt) between TALE motifs
+#> arrays: 108 #__________Noteworthy AnnoTale issues__________ #
+#> #*************************
+tales_from_telltales(out)
 #> <tales> 4 arrays, 96 parts
 #>   layers: rvd   |   6 other columns
 #>              rvd

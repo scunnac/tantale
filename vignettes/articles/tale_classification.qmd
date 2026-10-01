@@ -85,7 +85,7 @@ discover_strain <- function(strain) {
 for BAI3-1-1. Run on MAI1 and BAI3 too, it costs a little extra time;
 neither needed correcting.
 
-```{r discover_all, message = FALSE}
+```{r discover_all, message = FALSE, results = "hide"}
 if (fs::file_exists(discovery_cache)) {
   all_tales <- readRDS(discovery_cache)
 } else {

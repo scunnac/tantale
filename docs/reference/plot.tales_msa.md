@@ -109,8 +109,8 @@ colour the block behind it is.
 
 **Cell text** is whatever `label` names, or nothing when `label = NULL`.
 Termini are relabelled `N-` and `-C`; an unidentified terminus keeps its
-`XXXXX` code, which is deliberately not mistakable for an RVD. Domain
-codes are padded to three characters so columns line up.
+`XXXXX` code. Domain codes are padded to three characters so columns
+line up.
 
 **Text colour** always answers one question: does this element match the
 consensus of its column? Cyan for yes, pink for no, grey where the

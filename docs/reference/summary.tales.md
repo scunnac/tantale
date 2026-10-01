@@ -41,7 +41,7 @@ parts, broken down by domain type. These are *domains*, repeats and
 termini alike: a `dom_code` identifies any distinct part sequence, and
 the two termini are parts like the repeats are. In the example output
 shipped with the package (see
-[`tales_from_telltale`](https://scunnac.github.io/tantale/reference/tales_from_telltale.md)),
+[`tales_from_telltales`](https://scunnac.github.io/tantale/reference/tales_from_telltales.md)),
 47 distinct codes cover 39 repeats and 8 termini, so reading the total
 as a count of distinct repeats would overstate repeat diversity.
 

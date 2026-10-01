@@ -13,7 +13,7 @@ that would otherwise be missed by conventional tools (eg AnnoTALE)."><meta prope
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9010</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9011</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -66,7 +66,8 @@ that would otherwise be missed by conventional tools (eg AnnoTALE).</p>
 <span>  nterm_min_score <span class="op">=</span> <span class="fl">300</span>,</span>
 <span>  repeat_min_score <span class="op">=</span> <span class="fl">20</span>,</span>
 <span>  cterm_min_score <span class="op">=</span> <span class="fl">200</span>,</span>
-<span>  min_domain_hits <span class="op">=</span> <span class="fl">4</span>,</span>
+<span>  terminus_max_evalue <span class="op">=</span> <span class="fl">1e-05</span>,</span>
+<span>  min_dna_hits <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  min_array_length <span class="op">=</span> <span class="fl">0</span>,</span>
 <span>  merge_hits <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  min_gap <span class="op">=</span> <span class="fl">35</span>,</span>
@@ -98,8 +99,14 @@ be written to current working folder.</p></dd>
 
 
 <dt id="arg-hmm-dir">hmm_dir<a class="anchor" aria-label="anchor" href="#arg-hmm-dir"></a></dt>
-<dd><p>Specify the path to a folder holding the hmmfiles if you
-do not want to use the ones provided with tantale.</p></dd>
+<dd><p>Folder holding the profile HMMs, if you do not want the
+ones provided with tantale. It must hold files with the same names: the
+three DNA profiles of the nhmmer search
+(<code>Xo_TALE_Nterm_CDS_profile.hmm</code>,
+<code>Xo_TALE_repeat_CDS_profile.hmm</code>,
+<code>Xo_TALE_Cterm_CDS_profile.hmm</code>) and the two protein profiles of
+the terminus check (<code>Xo_TALE_Nterm_AA_profile.hmm</code>,
+<code>Xo_TALE_Cterm_AA_profile.hmm</code>).</p></dd>
 
 
 <dt id="arg-nterm-min-score">nterm_min_score<a class="anchor" aria-label="anchor" href="#arg-nterm-min-score"></a></dt>
@@ -117,7 +124,17 @@ the hit as genuine</p></dd>
 consider the hit as genuine</p></dd>
 
 
-<dt id="arg-min-domain-hits">min_domain_hits<a class="anchor" aria-label="anchor" href="#arg-min-domain-hits"></a></dt>
+<dt id="arg-terminus-max-evalue">terminus_max_evalue<a class="anchor" aria-label="anchor" href="#arg-terminus-max-evalue"></a></dt>
+<dd><p>Maximum <code>hmmsearch</code> E-value for the
+segment AnnoTALE reports on either side of the repeats to count as a TALE
+N- or C-terminus. The segments are searched with the TALE terminal-domain
+protein profiles of <code>hmm_dir</code>; this decides the <code>NTERM</code>,
+<code>CTERM</code> and <code>XXXXX</code> codes (see <code><a href="tales_anchor_codes.html">tales_anchor_codes</a></code>).
+Genuine termini truncated to about 40 residues still match with E-values
+below 1e-18.</p></dd>
+
+
+<dt id="arg-min-dna-hits">min_dna_hits<a class="anchor" aria-label="anchor" href="#arg-min-dna-hits"></a></dt>
 <dd><p>Minimum number of nhmmer hits for a subject
 sequence (a contig, a chromosome) to be considered further. A cheap way
 to discard whole sequences that carry nothing but stray matches, before
@@ -140,8 +157,10 @@ you are looking for.</p></dd>
 
 
 <dt id="arg-merge-hits">merge_hits<a class="anchor" aria-label="anchor" href="#arg-merge-hits"></a></dt>
-<dd><p>Perform overlapping hits merging per domain type. Should not
-be modified.</p></dd>
+<dd><p>Merge overlapping nhmmer hits of the same domain type,
+since nhmmer can report one repeat as two overlapping hits. With
+<code>FALSE</code>, such a repeat is counted twice in <code>n_dna_hits</code> and
+by <code>min_array_length</code>, and a warning names the arrays concerned.</p></dd>
 
 
 <dt id="arg-min-gap">min_gap<a class="anchor" aria-label="anchor" href="#arg-min-gap"></a></dt>
@@ -152,7 +171,8 @@ value, domains are considered "contiguous" and grouped in the same array.</p></d
 
 <dt id="arg-extremity-codes">extremity_codes<a class="anchor" aria-label="anchor" href="#arg-extremity-codes"></a></dt>
 <dd><p>Set this to <code>FALSE</code> if you do not want the
-N- and C-TERM anchor codes in the output sequences of RVD</p></dd>
+terminus codes in the RVD strings of <code>rvd_sequences.fas</code> and
+<code>array_report.tsv</code>.</p></dd>
 
 
 <dt id="arg-rvd-sep">rvd_sep<a class="anchor" aria-label="anchor" href="#arg-rvd-sep"></a></dt>
@@ -240,26 +260,61 @@ DECIPHER's own <code>-15</code>; change it only with a reason.</p></dd>
 smoothly, it invisibly returns the path of the directory where output
 files were written.</p>
 <p>List of output files:</p><ul><li><p>all_ranges.gff: gff file of all Tal arrays detected by HMMer</p></li>
-<li><p>array_report.tsv: report of all Tal arrays. Its
-<em>nterm_aa_length</em>/<em>cterm_aa_length</em> columns count amino acid
-residues, excluding a stop codon, as in the <code>tales</code> object's
-<code>aa_seq</code>. Columns
-<em>predicted_dels_count</em>/<em>predicted_ins_count</em> show the
-number of putative deletions/insertions in the raw sequences that have been
-corrected in the corrected sequences with the
-function <code><a href="https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html" class="external-link">CorrectFrameshifts</a></code>.</p></li>
+<li><p>array_report.tsv: one row per candidate TALE array. Columns
+named <code>*_dna_*</code> describe the nhmmer search of the subject DNA;
+columns named <code>*_aa_*</code> describe the protein segments AnnoTALE
+extracted from the array's longest ORF.</p><ul><li><p><em>array_id</em>, <em>seqnames</em>, <em>start</em>, <em>end</em>,
+<em>strand</em>: the array's identifier and the span of its nhmmer hits
+on the subject sequence.</p></li>
+<li><p><em>n_dna_hits</em>: number of nhmmer hits (N-terminus, repeats and
+C-terminus profiles together) grouped in the array. A terminus hit
+usually overlaps the adjacent repeat hit by a few nucleotides, at the
+boundary between the two domains.</p></li>
+<li><p><em>array_seq</em>: DNA sequence of that span.</p></li>
+<li><p><em>nterm_dna_hit</em>, <em>cterm_dna_hit</em>: whether an nhmmer hit
+of the N- (C-) terminus DNA profile is part of the array, anywhere in
+it.</p></li>
+<li><p><em>rvd_string</em>: the RVDs AnnoTALE read, separated by
+<code>rvd_sep</code>, with the terminus codes described under
+<em>rvd_sequences.fas</em>. Empty when AnnoTALE found no RVD.</p></li>
+<li><p><em>has_aberrant_repeat</em>: whether AnnoTALE flagged a repeat of
+non-canonical length (a lowercase letter in its RVD).</p></li>
+<li><p><em>nterm_aa_evalue</em>, <em>cterm_aa_evalue</em>: E-value of the
+<code>hmmsearch</code> match between the segment AnnoTALE reported upstream
+(downstream) of the repeats and the TALE N- (C-) terminal protein
+profile. <code>NA</code> when there is no segment, or no match with an
+E-value up to 10.</p></li>
+<li><p><em>nterm_aa_hit</em>, <em>cterm_aa_hit</em>: <code>TRUE</code> when that
+E-value is at most <code>terminus_max_evalue</code>, <code>FALSE</code> for a
+segment that does not match, <code>NA</code> when AnnoTALE reported no
+segment on that side.</p></li>
+<li><p><em>nterm_aa_length</em>, <em>cterm_aa_length</em>: length of those
+segments in amino acid residues, excluding a stop codon, as in the
+<code>tales</code> object's <code>aa_seq</code>.</p></li>
+<li><p><em>longest_orf_length</em>, <em>longest_orf_seq</em>: the longest
+ORF found in the array region extended by <code>extend_len</code>
+nucleotides at its 3' end.</p></li>
+<li><p><em>orf_coverage</em>: that ORF's length as a percentage of the
+extended region's length.</p></li>
+<li><p><em>predicted_dels_count</em>, <em>predicted_ins_count</em> (with
+<code>correct_array = TRUE</code>): number of putative deletions/insertions
+in the raw sequence that
+<code><a href="https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html" class="external-link">CorrectFrameshifts</a></code>
+corrected.</p></li>
+</ul></li>
 <li><p>hits_report.tsv: report of all hits detected by HMMer</p></li>
 <li><p>hits_report.gff: gff file of all hits detected by HMMer</p></li>
 <li><p>domains_report.tsv: report of all Tal amino acid domains detected by AnnoTALE analyze</p></li>
 <li><p>putative_tal_orf.fasta: Tal putative ORFs</p></li>
 <li><p>pseudo_tal_cds.fasta: pseudo Tal CDS, putative Tal array ORFs detected by HMMer for which
 AnnoTALE analyze failed to find RVD(s).</p></li>
-<li><p>rvd_sequences.fas: Sequence of RVDs (separated by rvd_sep) predicted to be encoded in the Tal array
-ORFs by AnnoTALE. Note that if extremity_codes is <code>TRUE</code> (by default),
-the N- and C-TERM anchor codes will be added at the beginning and end of the sequences
-if the corresponding domain coding sequence was found by HMMer at the DNA level.
-If no such HMMer hits were found, the "XXXXX" string will be appended
-to denote that AA sequences outside of the RVD array are likely to be atypical.</p></li>
+<li><p>rvd_sequences.fas: the RVDs (separated by <code>rvd_sep</code>) of each
+array for which AnnoTALE found at least one. With <code>extremity_codes
+   = TRUE</code> (the default), each string is bracketed by terminus codes (see
+<code><a href="tales_anchor_codes.html">tales_anchor_codes</a></code>): <code>NTERM</code> (<code>CTERM</code>) when the
+segment AnnoTALE reported upstream (downstream) of the repeats matches
+the TALE N- (C-) terminal protein profile, <code>XXXXX</code> when it does
+not, and no code when AnnoTALE reported no segment on that side.</p></li>
 <li><p>c_terminus_aa_alignment.html: protein alignment of all C-termini
 (only written when at least 2 were found; skipped with a warning otherwise)</p></li>
 <li><p>c_terminus_dna_alignment.html: DNA alignment of all C-termini (same condition)</p></li>
@@ -302,7 +357,8 @@ RVD sequence. This should be detected and reported in the tell_tales log.</p>
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
     <div class="dont-index"><p>Other TALE discovery:
 <code><a href="correct_tales.html">correct_tales()</a></code>,
-<code><a href="tales_from_telltale.html">tales_from_telltale()</a></code></p></div>
+<code><a href="tales_from_annotale.html">tales_from_annotale()</a></code>,
+<code><a href="tales_from_telltales.html">tales_from_telltales()</a></code></p></div>
     </div>
 
     <div class="section level2">
@@ -321,15 +377,12 @@ RVD sequence. This should be detected and reported in the tell_tales log.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Dummy seq names : seq1 ; seq2</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> HMMER 3.3.2 (Nov 2020); http://hmmer.org/</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Copyright (C) 2020 Howard Hughes Medical Institute.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Some HMMER hits overlap, so the inferred RVD sequences may carry artefactual</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> insertions.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Check these regions: <span style="color: #0000BB;">"ROI_00001"</span>, <span style="color: #0000BB;">"ROI_00002"</span>, <span style="color: #0000BB;">"ROI_00003"</span>, and <span style="color: #0000BB;">"ROI_00004"</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Now running AnnoTALE analyze for ROI_00001</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Now running AnnoTALE analyze for ROI_00002</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Now running AnnoTALE analyze for ROI_00003</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Now running AnnoTALE analyze for ROI_00004</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> #**************************************** #** tell_tales analysis done **</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Current date: Thu Sep 24 22:50:08 2026 #_________Provided I/O parameters</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Current date: Thu Oct 1 11:56:50 2026 #_________Provided I/O parameters</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> __________ File of subject DNA sequences:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/bai3_sample_tal_genomic_regions.fasta</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> TALE N-term CDS region detection HMM file:</span>
@@ -338,25 +391,28 @@ RVD sequence. This should be detected and reported in the tell_tales log.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_repeat_CDS_profile.hmm</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> TALE C-term CDS region detection HMM file:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Cterm_CDS_profile.hmm</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Output directory: /tmp/RtmpT7zug3/tell_tales_example11d8125b391489</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Output directory: /tmp/Rtmp5o83zd/tell_tales_example1860b114a5d238</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> #____________Other parameters________________ nterm_min_score: 300</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> repeat_min_score: 20 cterm_min_score: 200 min_domain_hits: 4 min_array_length:</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> 0 merge_hits: TRUE min_gap: 35 extend_len: 300 correct_array: FALSE</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> correction_ref:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> repeat_min_score: 20 cterm_min_score: 200 terminus_max_evalue: 1e-05</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> min_dna_hits: 4 min_array_length: 0 merge_hits: TRUE min_gap: 35 extend_len:</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> 300 correct_array: FALSE correction_ref:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/tale_correction_ref.fa.gz</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> max_comparisons: all frameshift: -11 #__________Summary measures of TALE search</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> outcome__________ Number of analysed subject sequences : 2 Total number of TALE</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> repeat DNA coding sequence motif hits found with the nhmmer approach: 88 Total</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> number of subject seqs with TALE motif hits after low hit number filtering: 2</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Total number of distinct regions (repeat arrays) with adjacent TALE motifs : 4</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Total number of 'complete' arrays (with both N- and C-term flanking motifs): 4</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Minimum array length (number of TALE domain hits): 16 Maximum array length: 28</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Median array length: 26 Number of gaps of size below 500nt between TALE motifs</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> arrays: 1.5 First quartile of size of gaps (below 500nt) between TALE motifs</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> arrays: 108 Median size of gaps (below 500nt) between TALE motifs arrays: 108</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Upper quartile of size of gaps (below 500nt) between TALE motifs arrays: 108</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> #__________Noteworthy AnnoTale issues__________ # #*************************</span>
-<span class="r-in"><span><span class="fu"><a href="tales_from_telltale.html">tales_from_telltale</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span></span></span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Number of arrays with nhmmer DNA hits for both termini: 4 Number of arrays</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> whose AnnoTALE N-terminus matches the TALE N-terminal protein profile: 4 Number</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> of arrays whose AnnoTALE C-terminus matches the TALE C-terminal protein</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> profile: 4 Minimum array length (number of nhmmer DNA hits): 16 Maximum array</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> length: 28 Median array length: 26 Number of gaps of size below 500nt between</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> TALE motifs arrays: 1.5 First quartile of size of gaps (below 500nt) between</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> TALE motifs arrays: 108 Median size of gaps (below 500nt) between TALE motifs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> arrays: 108 Upper quartile of size of gaps (below 500nt) between TALE motifs</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> arrays: 108 #__________Noteworthy AnnoTale issues__________ #</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> #*************************</span>
+<span class="r-in"><span><span class="fu"><a href="tales_from_telltales.html">tales_from_telltales</a></span><span class="op">(</span><span class="va">out</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">&lt;tales&gt;</span> 4 arrays, 96 parts</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   layers: rvd   |   6 other columns</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>              rvd</span>

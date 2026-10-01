@@ -2156,3 +2156,31 @@ Q18 update the articles and rebuild the site.
   sorts before "BAI3-1-1_ROI_*", under C (testthat) after. The retired
   `tale_parts_to_rvd()` used dplyr's C-locale ordering.
 - Full `devtools::test()`: only the two golden failures above.
+
+**Site rebuilt 2026-10-01** (wipe of `docs/` and the cache, 27 min, no
+error; `check_built_site()` clean). Articles: calls renamed;
+`has_all_domains` replaced by `nterm_dna_hit`/`cterm_dna_hit` in
+`tale_mining.qmd` and by `cterm_dna_hit` in `trunctale_correction.qmd`
+(the report tables narrowed to five columns so `cterm_aa_length` and
+`orf_coverage` stay visible; its quoted numbers 42/183/216 aa, 83/86/93%
+still match). `tale_classification.qmd`'s `discover_all` chunk gets
+`results = "hide"`: on a cold cache DECIPHER's progress output was
+printed (`verbose` is not passed by `tell_tales()`). `tale_msa` and
+`tale_target_prediction` renders are unchanged.
+
+**`tale_mining.qmd` no longer matches its render** (left to the
+maintainer, who is revising it). Checked by running the article's two
+BAI3-1-1 cases directly:
+- raw (`cterm_min_score = 300`): `tales_anomalies()` returns 0 rows. The
+  text expects `missing_rvd` for `ROI_00003`/`ROI_00005`. Since §35 those
+  two arrays enter the `tales` object as two termini and no repeat (N
+  coded `NTERM`, the 3-aa "C-terminus" `XXXXX`), and no anomaly check
+  flags an array without repeats. `tales_from_telltales()` emits no
+  warning either, so "the warnings obtained when importing" has nothing
+  to show (and the article sets `warning = FALSE` globally).
+- corrected (`max_comparisons = 20`): `tales_anomalies()` returns 0 rows;
+  `ROI_00001` (ORF coverage 72%) failed in AnnoTALE, so `tell_tales()`
+  deleted its parts and the array is simply absent from the object. The
+  text says it is now flagged. Coverage of the other arrays: 90-93%.
+- Candidate for the postponed A5 (anomalies re-examined one by one): an
+  array with no repeat part as an anomaly.
