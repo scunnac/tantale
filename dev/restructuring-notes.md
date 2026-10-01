@@ -2065,3 +2065,47 @@ files are removed):
   `resize()` muffles only warnings whose message contains "out-of-bound
   range"; the termini test in `test_tell_tales.R` asserts the PXO86
   excerpt run no longer emits it.
+
+## 37. `tales_from_annotale()`, renames and retirements (road map step 3) **[P]**
+
+Investigated 2026-10-01; plan awaiting the maintainer's approval.
+
+**AnnoTALE's own output.** `run_annotale_predict()` on `MAI1.fa` (2 min)
+writes `Predict/` (5.8 MB: GFF3, GenBank, TALE DNA and protein fasta) and
+`Analyze/` (80 KB: `TALE_Protein_parts.fasta`, `TALE_DNA_parts.fasta`,
+`TALE_RVDs.fasta`), one file each for all TALEs. Names look like
+`MAI1-tempTALE1 [624136-627961:1]` (0-based start, then strand); the GFF3
+gives the contig (`seqid`) and `Id=MAI1-tempTALE1`. 9 TALEs on MAI1,
+where `tell_tales()` finds 10 arrays. `.tale_parts_from_file()` and
+`.rvds_from_annotale_file()` already parse these files unchanged.
+
+**Plan proposed:**
+- T1 `tales_from_annotale(annotale_dir, terminus_max_evalue = 1e-5,
+  sanitize = FALSE)`: finds the three `Analyze` files under
+  `annotale_dir` (so `run_annotale_predict()`'s `output_dir` works), codes
+  the termini with `.tale_termini_hmmsearch()` as `tell_tales()` does,
+  `array_id` = AnnoTALE's name up to the space, `seqnames` from the
+  `Predict` GFF3 when present. The assembly part of `.tale_parts()`
+  (protein/DNA join, inconsistent arrays, absent termini, positions, RVD
+  join) becomes a helper shared by both readers; the terminus codes come
+  from `array_report.tsv` for one and `hmmsearch` for the other. Test
+  fixture: the `Analyze` output of `bai3_sample_tal_genomic_regions.fasta`,
+  written by a `data-raw/` script.
+- R1 `tales_from_telltale()` -> `tales_from_telltales()`;
+  R2 `tales_width()` -> `tales_msa_width()`;
+  R3 `repeat_to_rvd_align()` -> `.repeat_to_rvd_align()`;
+  R4 (optional, from the pre-1.0.0 list) `tales_rvd_strings(rvd_only =)`
+  -> `repeats_only`, as in `tales_coded_strings()`.
+- D1 retire `tale_parts_to_rvd()` (same as
+  `tales_rvd_strings(rvd_only = FALSE)`), `repeat_to_rvd_map()`,
+  `repeat_to_rvd_map_distalr()` to `inst/legacy/`; the
+  `test_plot_tales_msa.R` fixture builds its `dom_code`/`rvd` map inline;
+  the two golden rows move to `tales_rvd_strings()` or are dropped.
+- D2 retire `.rvd_to_repeat_align()` with its tests in
+  `test_error_conditions.R`.
+- D3 `.tales_rename_legacy()`/`.pairwise_distances_rename_legacy()`: no
+  code in `R/` produces the old spellings and no shipped data carries
+  them; they serve only tables saved by old versions. Documented in
+  `?tales`, `?pairwise_distances` (example uses `TAL1`/`TAL2`/`Sim`),
+  `?tales_group_hclust`; `.as_mafft_score_table()` has its own
+  `RepU1`/`RepU2`/`Sim` branch. Recommended: retire all of it.
