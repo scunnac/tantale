@@ -1,10 +1,10 @@
 # Biological anomalies in a tales object
 
 Collects the array-level anomalies that make an object *odd* rather than
-*unreadable*: missing sequence data, impossible domain-type
-arrangements, coordinate disagreements, an amino acid sequence paired
-with more than one RVD, attributes that should be constant within an
-array but are not.
+*unreadable*: missing sequence data, a non-standard TALE structure,
+impossible domain-type arrangements, coordinate disagreements, an amino
+acid sequence paired with more than one RVD, attributes that should be
+constant within an array but are not.
 
 ## Usage
 

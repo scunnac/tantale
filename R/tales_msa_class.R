@@ -350,8 +350,10 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
   mapping <- dplyr::bind_rows(mapping)
 
   out <- dplyr::left_join(x, mapping, by = c("array_id", "position_in_array"))
-  tales_msa(out, alignment_width = ncol(m),
-            dom_code_namespace = tales_namespace(x))
+  # x was reported on when it was built; aligning changes no anomaly
+  withCallingHandlers(
+    tales_msa(out, alignment_width = ncol(m), dom_code_namespace = tales_namespace(x)),
+    tantale_warning_tales_anomalous = function(w) invokeRestart("muffleWarning"))
 }
 
 

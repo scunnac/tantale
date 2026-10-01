@@ -164,13 +164,17 @@ or simply not found. `tales()` loads such arrays anyway, with a warning.
 A class that insisted on clean input would force cleaning outside the
 package and throw away exactly the signal a user would want to inspect.
 
-"Anomalous" is deliberately a narrower category than "wrong". An array
-missing a terminus, for instance, is not flagged here at all: it may
-genuinely sit at the edge of a contig. What *is* flagged is a part
-arrangement that cannot be biologically real (two N-termini in one array,
-say, or one that is not at the start), a part missing the sequence data
-it should carry, one amino acid sequence paired with two different RVDs,
-and position columns that disagree with each other:
+"Anomalous" means "worth a second look", which is broader than "wrong".
+Any array that is not a standard TALE is flagged. A standard TALE has an
+N-terminus, one or more repeats and a C-terminus, and both termini match
+the profile of their TALE domain (`NTERM` and `CTERM`, rather than
+`XXXXX`). An array missing its C-terminus is flagged, although it may
+sit at the edge of a contig or be a genuinely truncated TALE. Also
+flagged are a part arrangement that cannot be biologically real (two
+N-termini in one array, say, or one that is not at the start), a part
+missing the sequence data it should carry, one amino acid sequence
+paired with two different RVDs, and position columns that disagree with
+each other:
 
 ```{r anomaly_demo}
 odd <- tibble::tibble(

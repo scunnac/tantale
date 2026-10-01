@@ -12,7 +12,7 @@
 # codes and pass for the wrong reason.
 cmp_fixture <- function(n = 3) {
   d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  x <- suppressWarnings(tales(d$tale_parts))
+  x <- suppressWarnings(tales_quietly(d$tale_parts))
   x <- x[x$array_id %in% unique(x$array_id)[seq_len(n)], ]
   x[setdiff(names(x), "dom_code")]
 }

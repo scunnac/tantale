@@ -47,7 +47,8 @@ test_that("a terminus unlike the TALE profile is coded XXXXX", {
   expect_length(hit, 1L)
   parts[hit] <- Biostrings::AAStringSet("MSTNPKPQRKTKRNTNRRPQDVKFPGGGQIVGGVYLLPRRGPRLGVRATRKTSERSQPRG")
   Biostrings::writeXStringSet(parts, f)
-  x <- tales_from_annotale(dir)
+  expect_warning(x <- tales_from_annotale(dir), class = "tantale_warning_tales_anomalous")
+  expect_identical(tales_anomalies(x)$check, "terminus_unmatched")
   cterm <- x[x$domain_type == "C-terminus", ]
   expect_identical(cterm$rvd[cterm$array_id == "bai3_sample_tal_genomic_regions-tempTALE2"], "XXXXX")
   expect_identical(sum(cterm$rvd == "CTERM"), 3L)
@@ -74,8 +75,10 @@ test_that("a TALE in which AnnoTALE found no repeat is read with its two termini
   Biostrings::writeXStringSet(c(dna, extra(dna)), file.path(analyze, "TALE_DNA_parts.fasta"))
   cat(">", id, "\n\n", sep = "", file = file.path(analyze, "TALE_RVDs.fasta"), append = TRUE)
 
-  x <- suppressWarnings(tales_from_annotale(dir))
+  expect_warning(x <- tales_from_annotale(dir), class = "tantale_warning_tales_anomalous")
   pseudo <- x[x$array_id == "BAI3-1-1-tempTALE8", ]
   expect_identical(pseudo$domain_type, c("N-terminus", "C-terminus"))
+  an <- tales_anomalies(x)
+  expect_identical(an$check[an$array_id == "BAI3-1-1-tempTALE8"], "no_repeat")
   expect_identical(length(unique(x$array_id)), 5L)
 })

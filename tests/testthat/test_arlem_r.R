@@ -95,7 +95,7 @@ test_that("tales_tale_distances() reproduces the executable's distances", {
   cost <- suppressMessages(.arlem_cost_matrix(domain_distances(d$repeat.similarity)))
   expect_identical(cost, reference$real$cost)
 
-  x <- suppressWarnings(tales(d$tale_parts))
+  x <- suppressWarnings(tales_quietly(d$tale_parts))
   dd <- domain_distances(d$repeat.similarity,
                          dom_code_namespace = tales_namespace(x))
   td <- suppressMessages(tales_tale_distances(x, dd))

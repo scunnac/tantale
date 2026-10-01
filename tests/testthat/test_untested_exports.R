@@ -14,7 +14,7 @@ test_that("repeats_only = TRUE drops every anchor code, not just NTERM/CTERM", {
   # carries it.
   d <- fixture()
   expect_true(tales_anchor_codes()[[3]] %in% d$tale_parts$rvd)
-  out <- as.character(tales_rvd_strings(tales(d$tale_parts), repeats_only = TRUE))
+  out <- as.character(tales_rvd_strings(tales_quietly(d$tale_parts), repeats_only = TRUE))
   for (code in tales_anchor_codes()) {
     expect_false(any(grepl(code, out, fixed = TRUE)),
                  label = paste0("anchor code ", code, " survived repeats_only = TRUE"))
@@ -25,7 +25,7 @@ test_that("tales_anomalies() reports arrays with missing sequences", {
   # replaces diagnose_tale_parts(), which guarded on columns its callers never
   # read and warned about an "output tibble" it was about to not produce
   d <- fixture()
-  expect_s3_class(tales_anomalies(tales(d$tale_parts)), "data.frame")
+  expect_s3_class(tales_anomalies(tales_quietly(d$tale_parts)), "data.frame")
 })
 
 test_that("validate_pairwise_distances() accepts a valid object and rejects a broken one", {

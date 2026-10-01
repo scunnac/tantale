@@ -486,9 +486,11 @@ validate_tales <- function(x) {
 #'
 #' @description
 #' Lists the arrays whose content is biologically odd: missing sequence data,
-#' impossible domain-type arrangements, coordinate disagreements, an amino
-#' acid sequence paired with more than one RVD, or an attribute that varies
-#' within an array when it should not. Structurally broken input (a
+#' a structure other than that of a standard TALE (an N-terminus, one or more
+#' repeats and a C-terminus, both termini matched by the profile of their
+#' TALE domain), impossible domain-type arrangements, coordinate
+#' disagreements, an amino acid sequence paired with more than one RVD, or
+#' an attribute that varies within an array when it should not. Structurally broken input (a
 #' duplicated key, a missing required column) is an error in
 #' \code{\link{tales}} instead.
 #'
@@ -496,6 +498,14 @@ validate_tales <- function(x) {
 #' messy, and refusing to load them would force cleaning outside the package and
 #' destroy the diagnostic signal. Construction warns about them, this function
 #' tells you which and why, and \code{tales(x, sanitize = TRUE)} removes them.
+#'
+#' The structure checks need a \code{domain_type} column, and the terminus
+#' profile check an \code{rvd} column; they are skipped when it is absent.
+#' The structure checks report \code{terminus_absent} (no N- or no
+#' C-terminus part), \code{no_repeat} (no repeat part) and
+#' \code{terminus_unmatched} (a terminus coded \code{XXXXX}, see
+#' \code{\link{tales_anchor_codes}}). They apply to whole arrays: a subset
+#' keeping only the repeats is reported as lacking its termini.
 #'
 #' @param x A \code{\link{tales}} object.
 #' @return A tibble of \code{array_id}, \code{check} and \code{detail}, one
@@ -522,7 +532,8 @@ tales_anomalies <- function(x) {
 #' Biological anomalies in a tales object
 #'
 #' Collects the array-level anomalies that make an object *odd* rather than
-#' *unreadable*: missing sequence data, impossible domain-type arrangements,
+#' *unreadable*: missing sequence data, a non-standard TALE structure,
+#' impossible domain-type arrangements,
 #' coordinate disagreements, an amino acid sequence paired with more than one
 #' RVD, attributes that should be constant within an array but are not.
 #'
@@ -589,6 +600,21 @@ tales_anomalies <- function(x) {
       n <- tapply(x$domain_type == type, x$array_id, sum)
       add(names(n)[!is.na(n) & n > 1L], "terminus_duplicated",
           paste0("more than one ", type))
+    }
+    # A standard TALE is N-terminus, at least one repeat, C-terminus, with
+    # both termini matched by the TALE terminal-domain profiles.
+    for (type in c("N-terminus", "C-terminus")) {
+      has <- tapply(x$domain_type %in% type, x$array_id, any)
+      add(names(has)[!has], "terminus_absent", paste0("no ", type))
+    }
+    has <- tapply(x$domain_type %in% "repeat", x$array_id, any)
+    add(names(has)[!has], "no_repeat", "no repeat")
+    if ("rvd" %in% cols) {
+      for (type in c("N-terminus", "C-terminus")) {
+        unmatched <- x$domain_type %in% type & x$rvd %in% tales_anchor_codes()[[3]]
+        add(x$array_id[unmatched], "terminus_unmatched",
+            paste0(type, " not matched by its TALE domain profile (coded XXXXX)"))
+      }
     }
     nterm <- x$domain_type == "N-terminus" & x$position_in_array != 1L
     add(x$array_id[nterm], "terminus_misplaced", "N-terminus not at position 1")

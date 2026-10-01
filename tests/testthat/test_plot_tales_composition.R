@@ -7,7 +7,7 @@
 test_that("plot() on a tales returns a ggplot", {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   out <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  p <- plot(tales(out$tale_parts))
+  p <- plot(tales_quietly(out$tale_parts))
   expect_s3_class(p, "ggplot")
 })
 
@@ -16,13 +16,13 @@ test_that("plot() works with only the package attached", {
   # search path rather than the package namespace.
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   out <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  expect_no_error(plot(tantale::tales(out$tale_parts)))
+  expect_no_error(plot(tales_quietly(out$tale_parts)))
 })
 
 test_that("seqnames is optional: the facet is added only when present", {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   out <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  x <- tales(out$tale_parts)
+  x <- tales_quietly(out$tale_parts)
   withFacet <- plot(x)
   withoutFacet <- plot(x[, setdiff(names(x), "seqnames")])
   expect_s3_class(withFacet, "ggplot")
@@ -34,7 +34,7 @@ test_that("seqnames is optional: the facet is added only when present", {
 test_that("it reports the columns it needs rather than failing obscurely", {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   out <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  x <- tales(out$tale_parts)
+  x <- tales_quietly(out$tale_parts)
   expect_error(plot(x[, setdiff(names(x), "aa_seq")]),
                class = "tantale_error_projection_column")
 })
@@ -42,13 +42,13 @@ test_that("it reports the columns it needs rather than failing obscurely", {
 test_that("a legacy tale_parts data frame is still accepted", {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   out <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  expect_s3_class(suppressWarnings(plot(tales(out$tale_parts))), "ggplot")
+  expect_s3_class(suppressWarnings(plot(tales_quietly(out$tale_parts))), "ggplot")
 })
 
 test_that("plot() dispatches to the composition plot for a tales", {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   out <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  x <- tales(out$tale_parts)
+  x <- tales_quietly(out$tale_parts)
   p <- plot(x)
   expect_s3_class(p, "ggplot")
   expect_identical(p$labels$title, "Overview of TALE composition by genome")
@@ -60,7 +60,7 @@ test_that("a tales_msa still dispatches to plot.tales_msa, not plot.tales", {
   # composition plot.
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   out <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  x <- tales(out$tale_parts)
+  x <- tales_quietly(out$tale_parts)
   sub <- x[x$array_id %in% unique(x$array_id)[1:3], ]
   msa <- suppressWarnings(suppressMessages(tales_align(sub, residue_col = "rvd")))
   p <- suppressWarnings(suppressMessages(plot(msa)))
@@ -70,7 +70,7 @@ test_that("a tales_msa still dispatches to plot.tales_msa, not plot.tales", {
 test_that("position = 'alignment' lays parts out on the alignment coordinate", {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   out <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  x <- tales(out$tale_parts)
+  x <- tales_quietly(out$tale_parts)
   sub <- x[x$array_id %in% unique(x$array_id)[1:6], ]
   msa <- suppressWarnings(suppressMessages(tales_align(sub, residue_col = "rvd")))
   back <- suppressWarnings(suppressMessages(as_tales(msa)))
@@ -86,7 +86,7 @@ test_that("position = 'alignment' lays parts out on the alignment coordinate", {
 test_that("position = 'alignment' needs an aligned object", {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   out <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  x <- tales(out$tale_parts)
+  x <- tales_quietly(out$tale_parts)
   expect_error(plot(x, position = "alignment"),
                class = "tantale_error_projection_column")
 })
@@ -94,6 +94,6 @@ test_that("position = 'alignment' needs an aligned object", {
 test_that("the default layout is unchanged", {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   out <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  x <- tales(out$tale_parts)
+  x <- tales_quietly(out$tale_parts)
   expect_identical(plot(x)$data$.x, x$position_in_array)
 })

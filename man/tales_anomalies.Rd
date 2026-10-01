@@ -15,9 +15,11 @@ row per anomaly. Zero rows if the object is clean.
 }
 \description{
 Lists the arrays whose content is biologically odd: missing sequence data,
-impossible domain-type arrangements, coordinate disagreements, an amino
-acid sequence paired with more than one RVD, or an attribute that varies
-within an array when it should not. Structurally broken input (a
+a structure other than that of a standard TALE (an N-terminus, one or more
+repeats and a C-terminus, both termini matched by the profile of their
+TALE domain), impossible domain-type arrangements, coordinate
+disagreements, an amino acid sequence paired with more than one RVD, or
+an attribute that varies within an array when it should not. Structurally broken input (a
 duplicated key, a missing required column) is an error in
 \code{\link{tales}} instead.
 
@@ -25,6 +27,14 @@ Such arrays are accepted by \code{\link{tales}} -- real TALE predictions are
 messy, and refusing to load them would force cleaning outside the package and
 destroy the diagnostic signal. Construction warns about them, this function
 tells you which and why, and \code{tales(x, sanitize = TRUE)} removes them.
+
+The structure checks need a \code{domain_type} column, and the terminus
+profile check an \code{rvd} column; they are skipped when it is absent.
+The structure checks report \code{terminus_absent} (no N- or no
+C-terminus part), \code{no_repeat} (no repeat part) and
+\code{terminus_unmatched} (a terminus coded \code{XXXXX}, see
+\code{\link{tales_anchor_codes}}). They apply to whole arrays: a subset
+keeping only the repeats is reported as lacking its termini.
 }
 \examples{
 # A2 carries two N-termini -- an impossible arrangement.

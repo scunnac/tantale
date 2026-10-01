@@ -115,8 +115,10 @@ tales_assign_domain_codes <- function(x) {
   .assert_parts_have_aa(x)
   
   namespace <- .tales_dom_code_namespace(x$aa_seq)
-  tales(.assign_dom_codes(tibble::as_tibble(x)),
-        dom_code_namespace = namespace)
+  # x was reported on when it was built; adding codes changes no anomaly
+  withCallingHandlers(
+    tales(.assign_dom_codes(tibble::as_tibble(x)), dom_code_namespace = namespace),
+    tantale_warning_tales_anomalous = function(w) invokeRestart("muffleWarning"))
 }
 
 

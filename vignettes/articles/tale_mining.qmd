@@ -202,20 +202,24 @@ invisible(tell_tales(subject_file = bai311_fa, output_dir = bai311_raw_dir,
 
 A first sign that there is something unexpected with these TALEs predictions are the warnings obtained when importing `tell_tales` results as a `tales` object:
 
-```{r tales_from_bai311_raw}
+```{r tales_from_bai311_raw, warning = TRUE}
 bai311_raw <- tales_from_telltales(bai311_raw_dir)
 ```
 
-`tales_anomalies()` reports arrays whose content is inconsistent: missing
-sequence data, impossible terminus arrangements, coordinate
-disagreements:
+`tales_anomalies()` lists the arrays concerned and why. It reports every
+array that is not a standard TALE (an N-terminus, one or more repeats and
+a C-terminus, both termini matching the profile of their TALE domain),
+and every array whose content is inconsistent (missing sequence data,
+impossible terminus arrangements, coordinate disagreements):
 
 ```{r anomalies_raw}
 tales_anomalies(bai311_raw)
 ```
 
-Two arrays have no `rvd` at all: AnnoTALE could not parse a repeat-array
-structure out of the longest predicted ORF. Their `orf_coverage` shows why:
+`ROI_00003` and `ROI_00005` have no repeat at all: AnnoTALE could not
+parse a repeat-array structure out of the longest predicted ORF. Five
+other arrays have a terminus coded `XXXXX`, which does not match the
+profile of its TALE domain. Their `orf_coverage` shows why:
 
 ```{r orf_coverage_raw}
 readr::read_tsv(file.path(bai311_raw_dir, "array_report.tsv"),
@@ -226,7 +230,7 @@ readr::read_tsv(file.path(bai311_raw_dir, "array_report.tsv"),
 `ROI_00003` and `ROI_00005` predicted ORFs cover 19% and 23% of their candidate region.
 
 No array in this assembly reaches MAI1's 91-93%: the
-others fall between 38% and 70%. This is unusual and a sign also deserving further scrutiny even if `tales_anomalies` did not report any problem.
+others fall between 38% and 70%. This is unusual, and `tales_anomalies()` flags every one of them except `ROI_00002`.
 A close look at the 'array_report.tsv' table indicates that `ROI_00001` and `ROI_00007` have a predicted ORF encoding very few repeats (4-6) even if both termini profiles where found at the DNA level (`nterm_dna_hit` and `cterm_dna_hit` are both `TRUE`).
 
 Because, in practice this barely happens in high quality genomes, in the absence of any further evidence, this could be explained by several in/dels along the CDS that completely break it.
@@ -358,15 +362,16 @@ bai311_java <- suppressWarnings(tales_from_telltales(bai311_java_dir))
 tales_anomalies(bai311_java)
 ```
 
-Zero anomalies: `correct_tales()` fixes both `ROI_00003` and `ROI_00005`
-on this genome, without touching any candidate array individually, and
-does not break `ROI_00001`.
+`correct_tales()` fixes both `ROI_00003` and `ROI_00005` on this genome,
+without touching any candidate array individually, and does not break
+`ROI_00001`. It does not repair the N-termini of `ROI_00006` and
+`ROI_00009`, which still do not match the TALE N-terminal profile.
 
 ### A clean correction without an eight-minute wait {#sec-best-correction}
 
-`correct_tales()` above already reached zero anomalies in under a minute.
-`max_comparisons = 50` is a second, independent route to the same
-outcome, useful when the Java correction tool is not available:
+`correct_tales()` above ran in under a minute but left two arrays
+flagged. `max_comparisons = 50` is a second, independent route, which
+also works when the Java correction tool is not available:
 
 ```{r correct_moderate_path}
 bai311_best_dir <- file.path(out, "BAI3-1-1_best")
@@ -384,10 +389,8 @@ tales_anomalies(bai311_best)
 ```
 
 Zero anomalies: raising the cap from 20 to 50 references was enough for
-every array in this genome, in about a minute. Either this run or
-`correct_tales()`'s own result above is a reasonable choice for the rest
-of this set of articles; `bai311_best` (built here) is the one used from
-here on.
+every array in this genome, in about a minute. `bai311_best` is the one
+used for the rest of this set of articles.
 
 
 
@@ -448,17 +451,16 @@ new anomaly `max_comparisons = 20` introduced in a different array,
 
 ## Moving on with what you have
 
-`bai311_best` needs none of this: it is already clean, and so is
-`correct_tales()`'s own result above. A route that stops short of that,
-such as `bai311_corr` (the `max_comparisons = 20` run, which fixed the
-two original frameshifts but broke `ROI_00001`), still needs a decision
-about what to do with what remains flagged. `tales(x, sanitize = TRUE)`
+`bai311_best` needs none of this: it is already clean. A route that stops
+short of that, such as `correct_tales()` above (which left the N-termini
+of `ROI_00006` and `ROI_00009` unmatched), still needs a decision about
+what to do with what remains flagged. `tales(x, sanitize = TRUE)`
 drops it so an analysis can proceed on what is clean, with a warning
 naming each dropped array and the reason:
 
-```{r sanitize}
-bai311_clean <- tales(bai311_corr, sanitize = TRUE)
-n_distinct(bai311_corr$array_id) - n_distinct(bai311_clean$array_id)
+```{r sanitize, warning = TRUE}
+bai311_clean <- tales(bai311_java, sanitize = TRUE)
+n_distinct(bai311_java$array_id) - n_distinct(bai311_clean$array_id)
 ```
 
 ::: {.callout-note}

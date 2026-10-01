@@ -88,7 +88,7 @@
         "row.names": {
           "type": "integer",
           "attributes": {},
-          "value": []
+          "value": [1]
         },
         "class": {
           "type": "character",
@@ -100,17 +100,17 @@
         {
           "type": "character",
           "attributes": {},
-          "value": []
+          "value": ["PXO86_ROI_00019"]
         },
         {
           "type": "character",
           "attributes": {},
-          "value": []
+          "value": ["terminus_unmatched"]
         },
         {
           "type": "character",
           "attributes": {},
-          "value": []
+          "value": ["C-terminus not matched by its TALE domain profile (coded XXXXX)"]
         }
       ]
     }

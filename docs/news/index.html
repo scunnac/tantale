@@ -46,6 +46,10 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.9.9011" id="tantale-099011">tantale 0.9.9011<a class="anchor" aria-label="anchor" href="#tantale-099011"></a></h2>
 <div class="section level3">
+<h3 id="non-standard-tales-are-reported-as-anomalies-0-9-9011">Non-standard TALEs are reported as anomalies<a class="anchor" aria-label="anchor" href="#non-standard-tales-are-reported-as-anomalies-0-9-9011"></a></h3>
+<p><code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code>, and so the warning of <code><a href="../reference/tales.html">tales()</a></code>, now report every array that is not a standard TALE: an N-terminus, one or more repeats and a C-terminus, both termini matched by the profile of their TALE domain. The new checks are <code>terminus_absent</code>, <code>no_repeat</code> and <code>terminus_unmatched</code> (a terminus coded <code>XXXXX</code>). They need a <code>domain_type</code> column, and <code>terminus_unmatched</code> an <code>rvd</code> column. <code>tales(x, sanitize = TRUE)</code> drops these arrays. <code><a href="../reference/tales_assign_domain_codes.html">tales_assign_domain_codes()</a></code> and <code><a href="../reference/tales_align.html">tales_align()</a></code> no longer repeat the anomaly warning already given when their input was built.</p>
+</div>
+<div class="section level3">
 <h3 id="new-tales_from_annotale-0-9-9011">New <code>tales_from_annotale()</code>
 <a class="anchor" aria-label="anchor" href="#new-tales_from_annotale-0-9-9011"></a></h3>
 <p><code><a href="../reference/tales_from_annotale.html">tales_from_annotale()</a></code> builds a <code>tales</code> object from AnnoTALE’s own TALE predictions, the output of <code><a href="../reference/run_annotale_predict.html">run_annotale_predict()</a></code>. Termini are coded as in <code><a href="../reference/tell_tales.html">tell_tales()</a></code>, from a search with the TALE N- and C-terminal protein profiles. <code>array_id</code> is AnnoTALE’s TALE name, and <code>seqnames</code> comes from AnnoTALE’s GFF3 file when it is present. An example output ships in <code>inst/extdata/annotaleExampleOutput</code>.</p>

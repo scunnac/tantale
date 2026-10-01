@@ -213,13 +213,17 @@ such arrays anyway, with a warning. A class that insisted on clean input
 would force cleaning outside the package and throw away exactly the
 signal a user would want to inspect.
 
-“Anomalous” is deliberately a narrower category than “wrong”. An array
-missing a terminus, for instance, is not flagged here at all: it may
-genuinely sit at the edge of a contig. What *is* flagged is a part
-arrangement that cannot be biologically real (two N-termini in one
-array, say, or one that is not at the start), a part missing the
-sequence data it should carry, one amino acid sequence paired with two
-different RVDs, and position columns that disagree with each other:
+“Anomalous” means “worth a second look”, which is broader than “wrong”.
+Any array that is not a standard TALE is flagged. A standard TALE has an
+N-terminus, one or more repeats and a C-terminus, and both termini match
+the profile of their TALE domain (`NTERM` and `CTERM`, rather than
+`XXXXX`). An array missing its C-terminus is flagged, although it may
+sit at the edge of a contig or be a genuinely truncated TALE. Also
+flagged are a part arrangement that cannot be biologically real (two
+N-termini in one array, say, or one that is not at the start), a part
+missing the sequence data it should carry, one amino acid sequence
+paired with two different RVDs, and position columns that disagree with
+each other:
 
 Code
 
@@ -233,11 +237,12 @@ odd <- tibble::tibble(
 )
 x_odd <- suppressWarnings(tales(odd))
 tales_anomalies(x_odd)
-#> # A tibble: 2 × 3
+#> # A tibble: 3 × 3
 #>   array_id check               detail                      
 #>   <chr>    <chr>               <chr>                       
 #> 1 a1       terminus_duplicated more than one N-terminus    
-#> 2 a1       terminus_misplaced  N-terminus not at position 1
+#> 2 a1       terminus_absent     no C-terminus               
+#> 3 a1       terminus_misplaced  N-terminus not at position 1
 ```
 
 `tales(sanitize = TRUE)` drops the flagged arrays instead of merely
@@ -249,7 +254,7 @@ Code
 tales(odd, sanitize = TRUE)
 #> Warning: Dropped 1 array with biological anomalies.
 #> ✖ Array: "a1"
-#> ℹ Reasons: terminus_duplicated and terminus_misplaced
+#> ℹ Reasons: terminus_duplicated, terminus_absent, and terminus_misplaced
 #> <tales> 1 array, 3 parts
 #>   layers: rvd   |   1 other column
 #>       rvd
@@ -435,7 +440,7 @@ tales_namespace(xa_sub) == tales_namespace(xa)
 >
 > ``` r
 > tales_tale_distances(xa_sub, dd_all)
-> #> Error in `.assert_same_namespace()` at tantale/R/distalr.R:243:3:
+> #> Error in `.assert_same_namespace()` at tantale/R/distalr.R:245:3:
 > #> ! `x` and `domain_distances` come from different runs.
 > #> ✖ Namespaces "39eacafcbbcbfa90" and "7377e3f80aa36898".
 > #> ℹ Domain codes are only meaningful within the call that minted them.
@@ -532,7 +537,7 @@ Code
 
 ``` r
 xa %>% mutate(position_in_array = 1L)
-#> Error in `.tales_check_key()` at tantale/R/tales_class.R:800:3:
+#> Error in `.tales_check_key()` at tantale/R/tales_class.R:826:3:
 #> ! array_id and position_in_array must together be unique.
 #> ✖ 92 duplicated rows in 4 arrays: "ROI_00001", "ROI_00002", "ROI_00003", and
 #>   "ROI_00004"

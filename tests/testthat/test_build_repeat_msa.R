@@ -65,7 +65,7 @@ test_that("tales_align() accepts a domain_distances object", {
   # failed with "Can't subset columns that don't exist".
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  x <- tales(d$tale_parts)
+  x <- tales_quietly(d$tale_parts)
   sub <- x[x$array_id %in% unique(x$array_id)[1:3], ]
   viaClass <- suppressWarnings(suppressMessages(
     tales_align(sub, residue_col = "dom_code",
@@ -100,7 +100,7 @@ test_that(".rvd_score_table() covers every pair and fills XX neutrally", {
 test_that("RVD alignment opts in to the built-in matrix with domain_distances = \"rvd\"", {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  x <- tales(d$tale_parts)
+  x <- tales_quietly(d$tale_parts)
   sub <- x[x$array_id %in% unique(x$array_id)[1:4], ]
   withMat <- suppressWarnings(suppressMessages(
     tales_align(sub, residue_col = "rvd", domain_distances = "rvd")))
@@ -114,7 +114,7 @@ test_that("a repeat-keyed table is refused for an RVD alignment", {
   # it was the old behaviour and hid the mistake
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  x <- tales(d$tale_parts)
+  x <- tales_quietly(d$tale_parts)
   sub <- x[x$array_id %in% unique(x$array_id)[1:4], ]
   expect_error(
     suppressMessages(tales_align(sub, residue_col = "rvd",
@@ -125,7 +125,7 @@ test_that("a repeat-keyed table is refused for an RVD alignment", {
 test_that("NULL and FALSE both mean no matrix", {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  x <- tales(d$tale_parts)
+  x <- tales_quietly(d$tale_parts)
   sub <- x[x$array_id %in% unique(x$array_id)[1:4], ]
   a <- suppressWarnings(suppressMessages(tales_align(sub, residue_col = "dom_code")))
   b <- suppressWarnings(suppressMessages(
@@ -137,7 +137,7 @@ test_that("NULL and FALSE both mean no matrix", {
 test_that("domain_distances = \"rvd\" is refused for a repeat-code alignment", {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  x <- tales(d$tale_parts)
+  x <- tales_quietly(d$tale_parts)
   sub <- x[x$array_id %in% unique(x$array_id)[1:4], ]
   expect_error(
     suppressMessages(tales_align(sub, residue_col = "dom_code", domain_distances = "rvd")),
@@ -148,7 +148,7 @@ test_that("the default RVD alignment is unchanged by this feature", {
   # opt-in, so an existing call must give exactly what it gave before
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  x <- tales(d$tale_parts)
+  x <- tales_quietly(d$tale_parts)
   sub <- x[x$array_id %in% unique(x$array_id)[1:4], ]
   a <- suppressWarnings(suppressMessages(tales_align(sub, residue_col = "rvd")))
   b <- suppressWarnings(suppressMessages(
@@ -189,7 +189,7 @@ test_that("mafft_verbose is reachable from tales_align()", {
 
 align_fixture <- function() {
   d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  x <- suppressWarnings(tales(d$tale_parts))
+  x <- suppressWarnings(tales_quietly(d$tale_parts))
   x[x$array_id %in% unique(x$array_id)[1:3], ]
 }
 

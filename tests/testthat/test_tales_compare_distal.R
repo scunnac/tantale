@@ -155,7 +155,7 @@ test_that("an out-of-frame sequence is refused rather than silently truncated", 
 test_that("tales_compare_distal() falls back to dna_seq and keeps the derived column", {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  x <- tales(d$tale_parts)
+  x <- tales_quietly(d$tale_parts)
   noAa <- x[, setdiff(names(x), "aa_seq")]
   expect_warning(res <- suppressMessages(tales_compare_distal(noAa)),
                  class = "tantale_warning_translated_aa")
@@ -165,7 +165,7 @@ test_that("tales_compare_distal() falls back to dna_seq and keeps the derived co
 test_that("the dna_seq path gives the same distances as the aa_seq path", {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  x <- tales(d$tale_parts)
+  x <- tales_quietly(d$tale_parts)
   viaAa  <- suppressWarnings(suppressMessages(tales_compare_distal(x)))
   viaDna <- suppressWarnings(suppressMessages(
     tales_compare_distal(x[, setdiff(names(x), "aa_seq")])))
@@ -178,7 +178,7 @@ test_that("the dna_seq path gives the same distances as the aa_seq path", {
 test_that("neither aa_seq nor dna_seq is still an error", {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  x <- tales(d$tale_parts)
+  x <- tales_quietly(d$tale_parts)
   expect_error(tales_compare_distal(x[, setdiff(names(x), c("aa_seq", "dna_seq"))]),
                class = "tantale_error_compare_no_aa")
 })

@@ -3,7 +3,7 @@
 distalrOut <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
 tale_dist <- distalrOut$tal.similarity
 nTales <- length(unique(tale_dist$id1))
-tls <- suppressWarnings(tales(distalrOut$tale_parts))
+tls <- suppressWarnings(tales_quietly(distalrOut$tale_parts))
 
 expect_grouped <- function(out, k = NULL) {
   testthat::expect_s3_class(out, "tales")

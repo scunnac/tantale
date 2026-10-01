@@ -15,7 +15,8 @@ A tibble with one row per (array, anomaly): \code{array_id},
 }
 \description{
 Collects the array-level anomalies that make an object \emph{odd} rather than
-\emph{unreadable}: missing sequence data, impossible domain-type arrangements,
+\emph{unreadable}: missing sequence data, a non-standard TALE structure,
+impossible domain-type arrangements,
 coordinate disagreements, an amino acid sequence paired with more than one
 RVD, attributes that should be constant within an array but are not.
 }

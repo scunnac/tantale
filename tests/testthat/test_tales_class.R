@@ -364,7 +364,7 @@ test_that("tales_from_telltales() output holds complete arrays", {
 test_that("a real distalr tale_parts table validates as tales", {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   tp <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))$tale_parts
-  x <- tales(tp)
+  x <- tales_quietly(tp)
   expect_s3_class(x, "tales")
   expect_equal(nrow(x), nrow(tp))
   expect_true(all(c("array_id", "position_in_array", "dom_code") %in% names(x)))
@@ -385,4 +385,51 @@ test_that("a missing residue is now a biological anomaly, not a structural error
   expect_identical(tales_anomalies(x)$array_id, "a")
   expect_identical(tales_anomalies(x)$check, "missing_rvd")
   expect_equal(nrow(suppressWarnings(tales(df, sanitize = TRUE))), 0L)
+})
+
+
+#### Standard TALE structure ####
+
+test_that("an array without a terminus is an anomaly", {
+  df <- minimal_tales_df()[-4, ]
+  expect_warning(x <- tales(df), class = "tantale_warning_tales_anomalous")
+  an <- tales_anomalies(x)
+  expect_identical(an$array_id, "a1")
+  expect_identical(an$check, "terminus_absent")
+  expect_match(an$detail, "C-terminus")
+})
+
+test_that("an array without a repeat is an anomaly", {
+  df <- minimal_tales_df()[-(2:3), ]
+  df$position_in_array[2] <- 2L
+  expect_warning(x <- tales(df), class = "tantale_warning_tales_anomalous")
+  an <- tales_anomalies(x)
+  expect_identical(an$array_id, "a1")
+  expect_identical(an$check, "no_repeat")
+})
+
+test_that("a terminus coded XXXXX is an anomaly", {
+  df <- minimal_tales_df()
+  df$rvd[8] <- "XXXXX"
+  df$aa_seq[8] <- "QRRP"
+  df$dom_code[8] <- "5"
+  expect_warning(x <- tales(df), class = "tantale_warning_tales_anomalous")
+  an <- tales_anomalies(x)
+  expect_identical(an$array_id, "a2")
+  expect_identical(an$check, "terminus_unmatched")
+  expect_match(an$detail, "C-terminus")
+})
+
+test_that("sanitize = TRUE drops the non-standard arrays", {
+  df <- minimal_tales_df()
+  df$rvd[1] <- "XXXXX"
+  df$aa_seq[1] <- "MAS"
+  df$dom_code[1] <- "5"
+  expect_warning(x <- tales(df, sanitize = TRUE), class = "tantale_warning_tales_sanitized")
+  expect_identical(unique(x$array_id), "a2")
+})
+
+test_that("without domain_type the structure checks do not run", {
+  x <- tales(data.frame(array_id = "a", position_in_array = 1:2, rvd = c("NI", "HD")))
+  expect_identical(nrow(tales_anomalies(x)), 0L)
 })

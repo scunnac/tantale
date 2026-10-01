@@ -235,7 +235,7 @@
 <span class="header-section-number">5</span> Anomalies are reported and kept<a class="anchor" aria-label="anchor" href="#anomalies-are-reported-and-kept"></a>
 </h2>
 <p>Real TALE predictions are messy: a terminus can be duplicated, misplaced, or simply not found. <code><a href="../reference/tales.html">tales()</a></code> loads such arrays anyway, with a warning. A class that insisted on clean input would force cleaning outside the package and throw away exactly the signal a user would want to inspect.</p>
-<p>“Anomalous” is deliberately a narrower category than “wrong”. An array missing a terminus, for instance, is not flagged here at all: it may genuinely sit at the edge of a contig. What <em>is</em> flagged is a part arrangement that cannot be biologically real (two N-termini in one array, say, or one that is not at the start), a part missing the sequence data it should carry, one amino acid sequence paired with two different RVDs, and position columns that disagree with each other:</p>
+<p>“Anomalous” means “worth a second look”, which is broader than “wrong”. Any array that is not a standard TALE is flagged. A standard TALE has an N-terminus, one or more repeats and a C-terminus, and both termini match the profile of their TALE domain (<code>NTERM</code> and <code>CTERM</code>, rather than <code>XXXXX</code>). An array missing its C-terminus is flagged, although it may sit at the edge of a contig or be a genuinely truncated TALE. Also flagged are a part arrangement that cannot be biologically real (two N-termini in one array, say, or one that is not at the start), a part missing the sequence data it should carry, one amino acid sequence paired with two different RVDs, and position columns that disagree with each other:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">odd</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
@@ -247,11 +247,12 @@
 <span><span class="op">)</span></span>
 <span><span class="va">x_odd</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="../reference/tales.html">tales</a></span><span class="op">(</span><span class="va">odd</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/tales_anomalies.html">tales_anomalies</a></span><span class="op">(</span><span class="va">x_odd</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 2 × 3</span></span>
+<span><span class="co">#&gt; # A tibble: 3 × 3</span></span>
 <span><span class="co">#&gt;   array_id check               detail                      </span></span>
 <span><span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;               &lt;chr&gt;                       </span></span>
 <span><span class="co">#&gt; 1 a1       terminus_duplicated more than one N-terminus    </span></span>
-<span><span class="co">#&gt; 2 a1       terminus_misplaced  N-terminus not at position 1</span></span></code></pre></div>
+<span><span class="co">#&gt; 2 a1       terminus_absent     no C-terminus               </span></span>
+<span><span class="co">#&gt; 3 a1       terminus_misplaced  N-terminus not at position 1</span></span></code></pre></div>
 </details>
 </div>
 <p><code>tales(sanitize = TRUE)</code> drops the flagged arrays instead of merely warning about them:</p>
@@ -260,7 +261,7 @@
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/tales.html">tales</a></span><span class="op">(</span><span class="va">odd</span>, sanitize <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: Dropped 1 array with biological anomalies.</span></span>
 <span><span class="co">#&gt; ✖ Array: "a1"</span></span>
-<span><span class="co">#&gt; ℹ Reasons: terminus_duplicated and terminus_misplaced</span></span>
+<span><span class="co">#&gt; ℹ Reasons: terminus_duplicated, terminus_absent, and terminus_misplaced</span></span>
 <span><span class="co">#&gt; &lt;tales&gt; 1 array, 3 parts</span></span>
 <span><span class="co">#&gt;   layers: rvd   |   1 other column</span></span>
 <span><span class="co">#&gt;       rvd</span></span>
@@ -379,7 +380,7 @@
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/tales_tale_distances.html">tales_tale_distances</a></span><span class="op">(</span><span class="va">xa_sub</span>, <span class="va">dd_all</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error in `.assert_same_namespace()` at tantale/R/distalr.R:243:3:</span></span>
+<span><span class="co">#&gt; Error in `.assert_same_namespace()` at tantale/R/distalr.R:245:3:</span></span>
 <span><span class="co">#&gt; ! `x` and `domain_distances` come from different runs.</span></span>
 <span><span class="co">#&gt; ✖ Namespaces "39eacafcbbcbfa90" and "7377e3f80aa36898".</span></span>
 <span><span class="co">#&gt; ℹ Domain codes are only meaningful within the call that minted them.</span></span>
@@ -429,7 +430,7 @@
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">xa</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>position_in_array <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error in `.tales_check_key()` at tantale/R/tales_class.R:800:3:</span></span>
+<span><span class="co">#&gt; Error in `.tales_check_key()` at tantale/R/tales_class.R:826:3:</span></span>
 <span><span class="co">#&gt; ! array_id and position_in_array must together be unique.</span></span>
 <span><span class="co">#&gt; ✖ 92 duplicated rows in 4 arrays: "ROI_00001", "ROI_00002", "ROI_00003", and</span></span>
 <span><span class="co">#&gt;   "ROI_00004"</span></span></code></pre></div>

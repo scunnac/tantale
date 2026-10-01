@@ -4,7 +4,7 @@
 
 fixture <- function() {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
-  tales(readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))$tale_parts)
+  tales_quietly(readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))$tale_parts)
 }
 
 works <- function(f, x) {

@@ -2,6 +2,23 @@
 
 ## tantale 0.9.9011
 
+### Non-standard TALEs are reported as anomalies
+
+[`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md),
+and so the warning of
+[`tales()`](https://scunnac.github.io/tantale/reference/tales.md), now
+report every array that is not a standard TALE: an N-terminus, one or
+more repeats and a C-terminus, both termini matched by the profile of
+their TALE domain. The new checks are `terminus_absent`, `no_repeat` and
+`terminus_unmatched` (a terminus coded `XXXXX`). They need a
+`domain_type` column, and `terminus_unmatched` an `rvd` column.
+`tales(x, sanitize = TRUE)` drops these arrays.
+[`tales_assign_domain_codes()`](https://scunnac.github.io/tantale/reference/tales_assign_domain_codes.md)
+and
+[`tales_align()`](https://scunnac.github.io/tantale/reference/tales_align.md)
+no longer repeat the anomaly warning already given when their input was
+built.
+
 ### New `tales_from_annotale()`
 
 [`tales_from_annotale()`](https://scunnac.github.io/tantale/reference/tales_from_annotale.md)

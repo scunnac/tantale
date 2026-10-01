@@ -6,7 +6,7 @@
 fixture_tales <- function() {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   out <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  tales(out$tale_parts)
+  tales_quietly(out$tale_parts)
 }
 
 test_that("every error the package raises carries the tantale_error parent", {

@@ -1,6 +1,7 @@
 # Tests for the 'tales' projections. See dev/restructuring-notes.md §1.
 
-# a1 is a complete array (both termini), a2 an incomplete one. Code 2 recurs
+# a1 is a complete array (both termini), a2 an incomplete one, which tales()
+# reports as an anomaly. Code 2 recurs
 # within a1, which is what the rendering tests below rely on.
 #
 # This fixture used to carry rvd = NTERM, NI, NTERM for a1 -- two N-termini,
@@ -9,7 +10,7 @@
 # the column made tales() flag it immediately (terminus_duplicated,
 # terminus_misplaced), which is the class working as intended.
 coded_tales <- function() {
-  tales(tibble::tibble(
+  tales_quietly(tibble::tibble(
     array_id = c(rep("a1", 4), rep("a2", 2)),
     position_in_array = c(1:4, 1:2),
     dom_code = c("7", "2", "2", "13", "2", "13"),
@@ -69,7 +70,7 @@ test_that("tales_domain_codes() needs aa_seq and rvd", {
 test_that("the projections reproduce the stored slots of a real distalr run", {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   out <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  x <- tales(out$tale_parts)
+  x <- tales_quietly(out$tale_parts)
 
   # coded.repeats.str: same names, same sequences
   rebuilt <- tales_coded_strings(x)
@@ -132,7 +133,7 @@ test_that("tales_rvd_strings() matches the format of the shipped sample fasta", 
 test_that("tales_domain_codes() includes rvd when present but does not require it", {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  x <- tales(d$tale_parts)
+  x <- tales_quietly(d$tale_parts)
   withRvd <- tales_domain_codes(x)
   expect_named(withRvd, c("dom_code", "aa_seq", "rvd"))
   # a dom_code + aa_seq object is valid and must not be blocked: the
@@ -145,7 +146,7 @@ test_that("tales_domain_codes() includes rvd when present but does not require i
 test_that("tales_domain_codes() still requires aa_seq", {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  x <- tales(d$tale_parts)
+  x <- tales_quietly(d$tale_parts)
   expect_error(tales_domain_codes(x[, setdiff(names(x), "aa_seq")]),
                class = "tantale_error_projection_column")
 })
@@ -189,7 +190,7 @@ test_that("tales_coded_strings(repeats_only = TRUE) needs domain_type", {
 # Same shape as coded_tales(), plus dna_seq (each length 3x its aa_seq, as a
 # real CDS would be, so a length check can catch an ordering mistake).
 seq_tales <- function() {
-  tales(tibble::tibble(
+  tales_quietly(tibble::tibble(
     array_id = c(rep("a1", 4), rep("a2", 2)),
     position_in_array = c(1:4, 1:2),
     dom_code = c("7", "2", "2", "13", "2", "13"),

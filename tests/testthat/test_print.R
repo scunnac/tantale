@@ -3,7 +3,7 @@
 
 fixture <- function() {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
-  tales(readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))$tale_parts)
+  tales_quietly(readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))$tale_parts)
 }
 
 shown <- function(x, ...) paste(utils::capture.output(print(x, ...)), collapse = "\n")
@@ -31,8 +31,8 @@ test_that("print.tales() reports which residue layers are present", {
 test_that("print.tales() shows the namespace only when the object is stamped", {
   x <- fixture()
   expect_no_match(shown(x), "namespace:")
-  stamped <- tales(readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))$tale_parts,
-                   dom_code_namespace = "abc123")
+  stamped <- tales_quietly(readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))$tale_parts,
+                           dom_code_namespace = "abc123")
   expect_match(shown(stamped), "namespace: abc123")
 })
 
@@ -73,7 +73,7 @@ test_that("print.tales_msa() reports the alignment width and draws gaps", {
 test_that("print.tales_msa() aligns its columns so gaps line up", {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  x <- tales(d$tale_parts)
+  x <- tales_quietly(d$tale_parts)
   sub <- x[x$array_id %in% unique(x$array_id)[1:4], ]
   al <- suppressWarnings(suppressMessages(tales_align(sub, residue_col = "dom_code")))
   out <- shown(al, gap = "-")

@@ -2198,7 +2198,7 @@ RVD record, and `.rvds_from_annotale_file()` built `1:0`. Fixed
 planted record. Not recorded in the `tales` object: AnnoTALE's
 "(Pseudo)" flag.
 
-## 38. Non-standard TALE structure as an anomaly (Q19) **[P]**
+## 38. Non-standard TALE structure as an anomaly (Q19) **[V]**
 
 Maintainer, 2026-10-01: anything that is not a standard TALE,
 `NTERM - RVD x n - CTERM`, should be reported by `tales_anomalies()`.
@@ -2217,3 +2217,44 @@ those columns (e.g. `as_tales()` on repeat-only strings) are not
 checked. Consequences: `tales()` warns about such arrays, and
 `sanitize = TRUE` drops them; golden anomaly table +1 row; the
 `tale_mining.qmd` BAI3-1-1 narrative gets its signal back.
+
+**Done 2026-10-01 (Q22 approved as proposed):**
+- `.tales_anomalies()`: `terminus_absent` and `no_repeat` (need
+  `domain_type`), `terminus_unmatched` (needs `rvd` too). Documented in
+  `tales_anomalies()`; NEWS entry. Tests in `test_tales_class.R`
+  (§ "Standard TALE structure") and `test_tales_from_annotale.R`.
+- Internal rebuilds no longer repeat the anomaly warning:
+  `tales_assign_domain_codes()` and `tales_align()` muffle
+  `tantale_warning_tales_anomalous` (their input was reported on when it
+  was built).
+- The shared fixture `sampleDistalrOutput.rds` holds one non-standard
+  array, `PXO86_ROI_00019` (C-terminus `XXXXX`), the genuine truncTALE.
+  Tests that only load it use `tales_quietly()`
+  (`helper-fixture-tales.R`); the projection fixtures with a deliberately
+  incomplete `a2` too. Golden: one row added to the anomaly table
+  (`PXO86_ROI_00019 terminus_unmatched`), accepted.
+- In the articles' own PXO86 run, `ROI_00019`'s C-terminus is coded
+  `CTERM`, so `trunctale_correction.qmd`'s "Neither shows up in
+  `tales_anomalies()`" still holds. Why the fixture codes it `XXXXX` is
+  not investigated.
+- `tales_class.qmd`: definition of an anomaly rewritten (it said a missing
+  terminus is not flagged).
+- `tale_mining.qmd`, BAI3-1-1: raw run flags 7 of 8 arrays (all but
+  `ROI_00002`): `no_repeat` for `ROI_00003`/`ROI_00005`, `XXXXX` termini
+  for the others; import warning now shown (`warning = TRUE` on that
+  chunk). `correct_tales()` route: `ROI_00006` and `ROI_00009` keep an
+  unmatched N-terminus (both DECIPHER runs repair them), so the text no
+  longer calls that result clean, and the `sanitize` example now drops
+  those two from `bai311_java` instead of nothing from `bai311_corr`.
+- **Still wrong in `tale_mining.qmd`, left to the maintainer:** the
+  `max_comparisons = 20` narrative says `ROI_00001` is "now flagged"; it
+  is absent from the object (AnnoTALE failed on it and `tell_tales()`
+  drops it), and an absent array cannot be an anomaly. The coverage
+  section reads `ROI_00001`/`ROI_00005` as "the two originally-broken
+  arrays" (those are `ROI_00003`/`ROI_00005`), and says all three routes
+  bring both to the same coverage, while `max_comparisons = 20` leaves
+  `ROI_00001` at 72%.
+- An investigation of a suspected state leak between successive
+  `tell_tales()` calls in one session was a misreading of the diff: no
+  leak (raw then corrected in one session gives the same result as a
+  fresh session; three repeated corrected runs agree).

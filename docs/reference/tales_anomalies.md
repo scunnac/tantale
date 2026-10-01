@@ -1,10 +1,13 @@
 # Report the biological anomalies in a tales object
 
 Lists the arrays whose content is biologically odd: missing sequence
-data, impossible domain-type arrangements, coordinate disagreements, an
-amino acid sequence paired with more than one RVD, or an attribute that
-varies within an array when it should not. Structurally broken input (a
-duplicated key, a missing required column) is an error in
+data, a structure other than that of a standard TALE (an N-terminus, one
+or more repeats and a C-terminus, both termini matched by the profile of
+their TALE domain), impossible domain-type arrangements, coordinate
+disagreements, an amino acid sequence paired with more than one RVD, or
+an attribute that varies within an array when it should not.
+Structurally broken input (a duplicated key, a missing required column)
+is an error in
 [`tales`](https://scunnac.github.io/tantale/reference/tales.md) instead.
 
 Such arrays are accepted by
@@ -13,6 +16,15 @@ TALE predictions are messy, and refusing to load them would force
 cleaning outside the package and destroy the diagnostic signal.
 Construction warns about them, this function tells you which and why,
 and `tales(x, sanitize = TRUE)` removes them.
+
+The structure checks need a `domain_type` column, and the terminus
+profile check an `rvd` column; they are skipped when it is absent. The
+structure checks report `terminus_absent` (no N- or no C-terminus part),
+`no_repeat` (no repeat part) and `terminus_unmatched` (a terminus coded
+`XXXXX`, see
+[`tales_anchor_codes`](https://scunnac.github.io/tantale/reference/tales_anchor_codes.md)).
+They apply to whole arrays: a subset keeping only the repeats is
+reported as lacking its termini.
 
 ## Usage
 
@@ -66,17 +78,17 @@ odd <- data.frame(
 )
 x <- suppressWarnings(tales(odd))
 tales_anomalies(x)
-#> # A tibble: 2 × 3
+#> # A tibble: 4 × 3
 #>   array_id check               detail                      
 #>   <chr>    <chr>               <chr>                       
 #> 1 A2       terminus_duplicated more than one N-terminus    
-#> 2 A2       terminus_misplaced  N-terminus not at position 1
+#> 2 A1       terminus_absent     no C-terminus               
+#> 3 A2       terminus_absent     no C-terminus               
+#> 4 A2       terminus_misplaced  N-terminus not at position 1
 tales(odd, sanitize = TRUE) # drops A2 instead of merely warning
-#> Warning: Dropped 1 array with biological anomalies.
-#> ✖ Array: "A2"
-#> ℹ Reasons: terminus_duplicated and terminus_misplaced
-#> <tales> 1 array, 2 parts
+#> Warning: Dropped 2 arrays with biological anomalies.
+#> ✖ Arrays: "A2" and "A1"
+#> ℹ Reasons: terminus_duplicated, terminus_absent, and terminus_misplaced
+#> <tales> 0 arrays, 0 parts
 #>   layers: rvd   |   1 other column
-#>       rvd
-#>   A1  NTERM HD
 ```

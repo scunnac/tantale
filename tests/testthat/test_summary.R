@@ -3,7 +3,7 @@
 
 fx <- function() {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
-  tales(readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))$tale_parts)
+  tales_quietly(readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))$tale_parts)
 }
 shown <- function(x) paste(utils::capture.output(print(x)), collapse = "\n")
 
@@ -48,6 +48,9 @@ test_that("repeats per array excludes the termini", {
 
 test_that("summary() surfaces anomalies that print() does not", {
   x <- fx()
+  # the fixture's one non-standard array, a genuine truncTALE
+  expect_identical(summary(x)$anomalies$array_id, "PXO86_ROI_00019")
+  x <- x[x$array_id != "PXO86_ROI_00019", ]
   expect_identical(nrow(summary(x)$anomalies), 0L)
   expect_match(shown(summary(x)), "anomalies\\s+none")
 
@@ -62,7 +65,7 @@ test_that("summary() surfaces anomalies that print() does not", {
 test_that("summary.tales_msa() reports gaps and per-layer consensus", {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  x <- tales(d$tale_parts)
+  x <- tales_quietly(d$tale_parts)
   sub <- x[x$array_id %in% unique(x$array_id)[1:4], ]
   al <- suppressWarnings(suppressMessages(tales_align(sub, residue_col = "dom_code")))
   s <- summary(al)

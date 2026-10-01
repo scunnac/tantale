@@ -215,7 +215,7 @@ test_that("plot() draws an rvd-only alignment", {
   # An alignment built on rvd alone carries a single layer, so fill names it
   # and there is nothing left to label with.
   out <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  x <- tales(out$tale_parts)
+  x <- tales_quietly(out$tale_parts)
   msa <- suppressWarnings(suppressMessages(
     tales_align(dplyr::filter(x, array_id %in% unique(x$array_id)[1:4]),
                 residue_col = "rvd")
@@ -234,7 +234,7 @@ test_that("plot() errors on a layer the alignment lacks", {
 
 test_that("plot() accepts similarity tables in either vocabulary", {
   out <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
-  x <- tales(out$tale_parts)
+  x <- tales_quietly(out$tale_parts)
   keep <- unique(x$array_id)[1:4]
   msa <- suppressWarnings(suppressMessages(
     tales_align(dplyr::filter(x, array_id %in% keep), residue_col = "rvd")

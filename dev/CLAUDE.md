@@ -253,11 +253,14 @@ before trusting any of it.*
   `rvd_align` blocks of `plot.tales_msa()`, a facet argument for
   `plot.tales()`, the package-size proposal (§34). The maintainer wants
   to agree each plan before any coding.
-- The full site in `docs/` was wiped and rebuilt at 0.9.9011 on
-  2026-10-01 (§37), cache primed. **`tale_mining.qmd`'s anomaly
-  narrative no longer matches its render** (BAI3-1-1 raw and the
-  `max_comparisons = 20` run report no anomaly; see §37); the
-  maintainer is revising that article.
+- §38 done 2026-10-01: `tales_anomalies()` reports every non-standard
+  TALE (`terminus_absent`, `no_repeat`, `terminus_unmatched`). Next,
+  agreed (Q25): R5 "Get started" link (rename the main vignette), R2
+  merge of `plot.tales_msa()`'s `rvd_align` blocks, R3 panel argument
+  for `plot.tales()`, R10 `tales_from_annotale()` in the README.
+- The full site in `docs/` was rebuilt at 0.9.9011 on 2026-10-01; the
+  four articles touched by §38 re-rendered since. `tale_mining.qmd`
+  still has mismatches the maintainer is revising (ledger §38, end).
 - **The GitHub repository is private** since 2026-09-24 (maintainer's
   choice, to change things without users). The README's install command
   works only with access; GitHub Pages for a private repository needs a

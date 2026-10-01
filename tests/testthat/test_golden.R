@@ -27,7 +27,7 @@ fx <- function() {
 #### the tales object itself ####
 
 test_that("golden: the tales column contract", {
-  x <- tales(fx()$tale_parts)
+  x <- tales_quietly(fx()$tale_parts)
   # Small and worth reading in full: this is the package's central contract.
   expect_golden(names(x))
   expect_golden(vapply(x, typeof, character(1)))
@@ -35,7 +35,7 @@ test_that("golden: the tales column contract", {
 })
 
 test_that("golden: anomalies reported for the reference fixture", {
-  x <- tales(fx()$tale_parts)
+  x <- tales_quietly(fx()$tale_parts)
   expect_golden(as.data.frame(tales_anomalies(x)))
 })
 
@@ -48,7 +48,7 @@ test_that("golden: the consumer requirements table", {
 
 test_that("golden: projections of a tales onto strings and maps", {
   d <- fx()
-  x <- tales(d$tale_parts)
+  x <- tales_quietly(d$tale_parts)
   expect_golden(fingerprint(tales_rvd_strings(x)))
   expect_golden(fingerprint(tales_coded_strings(x)))
   expect_golden(fingerprint(tales_domain_codes(x)))
@@ -60,7 +60,7 @@ test_that("golden: projections of a tales onto strings and maps", {
 
 test_that("golden: tales_compare_distal() on four arrays", {
   d <- fx()
-  x <- tales(d$tale_parts)
+  x <- tales_quietly(d$tale_parts)
   sub <- x[x$array_id %in% unique(x$array_id)[1:4], ]
   out <- suppressWarnings(suppressMessages(tales_compare_distal(sub)))
 
@@ -72,7 +72,7 @@ test_that("golden: tales_compare_distal() on four arrays", {
 
 test_that("golden: tales_align() on both residue layers", {
   d <- fx()
-  x <- tales(d$tale_parts)
+  x <- tales_quietly(d$tale_parts)
   sub <- x[x$array_id %in% unique(x$array_id)[1:4], ]
   byRvd  <- suppressWarnings(suppressMessages(tales_align(sub, residue_col = "rvd")))
   byCode <- suppressWarnings(suppressMessages(tales_align(sub, residue_col = "dom_code")))
@@ -95,7 +95,7 @@ test_that("golden: tales_group_hclust() partitions the arrays the same way", {
   # semantics -- so the partition was expected to, and did, change.
   d <- fx()
   out <- suppressWarnings(suppressMessages(
-    tales_group_hclust(tales(d$tale_parts), d$tal.similarity, k = 4)))
+    tales_group_hclust(tales_quietly(d$tale_parts), d$tal.similarity, k = 4)))
   expect_golden(unique(as.data.frame(out)[c("array_id", "group")]))
 })
 
