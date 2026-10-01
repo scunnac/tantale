@@ -2061,3 +2061,7 @@ files are removed):
   warning is emitted before the clip. Fix: compute the extended end
   clipped to the sequence length, or muffle only that warning around
   `resize()`.
+  **Done 2026-10-01 (maintainer: suppress):** a calling handler around
+  `resize()` muffles only warnings whose message contains "out-of-bound
+  range"; the termini test in `test_tell_tales.R` asserts the PXO86
+  excerpt run no longer emits it.

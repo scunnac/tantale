@@ -1562,10 +1562,19 @@ tell_tales <- function(
 
   #####   Extend DNA Tal arrays   #####
   ## Extract the genomic sequence of arrays +-bp on the borders
+  ## An array near a sequence end is extended past it; resize() warns about
+  ## that, and trim() clips it right after, so only that warning is muffled
+  ## (§36)
   completeArraysGR <- arraysGR
-  extdCompleteArraysGR <- GenomicRanges::resize(completeArraysGR,
-                                                width = GenomicRanges::width(completeArraysGR) + extend_len,
-                                                fix = "start", ignore.strand = FALSE) %>%
+  extdCompleteArraysGR <- withCallingHandlers(
+    GenomicRanges::resize(completeArraysGR,
+                          width = GenomicRanges::width(completeArraysGR) + extend_len,
+                          fix = "start", ignore.strand = FALSE),
+    warning = function(w) {
+      if (grepl("out-of-bound range", conditionMessage(w), fixed = TRUE)) {
+        invokeRestart("muffleWarning")
+      }
+    }) %>%
     GenomicRanges::trim(use.names = TRUE)
   extdCompleteArraysSeqs <- BSgenome::getSeq(subjectDNASequences, extdCompleteArraysGR)
   

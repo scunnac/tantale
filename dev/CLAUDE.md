@@ -245,8 +245,8 @@ before trusting any of it.*
 - **Current road map: `dev/notes_for_claude.md`** (the maintainer's
   list), worked through in the order agreed in ledger §35: (1) termini
   check and `array_report.tsv` renames, done 2026-10-01; (2) the two stray
-  `tell_tales()` warnings, done 2026-10-01 (§36; a third one, from
-  `resize()` before `trim()`, found and left to discuss); (3) `tales_from_annotale()`,
+  `tell_tales()` warnings, done 2026-10-01 (§36, plus a third one from
+  `resize()`); (3) `tales_from_annotale()`,
   the renames (`tales_from_telltales`, `tales_msa_width`,
   `.repeat_to_rvd_align`) and the retirements. The maintainer wants to
   agree each plan before any coding.

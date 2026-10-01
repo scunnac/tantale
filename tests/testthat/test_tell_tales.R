@@ -72,10 +72,12 @@ test_that("the terminus check needs the protein profiles", {
 
 test_that("tell_tales() codes termini from the protein profiles and drops DNA-only AnnoTALE output", {
   out <- tempfile()
-  # the terminus/repeat overlaps are normal, and the duplicate repeat hits merged (§36)
-  suppressWarnings(expect_no_warning(suppressMessages(tell_tales(
+  # the terminus/repeat overlaps are normal, and the duplicate repeat hits
+  # merged; the array on roi18_region is extended past its end, then clipped (§36)
+  suppressWarnings(expect_no_warning(expect_no_warning(suppressMessages(tell_tales(
     subject_file = test_path("data_for_tests", "pxo86_roi18_19_excerpt.fa"),
-    output_dir = out)), class = "tantale_warning_overlapping_hits"))
+    output_dir = out)), class = "tantale_warning_overlapping_hits"),
+    message = "out-of-bound"))
   report <- readr::read_tsv(file.path(out, "array_report.tsv"),
                             show_col_types = FALSE, progress = FALSE)
   expect_true(all(c("n_dna_hits", "nterm_dna_hit", "cterm_dna_hit", "nterm_aa_evalue",

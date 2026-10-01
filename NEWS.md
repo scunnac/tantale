@@ -41,8 +41,11 @@ The warning about overlapping nhmmer hits now concerns only hits of the
 same domain type, which make `n_dna_hits` count a domain twice; it
 appears only with `merge_hits = FALSE`. A terminus hit overlapping the
 adjacent repeat hit by a few nucleotides is normal and no longer
-reported. The warning "invalid seqlevels ... ignored", issued when a
-subject sequence carried no TALE, is gone.
+reported. Two warnings from the underlying Bioconductor packages are
+gone: "invalid seqlevels ... ignored", issued when a subject sequence
+carried no TALE, and "GRanges object contains ... out-of-bound ranges",
+issued when an array lies within `extend_len` of a sequence end (the
+extended range was, and still is, clipped to the sequence).
 
 `tell_tales()` no longer writes a `.fai` index next to the subject file,
 and Rsamtools is no longer a dependency. Sequence lengths now come from
