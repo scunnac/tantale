@@ -724,12 +724,12 @@
         {
           "type": "character",
           "attributes": {},
-          "value": ["array_id", "alignment_position", "dom_code", "matchConsensusDomain", "rvd", "matchConsensusRvd", "domainClusterId", "domainSimVsRef", "rvdSimVsRef"]
+          "value": ["array_id", "alignment_position", "dom_code", "matchConsensusDomain", "rvd", "matchConsensusRvd", "rvdSimVsRef", "domainClusterId", "domainSimVsRef"]
         },
         {
           "type": "character",
           "attributes": {},
-          "value": ["character", "integer", "character", "logical", "character", "logical", "character", "double", "double"]
+          "value": ["character", "integer", "character", "logical", "character", "logical", "double", "character", "double"]
         },
         {
           "type": "integer",
@@ -739,17 +739,17 @@
         {
           "type": "integer",
           "attributes": {},
-          "value": [3, 28, 31, 3, 9, 2, 13, 9, 6]
+          "value": [3, 28, 31, 3, 9, 2, 6, 13, 9]
         },
         {
           "type": "integer",
           "attributes": {},
-          "value": [0, 0, 0, 6, 0, 0, 0, 0, 6]
+          "value": [0, 0, 0, 6, 0, 0, 6, 0, 0]
         },
         {
           "type": "character",
           "attributes": {},
-          "value": ["67f4692c2c42c564b3855b6550ccdb0c", "9d08c76d0b8ea6c10421ab6807065287", "bc49e482ad0354f6bb3c7e9de8c5c754", "96c78072cca16b6b1b1d91e1869808a3", "ec227be4e3128a8c4fb7dcd602d0d9ac", "34ed212c7abbb6c010af81e0b91d89d0", "b9912fbf7dd5153953907a9be99a1f41", "d03aab87293651b09ec4663447b44669", "1d422ac000c08b1ee9f86768dd63c5fb"]
+          "value": ["67f4692c2c42c564b3855b6550ccdb0c", "9d08c76d0b8ea6c10421ab6807065287", "bc49e482ad0354f6bb3c7e9de8c5c754", "96c78072cca16b6b1b1d91e1869808a3", "ec227be4e3128a8c4fb7dcd602d0d9ac", "34ed212c7abbb6c010af81e0b91d89d0", "1d422ac000c08b1ee9f86768dd63c5fb", "b9912fbf7dd5153953907a9be99a1f41", "d03aab87293651b09ec4663447b44669"]
         }
       ]
     }

@@ -290,7 +290,8 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
     rvdAlignLong <- .matrix_to_long(rvd_align) %>%
       dplyr::as_tibble()
     colnames(rvdAlignLong) <- c("array_id", "alignment_position", "rvd")
-    rvdAlignLong %<>% dplyr::mutate(rvd = gsub("NTERM", "N-", rvd),
+    rvdAlignLong %<>% dplyr::mutate(array_id = as.character(array_id),
+                                    rvd = gsub("NTERM", "N-", rvd),
                                     rvd = gsub("CTERM", "-C", rvd)
     )
     
@@ -299,9 +300,27 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
     # directly, same as the domain case above -- see the comment there.
     rvdMatchConsensusLong <- .tales_consensus_match_long(x, value_col = label)
     colnames(rvdMatchConsensusLong) <- c("array_id", "alignment_position", "matchConsensusRvd")
-    # Join with rvd tible
-    rvdAlignLong %<>% dplyr::left_join(rvdMatchConsensusLong,
-                                       by = dplyr::join_by(array_id, alignment_position))
+    
+    # RVD similarity relative to the reference, the RVD-level counterpart of
+    # domainSimVsRef: that one scores protein sequence similarity, this one
+    # how alike two RVDs' DNA-binding preferences are. They come apart -- HD
+    # and ND are different domains with identical specificity, while domains
+    # differing only at positions 12-13 are nearly identical proteins
+    # targeting different bases. The domain block below overrides refTaleId
+    # when domain distances are given.
+    refTaleId <- .pick_ref_name(align = rvd_align, ref_tag = ref_pattern)
+    rvdSimAlignLong <- .rvd_to_match_align(rvd_align = rvd_align,
+                                           ref_tag = ref_pattern) %>%
+      .matrix_to_long() %>%
+      dplyr::as_tibble()
+    colnames(rvdSimAlignLong) <- c("array_id", "alignment_position", "rvdSimVsRef")
+    rvdSimAlignLong %<>% dplyr::mutate(array_id = as.character(array_id))
+    
+    rvdAlignLong %<>%
+      dplyr::left_join(rvdMatchConsensusLong,
+                       by = dplyr::join_by(array_id, alignment_position)) %>%
+      dplyr::left_join(rvdSimAlignLong,
+                       by = dplyr::join_by(array_id, alignment_position))
   }
   
   # Assign main alignment object in long format
@@ -351,26 +370,6 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
                        by = dplyr::join_by(array_id, alignment_position))
   }
   
-  
-  # joining RVD similarity relative to the reference
-  # This is the RVD-level counterpart of domainSimVsRef: that one scores protein
-  # sequence similarity, this one scores how alike two RVDs' DNA-binding
-  # preferences are. They come apart -- HD and ND are different domains with
-  # identical specificity, while domains differing only at positions 12-13 are
-  # nearly identical proteins targeting different bases.
-  if (!is.null(rvd_align)) {
-    if (!exists("refTaleId")) {
-      refTaleId <- .pick_ref_name(align = rvd_align, ref_tag = ref_pattern)
-    }
-    rvdSimAlignLong <- .rvd_to_match_align(rvd_align = rvd_align,
-                                           ref_tag = ref_pattern) %>%
-      .matrix_to_long() %>%
-      dplyr::as_tibble()
-    colnames(rvdSimAlignLong) <- c("array_id", "alignment_position", "rvdSimVsRef")
-    rvdSimAlignLong %<>% dplyr::mutate(array_id = as.character(array_id))
-    domainAlignLong %<>% dplyr::left_join(rvdSimAlignLong,
-                                          by = dplyr::join_by(array_id, alignment_position))
-  }
   
   # Building TALE tree if possible
   if (!is.null(tale_distances) & countOfTales > 1) {
