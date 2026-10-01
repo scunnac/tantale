@@ -22,7 +22,7 @@ in the set are side branches: deep dives into a single class (`tales`,
 `tales_msa`) and one case study on naturally truncated TALEs. Each is
 linked from the point where it becomes relevant.
 
-This article covers TALE discovery with `tell_tales()`. Because of their repetitive nature *tal* genes cannot be assembled from short read sequencing technologies data. This is why now most of the genomes of *tal* bearing bacteria are sequenced with long read technologies which may be error prone. Those assemblies are not always clean, and
+This article covers TALE discovery with AnnoTALE and `tell_tales()`. Because of their repetitive nature *tal* genes cannot be assembled from short read sequencing technologies data. This is why now most of the genomes of *tal* bearing bacteria are sequenced with long read technologies which may be error prone. Those assemblies are not always clean, and
 `tell_tales()` can sometimes be fooled. tantale offers two ways to correct
 frameshifts. They work differently, neither is guaranteed to succeed, and
 `tales_anomalies()` tells you which arrays still need attention after
@@ -43,6 +43,47 @@ artefacts in its TALE loci. A mining pipeline meets this kind of input
 routinely in practice, and it is what the second half of this article is
 about.
 :::
+
+## AnnoTALE, the standard tool
+
+[AnnoTALE](https://doi.org/10.1038/srep21077) is the standard tool for
+finding and annotating *tal* genes in bacterial genome sequences. Its
+`predict` stage locates TALE genes in a genome and flags those likely to
+be pseudogenes. Its `analyze` stage splits each predicted protein into
+its N-terminal region, repeats and C-terminal region, and reads the RVD
+of every repeat. A third stage, `build`, assigns TALEs to the classes of
+the AnnoTALE nomenclature. tantale runs the first two with
+`run_annotale_predict()` and the third with `run_annotale_build()`, and
+`tales_from_annotale()` turns the output of `predict` into a `tales`
+object. tantale ships AnnoTALE's output for four TALEs of BAI3:
+
+```{r annotale_example}
+annotale_example <- system.file("extdata", "annotaleExampleOutput", package = "tantale")
+bai3_sample <- tales_from_annotale(annotale_example)
+bai3_sample
+```
+
+Each terminal region is searched with the profile HMM of the TALE N- or
+C-terminal domain, and marked `NTERM` or `CTERM` when it matches (`XXXXX`
+otherwise). On a whole genome, the same object comes from two calls
+(not run here, as `predict` takes a couple of minutes per genome):
+
+```{r annotale_genome, eval = FALSE}
+mai1_annotale_dir <- file.path(tempdir(), "MAI1_annotale")
+run_annotale_predict(system.file("extdata", "MAI1.fa", package = "tantale"),
+                     output_dir = mai1_annotale_dir)
+mai1_annotale <- tales_from_annotale(mai1_annotale_dir)
+```
+
+On the clean BAI3 assembly, AnnoTALE predicts nine TALEs, none flagged. On BAI3-1-1, the error-prone assembly
+of the same background, it predicts eight and flags all eight as
+putative pseudogenes. `tell_tales()` is built for such genomes. It
+locates candidate arrays with DNA profiles of the three TALE regions
+before any ORF is predicted, reports the DNA evidence for each array
+(which terminus profiles matched, how much of the region the longest ORF
+covers), can correct frameshifts in each array before AnnoTALE `analyze`
+reads it, and keeps per-array reports and terminus alignments for
+inspection. The rest of this article uses `tell_tales()`.
 
 ## Finding TALE loci in genomic DNA
 

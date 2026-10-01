@@ -40,11 +40,15 @@
   if (!grepl("TALE_RVDs.fasta", basename(fasta))) {
     cli::cli_abort("The provided file does not seem to be an AnnoTALE RVDs file: {fasta}", class = c("tantale_error"))
   } else {
-    rvdTble <- .split_list(fasta)
+    # AnnoTALE writes an empty record for a TALE in which it found no repeat
+    # (seen on pseudogenes); that TALE simply has no RVD
+    rvdTble <- withCallingHandlers(
+      .split_list(fasta),
+      tantale_warning_empty_element = function(w) invokeRestart("muffleWarning"))
     names(rvdTble) <- sub(" .*$", "", names(rvdTble))
     rvdTble <- rvdTble %>%
       lapply(function(x) tibble::tibble(string = x,
-                                        position_in_crd = 1:length(x))
+                                        position_in_crd = seq_along(x))
              ) %>%
       dplyr::bind_rows(.id = "array_id")
     rvdTble <- rvdTble %>% dplyr::mutate(source_directory = dirname(fasta),

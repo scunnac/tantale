@@ -57,3 +57,25 @@ test_that("tales_from_annotale() refuses a directory without AnnoTALE output", {
   expect_error(tales_from_annotale(withr::local_tempdir()),
                class = "tantale_error_annotale_missing")
 })
+
+test_that("a TALE in which AnnoTALE found no repeat is read with its two termini", {
+  # AnnoTALE predict on BAI3-1-1 reports such a pseudogene: N- and C-terminus
+  # parts, and an empty record in TALE_RVDs.fasta
+  dir <- annotale_copy(with_gff = FALSE)
+  analyze <- file.path(dir, "Analyze")
+  id <- "BAI3-1-1-tempTALE8 (Pseudo) [207114-207183:-1]"
+  prot <- Biostrings::readAAStringSet(file.path(analyze, "TALE_Protein_parts.fasta"))
+  dna <- Biostrings::readDNAStringSet(file.path(analyze, "TALE_DNA_parts.fasta"))
+  nterm <- grep("tempTALE1 .*: N-terminus$", names(prot))
+  cterm <- grep("tempTALE1 .*: C-terminus$", names(prot))
+  extra <- function(x) stats::setNames(x[c(nterm, cterm)],
+                                       paste0(id, c(": N-terminus", ": C-terminus")))
+  Biostrings::writeXStringSet(c(prot, extra(prot)), file.path(analyze, "TALE_Protein_parts.fasta"))
+  Biostrings::writeXStringSet(c(dna, extra(dna)), file.path(analyze, "TALE_DNA_parts.fasta"))
+  cat(">", id, "\n\n", sep = "", file = file.path(analyze, "TALE_RVDs.fasta"), append = TRUE)
+
+  x <- suppressWarnings(tales_from_annotale(dir))
+  pseudo <- x[x$array_id == "BAI3-1-1-tempTALE8", ]
+  expect_identical(pseudo$domain_type, c("N-terminus", "C-terminus"))
+  expect_identical(length(unique(x$array_id)), 5L)
+})

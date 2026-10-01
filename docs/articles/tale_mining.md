@@ -8,7 +8,7 @@ other articles in the set are side branches: deep dives into a single
 class (`tales`, `tales_msa`) and one case study on naturally truncated
 TALEs. Each is linked from the point where it becomes relevant.
 
-This article covers TALE discovery with
+This article covers TALE discovery with AnnoTALE and
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md).
 Because of their repetitive nature *tal* genes cannot be assembled from
 short read sequencing technologies data. This is why now most of the
@@ -38,7 +38,65 @@ library(dplyr)
 > meets this kind of input routinely in practice, and it is what the
 > second half of this article is about.
 
-## 1 Finding TALE loci in genomic DNA
+## 1 AnnoTALE, the standard tool
+
+[AnnoTALE](https://doi.org/10.1038/srep21077) is the standard tool for
+finding and annotating *tal* genes in bacterial genome sequences. Its
+`predict` stage locates TALE genes in a genome and flags those likely to
+be pseudogenes. Its `analyze` stage splits each predicted protein into
+its N-terminal region, repeats and C-terminal region, and reads the RVD
+of every repeat. A third stage, `build`, assigns TALEs to the classes of
+the AnnoTALE nomenclature. tantale runs the first two with
+[`run_annotale_predict()`](https://scunnac.github.io/tantale/reference/run_annotale_predict.md)
+and the third with
+[`run_annotale_build()`](https://scunnac.github.io/tantale/reference/run_annotale_build.md),
+and
+[`tales_from_annotale()`](https://scunnac.github.io/tantale/reference/tales_from_annotale.md)
+turns the output of `predict` into a `tales` object. tantale ships
+AnnoTALE’s output for four TALEs of BAI3:
+
+Code
+
+``` r
+annotale_example <- system.file("extdata", "annotaleExampleOutput", package = "tantale")
+bai3_sample <- tales_from_annotale(annotale_example)
+bai3_sample
+#> <tales> 4 arrays, 96 parts
+#>   layers: rvd   |   6 other columns
+#>                                 rvd
+#>   bai3_sample_tal_genomic_regions-tempTALE1  NTERM NN NG NN HD HD NI N* NG HD NI NG NN  ...
+#>   bai3_sample_tal_genomic_regions-tempTALE2  NTERM NN HD NI NN HD NG HD HD NG NG NI NG  ...
+#>   bai3_sample_tal_genomic_regions-tempTALE3  NTERM NN ND NN NI NK NN HD NN NG NG N* HD  ...
+#>   bai3_sample_tal_genomic_regions-tempTALE4  NTERM NI HD NN NS NN NG HD NG HD NG NN NG  ...
+```
+
+Each terminal region is searched with the profile HMM of the TALE N- or
+C-terminal domain, and marked `NTERM` or `CTERM` when it matches
+(`XXXXX` otherwise). On a whole genome, the same object comes from two
+calls (not run here, as `predict` takes a couple of minutes per genome):
+
+Code
+
+``` r
+mai1_annotale_dir <- file.path(tempdir(), "MAI1_annotale")
+run_annotale_predict(system.file("extdata", "MAI1.fa", package = "tantale"),
+                     output_dir = mai1_annotale_dir)
+mai1_annotale <- tales_from_annotale(mai1_annotale_dir)
+```
+
+On the clean BAI3 assembly, AnnoTALE predicts nine TALEs, none flagged.
+On BAI3-1-1, the error-prone assembly of the same background, it
+predicts eight and flags all eight as putative pseudogenes.
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
+is built for such genomes. It locates candidate arrays with DNA profiles
+of the three TALE regions before any ORF is predicted, reports the DNA
+evidence for each array (which terminus profiles matched, how much of
+the region the longest ORF covers), can correct frameshifts in each
+array before AnnoTALE `analyze` reads it, and keeps per-array reports
+and terminus alignments for inspection. The rest of this article uses
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md).
+
+## 2 Finding TALE loci in genomic DNA
 
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
 searches a genome with `nhmmer`, using three profile HMMs tuned to the
@@ -119,7 +177,7 @@ half-repeat), and each array’s parts sit side by side with no gaps,
 because nothing has been aligned yet. `position_in_array` just counts
 parts within each array independently.
 
-## 2 What `tell_tales()` writes to disk
+## 3 What `tell_tales()` writes to disk
 
 Besides the RVD sequences and the TALE ORFs themselves,
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
@@ -169,7 +227,7 @@ and `cterm_dna_hit` both `FALSE`) and no ORF length; it yields no parts,
 so it is absent from the object and from
 [Figure 1](#fig-mai1-composition).
 
-## 3 When discovery goes wrong: detecting anomalies
+## 4 When discovery goes wrong: detecting anomalies
 
 MAI1 is a good assembly, and every array in the `tales` object above
 came back complete. That is not guaranteed. Running the same search on
@@ -279,17 +337,17 @@ In BAI3-1-1 the corrections below settle it: once repaired, both arrays
 recover the coverage of a clean MAI1 array, as expected of assembly
 frameshifts.
 
-## 4 Correcting frameshifts, two ways
+## 5 Correcting frameshifts, two ways
 
 tantale offers two distinct routes to a corrected sequence: one corrects
 candidate *arrays* after they have been found, from inside
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md);
 the other corrects the *genome* before discovery starts. Both can fail,
-in different ways, so [Section 3](#sec-anomalies)’s check is worth
+in different ways, so [Section 4](#sec-anomalies)’s check is worth
 repeating after either one. Run on the same genome below, they disagree
 about which array still needs help.
 
-### 4.1 Correcting inside `tell_tales()`
+### 5.1 Correcting inside `tell_tales()`
 
 `correct_array = TRUE` runs
 [`DECIPHER::CorrectFrameshifts()`](https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html)
@@ -325,10 +383,10 @@ invisible(tell_tales(subject_file = bai311_fa, output_dir = bai311_corr_dir,
 #> Finding the closest reference amino acid sequences:
 #> ================================================================================
 #> 
-#> Time difference of 0.46 secs
+#> Time difference of 0.43 secs
 #> ================================================================================
 #> 
-#> Time difference of 17.68 secs
+#> Time difference of 15.28 secs
 ```
 
 Something is odd:
@@ -366,7 +424,7 @@ and checking
 after correcting is how it gets caught before it reaches downstream
 analyses.
 
-### 4.2 Correcting the genome, before discovery
+### 5.2 Correcting the genome, before discovery
 
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
 takes a different, faster route. It wraps the Java `TALEcorrection`
@@ -439,7 +497,7 @@ Zero anomalies:
 fixes both `ROI_00003` and `ROI_00005` on this genome, without touching
 any candidate array individually, and does not break `ROI_00001`.
 
-### 4.3 A clean correction without an eight-minute wait
+### 5.3 A clean correction without an eight-minute wait
 
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
 above already reached zero anomalies in under a minute.
@@ -464,7 +522,7 @@ invisible(tell_tales(subject_file = bai311_fa, output_dir = bai311_best_dir,
 #> Time difference of 0.43 secs
 #> ================================================================================
 #> 
-#> Time difference of 43.97 secs
+#> Time difference of 44.05 secs
 bai311_best <- tales_from_telltales(bai311_best_dir)
 ```
 
@@ -482,7 +540,7 @@ every array in this genome, in about a minute. Either this run or
 own result above is a reasonable choice for the rest of this set of
 articles; `bai311_best` (built here) is the one used from here on.
 
-## 5 How much did either correction actually help?
+## 6 How much did either correction actually help?
 
 Anomaly counts say whether AnnoTALE could parse an array at all, which
 is a pass/fail signal. `orf_coverage` is more informative, since it is a
@@ -555,7 +613,7 @@ only
 [`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
 catches it.
 
-## 6 Moving on with what you have
+## 7 Moving on with what you have
 
 `bai311_best` needs none of this: it is already clean, and so is
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)’s
@@ -578,7 +636,7 @@ n_distinct(bai311_corr$array_id) - n_distinct(bai311_clean$array_id)
 >
 > From here on, “BAI3-1-1” means `bai311_best`, the
 > `max_comparisons = 50` correction from
-> [Section 4.3](#sec-best-correction), alongside MAI1 and BAI3. PXO86,
+> [Section 5.3](#sec-best-correction), alongside MAI1 and BAI3. PXO86,
 > the fourth genome shipped with the package, is left out of the
 > classification and alignment articles that follow: it is a distant
 > Asian outgroup whose TALE repertoire barely overlaps the African
@@ -586,7 +644,7 @@ n_distinct(bai311_corr$array_id) - n_distinct(bai311_clean$array_id)
 > one-ortholog-per-strain groups into a mix of real cross-strain groups
 > and PXO86-only paralog clusters that do not illustrate the same thing.
 
-## 7 Next
+## 8 Next
 
 The [next
 article](https://scunnac.github.io/tantale/articles/tale_classification.md)

@@ -2184,3 +2184,36 @@ BAI3-1-1 cases directly:
   text says it is now flagged. Coverage of the other arrays: 90-93%.
 - Candidate for the postponed A5 (anomalies re-examined one by one): an
   array with no repeat part as an anomaly.
+
+**2026-10-01, after the maintainer's answers (Q19-Q21):** pushed
+(Q20). Q21 done: `tale_mining.qmd` opens with a section on AnnoTALE as
+the standard tool (`run_annotale_predict()`, `run_annotale_build()`,
+`tales_from_annotale()` on the shipped example), then what `tell_tales()`
+adds. Facts behind it, measured with `run_annotale_predict()`: BAI3, 9
+TALEs, none flagged; BAI3-1-1, 8 TALEs, all flagged "putative pseudo
+gene" (names carry "(Pseudo)"); MAI1, 9. Running it on BAI3-1-1 found a
+bug of `tales_from_annotale()`: `tempTALE8` has no repeat and an empty
+RVD record, and `.rvds_from_annotale_file()` built `1:0`. Fixed
+(`seq_along()`, the empty-element warning muffled there); test with a
+planted record. Not recorded in the `tales` object: AnnoTALE's
+"(Pseudo)" flag.
+
+## 38. Non-standard TALE structure as an anomaly (Q19) **[P]**
+
+Maintainer, 2026-10-01: anything that is not a standard TALE,
+`NTERM - RVD x n - CTERM`, should be reported by `tales_anomalies()`.
+
+Measured (arrays not of that form / arrays): test fixture 1/44 (one
+`XXXXX`); the articles' discovery cache (MAI1, BAI3, BAI3-1-1 corrected)
+0/26; `tellTaleExampleOutput` 0/4; AnnoTALE predict on BAI3-1-1 7/8
+(seven `XXXXX`, one without repeats); `tell_tales()` on BAI3-1-1 raw 7/8
+(`ROI_00002` is the only standard one).
+
+**Plan proposed:** three checks in `.tales_anomalies()`:
+`terminus_absent` (no N- / no C-terminus part; needs `domain_type`),
+`terminus_unmatched` (a terminus coded `XXXXX`; needs `rvd`),
+`no_repeat` (no repeat part; needs `domain_type`). Objects without
+those columns (e.g. `as_tales()` on repeat-only strings) are not
+checked. Consequences: `tales()` warns about such arrays, and
+`sanitize = TRUE` drops them; golden anomaly table +1 row; the
+`tale_mining.qmd` BAI3-1-1 narrative gets its signal back.
