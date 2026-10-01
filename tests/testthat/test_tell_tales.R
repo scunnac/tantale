@@ -17,6 +17,19 @@ test_that("telltale no correction runs without error", {
                    )
 })
 
+test_that("the closing log is printed line by line, braces in paths as text", {
+  # cli_inform() rewrapped the log into one paragraph and evaluated {...}
+  out <- file.path(tempfile(), "run{1}")
+  msgs <- testthat::capture_messages(suppressWarnings(tell_tales(
+    subject_file = system.file("extdata", "bai3_sample_tal_genomic_regions.fasta",
+                               package = "tantale", mustWork = TRUE),
+    output_dir = out)))
+  printed <- unlist(strsplit(paste(msgs, collapse = ""), "\n"))
+  log <- readLines(file.path(out, "tell_tales.log"))
+  expect_true(grep("^nterm_min_score:", log, value = TRUE) %in% printed)
+  expect_true(paste0("Output directory:\t", out) %in% printed)
+})
+
 # PXO86's ROI_00019 is a genuine truncTALE: its stop codon falls inside the
 # C-terminal part, so AnnoTALE's record ends in "*". The report's lengths
 # count residues, like the tales object, so the two must agree (ledger §32.4).

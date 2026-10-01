@@ -485,7 +485,9 @@
     "#*************************\n"
   )
   
-  cli::cli_inform(paste(txt, collapse = "\n"))
+  # verbatim: cli_inform() would rewrap the lines into one paragraph and
+  # read any {...} in a path as code to evaluate
+  cli::cli_verbatim(txt)
   logf <- file(log_file, open = "w")
   writeLines(text = txt, con = logf)
   close(logf)

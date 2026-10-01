@@ -506,17 +506,20 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
 
 
 
-##' Convert msa file/object to tidy data frame.
-##'
-##'
-##' @title tidy_msa
-##' @param msa multiple sequence alignment file or sequence object in 
-##' DNAStringSet, RNAStringSet, AAStringSet, BStringSet, DNAMultipleAlignment, 
-##' RNAMultipleAlignment, AAMultipleAlignment, DNAbin or AAbin
-##' @param start start position to extract subset of alignment
-##' @param end end position to extract subset of alignemnt
-##' @author Modified from Guangchuang Yu
-##' @noRd
+#' One row per character of a set of equal-length sequences
+#'
+#' Adapted from ggmsa's \code{tidy_msa()} (Guangchuang Yu).
+#' \code{plot_target_preds()} calls it on one subject sequence and on its
+#' complement, to draw the two strands base by base.
+#'
+#' @param msa A named \code{XStringSet} (e.g. a \code{DNAStringSet}) of
+#'   sequences of equal length, with unique names.
+#' @param start,end Positions delimiting the part kept; the whole width by
+#'   default.
+#' @return A data frame with columns \code{name} (a factor, levels in
+#'   reverse input order), \code{position} and \code{character} (upper
+#'   case).
+#' @noRd
 .tidy_biostrings_msa <- function(msa, start = NULL, end = NULL) {
   aln <- msa
   alnmat <- lapply(seq_along(aln), function(i) {

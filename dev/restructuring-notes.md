@@ -2300,3 +2300,27 @@ locale is absent). Golden unchanged (it runs under C). Article renders
 (en_US session): only order changes, in `tale_classification`'s functal
 table, tree and logos and `tale_target_prediction`'s figure; no alignment
 changed. D6 (keep AnnoTALE's "(Pseudo)" flag): maintainer said no.
+
+## 41. Road map R1, R4, R8 (Q40-Q44) **[A]**
+
+Maintainer, 2026-10-01: R1 P1, R4 yes, R8 by hand for now (switch to
+push/PR triggers when the package is mature) and test other OSes; R6
+asked for an opinion; R7 and R9 wait, both tied to meeting rOpenSci's
+requirements for review and a JOSS paper.
+- R1 done: `.tidy_biostrings_msa()`'s comment now describes what it takes
+  (a named XStringSet of equal-length sequences) and its one caller,
+  `plot_target_preds()`. The file input it claimed was never needed.
+- R4 done: `.telltale_log()` printed the log with `cli_inform()`, which
+  rewraps lines into one paragraph and evaluates `{...}`: a braced path
+  crashed `tell_tales()` at its last step. Now `cli::cli_verbatim()`.
+  Test with an output directory `run{1}`.
+- R8 written, not yet run: `.github/workflows/R-CMD-check.yaml`,
+  `workflow_dispatch` with an `os` choice. Builds the environment through
+  micromamba + `tantale_setup(install = TRUE)`, as a user would.
+  Platforms, checked with `micromamba search` 2026-10-01: every pinned
+  tool has osx-64 builds; MAFFT 7.453, HMMER 3.3.2 and mmseqs2 14 have
+  none for osx-arm64 or win-64. So Windows is out (also `OS_type: unix`),
+  Apple Silicon Macs cannot build the environment as pinned (an osx-64
+  environment under Rosetta would need `tantale_setup()` support), and
+  the workflow offers `macos-13` (Intel). Private repository on the free
+  plan: macOS minutes count 10x.

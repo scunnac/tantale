@@ -1,5 +1,13 @@
 # tantale 0.9.9011
 
+## `tell_tales()` prints its closing summary line by line
+
+The summary `tell_tales()` prints at the end of a run is now shown as it
+is written in `tell_tales.log`, one line per entry. It used to be wrapped
+into a single paragraph, and a subject file or output directory whose
+path contained braces (`{...}`) made `tell_tales()` fail at that last
+step.
+
 ## Arrays come out in the same order on every machine
 
 `tales_rvd_strings()`, `tales_coded_strings()`, `tales_get_protein_seq()`,
