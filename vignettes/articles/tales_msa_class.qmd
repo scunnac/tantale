@@ -76,13 +76,13 @@ number:
 - **`alignment_position`**: where this part sits in the alignment. It
   agrees with `position_in_array` up to the first gap and diverges after
   it.
-- **`tales_width()`**: the alignment's total column count. It is stored,
+- **`tales_msa_width()`**: the alignment's total column count. It is stored,
   because `max(alignment_position)` over a *subset* of arrays can
   under-report a width whose last columns happen to be all gaps in that
   subset.
 
 ```{r width_demo}
-tales_width(msa)
+tales_msa_width(msa)
 ```
 
 An array on the short side of the internal gap shows the divergence
@@ -156,7 +156,7 @@ where things were aligned. What goes is the object's claim to be a single
 coherent alignment, and the stored width goes with it:
 
 ```{r demote_width}
-tales_width(demoted)
+tales_msa_width(demoted)
 ```
 
 ::: {.callout-important}

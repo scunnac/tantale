@@ -17,8 +17,7 @@ tales_group_kmedoids(
 \item{x}{A \link{tales} object -- the one whose comparison produced \code{tale_distances}.}
 
 \item{tale_distances}{A \link{tale_distances} object, as returned by \code{\link[=tales_compare_distal]{tales_compare_distal()}}.
-A plain data frame using the legacy \code{TAL1}/\code{TAL2}/\code{Sim} column names is
-also accepted and coerced.}
+A plain data frame with the same columns is also accepted and coerced.}
 
 \item{k_range}{Integer vector of candidate values of \code{k} to evaluate. Each
 must be between 1 and one less than the number of arrays being grouped
@@ -72,8 +71,8 @@ blocking on input that will never arrive.
 }
 }
 \examples{
-x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-                                     package = "tantale"))
+x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+                                      package = "tantale"))
 cmp <- tales_compare_distal(x)
 grouped <- tales_group_kmedoids(cmp$tales, cmp$tale_distances,
                                 k_range = 2:3, k = 2)

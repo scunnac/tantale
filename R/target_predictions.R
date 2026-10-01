@@ -34,8 +34,8 @@
 #' @examples
 #' \donttest{
 #' # Needs a Java runtime.
-#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-#'                                      package = "tantale"))
+#' x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+#'                                       package = "tantale"))
 #' rvds <- tales_rvd_strings(x)
 #' subj <- system.file("extdata", "cladeIII_sweet_promoters.fasta",
 #'                     package = "tantale")
@@ -146,8 +146,8 @@ preditale <- function(rvd_seqs, subj_file, opt_param = "", output_dir = NULL,
 #' @examples
 #' \donttest{
 #' # Needs the tantale conda environment, built on first use.
-#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-#'                                      package = "tantale"))
+#' x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+#'                                       package = "tantale"))
 #' rvds <- tales_rvd_strings(x)
 #' subj <- system.file("extdata", "cladeIII_sweet_promoters.fasta",
 #'                     package = "tantale")
@@ -314,8 +314,8 @@ talvez <- function(rvd_seqs, subj_file, opt_param = "-t 0 -l 19", output_dir = N
 #' @examples
 #' \donttest{
 #' # Needs a Java runtime, for preditale().
-#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-#'                                      package = "tantale"))
+#' x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+#'                                       package = "tantale"))
 #' rvds <- tales_rvd_strings(x)
 #' subj <- system.file("extdata", "cladeIII_sweet_promoters.fasta",
 #'                     package = "tantale")
@@ -597,8 +597,8 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
 #' \donttest{
 #' # Needs the tantale conda environment (for talvez) and a Java runtime
 #' # (for preditale), both built on first use.
-#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-#'                                      package = "tantale"))
+#' x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+#'                                       package = "tantale"))
 #' subj <- system.file("extdata", "cladeIII_sweet_promoters.fasta",
 #'                     package = "tantale")
 #' head(tales_predict_targets(x, subj_file = subj))

@@ -4,7 +4,7 @@
 \alias{tales_rvd_strings}
 \title{RVD strings, one per TALE array}
 \usage{
-tales_rvd_strings(x, sep = "-", rvd_only = TRUE)
+tales_rvd_strings(x, sep = "-", repeats_only = TRUE)
 }
 \arguments{
 \item{x}{A \code{\link{tales}} object carrying an \code{rvd} column.}
@@ -12,7 +12,7 @@ tales_rvd_strings(x, sep = "-", rvd_only = TRUE)
 \item{sep}{Separator between RVDs. Defaults to \code{"-"}, the convention
 used by AnnoTALE and by this package's own sample files.}
 
-\item{rvd_only}{Drop the terminus parts, whose \code{rvd} holds an anchor
+\item{repeats_only}{Drop the terminus parts, whose \code{rvd} holds an anchor
 code rather than a real RVD (see \code{\link{tales_anchor_codes}}).
 \code{TRUE} by default, since target prediction concerns the central
 repeat domain only.}
@@ -25,18 +25,15 @@ Renders each array as a separated string of its RVDs in part order — the
 form target-prediction tools consume.
 }
 \examples{
-x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-                                     package = "tantale"))
+x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+                                      package = "tantale"))
 tales_rvd_strings(x)[1]
-tales_rvd_strings(x, rvd_only = FALSE)[1] # keeps NTERM/CTERM markers
+tales_rvd_strings(x, repeats_only = FALSE)[1] # keeps NTERM/CTERM markers
 }
 \seealso{
 \code{\link{tales_coded_strings}}
 
 Other tales projections:
-\code{\link[=repeat_to_rvd_map]{repeat_to_rvd_map()}},
-\code{\link[=repeat_to_rvd_map_distalr]{repeat_to_rvd_map_distalr()}},
-\code{\link[=tale_parts_to_rvd]{tale_parts_to_rvd()}},
 \code{\link[=tales_coded_strings]{tales_coded_strings()}},
 \code{\link[=tales_domain_codes]{tales_domain_codes()}},
 \code{\link[=tales_get_dna_seq]{tales_get_dna_seq()}},

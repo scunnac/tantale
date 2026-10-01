@@ -29,8 +29,8 @@ Numeric values inside the boxes located immediately to the right of the TALE lab
 \examples{
 \donttest{
 # Needs a Java runtime, for preditale().
-x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-                                     package = "tantale"))
+x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+                                      package = "tantale"))
 rvds <- tales_rvd_strings(x)
 subj <- system.file("extdata", "cladeIII_sweet_promoters.fasta",
                     package = "tantale")

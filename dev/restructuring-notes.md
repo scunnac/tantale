@@ -2066,7 +2066,7 @@ files are removed):
   range"; the termini test in `test_tell_tales.R` asserts the PXO86
   excerpt run no longer emits it.
 
-## 37. `tales_from_annotale()`, renames and retirements (road map step 3) **[P]**
+## 37. `tales_from_annotale()`, renames and retirements (road map step 3) **[V]**
 
 Investigated 2026-10-01; plan awaiting the maintainer's approval.
 
@@ -2109,3 +2109,50 @@ where `tell_tales()` finds 10 arrays. `.tale_parts_from_file()` and
   `?tales`, `?pairwise_distances` (example uses `TAL1`/`TAL2`/`Sim`),
   `?tales_group_hclust`; `.as_mafft_score_table()` has its own
   `RepU1`/`RepU2`/`Sim` branch. Recommended: retire all of it.
+
+**Maintainer, 2026-10-01:** Q14 yes (`array_id` up to the space), Q15
+`tales_msa_width()`, Q16 yes (`repeats_only`), Q17 yes (retire D3),
+Q18 update the articles and rebuild the site.
+
+**Done 2026-10-01 (T1, R1-R4, D1-D3):**
+- T1: `tales_from_annotale()` in `R/tales_ingest.R`. `.tale_parts()` split
+  into `.tale_parts_assemble()` (reading, protein/DNA join, inconsistent
+  arrays, absent termini, positions, RVD join) and `.tale_parts_finish()`
+  (terminus codes, `seqnames`, missing-sequence warning), shared with
+  `.tale_parts_annotale()`. `.tale_parts_from_file()` and
+  `.rvds_from_annotale_file()` cut ids at the first space (tell_tales'
+  `ROI_*` ids have none). New error `tantale_error_annotale_missing` when
+  no parts file is found. Fixture `inst/extdata/annotaleExampleOutput`
+  (36 KB; analyze's three files plus predict's GFF3, renamed without the
+  parentheses R CMD check calls non-portable), from
+  `data-raw/make_annotale_example_output.R`. On that fixture the RVD
+  strings, termini included, are the same set as `tellTaleExampleOutput`'s.
+  Tests: `test_tales_from_annotale.R`.
+- R1, R2, R4 everywhere (R, tests, articles, earlier NEWS entries of this
+  version); R3 `.repeat_to_rvd_align()`.
+- D1, D2: the four functions in `inst/legacy/conversion_retired.R`; their
+  tests removed; the XXXXX regression test now runs on
+  `tales_rvd_strings()`. The plot fixture builds its map inline
+  (`rvd_map_of()` in `test_plot_tales_msa.R`). §2's condition for
+  retiring `repeat_to_rvd_map()` (its one-RVD-per-code assertion) is met
+  by the `aa_seq_rvd_inconsistent` anomaly plus the `dom_code`/`aa_seq`
+  bijection check, both tested.
+- D3: converters and their name vectors in
+  `inst/legacy/legacy_column_names.R`; `.as_mafft_score_table()` lost its
+  `RepU1` branch; docs updated. The test fixture
+  `sampleDistalrOutput.rds` carried the old names in `repeat.similarity`
+  and `tal.similarity`; converted by `data-raw/rename_sample_distalr_output.R`
+  (it has no generator). Name-clash and rename tests removed.
+- Golden re-baselined, both rows explained: the requirements table lost
+  the rows of `repeat_to_rvd_map_distalr()` and `tale_parts_to_rvd()`; in
+  the projections test the fourth snapshot (`repeat_to_rvd_map_distalr()`)
+  is replaced by `tales_rvd_strings(x, repeats_only = FALSE)`, whose
+  digest equals the retired `tale_parts_to_rvd()`'s output on the same
+  fixture (checked by sourcing the legacy file, C collation). The
+  `tale_parts_to_rvd()` line never had a recorded snapshot (the old file
+  held four projection entries).
+- Side finding, not acted on: `tales_rvd_strings()` orders arrays with
+  `split()`, so by the session's collation; under `fr_FR` "BAI3_ROI_*"
+  sorts before "BAI3-1-1_ROI_*", under C (testthat) after. The retired
+  `tale_parts_to_rvd()` used dplyr's C-locale ordering.
+- Full `devtools::test()`: only the two golden failures above.

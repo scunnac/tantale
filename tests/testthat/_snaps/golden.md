@@ -128,7 +128,7 @@
         "row.names": {
           "type": "integer",
           "attributes": {},
-          "value": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+          "value": [1, 2, 3, 4, 5, 6, 7, 8]
         },
         "class": {
           "type": "character",
@@ -140,17 +140,17 @@
         {
           "type": "character",
           "attributes": {},
-          "value": ["plot.tales", "plot.tales", "repeat_to_rvd_map_distalr", "tale_parts_to_rvd", "tales_align", "tales_coded_strings", "tales_compare_distal", "tales_domain_codes", "tales_domain_codes", "tales_rvd_strings"]
+          "value": ["plot.tales", "plot.tales", "tales_align", "tales_coded_strings", "tales_compare_distal", "tales_domain_codes", "tales_domain_codes", "tales_rvd_strings"]
         },
         {
           "type": "character",
           "attributes": {},
-          "value": ["all_of", "optional", "all_of", "all_of", "any_of", "all_of", "any_of", "all_of", "optional", "all_of"]
+          "value": ["all_of", "optional", "any_of", "all_of", "any_of", "all_of", "optional", "all_of"]
         },
         {
           "type": "character",
           "attributes": {},
-          "value": ["rvd, aa_seq, domain_type", "seqnames, alignment_position", "dom_code, rvd", "rvd", "rvd, dom_code", "dom_code", "aa_seq, dna_seq", "dom_code, aa_seq", "rvd", "rvd"]
+          "value": ["rvd, aa_seq, domain_type", "seqnames, alignment_position", "rvd, dom_code", "dom_code", "aa_seq, dna_seq", "dom_code, aa_seq", "rvd", "rvd"]
         }
       ]
     }
@@ -316,61 +316,6 @@
           "type": "character",
           "attributes": {},
           "value": ["6ac4f0003416ce44f38e420f3b5c6011", "77adce2140d992ad969182454fe71e90", "e7f345c2a026627945d4bc1e67a50858"]
-        }
-      ]
-    }
-
----
-
-    {
-      "type": "list",
-      "attributes": {
-        "names": {
-          "type": "character",
-          "attributes": {},
-          "value": ["column", "type", "n", "n_distinct", "n_missing", "digest"]
-        },
-        "row.names": {
-          "type": "integer",
-          "attributes": {},
-          "value": [1, 2]
-        },
-        "class": {
-          "type": "character",
-          "attributes": {},
-          "value": ["data.frame"]
-        }
-      },
-      "value": [
-        {
-          "type": "character",
-          "attributes": {},
-          "value": ["repeatID", "RVD"]
-        },
-        {
-          "type": "character",
-          "attributes": {},
-          "value": ["character", "character"]
-        },
-        {
-          "type": "integer",
-          "attributes": {},
-          "value": [251, 251]
-        },
-        {
-          "type": "integer",
-          "attributes": {},
-          "value": [251, 20]
-        },
-        {
-          "type": "integer",
-          "attributes": {},
-          "value": [0, 0]
-        },
-        {
-          "type": "character",
-          "attributes": {},
-          "value": ["6ac4f0003416ce44f38e420f3b5c6011", "e7f345c2a026627945d4bc1e67a50858"]
         }
       ]
     }

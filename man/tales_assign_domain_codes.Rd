@@ -43,8 +43,8 @@ the stamp with \code{\link[=tales_namespace]{tales_namespace()}}.
 }
 
 \examples{
-x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-                                     package = "tantale"))
+x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+                                      package = "tantale"))
 xa <- tales_assign_domain_codes(x)
 tales_namespace(xa)
 }

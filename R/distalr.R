@@ -97,8 +97,8 @@
 #' @export
 #' @family pairwise distances
 #' @examples
-#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-#'                                      package = "tantale"))
+#' x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+#'                                       package = "tantale"))
 #' xa <- tales_assign_domain_codes(x)
 #' tales_namespace(xa)
 tales_assign_domain_codes <- function(x) {
@@ -155,8 +155,8 @@ tales_assign_domain_codes <- function(x) {
 #' @export
 #' @family pairwise distances
 #' @examples
-#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-#'                                      package = "tantale"))
+#' x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+#'                                       package = "tantale"))
 #' xa <- tales_assign_domain_codes(x)
 #' tales_domain_distances(xa)
 tales_domain_distances <- function(x, aln_method = "DECIPHER", ncores = 1,
@@ -233,8 +233,8 @@ tales_domain_distances <- function(x, aln_method = "DECIPHER", ncores = 1,
 #' @export
 #' @family pairwise distances
 #' @examples
-#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-#'                                      package = "tantale"))
+#' x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+#'                                       package = "tantale"))
 #' xa <- tales_assign_domain_codes(x)
 #' dd <- tales_domain_distances(xa)
 #' tales_tale_distances(xa, dd)
@@ -724,8 +724,8 @@ diag(identSubMat) <- 1
 #' @export
 #' @family pairwise distances
 #' @examples
-#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-#'                                      package = "tantale"))
+#' x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+#'                                       package = "tantale"))
 #' cmp <- tales_compare_distal(x)
 #' names(cmp)
 #' cmp$tale_distances

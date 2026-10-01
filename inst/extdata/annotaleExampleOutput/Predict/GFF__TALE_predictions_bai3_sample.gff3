@@ -1,0 +1,9 @@
+talRegion5	TALE-prediction	mRNA	25001	29305	.	+	.	Id=bai3_sample_tal_genomic_regions-tempTALE1
+talRegion5	TALE-prediction	CDS	25001	29305	.	+	.	Parent=bai3_sample_tal_genomic_regions-tempTALE1
+talRegion5	TALE-prediction	mRNA	29437	32520	.	+	.	Id=bai3_sample_tal_genomic_regions-tempTALE2
+talRegion5	TALE-prediction	CDS	29437	32520	.	+	.	Parent=bai3_sample_tal_genomic_regions-tempTALE2
+talRegion5	TALE-prediction	mRNA	32652	36953	.	+	.	Id=bai3_sample_tal_genomic_regions-tempTALE3
+talRegion5	TALE-prediction	CDS	32652	36953	.	+	.	Parent=bai3_sample_tal_genomic_regions-tempTALE3
+talRegion6	TALE-prediction	mRNA	25024	28926	.	-	.	Id=bai3_sample_tal_genomic_regions-tempTALE4
+talRegion6	TALE-prediction	CDS	25024	28926	.	-	.	Parent=bai3_sample_tal_genomic_regions-tempTALE4
+

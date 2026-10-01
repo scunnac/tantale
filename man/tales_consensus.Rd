@@ -40,7 +40,7 @@ Other TALE alignment:
 \code{\link[=tales_align]{tales_align()}},
 \code{\link[=tales_consensus_match]{tales_consensus_match()}},
 \code{\link[=tales_msa]{tales_msa()}},
-\code{\link[=tales_width]{tales_width()}},
+\code{\link[=tales_msa_width]{tales_msa_width()}},
 \code{\link[=validate_tales_msa]{validate_tales_msa()}}
 }
 \concept{TALE alignment}

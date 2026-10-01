@@ -46,28 +46,6 @@ rvd_align_fixture <- function() {
          dimnames = list(c("a", "b"), NULL))
 }
 
-test_that(".rvd_to_repeat_align() rejects a row with no repeat vector", {
-  m <- rvd_align_fixture()
-  expect_error(tantale:::.rvd_to_repeat_align(m, list(a = c("r1", "r2"))),
-               class = "tantale_error_rvd_repeat_missing")
-})
-
-test_that(".rvd_to_repeat_align() rejects a non-gap/repeat count mismatch", {
-  m <- rvd_align_fixture()
-  bad <- list(a = c("r1", "r2", "r3"), b = c("r3", "r4"))
-  expect_error(tantale:::.rvd_to_repeat_align(m, bad),
-               class = "tantale_error_rvd_repeat_length")
-})
-
-test_that(".rvd_to_repeat_align() back-maps positionally when counts agree", {
-  m <- rvd_align_fixture()
-  ok <- list(a = c("r1", "r2"), b = c("r3", "r4"))
-  out <- tantale:::.rvd_to_repeat_align(m, ok)
-  expect_equal(dim(out), dim(m))
-  expect_identical(rownames(out), rownames(m))
-  expect_identical(as.vector(t(out)), c("r1", "r2", NA, "r3", NA, "r4"))
-})
-
 test_that(".rvd_to_match_align() runs against the internal rvdSimDf", {
   # Its default argument used to be tantale::rvdSimDf, which errors because
   # rvdSimDf lives in sysdata.rda -- the function could never run (ledger 2).
@@ -80,40 +58,13 @@ test_that(".rvd_to_match_align() runs against the internal rvdSimDf", {
 })
 
 
-#### name clashes between legacy and canonical vocabularies ####
-
-test_that("a table carrying both spellings of a column is refused", {
-  df <- data.frame(id1 = c("a", "b"), id2 = c("b", "a"),
-                   dissim = c(0, 5), Dissim = c(0, 5))
-  expect_error(pairwise_distances(df), class = "tantale_error_distances_name_clash")
-})
-
-test_that("tales() also refuses a legacy/canonical name clash", {
-  df <- data.frame(arrayID = "a1", array_id = "a1", positionInArray = 1L,
-                   rvd = "NI", stringsAsFactors = FALSE)
-  expect_error(tales(df), class = "tantale_error_tales_name_clash")
-})
-
-test_that("the name-clash messages are formattable", {
-  # Regression: both bullets carried a {?s} plural marker with no quantity to
-  # count, so cli failed with "Cannot pluralize without a quantity" and the
-  # classed condition was replaced by a bare simpleError.
-  d1 <- data.frame(id1 = c("a", "b"), id2 = c("b", "a"),
-                   dissim = c(0, 5), Dissim = c(0, 5))
-  expect_error(pairwise_distances(d1), "already present")
-  d2 <- data.frame(arrayID = "a1", array_id = "a1", positionInArray = 1L,
-                   rvd = "NI", stringsAsFactors = FALSE)
-  expect_error(tales(d2), "already present")
-})
-
-
 #### Empty-input guards ####
 
 test_that("projecting a tales with nothing left to render errors", {
   x <- fixture_tales()
   # keep only the terminus sentinels, then ask for repeats only
   anchors <- x[x$rvd %in% tales_anchor_codes(), ]
-  expect_error(tales_rvd_strings(anchors, rvd_only = TRUE),
+  expect_error(tales_rvd_strings(anchors, repeats_only = TRUE),
                class = "tantale_error_projection_empty")
 })
 

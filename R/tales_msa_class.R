@@ -46,7 +46,7 @@ is_tales_msa <- function(x) inherits(x, "tales_msa")
 #' @return An integer scalar, or \code{NULL} if unset.
 #' @export
 #' @family TALE alignment
-tales_width <- function(x) {
+tales_msa_width <- function(x) {
   attr(x, "alignment_width", exact = TRUE)
 }
 
@@ -76,7 +76,7 @@ tales_width <- function(x) {
 #'   rvd = c("NTERM", "HD", "CTERM", "NTERM", "CTERM")
 #' )
 #' msa <- tales_msa(aligned)
-#' tales_width(msa)
+#' tales_msa_width(msa)
 #' as.matrix(msa)
 tales_msa <- function(x, alignment_width = NULL, dom_code_namespace = NULL) {
   x <- tales(x, dom_code_namespace = dom_code_namespace)
@@ -137,7 +137,7 @@ validate_tales_msa <- function(x) {
   .tales_msa_check_order(x)
 
   ## 14. within the declared width
-  w <- tales_width(x)
+  w <- tales_msa_width(x)
   if (!is.null(w) && any(x$alignment_position > w)) {
     cli::cli_abort(
       c("{.field alignment_position} must not exceed the alignment width ({w}).",
@@ -215,7 +215,7 @@ as.matrix.tales_msa <- function(x, value = NULL, gap = NA, ...) {
     )
   }
   arrays <- unique(x$array_id)
-  width <- tales_width(x) %||% max(x$alignment_position, na.rm = TRUE)
+  width <- tales_msa_width(x) %||% max(x$alignment_position, na.rm = TRUE)
 
   m <- matrix(gap, nrow = length(arrays), ncol = width,
               dimnames = list(arrays, as.character(seq_len(width))))
@@ -442,9 +442,8 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
 #' Normalise a pairwise table to what MAFFT's --textmatrix wants
 #'
 #' MAFFT scores matches, so it wants a *similarity*: higher means more alike.
-#' Accepts either the canonical \code{\link{pairwise_distances}} vocabulary
-#' (\code{id1}, \code{id2}, \code{dissim}) or the legacy one
-#' (\code{RepU1}, \code{RepU2}, \code{Sim}), inverting the distance on the
+#' Takes the \code{\link{pairwise_distances}} columns (\code{id1},
+#' \code{id2}, \code{dissim}, or \code{sim}), inverting the distance on the
 #' way in.
 #'
 #' @param x A data frame of pairwise scores.
@@ -468,14 +467,9 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
     }
     return(out)
   }
-  if (all(c("RepU1", "RepU2", "Sim") %in% nms)) {
-    out <- as.data.frame(x[, c("RepU1", "RepU2", "Sim")])
-    names(out) <- c("id1", "id2", "sim")
-    return(out)
-  }
   cli::cli_abort(
     c("Cannot read {.arg domain_distances}.",
-      "i" = "Expected {.field id1}/{.field id2}/{.field dissim}, or the legacy {.field RepU1}/{.field RepU2}/{.field Sim}.",
+      "i" = "Expected {.field id1}/{.field id2}/{.field dissim}.",
       "x" = "Got: {.field {nms}}"),
     class = c("tantale_error_msa_sim_table", "tantale_error")
   )

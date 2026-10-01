@@ -14,9 +14,8 @@ A three-column data frame named \code{id1}, \code{id2}, \code{sim}.
 }
 \description{
 MAFFT scores matches, so it wants a \emph{similarity}: higher means more alike.
-Accepts either the canonical \code{\link{pairwise_distances}} vocabulary
-(\code{id1}, \code{id2}, \code{dissim}) or the legacy one
-(\code{RepU1}, \code{RepU2}, \code{Sim}), inverting the distance on the
+Takes the \code{\link{pairwise_distances}} columns (\code{id1},
+\code{id2}, \code{dissim}, or \code{sim}), inverting the distance on the
 way in.
 }
 \keyword{internal}

@@ -922,7 +922,7 @@
 #' show them against the original sequence.
 #'
 #' The RVD fasta is the file the rest of the package reads: it is what
-#' \code{\link{tales_from_telltale}} and the target predictors start from.
+#' \code{\link{tales_from_telltales}} and the target predictors start from.
 #' Arrays that yielded no RVDs are left out of it rather than written empty.
 #'
 #' @param by_array The grouped hits, carrying the per-array metadata.
@@ -1470,7 +1470,7 @@
 #'                     package = "tantale")
 #' out <- tempfile("tell_tales_example")
 #' tell_tales(subject_file = subj, output_dir = out)
-#' tales_from_telltale(out)
+#' tales_from_telltales(out)
 #' }
 tell_tales <- function(
   subject_file,

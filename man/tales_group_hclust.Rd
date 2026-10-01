@@ -10,8 +10,7 @@ tales_group_hclust(x, tale_distances, k = NULL, plot_tree = FALSE)
 \item{x}{A \link{tales} object -- the one whose comparison produced \code{tale_distances}.}
 
 \item{tale_distances}{A \link{tale_distances} object, as returned by \code{\link[=tales_compare_distal]{tales_compare_distal()}}.
-A plain data frame using the legacy \code{TAL1}/\code{TAL2}/\code{Sim} column names is
-also accepted and coerced.}
+A plain data frame with the same columns is also accepted and coerced.}
 
 \item{k}{Integer, the number of groups to cut the tree into.}
 
@@ -53,8 +52,8 @@ the population in the same way.) The tree is cut with
 a tie in merge heights would make a height-based cut ambiguous.
 }
 \examples{
-x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-                                     package = "tantale"))
+x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+                                      package = "tantale"))
 cmp <- tales_compare_distal(x)
 grouped <- tales_group_hclust(cmp$tales, cmp$tale_distances, k = 2)
 unique(grouped[c("array_id", "group")])

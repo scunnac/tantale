@@ -48,8 +48,8 @@ test_that(".as_mafft_score_table() accepts the canonical and legacy vocabularies
   expect_named(out, c("id1", "id2", "sim"))
   expect_equal(out$sim, c(100, 60))
 
-  legacy <- data.frame(RepU1 = c("a","b"), RepU2 = c("b","a"), Sim = c(100, 60))
-  expect_equal(tantale:::.as_mafft_score_table(legacy)$sim, c(100, 60))
+  similar <- data.frame(id1 = c("a","b"), id2 = c("b","a"), sim = c(100, 60))
+  expect_equal(tantale:::.as_mafft_score_table(similar)$sim, c(100, 60))
 })
 
 test_that(".as_mafft_score_table() refuses a table it cannot read", {
@@ -70,11 +70,11 @@ test_that("tales_align() accepts a domain_distances object", {
   viaClass <- suppressWarnings(suppressMessages(
     tales_align(sub, residue_col = "dom_code",
                 domain_distances = domain_distances(d$repeat.similarity))))
-  viaLegacy <- suppressWarnings(suppressMessages(
+  viaPlain <- suppressWarnings(suppressMessages(
     tales_align(sub, residue_col = "dom_code",
                 domain_distances = d$repeat.similarity)))
   expect_s3_class(viaClass, "tales_msa")
-  expect_equal(as.data.frame(viaClass), as.data.frame(viaLegacy))
+  expect_equal(as.data.frame(viaClass), as.data.frame(viaPlain))
 })
 
 

@@ -27,12 +27,12 @@ test_that("every tales invariant still applies", {
 
 test_that("alignment_width defaults to the largest alignment_position", {
   x <- tales_msa(minimal_msa_df())
-  expect_identical(tales_width(x), 4L)
+  expect_identical(tales_msa_width(x), 4L)
 })
 
 test_that("an explicit alignment_width is kept", {
   x <- tales_msa(minimal_msa_df(), alignment_width = 10L)
-  expect_identical(tales_width(x), 10L)
+  expect_identical(tales_msa_width(x), 10L)
 })
 
 
@@ -108,7 +108,7 @@ test_that("dropping alignment_position demotes to tales, not to a tibble", {
   out <- dplyr::select(x, -alignment_position)
   expect_false(is_tales_msa(out))
   expect_true(is_tales(out))
-  expect_null(tales_width(out))
+  expect_null(tales_msa_width(out))
 })
 
 test_that("as_tales() and tales() demote a tales_msa without its width (§32.1)", {
@@ -117,7 +117,7 @@ test_that("as_tales() and tales() demote a tales_msa without its width (§32.1)"
     expect_false(is_tales_msa(out))
     expect_true(is_tales(out))
     expect_true("alignment_position" %in% names(out))
-    expect_null(tales_width(out))
+    expect_null(tales_msa_width(out))
   }
 })
 
@@ -132,7 +132,7 @@ test_that("row subsetting keeps the class and the declared width", {
   x <- tales_msa(minimal_msa_df())
   out <- dplyr::filter(x, array_id == "a1")
   expect_s3_class(out, "tales_msa")
-  expect_identical(tales_width(out), 4L)   # width is carried, not recomputed
+  expect_identical(tales_msa_width(out), 4L)   # width is carried, not recomputed
 })
 
 
@@ -140,7 +140,7 @@ test_that("row subsetting keeps the class and the declared width", {
 
 test_that("tales_align() returns a tales_msa that preserves every layer", {
   x <- suppressWarnings(
-    tales_from_telltale(test_path("data_for_tests", "example_output"))
+    tales_from_telltales(test_path("data_for_tests", "example_output"))
   )
   msa <- suppressWarnings(tales_align(x, residue_col = "rvd"))
 
@@ -154,14 +154,14 @@ test_that("tales_align() returns a tales_msa that preserves every layer", {
 
 test_that("tales_align() output is internally consistent", {
   x <- suppressWarnings(
-    tales_from_telltale(test_path("data_for_tests", "example_output"))
+    tales_from_telltales(test_path("data_for_tests", "example_output"))
   )
   msa <- suppressWarnings(tales_align(x, residue_col = "rvd"))
 
   expect_silent(validate_tales_msa(msa))
   # the matrix view is as wide as the declared alignment
   m <- as.matrix(msa)
-  expect_identical(ncol(m), tales_width(msa))
+  expect_identical(ncol(m), tales_msa_width(msa))
   expect_setequal(rownames(m), unique(x$array_id))
   # every non-gap cell of the matrix corresponds to exactly one part
   expect_identical(sum(!is.na(m)), nrow(msa))
@@ -169,7 +169,7 @@ test_that("tales_align() output is internally consistent", {
 
 test_that("tales_align() round-trips the residues it aligned on", {
   x <- suppressWarnings(
-    tales_from_telltale(test_path("data_for_tests", "example_output"))
+    tales_from_telltales(test_path("data_for_tests", "example_output"))
   )
   msa <- suppressWarnings(tales_align(x, residue_col = "rvd"))
   m <- as.matrix(msa, value = "rvd")
@@ -184,7 +184,7 @@ test_that("tales_align() round-trips the residues it aligned on", {
 
 test_that("tales_align() refuses an incomplete tales", {
   x <- suppressWarnings(
-    tales_from_telltale(test_path("data_for_tests", "example_output"))
+    tales_from_telltales(test_path("data_for_tests", "example_output"))
   )
   repeats_only <- dplyr::filter(x, domain_type == "repeat")
   expect_error(tales_align(repeats_only),
@@ -193,7 +193,7 @@ test_that("tales_align() refuses an incomplete tales", {
 
 test_that("tales_align() refuses a layer the object does not have", {
   x <- suppressWarnings(
-    tales_from_telltale(test_path("data_for_tests", "example_output"))
+    tales_from_telltales(test_path("data_for_tests", "example_output"))
   )
   expect_error(tales_align(x, residue_col = "dom_code"),
                class = "tantale_error_msa_layer")
@@ -201,7 +201,7 @@ test_that("tales_align() refuses a layer the object does not have", {
 
 test_that("tales_align() carries the dom_code namespace", {
   x <- suppressWarnings(
-    tales_from_telltale(test_path("data_for_tests", "example_output"))
+    tales_from_telltales(test_path("data_for_tests", "example_output"))
   )
   attr(x, "dom_code_namespace") <- "run-xyz"
   msa <- suppressWarnings(tales_align(x, residue_col = "rvd"))
@@ -239,8 +239,8 @@ test_that("plot() accepts similarity tables in either vocabulary", {
   msa <- suppressWarnings(suppressMessages(
     tales_align(dplyr::filter(x, array_id %in% keep), residue_col = "rvd")
   ))
-  legacy <- out$tal.similarity[out$tal.similarity$TAL1 %in% keep &
-                                 out$tal.similarity$TAL2 %in% keep, ]
+  legacy <- out$tal.similarity[out$tal.similarity$id1 %in% keep &
+                                 out$tal.similarity$id2 %in% keep, ]
 
   fromLegacy <- suppressWarnings(suppressMessages(
     plot(msa, fill = "rvd", label = NULL, tale_distances = legacy)

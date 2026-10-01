@@ -2,7 +2,7 @@
 
 distalrOut <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
 tale_dist <- distalrOut$tal.similarity
-nTales <- length(unique(tale_dist$TAL1))
+nTales <- length(unique(tale_dist$id1))
 tls <- suppressWarnings(tales(distalrOut$tale_parts))
 
 expect_grouped <- function(out, k = NULL) {
@@ -128,8 +128,8 @@ test_that("plot_silhouette = FALSE draws nothing", {
 test_that("rejects distances that describe other arrays", {
   local_no_display()
   other <- tale_dist
-  other$TAL1 <- paste0("not_", other$TAL1)
-  other$TAL2 <- paste0("not_", other$TAL2)
+  other$id1 <- paste0("not_", other$id1)
+  other$id2 <- paste0("not_", other$id2)
   expect_error(tales_group_kmedoids(tls, other, k_range = 2:6, k = 3),
                class = "tantale_error_group_mismatch")
 })

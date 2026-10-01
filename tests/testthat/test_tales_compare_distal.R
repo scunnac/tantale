@@ -6,7 +6,7 @@
 
 example_tales <- function() {
   suppressWarnings(
-    tales_from_telltale(test_path("data_for_tests", "example_output"))
+    tales_from_telltales(test_path("data_for_tests", "example_output"))
   )
 }
 

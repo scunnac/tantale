@@ -43,7 +43,7 @@ columns are optional.
 
 A \code{tales_msa} passed to \code{as_tales()} is demoted to a plain
 \code{tales}: \code{alignment_position} stays as an ordinary column, and
-the alignment width is dropped (\code{\link{tales_width}} returns
+the alignment width is dropped (\code{\link{tales_msa_width}} returns
 \code{NULL}).
 }
 \examples{

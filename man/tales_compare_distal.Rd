@@ -59,8 +59,8 @@ joined by mistake. \code{tale_distances} carries no such stamp: it is
 keyed by \code{array_id}, a name that keeps its meaning across runs.
 }
 \examples{
-x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-                                     package = "tantale"))
+x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+                                      package = "tantale"))
 cmp <- tales_compare_distal(x)
 names(cmp)
 cmp$tale_distances

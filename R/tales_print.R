@@ -154,7 +154,7 @@ format.tales <- function(x, n = 2L, ...) {
 #' format(msa)
 format.tales_msa <- function(x, n = 2L, gap = "-", ...) {
   arrays <- unique(x$array_id)
-  width <- tales_width(x)
+  width <- tales_msa_width(x)
   positions <- width %||% 0L
   out <- .tales_header(x, cli::format_inline(
     "{.cls {class(x)[1]}} {length(arrays)} array{?s}, {positions} alignment position{?s}"))

@@ -29,8 +29,7 @@ A validated \code{tales} object.
 }
 \description{
 Builds a \code{tales} object from a data frame of TALE array parts: one row
-per (array, slot). Column names still using the legacy camelCase spelling
-(\code{arrayID}, \code{positionInArray}, ...) are renamed on the way in.
+per (array, slot).
 }
 \examples{
 parts <- data.frame(

@@ -67,7 +67,7 @@ test_that("print.tales_msa() reports the alignment width and draws gaps", {
   msa <- readRDS(test_path("data_for_tests", "sampleTalesMsa.rds"))
   out <- shown(msa)
   expect_match(out, "tales_msa")
-  expect_match(out, paste0(tales_width(msa), " alignment positions"))
+  expect_match(out, paste0(tales_msa_width(msa), " alignment positions"))
 })
 
 test_that("print.tales_msa() aligns its columns so gaps line up", {

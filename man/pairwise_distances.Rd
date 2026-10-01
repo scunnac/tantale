@@ -14,8 +14,8 @@ domain_distances(x, dom_code_namespace = NULL)
 }
 \arguments{
 \item{x}{A data frame with \code{id1}, \code{id2} and \code{dissim} columns.
-Legacy spellings and the similarity vocabulary are accepted and converted:
-a table carrying \code{Sim} or \code{normArlemScore} instead of a distance
+A similarity is accepted and converted: a table carrying \code{sim} or
+\code{norm_arlem_score} instead of a distance
 is folded into \code{dissim}, and those restatements are then dropped so
 only one copy of the quantity is stored. Further columns
 (\code{arlem_score}, \code{max_length}, or anything else) are preserved.}
@@ -42,9 +42,6 @@ that differ between two domains (see \code{\link{tales_domain_distances}});
 for \code{tale_distances}, it is the array alignment cost between two TALEs
 (see \code{\link{tales_tale_distances}}). The two flavours add no
 structure, only meaning: every method is written once on the parent.
-
-Legacy column spellings (\code{TAL1}/\code{TAL2}, \code{RepU1}/\code{RepU2},
-\code{Sim}, \code{Dissim}, \code{arlemScore}, ...) are renamed on the way in.
 }
 \examples{
 d <- data.frame(
@@ -55,9 +52,9 @@ d <- data.frame(
 pairwise_distances(d)
 domain_distances(d, dom_code_namespace = "example")
 
-# Legacy spellings are recognised and folded in.
-legacy <- data.frame(TAL1 = "A1", TAL2 = "A2", Sim = 65)
-tale_distances(legacy)
+# A similarity is folded into the distance.
+similar <- data.frame(id1 = "A1", id2 = "A2", sim = 65)
+tale_distances(similar)
 }
 \seealso{
 Other pairwise distances:

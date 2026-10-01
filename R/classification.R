@@ -17,7 +17,7 @@
     cli::cli_abort("{.arg x} must be a {.cls tales} object.",
                    class = c("tantale_error_tales_type", "tantale_error"))
   }
-  # Coercing accepts both a tale_distances and a legacy table; as.matrix() then
+  # Coercing accepts both a tale_distances and a plain table; as.matrix() then
   # replaces the hand-written acast() and asserts squareness on the way.
   # A parameter named `dists`, not `tale_distances` like the public-facing
   # argument this receives: R resolves tale_distances(tale_distances) fine
@@ -60,8 +60,7 @@
 #'
 #' @param x A [tales] object -- the one whose comparison produced `tale_distances`.
 #' @param tale_distances A [tale_distances] object, as returned by [tales_compare_distal()].
-#'   A plain data frame using the legacy `TAL1`/`TAL2`/`Sim` column names is
-#'   also accepted and coerced.
+#'   A plain data frame with the same columns is also accepted and coerced.
 #' @param k Integer, the number of groups to cut the tree into.
 #' @param plot_tree Logical, whether to draw the dendrogram: colored by
 #'   group, with a dashed line at the cut height. `FALSE` by default, so the
@@ -72,8 +71,8 @@
 #' @export
 #' @family pairwise distances
 #' @examples
-#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-#'                                      package = "tantale"))
+#' x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+#'                                       package = "tantale"))
 #' cmp <- tales_compare_distal(x)
 #' grouped <- tales_group_hclust(cmp$tales, cmp$tale_distances, k = 2)
 #' unique(grouped[c("array_id", "group")])
@@ -180,8 +179,8 @@ tales_group_hclust <- function(x, tale_distances, k = NULL, plot_tree = FALSE) {
 #' @export
 #' @family pairwise distances
 #' @examples
-#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-#'                                      package = "tantale"))
+#' x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+#'                                       package = "tantale"))
 #' cmp <- tales_compare_distal(x)
 #' grouped <- tales_group_kmedoids(cmp$tales, cmp$tale_distances,
 #'                                 k_range = 2:3, k = 2)

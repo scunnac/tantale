@@ -21,21 +21,6 @@ test_that("tales() accepts a valid table and returns a tibble subclass", {
   expect_true(is_tales(x))
 })
 
-test_that("tales() renames legacy camelCase columns", {
-  df <- minimal_tales_df()
-  names(df)[names(df) == "array_id"] <- "arrayID"
-  names(df)[names(df) == "position_in_array"] <- "positionInArray"
-  names(df)[names(df) == "domain_type"] <- "domainType"
-  names(df)[names(df) == "position_in_crd"] <- "positionInCrd"
-  names(df)[names(df) == "aa_seq"] <- "aaSeq"
-  names(df)[names(df) == "dom_code"] <- "domCode"
-
-  x <- tales(df)
-  expect_true(all(c("array_id", "position_in_array", "domain_type",
-                    "position_in_crd", "aa_seq", "dom_code") %in% names(x)))
-  expect_false(any(c("arrayID", "positionInArray") %in% names(x)))
-})
-
 test_that("tales() coerces a double position_in_array to integer", {
   df <- minimal_tales_df()
   df$position_in_array <- as.numeric(df$position_in_array)
@@ -353,11 +338,11 @@ test_that("as_tales() on a data frame is tales()", {
 })
 
 
-#### tales_from_telltale() ####
+#### tales_from_telltales() ####
 
-test_that("tales_from_telltale() returns a validated tales", {
+test_that("tales_from_telltales() returns a validated tales", {
   x <- suppressWarnings(
-    tales_from_telltale(test_path("data_for_tests", "example_output"))
+    tales_from_telltales(test_path("data_for_tests", "example_output"))
   )
   expect_s3_class(x, "tales")
   expect_true(all(c("array_id", "position_in_array", "rvd", "domain_type",
@@ -366,9 +351,9 @@ test_that("tales_from_telltale() returns a validated tales", {
   expect_false("dom_code" %in% names(x))
 })
 
-test_that("tales_from_telltale() output holds complete arrays", {
+test_that("tales_from_telltales() output holds complete arrays", {
   x <- suppressWarnings(
-    tales_from_telltale(test_path("data_for_tests", "example_output"))
+    tales_from_telltales(test_path("data_for_tests", "example_output"))
   )
   expect_silent(tales_assert_complete(x))
 })

@@ -48,8 +48,8 @@ alignment of all domains, the other two align each pair separately, and
 \code{"Biostrings"} also charges a cost for opening an internal gap.
 }
 \examples{
-x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-                                     package = "tantale"))
+x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+                                      package = "tantale"))
 xa <- tales_assign_domain_codes(x)
 tales_domain_distances(xa)
 }

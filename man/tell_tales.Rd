@@ -303,12 +303,13 @@ subj <- system.file("extdata", "bai3_sample_tal_genomic_regions.fasta",
                     package = "tantale")
 out <- tempfile("tell_tales_example")
 tell_tales(subject_file = subj, output_dir = out)
-tales_from_telltale(out)
+tales_from_telltales(out)
 }
 }
 \seealso{
 Other TALE discovery:
 \code{\link[=correct_tales]{correct_tales()}},
-\code{\link[=tales_from_telltale]{tales_from_telltale()}}
+\code{\link[=tales_from_annotale]{tales_from_annotale()}},
+\code{\link[=tales_from_telltales]{tales_from_telltales()}}
 }
 \concept{TALE discovery}

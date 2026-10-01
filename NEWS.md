@@ -1,5 +1,39 @@
 # tantale 0.9.9011
 
+## New `tales_from_annotale()`
+
+`tales_from_annotale()` builds a `tales` object from AnnoTALE's own TALE
+predictions, the output of `run_annotale_predict()`. Termini are coded as
+in `tell_tales()`, from a search with the TALE N- and C-terminal protein
+profiles. `array_id` is AnnoTALE's TALE name, and `seqnames` comes from
+AnnoTALE's GFF3 file when it is present. An example output ships in
+`inst/extdata/annotaleExampleOutput`.
+
+## Renamed functions and arguments
+
+`tales_from_telltale()` is now `tales_from_telltales()`, since it reads
+the output of `tell_tales()`. `tales_width()` is now `tales_msa_width()`,
+since it applies to `tales_msa` objects only. The `rvd_only` argument of
+`tales_rvd_strings()` is now `repeats_only`, as in
+`tales_coded_strings()`.
+
+## Retired functions
+
+`tale_parts_to_rvd()` is gone; `tales_rvd_strings(x, repeats_only =
+FALSE)` returns the same strings. `repeat_to_rvd_map()` and
+`repeat_to_rvd_map_distalr()` are gone: the `dom_code` and `rvd` columns
+of a `tales` object hold that mapping, and `tales()` reports an amino acid
+sequence paired with more than one RVD as an anomaly.
+
+## Old column names are no longer converted
+
+`tales()` and `pairwise_distances()` (with `tale_distances()` and
+`domain_distances()`) no longer rename the camelCase columns of earlier
+versions (`arrayID`, `positionInArray`, `TAL1`, `RepU1`, `Sim`,
+`arlemScore`...). A table saved by an earlier version needs its columns
+renamed to the current names first (`array_id`, `position_in_array`,
+`id1`, `sim`, `arlem_score`...).
+
 ## Terminus codes say whether a terminus resembles a TALE terminal domain
 
 `tell_tales()` now searches the segment AnnoTALE reports on each side of
@@ -14,7 +48,7 @@ starts or ends in a frameshifted region, and coded as `XXXXX` genuine
 termini too short for the DNA search, such as a C-terminus truncated to
 42 residues.
 
-`tales_from_telltale()` reads the codes from `array_report.tsv`. A
+`tales_from_telltales()` reads the codes from `array_report.tsv`. A
 directory written by an earlier `tell_tales()` is an error; run
 `tell_tales()` again on the same sequences.
 
@@ -26,7 +60,7 @@ directory written by an earlier `tell_tales()` is an error; run
 the protein-profile search. `?tell_tales` describes every column. The
 argument `min_domain_hits` of `tell_tales()` is now `min_dna_hits`.
 
-## `tales_from_telltale()`: absent termini and inconsistent arrays
+## `tales_from_telltales()`: absent termini and inconsistent arrays
 
 When AnnoTALE reports no terminus on one side of the repeats, the array
 now has no part on that side, with a warning, and its positions are
@@ -183,7 +217,7 @@ imported. Column names are unchanged (`arlem_score`, `max_length`).
 ## Bug fix: demoting a `tales_msa` now drops its alignment width
 
 `as_tales()` (and `tales()`) on a `tales_msa` returned a plain `tales`
-that still carried the alignment's width, so `tales_width()` kept
+that still carried the alignment's width, so `tales_msa_width()` kept
 answering on an object that no longer claims to be an alignment. The
 width is now removed on demotion, as it already was when
 `alignment_position` is dropped with `select()`.
@@ -297,7 +331,7 @@ is no alias; `master` still carries the old API if you need a reference.
 | removed | replacement |
 |---|---|
 | `distalr()` | `tales_compare()` |
-| `tale_parts()` | `tales_from_telltale()` |
+| `tale_parts()` | `tales_from_telltales()` |
 | `split_list()` | `as_tales()` |
 | `build_repeat_msa()` | `tales_align()` |
 | `group_tales()` | `tales_group()` |

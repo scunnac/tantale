@@ -26,9 +26,9 @@
 #' instead, being the more specific class.
 #'
 #' @param x A \code{\link{tales}} object, as returned by
-#'   \code{\link{tales_from_telltale}} or in the \code{tales} element of
-#'   \code{\link{tales_compare_distal}}'s output. A legacy \code{tale_parts} data
-#'   frame is accepted and converted.
+#'   \code{\link{tales_from_telltales}} or in the \code{tales} element of
+#'   \code{\link{tales_compare_distal}}'s output. A data frame of parts is
+#'   accepted and converted with \code{\link{tales}}.
 #' @param position Which coordinate to lay the parts out on. \code{"array"}
 #'   (default) uses \code{position_in_array}, so each array starts at 1 and runs
 #'   contiguously. \code{"alignment"} uses \code{alignment_position}, which
@@ -43,8 +43,8 @@
 #' @export
 #' @family TALE plots
 #' @examples
-#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-#'                                      package = "tantale"))
+#' x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+#'                                       package = "tantale"))
 #' plot(x)
 plot.tales <- function(x, position = c("array", "alignment"), ...) {
   position <- match.arg(position)
@@ -251,8 +251,8 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
   arrayNames <- rownames(domain_align)
   countOfTales <- nrow(domain_align)
   
-  # Both tables are addressed as id1/id2/dissim below. pairwise_distances()
-  # also accepts the older TAL1/RepU1/Sim spellings, so either is allowed in.
+  # Both tables are addressed as id1/id2/dissim below; pairwise_distances()
+  # validates them and folds a sim column into dissim.
   if (!is.null(tale_distances))   tale_distances   <- tibble::as_tibble(pairwise_distances(tale_distances))
   if (!is.null(domain_distances)) domain_distances <- tibble::as_tibble(pairwise_distances(domain_distances))
   

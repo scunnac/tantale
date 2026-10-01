@@ -76,7 +76,7 @@ The result on disk is a directory of reports and fasta files. The result
 in R is a `tales` object, with one row per part (repeat or terminus):
 
 ```{r tales_from_mai1}
-mai1 <- suppressWarnings(tales_from_telltale(mai1_dir))
+mai1 <- suppressWarnings(tales_from_telltales(mai1_dir))
 mai1
 ```
 
@@ -109,7 +109,7 @@ independently.
 ## What `tell_tales()` writes to disk
 
 Besides the RVD sequences and the TALE ORFs themselves, `tell_tales()`
-writes three tab-separated reports, which `tales_from_telltale()` reads
+writes three tab-separated reports, which `tales_from_telltales()` reads
 back to build the object above. They are worth knowing about directly,
 since they carry a few things the `tales` object does not.
 
@@ -118,7 +118,7 @@ knitr::kable(tibble::tribble(
   ~file, ~`one row per`, ~`worth knowing`,
   "`hits_report.tsv`", "raw `nhmmer` hit", "`codon_count`, `frameshift_count` per hit -- before any merging or correction",
   "`domains_report.tsv`", "domain, after AnnoTALE", "what AnnoTALE actually parsed out of the ORF",
-  "`array_report.tsv`", "candidate array", "`has_all_domains`, `has_aberrant_repeat`, `orf_coverage`, and (with correction) `predicted_ins_count`/`predicted_dels_count`"
+  "`array_report.tsv`", "candidate array", "`nterm_dna_hit`/`cterm_dna_hit`, `nterm_aa_hit`/`cterm_aa_hit`, `has_aberrant_repeat`, `orf_coverage`, and (with correction) `predicted_ins_count`/`predicted_dels_count`"
 ))
 ```
 
@@ -129,7 +129,7 @@ reading directly:
 array_report <- readr::read_tsv(file.path(mai1_dir, "array_report.tsv"),
                                 show_col_types = FALSE)
 array_report %>%
-  select(array_id, has_all_domains, longest_orf_length, orf_coverage)
+  select(array_id, nterm_dna_hit, cterm_dna_hit, longest_orf_length, orf_coverage)
 ```
 
 `orf_coverage` is the longest ORF found, as a percentage of the whole
@@ -161,7 +161,7 @@ invisible(tell_tales(subject_file = bai311_fa, output_dir = bai311_raw_dir,
 A first sign that there is something unexpected with these TALEs predictions are the warnings obtained when importing `tell_tales` results as a `tales` object:
 
 ```{r tales_from_bai311_raw}
-bai311_raw <- tales_from_telltale(bai311_raw_dir)
+bai311_raw <- tales_from_telltales(bai311_raw_dir)
 ```
 
 `tales_anomalies()` reports arrays whose content is inconsistent: missing
@@ -178,7 +178,7 @@ structure out of the longest predicted ORF. Their `orf_coverage` shows why:
 ```{r orf_coverage_raw}
 readr::read_tsv(file.path(bai311_raw_dir, "array_report.tsv"),
                 show_col_types = FALSE) %>%
-  select(array_id, has_all_domains, longest_orf_length, orf_coverage)
+  select(array_id, nterm_dna_hit, cterm_dna_hit, longest_orf_length, orf_coverage)
 ```
 
 `ROI_00003` and `ROI_00005` predicted ORFs cover 19% and 23% of their candidate region.
@@ -193,7 +193,7 @@ Because, in practice this barely happens in high quality genomes, in the absence
 
 readr::read_tsv(file.path(bai311_raw_dir, "array_report.tsv"),
                 show_col_types = FALSE) %>%
-  select(array_id, has_all_domains, orf_coverage, rvd_string)
+  select(array_id, nterm_dna_hit, cterm_dna_hit, orf_coverage, rvd_string)
 ```
 
 
@@ -247,7 +247,7 @@ invisible(tell_tales(subject_file = bai311_fa, output_dir = bai311_corr_dir,
 Something is odd:
 
 ```{r correct_inside warnings}
-bai311_corr <- tales_from_telltale(bai311_corr_dir)
+bai311_corr <- tales_from_telltales(bai311_corr_dir)
 ```
 
 Anomalies reported:
@@ -309,7 +309,7 @@ bai311_java_dir <- file.path(out, "BAI3-1-1_java_tell_tales")
 ```{r discover_after_java_correct, message = FALSE}
 invisible(tell_tales(subject_file = bai311_java_fa, output_dir = bai311_java_dir,
                      cterm_min_score = 300, correct_array = FALSE))
-bai311_java <- suppressWarnings(tales_from_telltale(bai311_java_dir))
+bai311_java <- suppressWarnings(tales_from_telltales(bai311_java_dir))
 ```
 
 ```{r anomalies_java}
@@ -334,7 +334,7 @@ bai311_best_dir <- file.path(out, "BAI3-1-1_best")
 invisible(tell_tales(subject_file = bai311_fa, output_dir = bai311_best_dir,
                      cterm_min_score = 300,
                      correct_array = TRUE, max_comparisons = 50))
-bai311_best <- tales_from_telltale(bai311_best_dir)
+bai311_best <- tales_from_telltales(bai311_best_dir)
 ```
 
 ```{r anomalies_best}

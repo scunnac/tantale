@@ -2,7 +2,7 @@
 
 distalrOut <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
 tale_dist <- distalrOut$tal.similarity
-nTales <- length(unique(tale_dist$TAL1))
+nTales <- length(unique(tale_dist$id1))
 tls <- suppressWarnings(tales(distalrOut$tale_parts))
 
 expect_grouped <- function(out, k = NULL) {
@@ -60,8 +60,8 @@ test_that("clusters the distance matrix directly, not the Euclidean distance bet
   d["A", "D"] <- 9; d["B", "D"] <- 9; d["C", "D"] <- 9
   d[lower.tri(d)] <- t(d)[lower.tri(d)]
 
-  # id1/id2/dissim directly -- not the legacy TAL1/TAL2/Sim spelling, which
-  # is a *similarity* and gets inverted to dissim = 100 - sim on the way in.
+  # dissim directly: a sim column would be a *similarity*, inverted to
+  # dissim = 100 - sim on the way in.
   fake_sim <- data.frame(
     id1 = rep(labs, each = 4), id2 = rep(labs, 4),
     dissim = as.vector(d)
@@ -92,8 +92,8 @@ test_that("plot_tree = TRUE draws without erroring", {
 
 test_that("rejects distances that describe other arrays", {
   other <- tale_dist
-  other$TAL1 <- paste0("not_", other$TAL1)
-  other$TAL2 <- paste0("not_", other$TAL2)
+  other$id1 <- paste0("not_", other$id1)
+  other$id2 <- paste0("not_", other$id2)
   expect_error(tales_group_hclust(tls, other, k = 3),
                class = "tantale_error_group_mismatch")
 })

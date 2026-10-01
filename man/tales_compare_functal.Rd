@@ -87,8 +87,8 @@ arrays (their differing repeat counts); see \code{?compare_motifs} for the
 rest.
 }
 \examples{
-x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-                                     package = "tantale"))
+x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+                                      package = "tantale"))
 fn <- tales_compare_functal(x)
 fn
 }

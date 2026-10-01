@@ -23,7 +23,7 @@
 #'   \tab [tales_rvd_strings()] \tab [tales_coded_strings()] \cr
 #'   `sep` \tab `"-"`, the AnnoTALE convention \tab `" "`, what MAFFT
 #'     `--text` splits on \cr
-#'   filter \tab `rvd_only = TRUE` \tab `repeats_only = FALSE` \cr
+#'   filter \tab `repeats_only = TRUE` \tab `repeats_only = FALSE` \cr
 #' }
 #'
 #' The separator is free to choose here in a way it is not for RVDs: a
@@ -47,8 +47,8 @@
 #' @export
 #' @family tales projections
 #' @examples
-#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-#'                                      package = "tantale"))
+#' x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+#'                                       package = "tantale"))
 #' xa <- tales_assign_domain_codes(x)
 #' tales_coded_strings(xa)[1]
 #' tales_coded_strings(xa, sep = "-", repeats_only = TRUE)[1]
@@ -88,8 +88,8 @@ tales_coded_strings <- function(x, sep = " ", repeats_only = FALSE) {
 #' @export
 #' @family tales projections
 #' @examples
-#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-#'                                      package = "tantale"))
+#' x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+#'                                       package = "tantale"))
 #' xa <- tales_assign_domain_codes(x)
 #' head(tales_domain_codes(xa))
 tales_domain_codes <- function(x) {
@@ -112,7 +112,7 @@ tales_domain_codes <- function(x) {
 #' @param x A \code{\link{tales}} object carrying an \code{rvd} column.
 #' @param sep Separator between RVDs. Defaults to \code{"-"}, the convention
 #'   used by AnnoTALE and by this package's own sample files.
-#' @param rvd_only Drop the terminus parts, whose \code{rvd} holds an anchor
+#' @param repeats_only Drop the terminus parts, whose \code{rvd} holds an anchor
 #'   code rather than a real RVD (see \code{\link{tales_anchor_codes}}).
 #'   \code{TRUE} by default, since target prediction concerns the central
 #'   repeat domain only.
@@ -121,11 +121,11 @@ tales_domain_codes <- function(x) {
 #' @export
 #' @family tales projections
 #' @examples
-#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-#'                                      package = "tantale"))
+#' x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+#'                                       package = "tantale"))
 #' tales_rvd_strings(x)[1]
-#' tales_rvd_strings(x, rvd_only = FALSE)[1] # keeps NTERM/CTERM markers
-tales_rvd_strings <- function(x, sep = "-", rvd_only = TRUE) {
+#' tales_rvd_strings(x, repeats_only = FALSE)[1] # keeps NTERM/CTERM markers
+tales_rvd_strings <- function(x, sep = "-", repeats_only = TRUE) {
   if (!is_tales(x)) {
     cli::cli_abort("{.arg x} must be a {.cls tales} object.",
                    class = c("tantale_error_tales_type", "tantale_error"))
@@ -134,7 +134,7 @@ tales_rvd_strings <- function(x, sep = "-", rvd_only = TRUE) {
     cli::cli_abort("{.fn tales_rvd_strings} needs an {.field rvd} column.",
                    class = c("tantale_error_projection_column", "tantale_error"))
   }
-  if (isTRUE(rvd_only)) {
+  if (isTRUE(repeats_only)) {
     x <- x[!x$rvd %in% tales_anchor_codes(), ]
   }
   if (nrow(x) == 0L) {
@@ -200,8 +200,8 @@ tales_rvd_strings <- function(x, sep = "-", rvd_only = TRUE) {
 #' @export
 #' @family tales projections
 #' @examples
-#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-#'                                      package = "tantale"))
+#' x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+#'                                       package = "tantale"))
 #' tales_get_protein_seq(x)[1]
 tales_get_protein_seq <- function(x) {
   seqs <- .tales_assemble_seq(x, "aa_seq", "tales_get_protein_seq")
@@ -223,8 +223,8 @@ tales_get_protein_seq <- function(x) {
 #' @export
 #' @family tales projections
 #' @examples
-#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-#'                                      package = "tantale"))
+#' x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+#'                                       package = "tantale"))
 #' tales_get_dna_seq(x)[1]
 tales_get_dna_seq <- function(x) {
   seqs <- .tales_assemble_seq(x, "dna_seq", "tales_get_dna_seq")

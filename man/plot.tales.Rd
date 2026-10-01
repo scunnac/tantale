@@ -8,9 +8,9 @@
 }
 \arguments{
 \item{x}{A \code{\link{tales}} object, as returned by
-\code{\link{tales_from_telltale}} or in the \code{tales} element of
-\code{\link{tales_compare_distal}}'s output. A legacy \code{tale_parts} data
-frame is accepted and converted.}
+\code{\link{tales_from_telltales}} or in the \code{tales} element of
+\code{\link{tales_compare_distal}}'s output. A data frame of parts is
+accepted and converted with \code{\link{tales}}.}
 
 \item{position}{Which coordinate to lay the parts out on. \code{"array"}
 (default) uses \code{position_in_array}, so each array starts at 1 and runs
@@ -35,8 +35,8 @@ A \code{\link{tales_msa}} dispatches to \code{\link{plot.tales_msa}}
 instead, being the more specific class.
 }
 \examples{
-x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-                                     package = "tantale"))
+x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+                                      package = "tantale"))
 plot(x)
 }
 \seealso{

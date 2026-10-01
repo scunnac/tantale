@@ -52,8 +52,7 @@ test_that("golden: projections of a tales onto strings and maps", {
   expect_golden(fingerprint(tales_rvd_strings(x)))
   expect_golden(fingerprint(tales_coded_strings(x)))
   expect_golden(fingerprint(tales_domain_codes(x)))
-  expect_golden(fingerprint(repeat_to_rvd_map_distalr(d$tale_parts)))
-  expect_golden(fingerprint(tale_parts_to_rvd(d$tale_parts)))
+  expect_golden(fingerprint(tales_rvd_strings(x, repeats_only = FALSE)))
 })
 
 
@@ -81,7 +80,7 @@ test_that("golden: tales_align() on both residue layers", {
   expect_golden(fingerprint(byRvd))
   expect_golden(fingerprint(byCode))
   # width is what the back-mapping depends on, so pin it separately
-  expect_golden(c(rvd = tales_width(byRvd), dom_code = tales_width(byCode)))
+  expect_golden(c(rvd = tales_msa_width(byRvd), dom_code = tales_msa_width(byCode)))
 })
 
 test_that("golden: tales_group_hclust() partitions the arrays the same way", {
@@ -158,7 +157,7 @@ test_that("golden: a tell_tales() run loads back as a tales object", {
   # The end-to-end contract: what the entry point writes is what the class
   # reads. A refactor that kept every file byte-identical but broke this would
   # still have broken the pipeline.
-  x <- suppressWarnings(tales_from_telltale(telltale_run()$dir))
+  x <- suppressWarnings(tales_from_telltales(telltale_run()$dir))
   expect_s3_class(x, "tales")
   # source_directory records where the run happened, so it holds this
   # session's tempdir and changes every time. Keep the part that carries

@@ -70,43 +70,6 @@ test_that("a non-square table is still valid - squareness is a precondition", {
 })
 
 
-#### Legacy renaming ####
-
-test_that("TAL1/TAL2 and Sim are renamed", {
-  df <- legacy_sim_df()
-  names(df) <- c("TAL1", "TAL2", "Sim")
-  x <- tale_distances(df)
-  expect_setequal(names(x), c("id1", "id2", "dissim"))
-  # a legacy Sim is converted to the distance, and not kept alongside it
-  expect_false("sim" %in% names(x))
-  expect_equal(x$dissim, 100 - df$Sim)
-})
-
-test_that("RepU1/RepU2 are renamed despite their reversed column order", {
-  df <- legacy_sim_df()
-  # repeat.similarity really does list RepU2 first
-  df <- df[c("id2", "id1", "sim")]
-  names(df) <- c("RepU2", "RepU1", "Sim")
-  x <- domain_distances(df)
-  expect_setequal(names(x), c("id1", "id2", "dissim"))
-  # renaming is by name, so the reversed order does not swap the ids
-  expect_identical(x$id1, as.character(df$RepU1))
-})
-
-test_that("the tal.similarity extras are renamed to snake_case", {
-  df <- minimal_distances_df()
-  names(df) <- c("TAL1", "TAL2", "Sim")
-  df$arlemScore <- 1
-  df$maxLength <- 2
-  df$normArlemScore <- 3
-  x <- tale_distances(df)
-  expect_true(all(c("arlem_score", "max_length") %in% names(x)))
-  # norm_arlem_score restates the distance, so it is folded in and dropped
-  expect_false("norm_arlem_score" %in% names(x))
-  expect_equal(x$dissim, rep(3, nrow(df)))
-})
-
-
 #### Preconditions ####
 
 test_that("distances_assert_square() accepts a complete table", {
@@ -218,14 +181,13 @@ test_that("as.matrix() reproduces what the existing call sites compute", {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   out <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
 
-  # classification.R:24 used to do 100 - acast(tal_sim, TAL1 ~ TAL2, value.var
-  # = "Sim"). reshape2 is gone (ledger 14); .pairwise_long_to_matrix() is its
+  # classification.R:24 used to do 100 - acast(tal_sim, id1 ~ id2, value.var
+  # = "sim"). reshape2 is gone (ledger 14); .pairwise_long_to_matrix() is its
   # already-verified replacement (identical() to real acast() output on real
   # data, per that migration) -- an independent implementation from
   # as.matrix.pairwise_distances() itself, so this is still a real
   # cross-check, not a tautology.
-  renamed <- dplyr::rename(out$tal.similarity, id1 = "TAL1", id2 = "TAL2")
-  legacy <- 100 - tantale:::.pairwise_long_to_matrix(renamed, "Sim")
+  legacy <- 100 - tantale:::.pairwise_long_to_matrix(out$tal.similarity, "sim")
   # as.matrix() now yields the distance directly, so no inversion is needed
   viaClass <- as.matrix(tale_distances(out$tal.similarity))
   expect_equal(viaClass, legacy)

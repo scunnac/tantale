@@ -78,7 +78,7 @@ test_that("position = 'alignment' lays parts out on the alignment coordinate", {
   arrayLayout <- plot(back, position = "array")
   alignLayout <- plot(back, position = "alignment")
   # the aligned layout spans the alignment width; the array one only the longest array
-  expect_equal(max(alignLayout$data$.x), tales_width(msa))
+  expect_equal(max(alignLayout$data$.x), tales_msa_width(msa))
   expect_equal(max(arrayLayout$data$.x), max(back$position_in_array))
   expect_gt(max(alignLayout$data$.x), max(arrayLayout$data$.x))
 })

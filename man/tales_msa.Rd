@@ -36,7 +36,7 @@ aligned <- data.frame(
   rvd = c("NTERM", "HD", "CTERM", "NTERM", "CTERM")
 )
 msa <- tales_msa(aligned)
-tales_width(msa)
+tales_msa_width(msa)
 as.matrix(msa)
 }
 \seealso{
@@ -46,7 +46,7 @@ Other TALE alignment:
 \code{\link[=tales_align]{tales_align()}},
 \code{\link[=tales_consensus]{tales_consensus()}},
 \code{\link[=tales_consensus_match]{tales_consensus_match()}},
-\code{\link[=tales_width]{tales_width()}},
+\code{\link[=tales_msa_width]{tales_msa_width()}},
 \code{\link[=validate_tales_msa]{validate_tales_msa()}}
 }
 \concept{TALE alignment}

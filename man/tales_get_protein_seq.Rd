@@ -27,17 +27,14 @@ skip anything, and works unchanged whether \code{x} is a bare \code{tales} or a
 \code{tales_msa}.
 }
 \examples{
-x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-                                     package = "tantale"))
+x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+                                      package = "tantale"))
 tales_get_protein_seq(x)[1]
 }
 \seealso{
 \code{\link[=tales_get_dna_seq]{tales_get_dna_seq()}} for the DNA sequence sibling.
 
 Other tales projections:
-\code{\link[=repeat_to_rvd_map]{repeat_to_rvd_map()}},
-\code{\link[=repeat_to_rvd_map_distalr]{repeat_to_rvd_map_distalr()}},
-\code{\link[=tale_parts_to_rvd]{tale_parts_to_rvd()}},
 \code{\link[=tales_coded_strings]{tales_coded_strings()}},
 \code{\link[=tales_domain_codes]{tales_domain_codes()}},
 \code{\link[=tales_get_dna_seq]{tales_get_dna_seq()}},

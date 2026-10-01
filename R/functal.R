@@ -65,8 +65,8 @@
 #' @export
 #' @family tales projections
 #' @examples
-#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-#'                                      package = "tantale"))
+#' x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+#'                                       package = "tantale"))
 #' motifs <- tales_to_universalmotif(x)
 #' motifs[[1]]
 tales_to_universalmotif <- function(x) {
@@ -179,8 +179,8 @@ tales_to_universalmotif <- function(x) {
 #' @export
 #' @family pairwise distances
 #' @examples
-#' x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-#'                                      package = "tantale"))
+#' x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+#'                                       package = "tantale"))
 #' fn <- tales_compare_functal(x)
 #' fn
 tales_compare_functal <- function(x, method = "PCC", tryRC = FALSE,

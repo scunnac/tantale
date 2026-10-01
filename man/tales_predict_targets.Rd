@@ -42,8 +42,8 @@ are where each tool's own options and citation live.
 \donttest{
 # Needs the tantale conda environment (for talvez) and a Java runtime
 # (for preditale), both built on first use.
-x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-                                     package = "tantale"))
+x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+                                      package = "tantale"))
 subj <- system.file("extdata", "cladeIII_sweet_promoters.fasta",
                     package = "tantale")
 head(tales_predict_targets(x, subj_file = subj))

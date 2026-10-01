@@ -28,7 +28,7 @@ test_that("array_report.tsv terminus lengths do not count the stop codon", {
   report <- readr::read_tsv(file.path(out, "array_report.tsv"),
                             show_col_types = FALSE, progress = FALSE)
   expect_true(all(c("cterm_aa_length", "nterm_aa_length") %in% names(report)))
-  x <- suppressWarnings(tales_from_telltale(out))
+  x <- suppressWarnings(tales_from_telltales(out))
   cterm <- x[x$domain_type == "C-terminus", ]
   expect_gt(nrow(cterm), 0)
   expect_equal(report$cterm_aa_length[match(cterm$array_id, report$array_id)],
@@ -92,7 +92,7 @@ test_that("tell_tales() codes termini from the protein profiles and drops DNA-on
   # AnnoTALE splits ROI_00001's DNA but cannot translate it: no parts file is left
   expect_false(file.exists(file.path(out, "annotale", "ROI_00001", "TALE_DNA_parts.fasta")))
   expect_false(file.exists(file.path(out, "annotale", "ROI_00001", "TALE_Protein_parts.fasta")))
-  x <- tales_from_telltale(out)
+  x <- tales_from_telltales(out)
   expect_false("ROI_00001" %in% x$array_id)
   expect_identical(x$rvd[x$array_id == truncated$array_id & x$domain_type == "C-terminus"], "CTERM")
 })

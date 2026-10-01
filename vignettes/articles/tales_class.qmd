@@ -57,7 +57,7 @@ invisible(tell_tales(
 ```
 
 ```{r tales_from_demo}
-x <- suppressWarnings(tales_from_telltale(out))
+x <- suppressWarnings(tales_from_telltales(out))
 x
 ```
 
@@ -104,7 +104,7 @@ this table via ordinary `mutate()` calls.
 
 # Three ways to build one
 
-**From a `tell_tales()` run**, as above, with `tales_from_telltale()`.
+**From a `tell_tales()` run**, as above, with `tales_from_telltales()`.
 This is the richest route: it carries sequences, source coordinates and
 both position columns.
 
@@ -202,7 +202,7 @@ single string. Three functions bridge the gap:
 
 - `tales_rvd_strings()`: one RVD string per array, the form
   target-prediction tools consume. Drops the termini by default
-  (`rvd_only = TRUE`), since only the repeats bind DNA.
+  (`repeats_only = TRUE`), since only the repeats bind DNA.
 - `tales_coded_strings()`: the `dom_code` equivalent, for the array
   alignments (MAFFT's text mode, and `tales_tale_distances()`). Keeps the
   termini by default, since alignment uses them as anchors, and separates

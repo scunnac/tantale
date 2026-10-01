@@ -32,7 +32,7 @@
 #' number of parts, broken down by domain type. These are \emph{domains},
 #' repeats and termini alike: a \code{dom_code} identifies any distinct part
 #' sequence, and the two termini are parts like the repeats are. In the
-#' example output shipped with the package (see \code{\link{tales_from_telltale}}),
+#' example output shipped with the package (see \code{\link{tales_from_telltales}}),
 #' 47 distinct codes cover 39 repeats and 8 termini, so reading the total as a
 #' count of distinct repeats would overstate repeat diversity.
 #'
@@ -186,7 +186,7 @@ print.summary.tales <- function(x, ...) {
 summary.tales_msa <- function(object, ...) {
   # dom_code first, matching the order print() previews them in
   layers <- intersect(c("dom_code", "rvd"), names(object))
-  width <- tales_width(object)
+  width <- tales_msa_width(object)
   arrays <- unique(object$array_id)
 
   perLayer <- lapply(layers, function(lyr) {

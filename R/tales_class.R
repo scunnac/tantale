@@ -21,21 +21,6 @@ TALES_OPTIONAL_COLS <- c(
 
 TALES_DOMAIN_TYPES <- c("N-terminus", "repeat", "C-terminus")
 
-# Legacy camelCase -> target snake_case. Kept so the class can be used against
-# output of the not-yet-renamed pipeline; see class-design.md §1.1.
-# `seqnames` is deliberately absent: it keeps its Bioconductor spelling.
-TALES_LEGACY_NAMES <- c(
-  arrayID         = "array_id",
-  positionInArray = "position_in_array",
-  positionInCrd   = "position_in_crd",
-  domainType      = "domain_type",
-  aaSeq           = "aa_seq",
-  dnaSeq          = "dna_seq",
-  domCode         = "dom_code",
-  sourceDirectory = "source_directory"
-)
-
-
 #' Codes marking a TALE array terminus
 #'
 #' The values a \code{rvd} column takes on non-repeat parts.
@@ -85,7 +70,7 @@ new_tales <- function(x, dom_code_namespace = NULL) {
   x <- tibble::as_tibble(x)
   # as_tibble() drops a tales_msa class but keeps its attributes. The width is
   # a claim only a tales_msa can make (new_tales_msa() sets it after this), so
-  # a stale one would let tales_width() answer on a demoted object (§32.1).
+  # a stale one would let tales_msa_width() answer on a demoted object (§32.1).
   attr(x, "alignment_width") <- NULL
   if (!is.null(dom_code_namespace)) {
     attr(x, "dom_code_namespace") <- dom_code_namespace
@@ -146,8 +131,7 @@ tales_namespace <- function(x) {
 #' Create a tales object
 #'
 #' Builds a \code{tales} object from a data frame of TALE array parts: one row
-#' per (array, slot). Column names still using the legacy camelCase spelling
-#' (\code{arrayID}, \code{positionInArray}, ...) are renamed on the way in.
+#' per (array, slot).
 #'
 #' @param x A data frame with at least \code{array_id} and
 #'   \code{position_in_array} columns, plus at least one of \code{rvd} or
@@ -182,7 +166,6 @@ tales <- function(x, dom_code_namespace = NULL, sanitize = FALSE) {
       class = c("tantale_error_tales_type", "tantale_error")
     )
   }
-  x <- .tales_rename_legacy(x)
   if ("position_in_array" %in% names(x) && is.numeric(x$position_in_array)) {
     x$position_in_array <- as.integer(x$position_in_array)
   }
@@ -191,26 +174,6 @@ tales <- function(x, dom_code_namespace = NULL, sanitize = FALSE) {
   # reported here, and removed if asked for.
   .tales_report_anomalies(out, sanitize = sanitize)
 }
-
-#' Rename legacy camelCase columns to the target schema
-#' @param x A data frame.
-#' @return The same data frame with recognised legacy names replaced.
-#' @noRd
-.tales_rename_legacy <- function(x) {
-  hit <- intersect(names(x), names(TALES_LEGACY_NAMES))
-  if (length(hit) == 0L) return(x)
-  clash <- intersect(unname(TALES_LEGACY_NAMES[hit]), names(x))
-  if (length(clash) > 0L) {
-    cli::cli_abort(
-      c("Cannot rename legacy columns: the target name{?s} {.field {clash}} {?is/are} already present.",
-        "i" = "Drop or rename {cli::qty(clash)}the duplicate{?s} before calling {.fn tales}."),
-      class = c("tantale_error_tales_name_clash", "tantale_error")
-    )
-  }
-  names(x)[match(hit, names(x))] <- unname(TALES_LEGACY_NAMES[hit])
-  x
-}
-
 
 #### Construction from external sources ####
 
@@ -228,7 +191,7 @@ tales <- function(x, dom_code_namespace = NULL, sanitize = FALSE) {
 #'
 #' A \code{tales_msa} passed to \code{as_tales()} is demoted to a plain
 #' \code{tales}: \code{alignment_position} stays as an ordinary column, and
-#' the alignment width is dropped (\code{\link{tales_width}} returns
+#' the alignment width is dropped (\code{\link{tales_msa_width}} returns
 #' \code{NULL}).
 #'
 #' @param x A path to a fasta file, a \code{BStringSet}/\code{AAStringSet}, a

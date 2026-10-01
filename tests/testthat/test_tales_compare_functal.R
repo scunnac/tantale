@@ -5,7 +5,7 @@
 
 example_tales <- function() {
   suppressWarnings(
-    tales_from_telltale(test_path("data_for_tests", "example_output"))
+    tales_from_telltales(test_path("data_for_tests", "example_output"))
   )
 }
 
@@ -23,7 +23,7 @@ test_that("one motif per array, named by array_id", {
 test_that("PWM width matches the array's repeat count, termini excluded", {
   x <- example_tales()
   motifs <- tales_to_universalmotif(x)
-  rvd <- tales_rvd_strings(x) # rvd_only = TRUE default: repeats only
+  rvd <- tales_rvd_strings(x) # repeats_only = TRUE default: repeats only
   for (id in names(motifs)) {
     n_repeats <- length(strsplit(as.character(rvd[id]), "-", fixed = TRUE)[[1]])
     expect_equal(ncol(motifs[[id]]["motif"]), n_repeats, info = id)
@@ -99,9 +99,9 @@ test_that("needs a tales object", {
 #### RVD handling ####
 
 test_that("only rvd drives the comparison, in repeat order, termini dropped", {
-  # tales_rvd_strings()'s own default (rvd_only = TRUE) does the dropping;
+  # tales_rvd_strings()'s own default (repeats_only = TRUE) does the dropping;
   # this pins that tales_compare_functal() relies on that default rather
-  # than passing rvd_only = FALSE itself.
+  # than passing repeats_only = FALSE itself.
   x <- example_tales()
   rvd <- tales_rvd_strings(x)
   expect_false(any(grepl("NTERM|CTERM", rvd)))

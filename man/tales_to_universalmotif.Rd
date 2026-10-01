@@ -34,8 +34,8 @@ uninformative row, so an unusual RVD lowers the specificity of the
 comparison without causing an error.
 }
 \examples{
-x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-                                     package = "tantale"))
+x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+                                      package = "tantale"))
 motifs <- tales_to_universalmotif(x)
 motifs[[1]]
 }
@@ -44,9 +44,6 @@ motifs[[1]]
 \code{\link[=tales_rvd_strings]{tales_rvd_strings()}}, the sibling projection at the string layer.
 
 Other tales projections:
-\code{\link[=repeat_to_rvd_map]{repeat_to_rvd_map()}},
-\code{\link[=repeat_to_rvd_map_distalr]{repeat_to_rvd_map_distalr()}},
-\code{\link[=tale_parts_to_rvd]{tale_parts_to_rvd()}},
 \code{\link[=tales_coded_strings]{tales_coded_strings()}},
 \code{\link[=tales_domain_codes]{tales_domain_codes()}},
 \code{\link[=tales_get_dna_seq]{tales_get_dna_seq()}},

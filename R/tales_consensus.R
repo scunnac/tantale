@@ -173,7 +173,7 @@ tales_consensus_match <- function(align, long = TRUE) {
   .assert_tales_msa_layer(x, value_col)
   arrays <- unique(x$array_id)
   n_arrays <- length(arrays)
-  n_positions <- tales_width(x) %||% max(x$alignment_position, na.rm = TRUE)
+  n_positions <- tales_msa_width(x) %||% max(x$alignment_position, na.rm = TRUE)
   values_by_position <- split(x[[value_col]], x$alignment_position)
 
   consensus <- vapply(as.character(seq_len(n_positions)), function(p) {
@@ -218,7 +218,7 @@ tales_consensus_match <- function(align, long = TRUE) {
 .tales_consensus_match_long <- function(x, value_col, consensus = NULL) {
   .assert_tales_msa_layer(x, value_col)
   arrays <- unique(x$array_id)
-  n_positions <- tales_width(x) %||% max(x$alignment_position, na.rm = TRUE)
+  n_positions <- tales_msa_width(x) %||% max(x$alignment_position, na.rm = TRUE)
   if (is.null(consensus)) {
     consensus <- .tales_consensus_long(x, value_col)
   }

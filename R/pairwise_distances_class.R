@@ -18,20 +18,6 @@ PAIRWISE_DISTANCES_OPTIONAL_COLS <- c(
   "arlem_score", "max_length"
 )
 
-# Legacy spellings -> canonical. Both entity vocabularies collapse onto the
-# same id columns; renaming by name also fixes repeat.similarity listing its
-# ids in the order RepU2, RepU1.
-PAIRWISE_DISTANCES_LEGACY_NAMES <- c(
-  TAL1           = "id1",
-  TAL2           = "id2",
-  RepU1          = "id1",
-  RepU2          = "id2",
-  Sim            = "sim",
-  Dissim         = "dissim",
-  arlemScore     = "arlem_score",
-  maxLength      = "max_length",
-  normArlemScore = "norm_arlem_score"
-)
 
 
 #### Constructors ####
@@ -77,12 +63,9 @@ is_pairwise_distances <- function(x) inherits(x, "pairwise_distances")
 #' (see \code{\link{tales_tale_distances}}). The two flavours add no
 #' structure, only meaning: every method is written once on the parent.
 #'
-#' Legacy column spellings (\code{TAL1}/\code{TAL2}, \code{RepU1}/\code{RepU2},
-#' \code{Sim}, \code{Dissim}, \code{arlemScore}, ...) are renamed on the way in.
-#'
 #' @param x A data frame with \code{id1}, \code{id2} and \code{dissim} columns.
-#'   Legacy spellings and the similarity vocabulary are accepted and converted:
-#'   a table carrying \code{Sim} or \code{normArlemScore} instead of a distance
+#'   A similarity is accepted and converted: a table carrying \code{sim} or
+#'   \code{norm_arlem_score} instead of a distance
 #'   is folded into \code{dissim}, and those restatements are then dropped so
 #'   only one copy of the quantity is stored. Further columns
 #'   (\code{arlem_score}, \code{max_length}, or anything else) are preserved.
@@ -102,9 +85,9 @@ is_pairwise_distances <- function(x) inherits(x, "pairwise_distances")
 #' pairwise_distances(d)
 #' domain_distances(d, dom_code_namespace = "example")
 #'
-#' # Legacy spellings are recognised and folded in.
-#' legacy <- data.frame(TAL1 = "A1", TAL2 = "A2", Sim = 65)
-#' tale_distances(legacy)
+#' # A similarity is folded into the distance.
+#' similar <- data.frame(id1 = "A1", id2 = "A2", sim = 65)
+#' tale_distances(similar)
 pairwise_distances <- function(x, dom_code_namespace = NULL) {
   .new_validated_distances(x, subclass = NULL, dom_code_namespace = dom_code_namespace)
 }
@@ -129,7 +112,6 @@ domain_distances <- function(x, dom_code_namespace = NULL) {
       class = c("tantale_error_distances_type", "tantale_error")
     )
   }
-  x <- .pairwise_distances_rename_legacy(x)
   # Only the distance is stored. Keeping several copies of one quantity invites
   # them drifting out of step (ledger 9.6), so sim and norm_arlem_score -- both
   # exact restatements of the distance -- are folded in and dropped.
@@ -146,9 +128,8 @@ domain_distances <- function(x, dom_code_namespace = NULL) {
   for (nm in intersect(PAIRWISE_DISTANCES_ID_COLS, names(x))) {
     x[[nm]] <- as.character(x[[nm]])
   }
-  # Canonical column order, not just canonical names: repeat.similarity lists
-  # its ids as RepU2, RepU1, so renaming alone would leave the two tables
-  # ordered differently -- the rule-5 wart this class exists partly to fix.
+  # Canonical column order: ids first, then the distance, whatever order the
+  # input had them in.
   lead <- intersect(c(PAIRWISE_DISTANCES_ID_COLS, PAIRWISE_DISTANCES_VALUE_COL), names(x))
   x <- x[c(lead, setdiff(names(x), lead))]
   validate_pairwise_distances(
@@ -156,22 +137,6 @@ domain_distances <- function(x, dom_code_namespace = NULL) {
   )
 }
 
-#' @noRd
-.pairwise_distances_rename_legacy <- function(x) {
-  hit <- intersect(names(x), names(PAIRWISE_DISTANCES_LEGACY_NAMES))
-  if (length(hit) == 0L) return(x)
-  target <- unname(PAIRWISE_DISTANCES_LEGACY_NAMES[hit])
-  clash <- intersect(target, names(x))
-  if (length(clash) > 0L) {
-    cli::cli_abort(
-      c("Cannot rename legacy columns: the target name{?s} {.field {clash}} {?is/are} already present.",
-        "i" = "Drop or rename {cli::qty(clash)}the duplicate{?s} first."),
-      class = c("tantale_error_distances_name_clash", "tantale_error")
-    )
-  }
-  names(x)[match(hit, names(x))] <- target
-  x
-}
 
 
 #### Validator ####

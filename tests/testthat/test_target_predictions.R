@@ -14,7 +14,7 @@ test_that("talvez output a tibble with the expected dims", {
 
 test_that("tales_predict_targets() accepts a tales object and records the method", {
   x <- suppressWarnings(
-    tales_from_telltale(test_path("data_for_tests", "example_output"))
+    tales_from_telltales(test_path("data_for_tests", "example_output"))
   )
   preds <- suppressWarnings(suppressMessages(tales_predict_targets(
     x,

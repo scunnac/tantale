@@ -1,6 +1,11 @@
 distalrOut <- readRDS(file = testthat::test_path("data_for_tests", "sampleDistalrOutput.rds"))
 repeatMsaByGroup <- readRDS(file = testthat::test_path("data_for_tests", "sampleRepeatMsaByGroup.rds"))
 
+# repeat code -> RVD, the map .repeat_to_rvd_align() takes
+rvd_map_of <- function(parts) {
+  dplyr::distinct(data.frame(repeatID = parts$dom_code, RVD = parts$rvd))
+}
+
 # The alignment as the class holds it: one object carrying every layer, which
 # is what plot() takes. Built by tales_align() from the same three arrays the
 # matrix fixture covers.
@@ -9,8 +14,8 @@ msa <- readRDS(testthat::test_path("data_for_tests", "sampleTalesMsa.rds"))
 # Matrices are still the input to the internal helpers (.consensus_panel(),
 # .rvd_to_match_align()), so the matrix fixture stays for those.
 repeat_align <- repeatMsaByGroup[[6]]
-rvd_align <- repeat_to_rvd_align(repeat_align = repeat_align,
-                                 rvd_map = repeat_to_rvd_map_distalr(distalrOut$tale_parts))
+rvd_align <- .repeat_to_rvd_align(repeat_align = repeat_align,
+                                  rvd_map = rvd_map_of(distalrOut$tale_parts))
 
 
 #### the arguments are named layers of the object ####
@@ -75,8 +80,7 @@ test_that("the consensus panel labels the same layer as the cells", {
   skip_if_not(file.exists(test_path("data_for_tests", "sampleDistalrOutput.rds")))
   d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
   m <- readRDS(test_path("data_for_tests", "sampleRepeatMsaByGroup.rds"))[[4]]
-  rvd <- repeat_to_rvd_align(repeat_align = m,
-                             rvd_map = repeat_to_rvd_map_distalr(d$tale_parts))
+  rvd <- .repeat_to_rvd_align(repeat_align = m, rvd_map = rvd_map_of(d$tale_parts))
   # rvd_align supplied -> consensus must be of the RVDs, not the repeat codes
   panel <- tantale:::.consensus_panel(rvd, n_positions = ncol(rvd))
   expect_s3_class(panel, "ggplot")
@@ -112,8 +116,7 @@ fixture_rvd <- function() {
   d <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))
   m <- readRDS(test_path("data_for_tests", "sampleRepeatMsaByGroup.rds"))[[4]]
   list(d = d, m = m,
-       rvd = repeat_to_rvd_align(repeat_align = m,
-                                 rvd_map = repeat_to_rvd_map_distalr(d$tale_parts)))
+       rvd = .repeat_to_rvd_align(repeat_align = m, rvd_map = rvd_map_of(d$tale_parts)))
 }
 
 test_that("rvd_sim fills by RVD specificity relative to the reference", {
@@ -168,25 +171,25 @@ test_that("an unknown fill_type is refused and names the valid ones", {
     class = "tantale_error_msa_layer")
 })
 
-test_that("the tree panel is built from either distance vocabulary", {
-  # plot() reads id1/id2/dissim; pairwise_distances() lets the older
-  # TAL1/TAL2/Sim spelling in at the door. Both must give the same figure.
+test_that("the tree panel is built from a plain table or a tale_distances", {
+  # plot() reads id1/id2/dissim; pairwise_distances() folds a plain table's
+  # sim/norm_arlem_score into dissim at the door. Both must give the same figure.
   d <- distalrOut
-  legacy <- suppressMessages(plot(msa, tale_distances = d$tal.similarity))
+  plain <- suppressMessages(plot(msa, tale_distances = d$tal.similarity))
   canonical <- suppressMessages(plot(msa, tale_distances = tale_distances(d$tal.similarity)))
-  expect_s3_class(legacy, "aplot")
+  expect_s3_class(plain, "aplot")
   # a tree panel was actually added, not silently skipped
-  expect_true(any(vapply(legacy$plotlist, function(p) inherits(p, "ggtree"), logical(1))))
+  expect_true(any(vapply(plain$plotlist, function(p) inherits(p, "ggtree"), logical(1))))
 
   tips <- function(p) {
     tr <- p$plotlist[[which(vapply(p$plotlist, function(q) inherits(q, "ggtree"), logical(1)))]]
     tr$data$label[tr$data$isTip][order(tr$data$y[tr$data$isTip])]
   }
-  expect_identical(tips(legacy), tips(canonical))
+  expect_identical(tips(plain), tips(canonical))
   # the tree must order on distance, not on its inverse: the two nearest TALEs
   # are neighbouring leaves
   # the reference row is marked with a trailing _#
-  expect_setequal(sub("_#$", "", tips(legacy)), unique(msa$array_id))
+  expect_setequal(sub("_#$", "", tips(plain)), unique(msa$array_id))
 })
 
 #### consensus is a property of the alignment, not of its row order ####

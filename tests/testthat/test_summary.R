@@ -68,7 +68,7 @@ test_that("summary.tales_msa() reports gaps and per-layer consensus", {
   s <- summary(al)
 
   expect_s3_class(s, "summary.tales_msa")
-  expect_identical(s$width, tales_width(al))
+  expect_identical(s$width, tales_msa_width(al))
   expect_identical(s$n_gaps, sum(is.na(as.matrix(al, value = "dom_code"))))
   expect_named(s$layers, c("dom_code", "rvd"))
 

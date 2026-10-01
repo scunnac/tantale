@@ -38,14 +38,14 @@ library(tantale)
 
 `tell_tales()` searches a genome for TALE-coding regions and writes its
 findings to a directory of reports and FASTA files;
-`tales_from_telltale()` reads that directory back into R. The package
+`tales_from_telltales()` reads that directory back into R. The package
 ships one such directory already computed (four arrays found across two
 short input sequences), so this tour can start from the object and skip
 a multi-minute search:
 
 ```{r load}
 example_dir <- system.file("extdata", "tellTaleExampleOutput", package = "tantale")
-x <- tales_from_telltale(example_dir)
+x <- tales_from_telltales(example_dir)
 x
 ```
 

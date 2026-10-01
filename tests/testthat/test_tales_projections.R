@@ -99,7 +99,7 @@ test_that("tales_rvd_strings() drops termini by default", {
     rvd = c("NTERM", "NI", "HD", "CTERM")
   ))
   expect_identical(as.character(tales_rvd_strings(x)[["a1"]]), "NI-HD")
-  expect_identical(as.character(tales_rvd_strings(x, rvd_only = FALSE)[["a1"]]),
+  expect_identical(as.character(tales_rvd_strings(x, repeats_only = FALSE)[["a1"]]),
                    "NTERM-NI-HD-CTERM")
 })
 
@@ -118,7 +118,7 @@ test_that("tales_rvd_strings() matches the format of the shipped sample fasta", 
                 package = "tantale", mustWork = TRUE)
   )
   x <- suppressWarnings(
-    tales_from_telltale(test_path("data_for_tests", "example_output"))
+    tales_from_telltales(test_path("data_for_tests", "example_output"))
   )
   built <- tales_rvd_strings(x)
   # same shape: dash-separated RVDs, no anchor codes

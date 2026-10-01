@@ -32,7 +32,7 @@ different consumers:
 \tab \code{\link[=tales_rvd_strings]{tales_rvd_strings()}} \tab \code{\link[=tales_coded_strings]{tales_coded_strings()}} \cr
 \code{sep} \tab \code{"-"}, the AnnoTALE convention \tab \code{" "}, what MAFFT
 \code{--text} splits on \cr
-filter \tab \code{rvd_only = TRUE} \tab \code{repeats_only = FALSE} \cr
+filter \tab \code{repeats_only = TRUE} \tab \code{repeats_only = FALSE} \cr
 }
 
 The separator is free to choose here in a way it is not for RVDs: a
@@ -47,8 +47,8 @@ reliable anchors an alignment of TALE arrays has. Set \code{repeats_only = TRUE}
 to compare bare repeat arrays.
 }
 \examples{
-x <- tales_from_telltale(system.file("extdata", "tellTaleExampleOutput",
-                                     package = "tantale"))
+x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+                                      package = "tantale"))
 xa <- tales_assign_domain_codes(x)
 tales_coded_strings(xa)[1]
 tales_coded_strings(xa, sep = "-", repeats_only = TRUE)[1]
@@ -58,9 +58,6 @@ tales_coded_strings(xa, sep = "-", repeats_only = TRUE)[1]
 \code{\link[=tales_rvd_strings]{tales_rvd_strings()}} for the sibling projection.
 
 Other tales projections:
-\code{\link[=repeat_to_rvd_map]{repeat_to_rvd_map()}},
-\code{\link[=repeat_to_rvd_map_distalr]{repeat_to_rvd_map_distalr()}},
-\code{\link[=tale_parts_to_rvd]{tale_parts_to_rvd()}},
 \code{\link[=tales_domain_codes]{tales_domain_codes()}},
 \code{\link[=tales_get_dna_seq]{tales_get_dna_seq()}},
 \code{\link[=tales_get_protein_seq]{tales_get_protein_seq()}},
