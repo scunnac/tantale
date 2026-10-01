@@ -46,6 +46,10 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.9.9011" id="tantale-099011">tantale 0.9.9011<a class="anchor" aria-label="anchor" href="#tantale-099011"></a></h2>
 <div class="section level3">
+<h3 id="arrays-come-out-in-the-same-order-on-every-machine-0-9-9011">Arrays come out in the same order on every machine<a class="anchor" aria-label="anchor" href="#arrays-come-out-in-the-same-order-on-every-machine-0-9-9011"></a></h3>
+<p><code><a href="../reference/tales_rvd_strings.html">tales_rvd_strings()</a></code>, <code><a href="../reference/tales_coded_strings.html">tales_coded_strings()</a></code>, <code><a href="../reference/tales_get_protein_seq.html">tales_get_protein_seq()</a></code>, <code><a href="../reference/tales_get_dna_seq.html">tales_get_dna_seq()</a></code> and <code><a href="../reference/tales_align.html">tales_align()</a></code> order arrays by <code>array_id</code> compared character code by character code (the C locale), whatever the session’s language settings. Before, the order followed the session’s alphabetical rules, so <code>"BAI3-1-1_ROI_00001"</code> came after <code>"BAI3_ROI_00001"</code> in an English or French session and before it elsewhere.</p>
+</div>
+<div class="section level3">
 <h3 id="plot-on-a-tales-chooses-its-panels-0-9-9011">
 <code>plot()</code> on a <code>tales</code> chooses its panels<a class="anchor" aria-label="anchor" href="#plot-on-a-tales-chooses-its-panels-0-9-9011"></a></h3>
 <p>The new <code>facet_by</code> argument of <code><a href="../reference/plot.tales.html">plot.tales()</a></code> names the columns that split the plot into panels: <code>"seqnames"</code> (the default, as before), <code>"strain"</code> for a set of genomes, several columns at once, or <code>NULL</code> for a single panel. Each column must hold one value per array.</p>

@@ -265,3 +265,20 @@ test_that("both converters give the same sequence for a tales_msa as for its tal
   expect_identical(as.character(tales_get_dna_seq(msa)),
                    as.character(tales_get_dna_seq(x)))
 })
+
+test_that("arrays come out in C-locale order whatever the session's collation", {
+  # en_US sorts "BAI3_" before "BAI3-1-1_" (punctuation ignored at first
+  # pass); C compares bytes and puts "-" before "_".
+  x <- tales(tibble::tibble(
+    array_id = rep(c("BAI3_ROI_00001", "BAI3-1-1_ROI_00001"), each = 3),
+    position_in_array = rep(1:3, 2),
+    domain_type = rep(c("N-terminus", "repeat", "C-terminus"), 2),
+    rvd = c("NTERM", "NI", "CTERM", "NTERM", "HD", "CTERM")
+  ))
+  withr::local_collate("en_US.UTF-8")
+  expect_identical(Sys.getlocale("LC_COLLATE"), "en_US.UTF-8")
+  expect_identical(sort(unique(x$array_id))[1], "BAI3_ROI_00001")
+  expected <- c("BAI3-1-1_ROI_00001", "BAI3_ROI_00001")
+  expect_identical(names(tales_rvd_strings(x)), expected)
+  expect_identical(names(tales_rvd_strings(x, repeats_only = FALSE)), expected)
+})

@@ -430,14 +430,14 @@ functal_dissim
 #> # A tibble: 9 × 3
 #>   id1                id2                dissim
 #>   <chr>              <chr>               <dbl>
-#> 1 BAI3_ROI_00007     BAI3_ROI_00007       0   
-#> 2 BAI3-1-1_ROI_00006 BAI3_ROI_00007       0   
-#> 3 MAI1_ROI_00007     BAI3_ROI_00007       0.25
-#> 4 BAI3_ROI_00007     BAI3-1-1_ROI_00006   0   
-#> 5 BAI3-1-1_ROI_00006 BAI3-1-1_ROI_00006   0   
-#> 6 MAI1_ROI_00007     BAI3-1-1_ROI_00006   0.25
-#> 7 BAI3_ROI_00007     MAI1_ROI_00007       0.25
-#> 8 BAI3-1-1_ROI_00006 MAI1_ROI_00007       0.25
+#> 1 BAI3-1-1_ROI_00006 BAI3-1-1_ROI_00006   0   
+#> 2 BAI3_ROI_00007     BAI3-1-1_ROI_00006   0   
+#> 3 MAI1_ROI_00007     BAI3-1-1_ROI_00006   0.25
+#> 4 BAI3-1-1_ROI_00006 BAI3_ROI_00007       0   
+#> 5 BAI3_ROI_00007     BAI3_ROI_00007       0   
+#> 6 MAI1_ROI_00007     BAI3_ROI_00007       0.25
+#> 7 BAI3-1-1_ROI_00006 MAI1_ROI_00007       0.25
+#> 8 BAI3_ROI_00007     MAI1_ROI_00007       0.25
 #> 9 MAI1_ROI_00007     MAI1_ROI_00007       0
 ```
 

@@ -2,6 +2,20 @@
 
 ## tantale 0.9.9011
 
+### Arrays come out in the same order on every machine
+
+[`tales_rvd_strings()`](https://scunnac.github.io/tantale/reference/tales_rvd_strings.md),
+[`tales_coded_strings()`](https://scunnac.github.io/tantale/reference/tales_coded_strings.md),
+[`tales_get_protein_seq()`](https://scunnac.github.io/tantale/reference/tales_get_protein_seq.md),
+[`tales_get_dna_seq()`](https://scunnac.github.io/tantale/reference/tales_get_dna_seq.md)
+and
+[`tales_align()`](https://scunnac.github.io/tantale/reference/tales_align.md)
+order arrays by `array_id` compared character code by character code
+(the C locale), whatever the session’s language settings. Before, the
+order followed the session’s alphabetical rules, so
+`"BAI3-1-1_ROI_00001"` came after `"BAI3_ROI_00001"` in an English or
+French session and before it elsewhere.
+
 ### `plot()` on a `tales` chooses its panels
 
 The new `facet_by` argument of

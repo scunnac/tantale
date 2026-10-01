@@ -257,7 +257,9 @@ before trusting any of it.*
   TALE (`terminus_absent`, `no_repeat`, `terminus_unmatched`). §39 done
   the same day: R5 "Get started" (main vignette is now
   `vignettes/tantale.qmd`), R2 (`plot.tales_msa()`'s RVD blocks merged),
-  R3 (`plot.tales(facet_by =)`), R10 (README mining bullets).
+  R3 (`plot.tales(facet_by =)`), R10 (README mining bullets). §40:
+  string projections and `tales_align()` order arrays in C-locale order
+  on every machine.
 - The full site in `docs/` was wiped and rebuilt at 0.9.9011 on
   2026-10-01 after the vignette rename; `tale_classification` re-rendered
   since (strain-faceted figure). `tale_mining.qmd`

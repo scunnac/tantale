@@ -67,8 +67,8 @@ tales_coded_strings <- function(x, sep = " ", repeats_only = FALSE) {
                      class = c("tantale_error_projection_empty", "tantale_error"))
     }
   }
-  ord <- x[order(x$array_id, x$position_in_array), ]
-  strings <- vapply(split(ord$dom_code, ord$array_id),
+  ord <- x[order(x$array_id, x$position_in_array, method = "radix"), ]
+  strings <- vapply(split(ord$dom_code, .array_factor(ord$array_id)),
                     paste, character(1), collapse = sep)
   out <- Biostrings::BStringSet(unname(strings))
   names(out) <- names(strings)
@@ -141,8 +141,8 @@ tales_rvd_strings <- function(x, sep = "-", repeats_only = TRUE) {
     cli::cli_abort("No parts left to render.",
                    class = c("tantale_error_projection_empty", "tantale_error"))
   }
-  ord <- x[order(x$array_id, x$position_in_array), ]
-  strings <- vapply(split(ord$rvd, ord$array_id),
+  ord <- x[order(x$array_id, x$position_in_array, method = "radix"), ]
+  strings <- vapply(split(ord$rvd, .array_factor(ord$array_id)),
                     paste, character(1), collapse = sep)
   out <- Biostrings::BStringSet(unname(strings))
   names(out) <- names(strings)
@@ -258,6 +258,18 @@ tales_get_dna_seq <- function(x) {
       class = c("tantale_error_projection_na", "tantale_error")
     )
   }
-  ord <- x[order(x$array_id, x$position_in_array), ]
-  vapply(split(ord[[col]], ord$array_id), paste, character(1), collapse = "")
+  ord <- x[order(x$array_id, x$position_in_array, method = "radix"), ]
+  vapply(split(ord[[col]], .array_factor(ord$array_id)), paste, character(1), collapse = "")
+}
+
+
+#' Arrays as a factor whose levels follow C-locale order
+#'
+#' `split()` orders its groups by the factor levels, which `factor()` sorts
+#' with the session's collation: "BAI3_..." comes before "BAI3-1-1_..." in
+#' fr_FR or en_US and after it in C. Radix sorting always compares bytes, so
+#' every machine, and the C-locale test suite, gets the same order.
+#' @noRd
+.array_factor <- function(array_id) {
+  factor(array_id, levels = sort(unique(array_id), method = "radix"))
 }

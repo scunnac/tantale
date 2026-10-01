@@ -2282,3 +2282,21 @@ Agreed 2026-10-01 (Q25, Q28-Q32). Done the same day:
   `plot(all_tales, facet_by = "strain")`.
 - R10: README "TALE mining" bullets reworded without function names
   (Q28).
+
+## 40. Arrays in C-locale order (D7) **[V]**
+
+Found in §37: `split()` groups arrays by a factor whose levels follow the
+session's collation, so under en_US/fr_FR "BAI3_..." came before
+"BAI3-1-1_..." and under C (tests, `R CMD check`) after. Maintainer chose
+O1 (Q36, Q37), 2026-10-01. `.array_factor()` (`R/tales_projections.R`)
+sorts the levels with `sort(method = "radix")`, which compares bytes;
+used by `tales_coded_strings()`, `tales_rvd_strings()`,
+`.tales_assemble_seq()` (`tales_get_protein_seq()`,
+`tales_get_dna_seq()`) and `tales_align()`'s MAFFT input. Their
+`order()` calls take `method = "radix"` too. `format.tales()` (order of
+appearance) and the internal checks were left alone. Test sets
+`en_US.UTF-8` collation with `withr::local_collate()` (fails if that
+locale is absent). Golden unchanged (it runs under C). Article renders
+(en_US session): only order changes, in `tale_classification`'s functal
+table, tree and logos and `tale_target_prediction`'s figure; no alignment
+changed. D6 (keep AnnoTALE's "(Pseudo)" flag): maintainer said no.

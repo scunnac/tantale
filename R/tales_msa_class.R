@@ -315,8 +315,8 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
 
   ## One space-separated string per array, in position_in_array order.
   ## A space is safe for both layers: neither RVDs nor repeat codes contain one.
-  ord <- x[order(x$array_id, x$position_in_array), ]
-  seqs <- split(as.character(ord[[residue_col]]), ord$array_id)
+  ord <- x[order(x$array_id, x$position_in_array, method = "radix"), ]
+  seqs <- split(as.character(ord[[residue_col]]), .array_factor(ord$array_id))
   seqs <- lapply(seqs, paste, collapse = " ")
 
   m <- .build_repeat_msa(input_seqs = seqs, sep = " ", domain_distances = domain_distances,
