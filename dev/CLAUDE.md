@@ -259,7 +259,15 @@ before trusting any of it.*
   `vignettes/tantale.qmd`), R2 (`plot.tales_msa()`'s RVD blocks merged),
   R3 (`plot.tales(facet_by =)`), R10 (README mining bullets). §40:
   string projections and `tales_align()` order arrays in C-locale order
-  on every machine.
+  on every machine. §41: R1 and R4 done; R8 workflow
+  `.github/workflows/R-CMD-check.yaml` written (manual trigger, Linux or
+  `macos-13`), never run yet. Open: Q45 push and start a Linux run
+  (`gh workflow run R-CMD-check.yaml -f os=ubuntu-latest`; gh is
+  installed and authenticated); Q46 vdiffr limited to five plots
+  (`plot.tales()`, `plot.tales_msa()` with tree, with `rvd_sim`,
+  `plot_target_preds()`, `talomes_heatmap()`). R7 (package size) and R9
+  (JOSS) wait; both serve the rOpenSci review: start with `pkgcheck`.
+- The site's home page is `pkgdown/index.md`; README edits never reach it.
 - The full site in `docs/` was wiped and rebuilt at 0.9.9011 on
   2026-10-01 after the vignette rename; `tale_classification` re-rendered
   since (strain-faceted figure). `tale_mining.qmd`
