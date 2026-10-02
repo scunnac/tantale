@@ -215,7 +215,7 @@ tales_group_kmedoids <- function(x, tale_distances, k_range = NULL, k = NULL,
     set.seed(seed)
     as.list(cluster::pam(stats::as.dist(distMat), kpam))
   })
-  silhVals <- sapply(allPam, function(a) a$silinfo$avg.width)
+  silhVals <- vapply(allPam, function(a) a$silinfo$avg.width, numeric(1))
 
   if (is.null(k)) {
     if (!interactive()) {
@@ -270,7 +270,7 @@ tales_group_kmedoids <- function(x, tale_distances, k_range = NULL, k = NULL,
   a <- (v[n] - v[1]) / (k[n] - k[1])
   b <- -1
   c <- (v[1] * k[n] - v[n] * k[1]) / (k[n] - k[1])
-  d <- sapply(seq_len(n), function(i) abs(a * i + b * v[i] + c) / sqrt(a * a + b * b))
+  d <- vapply(seq_len(n), function(i) abs(a * i + b * v[i] + c) / sqrt(a * a + b * b), numeric(1))
   k[which.max(d)]
 }
 
@@ -423,9 +423,9 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
   
   ## count number of alleles
   ## for column label
-  variantsCount <- sapply(sort(unique(tale_annotation$group)), function(g) {
+  variantsCount <- vapply(sort(unique(tale_annotation$group)), function(g) {
     length(unique(tale_annotation[tale_annotation$group == g,]$rvdseq))
-  }, USE.NAMES = T)
+  }, integer(1), USE.NAMES = TRUE)
   colnames(numAlleles) <- paste0(colnames(numAlleles), " #", variantsCount)
   
   tale_annotation %<>% dplyr::group_by(group, strain) %>% dplyr::mutate(reprsntRVDfac = ifelse(1 %in% rvdfac, 1, rvdfac[1]))
@@ -528,12 +528,12 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
     
     
     ## plot heatmap
-    for (c in 1:ncol(uniqueRVD)) {
+    for (c in seq_len(ncol(uniqueRVD))) {
       gname <- gsub(" \\#\\d+", "", colnames(uniqueRVD)[c])
       # gname <- gsub("G", "", gname)
       g1 <- tale_annotation[tale_annotation$group == gname,]
       # g1$rvdseq <- as.integer(as.factor(g1$rvdseq))
-      for (r in 1:nrow(uniqueRVD)) {
+      for (r in seq_len(nrow(uniqueRVD))) {
         par(mar = rep(0, 4))
         nelements <- uniqueRVD[r, c]
         if (nelements == 0) {
@@ -577,21 +577,21 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
         return(ext)
       })
       rextra.bar <- unique(extra.bar[!is.na(extra.bar)])
-      rextra.bar <- data.frame("lab" = sort(rextra.bar), "fac" = 1:length(rextra.bar))
+      rextra.bar <- data.frame("lab" = sort(rextra.bar), "fac" = seq_along(rextra.bar))
       extra.col <- viridis::viridis(n = nrow(rextra.bar))[sapply(extra.bar, function(e) ifelse(is.na(e), NA, rextra.bar$fac[rextra.bar$lab == e]), simplify = T)]
       extra.col[is.na(extra.col)] <- "gray"
       par(mar = c(0, 0, 0, 0))
-      image(z = matrix(1:nrow(uniqueRVD), nrow = 1), col = rev(extra.col), yaxt = "n", xaxt = "n", axes = F)
+      image(z = matrix(seq_len(nrow(uniqueRVD)), nrow = 1), col = rev(extra.col), yaxt = "n", xaxt = "n", axes = F)
     } else {
       par(mar = c(0, 0, 0, 0))
-      image(z = matrix(1:nrow(uniqueRVD), nrow = 1), col = "white", yaxt = "n", xaxt = "n", axes = F)
+      image(z = matrix(seq_len(nrow(uniqueRVD)), nrow = 1), col = "white", yaxt = "n", xaxt = "n", axes = F)
     }
     
     
     ## rownames
     rownames(uniqueRVD) <- paste0(rownames(uniqueRVD),"  #", rowSums(uniqueRVD, na.rm = T))
     par(mar = c(0, 0.5, 0, 0))
-    image(z = matrix(1:nrow(uniqueRVD), nrow = 1), col = "white", yaxt = "n", xaxt = "n", axes = F)
+    image(z = matrix(seq_len(nrow(uniqueRVD)), nrow = 1), col = "white", yaxt = "n", xaxt = "n", axes = F)
     text(-1, seq(0, 1, length.out = nrow(uniqueRVD)), labels = rev(rownames(uniqueRVD)), font = 1, col = "black", cex = 1.2, adj = 0)
     mtext(side = 4, at = .5, text = y_lab, col = "black", padj = 0, line = -1)
     
@@ -608,7 +608,7 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
     
     ## colnames
     par(mar = c(0.5, 0, 0.5, 0))
-    image(z = matrix(1:ncol(uniqueRVD), ncol = 1), col = "white", yaxt = "n", xaxt = "n", axes = F)
+    image(z = matrix(seq_len(ncol(uniqueRVD)), ncol = 1), col = "white", yaxt = "n", xaxt = "n", axes = F)
     text(seq(0, 1, length.out = ncol(uniqueRVD)), 1, labels = colnames(uniqueRVD), font = 1, col = "black", bg = "red", cex = 1.2, srt = 90, adj = 1)
     mtext(side = 1, at = 0.5, text = x_lab, col = "black", padj = 0, line = -1)
     

@@ -349,7 +349,7 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
   yposSenseStrd <- 0.2
   yposAntisenseStrd <- -0.2
 
-  tidySubjSeqs <- lapply(1:length(subjDnaSeqs),
+  tidySubjSeqs <- lapply(seq_along(subjDnaSeqs),
                          function(i) {
                            oneSeq <- subjDnaSeqs[i]
                            dplyr::bind_rows(`+` = .tidy_biostrings_msa(oneSeq),
@@ -408,13 +408,14 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
   predsForPlot %<>% dplyr::group_by_all() %>%
     dplyr::group_modify( ~{
       tibble::tibble(
-        rvd = if(.y$strand == "+") {unlist(stringr::str_split(.y$rvds, pattern = "-"))}
-        else {sapply(unlist(stringr::str_split(.y$rvds, pattern = "-")), rev)},
+        # RVDs stay in TALE order on both strands: on the minus strand xPos
+        # runs from end to start, which pairs RVD 1 with the EBE's 5' base
+        rvd = unlist(stringr::str_split(.y$rvds, pattern = "-")),
         xPos = if(.y$strand == "+") .y$start:.y$end else .y$end:.y$start,
         rvd2ntMatchScore = .compute_match_string(rvd_seq = .y$rvds, ebe_seq = .y$ebeSeq)
       )
     }) %>%
-    dplyr::mutate(rvd = sapply(stringr::str_split(string = rvd, pattern = ""), paste, collapse = "\n"))
+    dplyr::mutate(rvd = vapply(stringr::str_split(string = rvd, pattern = ""), paste, character(1), collapse = "\n"))
 
   # Create a derived tibble to add prediction scores and EBE box to the plot
   predsForScoreAndEbe <- predsForPlot %>% dplyr::group_by(subjSeqId, taleId, ebeSeq, score, strand, yPos) %>%

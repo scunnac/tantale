@@ -10,13 +10,13 @@
 #' @noRd
 .split_list <- function(strings, sep = "-") {
   if (is.list(strings) &&
-      any(sapply(strings, length) > 1)) {
+      any(lengths(strings) > 1)) {
       cli::cli_abort("{.arg strings} already holds split sequences.",
                      class = c("tantale_error_bad_argument", "tantale_error"))
   } else if (length(strings) == 1 && is.character(strings)) {
     stopifnot(fs::file_exists(strings))
     seqs <- as.character(Biostrings::readBStringSet(strings), use.names = TRUE)
-  } else if (class(strings) %in% c("AAStringSet", "BStringSet")) {
+  } else if (inherits(strings, c("AAStringSet", "BStringSet"))) {
     seqs <- as.character(strings, use.names = TRUE)
   } else if (length(strings) >= 1 && is.list(strings)) {
     seqs <- strings

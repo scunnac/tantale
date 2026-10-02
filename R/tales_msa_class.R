@@ -438,8 +438,8 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
   diag(distalRepeatDist) <- 0
   # Filling NA values with diagonal symetric values
   newmat <- distalRepeatDist
-  for (i in 1:nrow(distalRepeatDist)) {
-    for (j in 1:ncol(distalRepeatDist)) {
+  for (i in seq_len(nrow(distalRepeatDist))) {
+    for (j in seq_len(ncol(distalRepeatDist))) {
       if (is.na(distalRepeatDist[i, j])) {
         distalRepeatDist[i, j] <- distalRepeatDist[j, i]
       } else {
@@ -592,7 +592,7 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
     msaOfResiduesAsMatrix <- as.matrix(as.data.frame(seqsAsVectors))
     msaOfResiduesAsMatrix <- matrix(msaOfResiduesAsMatrix, nrow = 1)
     rownames(msaOfResiduesAsMatrix) <- colnames(as.data.frame(seqsAsVectors))
-    colnames(msaOfResiduesAsMatrix) <- 1:length(msaOfResiduesAsMatrix)
+    colnames(msaOfResiduesAsMatrix) <- seq_along(msaOfResiduesAsMatrix)
     return(msaOfResiduesAsMatrix)
   }
   
@@ -629,10 +629,10 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
 
   
   # Coding residues in hexadecimal representations and concatenating them for mafft --text
-  seqsOfHex <- sapply(seqsAsVectors, function(x) {
+  seqsOfHex <- vapply(seqsAsVectors, function(x) {
     idxs <- match(x, residues)
     paste(asciitableForMafft$hex[idxs], collapse = " ")
-    }
+    }, character(1)
   )
   seqsOfHex <- Biostrings::BStringSet(seqsOfHex)
   names(seqsOfHex) <- names(seqsAsVectors)
@@ -770,6 +770,6 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
     )
   )
   rownames(msaOfResiduesAsMatrix) <- names(msaOfHex)
-  colnames(msaOfResiduesAsMatrix) <- 1:ncol(msaOfResiduesAsMatrix)
+  colnames(msaOfResiduesAsMatrix) <- seq_len(ncol(msaOfResiduesAsMatrix))
   return(msaOfResiduesAsMatrix)
 }

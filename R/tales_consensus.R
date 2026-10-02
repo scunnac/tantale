@@ -31,10 +31,10 @@
 #' aln
 #' tales_consensus(aln)
 tales_consensus <- function(align) {
-  sapply(1:ncol(align), function(x) {
+  sapply(seq_len(ncol(align)), function(x) {
   allElements <- align[,x]
   candidates <- sort(unique(allElements), na.last = TRUE)
-  freq <- sapply(candidates, function(p) S4Vectors::countMatches(p, allElements))
+  freq <- vapply(candidates, function(p) S4Vectors::countMatches(p, allElements), integer(1))
   # No consensus unless one element is strictly more common than every other.
   # A column in which each array carries a different repeat has no majority,
   # and reporting one of the tied values would invent agreement that is not

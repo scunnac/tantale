@@ -2450,3 +2450,66 @@ Maintainer, 2026-10-02:
 - §2 and §20 were found already settled by §37's D1 (their functions are
   in `inst/legacy/conversion_retired.R`); START HERE still listed them as
   reserved. Corrected.
+
+## 44. pkgcheck findings (rOpenSci) and their triage (Q57) **[V]**
+
+`pkgcheck` 0.3.2 (from `ropensci-review-tools.r-universe.dev`; its
+`pkgstats` needs universal-ctags and GNU global, installed for the run in
+a scratch micromamba prefix, not system-wide), run 2026-10-02 on e5022fd
+in a detached worktree, 24 min. Verdict "not quite there yet". Coverage
+90.7%. Package name available, roxygen2, URL/BugReports, HTML vignette,
+website: all fine. The findings and what became of them (maintainer
+followed the recommendations, 2026-10-03):
+- **P1** no contributing file: `.github/CONTRIBUTING.md` written
+  (reporting, development environment and pins, tests that fail rather
+  than skip, golden snapshots, cli conditions, rOpenSci naming, NEWS,
+  `devtools::check()`). pkgdown links it from the home page sidebar.
+- **P2** six exports without examples (`is_tales()`, `is_tales_msa()`,
+  `is_pairwise_distances()`, `validate_tales_msa()`,
+  `validate_pairwise_distances()`, `tales_msa_width()`): examples added;
+  the `tales_msa_width()` one shows the width surviving a subset that
+  empties the last columns (an array without a C-terminus).
+- **P3** PDF manual failed (LaTeX cannot take the GIF logo of
+  `?tantale`): the figure is now inside `\if{html}{}`; `R CMD Rd2pdf`
+  builds the manual.
+- **P4** R CMD check ERROR, two golden `tell_tales()` tests: pkgcheck
+  installs the package under the test session's `tempdir()`, so the
+  tempdir rule of `helper-golden.R` dropped the five log lines naming
+  the package's files (`n_dropped` 2 -> 7, digest `4dfb575...`,
+  reproduced exactly). `.telltale_file_digest()` now rewrites the
+  installation directory before the drop; baseline unchanged; a test
+  moves the log under `tempdir()` and expects the same digest.
+- **P5** 42 Imports, above the 99th percentile: reviewers will ask. An
+  audit of what could move to Suggests is a separate task, tied to R7
+  (package size). Not started.
+- **P6** goodpractice lints (40 kinds). Fixed the bug-prone ones:
+  `class(x) %in% ...` -> `inherits()` (`.split_list()`, which errored
+  on a multi-class object); every `1:length()`/`1:nrow()`/`1:ncol()`
+  in `R/` -> `seq_along()`/`seq_len()` (19 sites; `1:0` is `c(1, 0)`,
+  e.g. the hit ids of a run without hits); `sapply()` -> `vapply()` or
+  `lengths()` where one value of a known type is expected per element
+  (`tell_tales()`'s array metadata, `.split_list()`,
+  `.tale_parts_finish()`'s check, `tales_consensus()`'s counts, the
+  MAFFT hex encoding, three in `classification.R`,
+  `plot_target_preds()`'s RVD labels). `plot_target_preds()` also
+  applied `rev()` to each RVD one at a time, a no-op; the minus-strand
+  order comes from `xPos` running from end to start, now said in a
+  comment. Left as they are: `sapply()` calls that build matrices or
+  arrays on purpose, or whose element type varies (`tales_consensus()`
+  itself, which takes character or numeric codes); `inst/legacy/`; the
+  pure style lints (1325 long lines, `=` assignment, `paste(sep =
+  "")`, leading zeros...). False positives: the four "never called"
+  functions (`[.tales` and `[.pairwise_distances` are registered S3
+  methods, `%||%` is an infix used three times,
+  `.repeat_to_rvd_align()` builds a test fixture) and the 20
+  "duplicate arguments" (repeated `"i"` names in cli bullet vectors,
+  which is how cli takes several bullets).
+- **P7** "no continuous integration": pkgcheck looks for a README badge
+  or asks GitHub, which it cannot for a private repository. Add the
+  badge when the repository goes public; rOpenSci will also expect CI on
+  push, which §41 left manual on purpose.
+- **P8** BaoVi TramVi has no ORCID iD: the maintainer's call.
+- The NOTE about a hidden `.git` is an artefact of checking a worktree
+  (`.git` is a file there).
+- Not flagged by pkgcheck, still the main obstacle: the 57.8 MB source
+  tarball against the 5 MB limit (R7, §34).

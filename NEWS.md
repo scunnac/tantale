@@ -1,5 +1,15 @@
 # tantale 0.9.9011
 
+## Documentation and robustness
+
+A contributing guide (`.github/CONTRIBUTING.md`) explains how to report a
+problem and how to prepare a change. `is_tales()`, `is_tales_msa()`,
+`is_pairwise_distances()`, `validate_tales_msa()`,
+`validate_pairwise_distances()` and `tales_msa_width()` have examples. The
+PDF manual builds (the package logo is shown in the HTML help only).
+Internal loops and per-element computations no longer assume a non-empty
+input or a particular result type.
+
 ## Terminus codes: the match must reach the repeats
 
 A segment that AnnoTALE reports on either side of the repeats is now coded

@@ -208,7 +208,7 @@
     return(NULL)
   }
   ## Add a hit_id column
-  hits$hit_id <- paste("DOM", sprintf("%05.0f", 1:nrow(hits)), sep = "_")
+  hits$hit_id <- paste("DOM", sprintf("%05.0f", seq_len(nrow(hits))), sep = "_")
 
   ## nhmmer does not guarantee envfrom <= env_to (a reverse-strand hit can
   ## report them the other way round), and IRanges() requires start <= end.
@@ -283,7 +283,7 @@
   }) %>%
     plyranges::bind_ranges(.id = "query_name")
 
-  merged$hit_id <- paste("MDOM", sprintf("%05.0f", 1:length(merged)), sep = "_")
+  merged$hit_id <- paste("MDOM", sprintf("%05.0f", seq_along(merged)), sep = "_")
   names(merged) <- merged$hit_id
   merged
 }
@@ -327,7 +327,7 @@
 
   ## Use the mapping from reduced to original ranges to group the originals
   byArray <- BiocGenerics::relist(gr[unlist(revmap)], revmap)
-  names(byArray) <- paste("ROI", sprintf("%05.0f", 1:length(byArray)), sep = "_")
+  names(byArray) <- paste("ROI", sprintf("%05.0f", seq_along(byArray)), sep = "_")
   names(arraysGR) <- names(byArray)
 
   ## Drop arrays with too few repeats, before anything is computed about them.
@@ -369,15 +369,16 @@
   ## Populate metadata about the elements of the list of arrays
   S4Vectors::mcols(byArray) <- S4Vectors::DataFrame(
     array_id = names(byArray),
-    seqnames = sapply(byArray,
-                      function(x) unique(as.character(GenomicRanges::seqnames(x)))),
+    seqnames = vapply(byArray,
+                      function(x) unique(as.character(GenomicRanges::seqnames(x))),
+                      character(1)),
     start = BiocGenerics::start(arraysGR),
     end = BiocGenerics::end(arraysGR),
     strand = BiocGenerics::strand(arraysGR),
     n_dna_hits = S4Vectors::elementNROWS(byArray),
     array_seq = BSgenome::getSeq(subject_seqs, arraysGR),
-    nterm_dna_hit = sapply(byArray, function(x) hmm$nterm %in% as.character(x$query_name)),
-    cterm_dna_hit = sapply(byArray, function(x) hmm$cterm %in% as.character(x$query_name))
+    nterm_dna_hit = vapply(byArray, function(x) hmm$nterm %in% as.character(x$query_name), logical(1)),
+    cterm_dna_hit = vapply(byArray, function(x) hmm$cterm %in% as.character(x$query_name), logical(1))
   )
 
   list(arrays = arraysGR, by_array = byArray)
@@ -542,7 +543,7 @@
   indelsTble <- lapply(indels, function(lst) {
     info <- tibble::tibble()
     colnames(info) <- c("variable","value")
-    for (talOrfID in 1:length(lst)) {
+    for (talOrfID in seq_along(lst)) {
       element <- lst[talOrfID]
       if (length(unlist(element)) == 0L) {
         next()
@@ -1182,7 +1183,7 @@
                                            seqlengths = Biostrings::width(originalSeqs))
 
   originalSeqlevels <- names(originalSeqs)
-  foolproofSeqlevels <- paste0("seq", 1:length(originalSeqlevels))
+  foolproofSeqlevels <- paste0("seq", seq_along(originalSeqlevels))
   names(originalSeqlevels) <- foolproofSeqlevels
   names(originalSeqs) <- foolproofSeqlevels
 

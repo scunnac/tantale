@@ -434,7 +434,7 @@ diag(identSubMat) <- 1
   }
   
   pair_align_scores <- BiocParallel::bplapply(
-    X = 1:length(part_aa_set),
+    X = seq_along(part_aa_set),
     FUN = function(i) {
       # "overlap": end gaps are free, DisTAL's "global alignment with sliding
       # ends (no gap penalty)". Unmatched overhang still counts as change

@@ -243,7 +243,7 @@
   partsWithMissingAaSeq <- tale_parts %>% dplyr::filter(is.na(aa_seq)) %>% dplyr::pull(array_id) %>% unique()
   partsWithMissingDnaSeq <- tale_parts %>% dplyr::filter(is.na(dna_seq)) %>% dplyr::pull(array_id) %>% unique()
   partsWithMissingRvdSeq <- tale_parts %>% dplyr::filter(is.na(rvd)) %>% dplyr::pull(array_id) %>% unique()
-  if (any(sapply(list(partsWithMissingAaSeq, partsWithMissingDnaSeq, partsWithMissingRvdSeq), length) != 0L)) {
+  if (any(lengths(list(partsWithMissingAaSeq, partsWithMissingDnaSeq, partsWithMissingRvdSeq)) != 0L)) {
     cli::cli_warn(c("The returned {.fn tantale::tales} object has records with missing sequences.",
                     "i" = "Affected array{?s}: {.val {unique(c(partsWithMissingAaSeq, partsWithMissingDnaSeq, partsWithMissingRvdSeq))}}"))
   }
