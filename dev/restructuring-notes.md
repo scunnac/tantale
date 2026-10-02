@@ -2508,7 +2508,7 @@ followed the recommendations, 2026-10-03):
   or asks GitHub, which it cannot for a private repository. Add the
   badge when the repository goes public; rOpenSci will also expect CI on
   push, which §41 left manual on purpose.
-- **P8** BaoVi TramVi has no ORCID iD: the maintainer's call.
+- **P8** BaoVi TramVi's ORCID iD (0000-0002-4319-5544) added to `Authors@R`, 2026-10-03.
 - The NOTE about a hidden `.git` is an artefact of checking a worktree
   (`.git` is a file there).
 - Not flagged by pkgcheck, still the main obstacle: the 57.8 MB source

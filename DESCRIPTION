@@ -3,7 +3,8 @@ Title: Transcription Activator-Like Effectors (TALEs) tools
 Version: 0.9.9011
 Authors@R: c(
     person(given = c("Bao", "Tram"), family ="Vi",
-    email = "vbt576@gmail.com", role = c("aut")),
+    email = "vbt576@gmail.com", role = c("aut"),
+    comment = c(ORCID = "0000-0002-4319-5544")),
     person(given = "Sebastien", family = "Cunnac",
     email = "sebastien.cunnac@ird.fr", role = c("aut", "cre"),
     comment = c(ORCID = "0000-0002-3695-491X"))

@@ -258,7 +258,7 @@ before trusting any of it.*
   `tell_tales()` arguments, 0.99.0 release candidate when going public or
   submitting to rOpenSci); §44 pkgcheck triage: P1-P4 and P6 done, **P5
   (audit the 42 Imports, with R7) is the next candidate**, P7 CI badge
-  when public, P8 ORCID left to the maintainer.
+  when public, P8 ORCID added.
 - **Site not rebuilt since 2026-10-01.** Pending: reference pages (new
   examples, `tell_tales()`/terminus docs), the articles whose
   `plot.tales_msa()` figures show the old axis title, `tale_mining`'s raw
