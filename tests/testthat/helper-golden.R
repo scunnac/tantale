@@ -129,8 +129,16 @@ expect_golden <- function(x) {
   gsub(.PATH_PREFIX, "\\1<path>/", txt, perl = TRUE)
 }
 
-.telltale_file_digest <- function(path) {
+# The log names the package's own files (the subject file of the golden run,
+# the HMM profiles, correction_ref) by absolute path. Where tantale is
+# installed is not a finding, and pkgcheck's R CMD check installs it under the
+# test session's own tempdir(), where the tempdir rule above dropped those five
+# lines and changed the digest. The installation directory is therefore
+# rewritten first, to a path that .normalise_paths() reduces to "<path>/"
+# exactly as it reduces the real one.
+.telltale_file_digest <- function(path, pkg_dir = system.file(package = "tantale")) {
   txt <- readLines(path, warn = FALSE)
+  if (nzchar(pkg_dir)) txt <- gsub(pkg_dir, "/pkg", txt, fixed = TRUE)
   keep <- txt[!grepl(.run_specific_pattern(), txt, perl = TRUE)]
   list(n_lines = length(txt),
        n_dropped = length(txt) - length(keep),

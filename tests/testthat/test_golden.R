@@ -142,6 +142,19 @@ test_that("golden: tell_tales() writes the same files with the same contents", {
   expect_golden(telltale_fingerprint(r$dir))
 })
 
+test_that("the tell_tales() fingerprint does not depend on where tantale is installed", {
+  # pkgcheck's R CMD check installs the package under the test session's
+  # tempdir(); the tempdir rule then dropped the five lines of tell_tales.log
+  # that name the package's own files, and the golden tests failed there only.
+  log <- file.path(telltale_run()$dir, "tell_tales.log")
+  pkg <- system.file(package = "tantale")
+  elsewhere <- file.path(tempdir(), "lib", "tantale")
+  moved <- tempfile("moved_log")
+  writeLines(gsub(pkg, elsewhere, readLines(log), fixed = TRUE), moved)
+  expect_identical(.telltale_file_digest(moved, pkg_dir = elsewhere),
+                   .telltale_file_digest(log))
+})
+
 test_that("golden: the tables tell_tales() writes, column by column", {
   # The digests above say "something changed"; these say which column, which
   # is what saves the time when it does.
