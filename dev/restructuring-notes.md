@@ -2315,7 +2315,7 @@ locale is absent). Golden unchanged (it runs under C). Article renders
 table, tree and logos and `tale_target_prediction`'s figure; no alignment
 changed. D6 (keep AnnoTALE's "(Pseudo)" flag): maintainer said no.
 
-## 41. Road map R1, R4, R8 (Q40-Q44) **[A]**
+## 41. Road map R1, R4, R8 (Q40-Q44) **[V]**
 
 Maintainer, 2026-10-01: R1 P1, R4 yes, R8 by hand for now (switch to
 push/PR triggers when the package is mature) and test other OSes; R6
@@ -2343,3 +2343,12 @@ JOSS paper.
   `macos-15-intel`, GitHub's last Intel image (supported until autumn
   2027; no Intel macOS runner after that). Private repository on the free
   plan: macOS minutes count 10x.
+- R8 first run, 2026-10-02 (Q45), `ubuntu-latest`, run 37062861053:
+  passed at the first attempt. `R CMD check` Status OK (no NOTE), tests
+  `[ FAIL 0 | WARN 48 | SKIP 0 | PASS 1047 ]`, R 4.6.1. 30 min: R
+  dependencies 17 min (no cache yet), environment 1 min (all pins
+  resolved: MAFFT 7.453, HMMER 3.3.2, mmseqs2 14.7e284, clustalo 1.2.4,
+  igvtools 2.16.2), check 10 min. The "X File existence..." annotations
+  are stderr of tests that provoke tool failures on purpose. GitHub
+  annotates `actions/checkout@v4` and `setup-micromamba@v2` as Node 20
+  actions, forced onto Node 24. macOS not run yet.
