@@ -1,5 +1,20 @@
 # tantale 0.9.9011
 
+## Terminus codes: the match must reach the repeats
+
+A segment that AnnoTALE reports on either side of the repeats is now coded
+`NTERM`/`CTERM` only if its match to the TALE terminal-domain profile also
+reaches, within 10 positions, the end of the profile that adjoins the
+repeats. A frameshift inside a terminus puts its repeat-side part in
+another reading frame, so such a segment matched the profile strongly up
+to the frameshift and was coded as a terminus; it is now `XXXXX`, and
+`tales_anomalies()` reports it as `terminus_unmatched`. Genuine termini
+truncated at their far end, as in truncTALEs, are unaffected. In the raw
+BAI3-1-1 assembly, four N-termini change. `array_report.tsv` gains
+`nterm_aa_profile_gap` and `cterm_aa_profile_gap`, the number of profile
+positions between the match and that end. `tell_tales()` output written
+before this change keeps its old codes until it is rerun.
+
 ## `plot()` on a `tales_msa`: the x-axis is "Position in alignment"
 
 The x-axis of `plot.tales_msa()` counts alignment columns, and its title

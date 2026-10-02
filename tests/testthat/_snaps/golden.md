@@ -810,7 +810,7 @@
         {
           "type": "character",
           "attributes": {},
-          "value": ["f6a1d9000a3e6d2869b91c4ad7a97461", "9e72973f27d92d9414692db2ad6fc09c", "049a21a7c09f687cc81a7b15ab6bdeb6", "23afd6523c33ab2f7c0d969d31aa86cf", "69fc61a95869ec7b6fae45c866d596a9", "718f3deaacf42fbb208aed622ac60a98", "00c89a4a2f2071af75b5194b6909a86a", "97d7c2b0b3b92bbdda7902173fddb03d", "b3ab79d5d8f436a6a0ffa6345b501d1f", "b3e2c179e43132cf747ba65da1ca9ff9", "ac2e11824dead7c52fcb473c78c69f91", "67ef58d13c2ad5895e1f6fda32f1afc7", "185b8d320bb61f2a3c5aeec9efc5eb53", "c780528efec6d565f97dcdf2de07342b", "01cd2bcc87ba7db5ab25e517f49f119a", "d0fe14c43e7f56f0ccb2da78ef76015a", "eb022d9d6e2cdda5740911add74deba7", "c150a2539f239d7e586439c1af93442a", "31aada0cd7bfd31e9273c4e3b180e090", "580525511219a4028aab66d959e7ce1e", "f9cfb82adbd5a0835571721f96bc86be", "1ee783ae0d2b9d1cf5d91f3337c269dc", "343d79c2b341773b53af3e5990a29255", "1a8cadaaf472338a42e8dd131dea2e67", "2b1c8a7d0abe873f122ef42d5e516615", "ef3d3a9edaf23f3d453525e8f6a5d56a", "9c459798b3c74e1e94f5c98fbd7d32c9", "0b52294f4536c785111676c0ac62f6bf", "2e4f6812b94f49dbf23378298136e7d9", "54a6879268017fdc8e3bdf51cfdc0929", "0c1d6405967718ed187b7cf61796185d", "5152ac13bdd09110d9ee9c169a3d9237", "8322432d7c86ddc9b826fe7740f4114e", "966d0eb34a6311b1250a2bbb417c9aac", "89fca75b113315c1f07021f041b8c506", "0a59300afc7cc9eae1b9084ee7e556c6"]
+          "value": ["999d86872f1ad5e80b398b5205742c7b", "9e72973f27d92d9414692db2ad6fc09c", "049a21a7c09f687cc81a7b15ab6bdeb6", "23afd6523c33ab2f7c0d969d31aa86cf", "69fc61a95869ec7b6fae45c866d596a9", "718f3deaacf42fbb208aed622ac60a98", "00c89a4a2f2071af75b5194b6909a86a", "97d7c2b0b3b92bbdda7902173fddb03d", "b3ab79d5d8f436a6a0ffa6345b501d1f", "b3e2c179e43132cf747ba65da1ca9ff9", "ac2e11824dead7c52fcb473c78c69f91", "67ef58d13c2ad5895e1f6fda32f1afc7", "185b8d320bb61f2a3c5aeec9efc5eb53", "c780528efec6d565f97dcdf2de07342b", "01cd2bcc87ba7db5ab25e517f49f119a", "d0fe14c43e7f56f0ccb2da78ef76015a", "eb022d9d6e2cdda5740911add74deba7", "c150a2539f239d7e586439c1af93442a", "31aada0cd7bfd31e9273c4e3b180e090", "580525511219a4028aab66d959e7ce1e", "f9cfb82adbd5a0835571721f96bc86be", "2a5b103bbae7a44600a2b547524b9779", "343d79c2b341773b53af3e5990a29255", "1a8cadaaf472338a42e8dd131dea2e67", "2b1c8a7d0abe873f122ef42d5e516615", "ef3d3a9edaf23f3d453525e8f6a5d56a", "9c459798b3c74e1e94f5c98fbd7d32c9", "0b52294f4536c785111676c0ac62f6bf", "2e4f6812b94f49dbf23378298136e7d9", "54a6879268017fdc8e3bdf51cfdc0929", "0c1d6405967718ed187b7cf61796185d", "5152ac13bdd09110d9ee9c169a3d9237", "8322432d7c86ddc9b826fe7740f4114e", "966d0eb34a6311b1250a2bbb417c9aac", "89fca75b113315c1f07021f041b8c506", "0a59300afc7cc9eae1b9084ee7e556c6"]
         }
       ]
     }
@@ -938,7 +938,7 @@
         "row.names": {
           "type": "integer",
           "attributes": {},
-          "value": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+          "value": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22]
         },
         "class": {
           "type": "character",
@@ -950,32 +950,32 @@
         {
           "type": "character",
           "attributes": {},
-          "value": ["array_id", "seqnames", "start", "end", "strand", "n_dna_hits", "array_seq", "nterm_dna_hit", "cterm_dna_hit", "rvd_string", "has_aberrant_repeat", "nterm_aa_evalue", "cterm_aa_evalue", "nterm_aa_hit", "cterm_aa_hit", "nterm_aa_length", "cterm_aa_length", "longest_orf_length", "orf_coverage", "longest_orf_seq"]
+          "value": ["array_id", "seqnames", "start", "end", "strand", "n_dna_hits", "array_seq", "nterm_dna_hit", "cterm_dna_hit", "rvd_string", "has_aberrant_repeat", "nterm_aa_evalue", "cterm_aa_evalue", "nterm_aa_profile_gap", "cterm_aa_profile_gap", "nterm_aa_hit", "cterm_aa_hit", "nterm_aa_length", "cterm_aa_length", "longest_orf_length", "orf_coverage", "longest_orf_seq"]
         },
         {
           "type": "character",
           "attributes": {},
-          "value": ["character", "character", "double", "double", "character", "double", "character", "logical", "logical", "character", "logical", "double", "double", "logical", "logical", "double", "double", "double", "double", "character"]
+          "value": ["character", "character", "double", "double", "character", "double", "character", "logical", "logical", "character", "logical", "double", "double", "double", "double", "logical", "logical", "double", "double", "double", "double", "character"]
         },
         {
           "type": "integer",
           "attributes": {},
-          "value": [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
+          "value": [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4]
         },
         {
           "type": "integer",
           "attributes": {},
-          "value": [4, 2, 3, 4, 2, 3, 4, 1, 1, 4, 1, 1, 1, 1, 1, 2, 1, 4, 3, 4]
+          "value": [4, 2, 3, 4, 2, 3, 4, 1, 1, 4, 1, 1, 1, 1, 1, 1, 1, 2, 1, 4, 3, 4]
         },
         {
           "type": "integer",
           "attributes": {},
-          "value": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+          "value": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
         },
         {
           "type": "character",
           "attributes": {},
-          "value": ["7f814f99eeb07530461112190e314a50", "7e13e411b075546d9a826a45224c4114", "c2adf7b6f984b5df34a5530a6c6fc23c", "da18a7477bc142b5f22868878c5fefbf", "c5aef6f127e6362ab570a403991801bf", "bb50129abf7f05f3f1b44efa233a46a0", "2e9ad64b06795de5460120521f2a2a31", "f6691062ba8ebcf78d788eb2079ade6a", "f6691062ba8ebcf78d788eb2079ade6a", "72c257668cabc7ec8b6344e79933b4e8", "2cede2adaeedcffdd9d43aaa4de93aa3", "42ecbc01bba7610b7976830e9ffc72e0", "42ecbc01bba7610b7976830e9ffc72e0", "f6691062ba8ebcf78d788eb2079ade6a", "f6691062ba8ebcf78d788eb2079ade6a", "6092490e180aea1683bf8760fdd70ad7", "61e9b6d2325068e4a2a6c3117f460719", "9d4d3fa19d30a48c6e54fa023c18627d", "6075a5c6d9b97778adefa958cb92ec8f", "5f3de1c7abe8505aa9e67271243db3c3"]
+          "value": ["7f814f99eeb07530461112190e314a50", "7e13e411b075546d9a826a45224c4114", "c2adf7b6f984b5df34a5530a6c6fc23c", "da18a7477bc142b5f22868878c5fefbf", "c5aef6f127e6362ab570a403991801bf", "bb50129abf7f05f3f1b44efa233a46a0", "2e9ad64b06795de5460120521f2a2a31", "f6691062ba8ebcf78d788eb2079ade6a", "f6691062ba8ebcf78d788eb2079ade6a", "72c257668cabc7ec8b6344e79933b4e8", "2cede2adaeedcffdd9d43aaa4de93aa3", "42ecbc01bba7610b7976830e9ffc72e0", "42ecbc01bba7610b7976830e9ffc72e0", "42ecbc01bba7610b7976830e9ffc72e0", "42ecbc01bba7610b7976830e9ffc72e0", "f6691062ba8ebcf78d788eb2079ade6a", "f6691062ba8ebcf78d788eb2079ade6a", "6092490e180aea1683bf8760fdd70ad7", "61e9b6d2325068e4a2a6c3117f460719", "9d4d3fa19d30a48c6e54fa023c18627d", "6075a5c6d9b97778adefa958cb92ec8f", "5f3de1c7abe8505aa9e67271243db3c3"]
         }
       ]
     }
@@ -1075,7 +1075,7 @@
         {
           "type": "character",
           "attributes": {},
-          "value": ["7b77ae14742f93741417b0cbdf38e52a", "9e72973f27d92d9414692db2ad6fc09c", "049a21a7c09f687cc81a7b15ab6bdeb6", "23afd6523c33ab2f7c0d969d31aa86cf", "69fc61a95869ec7b6fae45c866d596a9", "718f3deaacf42fbb208aed622ac60a98", "00c89a4a2f2071af75b5194b6909a86a", "97d7c2b0b3b92bbdda7902173fddb03d", "b3ab79d5d8f436a6a0ffa6345b501d1f", "b3e2c179e43132cf747ba65da1ca9ff9", "ac2e11824dead7c52fcb473c78c69f91", "67ef58d13c2ad5895e1f6fda32f1afc7", "185b8d320bb61f2a3c5aeec9efc5eb53", "c780528efec6d565f97dcdf2de07342b", "01cd2bcc87ba7db5ab25e517f49f119a", "d0fe14c43e7f56f0ccb2da78ef76015a", "eb022d9d6e2cdda5740911add74deba7", "c150a2539f239d7e586439c1af93442a", "31aada0cd7bfd31e9273c4e3b180e090", "580525511219a4028aab66d959e7ce1e", "f9cfb82adbd5a0835571721f96bc86be", "810b8f08bab9e0bb3e31fef155255e61", "343d79c2b341773b53af3e5990a29255", "1a8cadaaf472338a42e8dd131dea2e67", "192ee93266dae1ce775665e4217c8c46", "044518e3f7950feb628be40d193b53ae", "252e0ef1c4f31cf9f2d03f67cbb7ff6b", "292b7ce13365b5804c92a2db198896d2", "500241a675ae43db9565f2fe09f33bc0", "90d934b4b57504459b064f6d762e80db", "4766c58765b876892eedc1fb7f269e61", "30f2ca66d1adfda555da232185d29974", "2b1c8a7d0abe873f122ef42d5e516615", "ef3d3a9edaf23f3d453525e8f6a5d56a", "9c459798b3c74e1e94f5c98fbd7d32c9", "0b52294f4536c785111676c0ac62f6bf", "2e4f6812b94f49dbf23378298136e7d9", "54a6879268017fdc8e3bdf51cfdc0929", "0c1d6405967718ed187b7cf61796185d", "5152ac13bdd09110d9ee9c169a3d9237", "8322432d7c86ddc9b826fe7740f4114e", "966d0eb34a6311b1250a2bbb417c9aac", "89fca75b113315c1f07021f041b8c506", "70fc794a9694ff2c6113e0632dd05444"]
+          "value": ["04184d70f6be96130c261dab77053bf8", "9e72973f27d92d9414692db2ad6fc09c", "049a21a7c09f687cc81a7b15ab6bdeb6", "23afd6523c33ab2f7c0d969d31aa86cf", "69fc61a95869ec7b6fae45c866d596a9", "718f3deaacf42fbb208aed622ac60a98", "00c89a4a2f2071af75b5194b6909a86a", "97d7c2b0b3b92bbdda7902173fddb03d", "b3ab79d5d8f436a6a0ffa6345b501d1f", "b3e2c179e43132cf747ba65da1ca9ff9", "ac2e11824dead7c52fcb473c78c69f91", "67ef58d13c2ad5895e1f6fda32f1afc7", "185b8d320bb61f2a3c5aeec9efc5eb53", "c780528efec6d565f97dcdf2de07342b", "01cd2bcc87ba7db5ab25e517f49f119a", "d0fe14c43e7f56f0ccb2da78ef76015a", "eb022d9d6e2cdda5740911add74deba7", "c150a2539f239d7e586439c1af93442a", "31aada0cd7bfd31e9273c4e3b180e090", "580525511219a4028aab66d959e7ce1e", "f9cfb82adbd5a0835571721f96bc86be", "a987781bdd928a3ea87bffa216484221", "343d79c2b341773b53af3e5990a29255", "1a8cadaaf472338a42e8dd131dea2e67", "192ee93266dae1ce775665e4217c8c46", "044518e3f7950feb628be40d193b53ae", "252e0ef1c4f31cf9f2d03f67cbb7ff6b", "292b7ce13365b5804c92a2db198896d2", "500241a675ae43db9565f2fe09f33bc0", "90d934b4b57504459b064f6d762e80db", "4766c58765b876892eedc1fb7f269e61", "30f2ca66d1adfda555da232185d29974", "2b1c8a7d0abe873f122ef42d5e516615", "ef3d3a9edaf23f3d453525e8f6a5d56a", "9c459798b3c74e1e94f5c98fbd7d32c9", "0b52294f4536c785111676c0ac62f6bf", "2e4f6812b94f49dbf23378298136e7d9", "54a6879268017fdc8e3bdf51cfdc0929", "0c1d6405967718ed187b7cf61796185d", "5152ac13bdd09110d9ee9c169a3d9237", "8322432d7c86ddc9b826fe7740f4114e", "966d0eb34a6311b1250a2bbb417c9aac", "89fca75b113315c1f07021f041b8c506", "70fc794a9694ff2c6113e0632dd05444"]
         }
       ]
     }

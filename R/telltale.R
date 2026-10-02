@@ -842,6 +842,13 @@
 }
 
 
+# How many profile positions a terminus match may stop short of the end that
+# adjoins the repeats. Genuine termini in the article genomes reach within 2;
+# the frameshifted N-termini of BAI3-1-1's raw assembly stop 138 short
+# (ledger §42).
+.terminus_max_profile_gap <- 10L
+
+
 #' Does each terminus look like a canonical TALE terminal domain?
 #'
 #' AnnoTALE calls "N-terminus" whatever the ORF encodes upstream of the first
@@ -852,6 +859,14 @@
 #' Each segment is therefore searched with \code{hmmsearch} against the TALE
 #' N- or C-terminal protein profile.
 #'
+#' A match must also reach the end of the profile that adjoins the repeats
+#' (the last positions of the N-terminal profile, the first ones of the
+#' C-terminal profile), within \code{max_profile_gap} positions. A frameshift
+#' inside a terminus puts its repeat-side part in another reading frame, so
+#' such a segment matches only up to the frameshift; a genuine truncated
+#' terminus is shortened at its far end and still reaches the repeats (ledger
+#' §42).
+#'
 #' Kept as a function because it is meant to serve every reader of AnnoTALE
 #' output, \code{tell_tales()} first.
 #'
@@ -860,7 +875,10 @@
 #'   \code{.telltale_align_termini(type = "AA")} returns them. A stop codon
 #'   is removed before the search.
 #' @param max_evalue A terminus matches when \code{hmmsearch}'s per-sequence
-#'   E-value is at most this.
+#'   E-value is at most this. Only domains whose own (independent) E-value is
+#'   at most this count towards the profile coverage.
+#' @param max_profile_gap How many profile positions a match may stop short
+#'   of the end adjoining the repeats.
 #' @param hmm_dir Directory holding \code{Xo_TALE_Nterm_AA_profile.hmm} and
 #'   \code{Xo_TALE_Cterm_AA_profile.hmm}.
 #' @param hmmer_path Directory holding the \code{hmmsearch} binary;
@@ -868,10 +886,14 @@
 #' @return A tibble with one row per array holding at least one terminus:
 #'   \code{array_id}, \code{nterm_aa_evalue}, \code{cterm_aa_evalue} (\code{NA}
 #'   when there is no segment or \code{hmmsearch} reports no match),
-#'   \code{nterm_aa_hit}, \code{cterm_aa_hit} (\code{TRUE} for a match,
-#'   \code{FALSE} for a segment without one, \code{NA} without a segment).
+#'   \code{nterm_aa_profile_gap}, \code{cterm_aa_profile_gap} (profile
+#'   positions between the match and the end adjoining the repeats; \code{NA}
+#'   without a significant domain), \code{nterm_aa_hit}, \code{cterm_aa_hit}
+#'   (\code{TRUE} for a match, \code{FALSE} for a segment without one,
+#'   \code{NA} without a segment).
 #' @noRd
-.tale_termini_hmmsearch <- function(termini, max_evalue, hmm_dir, hmmer_path = NULL) {
+.tale_termini_hmmsearch <- function(termini, max_evalue, hmm_dir, hmmer_path = NULL,
+                                    max_profile_gap = .terminus_max_profile_gap) {
   if (is.null(hmmer_path)) hmmer_path <- .get_hmmer()
   profiles <- c(`N-terminus` = file.path(hmm_dir, "Xo_TALE_Nterm_AA_profile.hmm"),
                 `C-terminus` = file.path(hmm_dir, "Xo_TALE_Cterm_AA_profile.hmm"))
@@ -883,31 +905,52 @@
   }
 
   evalues <- lapply(c("N-terminus", "C-terminus"), function(part) {
+    isNterm <- part == "N-terminus"
     seqs <- Biostrings::AAStringSet(gsub("*", "", as.character(termini[[part]]), fixed = TRUE))
-    found <- tibble::tibble(array_id = as.character(names(seqs)), evalue = NA_real_)
+    found <- tibble::tibble(array_id = as.character(names(seqs)), evalue = NA_real_,
+                            profile_gap = NA_integer_)
     # hmmsearch cannot take an empty sequence; such a segment simply matches nothing
     seqs <- seqs[Biostrings::width(seqs) > 0L]
     if (length(seqs) > 0L) {
       seqFile <- tempfile(fileext = ".fasta")
       tblFile <- tempfile(fileext = ".tbl")
-      on.exit(unlink(c(seqFile, tblFile)), add = TRUE)
+      domFile <- tempfile(fileext = ".domtbl")
+      on.exit(unlink(c(seqFile, tblFile, domFile)), add = TRUE)
       Biostrings::writeXStringSet(seqs, seqFile)
       searchCmd <- paste(shQuote(file.path(hmmer_path, "hmmsearch")),
                          "--noali --tblout", shQuote(tblFile),
+                         "--domtblout", shQuote(domFile),
                          shQuote(profiles[[part]]), shQuote(seqFile),
                          "> /dev/null")
       .tantale_exec(searchCmd, what = glue::glue("hmmsearch of the {part} profile"))
+      readFields <- function(f) {
+        strsplit(grep("^#", readLines(f), value = TRUE, invert = TRUE), "\\s+")
+      }
       # --tblout: target name in field 1, full-sequence E-value in field 5
-      tbl <- grep("^#", readLines(tblFile), value = TRUE, invert = TRUE)
-      fields <- strsplit(tbl, "\\s+")
+      fields <- readFields(tblFile)
       hits <- tibble::tibble(array_id = vapply(fields, `[`, character(1), 1),
                              evalue = as.numeric(vapply(fields, `[`, character(1), 5)))
       found$evalue <- hits$evalue[match(found$array_id, hits$array_id)]
+      # --domtblout: target name in field 1, profile length in field 6, the
+      # domain's independent E-value in field 13, its profile coordinates in
+      # fields 16 and 17
+      fields <- readFields(domFile)
+      domains <- tibble::tibble(array_id = vapply(fields, `[`, character(1), 1),
+                                qlen = as.integer(vapply(fields, `[`, character(1), 6)),
+                                i_evalue = as.numeric(vapply(fields, `[`, character(1), 13)),
+                                hmm_from = as.integer(vapply(fields, `[`, character(1), 16)),
+                                hmm_to = as.integer(vapply(fields, `[`, character(1), 17))) %>%
+        dplyr::filter(i_evalue <= max_evalue) %>%
+        dplyr::mutate(gap = if (isNterm) qlen - hmm_to else hmm_from - 1L) %>%
+        dplyr::group_by(array_id) %>%
+        dplyr::summarise(gap = min(gap), .groups = "drop")
+      found$profile_gap <- domains$gap[match(found$array_id, domains$array_id)]
     }
     found %>%
-      dplyr::mutate(hit = !is.na(evalue) & evalue <= max_evalue) %>%
-      dplyr::rename_with(~ paste0(if (part == "N-terminus") "nterm" else "cterm", "_aa_", .x),
-                         c(evalue, hit))
+      dplyr::mutate(hit = !is.na(evalue) & evalue <= max_evalue &
+                      !is.na(profile_gap) & profile_gap <= max_profile_gap) %>%
+      dplyr::rename_with(~ paste0(if (isNterm) "nterm" else "cterm", "_aa_", .x),
+                         c(evalue, profile_gap, hit))
   })
 
   dplyr::full_join(evalues[[1]], evalues[[2]], by = "array_id") %>%
@@ -1281,7 +1324,10 @@
 #'   protein profiles of \code{hmm_dir}; this decides the \code{NTERM},
 #'   \code{CTERM} and \code{XXXXX} codes (see \code{\link{tales_anchor_codes}}).
 #'   Genuine termini truncated to about 40 residues still match with E-values
-#'   below 1e-18.
+#'   below 1e-18. The match must also reach, within 10 positions, the end of
+#'   the profile that adjoins the repeats: a terminus whose repeat-side part
+#'   is in another reading frame after a frameshift matches only up to the
+#'   frameshift, and is coded \code{XXXXX}.
 #' @param min_dna_hits Minimum number of nhmmer hits for a subject
 #'   sequence (a contig, a chromosome) to be considered further. A cheap way
 #'   to discard whole sequences that carry nothing but stray matches, before
@@ -1424,10 +1470,15 @@
 #'     (downstream) of the repeats and the TALE N- (C-) terminal protein
 #'     profile. \code{NA} when there is no segment, or no match with an
 #'     E-value up to 10.
+#'     \item \emph{nterm_aa_profile_gap}, \emph{cterm_aa_profile_gap}:
+#'     number of profile positions between the end of that match and the end
+#'     of the profile that adjoins the repeats (the last position of the
+#'     N-terminal profile, the first of the C-terminal one). \code{0} for a
+#'     match that reaches the repeats, \code{NA} when there is no match.
 #'     \item \emph{nterm_aa_hit}, \emph{cterm_aa_hit}: \code{TRUE} when that
-#'     E-value is at most \code{terminus_max_evalue}, \code{FALSE} for a
-#'     segment that does not match, \code{NA} when AnnoTALE reported no
-#'     segment on that side.
+#'     E-value is at most \code{terminus_max_evalue} and the profile gap at
+#'     most 10, \code{FALSE} for a segment that does not match,
+#'     \code{NA} when AnnoTALE reported no segment on that side.
 #'     \item \emph{nterm_aa_length}, \emph{cterm_aa_length}: length of those
 #'     segments in amino acid residues, excluding a stop codon, as in the
 #'     \code{tales} object's \code{aa_seq}.
@@ -1654,6 +1705,8 @@ tell_tales <- function(
   endHits <- terminiHits[match(arrayMeta$array_id, terminiHits$array_id), ]
   arrayMeta$nterm_aa_evalue <- endHits$nterm_aa_evalue
   arrayMeta$cterm_aa_evalue <- endHits$cterm_aa_evalue
+  arrayMeta$nterm_aa_profile_gap <- endHits$nterm_aa_profile_gap
+  arrayMeta$cterm_aa_profile_gap <- endHits$cterm_aa_profile_gap
   arrayMeta$nterm_aa_hit <- endHits$nterm_aa_hit
   arrayMeta$cterm_aa_hit <- endHits$cterm_aa_hit
   S4Vectors::mcols(hitsByArraysLst) <- arrayMeta

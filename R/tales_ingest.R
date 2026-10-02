@@ -317,7 +317,9 @@ tales_from_telltales <- function(telltale_dir, sanitize = FALSE) {
 #'   \code{TALE_RVDs.fasta}, in it or in a subdirectory: the
 #'   \code{output_dir} of \code{run_annotale_predict()} will do.
 #' @param terminus_max_evalue Maximum \code{hmmsearch} E-value for a
-#'   terminal segment to be coded \code{NTERM}/\code{CTERM}.
+#'   terminal segment to be coded \code{NTERM}/\code{CTERM}. As in
+#'   \code{\link{tell_tales}}, the match must also reach the end of the
+#'   profile that adjoins the repeats.
 #' @param hmm_dir Directory holding the TALE terminus protein profiles.
 #' @inheritParams tales_from_telltales
 #' @return A validated \code{tales} object.

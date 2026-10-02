@@ -2351,7 +2351,7 @@ JOSS paper.
   annotates `actions/checkout@v4` and `setup-micromamba@v2` as Node 20
   actions, forced onto Node 24. macOS not run yet.
 
-## 42. Terminus check: a coverage rule (Q51) **[A]**
+## 42. Terminus check: a coverage rule (Q51) -- adopted (Q56) **[V]**
 
 The terminus check (§35) codes a terminus `NTERM`/`CTERM` when its best
 `hmmsearch` match against the TALE N- or C-terminal protein profile has
@@ -2399,6 +2399,33 @@ gap on the repeat side. The current rule recomputed this way equals
   `ROI_00005`, 285-aa N-termini ending at profile position 286 (gap 2).
   Everything else that matches reaches the end (gap 0). So a tolerance
   of 10 sits between 2 and 138.
+
+**Maintainer, 2026-10-02 (Q56): adopted, all three parts.** Done
+2026-10-03:
+- `.tale_termini_hmmsearch()` (`R/telltale.R`) adds `--domtblout`; the
+  domains with i-E <= `terminus_max_evalue` give
+  `nterm_aa_profile_gap`/`cterm_aa_profile_gap`, and a hit needs the gap
+  <= `.terminus_max_profile_gap` (10L, internal, argument
+  `max_profile_gap` of the helper only). Used by `tell_tales()` and
+  `tales_from_annotale()`. `tales_from_telltales()` still reads the hits
+  from `array_report.tsv`, so an old output directory keeps its old codes.
+- `array_report.tsv` gains the two gap columns, between the E-values and
+  the hits (Q56b); docs of `tell_tales()`, `tales_from_annotale()` and
+  `tales_anchor_codes()` explain the rule in biological terms.
+- Fixture: BAI3-1-1 raw `ROI_00002`'s N-terminus added to
+  `termini_profile_cases.fa`; `test_tell_tales.R` asserts gap 138 and no
+  hit, gap 0 for the complete and truncated cases (Q56c).
+- Golden re-baselined: in both `tell_tales()` runs, `array_report.tsv` and
+  `all_ranges.gff` changed (the GFF carries the array metadata as
+  attributes: the four array lines gain the two gap attributes, line count
+  unchanged at 199); the column fingerprint gains the two columns (all 0
+  on the BAI3 sample). Every hit column is unchanged.
+- `data-raw/make_telltale_test_fixtures.R` rerun: besides the new columns,
+  only dates and temporary paths moved.
+- Checked end to end on BAI3-1-1 raw: the four N-termini now `XXXXX`
+  (N-terminus codes 2 `NTERM`, 6 `XXXXX`, were 6 and 2).
+- Not yet done: `tale_mining.qmd`'s raw BAI3-1-1 section, which the
+  maintainer is revising, will show the new codes once re-rendered.
 
 ## 43. Pre-1.0.0 decisions (Q52-Q55) **[V]**
 

@@ -1,7 +1,7 @@
 Parameters of tool "TALE Analysis" (analyze, version: 1.4.1):
 n - Name (A name for this run of TALE Analysis, OPTIONAL)	= null
-t - TALE DNA sequences (The DNA sequences of the TALEs, type = fasta,fa,fas,fna)	= /tmp/RtmpbBwxGs/tell_tales_example/annotale/ROI_00004/putative_tal_orf.fasta
-outdir - The output directory, defaults to the current working directory (.)	= /tmp/RtmpbBwxGs/tell_tales_example/annotale/ROI_00004
+t - TALE DNA sequences (The DNA sequences of the TALEs, type = fasta,fa,fas,fna)	= /tmp/RtmpdEKwf8/tell_tales_example/annotale/ROI_00004/putative_tal_orf.fasta
+outdir - The output directory, defaults to the current working directory (.)	= /tmp/RtmpdEKwf8/tell_tales_example/annotale/ROI_00004
 Analyzing TALEs:
 ROI_00004
 

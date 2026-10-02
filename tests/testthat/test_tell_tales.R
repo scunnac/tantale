@@ -73,9 +73,27 @@ test_that("genuine termini match their profile, complete or truncated; unrelated
   expect_lt(hit("PXO86_truncTALE", "cterm_aa_evalue"), 1e-10)
   expect_false(hit("BAI3-1-1_ROI_00001", "cterm_aa_hit"))
   expect_false(hit("BAI3-1-1_ROI_00006", "nterm_aa_hit"))
+  # complete and truncated termini reach the profile end next to the repeats
+  expect_identical(hit("MAI1_ROI_00006", "nterm_aa_profile_gap"), 0L)
+  expect_identical(hit("PXO86_truncTALE", "cterm_aa_profile_gap"), 0L)
   # no segment on the other side: NA, not FALSE
   expect_true(is.na(hit("MAI1_ROI_00006", "cterm_aa_hit")))
   expect_true(is.na(hit("PXO86_truncTALE", "nterm_aa_evalue")))
+})
+
+test_that("a terminus that a frameshift cuts short of the repeats is no match", {
+  # BAI3-1-1 raw assembly: the 287-aa N-terminus matches the profile strongly
+  # up to position 150 of 288, then reads in another frame (ledger §42)
+  hits <- .tale_termini_hmmsearch(termini_cases(), max_evalue = 1e-5,
+                                  hmm_dir = system.file("extdata", "hmmProfile", package = "tantale"))
+  row <- hits[hits$array_id == "BAI3-1-1_ROI_00002", ]
+  expect_lt(row$nterm_aa_evalue, 1e-80)
+  expect_identical(row$nterm_aa_profile_gap, 138L)
+  expect_false(row$nterm_aa_hit)
+  # the tolerance decides it: allowing 138 positions makes it a match
+  loose <- .tale_termini_hmmsearch(termini_cases(), max_evalue = 1e-5, max_profile_gap = 138L,
+                                   hmm_dir = system.file("extdata", "hmmProfile", package = "tantale"))
+  expect_true(loose$nterm_aa_hit[loose$array_id == "BAI3-1-1_ROI_00002"])
 })
 
 test_that("the terminus check needs the protein profiles", {

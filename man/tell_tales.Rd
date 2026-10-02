@@ -60,7 +60,10 @@ N- or C-terminus. The segments are searched with the TALE terminal-domain
 protein profiles of \code{hmm_dir}; this decides the \code{NTERM},
 \code{CTERM} and \code{XXXXX} codes (see \code{\link{tales_anchor_codes}}).
 Genuine termini truncated to about 40 residues still match with E-values
-below 1e-18.}
+below 1e-18. The match must also reach, within 10 positions, the end of
+the profile that adjoins the repeats: a terminus whose repeat-side part
+is in another reading frame after a frameshift matches only up to the
+frameshift, and is coded \code{XXXXX}.}
 
 \item{min_dna_hits}{Minimum number of nhmmer hits for a subject
 sequence (a contig, a chromosome) to be considered further. A cheap way
@@ -217,10 +220,15 @@ non-canonical length (a lowercase letter in its RVD).
 (downstream) of the repeats and the TALE N- (C-) terminal protein
 profile. \code{NA} when there is no segment, or no match with an
 E-value up to 10.
+\item \emph{nterm_aa_profile_gap}, \emph{cterm_aa_profile_gap}:
+number of profile positions between the end of that match and the end
+of the profile that adjoins the repeats (the last position of the
+N-terminal profile, the first of the C-terminal one). \code{0} for a
+match that reaches the repeats, \code{NA} when there is no match.
 \item \emph{nterm_aa_hit}, \emph{cterm_aa_hit}: \code{TRUE} when that
-E-value is at most \code{terminus_max_evalue}, \code{FALSE} for a
-segment that does not match, \code{NA} when AnnoTALE reported no
-segment on that side.
+E-value is at most \code{terminus_max_evalue} and the profile gap at
+most 10, \code{FALSE} for a segment that does not match,
+\code{NA} when AnnoTALE reported no segment on that side.
 \item \emph{nterm_aa_length}, \emph{cterm_aa_length}: length of those
 segments in amino acid residues, excluding a stop codon, as in the
 \code{tales} object's \code{aa_seq}.

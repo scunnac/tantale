@@ -19,5 +19,6 @@ utils::globalVariables(c(
   "rvd2ntMatchScore", "rvdFileLength", "rvdfac", "rvds", "rvdseq", "score",
   "seqnames", "strain", "strand", "string", "subjSeqId", "subjectHits", "subtree", "taleId", "target", "target_name",
   "tcov", "value", "variable", "xPos", "yPos", "yPosOnSeq",
-  "evalue", "hit", "is_hit", "nterm_aa_hit", "cterm_aa_hit"
+  "evalue", "hit", "is_hit", "nterm_aa_hit", "cterm_aa_hit",
+  "profile_gap", "qlen", "i_evalue", "hmm_from", "hmm_to", "gap"
 ))

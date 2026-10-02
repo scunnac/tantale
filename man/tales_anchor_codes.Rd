@@ -17,11 +17,13 @@ AnnoTALE reports as N-terminus whatever the ORF encodes upstream of the
 first repeat, and as C-terminus whatever it encodes downstream of the last
 one. \code{\link[tantale:tell_tales]{tell_tales}} searches each of these
 segments with the TALE N- or C-terminal protein profile (\code{hmmsearch},
-E-value at most \code{terminus_max_evalue}). \code{"NTERM"} and
+E-value at most \code{terminus_max_evalue}, the match reaching the end of
+the profile that adjoins the repeats). \code{"NTERM"} and
 \code{"CTERM"} mark a segment that matches its profile, a canonical TALE
-terminal domain, complete or truncated. \code{"XXXXX"} marks a segment
-that does not match, typically unrelated sequence where the ORF starts or
-ends inside a frameshifted region. An array for which AnnoTALE reported no
+terminal domain, complete or truncated at its far end. \code{"XXXXX"}
+marks a segment that does not match, typically unrelated sequence where
+the ORF starts or ends inside a frameshifted region, or a terminus whose
+repeat-side part a frameshift has put in another reading frame. An array for which AnnoTALE reported no
 segment on one side has no terminus part on that side.
 
 These share the \code{rvd} column with real RVDs, so code that distinguishes

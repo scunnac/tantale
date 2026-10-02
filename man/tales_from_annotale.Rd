@@ -18,7 +18,9 @@ tales_from_annotale(
 \code{output_dir} of \code{run_annotale_predict()} will do.}
 
 \item{terminus_max_evalue}{Maximum \code{hmmsearch} E-value for a
-terminal segment to be coded \code{NTERM}/\code{CTERM}.}
+terminal segment to be coded \code{NTERM}/\code{CTERM}. As in
+\code{\link{tell_tales}}, the match must also reach the end of the
+profile that adjoins the repeats.}
 
 \item{sanitize}{If \code{TRUE}, arrays carrying biological anomalies are
 removed with a warning naming them and why; if \code{FALSE} (default) they
