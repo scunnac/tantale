@@ -238,9 +238,15 @@ corrected.
 \item hits_report.tsv: report of all hits detected by HMMer
 \item hits_report.gff: gff file of all hits detected by HMMer
 \item domains_report.tsv: report of all Tal amino acid domains detected by AnnoTALE analyze
-\item putative_tal_orf.fasta: Tal putative ORFs
-\item pseudo_tal_cds.fasta: pseudo Tal CDS, putative Tal array ORFs detected by HMMer for which
-AnnoTALE analyze failed to find RVD(s).
+\item putative_tal_orf.fasta: for each array in which AnnoTALE found
+RVDs, the DNA of the longest ORF of the array region extended by
+\code{extend_len} nucleotides at its 3' end (after frameshift
+correction with \code{correct_array = TRUE}). This is the putative
+TALE coding sequence AnnoTALE analysed.
+\item pseudo_tal_cds.fasta: for each array in which AnnoTALE found no
+RVD, the DNA of the array region extended by \code{extend_len}
+nucleotides at its 3' end, as found in \code{subject_file}: candidate
+pseudogenes, assembly errors or false detections, kept for inspection.
 \item rvd_sequences.fas: the RVDs (separated by \code{rvd_sep}) of each
 array for which AnnoTALE found at least one. With \code{extremity_codes
    = TRUE} (the default), each string is bracketed by terminus codes (see
@@ -294,6 +300,12 @@ Note that occasionally, when a putative open reading frame does not encode a
 canonical TALE protein (early frame shift, incomplete ORF, etc...), the
 "analyze" module of AnnoTALE outputs DNA parts but no protein parts and/or
 RVD sequence. This should be detected and reported in the tell_tales log.
+
+Each sequence of \code{subject_file} is treated as linear. A \emph{tal}
+gene that spans the junction of a circular molecule (the two ends of an
+assembled chromosome or plasmid) is cut in two, and is reported, if at
+all, as two partial arrays at the ends of the sequence. Rotating the
+sequence so that it starts elsewhere avoids this.
 }
 \examples{
 \donttest{

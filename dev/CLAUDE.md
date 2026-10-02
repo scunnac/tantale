@@ -306,12 +306,14 @@ against the code 2026-09-23). Headlines:
    from 1.0.0 on.
 
 **Decisions to make before 1.0.0:** the terminus check's missing
-minimum coverage (to discuss, ledger START HERE); §2; §20; §21 option
-(c); `tell_tales()`'s argument list; exposing ARLEM's
-duplication/insertion costs; the distribution channel (§34).
+minimum coverage (trial done, ledger §42); the distribution channel
+(§34). Settled 2026-10-02 (§43): `tell_tales()` keeps flat arguments;
+ARLEM's costs and §21 option (c) wait until after 1.0.0; a 0.99.0
+release candidate when the repository goes public or the rOpenSci
+submission is made. §2 and §20 were settled by §37's retirements.
 
 **Reserved for the maintainer; do not start unasked:** §21 items 1-4 (the
-matrix helpers of `plot.tales_msa()` and their tests), §20, §2.
+matrix helpers of `plot.tales_msa()` and their tests).
 
 **Deferred by the maintainer:** vdiffr plot tests (road map R6,
 2026-10-02); §30's parallel-phrasing sweep; an Rcpp

@@ -1250,6 +1250,12 @@
 #' "analyze" module of AnnoTALE outputs DNA parts but no protein parts and/or
 #' RVD sequence. This should be detected and reported in the tell_tales log.
 #'
+#' Each sequence of \code{subject_file} is treated as linear. A \emph{tal}
+#' gene that spans the junction of a circular molecule (the two ends of an
+#' assembled chromosome or plasmid) is cut in two, and is reported, if at
+#' all, as two partial arrays at the ends of the sequence. Rotating the
+#' sequence so that it starts elsewhere avoids this.
+#'
 #'
 #' @param subject_file Fasta file with DNA sequence(s) to be searched for the
 #'   presence of TALE coding sequences (CDS).
@@ -1439,9 +1445,15 @@
 #'   \item hits_report.tsv: report of all hits detected by HMMer
 #'   \item hits_report.gff: gff file of all hits detected by HMMer
 #'   \item domains_report.tsv: report of all Tal amino acid domains detected by AnnoTALE analyze
-#'   \item putative_tal_orf.fasta: Tal putative ORFs
-#'   \item pseudo_tal_cds.fasta: pseudo Tal CDS, putative Tal array ORFs detected by HMMer for which
-#'    AnnoTALE analyze failed to find RVD(s).
+#'   \item putative_tal_orf.fasta: for each array in which AnnoTALE found
+#'    RVDs, the DNA of the longest ORF of the array region extended by
+#'    \code{extend_len} nucleotides at its 3' end (after frameshift
+#'    correction with \code{correct_array = TRUE}). This is the putative
+#'    TALE coding sequence AnnoTALE analysed.
+#'   \item pseudo_tal_cds.fasta: for each array in which AnnoTALE found no
+#'    RVD, the DNA of the array region extended by \code{extend_len}
+#'    nucleotides at its 3' end, as found in \code{subject_file}: candidate
+#'    pseudogenes, assembly errors or false detections, kept for inspection.
 #'   \item rvd_sequences.fas: the RVDs (separated by \code{rvd_sep}) of each
 #'    array for which AnnoTALE found at least one. With \code{extremity_codes
 #'    = TRUE} (the default), each string is bracketed by terminus codes (see
@@ -1502,14 +1514,10 @@ tell_tales <- function(
   # @param taleArrayEndAnchorCode This scalar character vector will symbolize a
   #   TALE C-TERM CDS hit in the RVD sequence
 
-  #### TODO ####
-  # Add an ooptional argument that olds the circularity status of molecules in genome
-  # update the seqinfo objects accrodingly. This may solve some issues if a tale is located
-  # at the junction of extremities in a circular molecule.
-  # Could also implement an autotmated mecanisms "findCircular" that would
-  # find a temr (eg 'circular') in the sequence title and act accrodingly.
-  
-  
+  # Sequences are treated as linear (see Details). A `circular` argument
+  # could set the seqinfo so that a tal gene spanning the junction of a
+  # circular molecule is found whole (ledger §43).
+
   ####   Paths of output files   ####
   paths <- .telltale_paths(output_dir, correct_array)
   
@@ -1600,9 +1608,6 @@ tell_tales <- function(
   domainsReport <- annotale$domains
   annoTaleMessages <- annotale$messages
 
-  #### TODO  #####
-  # The exact content of the files below needs to be reassesed and 
-  # we need to determine if this is really what we want.
   # save tals orfs that have rvds
   Biostrings::writeXStringSet(fullTalOrf[names(fullTalOrf) %in% names(seqsOfRVDs)], paths$tale_orf_fasta)
   

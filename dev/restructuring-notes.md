@@ -177,21 +177,17 @@ from 1.0.0 on it needs a lifecycle deprecation (START HERE item 8).
 
 - **DONE (§37):** `tales_rvd_strings(rvd_only =)` renamed
   `repeats_only`, like its sibling (§8.2b).
-- **§2** retire `repeat_to_rvd_map()`, and **§20** rename/rewrite
-  `tale_parts_to_rvd()`. Reserved for the maintainer.
+- **DONE (§37, D1):** `repeat_to_rvd_map()` (§2) and
+  `tale_parts_to_rvd()` (§20) retired to
+  `inst/legacy/conversion_retired.R`, with `repeat_to_rvd_map_distalr()`.
 - **DONE 2026-10-02 (§22):** `plot.tales_msa()`'s x-axis title now
   reads "Position in alignment".
-- **§21 option (c)**: `tales_consensus()`/`tales_consensus_match()` taking
-  a `tales_msa` directly (`dev/class-design.md` §4.6 has it as `[A]`).
-- **`tell_tales()`'s 17 arguments** were never regrouped, and two `TODO`
-  blocks remain in its body (circular molecules; what two output files
-  should contain) (§5.3).
-- **ARLEM's duplication and insertion costs** are fixed at 10
-  (`.arlem_dup_cost`, `.arlem_indel_cost`), not exposed. Their ratio to
-  substitution costs (up to 99) is a modelling choice about how TALE
-  arrays evolve (§6).
+- **Decided 2026-10-02 (§43):** `tell_tales()` keeps its flat argument
+  list; its two `TODO` blocks are settled.
+- **Moved after 1.0.0 (§43):** §21 option (c) and ARLEM's costs. Both
+  can be added without breaking a call.
 - **Distribution channel** and the one-archive plan (§34).
-- **To discuss (maintainer, 2026-10-01): the terminus check has no
+- **In trial (§42): the terminus check has no
   minimum coverage.** A terminus counts as `NTERM`/`CTERM` whenever its
   best `hmmsearch` match has E <= `terminus_max_evalue`, however little of
   the profile it covers. Example: BAI3-1-1 raw `ROI_00001`, 247-aa
@@ -200,7 +196,9 @@ from 1.0.0 on it needs a lifecycle deprecation (START HERE item 8).
   PXO86 truncTALE's 42-aa C-terminus: positions 1-37), so a coverage rule
   would need to say which end of the profile must be covered (the end
   adjacent to the repeats) (§35).
-- **A beta of 1.0.0**, if wanted: number it **0.99.0** (then 0.99.1, ...).
+- **A beta of 1.0.0** (decided 2026-10-02, §43: yes, as a release
+  candidate when the repository goes public or the rOpenSci submission is
+  made): number it **0.99.0** (then 0.99.1, ...).
   R versions are numeric only (`1.0.0-beta` is invalid, `1.0.0-1` sorts
   after 1.0.0); 0.9.9010 < 0.99.0 < 1.0.0; Bioconductor also requires
   0.99.z for new submissions. Mark it with a `# tantale 0.99.0` NEWS
@@ -282,7 +280,7 @@ from 1.0.0 on it needs a lifecycle deprecation (START HERE item 8).
 
 - **Reserved for the maintainer, do not start unasked:** §21 items 1-4
   (the matrix helpers of `plot.tales_msa()` and the tests pinning their
-  shape), §20, §2.
+  shape). §2 and §20 were settled by the §37 retirements.
 - **Deferred by the maintainer:** §30's parallel-phrasing sweep; an Rcpp
   ARLEM (§33); rOpenSci (§34); §5.2 (talome-wide MSA plot, leaning
   shape A).
@@ -343,7 +341,7 @@ similarity tables were irreducible. It motivated the class design (§5);
 
 ---
 
-## 2. Conversion functions **[P]**
+## 2. Conversion functions -- retirements done in §37 **[V]**
 
 - **`repeat_to_rvd_map()` is redundant with `tales`** (same 251 rows as
   the `dom_code`/`rvd` columns of the fixture). Its one-RVD-per-repeat
@@ -1095,7 +1093,7 @@ The observation: argument names and `fill_type` values kept the
 
 ---
 
-## 20. `tale_parts_to_rvd()` -- candidate for a rename and a refactor/rewrite **[P]**
+## 20. `tale_parts_to_rvd()` -- candidate for a rename and a refactor/rewrite -- retired in §37 **[V]**
 
 Maintainer's flag (2026-09-21). The name carries the legacy "tale_parts"
 term, and the function builds RVD strings next to two siblings named
@@ -2352,3 +2350,76 @@ JOSS paper.
   are stderr of tests that provoke tool failures on purpose. GitHub
   annotates `actions/checkout@v4` and `setup-micromamba@v2` as Node 20
   actions, forced onto Node 24. macOS not run yet.
+
+## 42. Terminus check: a coverage rule (Q51) **[A]**
+
+The terminus check (§35) codes a terminus `NTERM`/`CTERM` when its best
+`hmmsearch` match against the TALE N- or C-terminal protein profile has
+a full-sequence E <= `terminus_max_evalue`, whatever part of the profile
+the match covers. Profiles: N-terminus 288 positions, C-terminus 279.
+BAI3-1-1 raw `ROI_00001`: a 247-aa N-terminus matching positions
+103-150 (E = 4e-22) is coded `NTERM`. A minimum covered fraction would
+reject genuine truncated termini (PXO86 truncTALE: 42-aa C-terminus,
+positions 1-37).
+
+Proposed rule: the match must also reach the profile end that faces the
+repeats, within 10 positions (N-terminus: `hmm_to >= 278`; C-terminus:
+`hmm_from <= 11`), read from `hmmsearch --domtblout`. **Maintainer,
+2026-10-02:** agreed to a trial first: score every AnnoTALE terminus of
+the article genomes and the test fixture under both rules and list
+every terminus whose code changes, for the maintainer to judge before
+the rule is adopted.
+
+Trial, 2026-10-02 (scripts kept out of the repo; rerunnable from this
+description). `tell_tales()` at HEAD on five settings: MAI1, BAI3,
+PXO86 (defaults), BAI3-1-1 raw (`cterm_min_score = 300`) and BAI3-1-1
+corrected (`cterm_min_score = 300, correct_array = TRUE,
+max_comparisons = 50`), plus the four segments of
+`termini_profile_cases.fa`. Every N-/C-terminus segment from AnnoTALE's
+`TALE_Protein_parts.fasta` was searched with `hmmsearch --tblout
+--domtblout`; the span of the domains with i-E <= 1e-5 gave the profile
+gap on the repeat side. The current rule recomputed this way equals
+`array_report.tsv`'s `*_aa_hit` on all 104 segments.
+- 108 segments, 99 matching under the current rule, 95 under the
+  proposed one. The 4 changes are all N-termini of BAI3-1-1 raw:
+  `ROI_00001` (247 aa,
+  profile 103-150), `ROI_00002`, `ROI_00007` (287 aa) and `ROI_00008`
+  (288 aa), each matching profile positions 1-150 only, E 1e-88 to
+  1e-90. In each, the last 138 residues of the segment and of the
+  profile are left unaligned. No other terminus changes: MAI1, BAI3,
+  PXO86 (truncTALEs included), BAI3-1-1 corrected and the fixture's
+  verdicts are identical.
+- The same four ROIs in the corrected run match profile 1-288 over the
+  whole segment. Their raw DNA carries `GTACGCGCAG` where the corrected
+  sequence has `GTACCGCAG` (N-terminus nt ~447, codon ~150): one inserted
+  base, and the protein reads `ASPVRAGGSTHARL...` instead of
+  `ASPVPQVDLRTLG...` from there on. Whether these are sequencing errors
+  is the maintainer's call (BAI3-1-1 is the flagged, non-gold assembly).
+- Closest genuine cases to the tolerance: BAI3-1-1 raw `ROI_00003` and
+  `ROI_00005`, 285-aa N-termini ending at profile position 286 (gap 2).
+  Everything else that matches reaches the end (gap 0). So a tolerance
+  of 10 sits between 2 and 138.
+
+## 43. Pre-1.0.0 decisions (Q52-Q55) **[V]**
+
+Maintainer, 2026-10-02:
+- Q52: `tell_tales()` keeps flat arguments, no grouping into lists.
+- Q53a: sequences are treated as linear. `?tell_tales` now says so, with
+  the consequence (a *tal* gene spanning the junction of a circular
+  molecule is cut in two) and the workaround (rotate the sequence). A
+  `circular` argument can come later without breaking a call; the
+  `TODO` block became a comment pointing here.
+- Q53b: `putative_tal_orf.fasta` and `pseudo_tal_cds.fasta` are kept,
+  their docs now say exactly what they hold, and the `TODO` block is
+  gone. Nothing in the package, tests or articles reads them.
+- Q54: ARLEM's duplication/insertion costs (exposable as arguments of
+  `tales_tale_distances()`) and §21 option (c) (`tales_consensus()`/
+  `tales_consensus_match()` accepting a `tales_msa`, as S3 methods) move
+  after 1.0.0: neither breaks an existing call.
+- Q55: a 0.99.0 release candidate, yes. The maintainer still has work to
+  do on the website and public-facing material; that is compatible, since
+  0.99.x only freezes the API in intent (hard renames remain allowed)
+  and the site and docs can change between 0.99.x versions.
+- §2 and §20 were found already settled by §37's D1 (their functions are
+  in `inst/legacy/conversion_retired.R`); START HERE still listed them as
+  reserved. Corrected.
