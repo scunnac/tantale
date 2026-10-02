@@ -306,15 +306,16 @@ against the code 2026-09-23). Headlines:
 8. Done: README declares the interface stable; lifecycle conventions
    from 1.0.0 on.
 
-**Decisions to make before 1.0.0:** the terminus check's missing minimum coverage (to discuss, ledger START HERE); `tales_rvd_strings(rvd_only =)` ->
-`repeats_only`; §2; §20; the "Position in array" axis title (§22); §21
-option (c); `tell_tales()`'s argument list; exposing ARLEM's
+**Decisions to make before 1.0.0:** the terminus check's missing
+minimum coverage (to discuss, ledger START HERE); §2; §20; §21 option
+(c); `tell_tales()`'s argument list; exposing ARLEM's
 duplication/insertion costs; the distribution channel (§34).
 
 **Reserved for the maintainer; do not start unasked:** §21 items 1-4 (the
 matrix helpers of `plot.tales_msa()` and their tests), §20, §2.
 
-**Deferred by the maintainer:** §30's parallel-phrasing sweep; an Rcpp
+**Deferred by the maintainer:** vdiffr plot tests (road map R6,
+2026-10-02); §30's parallel-phrasing sweep; an Rcpp
 ARLEM (§33); rOpenSci and the one-archive plan (§34); §5.2.
 
 ### Done recently (details in the ledger)

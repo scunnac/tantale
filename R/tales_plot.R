@@ -290,8 +290,7 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
   # position_in_array, so that was always what these matrices' columns (and
   # everything melted from them below) actually carried. Renamed throughout
   # this function to match (ledger §21's closing note; class-design.md
-  # §4.6). The visible x-axis title below, "Position in array", is left
-  # exactly as it was -- a separate, user-facing call not made here.
+  # §4.6). The x-axis title says "Position in alignment" to match (§22).
   
   # Getting domain align
   if (!is.null(domain_align)) {
@@ -428,7 +427,7 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
     x = alignment_position, y = array_id)
   ) +
     ggplot2::scale_x_discrete(
-      name = "Position in array",
+      name = "Position in alignment",
       limits = factor(1:max(domainAlignLong$alignment_position))
     ) +
     ggplot2::scale_y_discrete(name = NULL) +

@@ -175,12 +175,12 @@ Not urgent in themselves, but cheaper before the release: until 1.0.0 a
 rename is a hard rename (no deprecation cycle, maintainer 2026-09-24);
 from 1.0.0 on it needs a lifecycle deprecation (START HERE item 8).
 
-- **`tales_rvd_strings(rvd_only =)`** means "repeats only"; its sibling
-  says `repeats_only` (§8.2b).
+- **DONE (§37):** `tales_rvd_strings(rvd_only =)` renamed
+  `repeats_only`, like its sibling (§8.2b).
 - **§2** retire `repeat_to_rvd_map()`, and **§20** rename/rewrite
   `tale_parts_to_rvd()`. Reserved for the maintainer.
-- **`plot.tales_msa()`'s x-axis title** still reads "Position in array";
-  the axis is the alignment position (§22, `R/tales_plot.R:406`).
+- **DONE 2026-10-02 (§22):** `plot.tales_msa()`'s x-axis title now
+  reads "Position in alignment".
 - **§21 option (c)**: `tales_consensus()`/`tales_consensus_match()` taking
   a `tales_msa` directly (`dev/class-design.md` §4.6 has it as `[A]`).
 - **`tell_tales()`'s 17 arguments** were never regrouped, and two `TODO`
@@ -251,8 +251,9 @@ from 1.0.0 on it needs a lifecycle deprecation (START HERE item 8).
   (maintainer's own, §8.1b).
 - Each toy region yields a spurious single-hit array at its 3' end,
   because `min_domain_hits` filters subject sequences (§8.1).
-- `.rvds_from_annotale_file()` (`R/tales_ingest.R:55`) has no caller in
-  `R/` or `tests/`: a parking candidate (§29.1).
+- **Closed:** `.rvds_from_annotale_file()` is called by
+  `.tale_parts_assemble()`, which `tales_from_telltales()` and
+  `tales_from_annotale()` both use (§35, §37; §29.1).
 - Consumers of `tales_rvd_strings()` other than
   `tales_to_universalmotif()` were never checked for silently dropping
   an array with no repeats (§12b).
@@ -1124,10 +1125,10 @@ matrix shapes, and the maintainer wants to rewrite them personally):
 ## 22. `plot.tales_msa()`'s `position_in_array` mislabel -- fixed **[V]**
 
 The per-position column of the plot's long tables held the alignment
-position; renamed `alignment_position`. **Held for the maintainer:** the
-visible axis title still reads "Position in array"
-(`R/tales_plot.R:406`), where `plot.tales()` says "Position in
-alignment" for the same coordinate.
+position; renamed `alignment_position`. The visible axis title read
+"Position in array", where `plot.tales()` says "Position in alignment"
+for the same coordinate. **Maintainer, 2026-10-02:** rename to match;
+done the same day (`R/tales_plot.R`, NEWS).
 
 ## 23. `repeat_sims`/`tal_sim`/`domain_sim`/`fill_type` renamed -- §19 acted on **[V]**
 
@@ -2305,8 +2306,10 @@ changed. D6 (keep AnnoTALE's "(Pseudo)" flag): maintainer said no.
 
 Maintainer, 2026-10-01: R1 P1, R4 yes, R8 by hand for now (switch to
 push/PR triggers when the package is mature) and test other OSes; R6
-asked for an opinion; R7 and R9 wait, both tied to meeting rOpenSci's
-requirements for review and a JOSS paper.
+(vdiffr) asked for an opinion, then deferred by the maintainer
+2026-10-02 (opinion given: low priority, five plots would do); R7 and
+R9 wait, both tied to meeting rOpenSci's requirements for review and a
+JOSS paper.
 - R1 done: `.tidy_biostrings_msa()`'s comment now describes what it takes
   (a named XStringSet of equal-length sequences) and its one caller,
   `plot_target_preds()`. The file input it claimed was never needed.

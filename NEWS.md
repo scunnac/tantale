@@ -1,5 +1,11 @@
 # tantale 0.9.9011
 
+## `plot()` on a `tales_msa`: the x-axis is "Position in alignment"
+
+The x-axis of `plot.tales_msa()` counts alignment columns, and its title
+now says so. It read "Position in array", which is the title
+`plot.tales()` uses for a domain's position within its own array.
+
 ## `tell_tales()` prints its closing summary line by line
 
 The summary `tell_tales()` prints at the end of a run is now shown as it
