@@ -5,6 +5,7 @@
 # then tantale_setup(install = TRUE).
 # Runners: Linux, and an Intel Mac (the pinned bioconda tools have osx-64
 # builds, none for osx-arm64 or Windows; DESCRIPTION has OS_type: unix).
+# macos-15-intel is GitHub's last Intel image, supported until autumn 2027.
 name: R-CMD-check
 
 on:
@@ -15,7 +16,7 @@ on:
         type: choice
         options:
           - ubuntu-latest
-          - macos-13
+          - macos-15-intel
         default: ubuntu-latest
 
 jobs:

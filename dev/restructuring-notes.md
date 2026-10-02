@@ -2322,5 +2322,8 @@ requirements for review and a JOSS paper.
   none for osx-arm64 or win-64. So Windows is out (also `OS_type: unix`),
   Apple Silicon Macs cannot build the environment as pinned (an osx-64
   environment under Rosetta would need `tantale_setup()` support), and
-  the workflow offers `macos-13` (Intel). Private repository on the free
+  the workflow offers an Intel Mac. 2026-10-02: `macos-13` had been
+  retired by GitHub (4 December 2025), so the option is now
+  `macos-15-intel`, GitHub's last Intel image (supported until autumn
+  2027; no Intel macOS runner after that). Private repository on the free
   plan: macOS minutes count 10x.
