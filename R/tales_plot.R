@@ -567,7 +567,10 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
                           na.rm = TRUE
       )
   } else {
-    cli::cli_abort("Cannot ouput a plot based on the suppplied combination of parameter values...", class = c("tantale_error"))
+    cli::cli_abort(
+      c("Cannot build the requested plot from these arguments.",
+        "i" = "Check {.arg fill}, {.arg label} and {.arg fill_type} against the object's layers."),
+      class = c("tantale_error_bad_argument", "tantale_error"))
   }
   # Merge tree and align
   if (exists("taleshclust")) {

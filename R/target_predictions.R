@@ -99,9 +99,10 @@ preditale <- function(rvd_seqs, subj_file, opt_param = "", output_dir = NULL,
   return(predictions)
 }
 
-# java -Xms512M -Xmx2G -jar /home/cunnac/Lab-Related/MyScripts/xanthopore-scripts/tantale/inst/tools/PrediTALE.jar preditale \
-# TALEs=/home/cunnac/Lab-Related/MyScripts/xanthopore-scripts/tantale/inst/extdata/cladeIII_sweet_targeting_control_TALEs.fa \
-# s=/home/cunnac/Lab-Related/MyScripts/xanthopore-scripts/tantale/inst/extdata/cladeIII_sweet_promoters.fasta \
+# TANTALE=$(Rscript -e 'cat(system.file(package = "tantale"))')
+# java -Xms512M -Xmx2G -jar $TANTALE/tools/PrediTALE.jar preditale \
+# TALEs=$TANTALE/extdata/cladeIII_sweet_targeting_control_TALEs.fa \
+# s=$TANTALE/extdata/cladeIII_sweet_promoters.fasta \
 # outdir=$(pwd)
 
 #' Run TALE target predictions on DNA sequence(s) using Talvez
@@ -246,11 +247,12 @@ talvez <- function(rvd_seqs, subj_file, opt_param = "-t 0 -l 19", output_dir = N
 
 
 
-# cd /home/cunnac/Lab-Related/MyScripts/xanthopore-scripts/tantale/inst/tools/TALVEZ_3.2
-# perl /home/cunnac/Lab-Related/MyScripts/xanthopore-scripts/tantale/inst/tools/TALVEZ_3.2/TALVEZ_3.2.pl \
+# TALVEZ=$(Rscript -e 'cat(system.file("tools", "TALVEZ_3.2", package = "tantale"))')
+# cd $TALVEZ
+# perl $TALVEZ/TALVEZ_3.2.pl \
 # -t 100 -l 19  \
-# -e /home/cunnac/Lab-Related/MyScripts/xanthopore-scripts/tantale/inst/tools/TALVEZ_3.2/mat1 \
-# -z /home/cunnac/Lab-Related/MyScripts/xanthopore-scripts/tantale/inst/tools/TALVEZ_3.2/mat2 \
+# -e $TALVEZ/mat1 \
+# -z $TALVEZ/mat2 \
 # TALCONTROL_RVDs.txt \
 # TALCONTROL_Promoters.fasta
 

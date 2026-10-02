@@ -19,8 +19,8 @@
 # extend_len = 300
 # ... = NULL
 
-# subject_file = "/home/cunnac/TEMP/220928-8_talCor.fasta"
-# output_dir = file.path("/home/cunnac/TEMP", gsub("(\\.fasta)|(\\.fa)|(\\.fna)|(\\.fsa)", "", basename(subject_file)))
+# subject_file = system.file("extdata", "bai3_sample_tal_genomic_regions.fasta", package = "tantale", mustWork = T)
+# output_dir = file.path(tempdir(), gsub("(\\.fasta)|(\\.fa)|(\\.fna)|(\\.fsa)", "", basename(subject_file)))
 # hmm_dir = system.file("extdata", "hmmProfile", package = "tantale", mustWork = T)
 # hmmer_path = NULL   # NULL -> the tantale conda env
 # correct_array = FALSE

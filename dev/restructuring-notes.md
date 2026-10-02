@@ -257,15 +257,26 @@ from 1.0.0 on it needs a lifecycle deprecation (START HERE item 8).
 - Consumers of `tales_rvd_strings()` other than
   `tales_to_universalmotif()` were never checked for silently dropping
   an array with no repeats (§12b).
-- Seven condition sites still carry only the generic `tantale_error`
-  class (`conversion.R` 2, `talecorrection_java.R` 3, `tales_ingest.R` 1,
-  `tales_plot.R` 1) (§9.5).
+- **DONE 2026-10-02 (Q50):** the last errors with only the generic
+  `tantale_error` class were five, not seven (`conversion.R` 2,
+  `talecorrection_java.R` 1, `tales_ingest.R` 1, `tales_plot.R` 1;
+  found with the parser). They now carry `tantale_error_bad_argument`,
+  `_missing_file` or the new `_annotale_file`; their messages were
+  rewritten, and `test_error_conditions.R` asserts the classes (the
+  `tales_plot.R` one sits in an unreachable `else`, untested). Still
+  open: 13 `cli_warn()` calls carry no class at all, so tests can
+  only match their wording (§9.5).
 - Rendered error messages from an installed package show a source path
   ("at tantale/R/tales_class.R:818:3"); cosmetic (§30).
-- Commented-out developer snippets still carry `/home/cunnac/...` paths
-  (§34).
-- `man/figures/pipeline.svg`/`.png` are stale and referenced from nowhere
-  outside `dev/` (§7.6). The data-flow view of §29.2 could replace them.
+- **DONE 2026-10-02 (Q50):** commented-out developer snippets in `R/`
+  no longer carry `/home/cunnac/...` paths (`system.file()`,
+  `reticulate::conda_binary()`, `tempdir()` instead). Left alone: the
+  recorded run in `inst/extdata/tellTaleExampleOutput/` (its
+  `tell_tales.log` and `hmmer_search_out.txt` print the paths of the
+  machine that produced them) and the upstream ant file
+  `inst/tools/talecorrect/TALEcorrection.xml` (§34).
+- **DONE 2026-10-02 (Q50):** the stale `pipeline.svg`/`.png` moved from
+  `man/figures/` to `dev/figures/` (§7.6).
 
 ### Parked, reserved or deferred
 
@@ -521,7 +532,7 @@ still hold:
 - `talomes_heatmap()`'s rows/columns docs corrected.
 - `DESCRIPTION` carries `Config/roxygen2/version: 8.0.0` (roxygen2 8.0
   replaced `RoxygenNote`).
-- `man/figures/pipeline.svg`/`.png`: see §7.6.
+- `pipeline.svg`/`.png` (now in `dev/figures/`): see §7.6.
 
 ### 7.1 Vignettes 1-4 cannot be built **[V]** — SUPERSEDED, see §7.5b/§7.5c
 
@@ -632,9 +643,11 @@ badge with a dated caveat in README (73.96% on 2026-09-21, 90.03% on
 Open:
 - The "stable" badge against README's own "interfaces may still change"
   (`README.md:116`). START HERE item 8.
-- **`man/figures/pipeline.svg`/`.png`** show pre-restructuring function
-  names and are referenced from nowhere outside `dev/`. Redraw, remove,
-  or replace with the §29.2 data-flow view. Re-exporting the PNG needs
+- **`pipeline.svg`/`.png`** show pre-restructuring function names and
+  were referenced from nowhere outside `dev/`. Moved from `man/figures/`
+  to `dev/figures/` on 2026-10-02 (maintainer's go-ahead, Q50), so they
+  no longer ship (~740 KB). Redraw or replace with the §29.2 data-flow
+  view if a workflow figure is wanted. Re-exporting the PNG needs
   Inkscape (librsvg changes the typography).
 
 A one-off: `extra/tantale_logo.png` vanished during one `covr` run and
@@ -1249,7 +1262,7 @@ Maintainer's request (2026-09-22): a map of the package covering
 internals, and the class objects if legible. Decisions: a dev-only `.qmd`
 under `dev/`, interactive (`visNetwork`), generated from the code so it
 cannot go stale, opening grouped by file. Distinct from
-`man/figures/pipeline.svg` (§7.6), a curated workflow figure.
+`dev/figures/pipeline.svg` (§7.6), a curated workflow figure.
 
 ### 29.1 Phase 1 built, 2026-09-23 **[V]**
 

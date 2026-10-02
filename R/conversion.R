@@ -11,7 +11,8 @@
 .split_list <- function(strings, sep = "-") {
   if (is.list(strings) &&
       any(sapply(strings, length) > 1)) {
-      cli::cli_abort("The value provided for strings seems already to be splitted.", class = c("tantale_error"))
+      cli::cli_abort("{.arg strings} already holds split sequences.",
+                     class = c("tantale_error_bad_argument", "tantale_error"))
   } else if (length(strings) == 1 && is.character(strings)) {
     stopifnot(fs::file_exists(strings))
     seqs <- as.character(Biostrings::readBStringSet(strings), use.names = TRUE)
@@ -20,7 +21,8 @@
   } else if (length(strings) >= 1 && is.list(strings)) {
     seqs <- strings
   } else {
-    cli::cli_abort("Something is wrong with the value provided for strings.", class = c("tantale_error"))
+    cli::cli_abort("{.arg strings} must be a file path, an {.cls AAStringSet} or {.cls BStringSet}, or a list of strings.",
+                   class = c("tantale_error_bad_argument", "tantale_error"))
   }
   
   seqsAsVectors <- stringr::str_split(seqs, pattern = glue::glue("[{sep}]"))

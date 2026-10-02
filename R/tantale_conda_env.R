@@ -41,8 +41,8 @@
 # reticulate::conda_list(conda = conda_bin)
 
 # reticulate::conda_binary()
-# reticulate::conda_list(conda = "/home/cunnac/bin/miniconda3/condabin/conda")["name"] %>% unlist()
-# .create_tantale_env(conda_bin = "/home/cunnac/bin/miniconda3/condabin/conda")
+# reticulate::conda_list(conda = reticulate::conda_binary())["name"] %>% unlist()
+# .create_tantale_env(conda_bin = reticulate::conda_binary())
 # #perl-data-dumper
 
 # use warnings;

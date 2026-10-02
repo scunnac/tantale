@@ -56,7 +56,8 @@ correct_tales <- function(uncorrected_path ,
   # flag letters, which read the other way round at a glance.
   domains <- c(N = "N-terminus.10bpRepeat1", C = "C-terminus", R = "repeat")
   if (!fs::file_exists(uncorrected_path)) {
-    cli::cli_abort("The provided input file does not exists", class = c("tantale_error"))
+    cli::cli_abort("No sequence file at {.file {uncorrected_path}}.",
+                   class = c("tantale_error_missing_file", "tantale_error"))
   }
   
   #### run nHMMER ####

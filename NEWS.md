@@ -6,6 +6,14 @@ The x-axis of `plot.tales_msa()` counts alignment columns, and its title
 now says so. It read "Position in array", which is the title
 `plot.tales()` uses for a domain's position within its own array.
 
+## Every error has a specific condition class
+
+The last errors that carried only the generic `tantale_error` class now
+also carry a specific one (`tantale_error_bad_argument`,
+`tantale_error_missing_file`, `tantale_error_annotale_file`), so code
+that calls tantale can tell them apart. `correct_tales()` now names the
+input file it cannot find.
+
 ## `tell_tales()` prints its closing summary line by line
 
 The summary `tell_tales()` prints at the end of a run is now shown as it

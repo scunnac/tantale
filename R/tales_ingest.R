@@ -38,7 +38,8 @@
 
 .rvds_from_annotale_file <- function(fasta) {
   if (!grepl("TALE_RVDs.fasta", basename(fasta))) {
-    cli::cli_abort("The provided file does not seem to be an AnnoTALE RVDs file: {fasta}", class = c("tantale_error"))
+    cli::cli_abort("{.file {fasta}} is not an AnnoTALE RVD file ({.file TALE_RVDs.fasta}).",
+                   class = c("tantale_error_annotale_file", "tantale_error"))
   } else {
     # AnnoTALE writes an empty record for a TALE in which it found no repeat
     # (seen on pseudogenes); that TALE simply has no RVD

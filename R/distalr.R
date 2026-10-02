@@ -619,11 +619,11 @@ diag(identSubMat) <- 1
 
 
 
-# tale_parts <- readRDS("/home/cunnac/TEMP/talePartsForDistalr.rds")
+# tale_parts <- readRDS("talePartsForDistalr.rds")
 # h_cut = 10
 # ncores = 1
 # aln_method = "DECIPHER"
-# conda_bin = "/home/cunnac/bin/miniconda3/condabin/conda"
+# conda_bin = reticulate::conda_binary()
 
 
 

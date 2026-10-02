@@ -93,3 +93,23 @@ test_that("an empty-string aa_seq is reported too, not just NA", {
   x$aa_seq[x$array_id == bad][1] <- ""
   expect_error(suppressWarnings(tales_compare_distal(x)), bad, fixed = TRUE)
 })
+
+
+#### Specific classes on the last generic-only errors (ledger §9.5) ####
+
+test_that(".split_list() rejects input it cannot split", {
+  expect_error(.split_list(list(c("NI", "HD"))),
+               class = "tantale_error_bad_argument")
+  expect_error(.split_list(1:3), class = "tantale_error_bad_argument")
+})
+
+test_that("correct_tales() names a missing input file", {
+  missing <- file.path(tempdir(), "no_such_file.fa")
+  expect_error(correct_tales(missing), class = "tantale_error_missing_file")
+  expect_error(correct_tales(missing), "no_such_file.fa", fixed = TRUE)
+})
+
+test_that(".rvds_from_annotale_file() rejects a file AnnoTALE did not name", {
+  expect_error(.rvds_from_annotale_file("rvds.fasta"),
+               class = "tantale_error_annotale_file")
+})
