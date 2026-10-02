@@ -234,38 +234,36 @@ stamp exists to catch cross-run mixing, and is enforced, not advisory.
 
 ## Where things stand
 
-*Updated 2026-10-01. Re-check with `git log --oneline -5` and `git status`
+*Updated 2026-10-03. Re-check with `git log --oneline -5` and `git status`
 before trusting any of it.*
 
 ### State
 
-- Branch `main`, version **0.9.9011**, pushed 2026-10-01 (check
-  `git status -sb`). The installed `tantale` may be older: reinstall
-  before rendering articles.
-- **Current road map: `dev/notes_for_claude.md`** (the maintainer's
-  list), worked through in the order agreed in ledger §35: (1) termini
-  check and `array_report.tsv` renames; (2) the stray `tell_tales()`
-  warnings (§36); (3) `tales_from_annotale()`, renames
-  (`tales_from_telltales`, `tales_msa_width`, `repeats_only`,
-  `.repeat_to_rvd_align`) and retirements, legacy column names included
-  (§37). All three done 2026-10-01. Still on the list, not started:
-  `.tidy_biostrings_msa`'s unimplemented file input, `tell_tales()`'s
-  log line breaks in RStudio, vdiffr plot tests, CI, the package-size
-  proposal (§34), the JOSS manuscript. The maintainer wants
-  to agree each plan before any coding.
-- §38 done 2026-10-01: `tales_anomalies()` reports every non-standard
-  TALE (`terminus_absent`, `no_repeat`, `terminus_unmatched`). §39 done
-  the same day: R5 "Get started" (main vignette is now
-  `vignettes/tantale.qmd`), R2 (`plot.tales_msa()`'s RVD blocks merged),
-  R3 (`plot.tales(facet_by =)`), R10 (README mining bullets). §40:
-  string projections and `tales_align()` order arrays in C-locale order
-  on every machine. §41: R1 and R4 done; R8 workflow
-  `.github/workflows/R-CMD-check.yaml` (manual trigger, `ubuntu-latest`
-  or `macos-15-intel`): first Linux run passed 2026-10-02, Status OK,
-  30 min (`gh workflow run R-CMD-check.yaml -f os=ubuntu-latest`; gh is
-  installed and authenticated). macOS not run yet. vdiffr (R6) deferred
-  by the maintainer. R7 (package size) and R9
-  (JOSS) wait; both serve the rOpenSci review: start with `pkgcheck`.
+- Branch `main`, version **0.9.9011**, pushed 2026-10-03 (check
+  `git status -sb`). The installed `tantale` is older than `main`:
+  reinstall before rendering articles.
+- **Road map (`dev/notes_for_claude.md`):** steps 1-3 done (§35-§37);
+  R1-R5, R10 done (§39, §41); R8 CI done: manual workflow
+  `.github/workflows/R-CMD-check.yaml` (`ubuntu-latest` or
+  `macos-15-intel`), Linux passes (`gh workflow run R-CMD-check.yaml -f
+  os=ubuntu-latest`; gh is authenticated); macOS never run. R6 vdiffr
+  deferred by the maintainer. R7 (package size) and R9 (JOSS) wait; both
+  serve the rOpenSci review. The maintainer wants to agree each plan
+  before any coding. Also done 2026-10-01: §38 (`tales_anomalies()`
+  reports every non-standard TALE), §40 (C-locale array order), R5's
+  "Get started" page is `vignettes/tantale.qmd`.
+- **2026-10-02/03:** §42 terminus coverage rule adopted (a match must
+  reach the profile end next to the repeats; new `array_report.tsv`
+  columns `*_aa_profile_gap`); §43 pre-1.0 decisions (flat
+  `tell_tales()` arguments, 0.99.0 release candidate when going public or
+  submitting to rOpenSci); §44 pkgcheck triage: P1-P4 and P6 done, **P5
+  (audit the 42 Imports, with R7) is the next candidate**, P7 CI badge
+  when public, P8 ORCID left to the maintainer.
+- **Site not rebuilt since 2026-10-01.** Pending: reference pages (new
+  examples, `tell_tales()`/terminus docs), the articles whose
+  `plot.tales_msa()` figures show the old axis title, `tale_mining`'s raw
+  BAI3-1-1 codes, the CONTRIBUTING link. A full rebuild (wipe `docs/`)
+  also removes the stale `docs/reference/figures/pipeline.svg`.
 - The site's home page is `pkgdown/index.md`; README edits never reach it.
 - The full site in `docs/` was wiped and rebuilt at 0.9.9011 on
   2026-10-01 after the vignette rename; `tale_classification` re-rendered
