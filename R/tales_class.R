@@ -84,6 +84,15 @@ new_tales <- function(x, dom_code_namespace = NULL) {
 #' Is this a tales object?
 #' @param x An object.
 #' @return A logical scalar.
+#' @examples
+#' parts <- data.frame(
+#'   array_id = c("A1", "A1", "A1"),
+#'   position_in_array = 1:3,
+#'   domain_type = c("N-terminus", "repeat", "C-terminus"),
+#'   rvd = c("NTERM", "HD", "CTERM")
+#' )
+#' is_tales(parts)        # a plain data frame
+#' is_tales(tales(parts))
 #' @export
 #' @family tales objects
 is_tales <- function(x) inherits(x, "tales")

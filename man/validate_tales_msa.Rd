@@ -18,6 +18,19 @@ an alignment. As for \code{tales}, only properties that still hold on any
 subset of rows are checked here; grid completeness is a precondition of
 the functions that need it.
 }
+\examples{
+aligned <- data.frame(
+  array_id = c("A1", "A1", "A1", "A2", "A2"),
+  position_in_array = c(1L, 2L, 3L, 1L, 2L),
+  alignment_position = c(1L, 2L, 3L, 1L, 3L),
+  rvd = c("NTERM", "HD", "CTERM", "NTERM", "CTERM")
+)
+validate_tales_msa(tales_msa(aligned))
+
+# Two parts of A1 placed in the same alignment column
+aligned$alignment_position[2] <- 1L
+try(tales_msa(aligned))
+}
 \seealso{
 Other TALE alignment:
 \code{\link[=as.matrix.tales_msa]{as.matrix.tales_msa()}},

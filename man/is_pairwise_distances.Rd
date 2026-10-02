@@ -15,6 +15,15 @@ A logical scalar.
 \description{
 Is this a pairwise distance table?
 }
+\examples{
+d <- data.frame(
+  id1 = c("A1", "A1", "A2", "A2"),
+  id2 = c("A1", "A2", "A1", "A2"),
+  dissim = c(0, 35, 35, 0)
+)
+is_pairwise_distances(d)
+is_pairwise_distances(pairwise_distances(d))
+}
 \seealso{
 Other pairwise distances:
 \code{\link[=[.pairwise_distances]{[.pairwise_distances()}},

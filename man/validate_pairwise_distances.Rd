@@ -18,6 +18,17 @@ symmetry are preconditions of the methods that need them, checked by
 \code{\link{distances_assert_square}}: a table filtered on one id column is
 a legitimate intermediate step.
 }
+\examples{
+d <- data.frame(
+  id1 = c("A1", "A1", "A2", "A2"),
+  id2 = c("A1", "A2", "A1", "A2"),
+  dissim = c(0, 35, 35, 0)
+)
+validate_pairwise_distances(pairwise_distances(d))
+
+# Without its dissim column, a table is not a pairwise_distances
+try(validate_pairwise_distances(d[, c("id1", "id2")]))
+}
 \seealso{
 Other pairwise distances:
 \code{\link[=[.pairwise_distances]{[.pairwise_distances()}},

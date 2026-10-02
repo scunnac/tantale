@@ -31,6 +31,16 @@ new_tales_msa <- function(x, alignment_width = NULL) {
 #' Is this a tales_msa object?
 #' @param x An object.
 #' @return A logical scalar.
+#' @examples
+#' aligned <- data.frame(
+#'   array_id = c("A1", "A1", "A1", "A2", "A2"),
+#'   position_in_array = c(1L, 2L, 3L, 1L, 2L),
+#'   alignment_position = c(1L, 2L, 3L, 1L, 3L),
+#'   rvd = c("NTERM", "HD", "CTERM", "NTERM", "CTERM")
+#' )
+#' msa <- tales_msa(aligned)
+#' is_tales_msa(msa)
+#' is_tales_msa(as_tales(msa)) # back to a plain tales
 #' @export
 #' @family TALE alignment
 is_tales_msa <- function(x) inherits(x, "tales_msa")
@@ -44,6 +54,20 @@ is_tales_msa <- function(x) inherits(x, "tales_msa")
 #'
 #' @param x A \code{tales_msa} object.
 #' @return An integer scalar, or \code{NULL} if unset.
+#' @examples
+#' # A2 has no C-terminus, so the last column holds A1's alone.
+#' aligned <- data.frame(
+#'   array_id = c("A1", "A1", "A1", "A1", "A2", "A2"),
+#'   position_in_array = c(1L, 2L, 3L, 4L, 1L, 2L),
+#'   alignment_position = c(1L, 2L, 3L, 4L, 1L, 2L),
+#'   rvd = c("NTERM", "HD", "NI", "CTERM", "NTERM", "HD")
+#' )
+#' msa <- tales_msa(aligned)
+#' tales_msa_width(msa)
+#' # Keeping A2 alone empties columns 3 and 4; the width is still 4.
+#' a2 <- msa[msa$array_id == "A2", ]
+#' max(a2$alignment_position)
+#' tales_msa_width(a2)
 #' @export
 #' @family TALE alignment
 tales_msa_width <- function(x) {
@@ -102,6 +126,18 @@ tales_msa <- function(x, alignment_width = NULL, dom_code_namespace = NULL) {
 #'
 #' @param x A \code{tales_msa} object.
 #' @return \code{x}, invisibly, if valid; otherwise an error.
+#' @examples
+#' aligned <- data.frame(
+#'   array_id = c("A1", "A1", "A1", "A2", "A2"),
+#'   position_in_array = c(1L, 2L, 3L, 1L, 2L),
+#'   alignment_position = c(1L, 2L, 3L, 1L, 3L),
+#'   rvd = c("NTERM", "HD", "CTERM", "NTERM", "CTERM")
+#' )
+#' validate_tales_msa(tales_msa(aligned))
+#'
+#' # Two parts of A1 placed in the same alignment column
+#' aligned$alignment_position[2] <- 1L
+#' try(tales_msa(aligned))
 #' @export
 #' @family TALE alignment
 validate_tales_msa <- function(x) {

@@ -15,6 +15,16 @@ A logical scalar.
 \description{
 Is this a tales object?
 }
+\examples{
+parts <- data.frame(
+  array_id = c("A1", "A1", "A1"),
+  position_in_array = 1:3,
+  domain_type = c("N-terminus", "repeat", "C-terminus"),
+  rvd = c("NTERM", "HD", "CTERM")
+)
+is_tales(parts)        # a plain data frame
+is_tales(tales(parts))
+}
 \seealso{
 Other tales objects:
 \code{\link[=[.tales]{[.tales()}},

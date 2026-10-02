@@ -44,6 +44,14 @@ new_pairwise_distances <- function(x, subclass = NULL, dom_code_namespace = NULL
 #' Is this a pairwise distance table?
 #' @param x An object.
 #' @return A logical scalar.
+#' @examples
+#' d <- data.frame(
+#'   id1 = c("A1", "A1", "A2", "A2"),
+#'   id2 = c("A1", "A2", "A1", "A2"),
+#'   dissim = c(0, 35, 35, 0)
+#' )
+#' is_pairwise_distances(d)
+#' is_pairwise_distances(pairwise_distances(d))
 #' @export
 #' @family pairwise distances
 is_pairwise_distances <- function(x) inherits(x, "pairwise_distances")
@@ -150,6 +158,16 @@ domain_distances <- function(x, dom_code_namespace = NULL) {
 #'
 #' @param x A \code{pairwise_distances} object.
 #' @return \code{x}, invisibly, if valid; otherwise an error.
+#' @examples
+#' d <- data.frame(
+#'   id1 = c("A1", "A1", "A2", "A2"),
+#'   id2 = c("A1", "A2", "A1", "A2"),
+#'   dissim = c(0, 35, 35, 0)
+#' )
+#' validate_pairwise_distances(pairwise_distances(d))
+#'
+#' # Without its dissim column, a table is not a pairwise_distances
+#' try(validate_pairwise_distances(d[, c("id1", "id2")]))
 #' @export
 #' @family pairwise distances
 validate_pairwise_distances <- function(x) {

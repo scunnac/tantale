@@ -15,6 +15,17 @@ A logical scalar.
 \description{
 Is this a tales_msa object?
 }
+\examples{
+aligned <- data.frame(
+  array_id = c("A1", "A1", "A1", "A2", "A2"),
+  position_in_array = c(1L, 2L, 3L, 1L, 2L),
+  alignment_position = c(1L, 2L, 3L, 1L, 3L),
+  rvd = c("NTERM", "HD", "CTERM", "NTERM", "CTERM")
+)
+msa <- tales_msa(aligned)
+is_tales_msa(msa)
+is_tales_msa(as_tales(msa)) # back to a plain tales
+}
 \seealso{
 Other TALE alignment:
 \code{\link[=as.matrix.tales_msa]{as.matrix.tales_msa()}},
