@@ -28,7 +28,7 @@ tell_tales(
   correct_array = FALSE,
   correction_ref = system.file("extdata", "tale_correction_ref.fa.gz", package =
     "tantale", mustWork = T),
-  max_comparisons = NULL,
+  max_comparisons = 50,
   frameshift = -11,
   ...
 )
@@ -167,7 +167,7 @@ tell_tales(
 
   How many reference proteins each array may be aligned against during
   frameshift correction, and **the main control on how long correction
-  takes**. `NULL`, the default, allows all of them.
+  takes**. `NULL` allows all of them.
 
   [`DECIPHER::CorrectFrameshifts()`](https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html)
   scores every reference with a cheap distance first, sorts them, and
@@ -177,41 +177,34 @@ tell_tales(
   references are preferred, only how deep the search goes before
   settling for the best seen.
 
-  Measured on four arrays against the 1057-sequence source set, all
-  giving byte-identical corrected sequences:
+  The default, 50, gives the same result as the full search on the four
+  genomes shipped with the package, corrected against the default
+  reference (494 proteins): identical corrected sequences and RVD
+  strings for every array of MAI1 (10 candidate arrays), BAI3 (10),
+  PXO86 (19) and BAI3-1-1 (9), at about a quarter of the time or less.
+  On BAI3-1-1, an error-prone assembly, the full search took 455 s and
+  50 took 61 s.
 
-  |                     |             |
-  |---------------------|-------------|
-  | **max_comparisons** | **seconds** |
-  | all (1057)          | 252         |
-  | 400                 | 179         |
-  | 100                 | 47          |
-  | 50                  | 23          |
-  | 20                  | 10          |
+  A smaller cap risks a divergent array whose only good reference lies
+  outside the closest `max_comparisons` by the cheap pre-screen. The
+  array is then corrected against a poor reference, which is worse than
+  leaving it uncorrected, because the result still looks like a
+  corrected ORF. On BAI3-1-1, one array of the nine needs more than 20
+  references:
 
-  **The trade-off.** A cap risks a divergent array whose only good
-  reference lies outside the closest `max_comparisons` by the cheap
-  pre-screen. That pre-screen is an approximation, so a low cap trusts
-  it to rank the truly best reference near the top.
+  |                     |             |                                            |
+  |---------------------|-------------|--------------------------------------------|
+  | **max_comparisons** | **seconds** | **that array**                             |
+  | 2 to 5              | 19-22       | N-terminus unmatched, 19 of its 26 repeats |
+  | 10, 20              | 26, 34      | not parsed by AnnoTALE, absent             |
+  | 50                  | 61          | N-terminus, 26 repeats, C-terminus         |
 
-  When it fails, it corrects the array against a poor reference. That is
-  worse than leaving the array uncorrected, because the result still
-  looks like a corrected ORF. Against a deliberately small 20-sequence
-  reference, the same four arrays give:
-
-  |                     |                             |
-  |---------------------|-----------------------------|
-  | **max_comparisons** | **indels called per array** |
-  | all (20), 20, 10    | 2, 2, 0, 1                  |
-  | 5                   | 2, 2, 0, 2                  |
-  | 2                   | 9, 11, 0, 15                |
-
-  At 2 the aligner cannot reach a decent reference and invents indels
-  wholesale. What matters is whether the closest `max_comparisons`
-  references are genuinely close, whatever the size of the reference
-  set: 20 of 1057 is ample, 5 of 20 is not. With a large reference set a
-  cap in the tens is safe and very much faster; with a small or a poorly
-  matched one, prefer the default and pay for the full search.
+  [`tales_anomalies`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
+  reports the first outcome, and
+  [`tales_from_telltales`](https://scunnac.github.io/tantale/reference/tales_from_telltales.md)
+  warns about the second. With a reference of your own, especially a
+  small or a distant one, compare a run at the default with one at
+  `NULL` before relying on the cap.
 
 - frameshift:
 
@@ -419,13 +412,13 @@ tell_tales(subject_file = subj, output_dir = out)
 #> Now running AnnoTALE analyze for ROI_00004
 #> #****************************************
 #> #**   tell_tales analysis done     **
-#> Current date:    Sat Oct  3 12:03:45 2026
+#> Current date:    Sat Oct  3 23:37:26 2026
 #> #_________Provided I/O parameters __________
 #> File of subject DNA sequences:   /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/bai3_sample_tal_genomic_regions.fasta
 #> TALE N-term CDS region detection HMM file:   /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Nterm_CDS_profile.hmm
 #> TALE repeat unit CDS detection HMM file: /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_repeat_CDS_profile.hmm
 #> TALE C-term CDS region detection HMM file:   /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Cterm_CDS_profile.hmm
-#> Output directory:    /tmp/RtmptqdAJf/tell_tales_example8fc26cb0efd3
+#> Output directory:    /tmp/RtmpJ7zSTS/tell_tales_examplef03d6161aa725
 #> #____________Other parameters________________
 #> nterm_min_score: 300
 #> repeat_min_score:    20
@@ -438,7 +431,7 @@ tell_tales(subject_file = subj, output_dir = out)
 #> extend_len:  300
 #> correct_array:   FALSE
 #> correction_ref:  /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/tale_correction_ref.fa.gz
-#> max_comparisons: all
+#> max_comparisons: 50
 #> frameshift:  -11
 #> #__________Summary measures of TALE search outcome__________
 #> Number of analysed subject sequences :   2

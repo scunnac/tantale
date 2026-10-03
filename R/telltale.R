@@ -528,7 +528,10 @@
                          htmlFile = file.path(dna_dir, glue::glue("correction_alignment_dna_{n}.html")),
                          openURL = FALSE, colWidth = 120)
 
-    seqToAlignTranslated <- Biostrings::translate(seqToAlign, no.init.codon = TRUE,
+    # whole codons only: translate() warns about a trailing partial codon
+    wholeCodons <- Biostrings::subseq(seqToAlign, 1L,
+                                      Biostrings::width(seqToAlign) %/% 3L * 3L)
+    seqToAlignTranslated <- Biostrings::translate(wholeCodons, no.init.codon = TRUE,
                                                   if.fuzzy.codon = "solve")
     alignedSeqsTranslated <- DECIPHER::AlignSeqs(seqToAlignTranslated, verbose = FALSE)
     DECIPHER::BrowseSeqs(alignedSeqsTranslated,
@@ -585,7 +588,8 @@
 #' @param correct_array Whether to correct.
 #' @param correction_ref Fasta of reference TALE proteins.
 #' @param max_comparisons How many references each array may be aligned
-#'   against. \code{NULL} means all of them.
+#'   against, 50 by default (see \code{tell_tales()}). \code{NULL} means
+#'   all of them.
 #' @param paths What \code{.telltale_paths()} returned.
 #' @param ... Passed to \code{DECIPHER::CorrectFrameshifts()}.
 #' @return A list of \code{orf} (what AnnoTALE is given), \code{full_orf}
@@ -593,7 +597,7 @@
 #' @noRd
 .telltale_array_orfs <- function(array_seqs, by_array, correct_array,
                                  correction_ref, frameshift, paths,
-                                 max_comparisons = NULL, ...) {
+                                 max_comparisons = 50, ...) {
   if (!correct_array) {
     orfs <- systemPipeR::predORF(x = array_seqs,
                                  n = 1, type = "gr", mode = "ORF", strand = "sense")
@@ -630,7 +634,7 @@
     apply(., 2, function(v) ifelse(is.na(v), 0, v))
 
   for (n in names(corrected)[Biostrings::vcountPattern("N", corrected) > 0]) {
-    cli::cli_warn(paste0("After correction, {n} sequence contains 'N's which will be substituted by 'C's in order",
+    cli::cli_warn(paste0("After correction, {n} sequence contains 'N's which will be substituted by 'C's in order ",
                          "to run AnnoTALE analyze for RVDs prediction."))
   }
   substituted <- Biostrings::chartr("N", "C", corrected)
@@ -1386,8 +1390,7 @@
 #'   genuine pseudogene into an ORF no strain carries.
 #' @param max_comparisons How many reference proteins each array may be
 #'   aligned against during frameshift correction, and \strong{the main
-#'   control on how long correction takes}. \code{NULL}, the default, allows
-#'   all of them.
+#'   control on how long correction takes}. \code{NULL} allows all of them.
 #'
 #'   \code{DECIPHER::CorrectFrameshifts()} scores every reference with a
 #'   cheap distance first, sorts them, and only then aligns against the
@@ -1396,41 +1399,30 @@
 #'   lowering this does not change \emph{which} references are preferred,
 #'   only how deep the search goes before settling for the best seen.
 #'
-#'   Measured on four arrays against the 1057-sequence source set, all giving
-#'   byte-identical corrected sequences:
+#'   The default, 50, gives the same result as the full search on the four
+#'   genomes shipped with the package, corrected against the default
+#'   reference (494 proteins): identical corrected sequences and RVD strings
+#'   for every array of MAI1 (10 candidate arrays), BAI3 (10), PXO86 (19)
+#'   and BAI3-1-1 (9), at about a quarter of the time or less. On BAI3-1-1,
+#'   an error-prone assembly, the full search took 455 s and 50 took 61 s.
 #'
-#'   \tabular{lr}{
-#'     \strong{max_comparisons} \tab \strong{seconds} \cr
-#'     all (1057) \tab 252 \cr
-#'     400 \tab 179 \cr
-#'     100 \tab 47 \cr
-#'     50 \tab 23 \cr
-#'     20 \tab 10 \cr
+#'   A smaller cap risks a divergent array whose only good reference lies
+#'   outside the closest \code{max_comparisons} by the cheap pre-screen. The
+#'   array is then corrected against a poor reference, which is worse than
+#'   leaving it uncorrected, because the result still looks like a corrected
+#'   ORF. On BAI3-1-1, one array of the nine needs more than 20 references:
+#'
+#'   \tabular{lrl}{
+#'     \strong{max_comparisons} \tab \strong{seconds} \tab \strong{that array} \cr
+#'     2 to 5 \tab 19-22 \tab N-terminus unmatched, 19 of its 26 repeats \cr
+#'     10, 20 \tab 26, 34 \tab not parsed by AnnoTALE, absent \cr
+#'     50 \tab 61 \tab N-terminus, 26 repeats, C-terminus \cr
 #'   }
 #'
-#'   \strong{The trade-off.} A cap risks a divergent array whose only good
-#'   reference lies outside the closest \code{max_comparisons} by the cheap
-#'   pre-screen. That pre-screen is an approximation, so a low cap trusts it
-#'   to rank the truly best reference near the top.
-#'
-#'   When it fails, it corrects the array against a poor reference. That is
-#'   worse than leaving the array uncorrected, because the result still looks
-#'   like a corrected ORF. Against a deliberately small 20-sequence
-#'   reference, the same four arrays give:
-#'
-#'   \tabular{ll}{
-#'     \strong{max_comparisons} \tab \strong{indels called per array} \cr
-#'     all (20), 20, 10 \tab 2, 2, 0, 1 \cr
-#'     5 \tab 2, 2, 0, 2 \cr
-#'     2 \tab 9, 11, 0, 15 \cr
-#'   }
-#'
-#'   At 2 the aligner cannot reach a decent reference and invents indels
-#'   wholesale. What matters is whether the closest \code{max_comparisons}
-#'   references are genuinely close, whatever the size of the reference set:
-#'   20 of 1057 is ample, 5 of 20 is not. With a large reference set a cap in
-#'   the tens is safe and very much faster; with a small or a poorly matched
-#'   one, prefer the default and pay for the full search.
+#'   \code{\link{tales_anomalies}} reports the first outcome, and
+#'   \code{\link{tales_from_telltales}} warns about the second. With a
+#'   reference of your own, especially a small or a distant one, compare a
+#'   run at the default with one at \code{NULL} before relying on the cap.
 #' @param frameshift Frameshift penalty passed to
 #'   \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}}'s
 #'   \code{frameShift}. tantale's default is \code{-11}, overriding
@@ -1556,7 +1548,7 @@ tell_tales <- function(
   extend_len = 300,
   correct_array = FALSE,
   correction_ref = system.file("extdata", "tale_correction_ref.fa.gz", package = "tantale", mustWork = T),
-  max_comparisons = NULL,
+  max_comparisons = 50,
   frameshift = -11,
   ...
 ) {

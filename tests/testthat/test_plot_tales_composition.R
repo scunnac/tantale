@@ -162,3 +162,13 @@ test_that("plot.tales() writes dark text on light fills", {
   d <- p$data
   expect_true(all(d$label_colour[d$colour == .tol_muted[["sand"]]] == "black"))
 })
+
+test_that("plot.tales() lists the arrays from the top in byte order", {
+  # colour_fixture() pairs one aa_seq with several RVDs, an anomaly
+  x <- suppressWarnings(colour_fixture())
+  x$array_id <- rep(c("a2", "B1"), each = 5)
+  x <- dplyr::bind_rows(x, dplyr::mutate(x[x$array_id == "a2", ], array_id = "a10"))
+  p <- suppressWarnings(plot(tales(x), facet_by = NULL))
+  # a discrete y axis draws its first level at the bottom
+  expect_identical(levels(p$data$array_id), c("a2", "a10", "B1"))
+})

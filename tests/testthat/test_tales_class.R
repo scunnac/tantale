@@ -378,6 +378,32 @@ test_that("tales_from_telltales() output holds complete arrays", {
   expect_silent(tales_assert_complete(x))
 })
 
+test_that("tales_from_telltales() warns about a candidate array AnnoTALE could not parse", {
+  # ledger §49: such an array never reaches the object, so tales_anomalies()
+  # cannot report it
+  dir <- withr::local_tempdir()
+  file.copy(test_path("data_for_tests", "example_output"), dir, recursive = TRUE)
+  out <- file.path(dir, "example_output")
+  report <- readr::read_tsv(file.path(out, "array_report.tsv"), show_col_types = FALSE)
+  expect_true(all(c("nterm_dna_hit", "cterm_dna_hit") %in% names(report)))
+  id <- report$array_id[report$nterm_dna_hit %in% TRUE][1]
+  unlink(list.files(file.path(out, "annotale", id), "^TALE_.*\\.fasta$", full.names = TRUE))
+  warnings <- list()
+  x <- withCallingHandlers(tales_from_telltales(out), warning = function(w) {
+    warnings[[length(warnings) + 1L]] <<- w
+    invokeRestart("muffleWarning")
+  })
+  unparsed <- Filter(function(w) inherits(w, "tantale_warning_annotale_unparsed"), warnings)
+  expect_length(unparsed, 1L)
+  expect_match(conditionMessage(unparsed[[1]]), id, fixed = TRUE)
+  expect_false(id %in% x$array_id)
+  # the untouched directory raises no such warning
+  expect_no_warning(
+    withCallingHandlers(tales_from_telltales(test_path("data_for_tests", "example_output")),
+                        tantale_warning_tales_anomalous = function(w) invokeRestart("muffleWarning")),
+    class = "tantale_warning_annotale_unparsed")
+})
+
 
 #### Against real pipeline output ####
 
@@ -438,6 +464,19 @@ test_that("a terminus coded XXXXX is an anomaly", {
   expect_identical(an$array_id, "a2")
   expect_identical(an$check, "terminus_unmatched")
   expect_match(an$detail, "C-terminus")
+})
+
+test_that("anomalies are sorted by array, then by check", {
+  # a2 fails a check that runs before the one a1 fails
+  df <- minimal_tales_df()
+  df$rvd[c(1, 8)] <- "XXXXX"
+  df$aa_seq[c(1, 8)] <- c("MAS", "QRRP")
+  df$dom_code[c(1, 8)] <- c("5", "6")
+  df <- df[-(6:7), ]
+  df$position_in_array[df$array_id == "a2"] <- 1:2
+  an <- tales_anomalies(suppressWarnings(tales(df)))
+  expect_identical(an$array_id, c("a1", "a2", "a2"))
+  expect_identical(an$check, c("terminus_unmatched", "no_repeat", "terminus_unmatched"))
 })
 
 test_that("sanitize = TRUE drops the non-standard arrays", {

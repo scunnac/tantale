@@ -108,7 +108,7 @@ test_that("max_comparisons is a real argument, not hidden behind ...", {
   # to the same function, so a caller setting it hit "formal argument matched
   # by multiple actual arguments".
   expect_true("max_comparisons" %in% names(formals(tell_tales)))
-  expect_null(formals(tell_tales)$max_comparisons)
+  expect_identical(formals(tell_tales)$max_comparisons, 50)
 })
 
 test_that("too low a max_comparisons degrades the correction", {

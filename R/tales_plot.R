@@ -21,7 +21,9 @@
 #' A compact, information-rich view of the arrays in a \code{tales} object: one
 #' point per part, positioned by its place in the array, outlined by domain
 #' type and filled by part type and amino-acid length, with the RVD printed on
-#' each repeat.
+#' each repeat. Arrays are listed from the top in alphabetical order of
+#' \code{array_id}, compared byte by byte as in every projection of a
+#' \code{tales} object, so the order does not depend on the locale.
 #'
 #' The fill colours follow the role of each part. The canonical 34-aa repeat
 #' and the 20-aa half-repeat that ends every array get calm colours, so a
@@ -129,7 +131,11 @@ plot.tales <- function(x, position = c("array", "alignment"), facet_by = "seqnam
   partsForPlots <- partsForPlots %>%
     dplyr::left_join(partColours, by = c("domain_type", "aa_length")) %>%
     dplyr::mutate(part = factor(part, partColours$part),
-                  label_colour = .text_colour_on(colour))
+                  label_colour = .text_colour_on(colour),
+                  # byte order (ledger §40), first array at the top: a
+                  # discrete y axis puts its first level at the bottom
+                  array_id = factor(array_id,
+                                    levels = rev(levels(.array_factor(array_id)))))
 
   p <- partsForPlots %>%
     ggplot2::ggplot(mapping = ggplot2::aes(fill = part,

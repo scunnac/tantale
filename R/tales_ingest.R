@@ -77,6 +77,22 @@
       class = c("tantale_error_telltale_outdated", "tantale_error"))
   }
   tale_parts <- .tale_parts_assemble(telltale_dir)
+  # A candidate array AnnoTALE could not split into parts never reaches the
+  # object, so tales_anomalies() cannot report it (ledger §49)
+  candidates <- arrayReport$array_id[arrayReport$nterm_dna_hit %in% TRUE |
+                                       arrayReport$cterm_dna_hit %in% TRUE]
+  parsed <- basename(dirname(list.files(telltale_dir, "TALE_Protein_parts.fasta",
+                                        recursive = TRUE)))
+  unparsed <- sort(setdiff(candidates, parsed), method = "radix")
+  if (length(unparsed) != 0L) {
+    cli::cli_warn(
+      c("AnnoTALE could not split {length(unparsed)} candidate array{?s} into parts; {?it is/they are} absent from the result.",
+        "i" = "Affected array{?s}: {.val {unparsed}}",
+        "i" = "{qty(length(unparsed))}{?It has/Each has} a TALE terminus DNA hit in {.file array_report.tsv}.",
+        if ("predicted_ins_count" %in% names(arrayReport))
+          c("i" = "A larger {.arg max_comparisons} in {.fn tell_tales} may correct {qty(length(unparsed))}{?it/them} well enough to parse.")),
+      class = c("tantale_warning_annotale_unparsed", "tantale_warning"))
+  }
   seqnames <- readr::read_tsv(list.files(telltale_dir, "hits_report.tsv", recursive = T, full.names = T),
                               show_col_types = FALSE) %>%
     dplyr::select(array_id, seqnames) %>%
@@ -265,6 +281,13 @@
 #' AnnoTALE reported no terminus on one side, the array has no part there, with
 #' a warning. An array whose protein and DNA parts disagree is left out, with
 #' a warning.
+#'
+#' A candidate array with a TALE terminus DNA hit that AnnoTALE could not
+#' split into parts is absent from the result, with a warning naming it.
+#' \code{\link{tales_anomalies}} cannot report such an array, since it is not
+#' in the object. After frameshift correction this usually means the array
+#' was corrected against a distant reference; see \code{max_comparisons} in
+#' \code{\link{tell_tales}}.
 #'
 #' The directory must have been written by the current version of
 #' \code{tell_tales()}, whose \code{array_report.tsv} holds the terminus

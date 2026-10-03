@@ -32,6 +32,13 @@ AnnoTALE reported no terminus on one side, the array has no part there, with
 a warning. An array whose protein and DNA parts disagree is left out, with
 a warning.
 
+A candidate array with a TALE terminus DNA hit that AnnoTALE could not
+split into parts is absent from the result, with a warning naming it.
+\code{\link{tales_anomalies}} cannot report such an array, since it is not
+in the object. After frameshift correction this usually means the array
+was corrected against a distant reference; see \code{max_comparisons} in
+\code{\link{tell_tales}}.
+
 The directory must have been written by the current version of
 \code{tell_tales()}, whose \code{array_report.tsv} holds the terminus
 check; an older one is an error.

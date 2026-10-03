@@ -38,7 +38,9 @@ side effect.
 A compact, information-rich view of the arrays in a \code{tales} object: one
 point per part, positioned by its place in the array, outlined by domain
 type and filled by part type and amino-acid length, with the RVD printed on
-each repeat.
+each repeat. Arrays are listed from the top in alphabetical order of
+\code{array_id}, compared byte by byte as in every projection of a
+\code{tales} object, so the order does not depend on the locale.
 
 The fill colours follow the role of each part. The canonical 34-aa repeat
 and the 20-aa half-repeat that ends every array get calm colours, so a

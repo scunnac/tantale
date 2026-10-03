@@ -2701,3 +2701,128 @@ byte-identical PNGs in both `plot_type`s, and both error paths. The
 article now calls `talomes_heatmap(grouped, group_col = "group",
 strain_col = "strain")`; its rendered figure is byte-identical to the
 one built from the hand-made table.
+
+---
+
+## 49. `max_comparisons` on BAI3-1-1, and the array that disappears (2026-10-03) **[V]**
+
+Raised in `dev/notes_for_claude.md` (maintainer, 2026-10-03): with the
+§42 terminus codes, `max_comparisons = 5` seemed to correct every
+BAI3-1-1 array, but one array went missing; find out why, find the value
+that gives the best result fastest, and compare with `correct_tales()`.
+
+Sweep (scripts in the session scratchpad only): `tell_tales(BAI3-1-1.fa,
+cterm_min_score = 300, correct_array = TRUE, max_comparisons = m)` for m
+in 1, 2, 3, 5, 10, 20, 50, 100 and all (~500 shipped references), one run
+each on this 8-core machine; installed tantale at 55ff763. Read-outs: the
+`rvd_string` of `array_report.tsv` (standard = `NTERM-...-CTERM`) and the
+array count of the `tales` object, before and after `sanitize = TRUE`.
+The report has 9 candidate regions in every run; `ROI_00004` has no
+terminus hit and no ORF in any of them.
+
+| run | seconds | standard | arrays | after sanitize | flagged |
+|---|---|---|---|---|---|
+| uncorrected | 19 | 0 | 8 | 0 | all 8 |
+| m = 1 | 17 | 5 | 6 | 5 | `ROI_00001` |
+| m = 2, 3, 5 | 19-22 | 7 | 8 | 7 | `ROI_00001` |
+| m = 10, 20 | 26, 34 | 7 | 7 | 7 | none |
+| m = 50 | 61 | 8 | 8 | 8 | none |
+| m = 100 | 101 | 8 | 8 | 8 | none |
+| m = all | 455 | 8 | 8 | 8 | none |
+| `correct_tales()` + `tell_tales()` | 29 + 13 | 6 | 8 | 6 | `ROI_00006`, `ROI_00009` |
+
+- Every array except `ROI_00001` gets the same RVD string from m = 2 on.
+  `ROI_00001` is the hard one: at m = 2-5 its N-terminus is `XXXXX` and
+  it carries 18-19 of its 26 RVDs (ORF coverage 63-67%), so it is
+  flagged. At m = 10 and 20 the ORF reaches 72% but AnnoTALE fails to
+  parse it; `tell_tales()` drops it, noting it only in `tell_tales.log`
+  ("Annotale failed to parse TALE domains for ROI_00001"), and
+  `tales_from_telltales()` builds a 7-array object with no warning and no
+  anomaly. From m = 50 on, `ROI_00001` is `NTERM`, 26 RVDs, `CTERM`
+  (coverage 93%), and all eight RVD strings equal those of the full search.
+- This is the missing array of the maintainer's note: `tale_mining.qmd`
+  still runs `max_comparisons = 20` (its prose says 5).
+- Speed: m = 50 takes 61 s against 42 s for the Java route, which leaves
+  the N-termini of `ROI_00006` and `ROI_00009` unmatched. m = 50 gives the
+  full search's result 7.5 times faster. The earlier measurement in
+  `?tell_tales` (four arrays, 1057 references) also found 50 identical to
+  the full search.
+- A repeated m = 5 run gave the same result as the sweep's.
+
+Maintainer, 2026-10-03: Q58 (after a check on the other genomes), Q59,
+Q60, Q61, Q63 and Q64 agreed; Q62 (the `plot.tales()` legend) to be
+discussed.
+
+- **Q58 done.** Check: `max_comparisons = 50` and `NULL` on MAI1, BAI3 and
+  PXO86 (defaults, `correct_array = TRUE`; the six runs in parallel, so
+  their times are inflated): identical `putative_tal_orf.fasta`, RVD
+  strings, ORF coverage and indel counts for all 10, 10 and 19 candidate
+  arrays; 210 s against 828 s (MAI1), 212 against 814 (BAI3), 314 against
+  1311 (PXO86). BAI3-1-1 at 50 and `NULL` (sequential sweep above) also
+  give identical ORF files. Default of `tell_tales()` and
+  `.telltale_array_orfs()` now 50; the `@param` rewritten around the
+  measurements (the old 1057-reference and 20-reference tables dropped:
+  the reference set has changed since). `test_tell_tales_guards.R` asserts
+  the default; the golden correction run passes `max_comparisons = NULL`
+  (its 20-sequence reference makes 50 and all the same search). Golden
+  re-baselined: one row, `tell_tales.log` of the uncorrected run, whose
+  parameter echo reads `max_comparisons: 50` instead of `all` (checked by
+  diffing the two logs; only the date and path lines also differ, and the
+  fingerprint strips those).
+- **Q59 done.** `.tale_parts()` warns
+  (`tantale_warning_annotale_unparsed`) about each `array_report.tsv` row
+  with a terminus DNA hit and no `TALE_Protein_parts.fasta` under
+  `annotale/<array_id>/`, with a hint about `max_comparisons` when the
+  run corrected. Tests: `test_tales_class.R` (parts files removed from a
+  copy of the example output), `test_tell_tales.R` (PXO86 `ROI_00001`,
+  which AnnoTALE cannot translate, now expects the warning).
+- **Q61 done.** `.tales_anomalies()` sorts by `array_id` then `check`,
+  radix order. Golden unchanged.
+- **Q64 done.** `plot.tales()` gives `array_id` the levels of
+  `.array_factor()` reversed, so the first array is at the top. `array_id`
+  is always character in a `tales` (validated), so there is no
+  user-supplied factor to respect.
+- **Q60 done.** `tale_mining.qmd`: correction inside `tell_tales()` at the
+  default; the `@CLAUDE` paragraph on the best method, with the times
+  measured during the render (`system.time()`): 69 s against 50 s on a
+  first render, 61 s against 40 s on the published one (2026-10-03); "A clean correction without an eight-minute wait"
+  replaced by `#sec-max-comparisons` (the sweep table, plus a live
+  `max_comparisons = 20` run showing the new warning); "How much did
+  either correction actually help?" removed (with it the
+  `scale_fill_viridis_d()` of §46); `bai311_best` replaced by
+  `bai311_corr`; the `#sec-best-correction` anchor moved to "Correcting
+  inside `tell_tales()`", which `tale_classification.qmd` links to. Two
+  typos of the maintainer's fixed. In the raw-vs-corrected patchwork, the
+  two "Part and length" legends do not merge (different breaks) and the
+  combined legend is cut at `fig-height: 6`: left for Q62. `fig-keep: last` on the two patchwork
+  figures: `plot.tales()` prints as a side effect, so each chunk produced
+  three figures.
+- Found while rendering: `.telltale_write_correction_alignments()`
+  translated sequences whose length is not a multiple of 3, five
+  Biostrings warnings per corrected BAI3-1-1 run; now trimmed to whole
+  codons (the translation feeds only the diagnostic HTML alignment). The
+  N-substitution warning lacked a space ("orderto").
+- Site: `tale_mining`, `trunctale_correction`, `tale_classification`,
+  `tales_msa_class` and the "Get started" page re-rendered (the last two
+  for the new array order of `plot.tales()`; their prose names no order),
+  reference, news, llm docs and search rebuilt; `check_built_site()` and
+  `check_pkgdown()` clean. Stale `tale_mining` figures removed by hand.
+- `trunctale_correction.qmd`: its `max_comparisons` table named "all 494"
+  the default; now "50 (default)".
+- **Q63 not started**: the design needs the maintainer (see below).
+
+Q63 data (2026-10-03). `hmmsearch --domtblout` of every AnnoTALE terminus
+in the runs above, domains with i-E <= 1e-5; "outer gap" = profile
+positions left unmatched at the end away from the repeats (N-terminus:
+`hmm_from - 1`; C-terminus: `qlen - hmm_to`). Over MAI1, BAI3, PXO86 (at
+50), BAI3-1-1 corrected (at 50) and after `correct_tales()`:
+- N-termini: every matched one has outer gap 0, at lengths 230, 264, 283,
+  287 and 288 aa (the short ones match the whole profile with internal
+  deletions). The two 24-aa N-termini of the Java route match nothing.
+- C-termini: outer gap 0 at 286 and 297 aa, 1 at 278 aa; PXO86 `ROI_00001`
+  (216 aa) 159 and `ROI_00019` (42 aa, the truncTALE) 242.
+- So a `terminus_truncated` check with a 10-position tolerance flags those
+  two PXO86 arrays and nothing else on the shipped genomes. Open: where the
+  measure lives in a `tales` object (a new column on the terminus rows?),
+  its name next to the existing `*_aa_profile_gap`, and the consequence
+  that `sanitize = TRUE` would drop truncTALEs.

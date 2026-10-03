@@ -80,7 +80,7 @@ discover_strain <- function(strain) {
 }
 ```
 
-`correct_array = TRUE` with `max_comparisons = 50` is the route
+`correct_array = TRUE`, with the default `max_comparisons = 50`, is the route
 [the mining article](tale_mining.html#sec-best-correction) found clean
 for BAI3-1-1. Run on MAI1 and BAI3 too, it costs a little extra time;
 neither needed correcting.

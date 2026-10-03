@@ -1,5 +1,30 @@
 # tantale 0.9.9011
 
+## `max_comparisons = 50` by default
+
+`tell_tales(correct_array = TRUE)` now aligns each candidate array against
+the 50 closest references by default, where it used to try all of them.
+On the four genomes shipped with the package, 50 gives the same corrected
+sequences as the full search in a quarter of the time or less (61 s
+against 455 s on BAI3-1-1). Fewer than 50 left one BAI3-1-1 array badly
+corrected; `?tell_tales` gives the measurements. `max_comparisons = NULL`
+still searches the whole reference.
+
+## Arrays lost before they reach a `tales` object
+
+`tales_from_telltales()` warns about every candidate array that has a
+TALE terminus DNA hit in `array_report.tsv` but that AnnoTALE could not
+split into parts. Such an array is absent from the result, so
+`tales_anomalies()` cannot report it, and until now only `tell_tales.log`
+recorded it.
+
+## Sorted anomalies and plotted arrays
+
+`tales_anomalies()` returns its rows sorted by `array_id`, then by check.
+`plot()` on a `tales` lists the arrays from the top in alphabetical order
+of `array_id`. Both compare identifiers byte by byte, as the other
+functions of the package do, so the order does not depend on the locale.
+
 ## `talomes_heatmap()` takes a `tales` object
 
 `talomes_heatmap()` also accepts a `tales` object that carries a group and

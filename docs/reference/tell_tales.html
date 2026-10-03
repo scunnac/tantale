@@ -78,7 +78,7 @@ that would otherwise be missed by conventional tools (eg AnnoTALE).</p>
 <span>  correct_array <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  correction_ref <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"tale_correction_ref.fa.gz"</span>, package <span class="op">=</span></span>
 <span>    <span class="st">"tantale"</span>, mustWork <span class="op">=</span> <span class="cn">T</span><span class="op">)</span>,</span>
-<span>  max_comparisons <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  max_comparisons <span class="op">=</span> <span class="fl">50</span>,</span>
 <span>  frameshift <span class="op">=</span> <span class="op">-</span><span class="fl">11</span>,</span>
 <span>  <span class="va">...</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -219,30 +219,28 @@ genuine pseudogene into an ORF no strain carries.</p></dd>
 <dt id="arg-max-comparisons">max_comparisons<a class="anchor" aria-label="anchor" href="#arg-max-comparisons"></a></dt>
 <dd><p>How many reference proteins each array may be
 aligned against during frameshift correction, and <strong>the main
-control on how long correction takes</strong>. <code>NULL</code>, the default, allows
-all of them.</p>
+control on how long correction takes</strong>. <code>NULL</code> allows all of them.</p>
 <p><code><a href="https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html" class="external-link">DECIPHER::CorrectFrameshifts()</a></code> scores every reference with a
 cheap distance first, sorts them, and only then aligns against the
 closest <code>max_comparisons</code> of them – stopping sooner if one is
 close enough. So the references never reached cost almost nothing, and
 lowering this does not change <em>which</em> references are preferred,
 only how deep the search goes before settling for the best seen.</p>
-<p>Measured on four arrays against the 1057-sequence source set, all giving
-byte-identical corrected sequences:</p>
-<table class="table table"><tr><td><strong>max_comparisons</strong></td><td><strong>seconds</strong></td></tr><tr><td>all (1057)</td><td>252</td></tr><tr><td>400</td><td>179</td></tr><tr><td>100</td><td>47</td></tr><tr><td>50</td><td>23</td></tr><tr><td>20</td><td>10</td></tr></table><p><strong>The trade-off.</strong> A cap risks a divergent array whose only good
-reference lies outside the closest <code>max_comparisons</code> by the cheap
-pre-screen. That pre-screen is an approximation, so a low cap trusts it
-to rank the truly best reference near the top.</p>
-<p>When it fails, it corrects the array against a poor reference. That is
-worse than leaving the array uncorrected, because the result still looks
-like a corrected ORF. Against a deliberately small 20-sequence
-reference, the same four arrays give:</p>
-<table class="table table"><tr><td><strong>max_comparisons</strong></td><td><strong>indels called per array</strong></td></tr><tr><td>all (20), 20, 10</td><td>2, 2, 0, 1</td></tr><tr><td>5</td><td>2, 2, 0, 2</td></tr><tr><td>2</td><td>9, 11, 0, 15</td></tr></table><p>At 2 the aligner cannot reach a decent reference and invents indels
-wholesale. What matters is whether the closest <code>max_comparisons</code>
-references are genuinely close, whatever the size of the reference set:
-20 of 1057 is ample, 5 of 20 is not. With a large reference set a cap in
-the tens is safe and very much faster; with a small or a poorly matched
-one, prefer the default and pay for the full search.</p></dd>
+<p>The default, 50, gives the same result as the full search on the four
+genomes shipped with the package, corrected against the default
+reference (494 proteins): identical corrected sequences and RVD strings
+for every array of MAI1 (10 candidate arrays), BAI3 (10), PXO86 (19)
+and BAI3-1-1 (9), at about a quarter of the time or less. On BAI3-1-1,
+an error-prone assembly, the full search took 455 s and 50 took 61 s.</p>
+<p>A smaller cap risks a divergent array whose only good reference lies
+outside the closest <code>max_comparisons</code> by the cheap pre-screen. The
+array is then corrected against a poor reference, which is worse than
+leaving it uncorrected, because the result still looks like a corrected
+ORF. On BAI3-1-1, one array of the nine needs more than 20 references:</p>
+<table class="table table"><tr><td><strong>max_comparisons</strong></td><td><strong>seconds</strong></td><td><strong>that array</strong></td></tr><tr><td>2 to 5</td><td>19-22</td><td>N-terminus unmatched, 19 of its 26 repeats</td></tr><tr><td>10, 20</td><td>26, 34</td><td>not parsed by AnnoTALE, absent</td></tr><tr><td>50</td><td>61</td><td>N-terminus, 26 repeats, C-terminus</td></tr></table><p><code><a href="tales_anomalies.html">tales_anomalies</a></code> reports the first outcome, and
+<code><a href="tales_from_telltales.html">tales_from_telltales</a></code> warns about the second. With a
+reference of your own, especially a small or a distant one, compare a
+run at the default with one at <code>NULL</code> before relying on the cap.</p></dd>
 
 
 <dt id="arg-frameshift">frameshift<a class="anchor" aria-label="anchor" href="#arg-frameshift"></a></dt>
@@ -402,13 +400,13 @@ sequence so that it starts elsewhere avoids this.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Now running AnnoTALE analyze for ROI_00004</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> #****************************************</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> #**   tell_tales analysis done     **</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Current date:	Sat Oct  3 12:03:45 2026</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Current date:	Sat Oct  3 23:37:26 2026</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> #_________Provided I/O parameters __________</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> File of subject DNA sequences:	/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/bai3_sample_tal_genomic_regions.fasta</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> TALE N-term CDS region detection HMM file:	/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Nterm_CDS_profile.hmm</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> TALE repeat unit CDS detection HMM file:	/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_repeat_CDS_profile.hmm</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> TALE C-term CDS region detection HMM file:	/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Cterm_CDS_profile.hmm</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Output directory:	/tmp/RtmptqdAJf/tell_tales_example8fc26cb0efd3</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Output directory:	/tmp/RtmpJ7zSTS/tell_tales_examplef03d6161aa725</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> #____________Other parameters________________</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> nterm_min_score:	300</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> repeat_min_score:	20</span>
@@ -421,7 +419,7 @@ sequence so that it starts elsewhere avoids this.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> extend_len:	300</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> correct_array:	FALSE</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> correction_ref:	/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/tale_correction_ref.fa.gz</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> max_comparisons:	all</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> max_comparisons:	50</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> frameshift:	-11</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> #__________Summary measures of TALE search outcome__________</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Number of analysed subject sequences :	2</span>

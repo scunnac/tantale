@@ -2,6 +2,36 @@
 
 ## tantale 0.9.9011
 
+### `max_comparisons = 50` by default
+
+`tell_tales(correct_array = TRUE)` now aligns each candidate array
+against the 50 closest references by default, where it used to try all
+of them. On the four genomes shipped with the package, 50 gives the same
+corrected sequences as the full search in a quarter of the time or less
+(61 s against 455 s on BAI3-1-1). Fewer than 50 left one BAI3-1-1 array
+badly corrected;
+[`?tell_tales`](https://scunnac.github.io/tantale/reference/tell_tales.md)
+gives the measurements. `max_comparisons = NULL` still searches the
+whole reference.
+
+### Arrays lost before they reach a `tales` object
+
+[`tales_from_telltales()`](https://scunnac.github.io/tantale/reference/tales_from_telltales.md)
+warns about every candidate array that has a TALE terminus DNA hit in
+`array_report.tsv` but that AnnoTALE could not split into parts. Such an
+array is absent from the result, so
+[`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
+cannot report it, and until now only `tell_tales.log` recorded it.
+
+### Sorted anomalies and plotted arrays
+
+[`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
+returns its rows sorted by `array_id`, then by check.
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html) on a `tales`
+lists the arrays from the top in alphabetical order of `array_id`. Both
+compare identifiers byte by byte, as the other functions of the package
+do, so the order does not depend on the locale.
+
 ### `talomes_heatmap()` takes a `tales` object
 
 [`talomes_heatmap()`](https://scunnac.github.io/tantale/reference/talomes_heatmap.md)
@@ -618,8 +648,9 @@ implemented there.
 | `"consensus"`                | `consensus = TRUE`           |
 
 `save_path` has no equivalent because none is needed: the returned
-ggplot is `ggsave()`-able. `note_colors` likewise – add a scale to the
-returned plot.
+ggplot is
+[`ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html)-able.
+`note_colors` likewise – add a scale to the returned plot.
 
 #### `plot_tales_msa()` can draw the consensus
 

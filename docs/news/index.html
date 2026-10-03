@@ -46,6 +46,19 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.9.9011" id="tantale-099011">tantale 0.9.9011<a class="anchor" aria-label="anchor" href="#tantale-099011"></a></h2>
 <div class="section level3">
+<h3 id="max_comparisons--by-default-0-9-9011">
+<code>max_comparisons = 50</code> by default<a class="anchor" aria-label="anchor" href="#max_comparisons--by-default-0-9-9011"></a></h3>
+<p><code>tell_tales(correct_array = TRUE)</code> now aligns each candidate array against the 50 closest references by default, where it used to try all of them. On the four genomes shipped with the package, 50 gives the same corrected sequences as the full search in a quarter of the time or less (61 s against 455 s on BAI3-1-1). Fewer than 50 left one BAI3-1-1 array badly corrected; <code><a href="../reference/tell_tales.html">?tell_tales</a></code> gives the measurements. <code>max_comparisons = NULL</code> still searches the whole reference.</p>
+</div>
+<div class="section level3">
+<h3 id="arrays-lost-before-they-reach-a-tales-object-0-9-9011">Arrays lost before they reach a <code>tales</code> object<a class="anchor" aria-label="anchor" href="#arrays-lost-before-they-reach-a-tales-object-0-9-9011"></a></h3>
+<p><code><a href="../reference/tales_from_telltales.html">tales_from_telltales()</a></code> warns about every candidate array that has a TALE terminus DNA hit in <code>array_report.tsv</code> but that AnnoTALE could not split into parts. Such an array is absent from the result, so <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> cannot report it, and until now only <code>tell_tales.log</code> recorded it.</p>
+</div>
+<div class="section level3">
+<h3 id="sorted-anomalies-and-plotted-arrays-0-9-9011">Sorted anomalies and plotted arrays<a class="anchor" aria-label="anchor" href="#sorted-anomalies-and-plotted-arrays-0-9-9011"></a></h3>
+<p><code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> returns its rows sorted by <code>array_id</code>, then by check. <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> on a <code>tales</code> lists the arrays from the top in alphabetical order of <code>array_id</code>. Both compare identifiers byte by byte, as the other functions of the package do, so the order does not depend on the locale.</p>
+</div>
+<div class="section level3">
 <h3 id="talomes_heatmap-takes-a-tales-object-0-9-9011">
 <code>talomes_heatmap()</code> takes a <code>tales</code> object<a class="anchor" aria-label="anchor" href="#talomes_heatmap-takes-a-tales-object-0-9-9011"></a></h3>
 <p><code><a href="../reference/talomes_heatmap.html">talomes_heatmap()</a></code> also accepts a <code>tales</code> object that carries a group and a strain column, with one value per array, such as the output of <code><a href="../reference/tales_group_kmedoids.html">tales_group_kmedoids()</a></code> or <code><a href="../reference/tales_group_hclust.html">tales_group_hclust()</a></code> once a strain column is added. It computes the RVD sequences itself with <code><a href="../reference/tales_rvd_strings.html">tales_rvd_strings()</a></code>, so <code>rvd_col</code> is not needed. A data frame with one row per TALE still works as before.</p>
@@ -290,7 +303,7 @@
 </td>
 </tr><tr class="even"><td><code>"consensus"</code></td>
 <td><code>consensus = TRUE</code></td>
-</tr></tbody></table><p><code>save_path</code> has no equivalent because none is needed: the returned ggplot is <code>ggsave()</code>-able. <code>note_colors</code> likewise – add a scale to the returned plot.</p>
+</tr></tbody></table><p><code>save_path</code> has no equivalent because none is needed: the returned ggplot is <code><a href="https://ggplot2.tidyverse.org/reference/ggsave.html" class="external-link">ggsave()</a></code>-able. <code>note_colors</code> likewise – add a scale to the returned plot.</p>
 </div>
 <div class="section level4">
 <h4 id="plot_tales_msa-can-draw-the-consensus-0-9-9011">

@@ -694,7 +694,9 @@ tales_anomalies <- function(x) {
     return(tibble::tibble(array_id = character(), check = character(),
                           detail = character()))
   }
-  unique(do.call(rbind, out))
+  out <- unique(do.call(rbind, out))
+  # byte order, as the projections sort arrays (ledger §40)
+  out[order(out$array_id, out$check, method = "radix"), ]
 }
 
 

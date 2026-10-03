@@ -41,6 +41,14 @@ protein profile, `XXXXX` when it does not. When AnnoTALE reported no
 terminus on one side, the array has no part there, with a warning. An
 array whose protein and DNA parts disagree is left out, with a warning.
 
+A candidate array with a TALE terminus DNA hit that AnnoTALE could not
+split into parts is absent from the result, with a warning naming it.
+[`tales_anomalies`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
+cannot report such an array, since it is not in the object. After
+frameshift correction this usually means the array was corrected against
+a distant reference; see `max_comparisons` in
+[`tell_tales`](https://scunnac.github.io/tantale/reference/tell_tales.md).
+
 The directory must have been written by the current version of
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md),
 whose `array_report.tsv` holds the terminus check; an older one is an

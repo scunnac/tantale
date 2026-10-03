@@ -206,6 +206,9 @@ test_that("golden: tell_tales() with frameshift correction", {
                                package = "tantale", mustWork = TRUE),
     output_dir = out,
     correct_array = TRUE,
+    # the full 20-sequence search, as when NULL was the default (ledger §49);
+    # tell_tales.log echoes the value
+    max_comparisons = NULL,
     # normalizePath(), not a bare test_path(): testthat::test_path() resolves
     # *relatively* under a real R CMD check (the working directory is already
     # tests/testthat/) but *absolutely* under devtools::load_all() -- and

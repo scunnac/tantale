@@ -184,7 +184,7 @@ The report has one more row than the `tales` object has arrays.
 and `cterm_dna_hit` both `FALSE`) and no
 ORF length; it yields no parts, so it is absent from
 the object and from @fig-mai1-composition. Using `tell_tales()` with a more stringent
-`min_dna_hits` or `min_array_length` parameter values would have probably got ride of it right away.
+`min_dna_hits` or `min_array_length` parameter values would probably have got rid of it right away.
 
 ## When discovery goes wrong: detecting anomalies {#sec-anomalies}
 
@@ -238,7 +238,7 @@ readr::read_tsv(file.path(bai311_raw_dir, "array_report.tsv"),
 
 No array in this assembly reaches MAI1's 91-93%: the
 others fall between 38% and 70%. This is unusual, and `tales_anomalies()` flags every one of them except `ROI_00002`.
-A close look at the 'array_report.tsv' table indicates that loci such as `ROI_00001` and `ROI_00007` have a predicted ORF encoding very few repeats (4-6), and only repeats (see `rvd_string`), even if both termini profiles where found at the DNA level (`nterm_dna_hit` and `cterm_dna_hit` are both `TRUE`).
+A close look at the 'array_report.tsv' table indicates that loci such as `ROI_00001` and `ROI_00007` have a predicted ORF encoding very few repeats (4-6), and only repeats (see `rvd_string`), even if both termini profiles were found at the DNA level (`nterm_dna_hit` and `cterm_dna_hit` are both `TRUE`).
 
 Because, in practice this barely happens in high quality genomes, in the absence of any further evidence, this could be explained by in/del(s) along the CDS that completely break them.
 
@@ -259,57 +259,55 @@ in different ways, so @sec-anomalies's check is worth repeating after
 either one. Run on the same genome below, **they disagree about which
 array still needs help**.
 
-### Correcting inside `tell_tales()`
+### Correcting inside `tell_tales()` {#sec-best-correction}
 
 `correct_array = TRUE` runs `DECIPHER::CorrectFrameshifts()` on each
 candidate array, aligning it against a shipped reference set of real TALE
 proteins and inferring the indels needed to remove premature stops.
-
+`max_comparisons` caps how many of these references each array is
+aligned against; @sec-max-comparisons explains its default, 50.
 
 ```{r correct_inside_path}
 bai311_corr_dir <- file.path(out, "BAI3-1-1_corrected")
 ```
 
-```{r correct_inside, message = FALSE}
-invisible(tell_tales(subject_file = bai311_fa, output_dir = bai311_corr_dir,
-                     cterm_min_score = 300,
-                     correct_array = TRUE, max_comparisons = 20))
+```{r correct_inside, message = FALSE, warning = TRUE, results = "hide"}
+t_corr <- system.time(
+  tell_tales(subject_file = bai311_fa, output_dir = bai311_corr_dir,
+             cterm_min_score = 300, correct_array = TRUE)
+)
 ```
 
-Warnings from `tell_tales` indicate that putative frame shifts were corrected by inserting nucleotides:
+The warnings come from the correction itself. Where
+`DECIPHER::CorrectFrameshifts()` inserts a base to restore the reading
+frame, it writes an `N`, and `tell_tales()` turns it into a `C` so that
+AnnoTALE can translate the sequence.
 
-```{r tell_tales correct warnings}
-warnings()
-```
+Importing the result as a `tales` object raises no warning, and
+`tales_anomalies()` finds nothing:
 
-Let's look at what happens when parsing the results into a `tales` object:
-
-```{r correct_inside warnings}
+```{r tales_from_bai311_corr}
 bai311_corr <- tales_from_telltales(bai311_corr_dir)
-```
-
-No warning, no anomalies, everything seems to check out!
-
-```{r anomalies_corr_inside}
 tales_anomalies(bai311_corr)
 ```
 
-Let's plot the raw (non-sanitized) `tales` obtained without correction side-by-side 
-with the ones obtained with `correct_array = TRUE, max_comparisons = 5`:
+Plotting the uncorrected arrays above the corrected ones shows what
+changed:
 
-
-```{r raw vs corrected tales plots}
+```{r plot-raw-vs-corrected}
 #| fig-width: 14
-#| fig-height:  6
+#| fig-height: 6
+#| fig-keep: last
 (plot(bai311_raw) + labs(title = "bai311_raw")) /
   (plot(bai311_corr) + labs(title = "bai311_corr")) +
   patchwork::plot_layout(nrow = 2, guides = "collect")
 ```
 
-The uncorrected talome is extremely messy, most arrays have no canonical N- and C-termini and `ROI_00003` and `ROI_00005` essentially encodes shorter N-termini only. 
-In contrast the corrected arrays all display both termini with canonical length which is suggestive that we are dealing with TALES that are likely to have a standard transcription activation function.
-
-
+The uncorrected talome is extremely messy: most arrays have no canonical
+N- and C-termini, and `ROI_00003` and `ROI_00005` essentially encode
+shorter N-termini only. In contrast, the corrected arrays all display both
+termini with a canonical length, which suggests that these TALEs are likely
+to have a standard transcription activation function.
 
 ### Correcting the genome, before discovery
 
@@ -325,9 +323,11 @@ bai311_java_fa <- file.path(out, "BAI3-1-1_java_corrected.fa")
 ```
 
 ```{r correct_outside, message = FALSE}
-corrections <- correct_tales(uncorrected_path = bai311_fa,
-                             corrected_path = bai311_java_fa,
-                             return_corrections = TRUE)
+t_java <- system.time(
+  corrections <- correct_tales(uncorrected_path = bai311_fa,
+                               corrected_path = bai311_java_fa,
+                               return_corrections = TRUE)
+)
 ```
 
 `correct_tales()` reports every edit it made, genome-wide, as a table of
@@ -347,8 +347,10 @@ bai311_java_dir <- file.path(out, "BAI3-1-1_java_tell_tales")
 ```
 
 ```{r discover_after_java_correct, message = FALSE}
-invisible(tell_tales(subject_file = bai311_java_fa, output_dir = bai311_java_dir,
-                     cterm_min_score = 300, correct_array = FALSE))
+t_java <- t_java + system.time(
+  tell_tales(subject_file = bai311_java_fa, output_dir = bai311_java_dir,
+             cterm_min_score = 300, correct_array = FALSE)
+)
 bai311_java <- tales_from_telltales(bai311_java_dir)
 ```
 
@@ -356,114 +358,83 @@ bai311_java <- tales_from_telltales(bai311_java_dir)
 tales_anomalies(bai311_java)
 ```
 
-`correct_tales()` fixes most arrays but fail to repair the N-termini of `ROI_00006` and
+`correct_tales()` fixes most arrays but fails to repair the N-termini of `ROI_00006` and
 `ROI_00009`, which still do not match the TALE N-terminal profile.
 
-Just to make sure, let's compare its output with `correct_array = TRUE`:
+Compared with the correction made inside `tell_tales()`:
 
-```{r jar vs tall tales corrections plots}
+```{r plot-java-vs-corrected}
 #| fig-width: 14
-#| fig-height:  6
+#| fig-height: 6
+#| fig-keep: last
 (plot(bai311_java) + labs(title = "bai311_java")) /
   (plot(bai311_corr) + labs(title = "bai311_corr")) +
   patchwork::plot_layout(nrow = 2, guides = "collect")
 ```
 
 
-### What is the best method for correcting TALE arrays DNA sequences?
+### What is the best method for correcting the DNA sequences of TALE arrays?
 
-@CLAUDE try to write a paragraph saying that even if on this dataset tell_tales gives the best results and is on par
-in terms of speed, 
+On this genome, correction inside `tell_tales()` gives the better
+result: `r n_distinct(bai311_corr$array_id) - n_distinct(tales_anomalies(bai311_corr)$array_id)`
+of `r n_distinct(bai311_corr$array_id)` arrays come out as standard
+TALEs, against
+`r n_distinct(bai311_java$array_id) - n_distinct(tales_anomalies(bai311_java)$array_id)`
+of `r n_distinct(bai311_java$array_id)` after `correct_tales()`. It is
+also about as fast: on the machine that built this page it took
+`r round(t_corr[["elapsed"]])` seconds, and `correct_tales()` followed by
+an uncorrected `tell_tales()` run took `r round(t_java[["elapsed"]])`.
+One genome is a small sample, however. `correct_tales()` repairs the
+whole genome in one pass, and the corrected genome can serve other
+analyses as well. On a new, error-prone assembly, running both routes
+and comparing their `tales_anomalies()` costs a few minutes and shows the
+arrays on which they agree.
 
-### A clean correction without an eight-minute wait {#sec-best-correction}
+### `max_comparisons` sets the depth of the search {#sec-max-comparisons}
 
-@CLAUDE this section probably needs to go unless you can find a use to it. `bai311_best` must be assigned from another object like `bai311_best <- bai311_corr` if this section goes.
+`max_comparisons` is the main control on how long correction inside
+`tell_tales()` takes. `DECIPHER::CorrectFrameshifts()` ranks the
+references by a quick distance and aligns each array against the closest
+`max_comparisons` of them. When the cap is too low, an array whose good
+references rank further down is corrected against a poor one. BAI3-1-1
+has one such array, `ROI_00001`. Measured once on this genome, against the
+494 shipped references:
 
-`correct_tales()` above ran in under a minute but left two arrays
-flagged. `max_comparisons = 50` is a second, independent route, which
-also works when the Java correction tool is not available:
+| `max_comparisons` | seconds | standard TALEs | `ROI_00001` |
+|---|---|---|---|
+| no correction | 19 | 0 of 8 | 4 repeats, neither terminus matched |
+| 2 to 5 | 19-22 | 7 of 8 | N-terminus unmatched, 19 of its 26 repeats |
+| 10, 20 | 26, 34 | 7 of 7 | not parsed by AnnoTALE |
+| 50 (default) | 61 | 8 of 8 | N-terminus, 26 repeats, C-terminus |
+| 100 | 101 | 8 of 8 | as at 50 |
+| all 494 | 455 | 8 of 8 | as at 50 |
 
-```{r correct_moderate_path}
-bai311_best_dir <- file.path(out, "BAI3-1-1_best")
+At 2 to 5, `tales_anomalies()` flags `ROI_00001`. At 10 and 20,
+AnnoTALE cannot split the corrected ORF into parts, so the array never
+reaches the `tales` object, and `tales_from_telltales()` warns about it:
+
+```{r max_comparisons_20_path}
+bai311_mc20_dir <- file.path(out, "BAI3-1-1_corrected_20")
 ```
 
-```{r correct_moderate, message = FALSE}
-invisible(tell_tales(subject_file = bai311_fa, output_dir = bai311_best_dir,
-                     cterm_min_score = 300,
-                     correct_array = TRUE, max_comparisons = 50))
-bai311_best <- tales_from_telltales(bai311_best_dir)
+```{r max_comparisons_20, message = FALSE, warning = FALSE, results = "hide"}
+invisible(tell_tales(subject_file = bai311_fa, output_dir = bai311_mc20_dir,
+                     cterm_min_score = 300, correct_array = TRUE,
+                     max_comparisons = 20))
 ```
 
-```{r anomalies_best}
-tales_anomalies(bai311_best)
+```{r max_comparisons_20_import, warning = TRUE}
+bai311_mc20 <- tales_from_telltales(bai311_mc20_dir)
 ```
 
-Zero anomalies: raising the cap from 20 to 50 references was enough for
-every array in this genome, in about a minute. `bai311_best` is the one
-used for the rest of this set of articles.
-
-
-
-## How much did either correction actually help? {#sec-improvement}
-
-@CLAUDE this section needs to be entirely revised and even removed if it turns out the figures do not bring any interesting insight
-
-Anomaly counts say whether AnnoTALE could parse an array at all, which is
-a pass/fail signal. `orf_coverage` is more informative, since it is a
-number and can be compared *before* an array even becomes an anomaly.
-Read it back for the two originally-broken arrays, across all three runs:
-
-```{r coverage_helper}
-read_coverage <- function(dir, method) {
-  readr::read_tsv(file.path(dir, "array_report.tsv"), show_col_types = FALSE) |>
-    select(array_id, orf_coverage) |>
-    filter(array_id %in% c("ROI_00001", "ROI_00005")) |>
-    mutate(method = method)
-}
-```
-
-```{r coverage_assemble}
-coverage <- bind_rows(
-  read_coverage(bai311_raw_dir,  "uncorrected"),
-  read_coverage(bai311_corr_dir, "max_comparisons = 20"),
-  read_coverage(bai311_java_dir, "correct_tales()"),
-  read_coverage(bai311_best_dir, "max_comparisons = 50")
-) |>
-  mutate(method = factor(method, levels = c(
-    "uncorrected", "max_comparisons = 20", "correct_tales()", "max_comparisons = 50"
-  )))
-```
-
-```{r coverage_table}
-coverage |>
-  tidyr::pivot_wider(names_from = method, values_from = orf_coverage) |>
-  knitr::kable()
-```
-
-```{r}
-#| label: fig-coverage-improvement
-#| fig-cap: "ORF coverage of the two frameshifted BAI3-1-1 arrays, before and after each correction attempt. All three routes bring both arrays to the 91-93% of a clean MAI1 array."
-#| fig-width: 8
-#| fig-height: 4
-ggplot2::ggplot(coverage, ggplot2::aes(x = method, y = orf_coverage, fill = method)) +
-  ggplot2::geom_col() +
-  ggplot2::facet_wrap(~ array_id) +
-  ggplot2::scale_fill_viridis_d(guide = "none") +
-  ggplot2::labs(x = NULL, y = "ORF coverage (%)") +
-  ggplot2::theme_light() +
-  ggplot2::theme(axis.text.x = ggplot2::element_text(angle = 30, hjust = 1))
-```
-
-In @fig-coverage-improvement, all three routes bring `ROI_00001` and
-`ROI_00005` to identical coverage, 93% and 91%. On these two numbers
-alone the three routes look interchangeable. What separates them is the
-new anomaly `max_comparisons = 20` introduced in a different array,
-`ROI_00001`, and coverage of these two arrays cannot show it; only
-`tales_anomalies()` catches it.
+On MAI1, BAI3 and PXO86, the other genomes shipped with the package, 50
+gives the same corrected sequences as the full search. With a reference
+set of your own, compare a run at the default with one at
+`max_comparisons = NULL` before relying on the cap.
 
 ## Moving on with what you have
 
-`bai311_best` needs none of this: it is already clean. A route that stops
+`bai311_corr` needs none of this: it is already clean. A route that stops
 short of that, such as `correct_tales()` above (which left the N-termini
 of `ROI_00006` and `ROI_00009` unmatched), still needs a decision about
 what to do with what remains flagged. `tales(x, sanitize = TRUE)`
@@ -477,8 +448,8 @@ n_distinct(bai311_java$array_id) - n_distinct(bai311_clean$array_id)
 
 ::: {.callout-note}
 ## What the rest of this set of articles uses
-From here on, "BAI3-1-1" means `bai311_best`, the
-`max_comparisons = 50` correction from @sec-best-correction, alongside
+From here on, "BAI3-1-1" means `bai311_corr`, the correction made
+inside `tell_tales()` (@sec-best-correction), alongside
 MAI1 and BAI3. PXO86, the fourth genome shipped with the package, is left
 out of the classification and alignment articles that follow: it is a
 distant Asian outgroup whose TALE repertoire barely overlaps the African

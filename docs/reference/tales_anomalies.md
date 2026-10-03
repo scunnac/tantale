@@ -82,14 +82,14 @@ tales_anomalies(x)
 #> # A tibble: 4 × 3
 #>   array_id check               detail                      
 #>   <chr>    <chr>               <chr>                       
-#> 1 A2       terminus_duplicated more than one N-terminus    
-#> 2 A1       terminus_absent     no C-terminus               
-#> 3 A2       terminus_absent     no C-terminus               
+#> 1 A1       terminus_absent     no C-terminus               
+#> 2 A2       terminus_absent     no C-terminus               
+#> 3 A2       terminus_duplicated more than one N-terminus    
 #> 4 A2       terminus_misplaced  N-terminus not at position 1
 tales(odd, sanitize = TRUE) # drops A2 instead of merely warning
 #> Warning: Dropped 2 arrays with biological anomalies.
-#> ✖ Arrays: "A2" and "A1"
-#> ℹ Reasons: terminus_duplicated, terminus_absent, and terminus_misplaced
+#> ✖ Arrays: "A1" and "A2"
+#> ℹ Reasons: terminus_absent, terminus_duplicated, and terminus_misplaced
 #> <tales> 0 arrays, 0 parts
 #>   layers: rvd   |   1 other column
 ```

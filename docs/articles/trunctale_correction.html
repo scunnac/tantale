@@ -216,10 +216,10 @@
 <span><span class="co">#&gt; Finding the closest reference amino acid sequences:</span></span>
 <span><span class="co">#&gt; ================================================================================</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Time difference of 5.94 secs</span></span>
+<span><span class="co">#&gt; Time difference of 5.71 secs</span></span>
 <span><span class="co">#&gt; ================================================================================</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Time difference of 34.69 secs</span></span></code></pre></div>
+<span><span class="co">#&gt; Time difference of 34.05 secs</span></span></code></pre></div>
 </details>
 </div>
 <div class="cell">
@@ -241,7 +241,7 @@
 <div>
 <blockquote>
 <p><strong><code>max_comparisons</code> does not change this</strong></p>
-<p><code>max_comparisons = 20</code> is used above to keep this article’s build time reasonable. The outcome is identical at every value tried, including the full default reference set of 494 sequences (measured once, about 22 minutes, and not re-run here):</p>
+<p><code>max_comparisons = 20</code> is used above to keep this article’s build time reasonable. The outcome is identical at every value tried, including the default (50) and the full reference set of 494 sequences (measured once, about 22 minutes, and not re-run here):</p>
 <table class="table caption-top">
 <thead><tr class="header">
 <th><code>max_comparisons</code></th>
@@ -257,12 +257,12 @@
 <td>42 aa</td>
 </tr>
 <tr class="even">
-<td>50</td>
+<td>50 (default)</td>
 <td>216 aa</td>
 <td>42 aa</td>
 </tr>
 <tr class="odd">
-<td>all 494 (default)</td>
+<td>all 494</td>
 <td>216 aa</td>
 <td>42 aa</td>
 </tr>

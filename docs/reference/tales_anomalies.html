@@ -158,14 +158,14 @@ row per anomaly. Zero rows if the object is clean.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 4 × 3</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   array_id check               detail                      </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>    <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>               <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                       </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> A2       terminus_duplicated more than one N-terminus    </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> A1       terminus_absent     no C-terminus               </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> A2       terminus_absent     no C-terminus               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> A1       terminus_absent     no C-terminus               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> A2       terminus_absent     no C-terminus               </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> A2       terminus_duplicated more than one N-terminus    </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> A2       terminus_misplaced  N-terminus not at position 1</span>
 <span class="r-in"><span><span class="fu"><a href="tales.html">tales</a></span><span class="op">(</span><span class="va">odd</span>, sanitize <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> <span class="co"># drops A2 instead of merely warning</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>Dropped 2 arrays with biological anomalies.</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> Arrays: <span style="color: #0000BB;">"A2"</span> and <span style="color: #0000BB;">"A1"</span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Reasons: <span style="color: #00BB00;">terminus_duplicated</span>, <span style="color: #00BB00;">terminus_absent</span>, and <span style="color: #00BB00;">terminus_misplaced</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #BB0000;">✖</span> Arrays: <span style="color: #0000BB;">"A1"</span> and <span style="color: #0000BB;">"A2"</span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span style="color: #00BBBB;">ℹ</span> Reasons: <span style="color: #00BB00;">terminus_absent</span>, <span style="color: #00BB00;">terminus_duplicated</span>, and <span style="color: #00BB00;">terminus_misplaced</span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #0000BB;">&lt;tales&gt;</span> 0 arrays, 0 parts</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   layers: rvd   |   1 other column</span>
 </code></pre></div>

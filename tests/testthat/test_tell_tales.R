@@ -123,7 +123,9 @@ test_that("tell_tales() codes termini from the protein profiles and drops DNA-on
   # AnnoTALE splits ROI_00001's DNA but cannot translate it: no parts file is left
   expect_false(file.exists(file.path(out, "annotale", "ROI_00001", "TALE_DNA_parts.fasta")))
   expect_false(file.exists(file.path(out, "annotale", "ROI_00001", "TALE_Protein_parts.fasta")))
-  x <- tales_from_telltales(out)
+  # and reading the directory says so (§49)
+  expect_warning(x <- tales_from_telltales(out), "ROI_00001",
+                 class = "tantale_warning_annotale_unparsed")
   expect_false("ROI_00001" %in% x$array_id)
   expect_identical(x$rvd[x$array_id == truncated$array_id & x$domain_type == "C-terminus"], "CTERM")
 })

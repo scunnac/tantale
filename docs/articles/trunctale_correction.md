@@ -223,10 +223,10 @@ invisible(tell_tales(
 #> Finding the closest reference amino acid sequences:
 #> ================================================================================
 #> 
-#> Time difference of 5.94 secs
+#> Time difference of 5.71 secs
 #> ================================================================================
 #> 
-#> Time difference of 34.69 secs
+#> Time difference of 34.05 secs
 ```
 
 Code
@@ -256,14 +256,14 @@ found, and has no comparable template to work with for `ROI_00019`.
 >
 > `max_comparisons = 20` is used above to keep this article’s build time
 > reasonable. The outcome is identical at every value tried, including
-> the full default reference set of 494 sequences (measured once, about
-> 22 minutes, and not re-run here):
+> the default (50) and the full reference set of 494 sequences (measured
+> once, about 22 minutes, and not re-run here):
 >
 > | `max_comparisons` | `ROI_00001` C-terminus | `ROI_00019` C-terminus |
 > |-------------------|------------------------|------------------------|
 > | 20                | 216 aa                 | 42 aa                  |
-> | 50                | 216 aa                 | 42 aa                  |
-> | all 494 (default) | 216 aa                 | 42 aa                  |
+> | 50 (default)      | 216 aa                 | 42 aa                  |
+> | all 494           | 216 aa                 | 42 aa                  |
 >
 > Whatever makes
 > [`DECIPHER::CorrectFrameshifts()`](https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html)

@@ -88,6 +88,12 @@ terminal-domain protein profile, <code>XXXXX</code> when it does not. When
 AnnoTALE reported no terminus on one side, the array has no part there, with
 a warning. An array whose protein and DNA parts disagree is left out, with
 a warning.</p>
+<p>A candidate array with a TALE terminus DNA hit that AnnoTALE could not
+split into parts is absent from the result, with a warning naming it.
+<code><a href="tales_anomalies.html">tales_anomalies</a></code> cannot report such an array, since it is not
+in the object. After frameshift correction this usually means the array
+was corrected against a distant reference; see <code>max_comparisons</code> in
+<code><a href="tell_tales.html">tell_tales</a></code>.</p>
 <p>The directory must have been written by the current version of
 <code><a href="tell_tales.html">tell_tales()</a></code>, whose <code>array_report.tsv</code> holds the terminus
 check; an older one is an error.</p>
