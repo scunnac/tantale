@@ -2587,7 +2587,20 @@ Done (plan agreed 2026-10-03):
 - The 18 tidyselect "external vector" warnings in
   `test_target_predictions.R` predate this change (seen with it stashed)
   and come from no call in `R/`.
-- For the site rebuild: `tale_classification.qmd` says the darkest
-  talome-heatmap colour is the most common variant; rank 1 is now rose.
-  `tale_mining.qmd` line 439 uses `ggplot2::scale_fill_viridis_d()` in
+- Second round (maintainer's review, 2026-10-03): `plot.tales()` strips
+  on a pale band (`#F2F2F2`) with bold dark text. Dendrogram planned for
+  25+ groups: Tol muted cycled in leaf order so neighbours differ, group
+  number under each clade, no legend, cut height in the subtitle (the old
+  in-plot label overlapped the branches). `plot_target_preds()`: the
+  maintainer preferred the original DNA colours (ColorBrewer RdYlBu, as
+  biovizBase; they are also more distinct under the simulations than the
+  Tol set tried, CIEDE2000 min 23 vs 12), kept as hex codes; match score in
+  purple shades (chosen over grey, teal and indigo; orange rejected).
+  `talomes_heatmap()`: Tol muted ranks rejected; `colors` now gives the
+  ends of a ramp interpolated over the ranks present (a fixed-length
+  palette left 2-3 ranks all dark, viridis included), default dark to pale
+  wine (chosen over indigo-cyan, teal, indigo-teal-sand).
+- Open: `talomes_heatmap()`'s dendrograms take `margins` units (5 by
+  default) while each cell is 1 unit, so they dominate a small matrix.
+- For the site rebuild: `tale_mining.qmd` line 439 uses `ggplot2::scale_fill_viridis_d()` in
   article code (left to the maintainer, §38).

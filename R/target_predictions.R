@@ -430,7 +430,7 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
 
   ############ Assembling a ggplot object
   # Match quality 3 is the best: calm fill. Poor matches get the strong colours.
-  matchFills <- c(`1` = "#CC4C02", `2` = "#FEC44F", `3` = "#FFF7BC")
+  matchFills <- .tantale_colours$match_quality
   predsForPlot$labelColour <- .text_colour_on(matchFills[as.character(predsForPlot$rvd2ntMatchScore)])
   p <- ggplot2::ggplot(data = predsForPlot, ggplot2::aes(x = xPos, y = yPos)) +
 

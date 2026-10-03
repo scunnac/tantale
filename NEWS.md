@@ -9,13 +9,20 @@ repeat and the final 20-aa half-repeat in calm colours, other repeat
 lengths in strong ones, N-termini in shades of wine and C-termini in
 shades of teal, lighter when shorter. The legend names part and length
 ("repeat, 34 aa"), and RVD labels are black or white, whichever reads
-better on the fill. In `plot()` on a `tales_msa`, the cell text is black
-where it matches the consensus and red where it does not, and all fills
-are pale enough for both to read. `plot_target_preds()`,
-`talomes_heatmap()` and the plots of `tales_group_hclust()` and
-`tales_group_kmedoids()` follow the same style. `talomes_heatmap()`
-recycles its colours when a group has more variants than colours. The
-package no longer imports biovizBase or viridis.
+better on the fill; panel labels sit on a pale band. In `plot()` on a
+`tales_msa`, the cell text is black where it matches the consensus and red
+where it does not, and all fills are pale enough for both to read.
+
+The dendrogram of `tales_group_hclust(plot_tree = TRUE)` prints each
+group's number under its clade, and its colours only tell neighbouring
+clades apart, so it stays readable with 25 groups or more; the cut height
+moved to the subtitle. In `plot_target_preds()` the match score is shown
+in shades of purple, from pale for a good match to dark for a poor one,
+and the DNA bases keep their colours. In `talomes_heatmap()` the variant
+colours run from dark wine for the most common variant to pale pink for
+the rarest present, however many variants a group has; `colors` now gives
+the end points of that range. The package no longer imports biovizBase or
+viridis.
 
 ## `tales_names()`
 

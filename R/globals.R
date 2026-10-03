@@ -21,5 +21,5 @@ utils::globalVariables(c(
   "tcov", "value", "variable", "xPos", "yPos", "yPosOnSeq",
   "evalue", "hit", "is_hit", "nterm_aa_hit", "cterm_aa_hit",
   "profile_gap", "qlen", "i_evalue", "hmm_from", "hmm_to", "gap",
-  "part", "colour", "label_colour", "labelColour"
+  "part", "colour", "label_colour", "labelColour", "isTip", "y"
 ))

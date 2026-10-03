@@ -146,7 +146,9 @@ plot.tales <- function(x, position = c("array", "alignment"), facet_by = "seqnam
     ggplot2::geom_text(mapping = ggplot2::aes(color = label_colour), size = 2.1) +
     ggplot2::scale_color_identity() +
     ggplot2::labs(title = "Overview of TALE composition by genome") +
-    ggplot2::theme_light()
+    ggplot2::theme_light() +
+    ggplot2::theme(strip.background = ggplot2::element_rect(fill = .tantale_colours$strip, colour = NA),
+                   strip.text = ggplot2::element_text(colour = "grey20", face = "bold"))
   
   if (!is.null(facet_by)) {
     p <- p + ggplot2::facet_grid(rows = ggplot2::vars(!!!rlang::syms(facet_by)),

@@ -114,16 +114,31 @@ tales_group_hclust <- function(x, tale_distances, k = NULL, plot_tree = FALSE) {
   clades <- sapply(g, function(nms) suppressMessages(tidytree::MRCA(p, nms)))
   p <- tidytree::groupClade(p, clades, group_name = "subtree") +
     ggtree::aes(color = subtree)
+
+  # k often runs to 25 groups or more, beyond what any palette keeps apart,
+  # so colour only separates neighbouring clades (cycled in leaf order) and
+  # the group number printed under each clade identifies it.
+  leafOrder <- unique(treeCuts[taleTree$labels[taleTree$order]])
+  cycle <- unname(.tol_muted[c("indigo", "rose", "teal", "wine", "olive",
+                               "cyan", "purple", "green", "sand")])
+  cladeColours <- stats::setNames(rep_len(cycle, k), leafOrder)
+  groupLabels <- p$data %>%
+    dplyr::filter(isTip) %>%
+    dplyr::mutate(group = treeCuts[label]) %>%
+    dplyr::group_by(group) %>%
+    dplyr::summarise(y = mean(y), .groups = "drop")
+
   p + ggtree::layout_dendrogram() +
     ggtree::geom_tiplab(ggtree::aes(label = label),
                         hjust = 1, angle = 90, align = FALSE,
                         color = "black", offset = -2) +
-    ggplot2::scale_color_manual(values = c(`0` = "grey50", stats::setNames(
-      rep_len(unname(.tol_muted), k), seq_len(k))), breaks = seq_len(k)) +
-    ggplot2::geom_vline(xintercept = -cutOff, linetype = 2) +
-    ggtree::geom_text(x = (cutOff - max(taleTree$height) / 50), y = 8,
-                      label = paste("cutOff value: ", sprintf("%.2f", cutOff)),
-                      color = "darkgrey", fontface = "plain") +
+    ggplot2::scale_color_manual(values = c(`0` = "grey60", cladeColours), guide = "none") +
+    ggplot2::geom_vline(xintercept = -cutOff, linetype = 2, colour = "grey50") +
+    ggplot2::geom_label(data = groupLabels,
+                        mapping = ggplot2::aes(x = max(taleTree$height) * 0.04, y = y, label = group),
+                        inherit.aes = FALSE, size = 3, fontface = "bold",
+                        label.size = 0, fill = "white", colour = "grey20") +
+    ggplot2::labs(subtitle = sprintf("Cut into %d groups at height %.2f (dashed line)", k, cutOff)) +
     ggplot2::xlab("Height") +
     ggtree::theme_dendrogram(plot.margin = ggplot2::margin(6, 6, 150, 6))
 }
@@ -344,8 +359,8 @@ tales_group_kmedoids <- function(x, tale_distances, k_range = NULL, k = NULL,
 #' different variants of the same TALE.
 #'
 #' Within a group, variants are ranked by how many strains carry them, and
-#' the cell colour is that rank (the first colour is the most common
-#' variant). The \code{#} after each group label counts its distinct
+#' the cell colour is that rank: the most common variant is the darkest.
+#' The \code{#} after each group label counts its distinct
 #' variants. A grey cell means the strain has no member in that group. A
 #' cell can hold several colours side by side when a strain carries more
 #' than one variant in the same group. Dendrograms order strains and groups
@@ -365,9 +380,10 @@ tales_group_kmedoids <- function(x, tale_distances, k_range = NULL, k = NULL,
 #' @param extra_col Optional name of a column with further information about
 #'   each strain (e.g. origin), drawn as a side bar on the right.
 #' @param x_lab,y_lab,title Axis names and plot title.
-#' @param colors Character vector of colours for the variant ranks, recycled
-#'   when a group has more variants than colours. The default is colour-blind
-#'   safe.
+#' @param colors Colours from the most common variant to the rarest. They
+#'   are interpolated over the ranks present, so the most common variant always
+#'   gets the first colour and the rarest the last. The default runs from dark
+#'   to pale wine.
 #' @param margins Margins for the row dendrogram, column dendrogram, row
 #'   names and column names, in that order. Default \code{c(5, 5, 3, 3)}.
 #' @param sep_width Width of the separator between adjacent cells.
@@ -395,7 +411,7 @@ tales_group_kmedoids <- function(x, tale_distances, k_range = NULL, k = NULL,
 talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, trunc_tales_col = NULL, extra_col = NULL,
                             x_lab = "TALE Group", y_lab = "Strain", title = "RVD sequences variants",
                             plot_type = "all",
-                            colors = unname(.tol_muted), margins = c(5, 5, 3, 3),
+                            colors = .tantale_colours$variant_ranks, margins = c(5, 5, 3, 3),
                             sep_width = 5, sep_color = "white", inner_sep_color = "white", save_path = NULL) {
   plot_type <- match.arg(plot_type, c("all", "single"))
 
@@ -460,6 +476,8 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
   widright <- margins[3]
   heibot <- margins[4]
   
+  rankColours <- grDevices::colorRampPalette(colors)(max(tale_annotation$rvdfac))
+
   if (plot_type == "single") { # plot representative alleles
     codedAlleles1 <- apply(reprsntAlleles, 2, function(x) ifelse(x == 0, NA, x))
     if (!is.null(save_path)) {
@@ -472,7 +490,7 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
     }
     gplots::heatmap.2(as.matrix(codedAlleles1),
                       trace = "none",
-                      col = rep_len(colors, max(codedAlleles1, na.rm = T)),
+                      col = rankColours[seq_len(max(codedAlleles1, na.rm = T))],
                       breaks = 0:max(codedAlleles1, na.rm = T),
                       density.info = "none",
                       key = F,
@@ -499,7 +517,7 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
     uniqueRVD <- uniqueRVD[rev(rorder), corder]
     
     
-    colmat <- rep_len(colors, max(tale_annotation$rvdfac))
+    colmat <- rankColours
     ## plot layout
     nplots <- nrow(uniqueRVD)*ncol(uniqueRVD)
     mainmat <- matrix(1:nplots, nrow = nrow(uniqueRVD))
