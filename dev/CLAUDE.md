@@ -239,6 +239,14 @@ before trusting any of it.*
 
 ### State
 
+- **2026-10-03, later session:** P5 closed (Imports kept, now 40);
+  `tales_names()` added (§45); package-wide colour-blind-safe colour
+  style, Tol muted in `R/palette.R`, reviewed by the maintainer plot by
+  plot (§46). Four commits on `main` not pushed (8e9eda9..13948dc).
+  Next: the CRD-on-DNA figure for `pkgdown/index.md`, then a full site
+  rebuild (fix the two talome sentences in `tale_classification.qmd`,
+  §46). Open question recorded in START HERE: should functions taking
+  RVD strings also accept a `tales` object.
 - Branch `main`, version **0.9.9011**, pushed 2026-10-03 (check
   `git status -sb`). The installed `tantale` is older than `main`:
   reinstall before rendering articles.
