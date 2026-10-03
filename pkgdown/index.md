@@ -14,10 +14,10 @@ are frequently a plant susceptibility gene the pathogen exploits.
 
 <img src="crd_dna.png"
      alt="Crystal structure of the TALE PthXo1 bound to DNA: the repeats wind around the double helix, with the RVD residues lining the major groove"
-     style="max-width: 100%; height: auto;"/>
+     style="max-width: 90%; height: auto;"/>
 
 PthXo1, a TALE of *Xanthomonas oryzae* pv. *oryzae*, bound to its DNA
-target, seen from the side (left) and down the DNA axis from the
+target in the *OsSWEET11* promoter, seen from the side (left) and down the DNA axis from the
 N-terminal end (right). Each repeat (alternately sand and olive) is a pair
 of helices joined by a loop that carries the RVD (indigo spheres). The
 repeats wind around the DNA in a right-handed superhelix that follows the
@@ -89,10 +89,5 @@ with upstream sources, in
 
 The authors used large language models (Claude, Anthropic -- including
 Claude Sonnet 5) to assist with code development, debugging, and
-documentation writing throughout this package. Where LLM assistance extends
-to a manuscript describing this work, it is limited to the copy-editing
-stage; the manuscript itself is written entirely by the authors. Any figures
-are prepared by the authors, with LLMs used only to help write the scripts
-that generate them. The authors affirm that they are fully responsible for
-the content of the codebase, its documentation, and any accompanying
-manuscript.
+documentation writing throughout this package. The authors affirm that they are fully responsible for
+the content of the codebase and its documentation.

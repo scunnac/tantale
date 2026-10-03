@@ -31,6 +31,8 @@ either one.
 ```{r package, message = FALSE}
 library(tantale)
 library(dplyr)
+library(ggplot2)
+library(patchwork)
 ```
 
 ::: {.callout-note}
@@ -38,7 +40,7 @@ library(dplyr)
 Four *Xanthomonas oryzae* genomes appear across this set of articles:
 **MAI1**, **BAI3** and **PXO86** are "clean" assemblies, and **BAI3-1-1**
 is a deliberately error-prone one: an assembly of the same BAI3
-background with *talC* deleted, carrying real sequencing/assembly
+background with a deleted *tal* locus, carrying real sequencing/assembly
 artefacts in its TALE loci. A mining pipeline meets this kind of input
 routinely in practice, and it is what the second half of this article is
 about.
@@ -174,14 +176,15 @@ array_report %>%
 ```
 
 `orf_coverage` is the longest ORF found, as a percentage of the whole
-candidate array region; a clean array's ORF covers 91-93% of it here.
+candidate array region length; a clean array's ORF covers 91-93% of it here.
 That number is about to matter a great deal.
 
 The report has one more row than the `tales` object has arrays.
 `ROI_00005` is a candidate region with no terminus hit (`nterm_dna_hit`
 and `cterm_dna_hit` both `FALSE`) and no
 ORF length; it yields no parts, so it is absent from
-the object and from @fig-mai1-composition.
+the object and from @fig-mai1-composition. Using `tell_tales()` with a more stringent
+`min_dna_hits` or `min_array_length` parameter values would have probably got ride of it right away.
 
 ## When discovery goes wrong: detecting anomalies {#sec-anomalies}
 
@@ -214,6 +217,7 @@ impossible terminus arrangements, coordinate disagreements):
 
 ```{r anomalies_raw}
 tales_anomalies(bai311_raw)
+
 ```
 
 `ROI_00003` and `ROI_00005` have no repeat at all: AnnoTALE could not
@@ -224,26 +228,19 @@ profile of its TALE domain. Their `orf_coverage` shows why:
 ```{r orf_coverage_raw}
 readr::read_tsv(file.path(bai311_raw_dir, "array_report.tsv"),
                 show_col_types = FALSE) %>%
-  select(array_id, nterm_dna_hit, cterm_dna_hit, longest_orf_length, orf_coverage)
+  select(array_id, nterm_dna_hit, cterm_dna_hit,
+         longest_orf_length, orf_coverage, rvd_string) %>%
+  arrange(array_id) %>%
+  knitr::kable()
 ```
 
 `ROI_00003` and `ROI_00005` predicted ORFs cover 19% and 23% of their candidate region.
 
 No array in this assembly reaches MAI1's 91-93%: the
 others fall between 38% and 70%. This is unusual, and `tales_anomalies()` flags every one of them except `ROI_00002`.
-A close look at the 'array_report.tsv' table indicates that `ROI_00001` and `ROI_00007` have a predicted ORF encoding very few repeats (4-6) even if both termini profiles where found at the DNA level (`nterm_dna_hit` and `cterm_dna_hit` are both `TRUE`).
+A close look at the 'array_report.tsv' table indicates that loci such as `ROI_00001` and `ROI_00007` have a predicted ORF encoding very few repeats (4-6), and only repeats (see `rvd_string`), even if both termini profiles where found at the DNA level (`nterm_dna_hit` and `cterm_dna_hit` are both `TRUE`).
 
-Because, in practice this barely happens in high quality genomes, in the absence of any further evidence, this could be explained by several in/dels along the CDS that completely break it.
-
-```{r rvd_strings}
-
-readr::read_tsv(file.path(bai311_raw_dir, "array_report.tsv"),
-                show_col_types = FALSE) %>%
-  select(array_id, nterm_dna_hit, cterm_dna_hit, orf_coverage, rvd_string)
-```
-
-
-
+Because, in practice this barely happens in high quality genomes, in the absence of any further evidence, this could be explained by in/del(s) along the CDS that completely break them.
 
 
 A premature stop could also be
@@ -259,8 +256,8 @@ tantale offers two distinct routes to a corrected sequence: one corrects
 candidate *arrays* after they have been found, from inside `tell_tales()`;
 the other corrects the *genome* before discovery starts. Both can fail,
 in different ways, so @sec-anomalies's check is worth repeating after
-either one. Run on the same genome below, they disagree about which
-array still needs help.
+either one. Run on the same genome below, **they disagree about which
+array still needs help**.
 
 ### Correcting inside `tell_tales()`
 
@@ -268,17 +265,6 @@ array still needs help.
 candidate array, aligning it against a shipped reference set of real TALE
 proteins and inferring the indels needed to remove premature stops.
 
-::: {.callout-important}
-## `max_comparisons` trades reliability for speed
-`max_comparisons` caps how many references each array may be aligned
-against, and is the main control on how long correction takes. The full
-docs on `tell_tales()` measure the trade-off directly: four arrays
-aligned against a 1057-sequence reference set took 252 seconds uncapped
-and 10 seconds capped to 20. At a cap of 2, the aligner cannot reach a
-good reference and invents indels wholesale. A cap of 20 is usually
-ample, and is used below to keep this article fast to build; the next
-section shows a case where it is not enough.
-:::
 
 ```{r correct_inside_path}
 bai311_corr_dir <- file.path(out, "BAI3-1-1_corrected")
@@ -290,32 +276,40 @@ invisible(tell_tales(subject_file = bai311_fa, output_dir = bai311_corr_dir,
                      correct_array = TRUE, max_comparisons = 20))
 ```
 
-Something is odd:
+Warnings from `tell_tales` indicate that putative frame shifts were corrected by inserting nucleotides:
+
+```{r tell_tales correct warnings}
+warnings()
+```
+
+Let's look at what happens when parsing the results into a `tales` object:
 
 ```{r correct_inside warnings}
 bai311_corr <- tales_from_telltales(bai311_corr_dir)
 ```
 
-Anomalies reported:
+No warning, no anomalies, everything seems to check out!
 
 ```{r anomalies_corr_inside}
 tales_anomalies(bai311_corr)
 ```
 
-Correction did fix the two frameshifted arrays -- `ROI_00003` and
-`ROI_00005` are no longer flagged. But a *different* array, `ROI_00001`,
-now is: it was clean in the uncorrected run above, and 20 references
-were, for this particular array, not enough to find a good match. The
-aligner corrected it against a poor reference instead. That is worse than
-leaving it alone, because the output still looks like a corrected ORF
-right up until AnnoTALE tries to parse domains out of it and cannot.
+Let's plot the raw (non-sanitized) `tales` obtained without correction side-by-side 
+with the ones obtained with `correct_array = TRUE, max_comparisons = 5`:
 
-Running the full search on this same genome, against all ~500 shipped
-references, takes about eight minutes instead of twenty seconds and
-clears every anomaly, `ROI_00001` included: the aligner can then reach a
-reference close enough to it. A small `max_comparisons` is a real risk,
-and checking `tales_anomalies()` after correcting is how it gets caught
-before it reaches downstream analyses.
+
+```{r raw vs corrected tales plots}
+#| fig-width: 14
+#| fig-height:  6
+(plot(bai311_raw) + labs(title = "bai311_raw")) /
+  (plot(bai311_corr) + labs(title = "bai311_corr")) +
+  patchwork::plot_layout(nrow = 2, guides = "collect")
+```
+
+The uncorrected talome is extremely messy, most arrays have no canonical N- and C-termini and `ROI_00003` and `ROI_00005` essentially encodes shorter N-termini only. 
+In contrast the corrected arrays all display both termini with canonical length which is suggestive that we are dealing with TALES that are likely to have a standard transcription activation function.
+
+
 
 ### Correcting the genome, before discovery
 
@@ -355,19 +349,35 @@ bai311_java_dir <- file.path(out, "BAI3-1-1_java_tell_tales")
 ```{r discover_after_java_correct, message = FALSE}
 invisible(tell_tales(subject_file = bai311_java_fa, output_dir = bai311_java_dir,
                      cterm_min_score = 300, correct_array = FALSE))
-bai311_java <- suppressWarnings(tales_from_telltales(bai311_java_dir))
+bai311_java <- tales_from_telltales(bai311_java_dir)
 ```
 
 ```{r anomalies_java}
 tales_anomalies(bai311_java)
 ```
 
-`correct_tales()` fixes both `ROI_00003` and `ROI_00005` on this genome,
-without touching any candidate array individually, and does not break
-`ROI_00001`. It does not repair the N-termini of `ROI_00006` and
+`correct_tales()` fixes most arrays but fail to repair the N-termini of `ROI_00006` and
 `ROI_00009`, which still do not match the TALE N-terminal profile.
 
+Just to make sure, let's compare its output with `correct_array = TRUE`:
+
+```{r jar vs tall tales corrections plots}
+#| fig-width: 14
+#| fig-height:  6
+(plot(bai311_java) + labs(title = "bai311_java")) /
+  (plot(bai311_corr) + labs(title = "bai311_corr")) +
+  patchwork::plot_layout(nrow = 2, guides = "collect")
+```
+
+
+### What is the best method for correcting TALE arrays DNA sequences?
+
+@CLAUDE try to write a paragraph saying that even if on this dataset tell_tales gives the best results and is on par
+in terms of speed, 
+
 ### A clean correction without an eight-minute wait {#sec-best-correction}
+
+@CLAUDE this section probably needs to go unless you can find a use to it. `bai311_best` must be assigned from another object like `bai311_best <- bai311_corr` if this section goes.
 
 `correct_tales()` above ran in under a minute but left two arrays
 flagged. `max_comparisons = 50` is a second, independent route, which
@@ -395,6 +405,8 @@ used for the rest of this set of articles.
 
 
 ## How much did either correction actually help? {#sec-improvement}
+
+@CLAUDE this section needs to be entirely revised and even removed if it turns out the figures do not bring any interesting insight
 
 Anomaly counts say whether AnnoTALE could parse an array at all, which is
 a pass/fail signal. `orf_coverage` is more informative, since it is a

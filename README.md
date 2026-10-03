@@ -9,7 +9,7 @@ Test coverage measured locally with `covr::package_coverage()` on
   <img src="./man/figures/tantale_logo_small.gif">
 
 
-#### ⚠️ This is major revision of the package with breaking changes to the previous interface. Broad refactoring, bug fixes and improvements brought the package to its first stable release. The previous prototypical version is still available as the [tantale-full-history-2026-09-22.bundle](https://github.com/scunnac/tantale/releases/download/v0.9.9004) in a release asset.
+#### ⚠️ This release is a major revision of the package with breaking changes to the previous interface. Extensive refactoring, bug fixes, and performance improvements bring the package to its first stable release. The previous release (prototypical version) remains available as a release asset:[tantale-full-history-2026-09-22.bundle](https://github.com/scunnac/tantale/releases/download/v0.9.9004).
 
 
 

@@ -97,8 +97,13 @@ plot.tales <- function(x, position = c("array", "alignment"), facet_by = "seqnam
     dplyr::mutate(label = dplyr::if_else(domain_type == "repeat", rvd, ""),
                   aa_length = nchar(aa_seq),
                   .x = if (identical(position, "alignment")) .data$alignment_position
-                  else .data$position_in_array)
-
+                  else .data$position_in_array) %>%
+    dplyr::rowwise() %>%
+    dplyr::mutate(label = if (rvd %in% tales_anchor_codes())
+      names(tales_anchor_codes()[tales_anchor_codes() %in% rvd]) else label
+      ) %>%
+    dplyr::ungroup()
+  
   # One colour per part type and length, by biological role (ledger §46): the
   # canonical 34-aa repeat and the final 20-aa half-repeat get calm colours,
   # any other repeat length a strong one; termini are shades of wine (N) and
