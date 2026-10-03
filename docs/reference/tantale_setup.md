@@ -2,7 +2,11 @@
 
 Reports whether the external programs tantale drives are present and at
 the versions it expects, and can build or repair the conda environment
-that provides most of them.
+that provides most of them. It also downloads the Java programs tantale
+wraps (AnnoTALE, PrediTALE, TALEcorrection) and the four example genomes
+of the articles
+([`tantale_genome()`](https://scunnac.github.io/tantale/reference/tantale_genome.md)),
+which are too large to be part of the package.
 
 Called bare it changes nothing – it is a diagnostic. Pass
 `install = TRUE` to act on what it finds.
@@ -10,7 +14,12 @@ Called bare it changes nothing – it is a diagnostic. Pass
 ## Usage
 
 ``` r
-tantale_setup(install = FALSE, conda = FALSE, conda_bin = "auto")
+tantale_setup(
+  install = FALSE,
+  conda = FALSE,
+  conda_bin = "auto",
+  archive_dir = NULL
+)
 ```
 
 ## Arguments
@@ -30,12 +39,20 @@ tantale_setup(install = FALSE, conda = FALSE, conda_bin = "auto")
 
   Passed to `reticulate`. `"auto"` lets it choose.
 
+- archive_dir:
+
+  A directory holding the archives `tantale-tools-1.tar.gz` and
+  `tantale-genomes-1.tar.gz`, downloaded beforehand, to install them
+  from instead of downloading them: for a machine without internet
+  access, or to download once for several machines. `NULL` (default)
+  downloads them.
+
 ## Value
 
-Invisibly, a list with `conda` and `system` data frames of the checks,
-and `prefix`, so the result can be tested as well as read. `conda` is
-`NULL` and `prefix` is `NA` when no conda/mamba installation, or no
-`tantale` environment, was found at all; `system` is always a data
+Invisibly, a list with `conda`, `system` and `archives` data frames of
+the checks, and `prefix`, so the result can be tested as well as read.
+`conda` is `NULL` and `prefix` is `NA` when no conda/mamba installation,
+or no `tantale` environment, was found at all; `system` is always a data
 frame, since Java and Perl are checked regardless.
 
 ## Details
@@ -55,6 +72,14 @@ locations, so two roots can each hold an environment named `tantale`.
 When that happens, a rebuild can honestly report success while the
 package goes on using the other one. Everything here therefore works
 with the environment's prefix (its path), never its name.
+
+**Where the downloads go.** Two archives, attached to releases of
+tantale's GitHub repository, are checked against a sha256 recorded in
+the package and unpacked into `tools::R_user_dir("tantale", "data")`
+(`~/.local/share/R/tantale` on Linux), in one folder per archive version
+(`tools-1/`, `genomes-1/`). Set the environment variable
+`TANTALE_DATA_DIR` to use another directory, for instance one shared by
+a team. The tools take about 60 MB, the genomes 20 MB.
 
 **Java and Perl** are checked too. They are hard requirements of the
 AnnoTALE, PrediTALE and TALE-correction wrappers, they come from outside
@@ -84,6 +109,8 @@ the entry points that need these tools.
 # \donttest{
 # A read-only diagnostic report; nothing is installed or changed.
 tantale_setup()
+#> ✔ tools-1  /home/cunnac/snap/codium/495/.local/share/R/tantale/tools-1
+#> ✔ genomes-1  /home/cunnac/snap/codium/495/.local/share/R/tantale/genomes-1
 #> ✔ conda binary    /home/cunnac/bin/micromamba
 #> ℹ default root    /home/cunnac/micromamba
 #> ✔ tantale env     /home/cunnac/mamba/envs/tantale

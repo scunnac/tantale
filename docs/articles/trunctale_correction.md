@@ -67,7 +67,7 @@ short array deserves to be taken at face value.**
 Code
 
 ``` r
-pxo86_fa <- system.file("extdata", "PXO86.fa", package = "tantale", mustWork = TRUE)
+pxo86_fa <- tantale_genome("PXO86")
 pxo86_raw_dir <- file.path(out, "PXO86_raw")
 ```
 
@@ -266,10 +266,10 @@ invisible(tell_tales(
 #> Finding the closest reference amino acid sequences:
 #> ================================================================================
 #> 
-#> Time difference of 6.26 secs
+#> Time difference of 5.87 secs
 #> ================================================================================
 #> 
-#> Time difference of 36.13 secs
+#> Time difference of 34.6 secs
 ```
 
 Code

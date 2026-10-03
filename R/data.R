@@ -17,9 +17,9 @@
 #' }
 #'
 #' @details
-#' Taken verbatim from QueTAL FuncTAL's own table (shipped as
-#' \code{legacy/QueTAL_v1.1/FuncTAL/Info/2014mat18} in the installed
-#' package): the values are unchanged, only a header and column names added. Conceptually related to
+#' Taken verbatim from QueTAL FuncTAL's own table (\code{Info/2014mat18} in
+#' FuncTAL 1.1, by A. L. Pérez-Quintero, redistributed with permission): the
+#' values are unchanged, only a header and column names added. Conceptually related to
 #' but distinct from the internal \code{rvdSimDf} used by
 #' \code{\link{tales_align}}'s RVD scoring: that one is a *derived*
 #' RVD-vs-RVD similarity (a correlation between two RVDs' base-preference

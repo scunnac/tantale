@@ -9,8 +9,7 @@ preditale(
   subj_file,
   opt_param = "",
   output_dir = NULL,
-  predictor_path = system.file("tools", "PrediTALE.jar", package = "tantale", mustWork =
-    T)
+  predictor_path = .tantale_tool("preditale")
 )
 }
 \arguments{
@@ -30,8 +29,8 @@ for PrediTALE.jar preditale (eg "Strand=\"forward strand\"").}
 \item{output_dir}{Expects a character vector specifying the path to an output
 directory. If not supplied, output files will be temporary.}
 
-\item{predictor_path}{If you want to use another version of "PrediTALE.jar"
-than the one supplied with tantale, specify its path here.}
+\item{predictor_path}{Path to "PrediTALE.jar". The default is the copy
+\code{\link[=tantale_setup]{tantale_setup()}} downloads; give a path to use another version.}
 }
 \value{
 A tibble with the EBE predictions. \strong{Note that column names

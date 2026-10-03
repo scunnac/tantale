@@ -115,7 +115,10 @@
 #' @description
 #' Reports whether the external programs tantale drives are present and at the
 #' versions it expects, and can build or repair the conda environment that
-#' provides most of them.
+#' provides most of them. It also downloads the Java programs tantale wraps
+#' (AnnoTALE, PrediTALE, TALEcorrection) and the four example genomes of the
+#' articles ([tantale_genome()]), which are too large to be part of the
+#' package.
 #'
 #' Called bare it changes nothing -- it is a diagnostic. Pass
 #' `install = TRUE` to act on what it finds.
@@ -137,6 +140,14 @@
 #' on using the other one. Everything here therefore works with the
 #' environment's prefix (its path), never its name.
 #'
+#' **Where the downloads go.** Two archives, attached to releases of
+#' tantale's GitHub repository, are checked against a sha256 recorded in the
+#' package and unpacked into `tools::R_user_dir("tantale", "data")`
+#' (`~/.local/share/R/tantale` on Linux), in one folder per archive
+#' version (`tools-1/`, `genomes-1/`). Set the environment variable
+#' `TANTALE_DATA_DIR` to use another directory, for instance one shared by
+#' a team. The tools take about 60 MB, the genomes 20 MB.
+#'
 #' **Java and Perl** are checked too. They are hard requirements of the
 #' AnnoTALE, PrediTALE and TALE-correction wrappers, they come from outside
 #' conda, and without this check they fail deep inside a `system()` call.
@@ -154,8 +165,14 @@
 #' @param conda Install a conda distribution if none is found. `FALSE` by
 #'   default; see the section above.
 #' @param conda_bin Passed to `reticulate`. `"auto"` lets it choose.
-#' @return Invisibly, a list with `conda` and `system` data frames of the
-#'   checks, and `prefix`, so the result can be tested as well as read.
+#' @param archive_dir A directory holding the archives
+#'   `tantale-tools-1.tar.gz` and `tantale-genomes-1.tar.gz`, downloaded
+#'   beforehand, to install them from instead of downloading them: for a
+#'   machine without internet access, or to download once for several
+#'   machines. `NULL` (default) downloads them.
+#' @return Invisibly, a list with `conda`, `system` and `archives` data
+#'   frames of the checks, and `prefix`, so the result can be tested as well
+#'   as read.
 #'   `conda` is `NULL` and `prefix` is `NA` when no conda/mamba installation,
 #'   or no `tantale` environment, was found at all; `system` is always a
 #'   data frame, since Java and Perl are checked regardless.
@@ -168,7 +185,11 @@
 #' tantale_setup()
 #' }
 #' @export
-tantale_setup <- function(install = FALSE, conda = FALSE, conda_bin = "auto") {
+tantale_setup <- function(install = FALSE, conda = FALSE, conda_bin = "auto",
+                          archive_dir = NULL) {
+
+  ## the Java tools and the example genomes ----------------------------------
+  archives <- .tantale_setup_archives(install, archive_dir)
 
   ## conda itself ------------------------------------------------------------
   bin <- tryCatch(reticulate::conda_binary(conda_bin), error = function(e) NULL)
@@ -177,7 +198,7 @@ tantale_setup <- function(install = FALSE, conda = FALSE, conda_bin = "auto") {
       cli::cli_alert_danger("No conda or mamba installation found.")
       cli::cli_alert_info("Run {.run tantale_setup(install = TRUE, conda = TRUE)} to install one, or install mamba yourself.")
       return(invisible(list(conda = NULL, system = .tantale_check_system(),
-                            prefix = NA_character_)))
+                            archives = archives, prefix = NA_character_)))
     }
     cli::cli_alert_info("Installing miniconda (this is a one-off, and takes a few minutes)...")
     reticulate::install_miniconda()
@@ -198,7 +219,7 @@ tantale_setup <- function(install = FALSE, conda = FALSE, conda_bin = "auto") {
       cli::cli_alert_danger("No {.val tantale} environment.")
       cli::cli_alert_info("Run {.run tantale_setup(install = TRUE)} to build it.")
       return(invisible(list(conda = NULL, system = .tantale_check_system(),
-                            prefix = NA_character_)))
+                            archives = archives, prefix = NA_character_)))
     }
     prefix <- .tantale_env_prefix(conda_bin = conda_bin)
   }
@@ -237,11 +258,39 @@ tantale_setup <- function(install = FALSE, conda = FALSE, conda_bin = "auto") {
   ## what to do next ---------------------------------------------------------
   if (any(!checks$ok) && !isTRUE(install)) {
     cli::cli_alert_info("Run {.run tantale_setup(install = TRUE)} to repair the environment.")
-  } else if (all(checks$ok) && all(sys$ok)) {
+  } else if (all(checks$ok) && all(sys$ok) && all(archives$ok)) {
     cli::cli_alert_success("Everything tantale needs is present.")
   }
 
-  invisible(list(conda = checks, system = sys, prefix = prefix))
+  invisible(list(conda = checks, system = sys, archives = archives, prefix = prefix))
+}
+
+
+#' Check, and with `install = TRUE` fetch, the downloaded archives
+#'
+#' @return A data frame: `archive`, `ok`, `path`.
+#' @noRd
+.tantale_setup_archives <- function(install, archive_dir) {
+  out <- lapply(names(.tantale_archives), function(which) {
+    spec <- .tantale_archives[[which]]
+    ok <- .tantale_archive_ok(which)
+    if (!ok && isTRUE(install)) {
+      .tantale_install_archive(which, archive_dir = archive_dir)
+      ok <- TRUE
+    }
+    path <- .tantale_archive_path(which)
+    if (ok) {
+      cli::cli_alert_success("{spec$version}  {.file {path}}")
+    } else {
+      cli::cli_alert_danger("{spec$version} ({spec$what}) not installed")
+    }
+    data.frame(archive = spec$version, ok = ok, path = path)
+  })
+  out <- do.call(rbind, out)
+  if (!all(out$ok)) {
+    cli::cli_alert_info("Run {.run tantale_setup(install = TRUE)} to download them.")
+  }
+  out
 }
 
 

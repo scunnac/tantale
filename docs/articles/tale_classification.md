@@ -42,9 +42,9 @@ Code
 ``` r
 out <- fs::dir_create(file.path(tempdir(), "tale_classification"))
 genome_files <- c(
-  MAI1       = system.file("extdata", "MAI1.fa",       package = "tantale", mustWork = TRUE),
-  BAI3       = system.file("extdata", "BAI3.fa",       package = "tantale", mustWork = TRUE),
-  `BAI3-1-1` = system.file("extdata", "BAI3-1-1.fa",   package = "tantale", mustWork = TRUE)
+  MAI1       = tantale_genome("MAI1"),
+  BAI3       = tantale_genome("BAI3"),
+  `BAI3-1-1` = tantale_genome("BAI3-1-1")
 )
 ```
 
@@ -435,12 +435,12 @@ functal_dissim
 #> 9 MAI1_ROI_00007     MAI1_ROI_00007       0
 ```
 
-BAI3 and BAI3-1-1 (the same genomic background, with *talC* deleted in
-the latter) predict the *identical* binding specificity for this array.
-MAI1’s version carries the same twelve RVDs followed by four more, and
-its dissimilarity of 0.25 reflects those four extra positions. This
-result comes from DNA-binding prediction alone, independently of the
-DisTAL comparison above, and agrees with it.
+BAI3 and BAI3-1-1, which share the same genomic background, predict the
+*identical* binding specificity for this array. MAI1’s version carries
+the same twelve RVDs followed by four more, and its dissimilarity of
+0.25 reflects those four extra positions. This result comes from
+DNA-binding prediction alone, independently of the DisTAL comparison
+above, and agrees with it.
 
 Once arrays are a list of real `universalmotif` motifs, that package’s
 own plotting functions apply directly. `motif_tree()` draws the same

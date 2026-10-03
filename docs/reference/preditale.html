@@ -64,8 +64,7 @@ sequences and runs PrediTale.</p>
 <span>  <span class="va">subj_file</span>,</span>
 <span>  opt_param <span class="op">=</span> <span class="st">""</span>,</span>
 <span>  output_dir <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  predictor_path <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"tools"</span>, <span class="st">"PrediTALE.jar"</span>, package <span class="op">=</span> <span class="st">"tantale"</span>, mustWork <span class="op">=</span></span>
-<span>    <span class="cn">T</span><span class="op">)</span></span>
+<span>  predictor_path <span class="op">=</span> <span class="fu">.tantale_tool</span><span class="op">(</span><span class="st">"preditale"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -98,8 +97,8 @@ directory. If not supplied, output files will be temporary.</p></dd>
 
 
 <dt id="arg-predictor-path">predictor_path<a class="anchor" aria-label="anchor" href="#arg-predictor-path"></a></dt>
-<dd><p>If you want to use another version of "PrediTALE.jar"
-than the one supplied with tantale, specify its path here.</p></dd>
+<dd><p>Path to "PrediTALE.jar". The default is the copy
+<code><a href="tantale_setup.html">tantale_setup()</a></code> downloads; give a path to use another version.</p></dd>
 
 </dl></div>
     <div class="section level2">

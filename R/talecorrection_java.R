@@ -15,9 +15,10 @@
 #'
 #' @param uncorrected_path Path to the input sequence file
 #' @param corrected_path Path of the output file
-#' @param hmm_path Path to the folder containing the profile HMM files. The default
-#' value points to the ones built from Xanthomonas oryzae pv. oryzae (Xoo) templates.
-#' Xoc (X. oryzae pv. oryzicola) ones are also available in the parent directory.
+#' @param hmm_path Path to the folder containing the profile HMM files. The
+#' default points to the ones built from Xanthomonas oryzae pv. oryzae (Xoo)
+#' templates, in the tools [tantale_setup()] downloads; Xoc (X. oryzae pv.
+#' oryzicola) ones are in the sibling folder \code{Xoc}.
 #' Please see the GitHub
 #' \href{https://github.com/Jstacs/Jstacs/tree/master/projects/talecorrect}{page}
 #' for instructions on building custom profiles.
@@ -43,11 +44,11 @@
 #' }
 correct_tales <- function(uncorrected_path ,
                      corrected_path = file.path(getwd(), "correctedTALEs.fa"),
-                     hmm_path = system.file("tools", "talecorrect", "HMMs", "Xoo", package = "tantale", mustWork = T),
+                     hmm_path = .tantale_tool("talecorrection_hmm"),
                      return_corrections = FALSE,
                      conda_bin = "auto") {
   
-  pathToTALECorrection <- system.file("tools", "talecorrect", "TALEcorrection.jar", package = "tantale", mustWork = T)
+  pathToTALECorrection <- .tantale_tool("talecorrection")
   outputFolder <- tempfile(pattern = "correct_tales")
   dir.exists(outputFolder) || dir.create(outputFolder, recursive = TRUE)
   # Keys match TALEcorrection.jar's own flags (n=/c=/r=), not domain

@@ -163,10 +163,13 @@ Predicting EBEs in a promoter set, and plotting the result.
 
 ## Setting up
 
-Checking and building the external tools tantale drives.
+Checking, building and downloading the external tools tantale drives,
+and the example genomes.
 
 - [`tantale_setup()`](https://scunnac.github.io/tantale/reference/tantale_setup.md)
   : Check, and optionally build, tantale's external dependencies
+- [`tantale_genome()`](https://scunnac.github.io/tantale/reference/tantale_genome.md)
+  : Path to one of the example genomes
 
 ## Package documentation
 

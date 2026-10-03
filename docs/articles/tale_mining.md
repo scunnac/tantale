@@ -83,7 +83,7 @@ Code
 
 ``` r
 mai1_annotale_dir <- file.path(tempdir(), "MAI1_annotale")
-run_annotale_predict(system.file("extdata", "MAI1.fa", package = "tantale"),
+run_annotale_predict(tantale_genome("MAI1"),
                      output_dir = mai1_annotale_dir)
 mai1_annotale <- tales_from_annotale(mai1_annotale_dir)
 ```
@@ -125,7 +125,7 @@ nothing goes wrong:
 Code
 
 ``` r
-mai1_fa <- system.file("extdata", "MAI1.fa", package = "tantale", mustWork = TRUE)
+mai1_fa <- tantale_genome("MAI1")
 mai1_dir <- file.path(out, "MAI1")
 ```
 
@@ -244,7 +244,7 @@ artefact does to the pipeline.
 Code
 
 ``` r
-bai311_fa <- system.file("extdata", "BAI3-1-1.fa", package = "tantale", mustWork = TRUE)
+bai311_fa <- tantale_genome("BAI3-1-1")
 bai311_raw_dir <- file.path(out, "BAI3-1-1_raw")
 ```
 
@@ -562,7 +562,7 @@ On this genome, correction inside
 gives the better result: 8 of 8 arrays come out as standard TALEs,
 against 6 of 8 after
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md).
-It is also about as fast: on the machine that built this page it took 62
+It is also about as fast: on the machine that built this page it took 63
 seconds. The Java route needs two steps,
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
 and then the

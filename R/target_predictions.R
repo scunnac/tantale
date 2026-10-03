@@ -23,8 +23,8 @@
 #'   for PrediTALE.jar preditale (eg "Strand=\"forward strand\"").
 #' @param output_dir Expects a character vector specifying the path to an output
 #'   directory. If not supplied, output files will be temporary.
-#' @param predictor_path If you want to use another version of "PrediTALE.jar"
-#'   than the one supplied with tantale, specify its path here.
+#' @param predictor_path Path to "PrediTALE.jar". The default is the copy
+#'   [tantale_setup()] downloads; give a path to use another version.
 #' @return A tibble with the EBE predictions. \strong{Note that column names
 #'   have been modified} relative to the column names found in the original
 #'   program's output in order to homogenize column names across TALE target
@@ -43,7 +43,7 @@
 #' head(preds)
 #' }
 preditale <- function(rvd_seqs, subj_file, opt_param = "", output_dir = NULL,
-                      predictor_path = system.file("tools", "PrediTALE.jar", package = "tantale", mustWork = T)) {
+                      predictor_path = .tantale_tool("preditale")) {
   # Checking input args
   if (inherits(rvd_seqs, "character")) {
     rvdSeqsTest <- Biostrings::readBStringSet(rvd_seqs)

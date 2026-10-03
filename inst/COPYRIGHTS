@@ -3,28 +3,32 @@ tantale: copyright and licences of bundled third-party files
 
 tantale's own code is distributed under the MIT licence (files LICENSE
 and LICENSE.md, copyright the tantale authors). The package also
-bundles programs and data written by others, listed below. They are
-not covered by the MIT licence: each keeps its own terms. The paths
-are those of the source package; in an installed package, drop the
-leading "inst/".
+bundles programs and data written by others, and tantale_setup()
+downloads more of them, listed below. They are not covered by the MIT
+licence: each keeps its own terms. The paths of bundled files are those
+of the source package; in an installed package, drop the leading
+"inst/".
 
 
 1. AnnoTALE, PrediTALE and TALEcorrection (Jstacs)
 --------------------------------------------------
 
-Files:
-  inst/tools/AnnoTALEcli-1.5.jar
+Not part of the package. tantale_setup(install = TRUE) downloads them
+in the archive tantale-tools-1.tar.gz, attached to the release tools-1
+of https://github.com/scunnac/tantale, which holds:
+  AnnoTALEcli-1.5.jar
       AnnoTALE 1.5, command-line version
       sha256 fe99d084073343a7018226e221b0bf291af92300c9f6f1bb701bd0923e32e135
       upstream https://www.jstacs.de/downloads/AnnoTALEcli-1.5.jar
-  inst/tools/PrediTALE.jar
+  PrediTALE.jar
       sha256 67a3ef81c2badbd635a7dca6ecba3ec65a773ca7eae05d70aeab09275d654a21
       upstream https://www.jstacs.de/downloads/PrediTALE.jar
-  inst/tools/talecorrect/TALEcorrection.jar
+  talecorrect/TALEcorrection.jar
       sha256 9adf9de20a41caa21bc0e93946cdf3802d1d83ed77476eca856a95a2d9383312
       upstream https://www.jstacs.de/downloads/TALECorrection_scripts.zip
-  inst/tools/talecorrect/ (the other files: HMMs/, *.java, *.sh,
+  talecorrect/ (the other files: HMMs/, *.java, *.sh,
       TALEcorrection.xml), which accompany TALEcorrection.
+  LICENSES/COPYING.GPL-3, README.md, MANIFEST.
 
 Each jar is an unmodified copy of its upstream file, and the HMMs are
 identical to those in the zip archive above (checked by sha256,
@@ -33,8 +37,8 @@ identical to those in the zip archive above (checked by sha256,
 Copyright: the Jstacs authors (https://www.jstacs.de).
 
 Licence: GNU General Public License, version 3 or (at your option) any
-later version. The full text is in inst/tools/COPYING.GPL-3, identical
-to the COPYING.txt file inside each jar.
+later version. The full text is in the archive's LICENSES/COPYING.GPL-3,
+identical to the COPYING.txt file inside each jar.
 
 Source code: the jars contain compiled classes only. Their source is
 part of the Jstacs project, https://github.com/Jstacs/Jstacs:
@@ -86,9 +90,6 @@ Reference:
 -----------------------
 
 Files:
-  inst/legacy/QueTAL_v1.1/FuncTAL/ (FuncTAL_v.1.1.pl, Statistics.pm,
-      Info/, example files). Kept for reference; tantale no longer
-      runs it.
   data/rvd_dna_specificity.rda: the exported dataset
       rvd_dna_specificity, the table Info/2014mat18 with column names
       added and values unchanged.
@@ -101,3 +102,19 @@ by permission of the author.
 Reference:
   Pérez-Quintero A.L. et al. (2015). Frontiers in Plant Science 6, 545.
   https://doi.org/10.3389/fpls.2015.00545
+
+
+4. Example genomes
+------------------
+
+Not part of the package. tantale_setup(install = TRUE) downloads them
+in the archive tantale-genomes-1.tar.gz, attached to the release
+genomes-1 of https://github.com/scunnac/tantale:
+  MAI1.fa   Xanthomonas oryzae pv. oryzae MAI1, GenBank CP025609.1
+  BAI3.fa   Xanthomonas oryzae pv. oryzae BAI3, GenBank CP025610.1
+  PXO86.fa  Xanthomonas oryzae pv. oryzae PXO86, RefSeq NZ_CP007166.1
+  BAI3-1-1.fa  an unpublished assembly of a BAI3 derivative,
+      distributed for use with tantale.
+
+The sequences of MAI1, BAI3 and PXO86 are identical to the cited NCBI
+records (checked 2026-10-04); only the FASTA headers are shortened.

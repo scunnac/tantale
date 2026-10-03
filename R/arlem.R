@@ -6,7 +6,8 @@
 # used to run (as `arlem -align -insert`), so that the TALE-level distances
 # do not depend on a Linux-x86-64-only executable whose licence does not
 # cover redistribution (ledger 28). The executable is gone; the code that
-# drove it is in inst/legacy/arlem_binary.R.
+# drove it was inst/legacy/arlem_binary.R, deleted with inst/legacy/ after
+# commit 20755db (ledger §50).
 #
 # The model is ARLEM's own, from Abouelhoda, Giegerich, Behzadi & Steyaert,
 # "Alignment of minisatellite maps: a minimum spanning tree-based approach",

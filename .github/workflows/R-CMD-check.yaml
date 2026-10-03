@@ -2,7 +2,8 @@
 # or with `gh workflow run R-CMD-check.yaml -f os=<runner>`.
 # The tests need MAFFT and HMMER from the tantale conda environment, which
 # tantale_setup() builds here exactly as a user would: micromamba first,
-# then tantale_setup(install = TRUE).
+# then tantale_setup(install = TRUE), which also installs the Java tools
+# and example genomes from the release archives.
 # Runners: Linux, and an Intel Mac (the pinned bioconda tools have osx-64
 # builds, none for osx-arm64 or Windows; DESCRIPTION has OS_type: unix).
 # macos-15-intel is GitHub's last Intel image, supported until autumn 2027.
@@ -49,8 +50,18 @@ jobs:
       - name: Point reticulate at micromamba
         run: echo "RETICULATE_CONDA=$(command -v micromamba)" >> "$GITHUB_ENV"
 
-      - name: Build the tantale environment
-        run: Rscript -e 'tantale::tantale_setup(install = TRUE)'
+      # The Java tools and example genomes are release assets of this
+      # repository (ledger §50). Fetched with gh, which authenticates, so
+      # this works while the repository is private too.
+      - name: Download the tools and genomes archives
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download tools-1 -D "$RUNNER_TEMP/archives"
+          gh release download genomes-1 -D "$RUNNER_TEMP/archives"
+
+      - name: Build the tantale environment, install the archives
+        run: Rscript -e 'tantale::tantale_setup(install = TRUE, archive_dir = file.path(Sys.getenv("RUNNER_TEMP"), "archives"))'
 
       - uses: r-lib/actions/check-r-package@v2
         with:

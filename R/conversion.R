@@ -44,8 +44,8 @@
 # Not called by production code (a tales_msa carries both layers at once, so
 # plot() names them directly -- fill = "dom_code", label = "rvd"). Kept
 # because it builds fixture data in test_plot_tales_msa.R. The inverse
-# direction, .rvd_to_repeat_align(), is in inst/legacy/conversion_retired.R
-# (§37).
+# direction, .rvd_to_repeat_align(), was in inst/legacy/conversion_retired.R
+# (§37), deleted with inst/legacy/ after commit 20755db (ledger §50).
 
 #' Substitute Distal repeat IDs for RVDs in a TALE alignment matrix
 #'

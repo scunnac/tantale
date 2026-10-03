@@ -46,6 +46,12 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.9.9011" id="tantale-099011">tantale 0.9.9011<a class="anchor" aria-label="anchor" href="#tantale-099011"></a></h2>
 <div class="section level3">
+<h3 id="the-java-tools-and-example-genomes-are-downloaded-by-tantale_setup-0-9-9011">The Java tools and example genomes are downloaded by <code>tantale_setup()</code>
+<a class="anchor" aria-label="anchor" href="#the-java-tools-and-example-genomes-are-downloaded-by-tantale_setup-0-9-9011"></a></h3>
+<p>AnnoTALE, PrediTALE and TALEcorrection (about 60 MB) and the four example genomes of the articles (about 20 MB) are no longer part of the package, which shrinks from 57 MB to about 1 MB. They are attached to the releases <code>tools-1</code> and <code>genomes-1</code> of the GitHub repository, and <code>tantale_setup(install = TRUE)</code> downloads them, checks them against checksums recorded in the package, and unpacks them into <code>tools::R_user_dir("tantale", "data")</code>, or into the directory named by the environment variable <code>TANTALE_DATA_DIR</code>. <code>tantale_setup(archive_dir = )</code> installs them from archives downloaded beforehand, for a machine without internet access. The wrappers’ tool arguments default to the downloaded copies and still accept a path to another version. The new <code><a href="../reference/tantale_genome.html">tantale_genome()</a></code> returns the path of an example genome, in place of <code>system.file("extdata", "MAI1.fa", package = "tantale")</code>. tantale now needs R 4.0.0 or later.</p>
+<p><code>inst/legacy/</code>, which kept retired code and the QueTAL FuncTAL program, is deleted; nothing used it. The FuncTAL table behind <code>rvd_dna_specificity</code> is unchanged.</p>
+</div>
+<div class="section level3">
 <h3 id="max_comparisons--by-default-0-9-9011">
 <code>max_comparisons = 50</code> by default<a class="anchor" aria-label="anchor" href="#max_comparisons--by-default-0-9-9011"></a></h3>
 <p><code>tell_tales(correct_array = TRUE)</code> now aligns each candidate array against the 50 closest references by default, where it used to try all of them. On the four genomes shipped with the package, 50 gives the same corrected sequences as the full search in a quarter of the time or less (61 s against 455 s on BAI3-1-1). Fewer than 50 left one BAI3-1-1 array badly corrected; <code><a href="../reference/tell_tales.html">?tell_tales</a></code> gives the measurements. <code>max_comparisons = NULL</code> still searches the whole reference.</p>
@@ -303,7 +309,7 @@
 </td>
 </tr><tr class="even"><td><code>"consensus"</code></td>
 <td><code>consensus = TRUE</code></td>
-</tr></tbody></table><p><code>save_path</code> has no equivalent because none is needed: the returned ggplot is <code><a href="https://ggplot2.tidyverse.org/reference/ggsave.html" class="external-link">ggsave()</a></code>-able. <code>note_colors</code> likewise – add a scale to the returned plot.</p>
+</tr></tbody></table><p><code>save_path</code> has no equivalent because none is needed: the returned ggplot is <code>ggsave()</code>-able. <code>note_colors</code> likewise – add a scale to the returned plot.</p>
 </div>
 <div class="section level4">
 <h4 id="plot_tales_msa-can-draw-the-consensus-0-9-9011">

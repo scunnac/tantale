@@ -30,8 +30,8 @@
 #' @param prefix A scalar character vector containing a prefix that will be
 #'   appended to TALE names by AnnoTALE. If not supplied, the function will try
 #'   to guess the prefix from the input file name.
-#' @param annotale_jar Path to the AnnoTALE jar file if you want to use another
-#'   version than the one provided with tantale.
+#' @param annotale_jar Path to the AnnoTALE jar file. The default is the
+#'   copy [tantale_setup()] downloads; give a path to use another version.
 #' @return \code{0}, invisibly; called for the files it writes to
 #'   \code{output_dir}. If either stage exits with a non-zero status, the
 #'   function stops with an error of class
@@ -40,8 +40,8 @@
 #' @family external TALE tools
 #' @examples
 #' \donttest{
-#' # Needs a Java runtime.
-#' fasta <- system.file("extdata", "MAI1.fa", package = "tantale")
+#' # Needs a Java runtime, and the tools and genomes tantale_setup() downloads.
+#' fasta <- tantale_genome("MAI1")
 #' out <- file.path(tempdir(), "annotale_predict_example")
 #' run_annotale_predict(fasta, output_dir = out)
 #' list.files(file.path(out, "Predict"))
@@ -49,7 +49,7 @@
 run_annotale_predict <- function(fasta_file,
                             output_dir = getwd(),
                             prefix = NULL,
-                            annotale_jar = system.file("tools", "AnnoTALEcli-1.5.jar", package = "tantale", mustWork = T)
+                            annotale_jar = .tantale_tool("annotale")
                             ) {
   # Define output dirs for the various stages of AnnoTALE
   stopifnot(dir.exists(output_dir) || dir.create(path = output_dir, showWarnings = TRUE, recursive = TRUE, mode = "775"))
@@ -97,8 +97,8 @@ run_annotale_predict <- function(fasta_file,
 #'   classified into groups.
 #' @param output_dir Directory where output will be written (created if it does not
 #'   exist).
-#' @param annotale_jar Path to the AnnoTALE jar file if you want to use another
-#'   version than the one provided with tantale.
+#' @param annotale_jar Path to the AnnoTALE jar file. The default is the
+#'   copy [tantale_setup()] downloads; give a path to use another version.
 #' @return \code{0}, invisibly; called for the files it writes to
 #'   \code{output_dir}. If AnnoTALE exits with a non-zero status, the
 #'   function stops with an error of class
@@ -107,9 +107,10 @@ run_annotale_predict <- function(fasta_file,
 #' @family external TALE tools
 #' @examples
 #' \donttest{
-#' # Needs a Java runtime. Chained from run_annotale_predict()'s own output,
-#' # since that is the file build normally classifies.
-#' fasta <- system.file("extdata", "MAI1.fa", package = "tantale")
+#' # Needs a Java runtime and the tools tantale_setup() downloads. Chained
+#' # from run_annotale_predict()'s own output, since that is the file build
+#' # normally classifies.
+#' fasta <- tantale_genome("MAI1")
 #' predict_out <- file.path(tempdir(), "annotale_build_example", "predict")
 #' run_annotale_predict(fasta, output_dir = predict_out)
 #' predicted <- list.files(file.path(predict_out, "Predict"),
@@ -120,7 +121,7 @@ run_annotale_predict <- function(fasta_file,
 #' }
 run_annotale_build <- function(fasta_file,
                           output_dir = getwd(),
-                          annotale_jar = system.file("tools", "AnnoTALEcli-1.5.jar", package = "tantale", mustWork = T)
+                          annotale_jar = .tantale_tool("annotale")
                           ) {
   if(! dir.exists(output_dir)) dir.create(path = output_dir, showWarnings = TRUE, recursive = TRUE, mode = "775")
   comBuild <- paste0(

@@ -13,8 +13,7 @@ function.
 run_annotale_build(
   fasta_file,
   output_dir = getwd(),
-  annotale_jar = system.file("tools", "AnnoTALEcli-1.5.jar", package = "tantale",
-    mustWork = T)
+  annotale_jar = .tantale_tool("annotale")
 )
 ```
 
@@ -32,8 +31,9 @@ run_annotale_build(
 
 - annotale_jar:
 
-  Path to the AnnoTALE jar file if you want to use another version than
-  the one provided with tantale.
+  Path to the AnnoTALE jar file. The default is the copy
+  [`tantale_setup()`](https://scunnac.github.io/tantale/reference/tantale_setup.md)
+  downloads; give a path to use another version.
 
 ## Value
 
@@ -50,32 +50,34 @@ Other external TALE tools:
 
 ``` r
 # \donttest{
-# Needs a Java runtime. Chained from run_annotale_predict()'s own output,
-# since that is the file build normally classifies.
-fasta <- system.file("extdata", "MAI1.fa", package = "tantale")
+# Needs a Java runtime and the tools tantale_setup() downloads. Chained
+# from run_annotale_predict()'s own output, since that is the file build
+# normally classifies.
+fasta <- tantale_genome("MAI1")
 predict_out <- file.path(tempdir(), "annotale_build_example", "predict")
 run_annotale_predict(fasta, output_dir = predict_out)
 #> Running AnnoTALE predict for "MAI1"
 #>   java -jar
-#>   '/home/cunnac/Lab-Related/MyScripts/tantale/inst/tools/AnnoTALEcli-1.5.jar'
-#>   predict g='/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/MAI1.fa'
-#>   s='MAI1' outdir='/tmp/RtmpOCbcRE/annotale_build_example/predict/Predict'
+#>   '/home/cunnac/snap/codium/495/.local/share/R/tantale/tools-1/AnnoTALEcli-1.5.jar'
+#>   predict
+#>   g='/home/cunnac/snap/codium/495/.local/share/R/tantale/genomes-1/MAI1.fa'
+#>   s='MAI1' outdir='/tmp/RtmpyHitbc/annotale_build_example/predict/Predict'
 #> Running AnnoTALE analyze for "MAI1"
 #>   java -jar
-#>   /home/cunnac/Lab-Related/MyScripts/tantale/inst/tools/AnnoTALEcli-1.5.jar
+#>   /home/cunnac/snap/codium/495/.local/share/R/tantale/tools-1/AnnoTALEcli-1.5.jar
 #>   analyze
-#>   t='/tmp/RtmpOCbcRE/annotale_build_example/predict/Predict/TALE_DNA_sequences_(MAI1).fasta'
-#>   outdir='/tmp/RtmpOCbcRE/annotale_build_example/predict/Analyze'
+#>   t='/tmp/RtmpyHitbc/annotale_build_example/predict/Predict/TALE_DNA_sequences_(MAI1).fasta'
+#>   outdir='/tmp/RtmpyHitbc/annotale_build_example/predict/Analyze'
 predicted <- list.files(file.path(predict_out, "Predict"),
                         pattern = "^TALE_DNA_sequences_", full.names = TRUE)
 build_out <- file.path(tempdir(), "annotale_build_example", "build")
 run_annotale_build(predicted, output_dir = build_out)
 #> Running AnnoTALE build
 #>   java -Xms512M -Xmx6G -jar
-#>   '/home/cunnac/Lab-Related/MyScripts/tantale/inst/tools/AnnoTALEcli-1.5.jar'
+#>   '/home/cunnac/snap/codium/495/.local/share/R/tantale/tools-1/AnnoTALEcli-1.5.jar'
 #>   build
-#>   t='/tmp/RtmpOCbcRE/annotale_build_example/predict/Predict/TALE_DNA_sequences_(MAI1).fasta'
-#>   outdir='/tmp/RtmpOCbcRE/annotale_build_example/build'
+#>   t='/tmp/RtmpyHitbc/annotale_build_example/predict/Predict/TALE_DNA_sequences_(MAI1).fasta'
+#>   outdir='/tmp/RtmpyHitbc/annotale_build_example/build'
 list.files(build_out)
 #>  [1] "Class_1"             "Class_2"             "Class_3"            
 #>  [4] "Class_4"             "Class_5"             "Class_6"            

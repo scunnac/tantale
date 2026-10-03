@@ -7,8 +7,7 @@
 run_annotale_build(
   fasta_file,
   output_dir = getwd(),
-  annotale_jar = system.file("tools", "AnnoTALEcli-1.5.jar", package = "tantale",
-    mustWork = T)
+  annotale_jar = .tantale_tool("annotale")
 )
 }
 \arguments{
@@ -19,8 +18,8 @@ classified into groups.}
 \item{output_dir}{Directory where output will be written (created if it does not
 exist).}
 
-\item{annotale_jar}{Path to the AnnoTALE jar file if you want to use another
-version than the one provided with tantale.}
+\item{annotale_jar}{Path to the AnnoTALE jar file. The default is the
+copy \code{\link[=tantale_setup]{tantale_setup()}} downloads; give a path to use another version.}
 }
 \value{
 \code{0}, invisibly; called for the files it writes to
@@ -35,9 +34,10 @@ function.
 }
 \examples{
 \donttest{
-# Needs a Java runtime. Chained from run_annotale_predict()'s own output,
-# since that is the file build normally classifies.
-fasta <- system.file("extdata", "MAI1.fa", package = "tantale")
+# Needs a Java runtime and the tools tantale_setup() downloads. Chained
+# from run_annotale_predict()'s own output, since that is the file build
+# normally classifies.
+fasta <- tantale_genome("MAI1")
 predict_out <- file.path(tempdir(), "annotale_build_example", "predict")
 run_annotale_predict(fasta, output_dir = predict_out)
 predicted <- list.files(file.path(predict_out, "Predict"),

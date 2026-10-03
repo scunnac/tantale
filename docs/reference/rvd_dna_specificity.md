@@ -32,8 +32,8 @@ A tibble with 404 rows and 5 columns:
 
 ## Details
 
-Taken verbatim from QueTAL FuncTAL's own table (shipped as
-`legacy/QueTAL_v1.1/FuncTAL/Info/2014mat18` in the installed package):
+Taken verbatim from QueTAL FuncTAL's own table (`Info/2014mat18` in
+FuncTAL 1.1, by A. L. Pérez-Quintero, redistributed with permission):
 the values are unchanged, only a header and column names added.
 Conceptually related to but distinct from the internal `rvdSimDf` used
 by

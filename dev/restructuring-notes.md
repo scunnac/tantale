@@ -2876,7 +2876,7 @@ figure re-rendered: `tale_mining`, `tale_classification`,
 
 ---
 
-## 50. Road map R7: package size (2026-10-04) **[P]** -- plan proposed, decisions pending
+## 50. Road map R7: package size (2026-10-04) **[V]**
 
 Measured 2026-10-04 at 43e56cb: `R CMD build --no-build-vignettes` gives
 a **57.1 MB** tarball. Tracked files outside `docs/`, `dev/`, `pkgdown/`:
@@ -2915,3 +2915,78 @@ maintainer 2026-10-04; nothing to code before it is agreed:
 - R7-6 archives versioned on their own (`tools-1`, `genomes-1`), pinned
   in the package by URL and sha256.
 - Not proposed: rewriting git history (85 MB); no review requires it.
+
+Maintainer, 2026-10-04:
+- R7-1: the archives go to releases of this repository; it goes public
+  again once the website and R7 are done. Until then a download needs
+  authentication, so development tests use a local copy of the archive.
+- R7-3: both archives are fetched by `tantale_setup()`. BAI3-1-1 is
+  private but distributed with the package, so it stays in the genomes
+  archive. Accessions found 2026-10-04 (NCBI E-utilities): MAI1 =
+  `CP025609.1` (RefSeq `NZ_CP025609.1`), BAI3 = `CP025610.1`
+  (`NZ_CP025610.1`), PXO86 = `NZ_CP007166.1`; for all three the shipped
+  sequence equals the NCBI record (md5 of the upper-cased sequence),
+  lengths 4 735 208, 4 723 880 and that of PXO86. The shipped headers are
+  `>MAI1`, `>BAI3`, `>NZ_CP007166` (articles show these as `seqnames`).
+- R7-5: the maintainer is considering deleting `inst/legacy` outright.
+  Open.
+- R7-5 settled: **`inst/legacy/` deleted** (maintainer, 2026-10-04, Q69).
+  The last commit holding it is **20755db**. FuncTAL's `Info/2014mat18`
+  moved to `data-raw/FuncTAL_2014mat18` (the source of
+  `rvd_dna_specificity`; `data-raw/rvd_dna_specificity.R` reads it there,
+  same values). Comments in `R/arlem.R` and `R/conversion.R` and
+  `?rvd_dna_specificity` updated; `inst/COPYRIGHTS` §3 keeps the dataset.
+  The standing rule in `dev/CLAUDE.md` now says: park in
+  `R/unused_pending_review.R`, delete after review, name the commit in the
+  ledger.
+
+Done 2026-10-04 (maintainer: R7-1 this repository's releases; Q67 a
+shorter helper name, taken as `tantale_genome()`; Q68 create the releases):
+- `dev/make_archives.R` builds `tantale-tools-1.tar.gz` (50.6 MB: the
+  three jars, all of `talecorrect/`, `LICENSES/COPYING.GPL-3`, README,
+  MANIFEST) and `tantale-genomes-1.tar.gz` (5.6 MB). Releases `tools-1`
+  and `genomes-1` created with `gh` on scunnac/tantale (GitHub labels
+  `tools-1` "Latest", the other releases being pre-releases); sha256
+  `6ebdfbfe...` and `f7eb3570...`, pinned in `R/tantale_data.R`.
+  Anonymous download answers 404 while the repository is private.
+- `R/tantale_data.R`: `.tantale_data_dir()` (`TANTALE_DATA_DIR`, else
+  `tools::R_user_dir("tantale", "data")`), `.tantale_install_archive()`
+  (download or `archive_dir`, sha256, untar, MANIFEST check),
+  `.tantale_archive_ok()`, `.tantale_tool()` (default of every wrapper's
+  jar/HMM argument), exported `tantale_genome()`. `tantale_setup()` checks
+  and with `install = TRUE` installs both archives first, whatever the
+  conda state; new argument `archive_dir`; result gains `archives`.
+  DESCRIPTION: R >= 4.0.0 (`R_user_dir`).
+- Removed from `inst/`: the jars, `talecorrect/`, `COPYING.GPL-3`, the
+  four genomes. TALVEZ stays. A trial build gave 1.0 MB.
+- `test_correct_tales.R` runs on `data_for_tests/bai311_tale_loci.fa`
+  (66 kB, six windows of the TALE loci +-3 kb, built by
+  `data-raw/make_bai311_tale_loci.R`): 69 corrections, identical in
+  position and edit to 69 of the whole genome's 70; the 70th, an insertion
+  at 585387, lies outside every array `tell_tales()` reports. New
+  `test_tantale_data.R` (a fake archive in a temporary
+  `TANTALE_DATA_DIR`: install, tampering, wrong sha256, missing file,
+  failed download, missing tool/genome; plus the real installation).
+- CI: the workflow fetches both assets with `gh release download` (works
+  while private) and passes them as `archive_dir`.
+- Articles, examples: `system.file("extdata", "<genome>.fa", ...)` ->
+  `tantale_genome()`. README, home page, `inst/COPYRIGHTS` (§1 rewritten,
+  §4 genomes added) updated.
+- **Machine quirk:** this Claude session runs inside the VSCodium snap,
+  which sets `XDG_DATA_HOME=~/snap/codium/495/.local/share`, so
+  `R_user_dir()` resolves there. An R session started elsewhere (terminal,
+  RStudio) resolves to `~/.local/share/R/tantale` and will not see this
+  installation. Fix: set `TANTALE_DATA_DIR` in `~/.Renviron`, or run
+  `tantale_setup(install = TRUE, archive_dir = ...)` in each context.
+
+---
+
+## 51. Optional arguments for the jar wrappers (2026-10-04) **[A]**
+
+Maintainer, 2026-10-04: the wrappers of the Java tools (AnnoTALE predict,
+analyze and build, PrediTALE, TALEcorrection) do not let a user pass the
+tools' own optional parameters. Add an argument (`opt_arg` suggested): a
+string of additional arguments passed to the jar, whose default holds the
+values used today. "Soon"; plan to agree before coding. Also to settle
+then: which of today's hard-coded values become that default, and how
+`preditale()`'s existing `opt_param` fits (it already passes a string).

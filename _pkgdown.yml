@@ -62,9 +62,10 @@ reference:
   desc: Predicting EBEs in a promoter set, and plotting the result.
   contents: has_concept("target prediction")
 - title: Setting up
-  desc: Checking and building the external tools tantale drives.
+  desc: Checking, building and downloading the external tools tantale drives, and the example genomes.
   contents:
   - tantale_setup
+  - tantale_genome
 - title: Package documentation
   desc: Package-level documentation.
   contents:

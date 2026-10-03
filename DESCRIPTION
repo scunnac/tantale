@@ -17,7 +17,7 @@ Copyright: tantale authors, except the bundled third-party programs and
 URL: https://scunnac.github.io/tantale, https://github.com/scunnac/tantale
 BugReports: https://github.com/scunnac/tantale/issues
 Depends:
-    R (>= 3.6.3)
+    R (>= 4.0.0)
 Imports:
     magrittr, fs, dplyr, ggplot2 (>= 3.5.0), tibble, stringr, readr, glue,
     IRanges, Biostrings, pwalign, GenomicRanges, BSgenome, plyranges,

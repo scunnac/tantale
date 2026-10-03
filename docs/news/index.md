@@ -2,6 +2,29 @@
 
 ## tantale 0.9.9011
 
+### The Java tools and example genomes are downloaded by `tantale_setup()`
+
+AnnoTALE, PrediTALE and TALEcorrection (about 60 MB) and the four
+example genomes of the articles (about 20 MB) are no longer part of the
+package, which shrinks from 57 MB to about 1 MB. They are attached to
+the releases `tools-1` and `genomes-1` of the GitHub repository, and
+`tantale_setup(install = TRUE)` downloads them, checks them against
+checksums recorded in the package, and unpacks them into
+`tools::R_user_dir("tantale", "data")`, or into the directory named by
+the environment variable `TANTALE_DATA_DIR`.
+`tantale_setup(archive_dir = )` installs them from archives downloaded
+beforehand, for a machine without internet access. The wrappers’ tool
+arguments default to the downloaded copies and still accept a path to
+another version. The new
+[`tantale_genome()`](https://scunnac.github.io/tantale/reference/tantale_genome.md)
+returns the path of an example genome, in place of
+`system.file("extdata", "MAI1.fa", package = "tantale")`. tantale now
+needs R 4.0.0 or later.
+
+`inst/legacy/`, which kept retired code and the QueTAL FuncTAL program,
+is deleted; nothing used it. The FuncTAL table behind
+`rvd_dna_specificity` is unchanged.
+
 ### `max_comparisons = 50` by default
 
 `tell_tales(correct_array = TRUE)` now aligns each candidate array
@@ -654,9 +677,8 @@ implemented there.
 | `"consensus"`                | `consensus = TRUE`           |
 
 `save_path` has no equivalent because none is needed: the returned
-ggplot is
-[`ggsave()`](https://ggplot2.tidyverse.org/reference/ggsave.html)-able.
-`note_colors` likewise – add a scale to the returned plot.
+ggplot is `ggsave()`-able. `note_colors` likewise – add a scale to the
+returned plot.
 
 #### `plot_tales_msa()` can draw the consensus
 

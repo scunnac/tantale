@@ -66,8 +66,7 @@ function.</p>
 <span>  <span class="va">fasta_file</span>,</span>
 <span>  output_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
 <span>  prefix <span class="op">=</span> <span class="cn">NULL</span>,</span>
-<span>  annotale_jar <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"tools"</span>, <span class="st">"AnnoTALEcli-1.5.jar"</span>, package <span class="op">=</span> <span class="st">"tantale"</span>,</span>
-<span>    mustWork <span class="op">=</span> <span class="cn">T</span><span class="op">)</span></span>
+<span>  annotale_jar <span class="op">=</span> <span class="fu">.tantale_tool</span><span class="op">(</span><span class="st">"annotale"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
 
@@ -92,8 +91,8 @@ to guess the prefix from the input file name.</p></dd>
 
 
 <dt id="arg-annotale-jar">annotale_jar<a class="anchor" aria-label="anchor" href="#arg-annotale-jar"></a></dt>
-<dd><p>Path to the AnnoTALE jar file if you want to use another
-version than the one provided with tantale.</p></dd>
+<dd><p>Path to the AnnoTALE jar file. The default is the
+copy <code><a href="tantale_setup.html">tantale_setup()</a></code> downloads; give a path to use another version.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -112,21 +111,22 @@ function stops with an error of class
     <div class="section level2">
     <h2 id="ref-examples">Examples<a class="anchor" aria-label="anchor" href="#ref-examples"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># \donttest{</span></span></span>
-<span class="r-in"><span><span class="co"># Needs a Java runtime.</span></span></span>
-<span class="r-in"><span><span class="va">fasta</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"MAI1.fa"</span>, package <span class="op">=</span> <span class="st">"tantale"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="co"># Needs a Java runtime, and the tools and genomes tantale_setup() downloads.</span></span></span>
+<span class="r-in"><span><span class="va">fasta</span> <span class="op">&lt;-</span> <span class="fu"><a href="tantale_genome.html">tantale_genome</a></span><span class="op">(</span><span class="st">"MAI1"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"annotale_predict_example"</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">run_annotale_predict</span><span class="op">(</span><span class="va">fasta</span>, output_dir <span class="op">=</span> <span class="va">out</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Running AnnoTALE predict for <span style="color: #0000BB;">"MAI1"</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   java -jar</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   '/home/cunnac/Lab-Related/MyScripts/tantale/inst/tools/AnnoTALEcli-1.5.jar'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   predict g='/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/MAI1.fa'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   s='MAI1' outdir='/tmp/RtmpOCbcRE/annotale_predict_example/Predict'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   '/home/cunnac/snap/codium/495/.local/share/R/tantale/tools-1/AnnoTALEcli-1.5.jar'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   predict</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   g='/home/cunnac/snap/codium/495/.local/share/R/tantale/genomes-1/MAI1.fa'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   s='MAI1' outdir='/tmp/RtmpyHitbc/annotale_predict_example/Predict'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Running AnnoTALE analyze for <span style="color: #0000BB;">"MAI1"</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   java -jar</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   /home/cunnac/Lab-Related/MyScripts/tantale/inst/tools/AnnoTALEcli-1.5.jar</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   /home/cunnac/snap/codium/495/.local/share/R/tantale/tools-1/AnnoTALEcli-1.5.jar</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   analyze</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   t='/tmp/RtmpOCbcRE/annotale_predict_example/Predict/TALE_DNA_sequences_(MAI1).fasta'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   outdir='/tmp/RtmpOCbcRE/annotale_predict_example/Analyze'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   t='/tmp/RtmpyHitbc/annotale_predict_example/Predict/TALE_DNA_sequences_(MAI1).fasta'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   outdir='/tmp/RtmpyHitbc/annotale_predict_example/Analyze'</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out</span>, <span class="st">"Predict"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "GFF__TALE_predictions_(MAI1).gff3"   "Genbank__TALE_predictions_(MAI1).gb"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [3] "TALE_DNA_sequences_(MAI1).fasta"     "TALE_protein_sequences_(MAI1).fasta"</span>

@@ -7,8 +7,7 @@
 correct_tales(
   uncorrected_path,
   corrected_path = file.path(getwd(), "correctedTALEs.fa"),
-  hmm_path = system.file("tools", "talecorrect", "HMMs", "Xoo", package = "tantale",
-    mustWork = T),
+  hmm_path = .tantale_tool("talecorrection_hmm"),
   return_corrections = FALSE,
   conda_bin = "auto"
 )
@@ -18,9 +17,10 @@ correct_tales(
 
 \item{corrected_path}{Path of the output file}
 
-\item{hmm_path}{Path to the folder containing the profile HMM files. The default
-value points to the ones built from Xanthomonas oryzae pv. oryzae (Xoo) templates.
-Xoc (X. oryzae pv. oryzicola) ones are also available in the parent directory.
+\item{hmm_path}{Path to the folder containing the profile HMM files. The
+default points to the ones built from Xanthomonas oryzae pv. oryzae (Xoo)
+templates, in the tools \code{\link[=tantale_setup]{tantale_setup()}} downloads; Xoc (X. oryzae pv.
+oryzicola) ones are in the sibling folder \code{Xoc}.
 Please see the GitHub
 \href{https://github.com/Jstacs/Jstacs/tree/master/projects/talecorrect}{page}
 for instructions on building custom profiles.}

@@ -415,13 +415,13 @@ tell_tales(subject_file = subj, output_dir = out)
 #> Now running AnnoTALE analyze for ROI_00004
 #> #****************************************
 #> #**   tell_tales analysis done     **
-#> Current date:    Sun Oct  4 00:51:08 2026
+#> Current date:    Sun Oct  4 01:45:30 2026
 #> #_________Provided I/O parameters __________
 #> File of subject DNA sequences:   /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/bai3_sample_tal_genomic_regions.fasta
 #> TALE N-term CDS region detection HMM file:   /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Nterm_CDS_profile.hmm
 #> TALE repeat unit CDS detection HMM file: /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_repeat_CDS_profile.hmm
 #> TALE C-term CDS region detection HMM file:   /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Cterm_CDS_profile.hmm
-#> Output directory:    /tmp/RtmpOCbcRE/tell_tales_example10c0d62a8e17b8
+#> Output directory:    /tmp/RtmpyHitbc/tell_tales_example11fac7439ecbaa
 #> #____________Other parameters________________
 #> nterm_min_score: 300
 #> repeat_min_score:    20

@@ -13,8 +13,7 @@ preditale(
   subj_file,
   opt_param = "",
   output_dir = NULL,
-  predictor_path = system.file("tools", "PrediTALE.jar", package = "tantale", mustWork =
-    T)
+  predictor_path = .tantale_tool("preditale")
 )
 ```
 
@@ -46,8 +45,9 @@ preditale(
 
 - predictor_path:
 
-  If you want to use another version of "PrediTALE.jar" than the one
-  supplied with tantale, specify its path here.
+  Path to "PrediTALE.jar". The default is the copy
+  [`tantale_setup()`](https://scunnac.github.io/tantale/reference/tantale_setup.md)
+  downloads; give a path to use another version.
 
 ## Value
 

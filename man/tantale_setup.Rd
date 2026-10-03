@@ -4,7 +4,12 @@
 \alias{tantale_setup}
 \title{Check, and optionally build, tantale's external dependencies}
 \usage{
-tantale_setup(install = FALSE, conda = FALSE, conda_bin = "auto")
+tantale_setup(
+  install = FALSE,
+  conda = FALSE,
+  conda_bin = "auto",
+  archive_dir = NULL
+)
 }
 \arguments{
 \item{install}{Build the \code{tantale} environment if it is missing, and
@@ -15,10 +20,17 @@ function reports and changes nothing.}
 default; see the section above.}
 
 \item{conda_bin}{Passed to \code{reticulate}. \code{"auto"} lets it choose.}
+
+\item{archive_dir}{A directory holding the archives
+\verb{tantale-tools-1.tar.gz} and \verb{tantale-genomes-1.tar.gz}, downloaded
+beforehand, to install them from instead of downloading them: for a
+machine without internet access, or to download once for several
+machines. \code{NULL} (default) downloads them.}
 }
 \value{
-Invisibly, a list with \code{conda} and \code{system} data frames of the
-checks, and \code{prefix}, so the result can be tested as well as read.
+Invisibly, a list with \code{conda}, \code{system} and \code{archives} data
+frames of the checks, and \code{prefix}, so the result can be tested as well
+as read.
 \code{conda} is \code{NULL} and \code{prefix} is \code{NA} when no conda/mamba installation,
 or no \code{tantale} environment, was found at all; \code{system} is always a
 data frame, since Java and Perl are checked regardless.
@@ -26,7 +38,10 @@ data frame, since Java and Perl are checked regardless.
 \description{
 Reports whether the external programs tantale drives are present and at the
 versions it expects, and can build or repair the conda environment that
-provides most of them.
+provides most of them. It also downloads the Java programs tantale wraps
+(AnnoTALE, PrediTALE, TALEcorrection) and the four example genomes of the
+articles (\code{\link[=tantale_genome]{tantale_genome()}}), which are too large to be part of the
+package.
 
 Called bare it changes nothing -- it is a diagnostic. Pass
 \code{install = TRUE} to act on what it finds.
@@ -47,6 +62,14 @@ locations, so two roots can each hold an environment named \code{tantale}. When
 that happens, a rebuild can honestly report success while the package goes
 on using the other one. Everything here therefore works with the
 environment's prefix (its path), never its name.
+
+\strong{Where the downloads go.} Two archives, attached to releases of
+tantale's GitHub repository, are checked against a sha256 recorded in the
+package and unpacked into \code{tools::R_user_dir("tantale", "data")}
+(\verb{~/.local/share/R/tantale} on Linux), in one folder per archive
+version (\verb{tools-1/}, \verb{genomes-1/}). Set the environment variable
+\code{TANTALE_DATA_DIR} to use another directory, for instance one shared by
+a team. The tools take about 60 MB, the genomes 20 MB.
 
 \strong{Java and Perl} are checked too. They are hard requirements of the
 AnnoTALE, PrediTALE and TALE-correction wrappers, they come from outside

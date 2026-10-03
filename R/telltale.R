@@ -681,8 +681,7 @@
 .run_annotale_analyze <- function(fasta_file,
                                   output_dir = getwd(),
                                   prefix = NULL,
-                                  annotale_jar = system.file("tools", "AnnoTALEcli-1.5.jar",
-                                                             package = "tantale", mustWork = TRUE)) {
+                                  annotale_jar = .tantale_tool("annotale")) {
   stopifnot(dir.exists(output_dir) || dir.create(path = output_dir, showWarnings = TRUE,
                                                  recursive = TRUE, mode = "775"))
   # Define a prefix for TALEs (assembly ID) derived from the genome file name.

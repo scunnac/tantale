@@ -86,14 +86,16 @@ tantale::tantale_setup()
 ```
 
 This reports what is present and what is missing, and changes nothing.
-`tantale_setup(install = TRUE)` then builds or repairs the environment.
+`tantale_setup(install = TRUE)` then builds or repairs the environment and
+downloads the Java programs and example genomes described below.
 
-Running it is optional, since the environment is built on first use if it
-is absent, but it is worth doing once, for two reasons:
+Run it once with `install = TRUE` after installing tantale:
 
-- **The first real call would otherwise be the slow one.** The environment is
-  built on first use, so that first call needs the network and takes a few
-  minutes.
+- **The Java wrappers and the example genomes need it.** They are
+  downloaded by `tantale_setup()` only.
+- **The first real call would otherwise be the slow one.** The conda
+  environment is built on first use if it is absent, so that first call
+  needs the network and takes a few minutes.
 - **It checks versions as well as presence.** A worry free setup and you are good to go.
 
 > **If you have both conda and micromamba**, `tantale_setup()` prints the binary, the default root and the
@@ -106,8 +108,16 @@ is absent, but it is worth doing once, for two reasons:
   `tantale_setup()` checks for these too.
 - **Linux.** tantale has been written with only Linux in mind. Its functionality with other operating systems has not been tested.
 
-tantale ships about 60 MB of Java programs (AnnoTALE, PrediTALE and TALE
-correction) that have no conda package, which is most of its footprint.
+- **The Java programs and example genomes are downloaded once.**
+  AnnoTALE, PrediTALE and TALE correction (about 60 MB, with no conda
+  package) and the four example genomes of the articles (about 20 MB) are
+  attached to [releases](https://github.com/scunnac/tantale/releases) of
+  this repository. `tantale_setup(install = TRUE)` downloads them, checks
+  them against checksums recorded in the package, and keeps them in your R
+  data directory; set the environment variable `TANTALE_DATA_DIR` to use
+  another one. On a machine without internet access, download the two
+  archives yourself and pass their folder as
+  `tantale_setup(install = TRUE, archive_dir = ...)`.
 
 ---
 
@@ -126,16 +136,17 @@ correction) that have no conda package, which is most of its footprint.
 ## Licence
 
 tantale's own code is under the MIT licence. The programs and data it
-bundles from other projects keep their own terms, listed file by file,
+bundles or downloads from other projects keep their own terms, listed file by file,
 with upstream sources, in
 [`inst/COPYRIGHTS`](https://github.com/scunnac/tantale/blob/main/inst/COPYRIGHTS):
 
 - AnnoTALE, PrediTALE and TALEcorrection, from the
   [Jstacs](https://www.jstacs.de) project, are under the GNU GPL,
   version 3 or later. Their source code is at
-  <https://github.com/Jstacs/Jstacs>; the licence text ships as
-  [`inst/tools/COPYING.GPL-3`](https://github.com/scunnac/tantale/blob/main/inst/tools/COPYING.GPL-3).
-- TALVEZ 3.2, QueTAL and FuncTAL carry no licence and portions of their code are redistributed by permission of their author,
+  <https://github.com/Jstacs/Jstacs>; the licence text travels with them
+  in the tools archive (`LICENSES/COPYING.GPL-3`).
+- TALVEZ 3.2 and the QueTAL FuncTAL table behind `rvd_dna_specificity`
+  carry no licence and are redistributed by permission of their author,
   Alvaro L. Pérez-Quintero.
 
 ## Use of large language models

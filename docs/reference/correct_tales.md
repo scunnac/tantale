@@ -18,8 +18,7 @@ mode.
 correct_tales(
   uncorrected_path,
   corrected_path = file.path(getwd(), "correctedTALEs.fa"),
-  hmm_path = system.file("tools", "talecorrect", "HMMs", "Xoo", package = "tantale",
-    mustWork = T),
+  hmm_path = .tantale_tool("talecorrection_hmm"),
   return_corrections = FALSE,
   conda_bin = "auto"
 )
@@ -37,10 +36,12 @@ correct_tales(
 
 - hmm_path:
 
-  Path to the folder containing the profile HMM files. The default value
+  Path to the folder containing the profile HMM files. The default
   points to the ones built from Xanthomonas oryzae pv. oryzae (Xoo)
-  templates. Xoc (X. oryzae pv. oryzicola) ones are also available in
-  the parent directory. Please see the GitHub
+  templates, in the tools
+  [`tantale_setup()`](https://scunnac.github.io/tantale/reference/tantale_setup.md)
+  downloads; Xoc (X. oryzae pv. oryzicola) ones are in the sibling
+  folder `Xoc`. Please see the GitHub
   [page](https://github.com/Jstacs/Jstacs/tree/master/projects/talecorrect)
   for instructions on building custom profiles.
 
@@ -78,6 +79,6 @@ out_fa <- tempfile(fileext = ".fa")
 correct_tales(uncorrected_path = subj, corrected_path = out_fa)
 #> Running nHMMER
 #> Performing TALEs cds correction on provided sequences.
-#> [1] "/tmp/RtmpOCbcRE/file10c0d65812e92d.fa"
+#> [1] "/tmp/RtmpyHitbc/file11fac7aa3978f.fa"
 # }
 ```

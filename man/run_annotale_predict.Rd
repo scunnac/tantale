@@ -8,8 +8,7 @@ run_annotale_predict(
   fasta_file,
   output_dir = getwd(),
   prefix = NULL,
-  annotale_jar = system.file("tools", "AnnoTALEcli-1.5.jar", package = "tantale",
-    mustWork = T)
+  annotale_jar = .tantale_tool("annotale")
 )
 }
 \arguments{
@@ -23,8 +22,8 @@ exist).}
 appended to TALE names by AnnoTALE. If not supplied, the function will try
 to guess the prefix from the input file name.}
 
-\item{annotale_jar}{Path to the AnnoTALE jar file if you want to use another
-version than the one provided with tantale.}
+\item{annotale_jar}{Path to the AnnoTALE jar file. The default is the
+copy \code{\link[=tantale_setup]{tantale_setup()}} downloads; give a path to use another version.}
 }
 \value{
 \code{0}, invisibly; called for the files it writes to
@@ -41,8 +40,8 @@ function.
 }
 \examples{
 \donttest{
-# Needs a Java runtime.
-fasta <- system.file("extdata", "MAI1.fa", package = "tantale")
+# Needs a Java runtime, and the tools and genomes tantale_setup() downloads.
+fasta <- tantale_genome("MAI1")
 out <- file.path(tempdir(), "annotale_predict_example")
 run_annotale_predict(fasta, output_dir = out)
 list.files(file.path(out, "Predict"))

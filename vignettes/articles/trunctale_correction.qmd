@@ -74,7 +74,7 @@ genome to answer the questions above. **On a good assembly, a short
 array deserves to be taken at face value.**
 
 ```{r pxo86_path}
-pxo86_fa <- system.file("extdata", "PXO86.fa", package = "tantale", mustWork = TRUE)
+pxo86_fa <- tantale_genome("PXO86")
 pxo86_raw_dir <- file.path(out, "PXO86_raw")
 ```
 

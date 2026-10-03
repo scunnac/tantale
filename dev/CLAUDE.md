@@ -24,22 +24,19 @@ and rejected.
 
 ## Standing rules
 
-**Never delete code that looks dead.** Park it in `R/unused_pending_review.R`
-(create it fresh if it does not currently exist -- its last batch was
-reviewed and moved out to `inst/legacy/` on 2026-09-21, see ledger §17) or
-`inst/legacy/` directly for whole retired classes, with a comment saying
-what superseded it. This is the maintainer's explicit instruction;
-"obsolete now, plausibly useful later" is a real category here. Before
-parking or retiring anything, check every similarly-named sibling for its
-own, separate test dependency -- two near-identical functions in the same
-file can each be kept alive by a different test file (exactly what
-happened when this convention's own file was last reviewed). Grep is not
-enough on its own: a retired function can have a *dedicated* test file
-that exercises only it and nothing else (`test_conda.R` for
-`.run_in_conda()`, missed on the same 2026-09-21 pass, caught only by a
-full `devtools::test()` run afterwards) -- run the full suite before
-calling a retirement done, don't rely on spot-checking the files you
-already suspect.
+**Never delete code that looks dead without a record.** Park it first in
+`R/unused_pending_review.R` (create it fresh if it does not exist), with a
+comment saying what superseded it, for the maintainer to review. Code
+retired after review is deleted, and the ledger names the last commit that
+holds it. `inst/legacy/`, the old cemetery, was itself deleted on
+2026-10-04 (last commit holding it: 20755db; ledger §50). Before parking or
+retiring anything, check every similarly-named sibling for its own,
+separate test dependency -- two near-identical functions in the same file
+can each be kept alive by a different test file. Grep is not enough on its
+own: a retired function can have a *dedicated* test file that exercises
+only it (`test_conda.R` for `.run_in_conda()` was missed this way on
+2026-09-21, caught only by a full `devtools::test()` run afterwards) --
+run the full suite before calling a retirement done.
 
 **pkgdown articles are written as Quarto (`.qmd`), not R Markdown.**
 Agreed direction for the future website. `vignettes/articles/*.qmd` --
@@ -251,7 +248,15 @@ before trusting any of it.*
   `?tales_anchor_codes` and the truncTALE article (Q63, no code); full site
   rebuilt in place (the `rm -rf docs/*` wipe was blocked by a Claude Code
   safety check: the maintainer wipes `docs/` before the next full build).
-  Next: road map R7 (package size), plan to agree first.
+  R7 done the same night (§50): Java tools and example genomes are
+  release assets (`tools-1`, `genomes-1`) installed by
+  `tantale_setup(install = TRUE)` into `R_user_dir("tantale", "data")` or
+  `TANTALE_DATA_DIR`; `tantale_genome()` gives a genome's path; the
+  tarball is ~1 MB; `inst/legacy/` deleted (last commit holding it:
+  20755db). This session's R resolves `R_user_dir()` under the VSCodium
+  snap's `XDG_DATA_HOME`: see §50 before assuming the tools are missing.
+  The maintainer makes the repository public once the site and R7 are
+  done.
 - **2026-10-03, third session:** home-page structure figure (PthXo1 on
   DNA, PDB 3UGM) drawn by `pkgdown/crd_figure.py` (PyMOL) into
   `pkgdown/assets/` (§47); article colour names fixed after §46; full

@@ -125,7 +125,7 @@ test_that("tantale_setup() reports the real environment and changes nothing", {
   out <- tantale_setup()
 
   expect_type(out, "list")
-  expect_setequal(names(out), c("conda", "system", "prefix"))
+  expect_setequal(names(out), c("conda", "system", "archives", "prefix"))
   expect_true(dir.exists(out$prefix))
   # every pinned package present and at the pinned version
   expect_true(all(out$conda$ok),
