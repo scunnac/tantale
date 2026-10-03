@@ -281,6 +281,26 @@ test_that("the dom_code namespace is carried through subsetting", {
 })
 
 
+#### Array names ####
+
+test_that("tales_names() lists each array once, in row order", {
+  x <- tales(minimal_tales_df())
+  expect_identical(tales_names(x), c("a1", "a2"))
+  expect_identical(tales_names(dplyr::filter(x, array_id == "a2")), "a2")
+  expect_identical(names(x), colnames(minimal_tales_df()))
+})
+
+test_that("tales_names() works on a tales_msa", {
+  x <- tales_msa(tibble::tibble(
+    array_id = c(rep("a1", 3), rep("a2", 3)),
+    position_in_array = c(1:3, 1:3),
+    alignment_position = c(1L, 2L, 3L, 1L, 3L, 4L),
+    rvd = c("NTERM", "NI", "HD", "NTERM", "HD", "CTERM")
+  ))
+  expect_identical(tales_names(x), c("a1", "a2"))
+})
+
+
 #### Anchor codes ####
 
 test_that("tales_anchor_codes() covers all three terminus sentinels", {

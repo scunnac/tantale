@@ -1,5 +1,13 @@
 # tantale 0.9.9011
 
+## `tales_names()`
+
+`tales_names(x)` returns the identifiers of the TALEs in a `tales` or
+`tales_msa` object, once each, in the order they appear. It replaces
+`unique(x$array_id)` and gives the same values as the names of
+`tales_rvd_strings(x)`. `names(x)` still returns the column names, as for
+any data frame.
+
 ## Documentation and robustness
 
 A contributing guide (`.github/CONTRIBUTING.md`) explains how to report a

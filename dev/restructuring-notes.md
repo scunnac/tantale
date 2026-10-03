@@ -187,6 +187,13 @@ from 1.0.0 on it needs a lifecycle deprecation (START HERE item 8).
 - **Moved after 1.0.0 (§43):** §21 option (c) and ARLEM's costs. Both
   can be added without breaking a call.
 - **Distribution channel** and the one-archive plan (§34).
+- **Open question (2026-10-03): should functions that currently consume
+  tales strings (e.g. output of `tales_rvd_strings()`) also accept a
+  `tales` object directly, calling `tales_rvd_strings()` internally?**
+  Raised by the maintainer. Touches argument signatures and therefore
+  cheaper to decide before 1.0.0. Relevant functions to identify: any
+  exported function whose first argument is a character vector of RVD
+  strings rather than a `tales` object. Decide before coding.
 - **In trial (§42): the terminus check has no
   minimum coverage.** A terminus counts as `NTERM`/`CTERM` whenever its
   best `hmmsearch` match has E <= `terminus_max_evalue`, however little of
@@ -2479,9 +2486,14 @@ followed the recommendations, 2026-10-03):
   reproduced exactly). `.telltale_file_digest()` now rewrites the
   installation directory before the drop; baseline unchanged; a test
   moves the log under `tempdir()` and expects the same digest.
-- **P5** 42 Imports, above the 99th percentile: reviewers will ask. An
-  audit of what could move to Suggests is a separate task, tied to R7
-  (package size). Not started.
+- **P5** 42 Imports, above the 99th percentile: reviewers will ask. Audited
+  2026-10-03: every package has a live call site. Three could move to
+  Suggests with minimal surgery (`universalmotif`, `gplots`, `biovizBase`);
+  the plot cluster (`ggtree`/`tidytree`/`aplot`/`viridis`/`ggnewscale`)
+  would need more work; the rest are embedded in core functions and should
+  stay. **Decision (maintainer, 2026-10-03): keep all 42 in Imports.** The
+  answer to a reviewer is "all are genuinely used". The real size problem
+  is R7 (the jars in `inst/tools/`), not the dependency count.
 - **P6** goodpractice lints (40 kinds). Fixed the bug-prone ones:
   `class(x) %in% ...` -> `inherits()` (`.split_list()`, which errored
   on a multi-class object); every `1:length()`/`1:nrow()`/`1:ncol()`
@@ -2513,3 +2525,16 @@ followed the recommendations, 2026-10-03):
   (`.git` is a file there).
 - Not flagged by pkgcheck, still the main obstacle: the 57.8 MB source
   tarball against the 5 MB limit (R7, §34).
+
+---
+
+## 45. `tales_names()` (2026-10-03) **[V]**
+
+The maintainer asked for a `names.tales` method returning the array ids.
+Rejected: a `tales` object is a tibble, and dplyr, tibble, `$` and
+`print()` all read column names through `names()`, so the method would
+break every verb. Added the exported accessor `tales_names(x)`
+(`unique(x$array_id)`, row order; family "tales objects"), with tests on
+a `tales` and a `tales_msa` in `test_tales_class.R`. The name echoes
+`tales_namespace()` and the names of `tales_rvd_strings()`'s output. The
+internal `unique(x$array_id)` calls were left as they are.

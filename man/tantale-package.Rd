@@ -101,7 +101,7 @@ Useful links:
 Authors:
 \itemize{
   \item Sebastien Cunnac \email{sebastien.cunnac@ird.fr} (\href{https://orcid.org/0000-0002-3695-491X}{ORCID})
-  \item Bao Tram Vi \email{vbt576@gmail.com}
+  \item Bao Tram Vi \email{vbt576@gmail.com} (\href{https://orcid.org/0000-0002-4319-5544}{ORCID})
 }
 
 }

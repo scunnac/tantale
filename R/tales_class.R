@@ -117,6 +117,31 @@ tales_namespace <- function(x) {
   attr(x, "dom_code_namespace", exact = TRUE)
 }
 
+#' The names of the TALEs in a tales object
+#'
+#' Each array in a \code{tales} object is one TALE, identified by its
+#' \code{array_id}. This returns those identifiers once each, in the order
+#' the arrays appear in \code{x}. They are also the names of the vector that
+#' \code{\link{tales_rvd_strings}} returns. A \code{tales_msa} has the same
+#' arrays as the \code{tales} object it was aligned from.
+#'
+#' \code{names()} is left to its usual meaning: a \code{tales} object is a
+#' data frame, so \code{names(x)} returns its column names.
+#'
+#' @param x A \code{tales} object.
+#' @return A character vector of array identifiers.
+#' @export
+#' @family tales objects
+#' @examples
+#' rvd_fasta <- system.file("extdata", "TalA_RVDSeqs_AnnoTALE.fasta",
+#'                          package = "tantale")
+#' x <- as_tales(rvd_fasta, sep = "-")
+#' tales_names(x)
+#' length(tales_names(x)) # the number of TALEs
+tales_names <- function(x) {
+  unique(x$array_id)
+}
+
 #' Compute the dom_code namespace identifier for a set of parts
 #'
 #' A content hash of the sorted unique amino acid sequences of a run.

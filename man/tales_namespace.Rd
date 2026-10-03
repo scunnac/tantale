@@ -41,6 +41,7 @@ Other tales objects:
 \code{\link[=tales_anomalies]{tales_anomalies()}},
 \code{\link[=tales_assert_complete]{tales_assert_complete()}},
 \code{\link[=tales_bind]{tales_bind()}},
+\code{\link[=tales_names]{tales_names()}},
 \code{\link[=tales_requirements]{tales_requirements()}},
 \code{\link[=validate_tales]{validate_tales()}}
 }
