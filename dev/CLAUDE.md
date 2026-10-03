@@ -245,16 +245,20 @@ before trusting any of it.*
   site wiped and rebuilt, prose checked against the new figures. Commits
   pushed 2026-10-03. `talomes_heatmap()` now also takes a grouped
   `tales` (§48), which closed the START HERE question on RVD-string
-  inputs. Still pending: one sentence of the home-page caption naming
-  the target gene (§47).
+  inputs.
+- **At the end of that session the tree was not clean:**
+  `pkgdown/index.md` carries an edit of the maintainer's own, left
+  uncommitted on purpose. It is the maintainer's to commit; `docs/` is
+  one `pkgdown::build_home(".")` behind it until then. Leave it alone
+  unless the maintainer says otherwise.
 - **2026-10-03, second session:** P5 closed (Imports kept, now 40);
   `tales_names()` added (§45); package-wide colour-blind-safe colour
   style, Tol muted in `R/palette.R`, reviewed by the maintainer plot by
   plot (§46).
-- Branch `main`, version **0.9.9011**, pushed 2026-10-03 (check
-  `git status -sb`). The installed `tantale` matches 9e084ef
-  (reinstalled 2026-10-03); reinstall after any change to `R/` before
-  rendering articles.
+- Branch `main`, version **0.9.9011**, pushed 2026-10-03, with the local
+  tag `claude-reviewed` moved to that commit (check `git status -sb`).
+  The installed `tantale` matches 55ff763 (reinstalled 2026-10-03);
+  reinstall after any change to `R/` before rendering articles.
 - **Road map (`dev/notes_for_claude.md`):** steps 1-3 done (§35-§37);
   R1-R5, R10 done (§39, §41); R8 CI done: manual workflow
   `.github/workflows/R-CMD-check.yaml` (`ubuntu-latest` or
