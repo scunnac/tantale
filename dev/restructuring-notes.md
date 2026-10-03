@@ -2873,3 +2873,45 @@ figure re-rendered: `tale_mining`, `tale_classification`,
   Visible in the new figure: `correct_tales()` gives 288-aa N-termini
   where `correct_array = TRUE` gives 287 aa on six arrays (not
   investigated).
+
+---
+
+## 50. Road map R7: package size (2026-10-04) **[P]** -- plan proposed, decisions pending
+
+Measured 2026-10-04 at 43e56cb: `R CMD build --no-build-vignettes` gives
+a **57.1 MB** tarball. Tracked files outside `docs/`, `dev/`, `pkgdown/`:
+`inst/tools/talecorrect` 34.4 MB (`TALEcorrection.jar` 27 MB, `HMMs/`
+6.7 MB, upstream `.java`/`.xml`), `AnnoTALEcli-1.5.jar` 15.8 MB,
+`PrediTALE.jar` 14.6 MB, the four genomes 19.3 MB, `tests/testthat`
+1.8 MB, `tellTaleExampleOutput` 1.0 MB, `hmmProfile` 0.8 MB, TALVEZ
+0.1 MB. A trial build of a copy without the jars, `talecorrect/`, the
+four genomes and `inst/legacy` gives **1.0 MB**. `.git` is 85 MB.
+
+References: jars and `talecorrect/` in 3 files of `R/` (defaults of the
+wrappers) and `test_correct_tales.R`; genomes in `R/annotale.R`
+(examples), `test_correct_tales.R` and five articles; `inst/legacy` only
+in comments.
+
+Proposal (builds on §34's parked one-archive plan), put to the
+maintainer 2026-10-04; nothing to code before it is agreed:
+- R7-1 hosting. The repository is private, so its release assets need
+  authentication. Options: a Zenodo record (public, permanent, DOI);
+  a public companion repository's releases; this repository's releases
+  once public. Recommended: Zenodo.
+- R7-2 tools archive: the three jars, TALEcorrection's HMMs and upstream
+  sources, README (upstream URL, sha256, version, licence, citation),
+  `LICENSES/`, `MANIFEST`. TALVEZ (0.1 MB, redistribution permitted)
+  stays in the package.
+- R7-3 genomes: a second archive in the same record, fetched on first
+  use by an exported helper (name to agree) into
+  `tools::R_user_dir("tantale", "data")`, checked by sha256. BAI3-1-1 is
+  probably not public, so self-hosting all four keeps one mechanism.
+- R7-4 package side: `tantale_setup()` fetches and verifies the tools
+  archive (or takes a local copy), one internal resolver gives each
+  tool's path, the wrappers' defaults move to it. `test_correct_tales.R`
+  gets a BAI3-1-1 excerpt around the TALE loci; tests that need a jar
+  fail without it (standing rule); CI caches the archive.
+- R7-5 `inst/legacy` into `.Rbuildignore` (stays in the repository).
+- R7-6 archives versioned on their own (`tools-1`, `genomes-1`), pinned
+  in the package by URL and sha256.
+- Not proposed: rewriting git history (85 MB); no review requires it.
