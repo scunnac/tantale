@@ -359,9 +359,10 @@ tales_group_kmedoids <- function(x, tale_distances, k_range = NULL, k = NULL,
 #' different variants of the same TALE.
 #'
 #' Within a group, variants are ranked by how many strains carry them, and
-#' the cell colour is that rank: the most common variant is the darkest.
+#' the cell colour is that rank: the most common variant is the palest and
+#' rarer ones are darker.
 #' The \code{#} after each group label counts its distinct
-#' variants. A grey cell means the strain has no member in that group. A
+#' variants. A white cell means the strain has no member in that group. A
 #' cell can hold several colours side by side when a strain carries more
 #' than one variant in the same group. Dendrograms order strains and groups
 #' by the similarity of their variant profiles.
@@ -382,10 +383,14 @@ tales_group_kmedoids <- function(x, tale_distances, k_range = NULL, k = NULL,
 #' @param x_lab,y_lab,title Axis names and plot title.
 #' @param colors Colours from the most common variant to the rarest. They
 #'   are interpolated over the ranks present, so the most common variant always
-#'   gets the first colour and the rarest the last. The default runs from dark
-#'   to pale wine.
-#' @param margins Margins for the row dendrogram, column dendrogram, row
-#'   names and column names, in that order. Default \code{c(5, 5, 3, 3)}.
+#'   gets the first colour and the rarest the last. The default runs from pale
+#'   to dark wine, so a rare variant stands out.
+#' @param margins Space for the row dendrogram, column dendrogram, row
+#'   names and column names, in that order, counted in heatmap cells.
+#'   \code{NULL} (default) sizes the dendrograms to a quarter of the
+#'   heatmap's width and height, between 1.5 and 5 cells, with 3 cells for
+#'   the names. With \code{plot_type = "single"} the column dendrogram also
+#'   holds the title and gets at least 3.5 cells.
 #' @param sep_width Width of the separator between adjacent cells.
 #' @param sep_color Colour of the separator between adjacent cells.
 #' @param inner_sep_color Colour of the separator between variants within
@@ -411,7 +416,7 @@ tales_group_kmedoids <- function(x, tale_distances, k_range = NULL, k = NULL,
 talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, trunc_tales_col = NULL, extra_col = NULL,
                             x_lab = "TALE Group", y_lab = "Strain", title = "RVD sequences variants",
                             plot_type = "all",
-                            colors = .tantale_colours$variant_ranks, margins = c(5, 5, 3, 3),
+                            colors = .tantale_colours$variant_ranks, margins = NULL,
                             sep_width = 5, sep_color = "white", inner_sep_color = "white", save_path = NULL) {
   plot_type <- match.arg(plot_type, c("all", "single"))
 
@@ -471,6 +476,13 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
   
   
   ## plot sizes
+  if (is.null(margins)) {
+    # heatmap.2() ("single") draws the title inside the column-dendrogram
+    # panel, which then needs room for it
+    topMin <- if (plot_type == "single") 3.5 else 1.5
+    margins <- c(min(5, max(1.5, ncol(numAlleles) / 4)),
+                 min(5, max(topMin, nrow(numAlleles) / 4)), 3, 3)
+  }
   widleft <- margins[1]
   heitop <- margins[2]
   widright <- margins[3]
@@ -504,7 +516,7 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
                       Rowv = as.dendrogram(Strain_HC),
                       Colv = as.dendrogram(TALE_HC),
                       main = title,
-                      na.color = .tantale_colours$no_value,
+                      na.color = .tantale_colours$absent,
                       lmat = rbind(c(4, 3), c(2, 1)),
                       lhei = c(heitop, nrow(codedAlleles1) + heibot), ##
                       lwid = c(widleft, ncol(codedAlleles1) + widright)
@@ -558,7 +570,7 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
         par(mar = rep(0, 4))
         nelements <- uniqueRVD[r, c]
         if (nelements == 0) {
-          image(z = matrix(0), col = .tantale_colours$no_value, axes = F)
+          image(z = matrix(0), col = .tantale_colours$absent, axes = F)
           if (sep_width > 0) box(lwd = sep_width/2, col = sep_color)
         } else {
           g1s1 <- g1[g1$strain == rownames(uniqueRVD[r,]),]

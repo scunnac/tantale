@@ -2600,7 +2600,17 @@ Done (plan agreed 2026-10-03):
   ends of a ramp interpolated over the ranks present (a fixed-length
   palette left 2-3 ranks all dark, viridis included), default dark to pale
   wine (chosen over indigo-cyan, teal, indigo-teal-sand).
-- Open: `talomes_heatmap()`'s dendrograms take `margins` units (5 by
-  default) while each cell is 1 unit, so they dominate a small matrix.
+- Third round: talome ramp inverted (most common pale, rare dark, the
+  maintainer's call), pale end deepened to `#E3A9B8`; empty cells white
+  (grey and the pale end were CIEDE2000 1.2 apart under deuteranopia,
+  white vs `#E3A9B8` 15.4). Dendrograms took `margins` units (5 each)
+  against 1 unit per cell, so they dominated a small talome: `margins =
+  NULL` (default) now sizes them to a quarter of the heatmap, 1.5-5 cells;
+  `plot_type = "single"` needs at least 3.5 cells on top, since
+  `heatmap.2()` draws the title in that panel ("figure margins too large"
+  in `test_talomes_heatmap.R` otherwise).
+- For the site rebuild: `tale_classification.qmd` says "the darkest is
+  the most common" and "A grey cell means the strain has no member"; both
+  are now the other way round (palest; white).
 - For the site rebuild: `tale_mining.qmd` line 439 uses `ggplot2::scale_fill_viridis_d()` in
   article code (left to the maintainer, §38).

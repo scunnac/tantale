@@ -19,9 +19,12 @@ clades apart, so it stays readable with 25 groups or more; the cut height
 moved to the subtitle. In `plot_target_preds()` the match score is shown
 in shades of purple, from pale for a good match to dark for a poor one,
 and the DNA bases keep their colours. In `talomes_heatmap()` the variant
-colours run from dark wine for the most common variant to pale pink for
+colours run from pale wine for the most common variant to dark wine for
 the rarest present, however many variants a group has; `colors` now gives
-the end points of that range. The package no longer imports biovizBase or
+the end points of that range. A strain with no member in a group gets a
+white cell. The dendrograms take space in proportion to the heatmap
+(`margins = NULL`, the new default), so they no longer dominate a small
+talome. The package no longer imports biovizBase or
 viridis.
 
 ## `tales_names()`

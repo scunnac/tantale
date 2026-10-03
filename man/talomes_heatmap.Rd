@@ -16,7 +16,7 @@ talomes_heatmap(
   title = "RVD sequences variants",
   plot_type = "all",
   colors = .tantale_colours$variant_ranks,
-  margins = c(5, 5, 3, 3),
+  margins = NULL,
   sep_width = 5,
   sep_color = "white",
   inner_sep_color = "white",
@@ -50,11 +50,15 @@ each strain (e.g. origin), drawn as a side bar on the right.}
 
 \item{colors}{Colours from the most common variant to the rarest. They
 are interpolated over the ranks present, so the most common variant always
-gets the first colour and the rarest the last. The default runs from dark
-to pale wine.}
+gets the first colour and the rarest the last. The default runs from pale
+to dark wine, so a rare variant stands out.}
 
-\item{margins}{Margins for the row dendrogram, column dendrogram, row
-names and column names, in that order. Default \code{c(5, 5, 3, 3)}.}
+\item{margins}{Space for the row dendrogram, column dendrogram, row
+names and column names, in that order, counted in heatmap cells.
+\code{NULL} (default) sizes the dendrograms to a quarter of the
+heatmap's width and height, between 1.5 and 5 cells, with 3 cells for
+the names. With \code{plot_type = "single"} the column dendrogram also
+holds the title and gets at least 3.5 cells.}
 
 \item{sep_width}{Width of the separator between adjacent cells.}
 
@@ -79,9 +83,10 @@ shows at a glance which groups each strain has and where strains carry
 different variants of the same TALE.
 
 Within a group, variants are ranked by how many strains carry them, and
-the cell colour is that rank: the most common variant is the darkest.
+the cell colour is that rank: the most common variant is the palest and
+rarer ones are darker.
 The \code{#} after each group label counts its distinct
-variants. A grey cell means the strain has no member in that group. A
+variants. A white cell means the strain has no member in that group. A
 cell can hold several colours side by side when a strain carries more
 than one variant in the same group. Dendrograms order strains and groups
 by the similarity of their variant profiles.
