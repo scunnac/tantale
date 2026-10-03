@@ -143,16 +143,29 @@ test_that("black or white text is chosen by the fill's luminance", {
                    c("black", "white", "black", "white"))
 })
 
-test_that("plot.tales() fills by length, one colour per length", {
+test_that("plot.tales() colours parts by role and length", {
   p <- suppressWarnings(plot(colour_fixture(), facet_by = NULL))
-  fills <- stats::setNames(ggplot2::layer_data(p, 1)$fill, nchar(p$data$aa_seq))
-  expect_identical(unname(fills["34"]), .tol_muted[["sand"]])
-  expect_identical(unname(fills["20"]), .tol_muted[["cyan"]])
-  # the other lengths in increasing order: 33, 264, 278, 288
-  expect_identical(unname(fills[c("33", "264", "278", "288")]),
-                   unname(.tol_muted[c("rose", "indigo", "purple", "green")]))
-  expect_identical(levels(p$data$length_aa), c("20", "33", "34", "264", "278", "288"))
+  fills <- stats::setNames(ggplot2::layer_data(p, 1)$fill,
+                           paste(p$data$domain_type, nchar(p$data$aa_seq)))
+  expect_identical(unname(fills["repeat 34"]), .tol_muted[["sand"]])
+  expect_identical(unname(fills["repeat 20"]), .tol_muted[["cyan"]])
+  expect_identical(unname(fills["repeat 33"]), .tol_muted[["rose"]])
+  expect_identical(unname(fills["C-terminus 278"]), .tol_muted[["teal"]])
+  # the longer N-terminus takes the full wine, the shorter a lighter shade
+  expect_identical(unname(fills["N-terminus 288"]), .tol_muted[["wine"]])
+  expect_false(fills[["N-terminus 264"]] %in% c(.tol_muted[["wine"]], fills[["N-terminus 288"]]))
+  expect_identical(levels(p$data$part)[1:2], c("N-terminus, 264 aa", "N-terminus, 288 aa"))
+})
+
+test_that("plot.tales() fill legend gives lengths, keys outlined by type", {
+  p <- suppressWarnings(plot(colour_fixture(), facet_by = NULL))
+  keys <- ggplot2::get_guide_data(p, "fill")
   expect_identical(p$scales$get_scales("fill")$name, "Length (aa)")
+  expect_identical(keys$.label, c("264", "288", "20", "33", "34", "278"))
+  outlines <- p$scales$get_scales("fill")$guide$params$override.aes$colour
+  expect_identical(outlines, unname(c(.tol_muted[["wine"]], .tol_muted[["wine"]],
+                                         "#BBBBBB", "#BBBBBB", "#BBBBBB",
+                                         .tol_muted[["indigo"]])))
 })
 
 test_that("plot.tales() labels termini with their code's short name", {

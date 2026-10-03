@@ -20,20 +20,21 @@
 #' @description
 #' A compact, information-rich view of the arrays in a \code{tales} object: one
 #' point per part, positioned by its place in the array, outlined by domain
-#' type and filled by amino-acid length. Each repeat carries its RVD, each
-#' terminus the short name of its code (\code{N-}, \code{-C}, or \code{??}
-#' for a terminus that does not match its TALE domain profile; see
+#' type and filled by part type and amino-acid length. Each repeat carries
+#' its RVD, each terminus the short name of its code (\code{N-}, \code{-C},
+#' or \code{??} for a terminus that does not match its TALE domain profile; see
 #' \code{\link{tales_anchor_codes}}). Arrays are listed from the top in
 #' alphabetical order of \code{array_id}, compared byte by byte as in every
 #' projection of a \code{tales} object, so the order does not depend on the
 #' locale.
 #'
-#' Each length gets one colour, whatever the part. The canonical 34-aa repeat
-#' and the 20-aa half-repeat that ends every array always get calm colours
-#' (sand and pale blue), so a repeat of any other length (an aberrant repeat,
-#' for instance) stands out. The other lengths take strong colours in
-#' increasing order of length, from Paul Tol's schemes, which stay distinct
-#' for colour-blind readers; past 17 distinct lengths the colours repeat.
+#' The fill colours follow the role of each part. The canonical 34-aa repeat
+#' and the 20-aa half-repeat that ends every array get calm colours, so a
+#' repeat of any other length (an aberrant repeat, for instance) stands out.
+#' N-termini are shades of wine and C-termini shades of teal, lighter when
+#' shorter, which makes a truncated terminus visible. The legend gives the
+#' length of each colour, its keys outlined like the parts they stand for.
+#' All colours are chosen to stay distinct for colour-blind readers.
 #'
 #' A \code{\link{tales_msa}} dispatches to \code{\link{plot.tales_msa}}
 #' instead, being the more specific class.
@@ -109,38 +110,56 @@ plot.tales <- function(x, position = c("array", "alignment"), facet_by = "seqnam
       .x = if (identical(position, "alignment")) .data$alignment_position
            else .data$position_in_array)
 
-  # One colour per length, whatever the part (ledger §49): the canonical
-  # 34-aa repeat and the final 20-aa half-repeat keep calm colours, the other
-  # lengths take strong ones in increasing order, recycled past 17.
-  lengths <- sort(unique(partsForPlots$aa_length))
-  others <- lengths[!lengths %in% c(20L, 34L)]
-  pool <- c(unname(.tol_muted[c("rose", "indigo", "purple", "green", "olive", "wine", "teal")]),
-            .tol_light)
-  lengthColours <- stats::setNames(character(length(lengths)), lengths)
-  lengthColours[as.character(others)] <- pool[(seq_along(others) - 1L) %% length(pool) + 1L]
-  lengthColours[names(lengthColours) == "34"] <- .tol_muted[["sand"]]
-  lengthColours[names(lengthColours) == "20"] <- .tol_muted[["cyan"]]
+  # One colour per part type and length, by biological role (ledger §46): the
+  # canonical 34-aa repeat and the final 20-aa half-repeat get calm colours,
+  # any other repeat length a strong one; termini are shades of wine (N) and
+  # teal (C), lighter when shorter, so a truncated terminus stands out.
+  shades <- function(n, light, base) {
+    if (n == 1L) base else grDevices::colorRampPalette(c(light, base))(n)
+  }
+  odd <- unname(.tol_muted[c("rose", "indigo", "purple", "green", "olive")])
+  partColours <- partsForPlots %>%
+    dplyr::distinct(domain_type, aa_length) %>%
+    dplyr::mutate(domain_type = factor(domain_type, TALES_DOMAIN_TYPES)) %>%
+    dplyr::arrange(domain_type, aa_length) %>%
+    dplyr::group_by(domain_type) %>%
+    dplyr::mutate(colour = dplyr::case_when(
+      domain_type == "N-terminus" ~ shades(dplyr::n(), "#E3B3C6", .tol_muted[["wine"]]),
+      domain_type == "C-terminus" ~ shades(dplyr::n(), "#BFE3DC", .tol_muted[["teal"]]),
+      aa_length == 34L ~ .tol_muted[["sand"]],
+      aa_length == 20L ~ .tol_muted[["cyan"]],
+      TRUE ~ odd[(cumsum(!aa_length %in% c(20L, 34L)) - 1L) %% length(odd) + 1L])) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(part = sprintf("%s, %d aa", domain_type, aa_length),
+                  domain_type = as.character(domain_type))
   partsForPlots <- partsForPlots %>%
-    dplyr::mutate(length_aa = factor(aa_length, lengths),
-                  colour = unname(lengthColours[as.character(aa_length)]),
+    dplyr::left_join(partColours, by = c("domain_type", "aa_length")) %>%
+    dplyr::mutate(part = factor(part, partColours$part),
                   label_colour = .text_colour_on(colour),
                   # byte order (ledger §40), first array at the top: a
                   # discrete y axis puts its first level at the bottom
                   array_id = factor(array_id,
                                     levels = rev(levels(.array_factor(array_id)))))
+  # the outline gives the type, so the fill legend shows the length only
+  # and draws each key with its type's outline (ledger §49, Q62a)
+  typeColours <- c("N-terminus" = .tol_muted[["wine"]], "repeat" = "#BBBBBB",
+                   "C-terminus" = .tol_muted[["indigo"]])
 
   p <- partsForPlots %>%
-    ggplot2::ggplot(mapping = ggplot2::aes(fill = length_aa,
+    ggplot2::ggplot(mapping = ggplot2::aes(fill = part,
                                            color = domain_type,
                                            label = label,
                                            y = array_id,
                                            x = .x)) +
-    ggplot2::scale_color_manual(name = "Domain type",
-                                breaks = TALES_DOMAIN_TYPES,
-                                values = c("N-terminus" = .tol_muted[["wine"]],
-                                           "repeat" = "#BBBBBB",
-                                           "C-terminus" = .tol_muted[["indigo"]])) +
-    ggplot2::scale_fill_manual(name = "Length (aa)", values = lengthColours) +
+    ggplot2::scale_color_manual(name = "Domain type", breaks = TALES_DOMAIN_TYPES,
+                                values = typeColours) +
+    ggplot2::scale_fill_manual(
+      name = "Length (aa)",
+      breaks = partColours$part,
+      labels = as.character(partColours$aa_length),
+      values = stats::setNames(partColours$colour, partColours$part),
+      guide = ggplot2::guide_legend(override.aes = list(
+        colour = unname(typeColours[partColours$domain_type])))) +
     ggplot2::scale_x_continuous(
       name = if (identical(position, "alignment")) "Position in alignment" else "Position in array",
       breaks = 1:100, minor_breaks = NULL) +

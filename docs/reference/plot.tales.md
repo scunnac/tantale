@@ -2,21 +2,22 @@
 
 A compact, information-rich view of the arrays in a `tales` object: one
 point per part, positioned by its place in the array, outlined by domain
-type and filled by amino-acid length. Each repeat carries its RVD, each
-terminus the short name of its code (`N-`, `-C`, or `??` for a terminus
-that does not match its TALE domain profile; see
+type and filled by part type and amino-acid length. Each repeat carries
+its RVD, each terminus the short name of its code (`N-`, `-C`, or `??`
+for a terminus that does not match its TALE domain profile; see
 [`tales_anchor_codes`](https://scunnac.github.io/tantale/reference/tales_anchor_codes.md)).
 Arrays are listed from the top in alphabetical order of `array_id`,
 compared byte by byte as in every projection of a `tales` object, so the
 order does not depend on the locale.
 
-Each length gets one colour, whatever the part. The canonical 34-aa
-repeat and the 20-aa half-repeat that ends every array always get calm
-colours (sand and pale blue), so a repeat of any other length (an
-aberrant repeat, for instance) stands out. The other lengths take strong
-colours in increasing order of length, from Paul Tol's schemes, which
-stay distinct for colour-blind readers; past 17 distinct lengths the
-colours repeat.
+The fill colours follow the role of each part. The canonical 34-aa
+repeat and the 20-aa half-repeat that ends every array get calm colours,
+so a repeat of any other length (an aberrant repeat, for instance)
+stands out. N-termini are shades of wine and C-termini shades of teal,
+lighter when shorter, which makes a truncated terminus visible. The
+legend gives the length of each colour, its keys outlined like the parts
+they stand for. All colours are chosen to stay distinct for colour-blind
+readers.
 
 A
 [`tales_msa`](https://scunnac.github.io/tantale/reference/tales_msa.md)

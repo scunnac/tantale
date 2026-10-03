@@ -26,8 +26,6 @@ Code
 ``` r
 library(tantale)
 library(dplyr)
-library(ggplot2)
-library(patchwork)
 ```
 
 > **The genomes used throughout**
@@ -423,15 +421,37 @@ tales_anomalies(bai311_corr)
 #> # ℹ 3 variables: array_id <chr>, check <chr>, detail <chr>
 ```
 
-Plotting the uncorrected arrays above the corrected ones shows what
-changed:
+To see what changed,
+[`tales_bind()`](https://scunnac.github.io/tantale/reference/tales_bind.md)
+combines the uncorrected and the corrected arrays into one object, which
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html) draws with a
+single legend. The array identifiers must be unique across the objects
+it binds, so each object’s get a prefix, and a `method` column records
+the correction each array went through (a factor, which sets the order
+of the panels):
 
 Code
 
 ``` r
-(plot(bai311_raw) + labs(title = "bai311_raw")) /
-  (plot(bai311_corr) + labs(title = "bai311_corr")) +
-  patchwork::plot_layout(nrow = 2, guides = "collect")
+method_levels <- c("uncorrected", "correct_tales()", "correct_array = TRUE")
+tag_method <- function(x, method, prefix) {
+  mutate(x, method = factor(method, levels = method_levels),
+         array_id = paste0(prefix, "_", array_id))
+}
+bai311_compared <- tales_bind(
+  tag_method(bai311_raw, "uncorrected", "raw"),
+  tag_method(bai311_corr, "correct_array = TRUE", "corr")
+)
+```
+
+[`tales_bind()`](https://scunnac.github.io/tantale/reference/tales_bind.md)
+warns again about the anomalies of the uncorrected arrays; that warning
+is hidden here. `facet_by = "method"` draws one panel per method:
+
+Code
+
+``` r
+plot(bai311_compared, facet_by = "method")
 ```
 
 [![](tale_mining_files/figure-html/plot-raw-vs-corrected-1.png)](https://scunnac.github.io/tantale/articles/tale_mining_files/figure-html/plot-raw-vs-corrected-1.png)
@@ -522,14 +542,15 @@ fixes most arrays but fails to repair the N-termini of `ROI_00006` and
 `ROI_00009`, which still do not match the TALE N-terminal profile.
 
 Compared with the correction made inside
-[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md):
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md),
+bound the same way:
 
 Code
 
 ``` r
-(plot(bai311_java) + labs(title = "bai311_java")) /
-  (plot(bai311_corr) + labs(title = "bai311_corr")) +
-  patchwork::plot_layout(nrow = 2, guides = "collect")
+tales_bind(tag_method(bai311_java, "correct_tales()", "java"),
+           tag_method(bai311_corr, "correct_array = TRUE", "corr")) |>
+  plot(facet_by = "method")
 ```
 
 [![](tale_mining_files/figure-html/plot-java-vs-corrected-1.png)](https://scunnac.github.io/tantale/articles/tale_mining_files/figure-html/plot-java-vs-corrected-1.png)
@@ -541,13 +562,13 @@ On this genome, correction inside
 gives the better result: 8 of 8 arrays come out as standard TALEs,
 against 6 of 8 after
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md).
-It is also about as fast: on the machine that built this page it took 54
+It is also about as fast: on the machine that built this page it took 62
 seconds. The Java route needs two steps,
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
 and then the
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
 run that finds the arrays in the corrected genome, and together they
-took 42 seconds. One genome is a small sample, however.
+took 41 seconds. One genome is a small sample, however.
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
 repairs the whole genome in one pass, and the corrected genome can serve
 other analyses as well. On a new, error-prone assembly, running both

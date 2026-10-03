@@ -31,8 +31,6 @@ either one.
 ```{r package, message = FALSE}
 library(tantale)
 library(dplyr)
-library(ggplot2)
-library(patchwork)
 ```
 
 ::: {.callout-note}
@@ -295,15 +293,34 @@ bai311_corr <- tales_from_telltales(bai311_corr_dir)
 tales_anomalies(bai311_corr)
 ```
 
-Plotting the uncorrected arrays above the corrected ones shows what
-changed:
+To see what changed, `tales_bind()` combines the uncorrected and the
+corrected arrays into one object, which `plot()` draws with a single
+legend. The array identifiers must be unique across the objects it
+binds, so each object's get a prefix, and a `method` column records the
+correction each array went through (a factor, which sets the order of
+the panels):
+
+```{r bind-raw-corrected}
+#| warning: false
+method_levels <- c("uncorrected", "correct_tales()", "correct_array = TRUE")
+tag_method <- function(x, method, prefix) {
+  mutate(x, method = factor(method, levels = method_levels),
+         array_id = paste0(prefix, "_", array_id))
+}
+bai311_compared <- tales_bind(
+  tag_method(bai311_raw, "uncorrected", "raw"),
+  tag_method(bai311_corr, "correct_array = TRUE", "corr")
+)
+```
+
+`tales_bind()` warns again about the anomalies of the uncorrected arrays;
+that warning is hidden here. `facet_by = "method"` draws one panel per
+method:
 
 ```{r plot-raw-vs-corrected}
-#| fig-width: 14
-#| fig-height: 6
-(plot(bai311_raw) + labs(title = "bai311_raw")) /
-  (plot(bai311_corr) + labs(title = "bai311_corr")) +
-  patchwork::plot_layout(nrow = 2, guides = "collect")
+#| fig-width: 12
+#| fig-height: 8
+plot(bai311_compared, facet_by = "method")
 ```
 
 The uncorrected talome is extremely messy: most arrays have no canonical
@@ -364,14 +381,16 @@ tales_anomalies(bai311_java)
 `correct_tales()` fixes most arrays but fails to repair the N-termini of `ROI_00006` and
 `ROI_00009`, which still do not match the TALE N-terminal profile.
 
-Compared with the correction made inside `tell_tales()`:
+Compared with the correction made inside `tell_tales()`, bound the same
+way:
 
 ```{r plot-java-vs-corrected}
-#| fig-width: 14
-#| fig-height: 6
-(plot(bai311_java) + labs(title = "bai311_java")) /
-  (plot(bai311_corr) + labs(title = "bai311_corr")) +
-  patchwork::plot_layout(nrow = 2, guides = "collect")
+#| warning: false
+#| fig-width: 12
+#| fig-height: 8
+tales_bind(tag_method(bai311_java, "correct_tales()", "java"),
+           tag_method(bai311_corr, "correct_array = TRUE", "corr")) |>
+  plot(facet_by = "method")
 ```
 
 

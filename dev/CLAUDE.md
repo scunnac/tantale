@@ -244,14 +244,14 @@ before trusting any of it.*
   `tales_from_telltales()` warns about candidate arrays AnnoTALE could not
   parse; `tales_anomalies()` sorted; `plot.tales()` lists arrays A-Z from
   the top; `tale_mining.qmd` correction sections rewritten from the
-  maintainer's `@CLAUDE` notes. 2026-10-04: `plot.tales()` fills by
-  length alone (Q62c) and returns the plot without printing it (Q66);
-  short termini explained in `?tales_anchor_codes` and the truncTALE
-  article (Q63, no code); full site rebuilt in place (the `rm -rf docs/*`
-  wipe was blocked by a Claude Code safety check: ask the maintainer to
-  wipe, or wipe by hand, before the next full build). The maintainer may
-  still switch to Q62a (role colours, lengths-only legend labels); mock-ups
-  were shown 2026-10-04.
+  maintainer's `@CLAUDE` notes. 2026-10-04: `plot.tales()`
+  keeps the role colours, its fill legend gives lengths with keys outlined
+  by type (Q62a, chosen over Q62c after mock-ups), and it returns the plot
+  without printing it (Q66); short termini explained in
+  `?tales_anchor_codes` and the truncTALE article (Q63, no code); full site
+  rebuilt in place (the `rm -rf docs/*` wipe was blocked by a Claude Code
+  safety check: the maintainer wipes `docs/` before the next full build).
+  Next: road map R7 (package size), plan to agree first.
 - **2026-10-03, third session:** home-page structure figure (PthXo1 on
   DNA, PDB 3UGM) drawn by `pkgdown/crd_figure.py` (PyMOL) into
   `pkgdown/assets/` (§47); article colour names fixed after §46; full
@@ -259,9 +259,9 @@ before trusting any of it.*
   pushed 2026-10-03. `talomes_heatmap()` now also takes a grouped
   `tales` (§48), which closed the START HERE question on RVD-string
   inputs.
-- **At the end of that session the tree was not clean:**
-  `pkgdown/index.md` carries an edit of the maintainer's own, left
-  uncommitted on purpose. It is the maintainer's to commit; `docs/` is
+- **At the end of that session the tree was not clean** (since committed
+  by the maintainer in 70ee382): `pkgdown/index.md` carried an edit of
+  the maintainer's own, left uncommitted on purpose. It is the maintainer's to commit; `docs/` is
   one `pkgdown::build_home(".")` behind it until then. Leave it alone
   unless the maintainer says otherwise.
 - **2026-10-03, second session:** P5 closed (Imports kept, now 40);

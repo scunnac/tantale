@@ -50,12 +50,14 @@ works as before.
 All plots now draw on one colour style, built from Paul Tol’s colour
 schemes and checked against the three common forms of colour blindness.
 [`plot()`](https://rdrr.io/r/graphics/plot.default.html) on a `tales`
-fills each part by its length, one colour per length: the canonical
-34-aa repeat and the final 20-aa half-repeat in calm colours, every
-other length in a strong one. The outline gives the domain type. Termini
-are labelled `N-` and `-C`, or `??` when they do not match their TALE
-domain profile. RVD labels are black or white, whichever reads better on
-the fill; panel labels sit on a pale band.
+colours each part by its role: the canonical 34-aa repeat and the final
+20-aa half-repeat in calm colours, other repeat lengths in strong ones,
+N-termini in shades of wine and C-termini in shades of teal, lighter
+when shorter. The outline gives the domain type; the fill legend gives
+the length, each key outlined like its parts. Termini are labelled `N-`
+and `-C`, or `??` when they do not match their TALE domain profile. RVD
+labels are black or white, whichever reads better on the fill; panel
+labels sit on a pale band.
 [`plot()`](https://rdrr.io/r/graphics/plot.default.html) on a `tales`
 now returns the plot without drawing it, as ggplot2 functions do, so the
 console draws it once and a composition of several plots draws only the

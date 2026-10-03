@@ -2854,3 +2854,22 @@ Q66 yes. Done the same night:
   (its "impossible structure" paragraph, stale since §38, rewritten
   around these numbers) and one sentence in `tale_mining.qmd` linking to
   it.
+
+Maintainer, 2026-10-04, after seeing mock-ups of both: **Q62a after all.**
+The §46 role colours are back; the fill legend is titled "Length (aa)",
+its labels give the length only, and `override.aes` outlines each key in
+its domain type's colour (keys ordered N-termini, repeats, C-termini, by
+length within each). Test: `test_plot_tales_composition.R` (role colours
+restored, legend labels and key outlines). Articles with a `plot.tales()`
+figure re-rendered: `tale_mining`, `tale_classification`,
+`tales_msa_class`, `tantale`.
+- `tale_mining.qmd` (maintainer's suggestion, 2026-10-04): the two
+  patchwork comparisons replaced by `tales_bind()` of the tagged objects
+  (`array_id` prefixed `raw_`/`java_`/`corr_`, a `method` factor) drawn
+  with `facet_by = "method"`: one legend, and the same length gets the
+  same colour in both panels (with patchwork each plot coloured its own
+  lengths, so 33 aa was rose in one panel and indigo in the other). The
+  `library(ggplot2)`/`library(patchwork)` calls, now unused, removed.
+  Visible in the new figure: `correct_tales()` gives 288-aa N-termini
+  where `correct_array = TRUE` gives 287 aa on six arrays (not
+  investigated).
