@@ -20,10 +20,10 @@ Depends:
     R (>= 3.6.3)
 Imports:
     magrittr, fs, dplyr, ggplot2 (>= 3.5.0), tibble, stringr, readr, glue,
-    biovizBase, IRanges, Biostrings, pwalign, GenomicRanges, BSgenome, plyranges,
+    IRanges, Biostrings, pwalign, GenomicRanges, BSgenome, plyranges,
     systemPipeR, DECIPHER,
     ape, ggtree, tidytree, aplot, universalmotif,
-    gplots, cluster, viridis, ggnewscale, matrixStats,
+    gplots, cluster, ggnewscale, matrixStats,
     reticulate, cli, digest, methods, rlang, tidyr, stats, utils, grDevices, graphics,
     BiocGenerics, BiocParallel, GenomeInfoDb, S4Vectors, rtracklayer
 Suggests:

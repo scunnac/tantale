@@ -1,5 +1,22 @@
 # tantale 0.9.9011
 
+## Colours readable by everyone
+
+All plots now draw on one colour style, built from Paul Tol's colour
+schemes and checked against the three common forms of colour blindness.
+`plot()` on a `tales` colours each part by its role: the canonical 34-aa
+repeat and the final 20-aa half-repeat in calm colours, other repeat
+lengths in strong ones, N-termini in shades of wine and C-termini in
+shades of teal, lighter when shorter. The legend names part and length
+("repeat, 34 aa"), and RVD labels are black or white, whichever reads
+better on the fill. In `plot()` on a `tales_msa`, the cell text is black
+where it matches the consensus and red where it does not, and all fills
+are pale enough for both to read. `plot_target_preds()`,
+`talomes_heatmap()` and the plots of `tales_group_hclust()` and
+`tales_group_kmedoids()` follow the same style. `talomes_heatmap()`
+recycles its colours when a group has more variants than colours. The
+package no longer imports biovizBase or viridis.
+
 ## `tales_names()`
 
 `tales_names(x)` returns the identifiers of the TALEs in a `tales` or

@@ -122,3 +122,43 @@ test_that("facet_by refuses an absent column and one that varies within an array
   expect_error(plot(y, facet_by = "seqnames"), class = "tantale_error_plot_facet")
   expect_s3_class(plot(y)$facet, "FacetNull")
 })
+
+
+#### Colours (R/palette.R, ledger §46) ####
+
+colour_fixture <- function() {
+  aa <- function(n) strrep("A", n)
+  tales(tibble::tibble(
+    array_id = rep(c("a1", "a2"), each = 5),
+    position_in_array = rep(1:5, 2),
+    domain_type = rep(c("N-terminus", "repeat", "repeat", "repeat", "C-terminus"), 2),
+    rvd = rep(c("NTERM", "HD", "NI", "NG", "CTERM"), 2),
+    aa_seq = c(aa(288), aa(34), aa(33), aa(20), aa(278),
+               aa(264), aa(34), aa(34), aa(20), aa(278))
+  ))
+}
+
+test_that("black or white text is chosen by the fill's luminance", {
+  expect_identical(.text_colour_on(c("#FFFFFF", "#000000", "#DDCC77", "#332288")),
+                   c("black", "white", "black", "white"))
+})
+
+test_that("plot.tales() colours parts by role and length", {
+  p <- plot(colour_fixture(), facet_by = NULL)
+  fills <- stats::setNames(ggplot2::layer_data(p, 1)$fill,
+                           paste(p$data$domain_type, nchar(p$data$aa_seq)))
+  expect_identical(unname(fills["repeat 34"]), .tol_muted[["sand"]])
+  expect_identical(unname(fills["repeat 20"]), .tol_muted[["cyan"]])
+  expect_identical(unname(fills["repeat 33"]), .tol_muted[["rose"]])
+  expect_identical(unname(fills["C-terminus 278"]), .tol_muted[["teal"]])
+  # the longer N-terminus takes the full wine, the shorter a lighter shade
+  expect_identical(unname(fills["N-terminus 288"]), .tol_muted[["wine"]])
+  expect_false(fills[["N-terminus 264"]] %in% c(.tol_muted[["wine"]], fills[["N-terminus 288"]]))
+  expect_identical(levels(p$data$part)[1:2], c("N-terminus, 264 aa", "N-terminus, 288 aa"))
+})
+
+test_that("plot.tales() writes dark text on light fills", {
+  p <- plot(colour_fixture(), facet_by = NULL)
+  d <- p$data
+  expect_true(all(d$label_colour[d$colour == .tol_muted[["sand"]]] == "black"))
+})

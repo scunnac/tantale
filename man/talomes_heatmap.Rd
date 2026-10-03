@@ -15,7 +15,7 @@ talomes_heatmap(
   y_lab = "Strain",
   title = "RVD sequences variants",
   plot_type = "all",
-  colors = viridis::viridis(10),
+  colors = unname(.tol_muted),
   margins = c(5, 5, 3, 3),
   sep_width = 5,
   sep_color = "white",
@@ -48,7 +48,9 @@ each strain (e.g. origin), drawn as a side bar on the right.}
 \item{plot_type}{Either \code{"all"} to draw every allele, or
 \code{"single"} to draw one representative allele per group.}
 
-\item{colors}{Character vector of colours for the variant ranks.}
+\item{colors}{Character vector of colours for the variant ranks, recycled
+when a group has more variants than colours. The default is colour-blind
+safe.}
 
 \item{margins}{Margins for the row dendrogram, column dendrogram, row
 names and column names, in that order. Default \code{c(5, 5, 3, 3)}.}

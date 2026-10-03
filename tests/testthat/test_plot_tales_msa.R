@@ -272,3 +272,17 @@ test_that("on real data, the columns with no consensus are the termini", {
   expect_identical(byRvd[1], "NTERM")
   expect_identical(byRvd[length(byRvd)], "CTERM")
 })
+
+
+#### Colours (R/palette.R, ledger §46) ####
+
+test_that("label text is black for a consensus match and red for a mismatch", {
+  p <- suppressWarnings(suppressMessages(plot(
+    msa, domain_distances = distalrOut$repeat.similarity, fill_type = "domain_sim"
+  )))
+  built <- ggplot2::layer_data(p, 1)
+  expect_true(all(built$colour %in% c(.tantale_colours$match, .tantale_colours$mismatch,
+                                      .tantale_colours$no_consensus)))
+  # the fills stay pale enough for both text colours
+  expect_true(all(.text_colour_on(built$fill) == "black"))
+})

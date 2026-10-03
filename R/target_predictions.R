@@ -429,9 +429,9 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
 
 
   ############ Assembling a ggplot object
-  # COLOR SCALE FOR NT
-  ntColScale <- biovizBase::getBioColor("DNA_BASES_N")
-  #ntColScale %>% pals::pal.safe()
+  # Match quality 3 is the best: calm fill. Poor matches get the strong colours.
+  matchFills <- c(`1` = "#CC4C02", `2` = "#FEC44F", `3` = "#FFF7BC")
+  predsForPlot$labelColour <- .text_colour_on(matchFills[as.character(predsForPlot$rvd2ntMatchScore)])
   p <- ggplot2::ggplot(data = predsForPlot, ggplot2::aes(x = xPos, y = yPos)) +
 
     ggplot2::geom_tile (data = predsForScoreAndEbe, #<--------- EBE highlight box
@@ -442,8 +442,8 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
                         height = 0.4,
                         colour = "grey30",
                         linewidth = 0.2,
-                        fill = "khaki3", #  "yellowgreen",
-                        alpha = 0.2,
+                        fill = .tol_muted[["sand"]],
+                        alpha = 0.3,
     ) +
 
     ggplot2::geom_text(data = relevantTidySubjSeqs, #<--------- double stranded DNA sequence
@@ -452,19 +452,18 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
               fontface = "bold",
               show.legend = FALSE
     ) +
-    ggplot2::scale_color_manual(name = NULL, values = ntColScale) +
-    
-    ggplot2::geom_label(ggplot2::aes(label = rvd, fill = factor(rvd2ntMatchScore)), #<--------- RVDs
+    ggplot2::scale_color_manual(name = NULL, values = .tantale_colours$dna_bases) +
+    ggnewscale::new_scale_color() +
+
+    ggplot2::geom_label(ggplot2::aes(label = rvd, fill = factor(rvd2ntMatchScore),
+                                     color = labelColour), #<--------- RVDs
               size = 2.8,
               fontface = "bold",
-              color = "white",
               label.padding = ggplot2::unit(0.1, "lines"),
               linewidth = 0) +
-    ggplot2::scale_fill_viridis_d(name = "RVD-DNA base match score",
-                         option = "magma",
-                         end = 0.5,
-                         alpha = 0.7,
-                         direction = -1) +
+    ggplot2::scale_color_identity() +
+    ggplot2::scale_fill_manual(name = "RVD-DNA base match score",
+                               values = matchFills) +
 
     ggplot2::geom_label(data = predsForScoreAndEbe, #<--------- Score
                         mapping = ggplot2::aes(label = sprintf("%05.2f",score)),

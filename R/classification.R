@@ -118,7 +118,8 @@ tales_group_hclust <- function(x, tale_distances, k = NULL, plot_tree = FALSE) {
     ggtree::geom_tiplab(ggtree::aes(label = label),
                         hjust = 1, angle = 90, align = FALSE,
                         color = "black", offset = -2) +
-    viridis::scale_color_viridis(discrete = TRUE, option = "C", breaks = seq_len(k)) +
+    ggplot2::scale_color_manual(values = c(`0` = "grey50", stats::setNames(
+      rep_len(unname(.tol_muted), k), seq_len(k))), breaks = seq_len(k)) +
     ggplot2::geom_vline(xintercept = -cutOff, linetype = 2) +
     ggtree::geom_text(x = (cutOff - max(taleTree$height) / 50), y = 8,
                       label = paste("cutOff value: ", sprintf("%.2f", cutOff)),
@@ -252,8 +253,8 @@ tales_group_kmedoids <- function(x, tale_distances, k_range = NULL, k = NULL,
 #' The silhouette-vs-k plot for tales_group_kmedoids(), built only when asked for
 #' @noRd
 .tales_group_kmedoids_plot <- function(k_range, silhVals, highlight = NULL) {
-  col <- if (is.null(highlight)) "cornflowerblue" else
-    ifelse(k_range != highlight, "cornflowerblue", "red")
+  col <- if (is.null(highlight)) .tol_muted[["cyan"]] else
+    ifelse(k_range != highlight, .tol_muted[["cyan"]], .tol_muted[["wine"]])
   plot(k_range, silhVals, pch = 19, col = col,
        xlab = "number of groups", ylab = "average silhouette values")
 }
@@ -364,7 +365,9 @@ tales_group_kmedoids <- function(x, tale_distances, k_range = NULL, k = NULL,
 #' @param extra_col Optional name of a column with further information about
 #'   each strain (e.g. origin), drawn as a side bar on the right.
 #' @param x_lab,y_lab,title Axis names and plot title.
-#' @param colors Character vector of colours for the variant ranks.
+#' @param colors Character vector of colours for the variant ranks, recycled
+#'   when a group has more variants than colours. The default is colour-blind
+#'   safe.
 #' @param margins Margins for the row dendrogram, column dendrogram, row
 #'   names and column names, in that order. Default \code{c(5, 5, 3, 3)}.
 #' @param sep_width Width of the separator between adjacent cells.
@@ -392,7 +395,7 @@ tales_group_kmedoids <- function(x, tale_distances, k_range = NULL, k = NULL,
 talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, trunc_tales_col = NULL, extra_col = NULL,
                             x_lab = "TALE Group", y_lab = "Strain", title = "RVD sequences variants",
                             plot_type = "all",
-                            colors = viridis::viridis(10), margins = c(5, 5, 3, 3),
+                            colors = unname(.tol_muted), margins = c(5, 5, 3, 3),
                             sep_width = 5, sep_color = "white", inner_sep_color = "white", save_path = NULL) {
   plot_type <- match.arg(plot_type, c("all", "single"))
 
@@ -469,7 +472,7 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
     }
     gplots::heatmap.2(as.matrix(codedAlleles1),
                       trace = "none",
-                      col = colors[1:max(codedAlleles1, na.rm = T)],
+                      col = rep_len(colors, max(codedAlleles1, na.rm = T)),
                       breaks = 0:max(codedAlleles1, na.rm = T),
                       density.info = "none",
                       key = F,
@@ -483,7 +486,7 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
                       Rowv = as.dendrogram(Strain_HC),
                       Colv = as.dendrogram(TALE_HC),
                       main = title,
-                      na.color = "grey",
+                      na.color = .tantale_colours$no_value,
                       lmat = rbind(c(4, 3), c(2, 1)),
                       lhei = c(heitop, nrow(codedAlleles1) + heibot), ##
                       lwid = c(widleft, ncol(codedAlleles1) + widright)
@@ -496,7 +499,7 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
     uniqueRVD <- uniqueRVD[rev(rorder), corder]
     
     
-    colmat <- colors
+    colmat <- rep_len(colors, max(tale_annotation$rvdfac))
     ## plot layout
     nplots <- nrow(uniqueRVD)*ncol(uniqueRVD)
     mainmat <- matrix(1:nplots, nrow = nrow(uniqueRVD))
@@ -537,7 +540,7 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
         par(mar = rep(0, 4))
         nelements <- uniqueRVD[r, c]
         if (nelements == 0) {
-          image(z = matrix(0), col = "grey", axes = F)
+          image(z = matrix(0), col = .tantale_colours$no_value, axes = F)
           if (sep_width > 0) box(lwd = sep_width/2, col = sep_color)
         } else {
           g1s1 <- g1[g1$strain == rownames(uniqueRVD[r,]),]
@@ -551,7 +554,8 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
           color.elements <- colmat[rvd.factor]
           par(mar = rep(0, 4))
           image(z = matrix(1:(nelements), ncol = 1), col = color.elements, axes = F)
-          text(seq(0,1, length.out = nelements), 0, labels = truncTale, cex = 1, font = 2, col = "black")
+          text(seq(0,1, length.out = nelements), 0, labels = truncTale, cex = 1, font = 2,
+               col = .text_colour_on(color.elements))
           if (nelements > 1) {
             abline(v = seq(0.5/(nelements-1), 1-.5/(nelements-1), length.out = nelements -1), col = inner_sep_color, lty = 1)
           }
@@ -578,8 +582,8 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
       })
       rextra.bar <- unique(extra.bar[!is.na(extra.bar)])
       rextra.bar <- data.frame("lab" = sort(rextra.bar), "fac" = seq_along(rextra.bar))
-      extra.col <- viridis::viridis(n = nrow(rextra.bar))[sapply(extra.bar, function(e) ifelse(is.na(e), NA, rextra.bar$fac[rextra.bar$lab == e]), simplify = T)]
-      extra.col[is.na(extra.col)] <- "gray"
+      extra.col <- rep_len(.tol_light, nrow(rextra.bar))[sapply(extra.bar, function(e) ifelse(is.na(e), NA, rextra.bar$fac[rextra.bar$lab == e]), simplify = T)]
+      extra.col[is.na(extra.col)] <- .tantale_colours$no_value
       par(mar = c(0, 0, 0, 0))
       image(z = matrix(seq_len(nrow(uniqueRVD)), nrow = 1), col = rev(extra.col), yaxt = "n", xaxt = "n", axes = F)
     } else {
@@ -598,7 +602,7 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
     if (!is.null(extra_col)) {
       ## legend column
       par(mar = c(0,0.5,1,0))
-      plot(rep(0, nrow(rextra.bar)), -seq(from = 0, by = .8, length.out = nrow(rextra.bar)), type = "p", pch = 15, col = viridis::viridis(n = nrow(rextra.bar)), axes = F, main = extra_col, xlab = NA, ylab = NA, cex = 4, ylim = c(-nrow(uniqueRVD), 0), xlim = c(0,2))
+      plot(rep(0, nrow(rextra.bar)), -seq(from = 0, by = .8, length.out = nrow(rextra.bar)), type = "p", pch = 15, col = rep_len(.tol_light, nrow(rextra.bar)), axes = F, main = extra_col, xlab = NA, ylab = NA, cex = 4, ylim = c(-nrow(uniqueRVD), 0), xlim = c(0,2))
       text(rep(.3, nrow(rextra.bar)), -seq(from = 0, by = .8, length.out = nrow(rextra.bar)), labels = rextra.bar$lab, font = 1, col = "black", bg = "red", cex = 1.2, adj = 0)
     } else {
       par(mar = c(0,0,0,0))

@@ -37,7 +37,15 @@ side effect.
 \description{
 A compact, information-rich view of the arrays in a \code{tales} object: one
 point per part, positioned by its place in the array, outlined by domain
-type and filled by amino-acid length, with the RVD printed on each repeat.
+type and filled by part type and amino-acid length, with the RVD printed on
+each repeat.
+
+The fill colours follow the role of each part. The canonical 34-aa repeat
+and the 20-aa half-repeat that ends every array get calm colours, so a
+repeat of any other length (an aberrant repeat, for instance) stands out.
+N-termini are shades of wine and C-termini shades of teal, lighter when
+shorter, which makes a truncated terminus visible. All colours are chosen
+to stay distinct for colour-blind readers.
 
 A \code{\link{tales_msa}} dispatches to \code{\link{plot.tales_msa}}
 instead, being the more specific class.

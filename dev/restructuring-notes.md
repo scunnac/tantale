@@ -2493,7 +2493,8 @@ followed the recommendations, 2026-10-03):
   would need more work; the rest are embedded in core functions and should
   stay. **Decision (maintainer, 2026-10-03): keep all 42 in Imports.** The
   answer to a reviewer is "all are genuinely used". The real size problem
-  is R7 (the jars in `inst/tools/`), not the dependency count.
+  is R7 (the jars in `inst/tools/`), not the dependency count. Since §46,
+  40: the colour style left `biovizBase` and `viridis` without a call site.
 - **P6** goodpractice lints (40 kinds). Fixed the bug-prone ones:
   `class(x) %in% ...` -> `inherits()` (`.split_list()`, which errored
   on a multi-class object); every `1:length()`/`1:nrow()`/`1:ncol()`
@@ -2538,3 +2539,55 @@ break every verb. Added the exported accessor `tales_names(x)`
 a `tales` and a `tales_msa` in `test_tales_class.R`. The name echoes
 `tales_namespace()` and the names of `tales_rvd_strings()`'s output. The
 internal `unique(x$array_id)` calls were left as they are.
+
+---
+
+## 46. A colour style for the package's plots (2026-10-03) **[V]**
+
+Raised by the maintainer: the labels of `plot.tales()` are hard to read.
+Rule (maintainer, all projects): every palette must be colour-blind safe.
+Candidates compared on real data, with deuteranopia, protanopia and
+tritanopia simulated by `colorspace` (current colours, Paul Tol's muted
+and light schemes, Okabe-Ito, Crameri's scico; viridis excluded by the
+maintainer). Under deuteranopia the current `aa_length` fill shows the
+20, 33 and 34 aa repeats as one olive.
+
+Decided:
+- **Paul Tol's muted scheme** (its wine matches the logo), hex codes kept
+  in the package with credit, no new dependency.
+- **Colours by biological role** in `plot.tales()`: canonical 34 aa
+  repeat sand, final 20 aa half-repeat pale blue, other repeat lengths
+  the strong colours; N-termini shades of wine and C-termini shades of
+  teal, lighter when shorter. Legend "Part and length" ("repeat, 34 aa").
+  Label text black or white by the fill's luminance.
+- **Alignment labels, kept simple:** the text colour still says whether a
+  residue matches the consensus, black for a match and red `#CC3311` for a
+  mismatch; the fills are restricted to pale shades so that both read on
+  every fill. The diverging `rvd_sim` scale runs from pale orange (-1) to
+  pale blue (+1).
+
+Done (plan agreed 2026-10-03):
+- `R/palette.R` holds the colours (`.tol_muted`, `.tol_light`,
+  `.tantale_colours`) and `.text_colour_on()` (WCAG luminance, threshold
+  0.3). The comparison scripts and sheets lived in the session scratchpad
+  only.
+- `plot.tales()`, `plot.tales_msa()` (pale teal-sand ramp for
+  `domain_clust`, pale YlOrBr for `domain_sim`, pale sunset for
+  `rvd_sim`, wider colour bars), `plot_target_preds()` (DNA bases A green,
+  C indigo, G wine, T rose: the Tol muted set dark enough for text on white
+  that stays most distinct under all three simulations, by CIEDE2000;
+  match score 1/2/3 from strong orange to pale yellow; EBE box sand),
+  `talomes_heatmap()` (Tol muted ranks, recycled; Tol light for the
+  `extra_col` bar; truncation "T" black or white by fill), the hclust
+  dendrogram (Tol muted, trunk grey) and the k-medoids silhouette plot
+  (cyan, chosen k in wine).
+- `biovizBase` and `viridis` left Imports (42 -> 40; P5 above).
+- Tests: `test_plot_tales_composition.R` (role colours, text colour),
+  `test_plot_tales_msa.R` (label colours, fills pale enough for black).
+- The 18 tidyselect "external vector" warnings in
+  `test_target_predictions.R` predate this change (seen with it stashed)
+  and come from no call in `R/`.
+- For the site rebuild: `tale_classification.qmd` says the darkest
+  talome-heatmap colour is the most common variant; rank 1 is now rose.
+  `tale_mining.qmd` line 439 uses `ggplot2::scale_fill_viridis_d()` in
+  article code (left to the maintainer, §38).

@@ -20,7 +20,15 @@
 #' @description
 #' A compact, information-rich view of the arrays in a \code{tales} object: one
 #' point per part, positioned by its place in the array, outlined by domain
-#' type and filled by amino-acid length, with the RVD printed on each repeat.
+#' type and filled by part type and amino-acid length, with the RVD printed on
+#' each repeat.
+#'
+#' The fill colours follow the role of each part. The canonical 34-aa repeat
+#' and the 20-aa half-repeat that ends every array get calm colours, so a
+#' repeat of any other length (an aberrant repeat, for instance) stands out.
+#' N-termini are shades of wine and C-termini shades of teal, lighter when
+#' shorter, which makes a truncated terminus visible. All colours are chosen
+#' to stay distinct for colour-blind readers.
 #'
 #' A \code{\link{tales_msa}} dispatches to \code{\link{plot.tales_msa}}
 #' instead, being the more specific class.
@@ -87,25 +95,56 @@ plot.tales <- function(x, position = c("array", "alignment"), facet_by = "seqnam
   }
   partsForPlots <- x %>%
     dplyr::mutate(label = dplyr::if_else(domain_type == "repeat", rvd, ""),
-                  aa_length = factor(nchar(aa_seq)),
+                  aa_length = nchar(aa_seq),
                   .x = if (identical(position, "alignment")) .data$alignment_position
                   else .data$position_in_array)
-  
+
+  # One colour per part type and length, by biological role (ledger §46): the
+  # canonical 34-aa repeat and the final 20-aa half-repeat get calm colours,
+  # any other repeat length a strong one; termini are shades of wine (N) and
+  # teal (C), lighter when shorter, so a truncated terminus stands out.
+  shades <- function(n, light, base) {
+    if (n == 1L) base else grDevices::colorRampPalette(c(light, base))(n)
+  }
+  odd <- unname(.tol_muted[c("rose", "indigo", "purple", "green", "olive")])
+  partColours <- partsForPlots %>%
+    dplyr::distinct(domain_type, aa_length) %>%
+    dplyr::mutate(domain_type = factor(domain_type, TALES_DOMAIN_TYPES)) %>%
+    dplyr::arrange(domain_type, aa_length) %>%
+    dplyr::group_by(domain_type) %>%
+    dplyr::mutate(colour = dplyr::case_when(
+      domain_type == "N-terminus" ~ shades(dplyr::n(), "#E3B3C6", .tol_muted[["wine"]]),
+      domain_type == "C-terminus" ~ shades(dplyr::n(), "#BFE3DC", .tol_muted[["teal"]]),
+      aa_length == 34L ~ .tol_muted[["sand"]],
+      aa_length == 20L ~ .tol_muted[["cyan"]],
+      TRUE ~ odd[(cumsum(!aa_length %in% c(20L, 34L)) - 1L) %% length(odd) + 1L])) %>%
+    dplyr::ungroup() %>%
+    dplyr::mutate(part = sprintf("%s, %d aa", domain_type, aa_length),
+                  domain_type = as.character(domain_type))
+  partsForPlots <- partsForPlots %>%
+    dplyr::left_join(partColours, by = c("domain_type", "aa_length")) %>%
+    dplyr::mutate(part = factor(part, partColours$part),
+                  label_colour = .text_colour_on(colour))
+
   p <- partsForPlots %>%
-    ggplot2::ggplot(mapping = ggplot2::aes(fill = aa_length,
+    ggplot2::ggplot(mapping = ggplot2::aes(fill = part,
                                            color = domain_type,
                                            label = label,
                                            y = array_id,
                                            x = .x)) +
-    ggplot2::scale_color_viridis_d(option = "rocket") +
-    ggplot2::scale_fill_discrete() +
+    ggplot2::scale_color_manual(name = "Domain type",
+                                values = c("N-terminus" = .tol_muted[["wine"]],
+                                           "repeat" = "#BBBBBB",
+                                           "C-terminus" = .tol_muted[["indigo"]])) +
+    ggplot2::scale_fill_manual(name = "Part and length",
+                               values = stats::setNames(partColours$colour, partColours$part)) +
     ggplot2::scale_x_continuous(
       name = if (identical(position, "alignment")) "Position in alignment" else "Position in array",
       breaks = 1:100, minor_breaks = NULL) +
     ggplot2::geom_point(shape = 21, size = 5, stroke = 0.9) +
     ggnewscale::new_scale_color() +
-    ggnewscale::new_scale_fill() +
-    ggplot2::geom_text(size = 2.1, color = "white") +
+    ggplot2::geom_text(mapping = ggplot2::aes(color = label_colour), size = 2.1) +
+    ggplot2::scale_color_identity() +
     ggplot2::labs(title = "Overview of TALE composition by genome") +
     ggplot2::theme_light()
   
@@ -142,8 +181,9 @@ plot.tales <- function(x, position = c("array", "alignment"), facet_by = "seqnam
 #' Domain codes are padded to three characters so columns line up.
 #'
 #' \strong{Text colour} always answers one question: does this element match
-#' the consensus of its column? Cyan for yes, pink for no, grey where the
-#' column has no consensus (a gap, or a tie). The consensus is the most
+#' the consensus of its column? Black for yes, red for no, grey where the
+#' column has no consensus (a gap, or a tie). The block fills are all pale,
+#' so the text reads on every one of them. The consensus is the most
 #' frequent element in the column (\code{\link{tales_consensus}}), taken over
 #' the labelled layer, so the text colour and the text itself always describe
 #' the same thing.
@@ -434,8 +474,8 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
     ggplot2::theme_minimal() +
     ggplot2::theme(legend.position = "bottom")
   
-  # COLORS in plots
-  domainClusterFillPaletteFunct <- colorRampPalette(c("#421727", "#6e2742", "#9a365c", "#b03e69", "azure2"))
+  # Colours (R/palette.R). Every fill is pale, because the text colour
+  # carries the consensus match and has to read on all of them.
   # scale_fill_manual() takes `values`, not `palette`: the name collided with
   # the `palette` discrete_scale() supplies internally, so every call to this
   # function aborted with "formal argument 'palette' matched by multiple actual
@@ -443,29 +483,27 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
   # actually accepts a palette *function*, which is what is wanted here.
   domainClusterFillScale <- ggplot2::discrete_scale(aesthetics = "fill",
                                                     name = "Repeats cluster",
-                                                    palette = domainClusterFillPaletteFunct,
+                                                    palette = grDevices::colorRampPalette(.tantale_colours$clusters),
                                                     drop = TRUE,
                                                     na.translate = FALSE,
                                                     guide = NULL)
-  # domainSimFillScale <- ggplot2::scale_fill_gradient(name = "Similarity relative to reference",
-  #                                                    limits = c(70, 100),
-  #                                                    low = "red", high = "lightgrey")
-  domainSimFillScale <- ggplot2::scale_fill_distiller(name = "Similarity relative to reference",
-                                                      direction = -1)
+  # Low similarity is the strong colour, so a divergent domain stands out.
+  domainSimFillScale <- ggplot2::scale_fill_gradientn(
+    name = "Similarity relative to reference",
+    colours = rev(.tantale_colours$sequential),
+    na.value = .tantale_colours$no_value,
+    guide = ggplot2::guide_colourbar(barwidth = ggplot2::unit(10, "lines")))
   # The RVD score is a correlation on [-1, 1], so it wants a diverging scale
   # centred on zero rather than the sequential one used for domain similarity.
-  rvdSimFillScale <- ggplot2::scale_fill_gradient2(
+  rvdSimFillScale <- ggplot2::scale_fill_gradientn(
     name = "RVD specificity vs reference\n(grey: no score)",
-    limits = c(-1, 1), midpoint = 0,
-    low = "#B2182B", mid = "grey92", high = "#2166AC", na.value = "grey80")
-  # labelConsensusColorScale <- ggplot2::scale_color_manual(name = "Match consensus?",
-  #                                                         values = c(`TRUE` = "black",
-  #                                                                    `FALSE` = "red")
-  # )
+    colours = .tantale_colours$diverging, limits = c(-1, 1),
+    na.value = .tantale_colours$no_value,
+    guide = ggplot2::guide_colourbar(barwidth = ggplot2::unit(10, "lines")))
   labelConsensusColorScale <- ggplot2::scale_color_manual(name = "Match consensus?",
-                                                          na.value = "grey35",
-                                                          values = c(`FALSE` = "deeppink2",
-                                                                     `TRUE` = "cyan3")
+                                                          na.value = .tantale_colours$no_consensus,
+                                                          values = c(`FALSE` = .tantale_colours$mismatch,
+                                                                     `TRUE` = .tantale_colours$match)
   )
   # Add aesthetics as requested AND possible
   
@@ -549,7 +587,7 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
       labelConsensusColorScale +
       ggplot2::geom_label(mapping = ggplot2::aes(label = rvd,
                                                  color = matchConsensusRvd),
-                          fill = "grey80",
+                          fill = .tantale_colours$no_value,
                           linewidth = NA,
                           family = "mono",
                           size = 3, fontface = "bold",
@@ -560,7 +598,7 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
       labelConsensusColorScale +
       ggplot2::geom_label(mapping = ggplot2::aes(label = dom_code,
                                                  color = matchConsensusDomain),
-                          fill = "grey80",
+                          fill = .tantale_colours$no_value,
                           linewidth = NA,
                           family = "mono",
                           size = 3, fontface = "bold",
