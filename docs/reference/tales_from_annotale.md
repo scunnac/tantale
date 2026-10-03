@@ -31,7 +31,10 @@ tales_from_annotale(
 - terminus_max_evalue:
 
   Maximum `hmmsearch` E-value for a terminal segment to be coded
-  `NTERM`/`CTERM`.
+  `NTERM`/`CTERM`. As in
+  [`tell_tales`](https://scunnac.github.io/tantale/reference/tell_tales.md),
+  the match must also reach the end of the profile that adjoins the
+  repeats.
 
 - sanitize:
 

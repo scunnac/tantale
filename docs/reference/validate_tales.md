@@ -40,6 +40,7 @@ Other tales objects:
 [`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md),
 [`tales_assert_complete()`](https://scunnac.github.io/tantale/reference/tales_assert_complete.md),
 [`tales_bind()`](https://scunnac.github.io/tantale/reference/tales_bind.md),
+[`tales_names()`](https://scunnac.github.io/tantale/reference/tales_names.md),
 [`tales_namespace()`](https://scunnac.github.io/tantale/reference/tales_namespace.md),
 [`tales_requirements()`](https://scunnac.github.io/tantale/reference/tales_requirements.md)
 

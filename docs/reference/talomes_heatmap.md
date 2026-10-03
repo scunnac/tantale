@@ -7,12 +7,12 @@ shows at a glance which groups each strain has and where strains carry
 different variants of the same TALE.
 
 Within a group, variants are ranked by how many strains carry them, and
-the cell colour is that rank (the first colour is the most common
-variant). The `#` after each group label counts its distinct variants. A
-grey cell means the strain has no member in that group. A cell can hold
-several colours side by side when a strain carries more than one variant
-in the same group. Dendrograms order strains and groups by the
-similarity of their variant profiles.
+the cell colour is that rank: the most common variant is the palest and
+rarer ones are darker. The `#` after each group label counts its
+distinct variants. A white cell means the strain has no member in that
+group. A cell can hold several colours side by side when a strain
+carries more than one variant in the same group. Dendrograms order
+strains and groups by the similarity of their variant profiles.
 
 ## Usage
 
@@ -28,8 +28,8 @@ talomes_heatmap(
   y_lab = "Strain",
   title = "RVD sequences variants",
   plot_type = "all",
-  colors = viridis::viridis(10),
-  margins = c(5, 5, 3, 3),
+  colors = .tantale_colours$variant_ranks,
+  margins = NULL,
   sep_width = 5,
   sep_color = "white",
   inner_sep_color = "white",
@@ -80,12 +80,19 @@ talomes_heatmap(
 
 - colors:
 
-  Character vector of colours for the variant ranks.
+  Colours from the most common variant to the rarest. They are
+  interpolated over the ranks present, so the most common variant always
+  gets the first colour and the rarest the last. The default runs from
+  pale to dark wine, so a rare variant stands out.
 
 - margins:
 
-  Margins for the row dendrogram, column dendrogram, row names and
-  column names, in that order. Default `c(5, 5, 3, 3)`.
+  Space for the row dendrogram, column dendrogram, row names and column
+  names, in that order, counted in heatmap cells. `NULL` (default) sizes
+  the dendrograms to a quarter of the heatmap's width and height,
+  between 1.5 and 5 cells, with 3 cells for the names. With
+  `plot_type = "single"` the column dendrogram also holds the title and
+  gets at least 3.5 cells.
 
 - sep_width:
 

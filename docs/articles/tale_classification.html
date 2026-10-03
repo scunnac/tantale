@@ -357,13 +357,15 @@ Figure 1: Domain composition of the TALE arrays of the three strains.
 <span><span class="co">#&gt; 9     1     2</span></span></code></pre></div>
 </details>
 </div>
-<p>The automatic pick, in red on the silhouette plot, is 9 groups. The curve is nearly flat just past it, so a few more groups would fit about as well; the elbow takes the smallest of those. The result is clean: 8 of 9 groups have exactly three members, one from each strain, the one-locus-per-strain pattern this comparison is meant to recover. The remaining group has only a MAI1 and a BAI3 member, matching BAI3-1-1’s one fewer array.</p>
+<p>The automatic pick, in wine on the silhouette plot, is 9 groups. The curve is nearly flat just past it, so a few more groups would fit about as well; the elbow takes the smallest of those. The result is clean: 8 of 9 groups have exactly three members, one from each strain, the one-locus-per-strain pattern this comparison is meant to recover. The remaining group has only a MAI1 and a BAI3 member, matching BAI3-1-1’s one fewer array.</p>
 <p><code><a href="../reference/tales_group_hclust.html">tales_group_hclust()</a></code> instead cuts a dendrogram at a height chosen to yield exactly <code>k</code> groups, and with <code>plot_tree = TRUE</code> draws it. The tree is a useful check on whether the chosen <code>k</code> looks reasonable:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="fu"><a href="../reference/tales_group_hclust.html">tales_group_hclust</a></span><span class="op">(</span><span class="va">cmp</span><span class="op">$</span><span class="va">tales</span>, <span class="va">cmp</span><span class="op">$</span><span class="va">tale_distances</span>,</span>
 <span>                             k <span class="op">=</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">grouped</span><span class="op">$</span><span class="va">group</span><span class="op">)</span>,</span>
-<span>                             plot_tree <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<span>                             plot_tree <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; ! # Invaild edge matrix for &lt;phylo&gt;. A &lt;tbl_df&gt; is returned.</span></span>
+<span><span class="co">#&gt; ! # Invaild edge matrix for &lt;phylo&gt;. A &lt;tbl_df&gt; is returned.</span></span></code></pre></div>
 </details><div class="cell-output-display">
 <div id="fig-tale-dendrogram" class="quarto-float quarto-figure quarto-figure-center">
 <figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-tale-dendrogram-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -404,7 +406,7 @@ Figure 3: RVD sequence variant carried by each strain, in each classification g
 </div>
 </div>
 </div>
-<p>Each cell in <a href="#fig-talomes-heatmap" class="quarto-xref">Figure 3</a> is one strain’s RVD sequence variant in one group, coloured by the variant’s rank within that group (the darkest is the most common); the <code>#</code> after each group name counts its distinct variants. A grey cell means the strain has no member in that group, and a cell split into several colours would mean a strain carries more than one variant in the group. Here, BAI3 and BAI3-1-1 carry the same variant in every group they share. MAI1 carries that same variant in four groups and a different one in the other five.</p>
+<p>Each cell in <a href="#fig-talomes-heatmap" class="quarto-xref">Figure 3</a> is one strain’s RVD sequence variant in one group, coloured by the variant’s rank within that group (the palest is the most common); the <code>#</code> after each group name counts its distinct variants. A white cell means the strain has no member in that group, and a cell split into several colours would mean a strain carries more than one variant in the group. Here, BAI3 and BAI3-1-1 carry the same variant in every group they share. MAI1 carries that same variant in four groups and a different one in the other five.</p>
 </section><section class="level2" data-number="5"><h2 data-number="5" id="a-different-lens-comparing-predicted-binding-specificity">
 <span class="header-section-number">5</span> A different lens: comparing predicted binding specificity<a class="anchor" aria-label="anchor" href="#a-different-lens-comparing-predicted-binding-specificity"></a>
 </h2>
@@ -568,7 +570,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script><script>var lightboxQuarto = GLightbox({"openEffect":"zoom","selector":".lightbox","loop":false,"descPosition":"bottom","closeEffect":"zoom"});
+</script><script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","loop":false,"selector":".lightbox","descPosition":"bottom","openEffect":"zoom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

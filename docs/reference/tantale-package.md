@@ -100,3 +100,4 @@ Authors:
   ([ORCID](https://orcid.org/0000-0002-3695-491X))
 
 - Bao Tram Vi <vbt576@gmail.com>
+  ([ORCID](https://orcid.org/0000-0002-4319-5544))

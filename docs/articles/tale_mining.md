@@ -256,9 +256,9 @@ Code
 
 ``` r
 bai311_raw <- tales_from_telltales(bai311_raw_dir)
-#> Warning: 7 arrays have biological anomalies.
-#> ✖ Arrays: "ROI_00003", "ROI_00005", "ROI_00006", "ROI_00009", "ROI_00001",
-#>   "ROI_00007", and "ROI_00008"
+#> Warning: 8 arrays have biological anomalies.
+#> ✖ Arrays: "ROI_00003", "ROI_00005", "ROI_00001", "ROI_00002", "ROI_00006",
+#>   "ROI_00007", "ROI_00008", and "ROI_00009"
 #> ℹ Reasons: no_repeat and terminus_unmatched
 #> ℹ Inspect with `tales_anomalies()`, or drop with `sanitize = TRUE`.
 ```
@@ -274,18 +274,22 @@ Code
 
 ``` r
 tales_anomalies(bai311_raw)
-#> # A tibble: 9 × 3
-#>   array_id  check              detail                                           
-#>   <chr>     <chr>              <chr>                                            
-#> 1 ROI_00003 no_repeat          no repeat                                        
-#> 2 ROI_00005 no_repeat          no repeat                                        
-#> 3 ROI_00006 terminus_unmatched N-terminus not matched by its TALE domain profil…
-#> 4 ROI_00009 terminus_unmatched N-terminus not matched by its TALE domain profil…
-#> 5 ROI_00001 terminus_unmatched C-terminus not matched by its TALE domain profil…
-#> 6 ROI_00003 terminus_unmatched C-terminus not matched by its TALE domain profil…
-#> 7 ROI_00005 terminus_unmatched C-terminus not matched by its TALE domain profil…
-#> 8 ROI_00007 terminus_unmatched C-terminus not matched by its TALE domain profil…
-#> 9 ROI_00008 terminus_unmatched C-terminus not matched by its TALE domain profil…
+#> # A tibble: 13 × 3
+#>    array_id  check              detail                                          
+#>    <chr>     <chr>              <chr>                                           
+#>  1 ROI_00003 no_repeat          no repeat                                       
+#>  2 ROI_00005 no_repeat          no repeat                                       
+#>  3 ROI_00001 terminus_unmatched N-terminus not matched by its TALE domain profi…
+#>  4 ROI_00002 terminus_unmatched N-terminus not matched by its TALE domain profi…
+#>  5 ROI_00006 terminus_unmatched N-terminus not matched by its TALE domain profi…
+#>  6 ROI_00007 terminus_unmatched N-terminus not matched by its TALE domain profi…
+#>  7 ROI_00008 terminus_unmatched N-terminus not matched by its TALE domain profi…
+#>  8 ROI_00009 terminus_unmatched N-terminus not matched by its TALE domain profi…
+#>  9 ROI_00001 terminus_unmatched C-terminus not matched by its TALE domain profi…
+#> 10 ROI_00003 terminus_unmatched C-terminus not matched by its TALE domain profi…
+#> 11 ROI_00005 terminus_unmatched C-terminus not matched by its TALE domain profi…
+#> 12 ROI_00007 terminus_unmatched C-terminus not matched by its TALE domain profi…
+#> 13 ROI_00008 terminus_unmatched C-terminus not matched by its TALE domain profi…
 ```
 
 `ROI_00003` and `ROI_00005` have no repeat at all: AnnoTALE could not
@@ -341,12 +345,12 @@ readr::read_tsv(file.path(bai311_raw_dir, "array_report.tsv"),
 #>   <chr>     <lgl>         <lgl>                <dbl> <chr>                      
 #> 1 ROI_00004 FALSE         FALSE                   NA <NA>                       
 #> 2 ROI_00006 TRUE          TRUE                    45 XXXXX-NV-HD-NI-NG-NI-NN-NS…
-#> 3 ROI_00002 TRUE          TRUE                    70 NTERM-NN-HD-NI-NN-HD-NG-HD…
+#> 3 ROI_00002 TRUE          TRUE                    70 XXXXX-NN-HD-NI-NN-HD-NG-HD…
 #> 4 ROI_00005 TRUE          TRUE                    23 <NA>                       
 #> 5 ROI_00009 TRUE          TRUE                    47 XXXXX-NV-HD-NI-NN-HD-HD-HD…
-#> 6 ROI_00007 TRUE          TRUE                    47 NTERM-NN-HD-HD-NN-NN-PG-XX…
-#> 7 ROI_00008 TRUE          TRUE                    67 NTERM-NI-HD-NN-NS-NN-NG-HD…
-#> 8 ROI_00001 TRUE          TRUE                    38 NTERM-NN-NG-NN-PG-XXXXX    
+#> 6 ROI_00007 TRUE          TRUE                    47 XXXXX-NN-HD-HD-NN-NN-PG-XX…
+#> 7 ROI_00008 TRUE          TRUE                    67 XXXXX-NI-HD-NN-NS-NN-NG-HD…
+#> 8 ROI_00001 TRUE          TRUE                    38 XXXXX-NN-NG-NN-PG-XXXXX    
 #> 9 ROI_00003 TRUE          TRUE                    19 <NA>
 ```
 
@@ -403,10 +407,10 @@ invisible(tell_tales(subject_file = bai311_fa, output_dir = bai311_corr_dir,
 #> Finding the closest reference amino acid sequences:
 #> ================================================================================
 #> 
-#> Time difference of 0.48 secs
+#> Time difference of 0.42 secs
 #> ================================================================================
 #> 
-#> Time difference of 18.36 secs
+#> Time difference of 16.75 secs
 ```
 
 Something is odd:
@@ -543,10 +547,10 @@ invisible(tell_tales(subject_file = bai311_fa, output_dir = bai311_best_dir,
 #> Finding the closest reference amino acid sequences:
 #> ================================================================================
 #> 
-#> Time difference of 0.45 secs
+#> Time difference of 0.43 secs
 #> ================================================================================
 #> 
-#> Time difference of 50.23 secs
+#> Time difference of 42.95 secs
 bai311_best <- tales_from_telltales(bai311_best_dir)
 ```
 

@@ -113,8 +113,9 @@ Termini are relabelled `N-` and `-C`; an unidentified terminus keeps its
 line up.
 
 **Text colour** always answers one question: does this element match the
-consensus of its column? Cyan for yes, pink for no, grey where the
-column has no consensus (a gap, or a tie). The consensus is the most
+consensus of its column? Black for yes, red for no, grey where the
+column has no consensus (a gap, or a tie). The block fills are all pale,
+so the text reads on every one of them. The consensus is the most
 frequent element in the column
 ([`tales_consensus`](https://scunnac.github.io/tantale/reference/tales_consensus.md)),
 taken over the labelled layer, so the text colour and the text itself

@@ -19,12 +19,15 @@ first repeat, and as C-terminus whatever it encodes downstream of the
 last one.
 [`tell_tales`](https://scunnac.github.io/tantale/reference/tell_tales.md)
 searches each of these segments with the TALE N- or C-terminal protein
-profile (`hmmsearch`, E-value at most `terminus_max_evalue`). `"NTERM"`
-and `"CTERM"` mark a segment that matches its profile, a canonical TALE
-terminal domain, complete or truncated. `"XXXXX"` marks a segment that
-does not match, typically unrelated sequence where the ORF starts or
-ends inside a frameshifted region. An array for which AnnoTALE reported
-no segment on one side has no terminus part on that side.
+profile (`hmmsearch`, E-value at most `terminus_max_evalue`, the match
+reaching the end of the profile that adjoins the repeats). `"NTERM"` and
+`"CTERM"` mark a segment that matches its profile, a canonical TALE
+terminal domain, complete or truncated at its far end. `"XXXXX"` marks a
+segment that does not match, typically unrelated sequence where the ORF
+starts or ends inside a frameshifted region, or a terminus whose
+repeat-side part a frameshift has put in another reading frame. An array
+for which AnnoTALE reported no segment on one side has no terminus part
+on that side.
 
 These share the `rvd` column with real RVDs, so code that distinguishes
 repeats from termini by value should use this function rather than
@@ -47,6 +50,7 @@ Other tales objects:
 [`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md),
 [`tales_assert_complete()`](https://scunnac.github.io/tantale/reference/tales_assert_complete.md),
 [`tales_bind()`](https://scunnac.github.io/tantale/reference/tales_bind.md),
+[`tales_names()`](https://scunnac.github.io/tantale/reference/tales_names.md),
 [`tales_namespace()`](https://scunnac.github.io/tantale/reference/tales_namespace.md),
 [`tales_requirements()`](https://scunnac.github.io/tantale/reference/tales_requirements.md),
 [`validate_tales()`](https://scunnac.github.io/tantale/reference/validate_tales.md)

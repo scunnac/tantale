@@ -276,7 +276,7 @@ Figure 2: The same three arrays laid out by alignment_position: the four-repeat
 <li>
 <strong>what each cell <em>says</em></strong>: <code>label</code>, defaulting to <code>rvd</code> whenever that is not also the fill layer;</li>
 <li>
-<strong>what colour that text is</strong>: always whether the cell matches the consensus of its column (<code><a href="../reference/tales_consensus.html">tales_consensus()</a></code>), cyan for yes, pink for no, grey where the consensus is a gap, regardless of what <code>fill_type</code> is showing;</li>
+<strong>what colour that text is</strong>: always whether the cell matches the consensus of its column (<code><a href="../reference/tales_consensus.html">tales_consensus()</a></code>), black for yes, red for no, grey where the consensus is a gap, regardless of what <code>fill_type</code> is showing;</li>
 <li>
 <strong>what colour the block behind it is</strong>: <code>fill_type</code>, the only one of the three that can be unavailable.</li>
 </ul>
@@ -451,7 +451,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script><script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","openEffect":"zoom","loop":false,"selector":".lightbox","descPosition":"bottom"});
+</script><script>var lightboxQuarto = GLightbox({"openEffect":"zoom","selector":".lightbox","loop":false,"descPosition":"bottom","closeEffect":"zoom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

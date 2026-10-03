@@ -2,6 +2,107 @@
 
 ## tantale 0.9.9011
 
+### Colours readable by everyone
+
+All plots now draw on one colour style, built from Paul Tol’s colour
+schemes and checked against the three common forms of colour blindness.
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html) on a `tales`
+colours each part by its role: the canonical 34-aa repeat and the final
+20-aa half-repeat in calm colours, other repeat lengths in strong ones,
+N-termini in shades of wine and C-termini in shades of teal, lighter
+when shorter. The legend names part and length (“repeat, 34 aa”), and
+RVD labels are black or white, whichever reads better on the fill; panel
+labels sit on a pale band. In
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html) on a
+`tales_msa`, the cell text is black where it matches the consensus and
+red where it does not, and all fills are pale enough for both to read.
+
+The dendrogram of `tales_group_hclust(plot_tree = TRUE)` prints each
+group’s number under its clade, and its colours only tell neighbouring
+clades apart, so it stays readable with 25 groups or more; the cut
+height moved to the subtitle. In
+[`plot_target_preds()`](https://scunnac.github.io/tantale/reference/plot_target_preds.md)
+the match score is shown in shades of purple, from pale for a good match
+to dark for a poor one, and the DNA bases keep their colours. In
+[`talomes_heatmap()`](https://scunnac.github.io/tantale/reference/talomes_heatmap.md)
+the variant colours run from pale wine for the most common variant to
+dark wine for the rarest present, however many variants a group has;
+`colors` now gives the end points of that range. A strain with no member
+in a group gets a white cell. The dendrograms take space in proportion
+to the heatmap (`margins = NULL`, the new default), so they no longer
+dominate a small talome. The package no longer imports biovizBase or
+viridis.
+
+### `tales_names()`
+
+`tales_names(x)` returns the identifiers of the TALEs in a `tales` or
+`tales_msa` object, once each, in the order they appear. It replaces
+`unique(x$array_id)` and gives the same values as the names of
+`tales_rvd_strings(x)`. `names(x)` still returns the column names, as
+for any data frame.
+
+### Documentation and robustness
+
+A contributing guide (`.github/CONTRIBUTING.md`) explains how to report
+a problem and how to prepare a change.
+[`is_tales()`](https://scunnac.github.io/tantale/reference/is_tales.md),
+[`is_tales_msa()`](https://scunnac.github.io/tantale/reference/is_tales_msa.md),
+[`is_pairwise_distances()`](https://scunnac.github.io/tantale/reference/is_pairwise_distances.md),
+[`validate_tales_msa()`](https://scunnac.github.io/tantale/reference/validate_tales_msa.md),
+[`validate_pairwise_distances()`](https://scunnac.github.io/tantale/reference/validate_pairwise_distances.md)
+and
+[`tales_msa_width()`](https://scunnac.github.io/tantale/reference/tales_msa_width.md)
+have examples. The PDF manual builds (the package logo is shown in the
+HTML help only). Internal loops and per-element computations no longer
+assume a non-empty input or a particular result type.
+
+### Terminus codes: the match must reach the repeats
+
+A segment that AnnoTALE reports on either side of the repeats is now
+coded `NTERM`/`CTERM` only if its match to the TALE terminal-domain
+profile also reaches, within 10 positions, the end of the profile that
+adjoins the repeats. A frameshift inside a terminus puts its repeat-side
+part in another reading frame, so such a segment matched the profile
+strongly up to the frameshift and was coded as a terminus; it is now
+`XXXXX`, and
+[`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
+reports it as `terminus_unmatched`. Genuine termini truncated at their
+far end, as in truncTALEs, are unaffected. In the raw BAI3-1-1 assembly,
+four N-termini change. `array_report.tsv` gains `nterm_aa_profile_gap`
+and `cterm_aa_profile_gap`, the number of profile positions between the
+match and that end.
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
+output written before this change keeps its old codes until it is rerun.
+
+### `plot()` on a `tales_msa`: the x-axis is “Position in alignment”
+
+The x-axis of
+[`plot.tales_msa()`](https://scunnac.github.io/tantale/reference/plot.tales_msa.md)
+counts alignment columns, and its title now says so. It read “Position
+in array”, which is the title
+[`plot.tales()`](https://scunnac.github.io/tantale/reference/plot.tales.md)
+uses for a domain’s position within its own array.
+
+### Every error has a specific condition class
+
+The last errors that carried only the generic `tantale_error` class now
+also carry a specific one (`tantale_error_bad_argument`,
+`tantale_error_missing_file`, `tantale_error_annotale_file`), so code
+that calls tantale can tell them apart.
+[`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
+now names the input file it cannot find.
+
+### `tell_tales()` prints its closing summary line by line
+
+The summary
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
+prints at the end of a run is now shown as it is written in
+`tell_tales.log`, one line per entry. It used to be wrapped into a
+single paragraph, and a subject file or output directory whose path
+contained braces (`{...}`) made
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
+fail at that last step.
+
 ### Arrays come out in the same order on every machine
 
 [`tales_rvd_strings()`](https://scunnac.github.io/tantale/reference/tales_rvd_strings.md),

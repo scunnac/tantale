@@ -5,9 +5,10 @@ group. A strain's talome is its whole complement of TALEs, so the plot
 shows at a glance which groups each strain has and where strains carry
 different variants of the same TALE.
 Within a group, variants are ranked by how many strains carry them, and
-the cell colour is that rank (the first colour is the most common
-variant). The # after each group label counts its distinct
-variants. A grey cell means the strain has no member in that group. A
+the cell colour is that rank: the most common variant is the palest and
+rarer ones are darker.
+The # after each group label counts its distinct
+variants. A white cell means the strain has no member in that group. A
 cell can hold several colours side by side when a strain carries more
 than one variant in the same group. Dendrograms order strains and groups
 by the similarity of their variant profiles."><meta property="og:description" content="Draws a talome overview: one column per TALE group, one row per strain,
@@ -16,9 +17,10 @@ group. A strain's talome is its whole complement of TALEs, so the plot
 shows at a glance which groups each strain has and where strains carry
 different variants of the same TALE.
 Within a group, variants are ranked by how many strains carry them, and
-the cell colour is that rank (the first colour is the most common
-variant). The # after each group label counts its distinct
-variants. A grey cell means the strain has no member in that group. A
+the cell colour is that rank: the most common variant is the palest and
+rarer ones are darker.
+The # after each group label counts its distinct
+variants. A white cell means the strain has no member in that group. A
 cell can hold several colours side by side when a strain carries more
 than one variant in the same group. Dendrograms order strains and groups
 by the similarity of their variant profiles."><meta property="og:image" content="https://scunnac.github.io/tantale/reference/figures/tantale_logo.png"><meta property="og:image:alt" content="tantale"></head><body>
@@ -73,9 +75,10 @@ group. A strain's talome is its whole complement of TALEs, so the plot
 shows at a glance which groups each strain has and where strains carry
 different variants of the same TALE.</p>
 <p>Within a group, variants are ranked by how many strains carry them, and
-the cell colour is that rank (the first colour is the most common
-variant). The <code>#</code> after each group label counts its distinct
-variants. A grey cell means the strain has no member in that group. A
+the cell colour is that rank: the most common variant is the palest and
+rarer ones are darker.
+The <code>#</code> after each group label counts its distinct
+variants. A white cell means the strain has no member in that group. A
 cell can hold several colours side by side when a strain carries more
 than one variant in the same group. Dendrograms order strains and groups
 by the similarity of their variant profiles.</p>
@@ -94,8 +97,8 @@ by the similarity of their variant profiles.</p>
 <span>  y_lab <span class="op">=</span> <span class="st">"Strain"</span>,</span>
 <span>  title <span class="op">=</span> <span class="st">"RVD sequences variants"</span>,</span>
 <span>  plot_type <span class="op">=</span> <span class="st">"all"</span>,</span>
-<span>  colors <span class="op">=</span> <span class="fu">viridis</span><span class="fu">::</span><span class="fu"><a href="https://sjmgarnier.github.io/viridisLite/reference/viridis.html" class="external-link">viridis</a></span><span class="op">(</span><span class="fl">10</span><span class="op">)</span>,</span>
-<span>  margins <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">5</span>, <span class="fl">3</span>, <span class="fl">3</span><span class="op">)</span>,</span>
+<span>  colors <span class="op">=</span> <span class="va">.tantale_colours</span><span class="op">$</span><span class="va">variant_ranks</span>,</span>
+<span>  margins <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  sep_width <span class="op">=</span> <span class="fl">5</span>,</span>
 <span>  sep_color <span class="op">=</span> <span class="st">"white"</span>,</span>
 <span>  inner_sep_color <span class="op">=</span> <span class="st">"white"</span>,</span>
@@ -148,12 +151,19 @@ each strain (e.g. origin), drawn as a side bar on the right.</p></dd>
 
 
 <dt id="arg-colors">colors<a class="anchor" aria-label="anchor" href="#arg-colors"></a></dt>
-<dd><p>Character vector of colours for the variant ranks.</p></dd>
+<dd><p>Colours from the most common variant to the rarest. They
+are interpolated over the ranks present, so the most common variant always
+gets the first colour and the rarest the last. The default runs from pale
+to dark wine, so a rare variant stands out.</p></dd>
 
 
 <dt id="arg-margins">margins<a class="anchor" aria-label="anchor" href="#arg-margins"></a></dt>
-<dd><p>Margins for the row dendrogram, column dendrogram, row
-names and column names, in that order. Default <code>c(5, 5, 3, 3)</code>.</p></dd>
+<dd><p>Space for the row dendrogram, column dendrogram, row
+names and column names, in that order, counted in heatmap cells.
+<code>NULL</code> (default) sizes the dendrograms to a quarter of the
+heatmap's width and height, between 1.5 and 5 cells, with 3 cells for
+the names. With <code>plot_type = "single"</code> the column dendrogram also
+holds the title and gets at least 3.5 cells.</p></dd>
 
 
 <dt id="arg-sep-width">sep_width<a class="anchor" aria-label="anchor" href="#arg-sep-width"></a></dt>

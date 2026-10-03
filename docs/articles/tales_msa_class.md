@@ -280,7 +280,7 @@ position) and three questions about it are answered separately:
 - **what colour that text is**: always whether the cell matches the
   consensus of its column
   ([`tales_consensus()`](https://scunnac.github.io/tantale/reference/tales_consensus.md)),
-  cyan for yes, pink for no, grey where the consensus is a gap,
+  black for yes, red for no, grey where the consensus is a gap,
   regardless of what `fill_type` is showing;
 - **what colour the block behind it is**: `fill_type`, the only one of
   the three that can be unavailable.

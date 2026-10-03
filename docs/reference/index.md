@@ -49,6 +49,8 @@ validators.
   : Assert that a tales object holds complete arrays
 - [`tales_bind()`](https://scunnac.github.io/tantale/reference/tales_bind.md)
   : Combine tales objects
+- [`tales_names()`](https://scunnac.github.io/tantale/reference/tales_names.md)
+  : The names of the TALEs in a tales object
 - [`tales_namespace()`](https://scunnac.github.io/tantale/reference/tales_namespace.md)
   : The dom_code namespace of a tales object
 - [`tales_requirements()`](https://scunnac.github.io/tantale/reference/tales_requirements.md)

@@ -38,3 +38,19 @@ Other pairwise distances:
 [`tales_group_hclust()`](https://scunnac.github.io/tantale/reference/tales_group_hclust.md),
 [`tales_group_kmedoids()`](https://scunnac.github.io/tantale/reference/tales_group_kmedoids.md),
 [`tales_tale_distances()`](https://scunnac.github.io/tantale/reference/tales_tale_distances.md)
+
+## Examples
+
+``` r
+d <- data.frame(
+  id1 = c("A1", "A1", "A2", "A2"),
+  id2 = c("A1", "A2", "A1", "A2"),
+  dissim = c(0, 35, 35, 0)
+)
+validate_pairwise_distances(pairwise_distances(d))
+
+# Without its dissim column, a table is not a pairwise_distances
+try(validate_pairwise_distances(d[, c("id1", "id2")]))
+#> Error in validate_pairwise_distances(d[, c("id1", "id2")]) : 
+#>   A <pairwise_distances> object requires the column dissim.
+```

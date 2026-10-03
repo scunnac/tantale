@@ -78,7 +78,7 @@ subj <- system.file("extdata", "cladeIII_sweet_promoters.fasta",
 head(tales_predict_targets(x, subj_file = subj))
 #> Invoking Talvez using the following command:
 #> '/home/cunnac/mamba/envs/tantale/bin/perl' TALVEZ_3.2.pl -t 0 -l 19 -e mat1 -z
-#> mat2 'rvdSeqsTalvez_1ec13e5fcf8428.tsv' 'cladeIII_sweet_promoters.fasta'
+#> mat2 'rvdSeqsTalvez_82a9a2e6ca29.tsv' 'cladeIII_sweet_promoters.fasta'
 #> # A tibble: 6 × 10
 #>   taleId    rvds          subjSeqId score strand start   end ebeSeq  rank method
 #>   <chr>     <chr>         <chr>     <dbl> <chr>  <dbl> <dbl> <chr>  <dbl> <chr> 

@@ -343,7 +343,7 @@ group_sizes
 #> 9     1     2
 ```
 
-The automatic pick, in red on the silhouette plot, is 9 groups. The
+The automatic pick, in wine on the silhouette plot, is 9 groups. The
 curve is nearly flat just past it, so a few more groups would fit about
 as well; the elbow takes the smallest of those. The result is clean: 8
 of 9 groups have exactly three members, one from each strain, the
@@ -362,6 +362,8 @@ Code
 invisible(tales_group_hclust(cmp$tales, cmp$tale_distances,
                              k = n_distinct(grouped$group),
                              plot_tree = TRUE))
+#> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
+#> ! # Invaild edge matrix for <phylo>. A <tbl_df> is returned.
 ```
 
 [![](tale_classification_files/figure-html/fig-tale-dendrogram-1.png)](https://scunnac.github.io/tantale/articles/tale_classification_files/figure-html/fig-tale-dendrogram-1.png "Figure 2: Hierarchical clustering of the same three-genome comparison, cut at the k tales_group_kmedoids() picked automatically above.")
@@ -399,8 +401,8 @@ classification group.
 
 Each cell in [Figure 3](#fig-talomes-heatmap) is one strain’s RVD
 sequence variant in one group, coloured by the variant’s rank within
-that group (the darkest is the most common); the `#` after each group
-name counts its distinct variants. A grey cell means the strain has no
+that group (the palest is the most common); the `#` after each group
+name counts its distinct variants. A white cell means the strain has no
 member in that group, and a cell split into several colours would mean a
 strain carries more than one variant in the group. Here, BAI3 and
 BAI3-1-1 carry the same variant in every group they share. MAI1 carries

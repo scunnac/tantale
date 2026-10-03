@@ -63,11 +63,13 @@
 first repeat, and as C-terminus whatever it encodes downstream of the last
 one. <code><a href="tell_tales.html">tell_tales</a></code> searches each of these
 segments with the TALE N- or C-terminal protein profile (<code>hmmsearch</code>,
-E-value at most <code>terminus_max_evalue</code>). <code>"NTERM"</code> and
+E-value at most <code>terminus_max_evalue</code>, the match reaching the end of
+the profile that adjoins the repeats). <code>"NTERM"</code> and
 <code>"CTERM"</code> mark a segment that matches its profile, a canonical TALE
-terminal domain, complete or truncated. <code>"XXXXX"</code> marks a segment
-that does not match, typically unrelated sequence where the ORF starts or
-ends inside a frameshifted region. An array for which AnnoTALE reported no
+terminal domain, complete or truncated at its far end. <code>"XXXXX"</code>
+marks a segment that does not match, typically unrelated sequence where
+the ORF starts or ends inside a frameshifted region, or a terminus whose
+repeat-side part a frameshift has put in another reading frame. An array for which AnnoTALE reported no
 segment on one side has no terminus part on that side.</p>
 <p>These share the <code>rvd</code> column with real RVDs, so code that distinguishes
 repeats from termini by value should use this function rather than spelling
@@ -90,6 +92,7 @@ the codes out.</p>
 <code><a href="tales_anomalies.html">tales_anomalies()</a></code>,
 <code><a href="tales_assert_complete.html">tales_assert_complete()</a></code>,
 <code><a href="tales_bind.html">tales_bind()</a></code>,
+<code><a href="tales_names.html">tales_names()</a></code>,
 <code><a href="tales_namespace.html">tales_namespace()</a></code>,
 <code><a href="tales_requirements.html">tales_requirements()</a></code>,
 <code><a href="validate_tales.html">validate_tales()</a></code></p></div>

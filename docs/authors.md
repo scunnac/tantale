@@ -2,7 +2,7 @@
 
 ## Authors
 
-- **Bao Tram Vi**. Author.
+- **Bao Tram Vi**. Author. [](https://orcid.org/0000-0002-4319-5544)
 
 - **Sebastien Cunnac**. Author, maintainer.
   [](https://orcid.org/0000-0002-3695-491X)

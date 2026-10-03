@@ -92,7 +92,7 @@ subj <- system.file("extdata", "cladeIII_sweet_promoters.fasta",
 preds <- talvez(rvd_seqs = rvds, subj_file = subj)
 #> Invoking Talvez using the following command:
 #> '/home/cunnac/mamba/envs/tantale/bin/perl' TALVEZ_3.2.pl -t 0 -l 19 -e mat1 -z
-#> mat2 'rvdSeqsTalvez_1ec13ed908d52.tsv' 'cladeIII_sweet_promoters.fasta'
+#> mat2 'rvdSeqsTalvez_82a9a2d6202d.tsv' 'cladeIII_sweet_promoters.fasta'
 head(preds)
 #> # A tibble: 6 × 9
 #>   taleId    rvds                 subjSeqId score strand start   end ebeSeq  rank

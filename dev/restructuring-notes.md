@@ -194,6 +194,19 @@ from 1.0.0 on it needs a lifecycle deprecation (START HERE item 8).
   cheaper to decide before 1.0.0. Relevant functions to identify: any
   exported function whose first argument is a character vector of RVD
   strings rather than a `tales` object. Decide before coding.
+  **Survey of the 51 exports, 2026-10-03:** three take RVD strings.
+  `talvez()` and `preditale()` (`rvd_seqs`: fasta path or `XStringSet`)
+  already have a `tales`-aware front end, `tales_predict_targets(x)`,
+  which takes a `tales`, a fasta path or a `BStringSet` and renders a
+  `tales` with `tales_rvd_strings()`. The one real gap is
+  `talomes_heatmap(tale_annotation, group_col, strain_col, rvd_col)`:
+  `tale_classification.qmd` spends five lines building that data frame
+  from a grouped `tales` (RVD strings, then a join on `group` and
+  `strain`). Possible answers for the maintainer: (a) `talomes_heatmap()`
+  also takes a `tales` carrying the group and strain columns and computes
+  the RVD strings itself; (b) leave it, the data frame keeps it usable on
+  tables from other tools; (c) as (a), and ask whether `talvez()` and
+  `preditale()` should stay exported next to `tales_predict_targets()`.
 - **In trial (§42): the terminus check has no
   minimum coverage.** A terminus counts as `NTERM`/`CTERM` whenever its
   best `hmmsearch` match has E <= `terminus_max_evalue`, however little of
@@ -2651,3 +2664,13 @@ Left for the maintainer: the caption could name the target, the
 *OsSWEET11* (Os8N3) promoter; the crystal's DNA contains
 `TGCATCTCCCCCTACTGTACACCAC`, which is that EBE as far as I know, but it
 needs the maintainer's confirmation (identifying a specific instance).
+
+Site rebuilt in full the same day (wiped `docs/`, `build_article()` per
+file, 14.7 min, no errors). Checked against the render: the home page
+figure and caption; the silhouette pick in wine; the talome heatmap
+(palest = most common, white = no member, MAI1's other variant in five
+groups); `plot.tales_msa()` text black on match, grey on a gap
+consensus, termini grey in `rvd_sim`; the dendrogram still nine groups,
+26 arrays. The rebuild removed the stale `reference/figures/pipeline.*`
+(nothing links to them) and added `CONTRIBUTING.html` (linked from the
+news page) and the `tales_names()` page.

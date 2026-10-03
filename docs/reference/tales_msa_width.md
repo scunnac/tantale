@@ -31,3 +31,24 @@ Other TALE alignment:
 [`tales_consensus_match()`](https://scunnac.github.io/tantale/reference/tales_consensus_match.md),
 [`tales_msa()`](https://scunnac.github.io/tantale/reference/tales_msa.md),
 [`validate_tales_msa()`](https://scunnac.github.io/tantale/reference/validate_tales_msa.md)
+
+## Examples
+
+``` r
+# A2 has no C-terminus, so the last column holds A1's alone.
+aligned <- data.frame(
+  array_id = c("A1", "A1", "A1", "A1", "A2", "A2"),
+  position_in_array = c(1L, 2L, 3L, 4L, 1L, 2L),
+  alignment_position = c(1L, 2L, 3L, 4L, 1L, 2L),
+  rvd = c("NTERM", "HD", "NI", "CTERM", "NTERM", "HD")
+)
+msa <- tales_msa(aligned)
+tales_msa_width(msa)
+#> [1] 4
+# Keeping A2 alone empties columns 3 and 4; the width is still 4.
+a2 <- msa[msa$array_id == "A2", ]
+max(a2$alignment_position)
+#> [1] 2
+tales_msa_width(a2)
+#> [1] 4
+```

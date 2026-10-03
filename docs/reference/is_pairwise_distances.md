@@ -35,3 +35,17 @@ Other pairwise distances:
 [`tales_group_kmedoids()`](https://scunnac.github.io/tantale/reference/tales_group_kmedoids.md),
 [`tales_tale_distances()`](https://scunnac.github.io/tantale/reference/tales_tale_distances.md),
 [`validate_pairwise_distances()`](https://scunnac.github.io/tantale/reference/validate_pairwise_distances.md)
+
+## Examples
+
+``` r
+d <- data.frame(
+  id1 = c("A1", "A1", "A2", "A2"),
+  id2 = c("A1", "A2", "A1", "A2"),
+  dissim = c(0, 35, 35, 0)
+)
+is_pairwise_distances(d)
+#> [1] FALSE
+is_pairwise_distances(pairwise_distances(d))
+#> [1] TRUE
+```
