@@ -2611,6 +2611,43 @@ Done (plan agreed 2026-10-03):
   in `test_talomes_heatmap.R` otherwise).
 - For the site rebuild: `tale_classification.qmd` says "the darkest is
   the most common" and "A grey cell means the strain has no member"; both
-  are now the other way round (palest; white).
+  are now the other way round (palest; white). **Done 2026-10-03 (§47)**,
+  along with two other colour names the change made wrong: the silhouette
+  plot's pick (red, now wine) and `plot.tales_msa()`'s text colours in
+  `tales_msa_class.qmd` (cyan/pink, now black/red).
 - For the site rebuild: `tale_mining.qmd` line 439 uses `ggplot2::scale_fill_viridis_d()` in
   article code (left to the maintainer, §38).
+
+---
+
+## 47. A structure figure on the home page (2026-10-03) **[V]**
+
+Asked for by the maintainer (2026-10-03, notes from a read of the site): a
+figure of the repeat array wrapped around DNA on `pkgdown/index.md`. The
+Wikipedia images were not used (licence to check, and the home page says
+the figures come from the authors' scripts).
+
+Done: `pkgdown/crd_figure.py` draws PthXo1 bound to its target (PDB 3UGM,
+Mak et al. 2012, doi 10.1126/science.1216211, checked on Crossref) with
+PyMOL, side view and end-on view from the N-terminal end, into
+`pkgdown/assets/crd_dna.png` (pkgdown copies `pkgdown/assets/` to the
+site root; `pkgdown/` is in `.Rbuildignore`, so the tarball does not grow).
+Colours from `R/palette.R`, as in `plot.tales()`: N-terminal region wine,
+repeats alternately sand and olive, RVD residues indigo spheres, DNA grey.
+Run from the package root with PyMOL and Pillow (the script's header has
+the micromamba line); the output is byte-identical between runs. 256
+colours, 220 KB.
+
+Checked against the coordinates before writing the caption: 23 repeats
+found by their L-T/P-x-x-Q-V-V-A-I-A-S start, RVDs at 12-13 (N* where 13
+is missing); the structure stops inside repeat 23, so neither the final
+half repeat nor the C-terminal region is drawn. Repeat centroids rise
+3.41 A and turn 32.2 degrees per repeat (one repeat per base pair, 11.2
+per turn), right-handed. Chain B is the strand the RVDs read, 5' end on
+the N-terminal side. The end view is from the N-terminal end (checked in
+camera coordinates).
+
+Left for the maintainer: the caption could name the target, the
+*OsSWEET11* (Os8N3) promoter; the crystal's DNA contains
+`TGCATCTCCCCCTACTGTACACCAC`, which is that EBE as far as I know, but it
+needs the maintainer's confirmation (identifying a specific instance).

@@ -12,6 +12,22 @@ That modularity makes TALEs a favourite tool for genome engineering, and a
 recurring subject of study in plant pathology, where the targets themselves
 are frequently a plant susceptibility gene the pathogen exploits.
 
+<img src="crd_dna.png"
+     alt="Crystal structure of the TALE PthXo1 bound to DNA: the repeats wind around the double helix, with the RVD residues lining the major groove"
+     style="max-width: 100%; height: auto;"/>
+
+PthXo1, a TALE of *Xanthomonas oryzae* pv. *oryzae*, bound to its DNA
+target, seen from the side (left) and down the DNA axis from the
+N-terminal end (right). Each repeat (alternately sand and olive) is a pair
+of helices joined by a loop that carries the RVD (indigo spheres). The
+repeats wind around the DNA in a right-handed superhelix that follows the
+major groove, one repeat per base pair, so that each RVD loop reaches into
+the groove next to the base it specifies. The N-terminal region is in
+wine. Crystal structure [3UGM](https://www.rcsb.org/structure/3UGM)
+([Mak et al. 2012](https://doi.org/10.1126/science.1216211)), drawn with
+PyMOL by
+[`pkgdown/crd_figure.py`](https://github.com/scunnac/tantale/blob/main/pkgdown/crd_figure.py).
+
 **tantale** is an R package for finding, comparing, aligning and predicting
 the targets of TALE genes in genomic sequence. It wraps several purpose-built
 external tools ([AnnoTALE](https://doi.org/10.1038/srep21077),

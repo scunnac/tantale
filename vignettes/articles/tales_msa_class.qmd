@@ -227,7 +227,7 @@ position) and three questions about it are answered separately:
 - **what each cell *says***: `label`, defaulting to `rvd` whenever that
   is not also the fill layer;
 - **what colour that text is**: always whether the cell matches the
-  consensus of its column (`tales_consensus()`), cyan for yes, pink for
+  consensus of its column (`tales_consensus()`), black for yes, red for
   no, grey where the consensus is a gap, regardless of what `fill_type`
   is showing;
 - **what colour the block behind it is**: `fill_type`, the only one of

@@ -203,7 +203,7 @@ group_sizes <- grouped |> distinct(array_id, group) |> count(group) |> arrange(d
 group_sizes
 ```
 
-The automatic pick, in red on the silhouette plot, is
+The automatic pick, in wine on the silhouette plot, is
 `r n_distinct(grouped$group)` groups. The curve is nearly flat just past
 it, so a few more groups would fit about as well; the elbow takes the
 smallest of those. The result is clean: `r sum(group_sizes$n == 3)` of
@@ -250,9 +250,9 @@ talomes_heatmap(tale_annotation, group_col = "group", strain_col = "strain",
 ```
 
 Each cell in @fig-talomes-heatmap is one strain's RVD sequence variant in
-one group, coloured by the variant's rank within that group (the darkest
+one group, coloured by the variant's rank within that group (the palest
 is the most common); the `#` after each group name counts its distinct
-variants. A grey cell means the strain has no member in that group, and
+variants. A white cell means the strain has no member in that group, and
 a cell split into several colours would mean a strain carries more than
 one variant in the group. Here, BAI3 and BAI3-1-1 carry the same variant
 in every group they share. MAI1 carries that same variant in four groups
