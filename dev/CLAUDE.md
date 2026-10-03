@@ -244,11 +244,14 @@ before trusting any of it.*
   `tales_from_telltales()` warns about candidate arrays AnnoTALE could not
   parse; `tales_anomalies()` sorted; `plot.tales()` lists arrays A-Z from
   the top; `tale_mining.qmd` correction sections rewritten from the
-  maintainer's `@CLAUDE` notes. Open: Q62 (`plot.tales()` legend, the
-  maintainer wants to discuss), Q63 (`terminus_truncated` check, data in
-  §49, design not agreed). The maintainer's own `plot.tales()` change in
-  70ee382 (termini labelled `N-`/`-C`/`??`) has no NEWS entry yet; it
-  waits for Q62.
+  maintainer's `@CLAUDE` notes. 2026-10-04: `plot.tales()` fills by
+  length alone (Q62c) and returns the plot without printing it (Q66);
+  short termini explained in `?tales_anchor_codes` and the truncTALE
+  article (Q63, no code); full site rebuilt in place (the `rm -rf docs/*`
+  wipe was blocked by a Claude Code safety check: ask the maintainer to
+  wipe, or wipe by hand, before the next full build). The maintainer may
+  still switch to Q62a (role colours, lengths-only legend labels); mock-ups
+  were shown 2026-10-04.
 - **2026-10-03, third session:** home-page structure figure (PthXo1 on
   DNA, PDB 3UGM) drawn by `pkgdown/crd_figure.py` (PyMOL) into
   `pkgdown/assets/` (§47); article colour names fixed after §46; full

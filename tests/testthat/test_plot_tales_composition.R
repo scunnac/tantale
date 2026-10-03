@@ -143,22 +143,36 @@ test_that("black or white text is chosen by the fill's luminance", {
                    c("black", "white", "black", "white"))
 })
 
-test_that("plot.tales() colours parts by role and length", {
-  p <- plot(colour_fixture(), facet_by = NULL)
-  fills <- stats::setNames(ggplot2::layer_data(p, 1)$fill,
-                           paste(p$data$domain_type, nchar(p$data$aa_seq)))
-  expect_identical(unname(fills["repeat 34"]), .tol_muted[["sand"]])
-  expect_identical(unname(fills["repeat 20"]), .tol_muted[["cyan"]])
-  expect_identical(unname(fills["repeat 33"]), .tol_muted[["rose"]])
-  expect_identical(unname(fills["C-terminus 278"]), .tol_muted[["teal"]])
-  # the longer N-terminus takes the full wine, the shorter a lighter shade
-  expect_identical(unname(fills["N-terminus 288"]), .tol_muted[["wine"]])
-  expect_false(fills[["N-terminus 264"]] %in% c(.tol_muted[["wine"]], fills[["N-terminus 288"]]))
-  expect_identical(levels(p$data$part)[1:2], c("N-terminus, 264 aa", "N-terminus, 288 aa"))
+test_that("plot.tales() fills by length, one colour per length", {
+  p <- suppressWarnings(plot(colour_fixture(), facet_by = NULL))
+  fills <- stats::setNames(ggplot2::layer_data(p, 1)$fill, nchar(p$data$aa_seq))
+  expect_identical(unname(fills["34"]), .tol_muted[["sand"]])
+  expect_identical(unname(fills["20"]), .tol_muted[["cyan"]])
+  # the other lengths in increasing order: 33, 264, 278, 288
+  expect_identical(unname(fills[c("33", "264", "278", "288")]),
+                   unname(.tol_muted[c("rose", "indigo", "purple", "green")]))
+  expect_identical(levels(p$data$length_aa), c("20", "33", "34", "264", "278", "288"))
+  expect_identical(p$scales$get_scales("fill")$name, "Length (aa)")
+})
+
+test_that("plot.tales() labels termini with their code's short name", {
+  p <- suppressWarnings(plot(colour_fixture(), facet_by = NULL))
+  d <- p$data
+  expect_identical(unique(d$label[d$domain_type == "N-terminus"]), "N-")
+  expect_identical(unique(d$label[d$domain_type == "C-terminus"]), "-C")
+  expect_identical(d$label[d$domain_type == "repeat"], d$rvd[d$domain_type == "repeat"])
+})
+
+test_that("plot.tales() returns the plot visibly", {
+  # it used to print the plot itself and return it invisibly, so a
+  # composition built from it was drawn several times (ledger §49)
+  res <- withVisible(suppressWarnings(plot(colour_fixture(), facet_by = NULL)))
+  expect_true(res$visible)
+  expect_s3_class(res$value, "ggplot")
 })
 
 test_that("plot.tales() writes dark text on light fills", {
-  p <- plot(colour_fixture(), facet_by = NULL)
+  p <- suppressWarnings(plot(colour_fixture(), facet_by = NULL))
   d <- p$data
   expect_true(all(d$label_colour[d$colour == .tol_muted[["sand"]]] == "black"))
 })

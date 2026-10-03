@@ -67,7 +67,11 @@ bai3_sample
 
 Each terminal region is searched with the profile HMM of the TALE N- or
 C-terminal domain, and marked `NTERM` or `CTERM` when it matches (`XXXXX`
-otherwise). On a whole genome, the same object comes from two calls
+otherwise). A match shows that the region is related to a TALE terminus.
+A shorter terminus that matches is coded the same way, although it has
+probably lost part of its function (see
+[Genuine truncTALEs](trunctale_correction.html#sec-two-trunctales)).
+On a whole genome, the same object comes from two calls
 (not run here, as `predict` takes a couple of minutes per genome):
 
 ```{r annotale_genome, eval = FALSE}
@@ -297,7 +301,6 @@ changed:
 ```{r plot-raw-vs-corrected}
 #| fig-width: 14
 #| fig-height: 6
-#| fig-keep: last
 (plot(bai311_raw) + labs(title = "bai311_raw")) /
   (plot(bai311_corr) + labs(title = "bai311_corr")) +
   patchwork::plot_layout(nrow = 2, guides = "collect")
@@ -366,7 +369,6 @@ Compared with the correction made inside `tell_tales()`:
 ```{r plot-java-vs-corrected}
 #| fig-width: 14
 #| fig-height: 6
-#| fig-keep: last
 (plot(bai311_java) + labs(title = "bai311_java")) /
   (plot(bai311_corr) + labs(title = "bai311_corr")) +
   patchwork::plot_layout(nrow = 2, guides = "collect")
@@ -382,8 +384,10 @@ TALEs, against
 `r n_distinct(bai311_java$array_id) - n_distinct(tales_anomalies(bai311_java)$array_id)`
 of `r n_distinct(bai311_java$array_id)` after `correct_tales()`. It is
 also about as fast: on the machine that built this page it took
-`r round(t_corr[["elapsed"]])` seconds, and `correct_tales()` followed by
-an uncorrected `tell_tales()` run took `r round(t_java[["elapsed"]])`.
+`r round(t_corr[["elapsed"]])` seconds. The Java route needs two steps,
+`correct_tales()` and then the `tell_tales()` run that finds the arrays
+in the corrected genome, and together they took
+`r round(t_java[["elapsed"]])` seconds.
 One genome is a small sample, however. `correct_tales()` repairs the
 whole genome in one pass, and the corrected genome can serve other
 analyses as well. On a new, error-prone assembly, running both routes

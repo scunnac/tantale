@@ -153,13 +153,30 @@
 <span><span class="co">#&gt; # ℹ 3 variables: array_id &lt;chr&gt;, check &lt;chr&gt;, detail &lt;chr&gt;</span></span></code></pre></div>
 </details>
 </div>
-<p>That absence is informative. <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> looks for <em>impossible</em> structure: missing sequence data, coordinate disagreements, termini arrangements that cannot be real. It reports nothing for either array here: both are short, coherent proteins.</p>
+<p>Both arrays have the structure of a standard TALE as <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> defines it: an N-terminus, repeats and a C-terminus, each terminus matching the protein profile of its TALE domain. <code>array_report.tsv</code> holds the evidence for the termini:</p>
+<div class="cell">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_tsv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">pxo86_raw_dir</span>, <span class="st">"array_report.tsv"</span><span class="op">)</span>,</span>
+<span>                show_col_types <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">array_id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ROI_00001"</span>, <span class="st">"ROI_00019"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">array_id</span>, <span class="va">nterm_aa_evalue</span>, <span class="va">nterm_aa_profile_gap</span>,</span>
+<span>         <span class="va">cterm_aa_evalue</span>, <span class="va">cterm_aa_profile_gap</span>, <span class="va">rvd_string</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 2 × 6</span></span>
+<span><span class="co">#&gt;   array_id  nterm_aa_evalue nterm_aa_profile_gap cterm_aa_evalue</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;               &lt;dbl&gt;                &lt;dbl&gt;           &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 ROI_00019       2.40e-129                    0       5.90e- 18</span></span>
+<span><span class="co">#&gt; 2 ROI_00001       2.40e-129                    0       7.4 e-123</span></span>
+<span><span class="co">#&gt; # ℹ 2 more variables: cterm_aa_profile_gap &lt;dbl&gt;, rvd_string &lt;chr&gt;</span></span></code></pre></div>
+</details>
+</div>
+<p>A terminus is coded <code>NTERM</code> or <code>CTERM</code> when it matches its profile, from the end next to the repeats, whatever its length. Here each short terminus matches over nearly its whole length. The two 230-aa N-termini align with the N-terminal profile everywhere except profile positions 106-150, an internal deletion of about 45 residues. The 183-aa C-terminus of <code>ROI_00001</code> aligns over its full length with profile positions 1-183, and the 42-aa C-terminus of <code>ROI_00019</code> aligns with positions 1-37 over its first 37 residues. These C-termini lack the far end of the profile, 96 and 242 positions respectively. The segments are related to the canonical TALE termini, and the codes record that relatedness.</p>
+<p>Their molecular function is another matter. A terminus shorter than the canonical one has probably lost functional regions. The C-terminal region of a TALE carries the nuclear localisation signals and, at its far end, the acidic activation domain that recruits the host’s transcription machinery: both C-termini here stop well before it, consistent with the loss of the activation domain that Ji et al. and Read et al. report for truncTALEs. The N-terminal region carries the type III secretion signal and, next to the repeats, the degenerate repeats that bind the thymine preceding the target; which function, if any, the 45-residue deletion affects is not something sequence alone can settle. <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> checks structure, so the length of the terminus parts, as in the table above, is how such arrays are found.</p>
 </section><section class="section level2" data-number="2"><h2 data-number="2" id="sec-mechanism">
 <span class="header-section-number">2</span> Not the same kind of short<a class="anchor" aria-label="anchor" href="#sec-mechanism"></a>
 </h2>
 <p><code>array_report.tsv</code>’s <code>cterm_dna_hit</code> column already distinguishes the two arrays, and the reason is worth tracing back to discovery:</p>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pxo86_report</span> <span class="op">&lt;-</span> <span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_tsv</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">pxo86_raw_dir</span>, <span class="st">"array_report.tsv"</span><span class="op">)</span>, show_col_types <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
@@ -175,7 +192,7 @@
 </div>
 <p><code><a href="../reference/tell_tales.html">tell_tales()</a></code> finds TALE loci with three separate profile HMMs (one each for the N-terminus, the repeat unit, and the C-terminus), and <code>nterm_dna_hit</code> and <code>cterm_dna_hit</code> record whether the N- and C-terminus profiles matched somewhere in an array’s merged hits, independently of how the final protein turns out. <code>hits_report.tsv</code>, one of the three reports <code><a href="../reference/tell_tales.html">tell_tales()</a></code> always writes (the other two are <code>domains_report.tsv</code> and <code>array_report.tsv</code> itself), carries every individual hit with its profile name and <code>frameshift_count</code>, and shows exactly what happened downstream of each array’s last complete repeat:</p>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">hits</span> <span class="op">&lt;-</span> <span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_tsv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">pxo86_raw_dir</span>, <span class="st">"hits_report.tsv"</span><span class="op">)</span>, show_col_types <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">hits</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
@@ -203,12 +220,12 @@
 <a class="anchor" aria-label="anchor" href="#correct_array-true"></a>
 </h3>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pxo86_decipher_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out</span>, <span class="st">"PXO86_decipher"</span><span class="op">)</span></span></code></pre></div>
 </details>
 </div>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="fu"><a href="../reference/tell_tales.html">tell_tales</a></span><span class="op">(</span></span>
 <span>  subject_file <span class="op">=</span> <span class="va">pxo86_fa</span>, output_dir <span class="op">=</span> <span class="va">pxo86_decipher_dir</span>,</span>
 <span>  correct_array <span class="op">=</span> <span class="cn">TRUE</span>, max_comparisons <span class="op">=</span> <span class="fl">20</span></span>
@@ -216,14 +233,14 @@
 <span><span class="co">#&gt; Finding the closest reference amino acid sequences:</span></span>
 <span><span class="co">#&gt; ================================================================================</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Time difference of 5.71 secs</span></span>
+<span><span class="co">#&gt; Time difference of 6.26 secs</span></span>
 <span><span class="co">#&gt; ================================================================================</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Time difference of 34.05 secs</span></span></code></pre></div>
+<span><span class="co">#&gt; Time difference of 36.13 secs</span></span></code></pre></div>
 </details>
 </div>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">decipher_report</span> <span class="op">&lt;-</span> <span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_tsv</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">pxo86_decipher_dir</span>, <span class="st">"array_report.tsv"</span><span class="op">)</span>, show_col_types <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
@@ -276,12 +293,12 @@
 <a class="anchor" aria-label="anchor" href="#correct_tales"></a>
 </h3>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pxo86_java_fa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out</span>, <span class="st">"PXO86_java_corrected.fa"</span><span class="op">)</span></span></code></pre></div>
 </details>
 </div>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">corrections</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/correct_tales.html">correct_tales</a></span><span class="op">(</span></span>
 <span>  uncorrected_path <span class="op">=</span> <span class="va">pxo86_fa</span>, corrected_path <span class="op">=</span> <span class="va">pxo86_java_fa</span>,</span>
 <span>  return_corrections <span class="op">=</span> <span class="cn">TRUE</span></span>
@@ -290,7 +307,7 @@
 </div>
 <p>Genome-wide, <code><a href="../reference/correct_tales.html">correct_tales()</a></code> needed only 1 correction:</p>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">corrections</span></span>
 <span><span class="co">#&gt; # A tibble: 1 × 4</span></span>
 <span><span class="co">#&gt;   seqName     posInOriginSeq type      substitution</span></span>
@@ -299,12 +316,12 @@
 </details>
 </div>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pxo86_java_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out</span>, <span class="st">"PXO86_java_tell"</span><span class="op">)</span></span></code></pre></div>
 </details>
 </div>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="fu"><a href="../reference/tell_tales.html">tell_tales</a></span><span class="op">(</span></span>
 <span>  subject_file <span class="op">=</span> <span class="va">pxo86_java_fa</span>, output_dir <span class="op">=</span> <span class="va">pxo86_java_dir</span>, correct_array <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span><span class="op">)</span></span>

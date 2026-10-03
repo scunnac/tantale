@@ -208,15 +208,11 @@ from 1.0.0 on it needs a lifecycle deprecation (START HERE item 8).
   the RVD strings itself; (b) leave it, the data frame keeps it usable on
   tables from other tools; (c) as (a), and ask whether `talvez()` and
   `preditale()` should stay exported next to `tales_predict_targets()`.
-- **In trial (§42): the terminus check has no
-  minimum coverage.** A terminus counts as `NTERM`/`CTERM` whenever its
-  best `hmmsearch` match has E <= `terminus_max_evalue`, however little of
-  the profile it covers. Example: BAI3-1-1 raw `ROI_00001`, 247-aa
-  N-terminus matching profile positions 103-150 only (E = 4e-22), coded
-  `NTERM`. Genuine truncated termini also cover part of the profile (the
-  PXO86 truncTALE's 42-aa C-terminus: positions 1-37), so a coverage rule
-  would need to say which end of the profile must be covered (the end
-  adjacent to the repeats) (§35).
+- **DONE (§42, §49): the terminus check's coverage.** The match must
+  reach the profile end next to the repeats (§42). No rule on the far
+  end (maintainer, 2026-10-04, Q63): a short terminus that matches stays
+  `NTERM`/`CTERM`, and the docs explain that its function is probably
+  impaired (`?tales_anchor_codes`, `trunctale_correction.qmd`).
 - **A beta of 1.0.0** (decided 2026-10-02, §43: yes, as a release
   candidate when the repository goes public or the rOpenSci submission is
   made): number it **0.99.0** (then 0.99.1, ...).
@@ -265,7 +261,7 @@ from 1.0.0 on it needs a lifecycle deprecation (START HERE item 8).
   excerpt that does not exist in the genome; the fixture
   `dev/fixtures/pxo86_roi18_19_excerpt.fa` reproduces it in under a
   minute (§25). Did not reproduce on the full genome.
-- Which corrected BAI3-1-1 object the article cache should build on (§25b).
+- **Settled (§49):** the article cache builds BAI3-1-1 at `max_comparisons = 50`, now the default (§25b).
 - Validate the 136-sequence correction reference against the 494 one
   (maintainer's own, §8.1b).
 - Each toy region yields a spurious single-hit array at its 3' end,
@@ -2826,3 +2822,35 @@ positions left unmatched at the end away from the repeats (N-terminus:
   measure lives in a `tales` object (a new column on the terminus rows?),
   its name next to the existing `*_aa_profile_gap`, and the consequence
   that `sanitize = TRUE` would drop truncTALEs.
+
+Maintainer, 2026-10-04: Q62 option c, Q63 "nothing to build, explain it",
+Q66 yes. Done the same night:
+- **Q62c.** `plot.tales()` fills by length alone ("Length (aa)", levels in
+  numeric order), one colour per length whatever the part: 34 aa sand,
+  20 aa cyan, the other lengths in increasing order from the remaining Tol
+  muted colours (rose, indigo, purple, green, olive, wine, teal) then Tol
+  light, recycled past 17. Outline legend in the order N-terminus,
+  repeat, C-terminus. The §46 role colours (wine/teal shades for termini)
+  are gone. The maintainer's terminus labels (`N-`, `-C`, `??`) kept,
+  computed with `match()` instead of `rowwise()`. Two patchworked plots
+  still show two fill legends when their length sets differ.
+- **Q66.** `plot.tales()` returns the ggplot visibly and no longer prints
+  it; `fig-keep: last` removed from `tale_mining.qmd`. `plot.tales_msa()`
+  left as it is: it prints a patchwork copy so that the legend of an
+  aplot composition goes to the bottom, and returns the aplot for its
+  `$plotlist` API; changing it changes the class returned.
+- **Q63.** Raw PXO86 (the truncTALE article's run), `hmmsearch` domains:
+  both 230-aa N-termini match profile 1-105 and 151-288 over residues
+  1-105 and 108-230 (an internal deletion of ~45 positions);
+  `ROI_00001`'s 183-aa C-terminus matches profile 1-183 over its whole
+  length; `ROI_00019`'s 42-aa C-terminus matches 1-37 over residues 1-37.
+  The 216-aa C-terminus the maintainer mentioned is `ROI_00001` after
+  `correct_array = TRUE`: there only its first 120 residues match
+  (profile 1-120). Explained in `?tales_anchor_codes` (codes record
+  relatedness; a short matching terminus has probably lost functional
+  regions: T3S signal and degenerate repeats in the N-terminal region,
+  NLSs and the activation domain in the C-terminal one), a pointer in
+  `?tell_tales` (`terminus_max_evalue`), `trunctale_correction.qmd` §2
+  (its "impossible structure" paragraph, stale since §38, rewritten
+  around these numbers) and one sentence in `tale_mining.qmd` linking to
+  it.

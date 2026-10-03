@@ -63,7 +63,10 @@ Genuine termini truncated to about 40 residues still match with E-values
 below 1e-18. The match must also reach, within 10 positions, the end of
 the profile that adjoins the repeats: a terminus whose repeat-side part
 is in another reading frame after a frameshift matches only up to the
-frameshift, and is coded \code{XXXXX}.}
+frameshift, and is coded \code{XXXXX}. A terminus shorter than the
+canonical one that matches is coded \code{NTERM}/\code{CTERM}, though
+it has probably lost part of its function; see
+\code{\link{tales_anchor_codes}}.}
 
 \item{min_dna_hits}{Minimum number of nhmmer hits for a subject
 sequence (a contig, a chromosome) to be considered further. A cheap way

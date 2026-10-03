@@ -78,7 +78,10 @@ tell_tales(
   E-values below 1e-18. The match must also reach, within 10 positions,
   the end of the profile that adjoins the repeats: a terminus whose
   repeat-side part is in another reading frame after a frameshift
-  matches only up to the frameshift, and is coded `XXXXX`.
+  matches only up to the frameshift, and is coded `XXXXX`. A terminus
+  shorter than the canonical one that matches is coded `NTERM`/`CTERM`,
+  though it has probably lost part of its function; see
+  [`tales_anchor_codes`](https://scunnac.github.io/tantale/reference/tales_anchor_codes.md).
 
 - min_dna_hits:
 
@@ -412,13 +415,13 @@ tell_tales(subject_file = subj, output_dir = out)
 #> Now running AnnoTALE analyze for ROI_00004
 #> #****************************************
 #> #**   tell_tales analysis done     **
-#> Current date:    Sat Oct  3 23:37:26 2026
+#> Current date:    Sun Oct  4 00:11:11 2026
 #> #_________Provided I/O parameters __________
 #> File of subject DNA sequences:   /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/bai3_sample_tal_genomic_regions.fasta
 #> TALE N-term CDS region detection HMM file:   /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Nterm_CDS_profile.hmm
 #> TALE repeat unit CDS detection HMM file: /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_repeat_CDS_profile.hmm
 #> TALE C-term CDS region detection HMM file:   /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Cterm_CDS_profile.hmm
-#> Output directory:    /tmp/RtmpJ7zSTS/tell_tales_examplef03d6161aa725
+#> Output directory:    /tmp/RtmpzGvqds/tell_tales_examplefa4aa3545ea9c
 #> #____________Other parameters________________
 #> nterm_min_score: 300
 #> repeat_min_score:    20

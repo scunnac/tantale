@@ -17,13 +17,13 @@ around the double helix, with the RVD residues lining the major
 groove](crd_dna.png)
 
 PthXo1, a TALE of *Xanthomonas oryzae* pv. *oryzae*, bound to its DNA
-target, seen from the side (left) and down the DNA axis from the
-N-terminal end (right). Each repeat (alternately sand and olive) is a
-pair of helices joined by a loop that carries the RVD (indigo spheres).
-The repeats wind around the DNA in a right-handed superhelix that
-follows the major groove, one repeat per base pair, so that each RVD
-loop reaches into the groove next to the base it specifies. The
-N-terminal region is in wine. Crystal structure
+target in the *OsSWEET11* promoter, seen from the side (left) and down
+the DNA axis from the N-terminal end (right). Each repeat (alternately
+sand and olive) is a pair of helices joined by a loop that carries the
+RVD (indigo spheres). The repeats wind around the DNA in a right-handed
+superhelix that follows the major groove, one repeat per base pair, so
+that each RVD loop reaches into the groove next to the base it
+specifies. The N-terminal region is in wine. Crystal structure
 [3UGM](https://www.rcsb.org/structure/3UGM) ([Mak et
 al. 2012](https://doi.org/10.1126/science.1216211)), drawn with PyMOL by
 [`pkgdown/crd_figure.py`](https://github.com/scunnac/tantale/blob/main/pkgdown/crd_figure.py).
@@ -96,13 +96,9 @@ with upstream sources, in
 
 The authors used large language models (Claude, Anthropic – including
 Claude Sonnet 5) to assist with code development, debugging, and
-documentation writing throughout this package. Where LLM assistance
-extends to a manuscript describing this work, it is limited to the
-copy-editing stage; the manuscript itself is written entirely by the
-authors. Any figures are prepared by the authors, with LLMs used only to
-help write the scripts that generate them. The authors affirm that they
-are fully responsible for the content of the codebase, its
-documentation, and any accompanying manuscript.
+documentation writing throughout this package. The authors affirm that
+they are fully responsible for the content of the codebase and its
+documentation.
 
 # Package index
 

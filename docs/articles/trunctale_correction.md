@@ -129,11 +129,54 @@ tales_anomalies(pxo86)
 #> # ℹ 3 variables: array_id <chr>, check <chr>, detail <chr>
 ```
 
-That absence is informative.
+Both arrays have the structure of a standard TALE as
 [`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
-looks for *impossible* structure: missing sequence data, coordinate
-disagreements, termini arrangements that cannot be real. It reports
-nothing for either array here: both are short, coherent proteins.
+defines it: an N-terminus, repeats and a C-terminus, each terminus
+matching the protein profile of its TALE domain. `array_report.tsv`
+holds the evidence for the termini:
+
+Code
+
+``` r
+readr::read_tsv(file.path(pxo86_raw_dir, "array_report.tsv"),
+                show_col_types = FALSE) %>%
+  filter(array_id %in% c("ROI_00001", "ROI_00019")) %>%
+  select(array_id, nterm_aa_evalue, nterm_aa_profile_gap,
+         cterm_aa_evalue, cterm_aa_profile_gap, rvd_string)
+#> # A tibble: 2 × 6
+#>   array_id  nterm_aa_evalue nterm_aa_profile_gap cterm_aa_evalue
+#>   <chr>               <dbl>                <dbl>           <dbl>
+#> 1 ROI_00019       2.40e-129                    0       5.90e- 18
+#> 2 ROI_00001       2.40e-129                    0       7.4 e-123
+#> # ℹ 2 more variables: cterm_aa_profile_gap <dbl>, rvd_string <chr>
+```
+
+A terminus is coded `NTERM` or `CTERM` when it matches its profile, from
+the end next to the repeats, whatever its length. Here each short
+terminus matches over nearly its whole length. The two 230-aa N-termini
+align with the N-terminal profile everywhere except profile positions
+106-150, an internal deletion of about 45 residues. The 183-aa
+C-terminus of `ROI_00001` aligns over its full length with profile
+positions 1-183, and the 42-aa C-terminus of `ROI_00019` aligns with
+positions 1-37 over its first 37 residues. These C-termini lack the far
+end of the profile, 96 and 242 positions respectively. The segments are
+related to the canonical TALE termini, and the codes record that
+relatedness.
+
+Their molecular function is another matter. A terminus shorter than the
+canonical one has probably lost functional regions. The C-terminal
+region of a TALE carries the nuclear localisation signals and, at its
+far end, the acidic activation domain that recruits the host’s
+transcription machinery: both C-termini here stop well before it,
+consistent with the loss of the activation domain that Ji et al. and
+Read et al. report for truncTALEs. The N-terminal region carries the
+type III secretion signal and, next to the repeats, the degenerate
+repeats that bind the thymine preceding the target; which function, if
+any, the 45-residue deletion affects is not something sequence alone can
+settle.
+[`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
+checks structure, so the length of the terminus parts, as in the table
+above, is how such arrays are found.
 
 ## 2 Not the same kind of short
 
@@ -223,10 +266,10 @@ invisible(tell_tales(
 #> Finding the closest reference amino acid sequences:
 #> ================================================================================
 #> 
-#> Time difference of 5.71 secs
+#> Time difference of 6.26 secs
 #> ================================================================================
 #> 
-#> Time difference of 34.05 secs
+#> Time difference of 36.13 secs
 ```
 
 Code

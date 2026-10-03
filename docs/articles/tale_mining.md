@@ -74,8 +74,12 @@ bai3_sample
 
 Each terminal region is searched with the profile HMM of the TALE N- or
 C-terminal domain, and marked `NTERM` or `CTERM` when it matches
-(`XXXXX` otherwise). On a whole genome, the same object comes from two
-calls (not run here, as `predict` takes a couple of minutes per genome):
+(`XXXXX` otherwise). A match shows that the region is related to a TALE
+terminus. A shorter terminus that matches is coded the same way,
+although it has probably lost part of its function (see [Genuine
+truncTALEs](https://scunnac.github.io/tantale/articles/trunctale_correction.html#sec-two-trunctales)).
+On a whole genome, the same object comes from two calls (not run here,
+as `predict` takes a couple of minutes per genome):
 
 Code
 
@@ -537,12 +541,13 @@ On this genome, correction inside
 gives the better result: 8 of 8 arrays come out as standard TALEs,
 against 6 of 8 after
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md).
-It is also about as fast: on the machine that built this page it took 61
-seconds, and
+It is also about as fast: on the machine that built this page it took 54
+seconds. The Java route needs two steps,
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
-followed by an uncorrected
+and then the
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
-run took 40. One genome is a small sample, however.
+run that finds the arrays in the corrected genome, and together they
+took 42 seconds. One genome is a small sample, however.
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
 repairs the whole genome in one pass, and the corrected genome can serve
 other analyses as well. On a new, error-prone assembly, running both

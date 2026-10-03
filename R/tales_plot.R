@@ -20,17 +20,20 @@
 #' @description
 #' A compact, information-rich view of the arrays in a \code{tales} object: one
 #' point per part, positioned by its place in the array, outlined by domain
-#' type and filled by part type and amino-acid length, with the RVD printed on
-#' each repeat. Arrays are listed from the top in alphabetical order of
-#' \code{array_id}, compared byte by byte as in every projection of a
-#' \code{tales} object, so the order does not depend on the locale.
+#' type and filled by amino-acid length. Each repeat carries its RVD, each
+#' terminus the short name of its code (\code{N-}, \code{-C}, or \code{??}
+#' for a terminus that does not match its TALE domain profile; see
+#' \code{\link{tales_anchor_codes}}). Arrays are listed from the top in
+#' alphabetical order of \code{array_id}, compared byte by byte as in every
+#' projection of a \code{tales} object, so the order does not depend on the
+#' locale.
 #'
-#' The fill colours follow the role of each part. The canonical 34-aa repeat
-#' and the 20-aa half-repeat that ends every array get calm colours, so a
-#' repeat of any other length (an aberrant repeat, for instance) stands out.
-#' N-termini are shades of wine and C-termini shades of teal, lighter when
-#' shorter, which makes a truncated terminus visible. All colours are chosen
-#' to stay distinct for colour-blind readers.
+#' Each length gets one colour, whatever the part. The canonical 34-aa repeat
+#' and the 20-aa half-repeat that ends every array always get calm colours
+#' (sand and pale blue), so a repeat of any other length (an aberrant repeat,
+#' for instance) stands out. The other lengths take strong colours in
+#' increasing order of length, from Paul Tol's schemes, which stay distinct
+#' for colour-blind readers; past 17 distinct lengths the colours repeat.
 #'
 #' A \code{\link{tales_msa}} dispatches to \code{\link{plot.tales_msa}}
 #' instead, being the more specific class.
@@ -54,8 +57,9 @@
 #'   \code{NULL} draws a single panel, as does the default when \code{x}
 #'   has no \code{seqnames} column.
 #' @param ... Unused, present for compatibility with the \code{plot} generic.
-#' @return The ggplot object, returned invisibly after being printed as a
-#'   side effect.
+#' @return A ggplot object. Like any ggplot, it is drawn when printed, which
+#'   happens automatically at the console; inside a loop or a function, call
+#'   \code{print()} on it.
 #' @method plot tales
 #' @export
 #' @family TALE plots
@@ -95,42 +99,30 @@ plot.tales <- function(x, position = c("array", "alignment"), facet_by = "seqnam
       class = c("tantale_error_projection_column", "tantale_error")
     )
   }
+  anchors <- tales_anchor_codes()
   partsForPlots <- x %>%
-    dplyr::mutate(label = dplyr::if_else(domain_type == "repeat", rvd, ""),
-                  aa_length = nchar(aa_seq),
-                  .x = if (identical(position, "alignment")) .data$alignment_position
-                  else .data$position_in_array) %>%
-    dplyr::rowwise() %>%
-    dplyr::mutate(label = if (rvd %in% tales_anchor_codes())
-      names(tales_anchor_codes()[tales_anchor_codes() %in% rvd]) else label
-      ) %>%
-    dplyr::ungroup()
-  
-  # One colour per part type and length, by biological role (ledger §46): the
-  # canonical 34-aa repeat and the final 20-aa half-repeat get calm colours,
-  # any other repeat length a strong one; termini are shades of wine (N) and
-  # teal (C), lighter when shorter, so a truncated terminus stands out.
-  shades <- function(n, light, base) {
-    if (n == 1L) base else grDevices::colorRampPalette(c(light, base))(n)
-  }
-  odd <- unname(.tol_muted[c("rose", "indigo", "purple", "green", "olive")])
-  partColours <- partsForPlots %>%
-    dplyr::distinct(domain_type, aa_length) %>%
-    dplyr::mutate(domain_type = factor(domain_type, TALES_DOMAIN_TYPES)) %>%
-    dplyr::arrange(domain_type, aa_length) %>%
-    dplyr::group_by(domain_type) %>%
-    dplyr::mutate(colour = dplyr::case_when(
-      domain_type == "N-terminus" ~ shades(dplyr::n(), "#E3B3C6", .tol_muted[["wine"]]),
-      domain_type == "C-terminus" ~ shades(dplyr::n(), "#BFE3DC", .tol_muted[["teal"]]),
-      aa_length == 34L ~ .tol_muted[["sand"]],
-      aa_length == 20L ~ .tol_muted[["cyan"]],
-      TRUE ~ odd[(cumsum(!aa_length %in% c(20L, 34L)) - 1L) %% length(odd) + 1L])) %>%
-    dplyr::ungroup() %>%
-    dplyr::mutate(part = sprintf("%s, %d aa", domain_type, aa_length),
-                  domain_type = as.character(domain_type))
+    dplyr::mutate(
+      # repeats show their RVD, termini their code's short name (N-, -C, ??)
+      label = dplyr::coalesce(names(anchors)[match(rvd, anchors)],
+                              dplyr::if_else(domain_type == "repeat", rvd, "")),
+      aa_length = nchar(aa_seq),
+      .x = if (identical(position, "alignment")) .data$alignment_position
+           else .data$position_in_array)
+
+  # One colour per length, whatever the part (ledger §49): the canonical
+  # 34-aa repeat and the final 20-aa half-repeat keep calm colours, the other
+  # lengths take strong ones in increasing order, recycled past 17.
+  lengths <- sort(unique(partsForPlots$aa_length))
+  others <- lengths[!lengths %in% c(20L, 34L)]
+  pool <- c(unname(.tol_muted[c("rose", "indigo", "purple", "green", "olive", "wine", "teal")]),
+            .tol_light)
+  lengthColours <- stats::setNames(character(length(lengths)), lengths)
+  lengthColours[as.character(others)] <- pool[(seq_along(others) - 1L) %% length(pool) + 1L]
+  lengthColours[names(lengthColours) == "34"] <- .tol_muted[["sand"]]
+  lengthColours[names(lengthColours) == "20"] <- .tol_muted[["cyan"]]
   partsForPlots <- partsForPlots %>%
-    dplyr::left_join(partColours, by = c("domain_type", "aa_length")) %>%
-    dplyr::mutate(part = factor(part, partColours$part),
+    dplyr::mutate(length_aa = factor(aa_length, lengths),
+                  colour = unname(lengthColours[as.character(aa_length)]),
                   label_colour = .text_colour_on(colour),
                   # byte order (ledger §40), first array at the top: a
                   # discrete y axis puts its first level at the bottom
@@ -138,17 +130,17 @@ plot.tales <- function(x, position = c("array", "alignment"), facet_by = "seqnam
                                     levels = rev(levels(.array_factor(array_id)))))
 
   p <- partsForPlots %>%
-    ggplot2::ggplot(mapping = ggplot2::aes(fill = part,
+    ggplot2::ggplot(mapping = ggplot2::aes(fill = length_aa,
                                            color = domain_type,
                                            label = label,
                                            y = array_id,
                                            x = .x)) +
     ggplot2::scale_color_manual(name = "Domain type",
+                                breaks = TALES_DOMAIN_TYPES,
                                 values = c("N-terminus" = .tol_muted[["wine"]],
                                            "repeat" = "#BBBBBB",
                                            "C-terminus" = .tol_muted[["indigo"]])) +
-    ggplot2::scale_fill_manual(name = "Part and length",
-                               values = stats::setNames(partColours$colour, partColours$part)) +
+    ggplot2::scale_fill_manual(name = "Length (aa)", values = lengthColours) +
     ggplot2::scale_x_continuous(
       name = if (identical(position, "alignment")) "Position in alignment" else "Position in array",
       breaks = 1:100, minor_breaks = NULL) +
@@ -166,8 +158,7 @@ plot.tales <- function(x, position = c("array", "alignment"), facet_by = "seqnam
                                  scales = "free_y", space = "free")
   }
   
-  print(p)
-  invisible(p)
+  p
 }
 
 

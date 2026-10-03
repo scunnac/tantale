@@ -240,8 +240,8 @@ tales_anomalies(x_odd)
 #> # A tibble: 3 × 3
 #>   array_id check               detail                      
 #>   <chr>    <chr>               <chr>                       
-#> 1 a1       terminus_duplicated more than one N-terminus    
-#> 2 a1       terminus_absent     no C-terminus               
+#> 1 a1       terminus_absent     no C-terminus               
+#> 2 a1       terminus_duplicated more than one N-terminus    
 #> 3 a1       terminus_misplaced  N-terminus not at position 1
 ```
 
@@ -254,7 +254,7 @@ Code
 tales(odd, sanitize = TRUE)
 #> Warning: Dropped 1 array with biological anomalies.
 #> ✖ Array: "a1"
-#> ℹ Reasons: terminus_duplicated, terminus_absent, and terminus_misplaced
+#> ℹ Reasons: terminus_absent, terminus_duplicated, and terminus_misplaced
 #> <tales> 1 array, 3 parts
 #>   layers: rvd   |   1 other column
 #>       rvd
@@ -537,7 +537,7 @@ Code
 
 ``` r
 xa %>% mutate(position_in_array = 1L)
-#> Error in `.tales_check_key()` at tantale/R/tales_class.R:862:3:
+#> Error in `.tales_check_key()` at tantale/R/tales_class.R:878:3:
 #> ! array_id and position_in_array must together be unique.
 #> ✖ 92 duplicated rows in 4 arrays: "ROI_00001", "ROI_00002", "ROI_00003", and
 #>   "ROI_00004"

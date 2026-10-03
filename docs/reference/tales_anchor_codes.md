@@ -29,6 +29,19 @@ repeat-side part a frameshift has put in another reading frame. An array
 for which AnnoTALE reported no segment on one side has no terminus part
 on that side.
 
+The codes record sequence relatedness only. A terminus shorter than the
+canonical one is coded `"NTERM"` or `"CTERM"` as long as it matches its
+profile, which it can do over its whole length: an internal deletion, or
+a C-terminus that stops early, still aligns with the part of the profile
+it keeps. Such a terminus has probably lost functional regions. The
+N-terminal region carries the type III secretion signal and, next to the
+repeats, the degenerate repeats that bind the thymine preceding the
+target; the C-terminal region carries the nuclear localisation signals
+and, at its far end, the transcription activation domain. The truncTALEs
+of *Xanthomonas oryzae* have lost the activation domain, and their
+C-termini are coded `"CTERM"`. The length of the terminus parts,
+`nchar(aa_seq)`, is the quickest way to spot such arrays.
+
 These share the `rvd` column with real RVDs, so code that distinguishes
 repeats from termini by value should use this function rather than
 spelling the codes out.

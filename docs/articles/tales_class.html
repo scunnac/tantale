@@ -250,8 +250,8 @@
 <span><span class="co">#&gt; # A tibble: 3 × 3</span></span>
 <span><span class="co">#&gt;   array_id check               detail                      </span></span>
 <span><span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;               &lt;chr&gt;                       </span></span>
-<span><span class="co">#&gt; 1 a1       terminus_duplicated more than one N-terminus    </span></span>
-<span><span class="co">#&gt; 2 a1       terminus_absent     no C-terminus               </span></span>
+<span><span class="co">#&gt; 1 a1       terminus_absent     no C-terminus               </span></span>
+<span><span class="co">#&gt; 2 a1       terminus_duplicated more than one N-terminus    </span></span>
 <span><span class="co">#&gt; 3 a1       terminus_misplaced  N-terminus not at position 1</span></span></code></pre></div>
 </details>
 </div>
@@ -261,7 +261,7 @@
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/tales.html">tales</a></span><span class="op">(</span><span class="va">odd</span>, sanitize <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: Dropped 1 array with biological anomalies.</span></span>
 <span><span class="co">#&gt; ✖ Array: "a1"</span></span>
-<span><span class="co">#&gt; ℹ Reasons: terminus_duplicated, terminus_absent, and terminus_misplaced</span></span>
+<span><span class="co">#&gt; ℹ Reasons: terminus_absent, terminus_duplicated, and terminus_misplaced</span></span>
 <span><span class="co">#&gt; &lt;tales&gt; 1 array, 3 parts</span></span>
 <span><span class="co">#&gt;   layers: rvd   |   1 other column</span></span>
 <span><span class="co">#&gt;       rvd</span></span>
@@ -430,7 +430,7 @@
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">xa</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span>position_in_array <span class="op">=</span> <span class="fl">1L</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Error in `.tales_check_key()` at tantale/R/tales_class.R:862:3:</span></span>
+<span><span class="co">#&gt; Error in `.tales_check_key()` at tantale/R/tales_class.R:878:3:</span></span>
 <span><span class="co">#&gt; ! array_id and position_in_array must together be unique.</span></span>
 <span><span class="co">#&gt; ✖ 92 duplicated rows in 4 arrays: "ROI_00001", "ROI_00002", "ROI_00003", and</span></span>
 <span><span class="co">#&gt;   "ROI_00004"</span></span></code></pre></div>
