@@ -42,7 +42,13 @@ talomes_heatmap(
 - tale_annotation:
 
   A data frame with one row per TALE and at least a group, a strain and
-  an RVD-sequence column.
+  an RVD-sequence column. Or a
+  [`tales`](https://scunnac.github.io/tantale/reference/tales.md) object
+  carrying group and strain columns, with one value per array (for
+  instance a grouped `tales` to which a strain column was added): the
+  RVD sequences are then computed with
+  [`tales_rvd_strings`](https://scunnac.github.io/tantale/reference/tales_rvd_strings.md),
+  and arrays without repeats are left out.
 
 - group_col:
 
@@ -58,6 +64,7 @@ talomes_heatmap(
 
   Name of the column holding RVD sequences (e.g. from
   [`tales_rvd_strings`](https://scunnac.github.io/tantale/reference/tales_rvd_strings.md)).
+  Not needed when `tale_annotation` is a `tales` object.
 
 - trunc_tales_col:
 
@@ -134,4 +141,13 @@ ann <- data.frame(
 )
 talomes_heatmap(ann, group_col = "group", strain_col = "strain",
                 rvd_col = "rvdseq")
+
+
+# From a tales object: one group and one strain per array
+x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+                                      package = "tantale"))
+x$group <- c(ROI_00001 = 1, ROI_00002 = 1, ROI_00003 = 2, ROI_00004 = 2)[x$array_id]
+x$strain <- c(ROI_00001 = "S1", ROI_00002 = "S2", ROI_00003 = "S1",
+              ROI_00004 = "S2")[x$array_id]
+talomes_heatmap(x, group_col = "group", strain_col = "strain")
 ```

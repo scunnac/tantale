@@ -381,20 +381,10 @@ Figure 2: Hierarchical clustering of the same three-genome comparison, cut at t
 <span class="header-section-number">4</span> An overview across strains: <code>talomes_heatmap()</code>
 <a class="anchor" aria-label="anchor" href="#an-overview-across-strains-talomes_heatmap"></a>
 </h2>
-<p>With arrays assigned to groups, one natural summary is which RVD sequence variant each strain carries in each group. A strain’s <em>talome</em>, by analogy to its genome, is the whole complement of TALEs it carries.</p>
+<p>With arrays assigned to groups, one natural summary is which RVD sequence variant each strain carries in each group. A strain’s <em>talome</em>, by analogy to its genome, is the whole complement of TALEs it carries. <code>grouped</code> already holds a group and a strain for each array, and <code><a href="../reference/talomes_heatmap.html">talomes_heatmap()</a></code> computes the RVD sequences itself.</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">tale_annotation</span> <span class="op">&lt;-</span> <span class="fu">tibble</span><span class="fu">::</span><span class="fu"><a href="https://tibble.tidyverse.org/reference/tibble.html" class="external-link">tibble</a></span><span class="op">(</span></span>
-<span>  array_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="../reference/tales_rvd_strings.html">tales_rvd_strings</a></span><span class="op">(</span><span class="va">grouped</span><span class="op">)</span><span class="op">)</span>,</span>
-<span>  rvdseq <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/character.html" class="external-link">as.character</a></span><span class="op">(</span><span class="fu"><a href="../reference/tales_rvd_strings.html">tales_rvd_strings</a></span><span class="op">(</span><span class="va">grouped</span><span class="op">)</span><span class="op">)</span></span>
-<span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate-joins.html" class="external-link">left_join</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/distinct.html" class="external-link">distinct</a></span><span class="op">(</span><span class="va">grouped</span>, <span class="va">array_id</span>, <span class="va">group</span>, <span class="va">strain</span><span class="op">)</span>, by <span class="op">=</span> <span class="st">"array_id"</span><span class="op">)</span></span></code></pre></div>
-</details>
-</div>
-<div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/talomes_heatmap.html">talomes_heatmap</a></span><span class="op">(</span><span class="va">tale_annotation</span>, group_col <span class="op">=</span> <span class="st">"group"</span>, strain_col <span class="op">=</span> <span class="st">"strain"</span>,</span>
-<span>                rvd_col <span class="op">=</span> <span class="st">"rvdseq"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="fu"><a href="../reference/talomes_heatmap.html">talomes_heatmap</a></span><span class="op">(</span><span class="va">grouped</span>, group_col <span class="op">=</span> <span class="st">"group"</span>, strain_col <span class="op">=</span> <span class="st">"strain"</span><span class="op">)</span></span></code></pre></div>
 </details><div class="cell-output-display">
 <div id="fig-talomes-heatmap" class="quarto-float quarto-figure quarto-figure-center">
 <figure class="quarto-float quarto-float-fig"><div aria-describedby="fig-talomes-heatmap-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
@@ -412,7 +402,7 @@ Figure 3: RVD sequence variant carried by each strain, in each classification g
 </h2>
 <p>Everything above compares TALEs by their <em>sequence</em>, domain by domain, via DisTAL. A TALE’s RVDs also predict, base by base, the DNA sequence it binds, and two arrays can be compared on that prediction directly instead: <code><a href="../reference/tales_to_universalmotif.html">tales_to_universalmotif()</a></code> converts each array’s RVD sequence into a position weight matrix (PWM) of DNA-binding preferences, using the same per-RVD specificity weights <code><a href="../reference/tales_predict_targets.html">tales_predict_targets()</a></code> relies on (<code>rvd_dna_specificity</code>), and <code><a href="../reference/tales_compare_functal.html">tales_compare_functal()</a></code> scores every pair of PWMs with <code><a href="https://rdrr.io/pkg/universalmotif/man/compare_motifs.html" class="external-link">universalmotif::compare_motifs()</a></code>:</p>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">picked_group</span> <span class="op">&lt;-</span> <span class="va">grouped</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">group</span> <span class="op">==</span> <span class="fl">6</span><span class="op">)</span></span>
 <span><span class="va">functal_dissim</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tales_compare_functal.html">tales_compare_functal</a></span><span class="op">(</span><span class="va">picked_group</span><span class="op">)</span></span>
 <span><span class="va">functal_dissim</span></span>
@@ -433,7 +423,7 @@ Figure 3: RVD sequence variant carried by each strain, in each classification g
 <p>BAI3 and BAI3-1-1 (the same genomic background, with <em>talC</em> deleted in the latter) predict the <em>identical</em> binding specificity for this array. MAI1’s version carries the same twelve RVDs followed by four more, and its dissimilarity of 0.25 reflects those four extra positions. This result comes from DNA-binding prediction alone, independently of the DisTAL comparison above, and agrees with it.</p>
 <p>Once arrays are a list of real <code>universalmotif</code> motifs, that package’s own plotting functions apply directly. <code>motif_tree()</code> draws the same kind of relatedness tree as <code><a href="../reference/tales_group_hclust.html">tales_group_hclust()</a></code>, built from binding-specificity distance instead of protein-domain distance:</p>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb19"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">motifs</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tales_to_universalmotif.html">tales_to_universalmotif</a></span><span class="op">(</span><span class="va">picked_group</span><span class="op">)</span></span>
 <span><span class="fu">universalmotif</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/universalmotif/man/motif_tree.html" class="external-link">motif_tree</a></span><span class="op">(</span><span class="va">motifs</span>, layout <span class="op">=</span> <span class="st">"rectangular"</span>, linecol <span class="op">=</span> <span class="st">"none"</span>,</span>
 <span>                           labels <span class="op">=</span> <span class="st">"name"</span>, legend <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op">+</span></span>
@@ -451,7 +441,7 @@ Figure 4: Predicted-binding-specificity relatedness tree for the same three arr
 </div>
 <p><code>view_motifs()</code> renders the PWMs themselves as sequence logos, showing the specificity model behind the distances. MAI1’s four extra positions are visible at the end:</p>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb20"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">universalmotif</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/universalmotif/man/view_motifs.html" class="external-link">view_motifs</a></span><span class="op">(</span><span class="va">motifs</span><span class="op">)</span></span></code></pre></div>
 </details><div class="cell-output-display">
 <div id="fig-functal-logos" class="quarto-float quarto-figure quarto-figure-center">
@@ -570,7 +560,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script><script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","loop":false,"selector":".lightbox","descPosition":"bottom","openEffect":"zoom"});
+</script><script>var lightboxQuarto = GLightbox({"descPosition":"bottom","loop":false,"selector":".lightbox","openEffect":"zoom","closeEffect":"zoom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

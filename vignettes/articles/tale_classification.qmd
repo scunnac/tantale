@@ -231,22 +231,15 @@ invisible(tales_group_hclust(cmp$tales, cmp$tale_distances,
 With arrays assigned to groups, one natural summary is which RVD sequence
 variant each strain carries in each group. A strain's *talome*, by
 analogy to its genome, is the whole complement of TALEs it carries.
-
-```{r talome_annotation}
-tale_annotation <- tibble::tibble(
-  array_id = names(tales_rvd_strings(grouped)),
-  rvdseq = as.character(tales_rvd_strings(grouped))
-) |>
-  left_join(distinct(grouped, array_id, group, strain), by = "array_id")
-```
+`grouped` already holds a group and a strain for each array, and
+`talomes_heatmap()` computes the RVD sequences itself.
 
 ```{r}
 #| label: fig-talomes-heatmap
 #| fig-cap: "RVD sequence variant carried by each strain, in each classification group."
 #| fig-width: 8
 #| fig-height: 6
-talomes_heatmap(tale_annotation, group_col = "group", strain_col = "strain",
-                rvd_col = "rvdseq")
+talomes_heatmap(grouped, group_col = "group", strain_col = "strain")
 ```
 
 Each cell in @fig-talomes-heatmap is one strain's RVD sequence variant in

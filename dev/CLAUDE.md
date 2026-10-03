@@ -243,10 +243,10 @@ before trusting any of it.*
   DNA, PDB 3UGM) drawn by `pkgdown/crd_figure.py` (PyMOL) into
   `pkgdown/assets/` (§47); article colour names fixed after §46; full
   site wiped and rebuilt, prose checked against the new figures. Commits
-  from 9e084ef on are not pushed (maintainer to say). Waiting on the
-  maintainer: whether the caption may name the *OsSWEET11* EBE (§47);
-  the RVD-strings question in START HERE, now surveyed, with a
-  recommendation (`talomes_heatmap()` also takes a grouped `tales`).
+  pushed 2026-10-03. `talomes_heatmap()` now also takes a grouped
+  `tales` (§48), which closed the START HERE question on RVD-string
+  inputs. Still pending: one sentence of the home-page caption naming
+  the target gene (§47).
 - **2026-10-03, second session:** P5 closed (Imports kept, now 40);
   `tales_names()` added (§45); package-wide colour-blind-safe colour
   style, Tol muted in `R/palette.R`, reviewed by the maintainer plot by

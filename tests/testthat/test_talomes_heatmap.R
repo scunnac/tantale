@@ -83,3 +83,45 @@ test_that("an unknown plot_type is an error", {
                                plot_type = "heatmap"),
                "should be one of")
 })
+
+# A tales object with one group and one strain per array; the two arrays of
+# each group carry different RVD sequences.
+talome_tales <- function() {
+  x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+                                        package = "tantale"))
+  per_array <- data.frame(array_id = c("ROI_00001", "ROI_00002", "ROI_00003", "ROI_00004"),
+                          group = c(1, 1, 2, 2), strain = c("S1", "S2", "S1", "S2"))
+  i <- match(x$array_id, per_array$array_id)
+  x$group <- per_array$group[i]
+  x$strain <- per_array$strain[i]
+  x
+}
+
+test_that("a tales object draws the same heatmap as its annotation table", {
+  x <- talome_tales()
+  rvd <- tales_rvd_strings(x)
+  tbl <- unique(data.frame(array_id = x$array_id, group = x$group, strain = x$strain))
+  tbl$rvdseq <- as.character(rvd)[match(tbl$array_id, names(rvd))]
+
+  txt <- drawn_strings(talomes_heatmap(x, "group", "strain"))
+  expect_true(all(c("G1 #2", "G2 #2") %in% txt))
+  expect_true(any(startsWith(txt, "S1 ")) && any(startsWith(txt, "S2 ")))
+  for (type in c("all", "single")) {
+    f_tales <- tempfile(fileext = ".png")
+    f_tbl <- tempfile(fileext = ".png")
+    talomes_heatmap(x, "group", "strain", plot_type = type, save_path = f_tales)
+    talomes_heatmap(tbl, "group", "strain", "rvdseq", plot_type = type,
+                    save_path = f_tbl)
+    expect_identical(unname(tools::md5sum(f_tales)), unname(tools::md5sum(f_tbl)),
+                     info = type)
+  }
+})
+
+test_that("a tales object needs its group and strain columns, one value per array", {
+  x <- talome_tales()
+  expect_error(talomes_heatmap(x, "no_such_group", "strain"),
+               class = "tantale_error_talome_column")
+  x$strain[x$array_id == "ROI_00001"][1] <- "S9"
+  expect_error(talomes_heatmap(x, "group", "strain"),
+               class = "tantale_error_talome_column")
+})

@@ -368,13 +368,19 @@ tales_group_kmedoids <- function(x, tale_distances, k_range = NULL, k = NULL,
 #' by the similarity of their variant profiles.
 #'
 #' @param tale_annotation A data frame with one row per TALE and at least a
-#'   group, a strain and an RVD-sequence column.
+#'   group, a strain and an RVD-sequence column. Or a \code{\link{tales}}
+#'   object carrying group and strain columns, with one value per array (for
+#'   instance a grouped \code{tales} to which a strain column was added):
+#'   the RVD sequences are then computed with
+#'   \code{\link{tales_rvd_strings}}, and arrays without repeats are left
+#'   out.
 #' @param group_col Name of the \code{tale_annotation} column holding TALE
 #'   groups, drawn as columns (e.g. the \code{group} from
 #'   \code{\link{tales_group_kmedoids}}).
 #' @param strain_col Name of the column holding strain names, drawn as rows.
 #' @param rvd_col Name of the column holding RVD sequences (e.g. from
-#'   \code{\link{tales_rvd_strings}}).
+#'   \code{\link{tales_rvd_strings}}). Not needed when
+#'   \code{tale_annotation} is a \code{tales} object.
 #' @param trunc_tales_col Optional name of a logical column marking
 #'   truncated TALEs; those are labelled "T" in their cell (with
 #'   \code{plot_type = "all"}).
@@ -413,12 +419,40 @@ tales_group_kmedoids <- function(x, tale_distances, k_range = NULL, k = NULL,
 #' )
 #' talomes_heatmap(ann, group_col = "group", strain_col = "strain",
 #'                 rvd_col = "rvdseq")
+#'
+#' # From a tales object: one group and one strain per array
+#' x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
+#'                                       package = "tantale"))
+#' x$group <- c(ROI_00001 = 1, ROI_00002 = 1, ROI_00003 = 2, ROI_00004 = 2)[x$array_id]
+#' x$strain <- c(ROI_00001 = "S1", ROI_00002 = "S2", ROI_00003 = "S1",
+#'               ROI_00004 = "S2")[x$array_id]
+#' talomes_heatmap(x, group_col = "group", strain_col = "strain")
 talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, trunc_tales_col = NULL, extra_col = NULL,
                             x_lab = "TALE Group", y_lab = "Strain", title = "RVD sequences variants",
                             plot_type = "all",
                             colors = .tantale_colours$variant_ranks, margins = NULL,
                             sep_width = 5, sep_color = "white", inner_sep_color = "white", save_path = NULL) {
   plot_type <- match.arg(plot_type, c("all", "single"))
+
+  if (is_tales(tale_annotation)) {
+    # one row per array: its RVD string and the per-array columns asked for
+    per_array <- c(group_col, strain_col, trunc_tales_col, extra_col)
+    missing <- setdiff(per_array, names(tale_annotation))
+    if (length(missing) > 0L) {
+      cli::cli_abort("{.arg tale_annotation} has no column{?s} {.field {missing}}.",
+                     class = c("tantale_error_talome_column", "tantale_error"))
+    }
+    arrays <- unique(as.data.frame(tale_annotation)[c("array_id", per_array)])
+    if (anyDuplicated(arrays$array_id)) {
+      cli::cli_abort(c("{.field {per_array}} must hold one value per array.",
+                       "x" = "{.val {arrays$array_id[duplicated(arrays$array_id)][1]}} has several."),
+                     class = c("tantale_error_talome_column", "tantale_error"))
+    }
+    rvd <- tales_rvd_strings(tale_annotation)
+    arrays$rvdseq <- as.character(rvd)[match(arrays$array_id, names(rvd))]
+    tale_annotation <- arrays[!is.na(arrays$rvdseq), ]
+    rvd_col <- "rvdseq"
+  }
 
   ## rename colnames of tale annotation
   colnames(tale_annotation)[which(colnames(tale_annotation) == group_col)] <- "group"

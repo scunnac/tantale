@@ -112,7 +112,12 @@ by the similarity of their variant profiles.</p>
 
 <dl><dt id="arg-tale-annotation">tale_annotation<a class="anchor" aria-label="anchor" href="#arg-tale-annotation"></a></dt>
 <dd><p>A data frame with one row per TALE and at least a
-group, a strain and an RVD-sequence column.</p></dd>
+group, a strain and an RVD-sequence column. Or a <code><a href="tales.html">tales</a></code>
+object carrying group and strain columns, with one value per array (for
+instance a grouped <code>tales</code> to which a strain column was added):
+the RVD sequences are then computed with
+<code><a href="tales_rvd_strings.html">tales_rvd_strings</a></code>, and arrays without repeats are left
+out.</p></dd>
 
 
 <dt id="arg-group-col">group_col<a class="anchor" aria-label="anchor" href="#arg-group-col"></a></dt>
@@ -127,7 +132,8 @@ groups, drawn as columns (e.g. the <code>group</code> from
 
 <dt id="arg-rvd-col">rvd_col<a class="anchor" aria-label="anchor" href="#arg-rvd-col"></a></dt>
 <dd><p>Name of the column holding RVD sequences (e.g. from
-<code><a href="tales_rvd_strings.html">tales_rvd_strings</a></code>).</p></dd>
+<code><a href="tales_rvd_strings.html">tales_rvd_strings</a></code>). Not needed when
+<code>tale_annotation</code> is a <code>tales</code> object.</p></dd>
 
 
 <dt id="arg-trunc-tales-col">trunc_tales_col<a class="anchor" aria-label="anchor" href="#arg-trunc-tales-col"></a></dt>
@@ -209,6 +215,15 @@ heatmap (or, if <code>save_path</code> is given, writing it to a file).</p>
 <span class="r-in"><span><span class="fu">talomes_heatmap</span><span class="op">(</span><span class="va">ann</span>, group_col <span class="op">=</span> <span class="st">"group"</span>, strain_col <span class="op">=</span> <span class="st">"strain"</span>,</span></span>
 <span class="r-in"><span>                rvd_col <span class="op">=</span> <span class="st">"rvdseq"</span><span class="op">)</span></span></span>
 <span class="r-plt img"><img src="talomes_heatmap-1.png" alt="" width="700" height="433"></span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># From a tales object: one group and one strain per array</span></span></span>
+<span class="r-in"><span><span class="va">x</span> <span class="op">&lt;-</span> <span class="fu"><a href="tales_from_telltales.html">tales_from_telltales</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"tellTaleExampleOutput"</span>,</span></span>
+<span class="r-in"><span>                                      package <span class="op">=</span> <span class="st">"tantale"</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">x</span><span class="op">$</span><span class="va">group</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>ROI_00001 <span class="op">=</span> <span class="fl">1</span>, ROI_00002 <span class="op">=</span> <span class="fl">1</span>, ROI_00003 <span class="op">=</span> <span class="fl">2</span>, ROI_00004 <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">[</span><span class="va">x</span><span class="op">$</span><span class="va">array_id</span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="va">x</span><span class="op">$</span><span class="va">strain</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span>ROI_00001 <span class="op">=</span> <span class="st">"S1"</span>, ROI_00002 <span class="op">=</span> <span class="st">"S2"</span>, ROI_00003 <span class="op">=</span> <span class="st">"S1"</span>,</span></span>
+<span class="r-in"><span>              ROI_00004 <span class="op">=</span> <span class="st">"S2"</span><span class="op">)</span><span class="op">[</span><span class="va">x</span><span class="op">$</span><span class="va">array_id</span><span class="op">]</span></span></span>
+<span class="r-in"><span><span class="fu">talomes_heatmap</span><span class="op">(</span><span class="va">x</span>, group_col <span class="op">=</span> <span class="st">"group"</span>, strain_col <span class="op">=</span> <span class="st">"strain"</span><span class="op">)</span></span></span>
+<span class="r-plt img"><img src="talomes_heatmap-2.png" alt="" width="700" height="433"></span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

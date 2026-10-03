@@ -376,22 +376,14 @@ cut at the k tales_group_kmedoids() picked automatically above.
 With arrays assigned to groups, one natural summary is which RVD
 sequence variant each strain carries in each group. A strain’s *talome*,
 by analogy to its genome, is the whole complement of TALEs it carries.
+`grouped` already holds a group and a strain for each array, and
+[`talomes_heatmap()`](https://scunnac.github.io/tantale/reference/talomes_heatmap.md)
+computes the RVD sequences itself.
 
 Code
 
 ``` r
-tale_annotation <- tibble::tibble(
-  array_id = names(tales_rvd_strings(grouped)),
-  rvdseq = as.character(tales_rvd_strings(grouped))
-) |>
-  left_join(distinct(grouped, array_id, group, strain), by = "array_id")
-```
-
-Code
-
-``` r
-talomes_heatmap(tale_annotation, group_col = "group", strain_col = "strain",
-                rvd_col = "rvdseq")
+talomes_heatmap(grouped, group_col = "group", strain_col = "strain")
 ```
 
 [![](tale_classification_files/figure-html/fig-talomes-heatmap-1.png)](https://scunnac.github.io/tantale/articles/tale_classification_files/figure-html/fig-talomes-heatmap-1.png "Figure 3: RVD sequence variant carried by each strain, in each classification group.")

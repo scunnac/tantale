@@ -1,5 +1,14 @@
 # tantale 0.9.9011
 
+## `talomes_heatmap()` takes a `tales` object
+
+`talomes_heatmap()` also accepts a `tales` object that carries a group and
+a strain column, with one value per array, such as the output of
+`tales_group_kmedoids()` or `tales_group_hclust()` once a strain column
+is added. It computes the RVD sequences itself with
+`tales_rvd_strings()`, so `rvd_col` is not needed. A data frame with one
+row per TALE still works as before.
+
 ## Colours readable by everyone
 
 All plots now draw on one colour style, built from Paul Tol's colour

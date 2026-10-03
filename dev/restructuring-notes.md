@@ -187,9 +187,10 @@ from 1.0.0 on it needs a lifecycle deprecation (START HERE item 8).
 - **Moved after 1.0.0 (§43):** §21 option (c) and ARLEM's costs. Both
   can be added without breaking a call.
 - **Distribution channel** and the one-archive plan (§34).
-- **Open question (2026-10-03): should functions that currently consume
+- **DONE 2026-10-03 (§48): should functions that currently consume
   tales strings (e.g. output of `tales_rvd_strings()`) also accept a
   `tales` object directly, calling `tales_rvd_strings()` internally?**
+  Answer: only `talomes_heatmap()` needed it; done.
   Raised by the maintainer. Touches argument signatures and therefore
   cheaper to decide before 1.0.0. Relevant functions to identify: any
   exported function whose first argument is a character vector of RVD
@@ -2674,3 +2675,29 @@ consensus, termini grey in `rvd_sim`; the dendrogram still nine groups,
 26 arrays. The rebuild removed the stale `reference/figures/pipeline.*`
 (nothing links to them) and added `CONTRIBUTING.html` (linked from the
 news page) and the `tales_names()` page.
+
+---
+
+## 48. `talomes_heatmap()` takes a `tales` object (2026-10-03) **[V]**
+
+The maintainer's question above, surveyed over the 51 exports: three
+functions consume RVD strings. `talvez()` and `preditale()` already have
+`tales_predict_targets()` in front of them, which renders a `tales` with
+`tales_rvd_strings()`; the gap was `talomes_heatmap()`, which
+`tale_classification.qmd` fed from a five-line table built by hand.
+Maintainer's answer (2026-10-03): option (a), and leave `talvez()` and
+`preditale()` exported as they are.
+
+Done: `talomes_heatmap()` accepts a `tales` carrying the group and strain
+columns (plus `trunc_tales_col`/`extra_col` if asked for), reduces it to
+one row per array, and computes the RVD strings itself; `rvd_col` is then
+unused. A missing column, or a column with more than one value in an
+array, is a `tantale_error_talome_column` error. Arrays whose RVD string
+is empty are dropped (`tales_rvd_strings()` keeps repeats only).
+
+The data-frame path is untouched. Two tests in
+`test_talomes_heatmap.R`: the `tales` and table inputs write
+byte-identical PNGs in both `plot_type`s, and both error paths. The
+article now calls `talomes_heatmap(grouped, group_col = "group",
+strain_col = "strain")`; its rendered figure is byte-identical to the
+one built from the hand-made table.
