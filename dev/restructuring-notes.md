@@ -3119,6 +3119,55 @@ Description rewritten to present the whole package (discovery, classes,
 alignment, distances, grouping, then the wrappers), program names in
 single quotes as CRAN asks; `tools:::.check_package_description()` clean.
 
+### pkgcheck on ac8c534 (2026-10-04)
+
+pkgcheck 0.3.2, ctags/global from a scratch micromamba prefix, detached
+worktree, 22 min. Passed: name available, contributing file, roxygen2,
+URL/BugReports, HTML vignette, examples for all functions, website,
+ORCIDs, no R CMD check warning, coverage 91.1% (90.7% in §44). Findings:
+- **F1** (error) The golden `tell_tales()` correction test fails: the
+  last fingerprint row (`tell_tales.log`) drops 3 lines instead of 2.
+  Cause, by elimination: `correction_ref` is `test_path(...)`, and
+  pkgcheck's R CMD check runs the tests from a directory under the test
+  session's `tempdir()`, so the tempdir rule drops that log line. §44's
+  P4 fix rewrites only the installation directory (`system.file()`), and
+  was verified by a simulation, not a pkgcheck rerun; the uncorrected
+  golden test, whose inputs all come from `system.file()`, now passes.
+  Proposal: `.telltale_file_digest()` rewrites the tests directory the
+  same way, plus a helper test; verified by a second pkgcheck run.
+- **F2** (fail) No continuous integration: the workflow runs on manual
+  dispatch only (§41) and pkgcheck cannot query a private repository
+  (§44 P7). rOpenSci expects CI on push and pull requests, with a badge.
+- **F3** (note) Hidden `.git`: an artefact of checking a worktree (§44).
+- **F4** (goodpractice) Packages imported whole: `import(Biostrings)`,
+  `import(cli)`, `import(fs)`, `import(magrittr)` in NAMESPACE. Measured
+  with `codetools::findGlobals()` over every package function: no
+  unqualified call to `fs` or `Biostrings` (its `start`/`end` hits are
+  dplyr column names), one bare `cli_inform()`, and `magrittr`'s `%>%`
+  and `%<>%`.
+- **F5** (lintr, 1396 lints) Mostly style: 1100 long lines, 88
+  `expect_equal()` where `expect_identical()` is preferred, 40 implicit
+  assignments, 26 `:::` (tests reaching internals). Checked for bugs:
+  the two "missing argument" lints are trailing commas inside `mutate()`
+  and `geom_tile()` (harmless); the two "unreachable code" lints are
+  `next()` as the last statement of an `else` (false positive); the 20
+  "duplicate arguments" are cli bullet vectors (§44). Small real
+  cleanups: 10 `%<>%`, `ifelse(x, TRUE, FALSE)` (classification.R 464),
+  `any(duplicated())` (2), `any(!x)` (3), two `<<-` in `R/` (closures in
+  `.tales_anomalies()` and the `tryCatch()` handler of
+  `.telltale_run_annotale()`).
+- **F6** (goodpractice) Long or complex functions: cyclomatic complexity
+  `plot.tales_msa()` 43, `talomes_heatmap()` 34, `tantale_setup()` 29,
+  `plot.tales()` 21, `tales_group_kmedoids()` 16, `summary.tales()` 15;
+  over 150 lines: `plot.tales_msa()` 370, `talomes_heatmap()` 263,
+  `.build_repeat_msa()` 212, `tell_tales()` 189, `plot_target_preds()`
+  178. `plot.tales_msa()`'s matrix helpers are §21, reserved for the
+  maintainer.
+- **F7** 40 Imports (> 99th percentile): kept, §44 P5.
+- **F8** "Unused" internals: the same four false positives as §44 P6.
+- **F9** Package size: 4636 lines of R (97th percentile), 217 functions
+  (98th). Informational.
+
 ---
 
 ## 53. Correction strategies inside `tell_tales()` (future release) **[P]**
