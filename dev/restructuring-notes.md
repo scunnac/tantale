@@ -3144,6 +3144,16 @@ already computed per array: a missing or unmatched terminus
 ORF (§49 Q59), the non-standard structures `tales_anomalies()` reports.
 A rule that sends a genuine truncTALE to DECIPHER reproduces the
 over-correction, so the definition has to be checked against
-`ROI_00001`/`ROI_00019` of PXO86. Also to settle: how the method is
-chosen (`correct_array` taking a method name rather than `TRUE`/`FALSE`?)
-and how the output records which correction each array received.
+`ROI_00001`/`ROI_00019` of PXO86. Also to settle: how the output records
+which correction each array received.
+
+**Constraint (maintainer, 2026-10-04): the change must not break the
+current API.** Every existing call keeps working with the same result:
+`correct_array = FALSE` (no correction) and `correct_array = TRUE`
+(DECIPHER) keep their meaning, and the new methods are reached only
+through something added. Two additive shapes: `correct_array` also
+accepting method names (`TRUE` staying an alias of the DECIPHER one), or
+a new argument whose default reproduces today's behaviour. The
+`tell_tales()` arguments are flat (§43), so either fits. After 1.0.0 any
+later rename follows the lifecycle rules (dev/CLAUDE.md, API
+conventions).
