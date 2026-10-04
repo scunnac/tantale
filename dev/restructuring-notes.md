@@ -3564,3 +3564,19 @@ Prefer (a): the point of the baseline is that a content change is
 explained before it is accepted (dev/CLAUDE.md), and the artefact is
 attached to the run.
 
+### Third pkgcheck run, on 9e82f88 / 0.99.0 (2026-10-04)
+
+21 min. **R CMD check: no errors, no warnings** (the §52 F1 fix holds).
+Coverage 91.1%. Everything else passes except the two already settled:
+40 Imports (§44 P5) and the goodpractice lints.
+
+**The "no continuous integration" flag is an artefact of running
+pkgcheck locally, not a finding.** `pkgcheck:::pkgchk_ci_badges()`
+downloads the README from the *remote* default branch and returns NULL
+early unless `gh::gh_token()` is non-empty; the background runs here had
+no token, so it reported none. Re-run with `GITHUB_PAT=$(gh auth token)`
+it finds the badge:
+`[![R-CMD-check.yaml](.../R-CMD-check.yaml/badge.svg)](...)`. rOpenSci's
+own bot runs authenticated, so it will see CI. Set `GITHUB_PAT` for any
+future local pkgcheck run, or discount that one line.
+
