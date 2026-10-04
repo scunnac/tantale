@@ -426,9 +426,9 @@ To see what changed,
 combines the uncorrected and the corrected arrays into one object, which
 [`plot()`](https://rdrr.io/r/graphics/plot.default.html) draws with a
 single legend. The array identifiers must be unique across the objects
-it binds, so each object’s get a prefix, and a `method` column records
-the correction each array went through (a factor, which sets the order
-of the panels):
+it binds, so each object’s get a prefix; a `method` column records the
+correction each array went through (a factor, which sets the order of
+the panels), and `roi` keeps the original identifier:
 
 Code
 
@@ -436,7 +436,7 @@ Code
 method_levels <- c("uncorrected", "correct_tales()", "correct_array = TRUE")
 tag_method <- function(x, method, prefix) {
   mutate(x, method = factor(method, levels = method_levels),
-         array_id = paste0(prefix, "_", array_id))
+         roi = array_id, array_id = paste0(prefix, "_", array_id))
 }
 bai311_compared <- tales_bind(
   tag_method(bai311_raw, "uncorrected", "raw"),
@@ -541,44 +541,62 @@ tales_anomalies(bai311_java)
 fixes most arrays but fails to repair the N-termini of `ROI_00006` and
 `ROI_00009`, which still do not match the TALE N-terminal profile.
 
-To see where the two corrections differ, bind their arrays as above and
-align them.
-[`tales_align()`](https://scunnac.github.io/tantale/reference/tales_align.md)
-aligns the arrays on their RVDs, and `position = "alignment"` then
-places each part in its alignment column instead of at its position in
-the array, so that corresponding repeats share a column.
-[`as_tales()`](https://scunnac.github.io/tantale/reference/as_tales.md)
-turns the alignment back into a plain `tales`, for which
-[`plot()`](https://rdrr.io/r/graphics/plot.default.html) draws this
-composition view (on the alignment object itself it draws an alignment
-heatmap):
+Compared with the correction made inside
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md),
+bound the same way:
 
 Code
 
 ``` r
-java_vs_corr <- tales_bind(
-  tag_method(bai311_java, "correct_tales()", "java"),
-  tag_method(bai311_corr, "correct_array = TRUE", "corr")
-)
-java_vs_corr_msa <- tales_align(java_vs_corr)
-```
-
-Code
-
-``` r
-plot(as_tales(java_vs_corr_msa), position = "alignment", facet_by = "method")
+tales_bind(tag_method(bai311_java, "correct_tales()", "java"),
+           tag_method(bai311_corr, "correct_array = TRUE", "corr")) |>
+  plot(facet_by = "method")
 ```
 
 [![](tale_mining_files/figure-html/plot-java-vs-corrected-1.png)](https://scunnac.github.io/tantale/articles/tale_mining_files/figure-html/plot-java-vs-corrected-1.png)
 
-The two corrections agree everywhere except at the start of `ROI_00006`
-and `ROI_00009`. After
+The two corrections give the same repeats everywhere except at the start
+of `ROI_00006` and `ROI_00009`. After
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md),
 both begin with a 24-aa N-terminus followed by a 32-aa repeat read as
-`nv`, and the `NN` and `HD` repeats that open these arrays after
+`nv`, and lack the `NN` and `HD` repeats that open these arrays after
 correction inside
-[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
-are missing.
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md).
+The N-termini of five other arrays differ by one residue: 288 aa after
+[`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md),
+287 aa after correction inside
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md).
+
+Binding all three runs gives the lengths of every part at a glance, by
+domain type (columns) and correction method (rows), one colour per
+candidate region:
+
+Code
+
+``` r
+tales_bind(tag_method(bai311_raw, "uncorrected", "raw"),
+           tag_method(bai311_java, "correct_tales()", "java"),
+           tag_method(bai311_corr, "correct_array = TRUE", "corr")) |>
+  mutate(aa_length = factor(nchar(aa_seq), sort(unique(nchar(aa_seq)))),
+         domain_type = factor(domain_type, c("N-terminus", "repeat", "C-terminus"))) |>
+  ggplot2::ggplot(ggplot2::aes(aa_length, fill = roi)) +
+  ggplot2::geom_bar(position = ggplot2::position_dodge(preserve = "single")) +
+  ggplot2::facet_grid(method ~ domain_type, scales = "free", space = "free_x") +
+  ggplot2::scale_fill_manual(values = unname(grDevices::palette.colors(8, "Okabe-Ito"))) +
+  ggplot2::labs(x = "Length (aa)", y = "Parts", fill = "Region") +
+  ggplot2::theme_light()
+```
+
+[![](tale_mining_files/figure-html/part-lengths-1.png)](https://scunnac.github.io/tantale/articles/tale_mining_files/figure-html/part-lengths-1.png)
+
+Without correction, the termini take almost any length, from 24 to 288
+aa for the N-termini and from 2 to 226 aa for the C-termini, and two
+repeats are only 11 and 14 aa long. After either correction, every
+C-terminus is 278 aa long, and the repeats come back to the canonical 34
+aa, the final 20-aa half-repeats and a few of 32 and 33 aa. The
+N-termini settle at 287 or 288 aa, except the two 24-aa N-termini that
+[`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
+leaves.
 
 ### 5.3 What is the best method for correcting the DNA sequences of TALE arrays?
 
@@ -587,13 +605,13 @@ On this genome, correction inside
 gives the better result: 8 of 8 arrays come out as standard TALEs,
 against 6 of 8 after
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md).
-It is also about as fast: on the machine that built this page it took 62
+It is also about as fast: on the machine that built this page it took 63
 seconds. The Java route needs two steps,
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
 and then the
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
 run that finds the arrays in the corrected genome, and together they
-took 43 seconds. One genome is a small sample, however.
+took 42 seconds. One genome is a small sample, however.
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
 repairs the whole genome in one pass, and the corrected genome can serve
 other analyses as well. On a new, error-prone assembly, running both

@@ -2999,3 +2999,11 @@ then: which of today's hard-coded values become that default, and how
   32-aa `nv` repeat in place of the `NN`, `HD` repeats; the prose says so,
   checked against the render. The raw-vs-corrected figure stays
   unaligned.
+- Maintainer, 2026-10-04, on seeing it: no alignment there ("an alignment
+  makes sense only if the TALEs are related"); back to the plain bound
+  plot, prose corrected (five arrays differ by one N-terminal residue,
+  `ROI_00008` is 288 aa in both). Added at the maintainer's request: a
+  dodged bar chart of part lengths, `facet_grid(method ~ domain_type)`
+  (free x per domain type), bars coloured by candidate region (`roi`,
+  kept by `tag_method()`; Okabe-Ito). Jittered points and stacked bars
+  were tried and set aside.
