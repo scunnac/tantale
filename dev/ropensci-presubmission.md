@@ -10,7 +10,76 @@ Language: <!--language-->en<!--end-language-->
 -   Paste the full DESCRIPTION file inside a code block below:
 
 ```
-PASTE THE DESCRIPTION FILE HERE AT POSTING TIME
+Package: tantale
+Title: Mining and Analysis of Transcription Activator-Like Effectors
+Version: 0.99.0
+Authors@R: c(
+    person(given = c("Bao", "Tram"), family ="Vi",
+    email = "vbt576@gmail.com", role = c("aut"),
+    comment = c(ORCID = "0000-0002-4319-5544")),
+    person(given = "Sebastien", family = "Cunnac",
+    email = "sebastien.cunnac@ird.fr", role = c("aut", "cre"),
+    comment = c(ORCID = "0000-0002-3695-491X")),
+    person(given = c("Alvaro", "L."), family = "Pérez-Quintero",
+    role = "cph",
+    comment = "Author of the bundled TALVEZ 3.2 and of the FuncTAL table behind rvd_dna_specificity"),
+    person(given = "Molly", family = "Megraw", role = "cph",
+    comment = "Author of the PlantTFBS Java classes bundled with TALVEZ (simplescancode/)"),
+    person(given = c("Artemis", "G."), family = "Hatzigeorgiou", role = "cph",
+    comment = "Author of the PlantTFBS Java classes bundled with TALVEZ (simplescancode/)")
+          )
+Maintainer: Sebastien Cunnac <sebastien.cunnac@ird.fr>
+Description: A toolkit for the study of transcription activator-like
+    effectors (TALEs) of Xanthomonas. tell_tales() finds TALE genes in
+    genome assemblies and can correct the frameshifts that make them hard
+    to annotate in error-prone long-read assemblies. TALEs are held in S3
+    classes that record each one as a series of parts (N-terminus, repeats
+    with their repeat-variable diresidues (RVDs), C-terminus), with methods
+    to validate, subset, combine and plot them. TALEs are aligned repeat by
+    repeat, compared with R implementations of the 'DisTAL' and 'FuncTAL'
+    distances <doi:10.3389/fpls.2015.00545>, and grouped into families by
+    hierarchical clustering or k-medoids. Wrappers for 'AnnoTALE'
+    <doi:10.1038/srep21077>, 'TALEcorrection'
+    <doi:10.1186/s12864-023-09228-1>, 'TALVEZ'
+    <doi:10.1371/journal.pone.0068464> and 'PrediTALE'
+    <doi:10.1371/journal.pcbi.1007206> read their results into the same
+    objects; the last two predict target sites in host genomes.
+License: MIT + file LICENSE
+Copyright: tantale authors, except the bundled third-party programs and
+    data listed with their licences in inst/COPYRIGHTS
+URL: https://scunnac.github.io/tantale/, https://github.com/scunnac/tantale
+BugReports: https://github.com/scunnac/tantale/issues
+Depends:
+    R (>= 4.0.0)
+SystemRequirements: Java (>= 8), Perl, and conda, mamba or micromamba
+    (which tantale_setup() uses to install MAFFT, HMMER and MMseqs2)
+Imports:
+    magrittr, fs, dplyr, ggplot2 (>= 3.5.0), tibble, stringr, readr, glue,
+    IRanges, Biostrings, pwalign, GenomicRanges, BSgenome, plyranges,
+    systemPipeR, DECIPHER,
+    ape, ggtree, tidytree, aplot, universalmotif,
+    gplots, cluster, ggnewscale, matrixStats,
+    reticulate, cli, digest, methods, rlang, tidyr, stats, utils, grDevices, graphics,
+    BiocGenerics, BiocParallel, GenomeInfoDb, S4Vectors, rtracklayer
+Suggests:
+    knitr, DT, sessioninfo,
+    biomartr,
+    rmarkdown,
+    quarto,
+    covr,
+    testthat (>= 3.0.0), withr, codetools
+VignetteBuilder: quarto
+Config/Needs/website:
+    pkgdown,
+    tidyverse/tidytemplate
+Config/testthat/edition: 3
+Config/testthat/parallel: false
+Encoding: UTF-8
+OS_type: unix
+biocViews: Software
+Config/roxygen2/version: 8.0.0
+Roxygen: list(markdown = TRUE)
+LazyData: true
 ```
 
 
