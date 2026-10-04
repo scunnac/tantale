@@ -532,12 +532,19 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 </details>
 </div>
 <p><code><a href="../reference/correct_tales.html">correct_tales()</a></code> fixes most arrays but fails to repair the N-termini of <code>ROI_00006</code> and <code>ROI_00009</code>, which still do not match the TALE N-terminal profile.</p>
-<p>Compared with the correction made inside <code><a href="../reference/tell_tales.html">tell_tales()</a></code>, bound the same way:</p>
+<p>To see where the two corrections differ, bind their arrays as above and align them. <code><a href="../reference/tales_align.html">tales_align()</a></code> aligns the arrays on their RVDs, and <code>position = "alignment"</code> then places each part in its alignment column instead of at its position in the array, so that corresponding repeats share a column. <code><a href="../reference/as_tales.html">as_tales()</a></code> turns the alignment back into a plain <code>tales</code>, for which <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> draws this composition view (on the alignment object itself it draws an alignment heatmap):</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb26"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="fu"><a href="../reference/tales_bind.html">tales_bind</a></span><span class="op">(</span><span class="fu">tag_method</span><span class="op">(</span><span class="va">bai311_java</span>, <span class="st">"correct_tales()"</span>, <span class="st">"java"</span><span class="op">)</span>,</span>
-<span>           <span class="fu">tag_method</span><span class="op">(</span><span class="va">bai311_corr</span>, <span class="st">"correct_array = TRUE"</span>, <span class="st">"corr"</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span>facet_by <span class="op">=</span> <span class="st">"method"</span><span class="op">)</span></span></code></pre></div>
+<code class="sourceCode R"><span><span class="va">java_vs_corr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tales_bind.html">tales_bind</a></span><span class="op">(</span></span>
+<span>  <span class="fu">tag_method</span><span class="op">(</span><span class="va">bai311_java</span>, <span class="st">"correct_tales()"</span>, <span class="st">"java"</span><span class="op">)</span>,</span>
+<span>  <span class="fu">tag_method</span><span class="op">(</span><span class="va">bai311_corr</span>, <span class="st">"correct_array = TRUE"</span>, <span class="st">"corr"</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">java_vs_corr_msa</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tales_align.html">tales_align</a></span><span class="op">(</span><span class="va">java_vs_corr</span><span class="op">)</span></span></code></pre></div>
+</details>
+</div>
+<div class="cell">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb27"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot</a></span><span class="op">(</span><span class="fu"><a href="../reference/as_tales.html">as_tales</a></span><span class="op">(</span><span class="va">java_vs_corr_msa</span><span class="op">)</span>, position <span class="op">=</span> <span class="st">"alignment"</span>, facet_by <span class="op">=</span> <span class="st">"method"</span><span class="op">)</span></span></code></pre></div>
 </details><div class="cell-output-display">
 <div>
 <figure><p><a href="tale_mining_files/figure-html/plot-java-vs-corrected-1.png" class="lightbox" data-gallery="quarto-lightbox-gallery-3"><img src="tale_mining_files/figure-html/plot-java-vs-corrected-1.png" width="1152"></a></p>
@@ -545,10 +552,11 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 </div>
 </div>
 </div>
+<p>The two corrections agree everywhere except at the start of <code>ROI_00006</code> and <code>ROI_00009</code>. After <code><a href="../reference/correct_tales.html">correct_tales()</a></code>, both begin with a 24-aa N-terminus followed by a 32-aa repeat read as <code>nv</code>, and the <code>NN</code> and <code>HD</code> repeats that open these arrays after correction inside <code><a href="../reference/tell_tales.html">tell_tales()</a></code> are missing.</p>
 </section><section class="level3" data-number="5.3"><h3 data-number="5.3" id="what-is-the-best-method-for-correcting-the-dna-sequences-of-tale-arrays">
 <span class="header-section-number">5.3</span> What is the best method for correcting the DNA sequences of TALE arrays?<a class="anchor" aria-label="anchor" href="#what-is-the-best-method-for-correcting-the-dna-sequences-of-tale-arrays"></a>
 </h3>
-<p>On this genome, correction inside <code><a href="../reference/tell_tales.html">tell_tales()</a></code> gives the better result: 8 of 8 arrays come out as standard TALEs, against 6 of 8 after <code><a href="../reference/correct_tales.html">correct_tales()</a></code>. It is also about as fast: on the machine that built this page it took 64 seconds. The Java route needs two steps, <code><a href="../reference/correct_tales.html">correct_tales()</a></code> and then the <code><a href="../reference/tell_tales.html">tell_tales()</a></code> run that finds the arrays in the corrected genome, and together they took 42 seconds. One genome is a small sample, however. <code><a href="../reference/correct_tales.html">correct_tales()</a></code> repairs the whole genome in one pass, and the corrected genome can serve other analyses as well. On a new, error-prone assembly, running both routes and comparing their <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> costs a few minutes and shows the arrays on which they agree.</p>
+<p>On this genome, correction inside <code><a href="../reference/tell_tales.html">tell_tales()</a></code> gives the better result: 8 of 8 arrays come out as standard TALEs, against 6 of 8 after <code><a href="../reference/correct_tales.html">correct_tales()</a></code>. It is also about as fast: on the machine that built this page it took 62 seconds. The Java route needs two steps, <code><a href="../reference/correct_tales.html">correct_tales()</a></code> and then the <code><a href="../reference/tell_tales.html">tell_tales()</a></code> run that finds the arrays in the corrected genome, and together they took 43 seconds. One genome is a small sample, however. <code><a href="../reference/correct_tales.html">correct_tales()</a></code> repairs the whole genome in one pass, and the corrected genome can serve other analyses as well. On a new, error-prone assembly, running both routes and comparing their <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> costs a few minutes and shows the arrays on which they agree.</p>
 </section><section class="level3" data-number="5.4"><h3 data-number="5.4" id="sec-max-comparisons">
 <span class="header-section-number">5.4</span> <code>max_comparisons</code> sets the depth of the search<a class="anchor" aria-label="anchor" href="#sec-max-comparisons"></a>
 </h3>
@@ -601,19 +609,19 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 </table>
 <p>At 2 to 5, <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> flags <code>ROI_00001</code>. At 10 and 20, AnnoTALE cannot split the corrected ORF into parts, so the array never reaches the <code>tales</code> object, and <code><a href="../reference/tales_from_telltales.html">tales_from_telltales()</a></code> warns about it:</p>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb27"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bai311_mc20_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out</span>, <span class="st">"BAI3-1-1_corrected_20"</span><span class="op">)</span></span></code></pre></div>
 </details>
 </div>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb28"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="fu"><a href="../reference/tell_tales.html">tell_tales</a></span><span class="op">(</span>subject_file <span class="op">=</span> <span class="va">bai311_fa</span>, output_dir <span class="op">=</span> <span class="va">bai311_mc20_dir</span>,</span>
 <span>                     cterm_min_score <span class="op">=</span> <span class="fl">300</span>, correct_array <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>                     max_comparisons <span class="op">=</span> <span class="fl">20</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
 </details>
 </div>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb29"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bai311_mc20</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tales_from_telltales.html">tales_from_telltales</a></span><span class="op">(</span><span class="va">bai311_mc20_dir</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: AnnoTALE could not split 1 candidate array into parts; it is absent from the</span></span>
 <span><span class="co">#&gt; result.</span></span>
@@ -629,7 +637,7 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 </h2>
 <p><code>bai311_corr</code> needs none of this: it is already clean. A route that stops short of that, such as <code><a href="../reference/correct_tales.html">correct_tales()</a></code> above (which left the N-termini of <code>ROI_00006</code> and <code>ROI_00009</code> unmatched), still needs a decision about what to do with what remains flagged. <code>tales(x, sanitize = TRUE)</code> drops it so an analysis can proceed on what is clean, with a warning naming each dropped array and the reason:</p>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb30"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb31"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bai311_clean</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tales.html">tales</a></span><span class="op">(</span><span class="va">bai311_java</span>, sanitize <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="co">#&gt; Warning: Dropped 2 arrays with biological anomalies.</span></span>
 <span><span class="co">#&gt; ✖ Arrays: "ROI_00006" and "ROI_00009"</span></span>
@@ -749,7 +757,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script><script>var lightboxQuarto = GLightbox({"selector":".lightbox","openEffect":"zoom","descPosition":"bottom","closeEffect":"zoom","loop":false});
+</script><script>var lightboxQuarto = GLightbox({"openEffect":"zoom","selector":".lightbox","loop":false,"descPosition":"bottom","closeEffect":"zoom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

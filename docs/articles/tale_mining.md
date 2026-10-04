@@ -541,19 +541,44 @@ tales_anomalies(bai311_java)
 fixes most arrays but fails to repair the N-termini of `ROI_00006` and
 `ROI_00009`, which still do not match the TALE N-terminal profile.
 
-Compared with the correction made inside
-[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md),
-bound the same way:
+To see where the two corrections differ, bind their arrays as above and
+align them.
+[`tales_align()`](https://scunnac.github.io/tantale/reference/tales_align.md)
+aligns the arrays on their RVDs, and `position = "alignment"` then
+places each part in its alignment column instead of at its position in
+the array, so that corresponding repeats share a column.
+[`as_tales()`](https://scunnac.github.io/tantale/reference/as_tales.md)
+turns the alignment back into a plain `tales`, for which
+[`plot()`](https://rdrr.io/r/graphics/plot.default.html) draws this
+composition view (on the alignment object itself it draws an alignment
+heatmap):
 
 Code
 
 ``` r
-tales_bind(tag_method(bai311_java, "correct_tales()", "java"),
-           tag_method(bai311_corr, "correct_array = TRUE", "corr")) |>
-  plot(facet_by = "method")
+java_vs_corr <- tales_bind(
+  tag_method(bai311_java, "correct_tales()", "java"),
+  tag_method(bai311_corr, "correct_array = TRUE", "corr")
+)
+java_vs_corr_msa <- tales_align(java_vs_corr)
+```
+
+Code
+
+``` r
+plot(as_tales(java_vs_corr_msa), position = "alignment", facet_by = "method")
 ```
 
 [![](tale_mining_files/figure-html/plot-java-vs-corrected-1.png)](https://scunnac.github.io/tantale/articles/tale_mining_files/figure-html/plot-java-vs-corrected-1.png)
+
+The two corrections agree everywhere except at the start of `ROI_00006`
+and `ROI_00009`. After
+[`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md),
+both begin with a 24-aa N-terminus followed by a 32-aa repeat read as
+`nv`, and the `NN` and `HD` repeats that open these arrays after
+correction inside
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
+are missing.
 
 ### 5.3 What is the best method for correcting the DNA sequences of TALE arrays?
 
@@ -562,13 +587,13 @@ On this genome, correction inside
 gives the better result: 8 of 8 arrays come out as standard TALEs,
 against 6 of 8 after
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md).
-It is also about as fast: on the machine that built this page it took 64
+It is also about as fast: on the machine that built this page it took 62
 seconds. The Java route needs two steps,
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
 and then the
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
 run that finds the arrays in the corrected genome, and together they
-took 42 seconds. One genome is a small sample, however.
+took 43 seconds. One genome is a small sample, however.
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
 repairs the whole genome in one pass, and the corrected genome can serve
 other analyses as well. On a new, error-prone assembly, running both

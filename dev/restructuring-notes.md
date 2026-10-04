@@ -2990,3 +2990,12 @@ string of additional arguments passed to the jar, whose default holds the
 values used today. "Soon"; plan to agree before coding. Also to settle
 then: which of today's hard-coded values become that default, and how
 `preditale()`'s existing `opt_param` fits (it already passes a string).
+- Maintainer, 2026-10-04: also show the `position` argument. The
+  `correct_tales()` vs `correct_array = TRUE` figure now binds the two,
+  aligns them with `tales_align()` (on RVDs; no `dom_code` needed) and
+  plots `as_tales(msa)` with `position = "alignment"`,
+  `facet_by = "method"`. It shows the one difference: `ROI_00006` and
+  `ROI_00009` after `correct_tales()` start with a 24-aa N-terminus and a
+  32-aa `nv` repeat in place of the `NN`, `HD` repeats; the prose says so,
+  checked against the render. The raw-vs-corrected figure stays
+  unaligned.

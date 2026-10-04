@@ -381,17 +381,35 @@ tales_anomalies(bai311_java)
 `correct_tales()` fixes most arrays but fails to repair the N-termini of `ROI_00006` and
 `ROI_00009`, which still do not match the TALE N-terminal profile.
 
-Compared with the correction made inside `tell_tales()`, bound the same
-way:
+To see where the two corrections differ, bind their arrays as above and
+align them. `tales_align()` aligns the arrays on their RVDs, and
+`position = "alignment"` then places each part in its alignment column
+instead of at its position in the array, so that corresponding repeats
+share a column. `as_tales()` turns the alignment back into a plain
+`tales`, for which `plot()` draws this composition view (on the
+alignment object itself it draws an alignment heatmap):
+
+```{r align-java-vs-corrected}
+#| warning: false
+#| message: false
+java_vs_corr <- tales_bind(
+  tag_method(bai311_java, "correct_tales()", "java"),
+  tag_method(bai311_corr, "correct_array = TRUE", "corr")
+)
+java_vs_corr_msa <- tales_align(java_vs_corr)
+```
 
 ```{r plot-java-vs-corrected}
-#| warning: false
 #| fig-width: 12
 #| fig-height: 8
-tales_bind(tag_method(bai311_java, "correct_tales()", "java"),
-           tag_method(bai311_corr, "correct_array = TRUE", "corr")) |>
-  plot(facet_by = "method")
+plot(as_tales(java_vs_corr_msa), position = "alignment", facet_by = "method")
 ```
+
+The two corrections agree everywhere except at the start of `ROI_00006`
+and `ROI_00009`. After `correct_tales()`, both begin with a 24-aa
+N-terminus followed by a 32-aa repeat read as `nv`, and the `NN` and `HD`
+repeats that open these arrays after correction inside `tell_tales()` are
+missing.
 
 
 ### What is the best method for correcting the DNA sequences of TALE arrays?
