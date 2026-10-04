@@ -3106,3 +3106,11 @@ pre-submission inquiry, posted by the maintainer: draft in
 plotting and distance/clustering functions, and about how the review
 bot's pkgcheck should handle tests that need Java and conda. No R
 package for TALE analysis was found (a web search, 2026-10-04).
+
+Maintainer, 2026-10-04: **Q82** tantale is not to be advertised as a
+wrapper package only: `tell_tales()`, `tales_align()`, the comparisons,
+the grouping methods and the classes with their methods are its own
+analysis code. The draft's scope answer now leads with them and asks the
+editors directly whether that code fits; a DESCRIPTION rewrite in the
+same spirit is proposed (Q85). **Q83** co-author handle `@vibaotram`.
+**Q84** the generative-AI paragraph kept as written.
