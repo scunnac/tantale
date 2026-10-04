@@ -6,7 +6,7 @@ test_that("tale_annotations has the documented shape and key", {
   expect_identical(dim(tale_annotations), c(128L, 10L))
   expect_named(tale_annotations,
                c("strain", "label", "tal_name", "annotale_group",
-                 "replicon_id", "genome_id", "pubmed", "trunc_tale",
+                 "replicon_id", "genome_id", "pubmed", "truncTALE",
                  "rvd_seq", "unusual_feature"))
   # strain + label identifies a row, and neither is ever missing
   expect_false(anyNA(tale_annotations$strain))
@@ -44,10 +44,11 @@ test_that("lowercase RVDs mark aberrant repeats and are kept as such", {
   expect_true(any(grepl("[a-z]", rvds)))
 })
 
-test_that("trunc_tale is logical and flags the documented nine", {
-  expect_type(tale_annotations$trunc_tale, "logical")
-  expect_false(anyNA(tale_annotations$trunc_tale))
-  expect_identical(sum(tale_annotations$trunc_tale), 9L)
+test_that("truncTALE is logical and flags the documented nine", {
+  # the column keeps the field's spelling, not snake_case (ledger §57)
+  expect_type(tale_annotations$truncTALE, "logical")
+  expect_false(anyNA(tale_annotations$truncTALE))
+  expect_identical(sum(tale_annotations$truncTALE), 9L)
 })
 
 test_that("the three genomes tantale installs are all present", {

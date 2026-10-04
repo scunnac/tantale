@@ -3627,8 +3627,12 @@ Maintainer, same day: `telltale2_id` and `annotale_id` dropped too. Both
 name an array within one run (`ROI_00001`, `tempTALE1`) and neither
 survives a rerun. `annotale_group` is kept, being AnnoTALE's own class
 names (`TalAH30`). `strain` + `label` is the key: unique over all 128
-rows, never missing. `truncTALE` renamed `trunc_tale` for the snake_case
-rule.
+rows, never missing. `truncTALE` **keeps its spelling** (maintainer,
+2026-10-04: "no rename of truncTALE outside of R code; this is the
+standard way to call them, with iTALEs"). The snake_case rule governs R
+code; a term the literature writes `truncTALE` is not R code.
+`talomes_heatmap()`'s argument `trunc_tales_col` stays snake_case, being
+an argument name.
 
 Result: 128 rows x 10 columns, 2.8 KB. `data-raw/tale_annotations.R`
 builds it with the invariants asserted; `?tale_annotations` documents
@@ -3636,6 +3640,16 @@ every column; `test_tale_annotations.R` has 6 tests; NEWS entry;
 `@family TALE discovery` puts it on the site with no `_pkgdown.yml`
 change. `check_pkgdown()` clean, `rcmdcheck` (no tests, no vignettes)
 0/0/0.
+
+**The table feeds `talomes_heatmap()` with no reshaping**, verified by
+drawing it: `talomes_heatmap(subset(tale_annotations,
+!is.na(annotale_group)), group_col = "annotale_group", strain_col =
+"strain", rvd_col = "rvd_seq", trunc_tales_col = "truncTALE")` gives the
+four Asian strains that carry AnnoTALE classes (PXO61, PXO71, PXO86,
+PXO99A; 74 rows, 31 groups) clustered group by group, truncTALEs marked
+"T". That call is now an example in `?tale_annotations`, and the Rd
+examples were run to confirm. The African strains have no
+`annotale_group`, which is where the 54 gaps are.
 
 **Found while testing: the RVD strings carry lowercase RVDs** (`hd`,
 `ng`, `ni`, `nn`, `ns`, `n*`; 17 occurrences over 16 of the 128 arrays).

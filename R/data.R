@@ -68,7 +68,7 @@
 #'     reader fetch the sequence.}
 #'   \item{pubmed}{PubMed identifier(s) of the publication(s) reporting the
 #'     genome or the TALE, comma-separated where there is more than one.}
-#'   \item{trunc_tale}{\code{TRUE} for the nine truncTALEs, TALEs whose
+#'   \item{truncTALE}{\code{TRUE} for the nine truncTALEs, TALEs whose
 #'     C-terminal region is naturally shortened so that they no longer
 #'     activate transcription. See the truncTALE article for what this does
 #'     to discovery and to frameshift correction.}
@@ -109,14 +109,25 @@
 #' assemblies named in \code{genome_id}, at
 #' <https://www.ncbi.nlm.nih.gov/datasets/genome/>.
 #'
+#' @seealso \code{\link{talomes_heatmap}}, which takes a table of this
+#'   shape directly: the column names below are the ones its
+#'   \code{group_col}, \code{strain_col}, \code{rvd_col} and
+#'   \code{trunc_tales_col} arguments expect.
 #' @family TALE discovery
 #' @examples
 #' # the TALEs of one strain
 #' subset(tale_annotations, strain == "PXO86",
-#'        select = c("label", "annotale_group", "trunc_tale"))
+#'        select = c("label", "annotale_group", "truncTALE"))
+#'
+#' # the four strains with AnnoTALE classes, compared group by group;
+#' # truncTALEs are marked "T"
+#' grouped <- tale_annotations[!is.na(tale_annotations$annotale_group), ]
+#' talomes_heatmap(grouped, group_col = "annotale_group",
+#'                 strain_col = "strain", rvd_col = "rvd_seq",
+#'                 trunc_tales_col = "truncTALE")
 #'
 #' # the naturally truncated ones, across all ten genomes
-#' table(tale_annotations$strain, tale_annotations$trunc_tale)
+#' table(tale_annotations$strain, tale_annotations$truncTALE)
 #'
 #' # what makes the atypical arrays atypical
 #' subset(tale_annotations, !is.na(unusual_feature),

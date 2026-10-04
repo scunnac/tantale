@@ -13,7 +13,9 @@
 #    the values in the sibling file were computed is not recorded, so they
 #    cannot be vouched for (ledger §57, Q128). tales_compare_distal() and
 #    tales_group_hclust() recompute such groups from `rvd_seq`.
-#  - truncTALE -> trunc_tale: columns are snake_case (dev/CLAUDE.md).
+# `truncTALE` keeps its spelling: it is the field's term for these TALEs,
+# as `iTALE` is, and the snake_case rule is for R code, not for a name the
+# literature writes that way (maintainer, 2026-10-04).
 
 path <- file.path("data-raw", "ref_tale_annotation.tsv")
 
@@ -23,7 +25,6 @@ tale_annotations <- readr::read_tsv(
                           truncTALE = readr::col_logical())
 ) |>
   dplyr::select(-"distal_group", -"telltale2_id", -"annotale_id") |>
-  dplyr::rename(trunc_tale = "truncTALE") |>
   dplyr::relocate("strain", "label", "tal_name") |>
   dplyr::arrange(.data$strain, .data$label)
 
