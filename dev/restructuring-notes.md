@@ -3558,6 +3558,21 @@ on R release: golden 18/18 unchanged, `test_tell_tales.R`,
 `test_tell_tales_correction.R`, `test_tell_tales_guards.R` 31/31.
 Confirmation on devel needs a CI run.
 
+**Oldrel solved and fixed 2026-10-04 (Q139, Q145).** A throwaway
+workflow on branch `ci-oldrel-gff` printed the file under both versions:
+of 199 lines **exactly one differed**, line 2, `##source-version
+rtracklayer 1.72.0` against `1.70.1`. rtracklayer stamps its own version
+into the GFF header, which is a record of how the run happened, like
+`##date` and HMMER's `# Version:` already dropped beside it. Added
+`^##source-version` to `.run_specific_pattern()`.
+Re-baselined, every changed row explained first: **two files in each of
+the two fingerprints**, `all_ranges.gff` and `hits_report.gff` (both
+rtracklayer GFFs), each `n_dropped` 1 -> 2 with a new digest; all 173
+snapshot vectors were compared position by position, and nothing else
+moved. Checking positionally rather than reading the diff is what caught
+the second file: the first account of this change named only
+`all_ranges.gff`. Full suite after: 470 tests, 0 failures.
+
 **R oldrel-1: the golden `all_ranges.gff` digest.** 2 failures
 (`test_golden.R:142` and `:249`), both row 1 of the fingerprint,
 `all_ranges.gff`: the digest differs while `n_lines` (199) and

@@ -90,6 +90,13 @@ expect_golden <- function(x) {
 .run_specific_pattern <- function() {
   paste(
     "^##date",            # rtracklayer's GFF header
+    "^##source-version",  # rtracklayer stamps its own version into the GFF
+                          # header. Same argument as "# Version:" below: a
+                          # version that changed what was found would show
+                          # in the features, not here. Caught by the R
+                          # version matrix, where oldrel's rtracklayer
+                          # 1.70.1 against release's 1.72.0 was the only
+                          # difference in 199 lines (ledger §56).
     "^# Date:",           # HMMER's own header
     "^# Version:",        # HMMER's build, not its findings: a version that
                           # changed results would show up in the hits instead
