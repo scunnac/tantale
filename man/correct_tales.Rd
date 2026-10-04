@@ -65,6 +65,7 @@ correct_tales(uncorrected_path = subj, corrected_path = out_fa)
 }
 \seealso{
 Other TALE discovery:
+\code{\link{tale_annotations}},
 \code{\link[=tales_from_annotale]{tales_from_annotale()}},
 \code{\link[=tales_from_telltales]{tales_from_telltales()}},
 \code{\link[=tell_tales]{tell_tales()}}

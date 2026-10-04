@@ -53,6 +53,7 @@ tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
 \seealso{
 Other TALE discovery:
 \code{\link[=correct_tales]{correct_tales()}},
+\code{\link{tale_annotations}},
 \code{\link[=tales_from_annotale]{tales_from_annotale()}},
 \code{\link[=tell_tales]{tell_tales()}}
 }
