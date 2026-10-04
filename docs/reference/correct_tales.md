@@ -20,7 +20,8 @@ correct_tales(
   corrected_path = file.path(getwd(), "correctedTALEs.fa"),
   hmm_path = .tantale_tool("talecorrection_hmm"),
   return_corrections = FALSE,
-  conda_bin = "auto"
+  conda_bin = "auto",
+  java_args = ""
 )
 ```
 
@@ -56,6 +57,13 @@ correct_tales(
   from the one that is automatically searched by the reticulate package
   functions.
 
+- java_args:
+
+  A single string of options for the Java virtual machine, placed before
+  `-jar`, such as `"-Xmx8G"` to raise its memory limit. The default,
+  `""`, leaves Java's own defaults. TALEcorrection itself takes no
+  options beyond its inputs.
+
 ## Value
 
 A tibble if `return_corrections` is `TRUE` or the path to the corrected
@@ -79,6 +87,6 @@ out_fa <- tempfile(fileext = ".fa")
 correct_tales(uncorrected_path = subj, corrected_path = out_fa)
 #> Running nHMMER
 #> Performing TALEs cds correction on provided sequences.
-#> [1] "/tmp/RtmpeMTsnN/file13721e120c4211.fa"
+#> [1] "/tmp/RtmpTzTEsu/file1588681aa6dd1d.fa"
 # }
 ```

@@ -231,11 +231,24 @@ stamp exists to catch cross-run mixing, and is enforced, not advisory.
 
 ## Where things stand
 
-*Updated 2026-10-03 (third session). Re-check with `git log --oneline -5` and `git status`
+*Updated 2026-10-04 (second session). Re-check with `git log --oneline -5` and `git status`
 before trusting any of it.*
 
 ### State
 
+- **2026-10-04, second session:** §51 done: `opt_param` on
+  `run_annotale_predict()`/`run_annotale_build()` (defaults write out
+  AnnoTALE's own), `java_args` on the four jar wrappers, keys the wrapper
+  sets refused (`tantale_error_jar_args`). §52 opened (rOpenSci
+  readiness): pre-submission inquiry drafted in
+  `dev/ropensci-presubmission.md` for the maintainer to post once the
+  repository is public; DESCRIPTION Title/Description rewritten to present
+  the whole package (maintainer: tantale is not to be advertised as a
+  wrapper package only). A fresh pkgcheck was started on ac8c534; its
+  findings go into §52. §53 parked: hybrid correction methods for
+  `tell_tales()` (future release, current API kept intact). Site
+  partially rebuilt, pushed. Session Q IDs now continue the ledger's
+  sequence (Q70-Q86 this session).
 - **2026-10-03, fourth session (§49):** `max_comparisons` defaults to 50
   (same result as the full search on all four shipped genomes);
   `tales_from_telltales()` warns about candidate arrays AnnoTALE could not

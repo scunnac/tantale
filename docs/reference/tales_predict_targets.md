@@ -35,9 +35,9 @@ tales_predict_targets(x, subj_file, method = c("talvez", "preditale"), ...)
   [`talvez`](https://scunnac.github.io/tantale/reference/talvez.md)
   (`opt_param`, `talvez_dir`, `conda_bin`) and
   [`preditale`](https://scunnac.github.io/tantale/reference/preditale.md)
-  (`opt_param`, `predictor_path`); both accept `output_dir`. Note the
-  two take different `opt_param` defaults, since the options are the
-  tools' own.
+  (`opt_param`, `java_args`, `predictor_path`); both accept
+  `output_dir`. Note the two take different `opt_param` defaults, since
+  the options are the tools' own.
 
 ## Value
 
@@ -78,7 +78,7 @@ subj <- system.file("extdata", "cladeIII_sweet_promoters.fasta",
 head(tales_predict_targets(x, subj_file = subj))
 #> Invoking Talvez using the following command:
 #> '/home/cunnac/mamba/envs/tantale/bin/perl' TALVEZ_3.2.pl -t 0 -l 19 -e mat1 -z
-#> mat2 'rvdSeqsTalvez_13721e5cfa0bd9.tsv' 'cladeIII_sweet_promoters.fasta'
+#> mat2 'rvdSeqsTalvez_1588681b40eb0a.tsv' 'cladeIII_sweet_promoters.fasta'
 #> # A tibble: 6 × 10
 #>   taleId    rvds          subjSeqId score strand start   end ebeSeq  rank method
 #>   <chr>     <chr>         <chr>     <dbl> <chr>  <dbl> <dbl> <chr>  <dbl> <chr> 

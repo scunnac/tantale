@@ -13,6 +13,8 @@ function.
 run_annotale_build(
   fasta_file,
   output_dir = getwd(),
+  opt_param = "c=5 s=0.01",
+  java_args = "-Xms512M -Xmx6G",
   annotale_jar = .tantale_tool("annotale")
 )
 ```
@@ -28,6 +30,22 @@ run_annotale_build(
 - output_dir:
 
   Directory where output will be written (created if it does not exist).
+
+- opt_param:
+
+  A single string of options for AnnoTALE build, as `key=value` pairs
+  separated by spaces. The default writes out the tool's own defaults:
+  `c`, the cutoff on the distance that defines the maximum extent of a
+  TALE class (5), and `s`, the significance level on the alignment
+  p-value (0.01). An option left out of a string of your own keeps its
+  default. The keys this function sets itself (`t`, `outdir`) are
+  refused: use `fasta_file` and `output_dir`.
+
+- java_args:
+
+  A single string of options for the Java virtual machine, placed before
+  `-jar`. The default starts Java with 512 MB of memory and lets it grow
+  to 6 GB; raise `-Xmx` if build runs out of memory.
 
 - annotale_jar:
 
@@ -59,15 +77,15 @@ run_annotale_predict(fasta, output_dir = predict_out)
 #> Running AnnoTALE predict for "MAI1"
 #>   java -jar
 #>   '/home/cunnac/snap/codium/495/.local/share/R/tantale/tools-1/AnnoTALEcli-1.5.jar'
-#>   predict
+#>   predict Sensitive=false
 #>   g='/home/cunnac/snap/codium/495/.local/share/R/tantale/genomes-1/MAI1.fa'
-#>   s='MAI1' outdir='/tmp/RtmpeMTsnN/annotale_build_example/predict/Predict'
+#>   s='MAI1' outdir='/tmp/RtmpTzTEsu/annotale_build_example/predict/Predict'
 #> Running AnnoTALE analyze for "MAI1"
 #>   java -jar
-#>   /home/cunnac/snap/codium/495/.local/share/R/tantale/tools-1/AnnoTALEcli-1.5.jar
+#>   '/home/cunnac/snap/codium/495/.local/share/R/tantale/tools-1/AnnoTALEcli-1.5.jar'
 #>   analyze
-#>   t='/tmp/RtmpeMTsnN/annotale_build_example/predict/Predict/TALE_DNA_sequences_(MAI1).fasta'
-#>   outdir='/tmp/RtmpeMTsnN/annotale_build_example/predict/Analyze'
+#>   t='/tmp/RtmpTzTEsu/annotale_build_example/predict/Predict/TALE_DNA_sequences_(MAI1).fasta'
+#>   outdir='/tmp/RtmpTzTEsu/annotale_build_example/predict/Analyze'
 predicted <- list.files(file.path(predict_out, "Predict"),
                         pattern = "^TALE_DNA_sequences_", full.names = TRUE)
 build_out <- file.path(tempdir(), "annotale_build_example", "build")
@@ -75,9 +93,9 @@ run_annotale_build(predicted, output_dir = build_out)
 #> Running AnnoTALE build
 #>   java -Xms512M -Xmx6G -jar
 #>   '/home/cunnac/snap/codium/495/.local/share/R/tantale/tools-1/AnnoTALEcli-1.5.jar'
-#>   build
-#>   t='/tmp/RtmpeMTsnN/annotale_build_example/predict/Predict/TALE_DNA_sequences_(MAI1).fasta'
-#>   outdir='/tmp/RtmpeMTsnN/annotale_build_example/build'
+#>   build c=5 s=0.01
+#>   t='/tmp/RtmpTzTEsu/annotale_build_example/predict/Predict/TALE_DNA_sequences_(MAI1).fasta'
+#>   outdir='/tmp/RtmpTzTEsu/annotale_build_example/build'
 list.files(build_out)
 #>  [1] "Class_1"             "Class_2"             "Class_3"            
 #>  [4] "Class_4"             "Class_5"             "Class_6"            

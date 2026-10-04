@@ -605,17 +605,22 @@ On this genome, correction inside
 gives the better result: 8 of 8 arrays come out as standard TALEs,
 against 6 of 8 after
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md).
-It is also about as fast: on the machine that built this page it took 63
+It is also about as fast: on the machine that built this page it took 72
 seconds. The Java route needs two steps,
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
 and then the
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
 run that finds the arrays in the corrected genome, and together they
-took 42 seconds. One genome is a small sample, however.
+took 52 seconds. One genome is a limited sample, however.
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
 repairs the whole genome in one pass, and the corrected genome can serve
-other analyses as well. On a new, error-prone assembly, running both
-routes and comparing their
+other analyses as well. Furthermore,
+[`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
+does not suffer the *over-correction* behavior exhibited by
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
+on
+[truncTALEs](https://scunnac.github.io/tantale/articles/trunctale_correction.html#sec-two-trunctales).
+On a new, error-prone assembly, running both routes and comparing their
 [`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
 costs a few minutes and shows the arrays on which they agree.
 
@@ -674,9 +679,12 @@ bai311_mc20 <- tales_from_telltales(bai311_mc20_dir)
 ```
 
 On MAI1, BAI3 and PXO86, the other genomes shipped with the package, 50
-gives the same corrected sequences as the full search. With a reference
-set of your own, compare a run at the default with one at
-`max_comparisons = NULL` before relying on the cap.
+gives the same corrected sequences as the full search. The two settings
+also agree where correction goes wrong: both extend the C-terminus of
+the PXO86 truncTALE `ROI_00001` from 183 to 216 aa
+([details](https://scunnac.github.io/tantale/articles/trunctale_correction.html#sec-does-correction-respect-it)).
+With a reference set of your own, compare a run at the default with one
+at `max_comparisons = NULL` before relying on the cap.
 
 ## 6 Moving on with what you have
 

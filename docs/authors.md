@@ -12,12 +12,12 @@
 Source:
 [`DESCRIPTION`](https://github.com/scunnac/tantale/blob/HEAD/DESCRIPTION)
 
-Vi BT, Cunnac S (2026). *tantale: Transcription Activator-Like Effectors
-(TALEs) tools*. R package version 0.9.9012,
+Vi BT, Cunnac S (2026). *tantale: Mining and Analysis of Transcription
+Activator-Like Effectors*. R package version 0.9.9012,
 <https://scunnac.github.io/tantale>.
 
     @Manual{,
-      title = {tantale: Transcription Activator-Like Effectors (TALEs) tools},
+      title = {tantale: Mining and Analysis of Transcription Activator-Like Effectors},
       author = {Bao Tram Vi and Sebastien Cunnac},
       year = {2026},
       note = {R package version 0.9.9012},

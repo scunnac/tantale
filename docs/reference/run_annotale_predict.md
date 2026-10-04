@@ -14,6 +14,8 @@ run_annotale_predict(
   fasta_file,
   output_dir = getwd(),
   prefix = NULL,
+  opt_param = "Sensitive=false",
+  java_args = "",
   annotale_jar = .tantale_tool("annotale")
 )
 ```
@@ -34,6 +36,21 @@ run_annotale_predict(
   A scalar character vector containing a prefix that will be appended to
   TALE names by AnnoTALE. If not supplied, the function will try to
   guess the prefix from the input file name.
+
+- opt_param:
+
+  A single string of options for the predict stage, as `key=value` pairs
+  separated by spaces. AnnoTALE predict has one: `Sensitive`, `false` by
+  default; `"Sensitive=true"` runs its sensitive scan. The keys this
+  function sets itself (`g`, `s`, `outdir`) are refused: use
+  `fasta_file`, `prefix` and `output_dir`. The analyze stage has no
+  option of its own beyond a run name.
+
+- java_args:
+
+  A single string of options for the Java virtual machine, placed before
+  `-jar` in both stages, such as `"-Xmx8G"` to raise its memory limit.
+  The default, `""`, leaves Java's own defaults.
 
 - annotale_jar:
 
@@ -63,15 +80,15 @@ run_annotale_predict(fasta, output_dir = out)
 #> Running AnnoTALE predict for "MAI1"
 #>   java -jar
 #>   '/home/cunnac/snap/codium/495/.local/share/R/tantale/tools-1/AnnoTALEcli-1.5.jar'
-#>   predict
+#>   predict Sensitive=false
 #>   g='/home/cunnac/snap/codium/495/.local/share/R/tantale/genomes-1/MAI1.fa'
-#>   s='MAI1' outdir='/tmp/RtmpeMTsnN/annotale_predict_example/Predict'
+#>   s='MAI1' outdir='/tmp/RtmpTzTEsu/annotale_predict_example/Predict'
 #> Running AnnoTALE analyze for "MAI1"
 #>   java -jar
-#>   /home/cunnac/snap/codium/495/.local/share/R/tantale/tools-1/AnnoTALEcli-1.5.jar
+#>   '/home/cunnac/snap/codium/495/.local/share/R/tantale/tools-1/AnnoTALEcli-1.5.jar'
 #>   analyze
-#>   t='/tmp/RtmpeMTsnN/annotale_predict_example/Predict/TALE_DNA_sequences_(MAI1).fasta'
-#>   outdir='/tmp/RtmpeMTsnN/annotale_predict_example/Analyze'
+#>   t='/tmp/RtmpTzTEsu/annotale_predict_example/Predict/TALE_DNA_sequences_(MAI1).fasta'
+#>   outdir='/tmp/RtmpTzTEsu/annotale_predict_example/Analyze'
 list.files(file.path(out, "Predict"))
 #> [1] "GFF__TALE_predictions_(MAI1).gff3"   "Genbank__TALE_predictions_(MAI1).gb"
 #> [3] "TALE_DNA_sequences_(MAI1).fasta"     "TALE_protein_sequences_(MAI1).fasta"

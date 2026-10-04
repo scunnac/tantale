@@ -2,6 +2,31 @@
 
 ## tantale 0.9.9012
 
+### Options for the Java tools
+
+[`run_annotale_predict()`](https://scunnac.github.io/tantale/reference/run_annotale_predict.md)
+and
+[`run_annotale_build()`](https://scunnac.github.io/tantale/reference/run_annotale_build.md)
+gain `opt_param`, a string of options passed to AnnoTALE, as
+[`preditale()`](https://scunnac.github.io/tantale/reference/preditale.md)
+already had. Their defaults write out AnnoTALE’s own:
+`"Sensitive=false"` for predict (its sensitive scan needs more than 1 GB
+of Java memory) and `"c=5 s=0.01"` for build (the class cutoff and the
+significance level). The two, and
+[`preditale()`](https://scunnac.github.io/tantale/reference/preditale.md),
+refuse an `opt_param` that sets a key they set themselves (an input
+file, `outdir=`): AnnoTALE and PrediTALE would silently keep only one of
+the two values.
+
+These three functions and
+[`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
+gain `java_args`, options for the Java virtual machine, such as
+`"-Xmx8G"` to raise its memory limit. The memory settings that were
+fixed in the code are now its defaults: `"-Xms512M -Xmx6G"` for
+[`run_annotale_build()`](https://scunnac.github.io/tantale/reference/run_annotale_build.md),
+`"-Xms512M -Xmx2G"` for
+[`preditale()`](https://scunnac.github.io/tantale/reference/preditale.md).
+
 ### The Java tools and example genomes are downloaded by `tantale_setup()`
 
 AnnoTALE, PrediTALE and TALEcorrection (about 60 MB) and the four

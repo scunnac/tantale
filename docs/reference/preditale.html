@@ -64,6 +64,7 @@ sequences and runs PrediTale.</p>
 <span>  <span class="va">subj_file</span>,</span>
 <span>  opt_param <span class="op">=</span> <span class="st">""</span>,</span>
 <span>  output_dir <span class="op">=</span> <span class="cn">NULL</span>,</span>
+<span>  java_args <span class="op">=</span> <span class="st">"-Xms512M -Xmx2G"</span>,</span>
 <span>  predictor_path <span class="op">=</span> <span class="fu">.tantale_tool</span><span class="op">(</span><span class="st">"preditale"</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
     </div>
@@ -87,13 +88,30 @@ fasta file holding subject DNA sequence(s).</p></dd>
 
 
 <dt id="arg-opt-param">opt_param<a class="anchor" aria-label="anchor" href="#arg-opt-param"></a></dt>
-<dd><p>An atomic character vector specifying optional parameters
-for PrediTALE.jar preditale (eg "Strand=\"forward strand\"").</p></dd>
+<dd><p>A single string of options for PrediTALE, as
+<code>key=value</code> pairs separated by spaces, such as
+<code>"Strand=\"forward strand\""</code>. The default, <code>""</code>, keeps
+PrediTALE's own: target sites on both strands (<code>Strand</code>) with a
+penalty of 0.01 on the reverse one (<code>r</code>), and a prediction
+threshold (<code>t</code>) from a significance level of 1e-4 (<code>sl</code>),
+estimated on a sub-sample of the subject sequences (<code>b</code>). The
+<a href="https://www.jstacs.de/index.php/PrediTALE" class="external-link">PrediTALE</a> page lists
+the alternatives (a number of expected sites, <code>n</code>; dedicated
+background sequences, <code>bs</code>). The keys this function sets itself
+(<code>TALEs</code>, <code>s</code>, <code>outdir</code>) are refused: use
+<code>rvd_seqs</code>, <code>subj_file</code> and <code>output_dir</code>.</p></dd>
 
 
 <dt id="arg-output-dir">output_dir<a class="anchor" aria-label="anchor" href="#arg-output-dir"></a></dt>
 <dd><p>Expects a character vector specifying the path to an output
 directory. If not supplied, output files will be temporary.</p></dd>
+
+
+<dt id="arg-java-args">java_args<a class="anchor" aria-label="anchor" href="#arg-java-args"></a></dt>
+<dd><p>A single string of options for the Java virtual
+machine, placed before <code>-jar</code>. The default starts Java with 512
+MB of memory and lets it grow to 2 GB; raise <code>-Xmx</code> if PrediTALE
+runs out of memory on a large subject.</p></dd>
 
 
 <dt id="arg-predictor-path">predictor_path<a class="anchor" aria-label="anchor" href="#arg-predictor-path"></a></dt>

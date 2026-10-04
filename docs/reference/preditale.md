@@ -13,6 +13,7 @@ preditale(
   subj_file,
   opt_param = "",
   output_dir = NULL,
+  java_args = "-Xms512M -Xmx2G",
   predictor_path = .tantale_tool("preditale")
 )
 ```
@@ -35,13 +36,28 @@ preditale(
 
 - opt_param:
 
-  An atomic character vector specifying optional parameters for
-  PrediTALE.jar preditale (eg "Strand=\\forward strand\\").
+  A single string of options for PrediTALE, as `key=value` pairs
+  separated by spaces, such as `"Strand=\"forward strand\""`. The
+  default, `""`, keeps PrediTALE's own: target sites on both strands
+  (`Strand`) with a penalty of 0.01 on the reverse one (`r`), and a
+  prediction threshold (`t`) from a significance level of 1e-4 (`sl`),
+  estimated on a sub-sample of the subject sequences (`b`). The
+  [PrediTALE](https://www.jstacs.de/index.php/PrediTALE) page lists the
+  alternatives (a number of expected sites, `n`; dedicated background
+  sequences, `bs`). The keys this function sets itself (`TALEs`, `s`,
+  `outdir`) are refused: use `rvd_seqs`, `subj_file` and `output_dir`.
 
 - output_dir:
 
   Expects a character vector specifying the path to an output directory.
   If not supplied, output files will be temporary.
+
+- java_args:
+
+  A single string of options for the Java virtual machine, placed before
+  `-jar`. The default starts Java with 512 MB of memory and lets it grow
+  to 2 GB; raise `-Xmx` if PrediTALE runs out of memory on a large
+  subject.
 
 - predictor_path:
 

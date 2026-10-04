@@ -571,7 +571,7 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 </section><section class="level3" data-number="5.3"><h3 data-number="5.3" id="what-is-the-best-method-for-correcting-the-dna-sequences-of-tale-arrays">
 <span class="header-section-number">5.3</span> What is the best method for correcting the DNA sequences of TALE arrays?<a class="anchor" aria-label="anchor" href="#what-is-the-best-method-for-correcting-the-dna-sequences-of-tale-arrays"></a>
 </h3>
-<p>On this genome, correction inside <code><a href="../reference/tell_tales.html">tell_tales()</a></code> gives the better result: 8 of 8 arrays come out as standard TALEs, against 6 of 8 after <code><a href="../reference/correct_tales.html">correct_tales()</a></code>. It is also about as fast: on the machine that built this page it took 63 seconds. The Java route needs two steps, <code><a href="../reference/correct_tales.html">correct_tales()</a></code> and then the <code><a href="../reference/tell_tales.html">tell_tales()</a></code> run that finds the arrays in the corrected genome, and together they took 42 seconds. One genome is a small sample, however. <code><a href="../reference/correct_tales.html">correct_tales()</a></code> repairs the whole genome in one pass, and the corrected genome can serve other analyses as well. On a new, error-prone assembly, running both routes and comparing their <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> costs a few minutes and shows the arrays on which they agree.</p>
+<p>On this genome, correction inside <code><a href="../reference/tell_tales.html">tell_tales()</a></code> gives the better result: 8 of 8 arrays come out as standard TALEs, against 6 of 8 after <code><a href="../reference/correct_tales.html">correct_tales()</a></code>. It is also about as fast: on the machine that built this page it took 72 seconds. The Java route needs two steps, <code><a href="../reference/correct_tales.html">correct_tales()</a></code> and then the <code><a href="../reference/tell_tales.html">tell_tales()</a></code> run that finds the arrays in the corrected genome, and together they took 52 seconds. One genome is a limited sample, however. <code><a href="../reference/correct_tales.html">correct_tales()</a></code> repairs the whole genome in one pass, and the corrected genome can serve other analyses as well. Furthermore, <code><a href="../reference/correct_tales.html">correct_tales()</a></code> does not suffer the <em>over-correction</em> behavior exhibited by <code><a href="../reference/tell_tales.html">tell_tales()</a></code> on <a href="trunctale_correction.html#sec-two-trunctales">truncTALEs</a>. On a new, error-prone assembly, running both routes and comparing their <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> costs a few minutes and shows the arrays on which they agree.</p>
 </section><section class="level3" data-number="5.4"><h3 data-number="5.4" id="sec-max-comparisons">
 <span class="header-section-number">5.4</span> <code>max_comparisons</code> sets the depth of the search<a class="anchor" aria-label="anchor" href="#sec-max-comparisons"></a>
 </h3>
@@ -646,7 +646,7 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 <span><span class="co">#&gt;   parse.</span></span></code></pre></div>
 </details>
 </div>
-<p>On MAI1, BAI3 and PXO86, the other genomes shipped with the package, 50 gives the same corrected sequences as the full search. With a reference set of your own, compare a run at the default with one at <code>max_comparisons = NULL</code> before relying on the cap.</p>
+<p>On MAI1, BAI3 and PXO86, the other genomes shipped with the package, 50 gives the same corrected sequences as the full search. The two settings also agree where correction goes wrong: both extend the C-terminus of the PXO86 truncTALE <code>ROI_00001</code> from 183 to 216 aa (<a href="trunctale_correction.html#sec-does-correction-respect-it">details</a>). With a reference set of your own, compare a run at the default with one at <code>max_comparisons = NULL</code> before relying on the cap.</p>
 </section></section><section class="level2" data-number="6"><h2 data-number="6" id="moving-on-with-what-you-have">
 <span class="header-section-number">6</span> Moving on with what you have<a class="anchor" aria-label="anchor" href="#moving-on-with-what-you-have"></a>
 </h2>
@@ -772,7 +772,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script><script>var lightboxQuarto = GLightbox({"openEffect":"zoom","closeEffect":"zoom","loop":false,"selector":".lightbox","descPosition":"bottom"});
+</script><script>var lightboxQuarto = GLightbox({"openEffect":"zoom","descPosition":"bottom","closeEffect":"zoom","selector":".lightbox","loop":false});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {
