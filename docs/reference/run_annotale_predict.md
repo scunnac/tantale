@@ -65,13 +65,13 @@ run_annotale_predict(fasta, output_dir = out)
 #>   '/home/cunnac/snap/codium/495/.local/share/R/tantale/tools-1/AnnoTALEcli-1.5.jar'
 #>   predict
 #>   g='/home/cunnac/snap/codium/495/.local/share/R/tantale/genomes-1/MAI1.fa'
-#>   s='MAI1' outdir='/tmp/RtmpU7Apf2/annotale_predict_example/Predict'
+#>   s='MAI1' outdir='/tmp/RtmpeMTsnN/annotale_predict_example/Predict'
 #> Running AnnoTALE analyze for "MAI1"
 #>   java -jar
 #>   /home/cunnac/snap/codium/495/.local/share/R/tantale/tools-1/AnnoTALEcli-1.5.jar
 #>   analyze
-#>   t='/tmp/RtmpU7Apf2/annotale_predict_example/Predict/TALE_DNA_sequences_(MAI1).fasta'
-#>   outdir='/tmp/RtmpU7Apf2/annotale_predict_example/Analyze'
+#>   t='/tmp/RtmpeMTsnN/annotale_predict_example/Predict/TALE_DNA_sequences_(MAI1).fasta'
+#>   outdir='/tmp/RtmpeMTsnN/annotale_predict_example/Analyze'
 list.files(file.path(out, "Predict"))
 #> [1] "GFF__TALE_predictions_(MAI1).gff3"   "Genbank__TALE_predictions_(MAI1).gb"
 #> [3] "TALE_DNA_sequences_(MAI1).fasta"     "TALE_protein_sequences_(MAI1).fasta"

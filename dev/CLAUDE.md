@@ -439,7 +439,9 @@ contents first, then run this sequence, read out of
 ```r
 pkgdown::init_site(".")
 pkgdown::build_home(".")
-pkgdown::build_reference(".")           # no `quiet` argument
+pkgdown::build_reference(".", lazy = FALSE)  # lazy = TRUE is the default and skips
+                                        # pages whose .Rd is unchanged, leaving
+                                        # the old version stamp after a bump
 pkgdown::build_articles_index(".")
 # then pkgdown::build_article(name, pkg = ".") once per article,
 # "articles/tale_classification" first to prime the shared cache
