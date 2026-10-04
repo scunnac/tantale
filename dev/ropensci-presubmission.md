@@ -117,25 +117,14 @@ LazyData: true
 
 - Explain how and why the package falls under these categories (briefly, 1-2 sentences).  Please note any areas you are unsure of:
 
-  tantale is a toolkit for the analysis of TAL effectors (TALEs) of
-  *Xanthomonas*. Part of it is its own analysis code: `tell_tales()` finds
-  TALE genes in genome assemblies and corrects frameshifts in error-prone
-  long-read ones; `tales_align()` aligns TALEs repeat by repeat;
-  `tales_compare_distal()` and `tales_compare_functal()` reimplement two
-  published TALE distances; `tales_group_hclust()` and
-  `tales_group_kmedoids()` group TALEs into families. These rest on S3
-  classes (`tales`, `tales_msa`, `pairwise_distances`) with methods to
-  validate, subset, combine and plot them. The other part wraps the
-  programs of the field, AnnoTALE, PrediTALE and TALEcorrection (Java),
-  TALVEZ (Perl), and MAFFT, HMMER and MMseqs2 (in a conda environment
-  that `tantale_setup()` builds), and reads their results into the same
-  objects.
+  tantale wraps the programs the TALE field relies on (AnnoTALE,
+  PrediTALE, TALEcorrection, TALVEZ, MAFFT, HMMER, MMseqs2), installing
+  them and reading their output into validated S3 classes.
 
-  We ticked the two categories that fit the wrappers and the classes. We
-  are unsure how the analysis code is judged: it is specific to TALEs and
-  serves the same workflow, but it is more than a wrapper, and the
-  package also has plotting methods (`plot.tales()`, `plot.tales_msa()`,
-  `talomes_heatmap()`). Does this fit the scope?
+  Unsure: it also holds TALE-specific analysis code of its own (finding
+  TALE genes in error-prone assemblies, repeat-level alignment, two
+  published distance measures, clustering into families) and plotting
+  methods for its classes. Does that fit the scope?
 
 - If submitting a statistical package, have you already [incorporated documentation of standards into your code via the **srr** package](https://stats-devguide.ropensci.org/pkgdev.html#pkgdev-srr)?
 
@@ -168,24 +157,17 @@ LazyData: true
 
 -  Any other questions or issues we should be aware of?:
 
-  1. **External software.** The main workflow needs a Java runtime and a
-     conda environment with pinned versions (MAFFT 7.453, HMMER 3.3.2;
-     later MAFFT versions change the alignment of repeat strings). The
-     Java tools and four example genomes are downloaded from this
-     repository's GitHub releases by `tantale_setup(install = TRUE)` into
-     `tools::R_user_dir()`; the source package itself is about 1 MB.
-  2. **Tests.** Tests that need these programs fail when they are missing,
-     because we prefer a failing test to one that silently does not run.
-     Our GitHub Actions workflow installs them first. How should this fit
-     with the pkgcheck run of the review bot?
-  3. **Platforms.** Linux is tested. The pinned bioconda builds also exist
-     for macOS x86_64, which we have not yet tested; there are none for
-     Windows or Apple Silicon, so the package declares `OS_type: unix`.
-  4. **Redistribution.** The wrapped programs keep their own licences
-     (GPL-3 for the Jstacs tools), listed in `inst/COPYRIGHTS`. TALVEZ and
-     the QueTAL code are redistributed with their authors' permission.
-  5. **Dependencies.** 40 packages in Imports, about 15 from Bioconductor.
-     Each has a call site in the package.
+  1. **External software.** The workflow needs a Java runtime and a conda
+     environment with pinned versions (MAFFT 7.453, HMMER 3.3.2; later
+     MAFFT versions align TALE repeat strings differently). The Java
+     tools and the example genomes are downloaded from this repository's
+     releases by `tantale_setup(install = TRUE)`; the source package is
+     about 1 MB. Only Unix is supported, since the pinned bioconda builds
+     exist for Linux and Intel macOS alone.
+  2. **Tests.** Tests needing those programs fail rather than skip when
+     they are missing, since a check that silently does not run seems
+     worse than none. Our GitHub Actions workflow installs them first.
+     How should that work with the review bot's pkgcheck run?
 
 ## Use of Generative AI
 
