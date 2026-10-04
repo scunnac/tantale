@@ -3114,3 +3114,7 @@ analysis code. The draft's scope answer now leads with them and asks the
 editors directly whether that code fits; a DESCRIPTION rewrite in the
 same spirit is proposed (Q85). **Q83** co-author handle `@vibaotram`.
 **Q84** the generative-AI paragraph kept as written.
+**Q82, Q85** (maintainer, 2026-10-04): DESCRIPTION's Title and
+Description rewritten to present the whole package (discovery, classes,
+alignment, distances, grouping, then the wrappers), program names in
+single quotes as CRAN asks; `tools:::.check_package_description()` clean.
