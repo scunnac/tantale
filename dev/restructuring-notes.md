@@ -2981,7 +2981,7 @@ shorter helper name, taken as `tantale_genome()`; Q68 create the releases):
 
 ---
 
-## 51. Optional arguments for the jar wrappers (2026-10-04) **[A]**
+## 51. Optional arguments for the jar wrappers (2026-10-04) **[V]**
 
 Maintainer, 2026-10-04: the wrappers of the Java tools (AnnoTALE predict,
 analyze and build, PrediTALE, TALEcorrection) do not let a user pass the
@@ -3046,6 +3046,32 @@ Tested: PrediTALE given `outdir=` twice silently takes the last one (the
 first directory stays empty). The wrapper puts `opt_param` before its own
 keys, so a user's `s=` or `outdir=` would be silently ignored.
 
+Maintainer, 2026-10-04: **Q76** yes, the guard; **Q81** yes, the reading
+above. **Done** the same day:
+- `run_annotale_predict(opt_param = "Sensitive=false", java_args = "")`
+  (`opt_param` goes to predict only, `java_args` to both stages);
+  `run_annotale_build(opt_param = "c=5 s=0.01", java_args = "-Xms512M
+  -Xmx6G")`; `preditale(java_args = "-Xms512M -Xmx2G")`, placed after
+  `output_dir` so positional calls keep working; `correct_tales(java_args
+  = "")`. Each `@param` lists the tool's options with their defaults.
+  The analyze stage's jar path was not `shQuote()`d; it is now.
+- `.check_jar_args()` (in `R/annotale.R`, shared by four wrappers): both
+  strings must be single strings; keys of `opt_param` (a word at the
+  start or after a space, followed by `=`) that the wrapper sets itself
+  abort with `tantale_error_jar_args`, naming the R argument to use.
+- Real runs (toy regions, sweet promoters): AnnoTALE's
+  `protocol_predict.txt` echoes `Sensitive = true/false`; the sensitive
+  scan ran out of heap under `-Xmx1G` (no limit: 22 s, same two TALEs as
+  the default on the toy file); build `c=0`, `0.5` and `1` give two
+  classes where the default gives one; PrediTALE `Strand="forward
+  strand"` gives 20 sites, all `+` and all among the default's 24 `+`
+  (the default also gives 7 `-`); `-XX:+NoSuchOption` stops each wrapper
+  with its error class.
+- Tests: new `test_jar_args.R` (the guard, no Java needed); additions to
+  `test_annotale.R` (protocol echo, `c=0`), `test_target_predictions.R`
+  (forward strand), `test_external_exit_status.R` (bad `java_args`, four
+  wrappers). The five files: 32 tests, no failure. NEWS entry.
+
 ---
 
 ## 52. Readiness for rOpenSci review (2026-10-04) **[P]**
@@ -3070,3 +3096,13 @@ Candidates found before any audit (2026-10-04, by reading the code):
   The rOpenSci bot runs pkgcheck in its own container, without them.
 - No `inst/CITATION`, no `codemeta.json`; README badges: lifecycle
   "stable" at 0.9.x, coverage as a manual snapshot; CI is manual (§44 P7).
+
+Maintainer, 2026-10-04: **Q77** §51 first, then a fresh pkgcheck on HEAD
+and a pass through the devguide's author and reviewer checklists, every
+finding recorded here with a recommendation before any fix. **Q78** a
+pre-submission inquiry, posted by the maintainer: draft in
+`dev/ropensci-presubmission.md` (the issue template of
+`ropensci/software-review`, fetched 2026-10-04). It asks about the
+plotting and distance/clustering functions, and about how the review
+bot's pkgcheck should handle tests that need Java and conda. No R
+package for TALE analysis was found (a web search, 2026-10-04).

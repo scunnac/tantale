@@ -9,6 +9,7 @@ preditale(
   subj_file,
   opt_param = "",
   output_dir = NULL,
+  java_args = "-Xms512M -Xmx2G",
   predictor_path = .tantale_tool("preditale")
 )
 }
@@ -23,11 +24,26 @@ how to encode RVDs present on aberrant repeats.}
 \item{subj_file}{Expects a character vector specifying the path to the
 fasta file holding subject DNA sequence(s).}
 
-\item{opt_param}{An atomic character vector specifying optional parameters
-for PrediTALE.jar preditale (eg "Strand=\"forward strand\"").}
+\item{opt_param}{A single string of options for PrediTALE, as
+\code{key=value} pairs separated by spaces, such as
+\code{"Strand=\\"forward strand\\""}. The default, \code{""}, keeps
+PrediTALE's own: target sites on both strands (\code{Strand}) with a
+penalty of 0.01 on the reverse one (\code{r}), and a prediction
+threshold (\code{t}) from a significance level of 1e-4 (\code{sl}),
+estimated on a sub-sample of the subject sequences (\code{b}). The
+\href{https://www.jstacs.de/index.php/PrediTALE}{PrediTALE} page lists
+the alternatives (a number of expected sites, \code{n}; dedicated
+background sequences, \code{bs}). The keys this function sets itself
+(\code{TALEs}, \code{s}, \code{outdir}) are refused: use
+\code{rvd_seqs}, \code{subj_file} and \code{output_dir}.}
 
 \item{output_dir}{Expects a character vector specifying the path to an output
 directory. If not supplied, output files will be temporary.}
+
+\item{java_args}{A single string of options for the Java virtual
+machine, placed before \code{-jar}. The default starts Java with 512
+MB of memory and lets it grow to 2 GB; raise \code{-Xmx} if PrediTALE
+runs out of memory on a large subject.}
 
 \item{predictor_path}{Path to "PrediTALE.jar". The default is the copy
 \code{\link[=tantale_setup]{tantale_setup()}} downloads; give a path to use another version.}

@@ -8,6 +8,8 @@ run_annotale_predict(
   fasta_file,
   output_dir = getwd(),
   prefix = NULL,
+  opt_param = "Sensitive=false",
+  java_args = "",
   annotale_jar = .tantale_tool("annotale")
 )
 }
@@ -21,6 +23,19 @@ exist).}
 \item{prefix}{A scalar character vector containing a prefix that will be
 appended to TALE names by AnnoTALE. If not supplied, the function will try
 to guess the prefix from the input file name.}
+
+\item{opt_param}{A single string of options for the predict stage, as
+\code{key=value} pairs separated by spaces. AnnoTALE predict has one:
+\code{Sensitive}, \code{false} by default; \code{"Sensitive=true"}
+runs its sensitive scan. The keys this function sets itself
+(\code{g}, \code{s}, \code{outdir}) are refused: use
+\code{fasta_file}, \code{prefix} and \code{output_dir}. The analyze
+stage has no option of its own beyond a run name.}
+
+\item{java_args}{A single string of options for the Java virtual
+machine, placed before \code{-jar} in both stages, such as
+\code{"-Xmx8G"} to raise its memory limit. The default, \code{""},
+leaves Java's own defaults.}
 
 \item{annotale_jar}{Path to the AnnoTALE jar file. The default is the
 copy \code{\link[=tantale_setup]{tantale_setup()}} downloads; give a path to use another version.}

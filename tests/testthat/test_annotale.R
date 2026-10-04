@@ -25,6 +25,11 @@ test_that("predict finds both TALEs and flags the frameshifted copy", {
   expect_identical(sum(grepl("(Pseudo)", names(dna), fixed = TRUE)), 1L)
 })
 
+test_that("predict's opt_param reaches AnnoTALE (its protocol echoes it)", {
+  protocol <- readLines(file.path(predict_out, "Predict", "protocol_predict.txt"))
+  expect_match(grep("^Sensitive", protocol, value = TRUE), "= false$")
+})
+
 test_that("run_annotale_build() puts the two copies in one class", {
   predicted <- list.files(file.path(predict_out, "Predict"),
                           pattern = "^TALE_DNA_sequences_", full.names = TRUE)
@@ -34,4 +39,14 @@ test_that("run_annotale_build() puts the two copies in one class", {
   classes <- list.dirs(build_out, recursive = FALSE, full.names = FALSE)
   expect_identical(classes, "Class_1")
   expect_true(file.exists(file.path(build_out, "Class_builder.xml")))
+})
+
+test_that("run_annotale_build()'s opt_param reaches AnnoTALE: c=0 splits the pair", {
+  predicted <- list.files(file.path(predict_out, "Predict"),
+                          pattern = "^TALE_DNA_sequences_", full.names = TRUE)
+  build_out <- withr::local_tempdir()
+  suppressMessages(run_annotale_build(predicted, output_dir = build_out,
+                                      opt_param = "c=0"))
+  expect_identical(list.dirs(build_out, recursive = FALSE, full.names = FALSE),
+                   c("Class_1", "Class_2"))
 })

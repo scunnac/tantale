@@ -27,7 +27,10 @@
 #' @param conda_bin Path to your Conda binary file if you need to specify a
 #'   path different from the one that is automatically searched by the
 #'   reticulate package functions.
-#' 
+#' @param java_args A single string of options for the Java virtual
+#'   machine, placed before \code{-jar}, such as \code{"-Xmx8G"} to raise
+#'   its memory limit. The default, \code{""}, leaves Java's own defaults.
+#'   TALEcorrection itself takes no options beyond its inputs.
 #' 
 #' @return A tibble if \code{return_corrections} is \code{TRUE} or the path to the
 #' corrected sequences file.
@@ -46,8 +49,9 @@ correct_tales <- function(uncorrected_path ,
                      corrected_path = file.path(getwd(), "correctedTALEs.fa"),
                      hmm_path = .tantale_tool("talecorrection_hmm"),
                      return_corrections = FALSE,
-                     conda_bin = "auto") {
-  
+                     conda_bin = "auto",
+                     java_args = "") {
+  .check_jar_args(NULL, java_args, fn = "correct_tales")
   pathToTALECorrection <- .tantale_tool("talecorrection")
   outputFolder <- tempfile(pattern = "correct_tales")
   dir.exists(outputFolder) || dir.create(outputFolder, recursive = TRUE)
@@ -83,7 +87,7 @@ correct_tales <- function(uncorrected_path ,
   #### run TALEcorrection ####
   cli::cli_inform("Performing TALEs cds correction on provided sequences.")
   hmmerOut <- function(d) shQuote(file.path(outputFolder, paste0("out_nhmmer.", d, ".txt")))
-  talecorCmd <- glue::glue("java -jar {shQuote(pathToTALECorrection)} correct s={shQuote(uncorrected_path)}",
+  talecorCmd <- glue::glue("java {java_args} -jar {shQuote(pathToTALECorrection)} correct s={shQuote(uncorrected_path)}",
                   "n={hmmerOut(domains[\"N\"])} r={hmmerOut(domains[\"R\"])}",
                   "c={hmmerOut(domains[\"C\"])} outdir={shQuote(outputFolder)}", .sep = " ")
   # Its standard output was never shown; its standard error still is.

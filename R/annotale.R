@@ -30,6 +30,17 @@
 #' @param prefix A scalar character vector containing a prefix that will be
 #'   appended to TALE names by AnnoTALE. If not supplied, the function will try
 #'   to guess the prefix from the input file name.
+#' @param opt_param A single string of options for the predict stage, as
+#'   \code{key=value} pairs separated by spaces. AnnoTALE predict has one:
+#'   \code{Sensitive}, \code{false} by default; \code{"Sensitive=true"}
+#'   runs its sensitive scan. The keys this function sets itself
+#'   (\code{g}, \code{s}, \code{outdir}) are refused: use
+#'   \code{fasta_file}, \code{prefix} and \code{output_dir}. The analyze
+#'   stage has no option of its own beyond a run name.
+#' @param java_args A single string of options for the Java virtual
+#'   machine, placed before \code{-jar} in both stages, such as
+#'   \code{"-Xmx8G"} to raise its memory limit. The default, \code{""},
+#'   leaves Java's own defaults.
 #' @param annotale_jar Path to the AnnoTALE jar file. The default is the
 #'   copy [tantale_setup()] downloads; give a path to use another version.
 #' @return \code{0}, invisibly; called for the files it writes to
@@ -49,8 +60,13 @@
 run_annotale_predict <- function(fasta_file,
                             output_dir = getwd(),
                             prefix = NULL,
+                            opt_param = "Sensitive=false",
+                            java_args = "",
                             annotale_jar = .tantale_tool("annotale")
                             ) {
+  .check_jar_args(opt_param, java_args,
+                  reserved = c(g = "fasta_file", s = "prefix", outdir = "output_dir"),
+                  fn = "run_annotale_predict")
   # Define output dirs for the various stages of AnnoTALE
   stopifnot(dir.exists(output_dir) || dir.create(path = output_dir, showWarnings = TRUE, recursive = TRUE, mode = "775"))
   predict_dir <- file.path(output_dir, "Predict")
@@ -61,8 +77,8 @@ run_annotale_predict <- function(fasta_file,
   }
   # Run the "predict" stage of AnnoTALE
   comPredict <- paste0(
-    "java -jar ", shQuote(annotale_jar),
-    " predict",
+    "java ", java_args, " -jar ", shQuote(annotale_jar),
+    " predict ", opt_param,
     " g=", shQuote(fasta_file),
     " s=", shQuote(prefix),
     " outdir=", shQuote(predict_dir)
@@ -72,7 +88,7 @@ run_annotale_predict <- function(fasta_file,
 
   # Run the "analyze" stage of AnnoTALE
   comAnalyze <- paste0(
-    "java -jar ", annotale_jar,
+    "java ", java_args, " -jar ", shQuote(annotale_jar),
     " analyze ",
     " t=", shQuote(list.files(predict_dir, pattern = "^TALE_DNA_sequences_", full.names = TRUE)),
     " outdir=", shQuote(analyze_dir)
@@ -97,6 +113,18 @@ run_annotale_predict <- function(fasta_file,
 #'   classified into groups.
 #' @param output_dir Directory where output will be written (created if it does not
 #'   exist).
+#' @param opt_param A single string of options for AnnoTALE build, as
+#'   \code{key=value} pairs separated by spaces. The default writes out the
+#'   tool's own defaults: \code{c}, the cutoff on the distance that defines
+#'   the maximum extent of a TALE class (5), and \code{s}, the significance
+#'   level on the alignment p-value (0.01). An option left out of a string
+#'   of your own keeps its default. The keys this function sets itself
+#'   (\code{t}, \code{outdir}) are refused: use \code{fasta_file} and
+#'   \code{output_dir}.
+#' @param java_args A single string of options for the Java virtual
+#'   machine, placed before \code{-jar}. The default starts Java with 512
+#'   MB of memory and lets it grow to 6 GB; raise \code{-Xmx} if build runs
+#'   out of memory.
 #' @param annotale_jar Path to the AnnoTALE jar file. The default is the
 #'   copy [tantale_setup()] downloads; give a path to use another version.
 #' @return \code{0}, invisibly; called for the files it writes to
@@ -121,12 +149,17 @@ run_annotale_predict <- function(fasta_file,
 #' }
 run_annotale_build <- function(fasta_file,
                           output_dir = getwd(),
+                          opt_param = "c=5 s=0.01",
+                          java_args = "-Xms512M -Xmx6G",
                           annotale_jar = .tantale_tool("annotale")
                           ) {
+  .check_jar_args(opt_param, java_args,
+                  reserved = c(t = "fasta_file", outdir = "output_dir"),
+                  fn = "run_annotale_build")
   if(! dir.exists(output_dir)) dir.create(path = output_dir, showWarnings = TRUE, recursive = TRUE, mode = "775")
   comBuild <- paste0(
-    "java -Xms512M -Xmx6G -jar ", shQuote(annotale_jar),
-    " build ",
+    "java ", java_args, " -jar ", shQuote(annotale_jar),
+    " build ", opt_param,
     " t=", shQuote(fasta_file),
     " outdir=", shQuote(output_dir)
   )
@@ -170,4 +203,45 @@ run_annotale_build <- function(fasta_file,
       class = c("tantale_error_annotale_failed", "tantale_error"))
   }
   invisible(0L)
+}
+
+
+#' Check the strings a jar wrapper passes to Java and to the tool
+#'
+#' The Jstacs tools (AnnoTALE, PrediTALE) read \code{key=value} pairs and,
+#' given a key twice, silently keep the last: PrediTALE given two
+#' \code{outdir=} wrote to the second and left the first empty (ledger
+#' §51). The wrappers put \code{opt_param} before their own keys, so a key
+#' the wrapper also sets would be ignored without a word; refused here
+#' instead, naming the argument to use.
+#'
+#' @param opt_param,java_args The two strings; \code{NULL} for a wrapper
+#'   without that argument.
+#' @param reserved The keys the wrapper sets itself, named by key, each
+#'   value the R argument that supplies it.
+#' @param fn The wrapper's name, for the message.
+#' @return \code{NULL}, invisibly.
+#' @noRd
+.check_jar_args <- function(opt_param, java_args, reserved = character(), fn) {
+  args <- list(opt_param = opt_param, java_args = java_args)
+  for (a in names(args)) {
+    v <- args[[a]]
+    if (!is.null(v) && !(is.character(v) && length(v) == 1L && !is.na(v))) {
+      cli::cli_abort("{.arg {a}} of {.fn {fn}} must be a single string.",
+                     class = c("tantale_error_jar_args", "tantale_error"))
+    }
+  }
+  if (is.null(opt_param)) return(invisible(NULL))
+  # A key starts the string or follows a space, and is followed by "=";
+  # words inside a quoted value such as Strand="forward strand" are not.
+  keys <- regmatches(opt_param,
+                     gregexpr("(?<!\\S)[A-Za-z]+(?==)", opt_param, perl = TRUE))[[1]]
+  taken <- intersect(keys, names(reserved))
+  if (length(taken)) {
+    cli::cli_abort(
+      c("{.arg opt_param} sets {.code {paste0(taken, '=')}}, which {.fn {fn}} sets itself.",
+        "i" = "Use {.arg {unname(reserved[taken])}} instead."),
+      class = c("tantale_error_jar_args", "tantale_error"))
+  }
+  invisible(NULL)
 }

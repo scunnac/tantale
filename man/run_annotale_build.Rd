@@ -7,6 +7,8 @@
 run_annotale_build(
   fasta_file,
   output_dir = getwd(),
+  opt_param = "c=5 s=0.01",
+  java_args = "-Xms512M -Xmx6G",
   annotale_jar = .tantale_tool("annotale")
 )
 }
@@ -17,6 +19,20 @@ classified into groups.}
 
 \item{output_dir}{Directory where output will be written (created if it does not
 exist).}
+
+\item{opt_param}{A single string of options for AnnoTALE build, as
+\code{key=value} pairs separated by spaces. The default writes out the
+tool's own defaults: \code{c}, the cutoff on the distance that defines
+the maximum extent of a TALE class (5), and \code{s}, the significance
+level on the alignment p-value (0.01). An option left out of a string
+of your own keeps its default. The keys this function sets itself
+(\code{t}, \code{outdir}) are refused: use \code{fasta_file} and
+\code{output_dir}.}
+
+\item{java_args}{A single string of options for the Java virtual
+machine, placed before \code{-jar}. The default starts Java with 512
+MB of memory and lets it grow to 6 GB; raise \code{-Xmx} if build runs
+out of memory.}
 
 \item{annotale_jar}{Path to the AnnoTALE jar file. The default is the
 copy \code{\link[=tantale_setup]{tantale_setup()}} downloads; give a path to use another version.}

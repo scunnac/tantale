@@ -18,7 +18,8 @@ fasta file, or a \code{BStringSet}. A \code{tales} is rendered with
 
 \item{...}{Passed to the chosen backend. See \code{\link{talvez}}
 (\code{opt_param}, \code{talvez_dir}, \code{conda_bin}) and
-\code{\link{preditale}} (\code{opt_param}, \code{predictor_path}); both
+\code{\link{preditale}} (\code{opt_param}, \code{java_args},
+\code{predictor_path}); both
 accept \code{output_dir}. Note the two take different \code{opt_param}
 defaults, since the options are the tools' own.}
 }

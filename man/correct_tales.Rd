@@ -9,7 +9,8 @@ correct_tales(
   corrected_path = file.path(getwd(), "correctedTALEs.fa"),
   hmm_path = .tantale_tool("talecorrection_hmm"),
   return_corrections = FALSE,
-  conda_bin = "auto"
+  conda_bin = "auto",
+  java_args = ""
 )
 }
 \arguments{
@@ -31,6 +32,11 @@ operations on the sequence as a tibble.}
 \item{conda_bin}{Path to your Conda binary file if you need to specify a
 path different from the one that is automatically searched by the
 reticulate package functions.}
+
+\item{java_args}{A single string of options for the Java virtual
+machine, placed before \code{-jar}, such as \code{"-Xmx8G"} to raise
+its memory limit. The default, \code{""}, leaves Java's own defaults.
+TALEcorrection itself takes no options beyond its inputs.}
 }
 \value{
 A tibble if \code{return_corrections} is \code{TRUE} or the path to the

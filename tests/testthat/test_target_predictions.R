@@ -81,6 +81,15 @@ test_that("preditale() gives the same sites from a file or from sequences", {
   expect_equal(key(from_set), key(pt_preds), ignore_attr = TRUE)
 })
 
+test_that("preditale()'s opt_param reaches PrediTALE: forward strand only", {
+  fwd <- suppressMessages(preditale(rvd_file, subj_file = sweet,
+                                    opt_param = 'Strand="forward strand"',
+                                    output_dir = tempfile()))
+  expect_gt(nrow(fwd), 0)
+  expect_true(all(fwd$strand == "+"))
+  expect_true(any(pt_preds$strand == "-"))  # the default searches both
+})
+
 test_that("preditale() refuses a directory that already holds its results", {
   out <- tempfile()
   suppressMessages(preditale(rvd_file, subj_file = sweet, output_dir = out))

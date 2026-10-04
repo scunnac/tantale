@@ -19,10 +19,24 @@
 #'   how to encode RVDs present on aberrant repeats.
 #' @param subj_file Expects a character vector specifying the path to the
 #'   fasta file holding subject DNA sequence(s).
-#' @param opt_param An atomic character vector specifying optional parameters
-#'   for PrediTALE.jar preditale (eg "Strand=\"forward strand\"").
+#' @param opt_param A single string of options for PrediTALE, as
+#'   \code{key=value} pairs separated by spaces, such as
+#'   \code{"Strand=\\"forward strand\\""}. The default, \code{""}, keeps
+#'   PrediTALE's own: target sites on both strands (\code{Strand}) with a
+#'   penalty of 0.01 on the reverse one (\code{r}), and a prediction
+#'   threshold (\code{t}) from a significance level of 1e-4 (\code{sl}),
+#'   estimated on a sub-sample of the subject sequences (\code{b}). The
+#'   \href{https://www.jstacs.de/index.php/PrediTALE}{PrediTALE} page lists
+#'   the alternatives (a number of expected sites, \code{n}; dedicated
+#'   background sequences, \code{bs}). The keys this function sets itself
+#'   (\code{TALEs}, \code{s}, \code{outdir}) are refused: use
+#'   \code{rvd_seqs}, \code{subj_file} and \code{output_dir}.
 #' @param output_dir Expects a character vector specifying the path to an output
 #'   directory. If not supplied, output files will be temporary.
+#' @param java_args A single string of options for the Java virtual
+#'   machine, placed before \code{-jar}. The default starts Java with 512
+#'   MB of memory and lets it grow to 2 GB; raise \code{-Xmx} if PrediTALE
+#'   runs out of memory on a large subject.
 #' @param predictor_path Path to "PrediTALE.jar". The default is the copy
 #'   [tantale_setup()] downloads; give a path to use another version.
 #' @return A tibble with the EBE predictions. \strong{Note that column names
@@ -43,7 +57,11 @@
 #' head(preds)
 #' }
 preditale <- function(rvd_seqs, subj_file, opt_param = "", output_dir = NULL,
+                      java_args = "-Xms512M -Xmx2G",
                       predictor_path = .tantale_tool("preditale")) {
+  .check_jar_args(opt_param, java_args,
+                  reserved = c(TALEs = "rvd_seqs", s = "subj_file", outdir = "output_dir"),
+                  fn = "preditale")
   # Checking input args
   if (inherits(rvd_seqs, "character")) {
     rvdSeqsTest <- Biostrings::readBStringSet(rvd_seqs)
@@ -73,7 +91,7 @@ preditale <- function(rvd_seqs, subj_file, opt_param = "", output_dir = NULL,
       class = c("tantale_error_output_not_empty", "tantale_error"))
   }
   # Assembling preditale command
-  cmd <- glue::glue("java -Xms512M -Xmx2G -jar {shQuote(predictor_path)} preditale {opt_param} TALEs={shQuote(rvdSeqsFile)} s={shQuote(subj_file)} outdir={shQuote(output_dir)}")
+  cmd <- glue::glue("java {java_args} -jar {shQuote(predictor_path)} preditale {opt_param} TALEs={shQuote(rvdSeqsFile)} s={shQuote(subj_file)} outdir={shQuote(output_dir)}")
   glue::glue("## Invoking Preditale using the following command:\n", stringr::str_wrap(cmd, 80), "\n")
   # Running Preditale
   .tantale_exec(cmd, what = "PrediTALE")
@@ -588,7 +606,8 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
 #'   \code{"preditale"}.
 #' @param ... Passed to the chosen backend. See \code{\link{talvez}}
 #'   (\code{opt_param}, \code{talvez_dir}, \code{conda_bin}) and
-#'   \code{\link{preditale}} (\code{opt_param}, \code{predictor_path}); both
+#'   \code{\link{preditale}} (\code{opt_param}, \code{java_args},
+#'   \code{predictor_path}); both
 #'   accept \code{output_dir}. Note the two take different \code{opt_param}
 #'   defaults, since the options are the tools' own.
 #'

@@ -39,6 +39,27 @@ test_that("run_annotale_build() stops when AnnoTALE fails", {
     class = "tantale_error_annotale_failed")
 })
 
+test_that("a java_args Java refuses stops each jar wrapper", {
+  bad <- "-XX:+NoSuchOption"
+  expect_error(
+    suppressMessages(run_annotale_predict(toy_fasta, output_dir = tempfile(),
+                                          java_args = bad)),
+    class = "tantale_error_annotale_failed")
+  expect_error(
+    suppressMessages(run_annotale_build(toy_fasta, output_dir = tempfile(),
+                                        java_args = bad)),
+    class = "tantale_error_annotale_failed")
+  expect_error(
+    suppressMessages(preditale(Biostrings::BStringSet(c(a = "NI-HD-NG-NN-NI-HD")),
+                               subj_file = toy_fasta, output_dir = tempfile(),
+                               java_args = bad)),
+    class = "tantale_error_exec_failed")
+  expect_error(
+    suppressMessages(correct_tales(toy_fasta, corrected_path = tempfile(),
+                                   java_args = bad)),
+    class = "tantale_error_exec_failed")
+})
+
 test_that("tell_tales()'s AnnoTALE step fails with a class its caller catches", {
   expect_error(
     .run_annotale_analyze(toy_fasta, output_dir = tempfile(),
