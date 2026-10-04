@@ -3719,3 +3719,40 @@ since "which published class is this TALE" is a question tantale cannot
 answer today. The interface is declared stable, so this is an addition,
 not a change.
 
+### The catalogue answers it without computing anything (2026-10-04)
+
+`loadAndView` took **17 minutes** and wrote **440 MB**: a 382 MB
+`Class_builder_download.xml`, 429 per-class PDFs, a tree of classes, and
+plain-text lists. The XML is readable in principle (`xml2`) but is Jstacs
+serialisation holding 8,866 `<TALE>`, 168,050 `<Repeat>` and **262,960
+cached pairwise `<StringAlignment>` with costs** -- the saved state
+`assign` compares against, which is why it is that size and that slow. It
+is not where a human reads class membership.
+
+`Lists_of_classes,_strains_and_TALEs/List_of_classes.txt` (7 MB, plain
+text) is: per class, an aligned RVD matrix, one row per member, each
+tagged with its TALE id and strain. Parsed: **12,101 entries over 433
+classes**. So the classes come out of a text file, with no genome fetch,
+no `predict` and no `assign` -- the whole Q130 pipeline collapses.
+
+**Matching (Q133) works.** On `strain` + RVD string, case-insensitive:
+**126 of 128 rows match.** The two that do not are explainable: PXO99A
+`Tal7b` is the 5-repeat allele whose `unusual_feature` records "a
+deletion in the central repeat region", too degenerate to be catalogued;
+MAI1 `TalH` (12 repeats) matches an entry the catalogue attributes to
+another strain. Matching on RVD alone instead gives 127 but picks the
+wrong strain's copy where a TALE is shared, so the strain constraint
+matters.
+
+**What `annotale_group` actually encodes, and why it cannot be stored.**
+Of the 73 rows carrying a value, the **class letters agree 73/73** and
+the **trailing number differs 73/73**. The number is a member index
+within the class, running 1..n: class TalAH has 116 members numbered
+1-116, and 281 of 432 classes number theirs exactly 1..n. So `TalAH30` is
+"the 30th member of TalAH **in the catalogue of that day**". The
+catalogue grows, members renumber, and Tram's 2021 numbers no longer
+hold: `TalAH30` is `TalAH25` today, `TalBH12` is `TalBH1`. Storing the
+number in a published dataset stores something already wrong and
+guaranteed to drift; the class letters are the stable part and they
+agree perfectly.
+
