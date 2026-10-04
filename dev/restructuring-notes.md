@@ -3932,3 +3932,14 @@ Q147 is gone: the corrected string matches MAI1's own catalogue entry
 `Tal7b` has none. `?tale_annotations` says one curated value was
 corrected against the genome, and why.
 
+### Closing the session (2026-10-05)
+
+**CI green on all three R versions** on f2e402b (run 37239246389): the
+§56 fixes are confirmed. Site reference pages built for the two class
+wrappers and `tale_annotations` (162b9f1). **`v0.99.0` released** as a
+GitHub pre-release on 162b9f1, which differs from the CI-verified commit
+only in `docs/` (Q113, Q150; the maintainer asked what a release adds
+over the pushed branch: a tag pinning one commit, since `main` had moved
+24 commits under the same version number). macOS check dispatched,
+`macos-15-intel`, run 37242907805; result not yet read.
+

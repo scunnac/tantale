@@ -237,26 +237,27 @@ before trusting any of it.*
 
 ### State
 
-- **2026-10-04, second session:** version **0.99.0**, the release
-  candidate of §43; the repository is public and CI runs on every push.
-  §51 done (`opt_param`/`java_args` on the jar wrappers). §52 rOpenSci
-  readiness: three pkgcheck runs, the last clean (no R CMD check error or
-  warning, coverage 91%); F1-F9 and devguide C1-C15 triaged and mostly
-  done (CI matrix over R release/oldrel/devel with `--run-donttest`,
-  Codecov, narrowed imports, no startup message, `inst/CITATION`,
-  `SystemRequirements`, `cph` authors, outputs default to `tempdir()` and
-  are returned so calls compose, README generated from **README.qmd**).
-  **Pre-submission inquiry posted: ropensci/software-review#813.**
-  §56: the R version matrix found two failures on its first run, both
-  fixed -- R devel's `merge()` reaching an S4 `DataFrame` (three call
-  sites), and rtracklayer's `##source-version` stamp in the golden GFFs
-  (now dropped, golden re-baselined). §57: new dataset
-  **`tale_annotations`** (128 curated TALEs, ten published genomes) and
-  two new wrappers, `run_annotale_load_classes()` and
-  `run_annotale_assign()`, which place TALEs in AnnoTALE's published
-  classes. Parked: §53 hybrid correction, §54 TALVEZ in R, §55 the RVD
-  tables. Q IDs continue the ledger's sequence (Q70-Q145 this session).
-  macOS CI not yet run; `v0.99.0` pre-release not yet cut.
+- **2026-10-04/05, second session -- start here.** **`v0.99.0` released**
+  (GitHub pre-release, tag on 162b9f1), the release candidate of §43.
+  **CI green on R release, oldrel-1 and devel** (run 37239246389) after
+  the §56 fixes: R devel broke where tantale handed an `XStringSet` to
+  `data.frame()` (fixed upstream in Biostrings 2.81.9, but CI's R devel
+  job installs Bioconductor *release* packages; tantale now passes a
+  character column), and oldrel differed only by rtracklayer's
+  `##source-version` stamp in the golden GFFs (now dropped). rOpenSci
+  pre-submission inquiry posted: **ropensci/software-review#813**,
+  awaiting the editors. New since 0.99.0 was first bumped: dataset
+  `tale_annotations` (128 curated TALEs, 10 genomes, `annotale_class` from
+  AnnoTALE's catalogue, 127 of 128 classed) and the wrappers
+  `run_annotale_load_classes()` / `run_annotale_assign()` (§57); site
+  reference pages rebuilt for them.
+  **Open:** the macOS check dispatched at the end of the session (run
+  37242907805, `macos-15-intel`, three R versions) -- read its result
+  first; then a development version above 0.99.0 for any further change
+  (NEWS rule below). Parked: §53 hybrid correction, §54 TALVEZ in R, §55
+  RVD tables, and an article contrasting AnnoTALE classes with tantale's
+  grouping on `tale_annotations` (§57). Q IDs continue the ledger's
+  sequence; last used Q150.
 - **2026-10-03, fourth session (§49):** `max_comparisons` defaults to 50
   (same result as the full search on all four shipped genomes);
   `tales_from_telltales()` warns about candidate arrays AnnoTALE could not
