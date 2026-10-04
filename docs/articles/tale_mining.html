@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9011</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9012</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -548,7 +548,7 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 </section><section class="level3" data-number="5.3"><h3 data-number="5.3" id="what-is-the-best-method-for-correcting-the-dna-sequences-of-tale-arrays">
 <span class="header-section-number">5.3</span> What is the best method for correcting the DNA sequences of TALE arrays?<a class="anchor" aria-label="anchor" href="#what-is-the-best-method-for-correcting-the-dna-sequences-of-tale-arrays"></a>
 </h3>
-<p>On this genome, correction inside <code><a href="../reference/tell_tales.html">tell_tales()</a></code> gives the better result: 8 of 8 arrays come out as standard TALEs, against 6 of 8 after <code><a href="../reference/correct_tales.html">correct_tales()</a></code>. It is also about as fast: on the machine that built this page it took 63 seconds. The Java route needs two steps, <code><a href="../reference/correct_tales.html">correct_tales()</a></code> and then the <code><a href="../reference/tell_tales.html">tell_tales()</a></code> run that finds the arrays in the corrected genome, and together they took 41 seconds. One genome is a small sample, however. <code><a href="../reference/correct_tales.html">correct_tales()</a></code> repairs the whole genome in one pass, and the corrected genome can serve other analyses as well. On a new, error-prone assembly, running both routes and comparing their <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> costs a few minutes and shows the arrays on which they agree.</p>
+<p>On this genome, correction inside <code><a href="../reference/tell_tales.html">tell_tales()</a></code> gives the better result: 8 of 8 arrays come out as standard TALEs, against 6 of 8 after <code><a href="../reference/correct_tales.html">correct_tales()</a></code>. It is also about as fast: on the machine that built this page it took 64 seconds. The Java route needs two steps, <code><a href="../reference/correct_tales.html">correct_tales()</a></code> and then the <code><a href="../reference/tell_tales.html">tell_tales()</a></code> run that finds the arrays in the corrected genome, and together they took 42 seconds. One genome is a small sample, however. <code><a href="../reference/correct_tales.html">correct_tales()</a></code> repairs the whole genome in one pass, and the corrected genome can serve other analyses as well. On a new, error-prone assembly, running both routes and comparing their <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> costs a few minutes and shows the arrays on which they agree.</p>
 </section><section class="level3" data-number="5.4"><h3 data-number="5.4" id="sec-max-comparisons">
 <span class="header-section-number">5.4</span> <code>max_comparisons</code> sets the depth of the search<a class="anchor" aria-label="anchor" href="#sec-max-comparisons"></a>
 </h3>
@@ -749,7 +749,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script><script>var lightboxQuarto = GLightbox({"selector":".lightbox","closeEffect":"zoom","descPosition":"bottom","openEffect":"zoom","loop":false});
+</script><script>var lightboxQuarto = GLightbox({"selector":".lightbox","openEffect":"zoom","descPosition":"bottom","closeEffect":"zoom","loop":false});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

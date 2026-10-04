@@ -1,6 +1,6 @@
 # Changelog
 
-## tantale 0.9.9011
+## tantale 0.9.9012
 
 ### The Java tools and example genomes are downloaded by `tantale_setup()`
 

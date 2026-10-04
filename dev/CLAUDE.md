@@ -273,10 +273,11 @@ before trusting any of it.*
   `tales_names()` added (§45); package-wide colour-blind-safe colour
   style, Tol muted in `R/palette.R`, reviewed by the maintainer plot by
   plot (§46).
-- Branch `main`, version **0.9.9011**, pushed 2026-10-03, with the local
-  tag `claude-reviewed` moved to that commit (check `git status -sb`).
-  The installed `tantale` matches 55ff763 (reinstalled 2026-10-03);
-  reinstall after any change to `R/` before rendering articles.
+- Branch `main`, version **0.9.9012** (bumped 2026-10-04 with the full
+  site rebuild after R7), pushed 2026-10-04, with the local tag
+  `claude-reviewed` moved to that commit (check `git status -sb`). The
+  repository goes public again from 2026-10-04 (maintainer). Reinstall
+  after any change to `R/` before rendering articles.
 - **Road map (`dev/notes_for_claude.md`):** steps 1-3 done (§35-§37);
   R1-R5, R10 done (§39, §41); R8 CI done: manual workflow
   `.github/workflows/R-CMD-check.yaml` (`ubuntu-latest` or
