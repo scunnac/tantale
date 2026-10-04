@@ -3774,3 +3774,31 @@ Asian strains (PXO61, PXO71, PXO86, PXO99A) from the African ones (MAI1,
 MAI68, MAI129, MAI134, BAI3, AXO1947), which share almost no classes
 with them.
 
+### What the completed table shows, and an argument for tantale's grouping
+
+Maintainer, 2026-10-04, on the `talomes_heatmap()` figure: the biology is
+as expected. Checked against the data:
+- The Asian strains (PXO61, PXO71, PXO86, PXO99A) and the African ones
+  (MAI1, MAI68, MAI129, MAI134, BAI3, AXO1947) share **no AnnoTALE class
+  at all**: 27 classes against 11, zero in common.
+- The six African strains share a **core of nine classes** (TalBS, TalDG,
+  TalDH, TalDI, TalDJ, TalDK, TalDL, TalDM, TalDN), which is Doucouré et
+  al.'s "all sequenced strains shared nine evolutionary related tal
+  effector genes" (Frontiers in Microbiology 9:1657,
+  \doi{10.3389/fmicb.2018.01657}, PMID 30127769 -- already the `pubmed`
+  value on those rows).
+- Two classes sit outside that core: **TalFR in MAI129 and MAI68**, and
+  **TalFU in MAI68 alone**. (The maintainer recalled the pair as MAI68 and
+  MAI134; the table says MAI129.)
+- All nine truncTALEs are in Asian strains.
+
+**The maintainer's point, worth keeping for an article:** AnnoTALE gives
+those divergent MAI68/MAI129 TALEs *classes of their own*, so they show
+up as isolated columns saying nothing about how far out they are -- a
+class is a hard partition. `tales_group_hclust()` on DisTAL distances
+would keep them inside a consistent African group while showing their
+divergence, which is information the class label discards. That contrast,
+drawn on this very dataset, would make a concrete case for the package's
+grouping as a complementary view. Vignettes come last, so this is noted,
+not started.
+
