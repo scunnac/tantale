@@ -175,11 +175,4 @@ LazyData: true
 
 If so, please describe usage, and include links to any relevant aspects of your repository. See [our blog post](https://ropensci.org/blog/2026/02/26/ropensci-ai-policy/) for background. (Explicit advice is not yet included in our _Dev Guide_; we are hoping to update very soon, and ask your cooperation and transparency in the meantime.)
 
-  The 2026 restructuring
-  of the package (refactoring, tests, documentation and website articles)
-  was done with Claude (Anthropic) through Claude Code, working under the
-  maintainer's direction; every plan was agreed and every change reviewed
-  by the maintainer. The decisions and their reasons are recorded in
-  [`dev/restructuring-notes.md`](https://github.com/scunnac/tantale/blob/main/dev/restructuring-notes.md),
-  and the working instructions given to the assistant in
-  [`dev/CLAUDE.md`](https://github.com/scunnac/tantale/blob/main/dev/CLAUDE.md).
+The 2026 restructuring of the package (refactoring, tests, documentation and website articles) was done with Claude (Anthropic) through Claude Code, working under the maintainer's direction; every plan was agreed and every change reviewed by the maintainer. The decisions and their reasons are recorded in [`dev/restructuring-notes.md`](https://github.com/scunnac/tantale/blob/main/dev/restructuring-notes.md), and the working instructions given to the assistant in [`dev/CLAUDE.md`](https://github.com/scunnac/tantale/blob/main/dev/CLAUDE.md).
