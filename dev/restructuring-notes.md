@@ -3118,3 +3118,32 @@ same spirit is proposed (Q85). **Q83** co-author handle `@vibaotram`.
 Description rewritten to present the whole package (discovery, classes,
 alignment, distances, grouping, then the wrappers), program names in
 single quotes as CRAN asks; `tools:::.check_package_description()` clean.
+
+---
+
+## 53. Correction strategies inside `tell_tales()` (future release) **[P]**
+
+Maintainer, 2026-10-04, for a release after this one: prototype new
+correction methods in `tell_tales()`:
+1. `correct_tales()` on the whole input up front, then the usual search.
+2. `correct_tales()` on each candidate ORF separately (not known whether
+   TALEcorrection works on a single ORF).
+3. In either, an ORF that is still broken after `correct_tales()` goes to
+   the DECIPHER correction (today's `correct_array = TRUE`).
+
+Evidence that motivates the hybrid (§49, truncTALE article): on BAI3-1-1
+`correct_tales()` left the N-termini of `ROI_00006` and `ROI_00009`
+unmatched (24 aa) where DECIPHER repaired them; on PXO86 DECIPHER
+over-corrected the truncTALE `ROI_00001` (C-terminus 183 -> 216 aa) and
+`correct_tales()` left it alone. Each method fixes what the other gets
+wrong on these genomes.
+
+Open before any code: a definition of "broken" for step 3. Candidates
+already computed per array: a missing or unmatched terminus
+(`*_aa_profile_gap`, §42), ORF coverage, AnnoTALE failing to parse the
+ORF (§49 Q59), the non-standard structures `tales_anomalies()` reports.
+A rule that sends a genuine truncTALE to DECIPHER reproduces the
+over-correction, so the definition has to be checked against
+`ROI_00001`/`ROI_00019` of PXO86. Also to settle: how the method is
+chosen (`correct_array` taking a method name rather than `TRUE`/`FALSE`?)
+and how the output records which correction each array received.
