@@ -113,8 +113,8 @@ genomes-1 of https://github.com/scunnac/tantale:
   MAI1.fa   Xanthomonas oryzae pv. oryzae MAI1, GenBank CP025609.1
   BAI3.fa   Xanthomonas oryzae pv. oryzae BAI3, GenBank CP025610.1
   PXO86.fa  Xanthomonas oryzae pv. oryzae PXO86, RefSeq NZ_CP007166.1
-  BAI3-1-1.fa  an unpublished assembly of a BAI3 derivative,
-      distributed for use with tantale.
+  BAI3-1-1.fa  an unpublished assembly of a BAI3 derivative, produced
+      by the tantale authors and available only from this release.
 
 The sequences of MAI1, BAI3 and PXO86 are identical to the cited NCBI
 records (checked 2026-10-04); only the FASTA headers are shortened.

@@ -25,8 +25,9 @@
 #'
 #' @param fasta_file Path to a fasta file containing DNA sequences (e.g. a
 #'   genome assembly) to be analyzed for TALE content.
-#' @param output_dir Directory where output will be written (created if it does not
-#'   exist).
+#' @param output_dir Directory where output will be written, created if it
+#'   does not exist. Required: tantale does not write to the working
+#'   directory unasked.
 #' @param prefix A scalar character vector containing a prefix that will be
 #'   appended to TALE names by AnnoTALE. If not supplied, the function will try
 #'   to guess the prefix from the input file name.
@@ -58,7 +59,7 @@
 #' list.files(file.path(out, "Predict"))
 #' }
 run_annotale_predict <- function(fasta_file,
-                            output_dir = getwd(),
+                            output_dir,
                             prefix = NULL,
                             opt_param = "Sensitive=false",
                             java_args = "",
@@ -111,8 +112,9 @@ run_annotale_predict <- function(fasta_file,
 #' @param fasta_file Path to a \code{TALE_DNA_sequences_*} fasta file, as
 #'   written by \code{\link{run_annotale_predict}}'s "predict" stage, to be
 #'   classified into groups.
-#' @param output_dir Directory where output will be written (created if it does not
-#'   exist).
+#' @param output_dir Directory where output will be written, created if it
+#'   does not exist. Required: tantale does not write to the working
+#'   directory unasked.
 #' @param opt_param A single string of options for AnnoTALE build, as
 #'   \code{key=value} pairs separated by spaces. The default writes out the
 #'   tool's own defaults: \code{c}, the cutoff on the distance that defines
@@ -148,7 +150,7 @@ run_annotale_predict <- function(fasta_file,
 #' list.files(build_out)
 #' }
 run_annotale_build <- function(fasta_file,
-                          output_dir = getwd(),
+                          output_dir,
                           opt_param = "c=5 s=0.01",
                           java_args = "-Xms512M -Xmx6G",
                           annotale_jar = .tantale_tool("annotale")

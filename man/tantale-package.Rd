@@ -104,4 +104,9 @@ Authors:
   \item Bao Tram Vi \email{vbt576@gmail.com} (\href{https://orcid.org/0000-0002-4319-5544}{ORCID})
 }
 
+Other contributors:
+\itemize{
+  \item Alvaro L. Pérez-Quintero (Author of the bundled TALVEZ 3.2 and of the FuncTAL table behind rvd_dna_specificity) [copyright holder]
+}
+
 }

@@ -7,7 +7,10 @@ Authors@R: c(
     comment = c(ORCID = "0000-0002-4319-5544")),
     person(given = "Sebastien", family = "Cunnac",
     email = "sebastien.cunnac@ird.fr", role = c("aut", "cre"),
-    comment = c(ORCID = "0000-0002-3695-491X"))
+    comment = c(ORCID = "0000-0002-3695-491X")),
+    person(given = c("Alvaro", "L."), family = "Pérez-Quintero",
+    role = "cph",
+    comment = "Author of the bundled TALVEZ 3.2 and of the FuncTAL table behind rvd_dna_specificity")
           )
 Maintainer: Sebastien Cunnac <sebastien.cunnac@ird.fr>
 Description: A toolkit for the study of transcription activator-like
@@ -32,6 +35,8 @@ URL: https://scunnac.github.io/tantale/, https://github.com/scunnac/tantale
 BugReports: https://github.com/scunnac/tantale/issues
 Depends:
     R (>= 4.0.0)
+SystemRequirements: Java (>= 8), Perl, and conda, mamba or micromamba
+    (which tantale_setup() uses to install MAFFT, HMMER and MMseqs2)
 Imports:
     magrittr, fs, dplyr, ggplot2 (>= 3.5.0), tibble, stringr, readr, glue,
     IRanges, Biostrings, pwalign, GenomicRanges, BSgenome, plyranges,

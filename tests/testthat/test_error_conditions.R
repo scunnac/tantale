@@ -103,6 +103,12 @@ test_that(".split_list() rejects input it cannot split", {
   expect_error(.split_list(1:3), class = "tantale_error_bad_argument")
 })
 
+test_that("correct_tales() asks for corrected_path before running anything", {
+  subj <- system.file("extdata", "bai3_sample_tal_genomic_regions.fasta",
+                      package = "tantale", mustWork = TRUE)
+  expect_error(correct_tales(subj), class = "tantale_error_missing_output")
+})
+
 test_that("correct_tales() names a missing input file", {
   missing <- file.path(tempdir(), "no_such_file.fa")
   expect_error(correct_tales(missing), class = "tantale_error_missing_file")

@@ -14,7 +14,8 @@
 #' sequences in no correction mode.
 #'
 #' @param uncorrected_path Path to the input sequence file
-#' @param corrected_path Path of the output file
+#' @param corrected_path Path of the output file. Required: tantale does not
+#'   write to the working directory unasked.
 #' @param hmm_path Path to the folder containing the profile HMM files. The
 #' default points to the ones built from Xanthomonas oryzae pv. oryzae (Xoo)
 #' templates, in the tools [tantale_setup()] downloads; Xoc (X. oryzae pv.
@@ -46,7 +47,7 @@
 #' correct_tales(uncorrected_path = subj, corrected_path = out_fa)
 #' }
 correct_tales <- function(uncorrected_path ,
-                     corrected_path = file.path(getwd(), "correctedTALEs.fa"),
+                     corrected_path,
                      hmm_path = .tantale_tool("talecorrection_hmm"),
                      return_corrections = FALSE,
                      conda_bin = "auto",
@@ -63,6 +64,14 @@ correct_tales <- function(uncorrected_path ,
   if (!fs::file_exists(uncorrected_path)) {
     cli::cli_abort("No sequence file at {.file {uncorrected_path}}.",
                    class = c("tantale_error_missing_file", "tantale_error"))
+  }
+  # Checked here: the path is otherwise first read after the searches and
+  # the correction have run.
+  if (missing(corrected_path)) {
+    cli::cli_abort(
+      c("{.arg corrected_path} is required.",
+        "i" = "Give the file to write the corrected sequences to."),
+      class = c("tantale_error_missing_output", "tantale_error"))
   }
   
   #### run nHMMER ####

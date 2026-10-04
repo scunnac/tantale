@@ -6,7 +6,7 @@
 \usage{
 run_annotale_predict(
   fasta_file,
-  output_dir = getwd(),
+  output_dir,
   prefix = NULL,
   opt_param = "Sensitive=false",
   java_args = "",
@@ -17,8 +17,9 @@ run_annotale_predict(
 \item{fasta_file}{Path to a fasta file containing DNA sequences (e.g. a
 genome assembly) to be analyzed for TALE content.}
 
-\item{output_dir}{Directory where output will be written (created if it does not
-exist).}
+\item{output_dir}{Directory where output will be written, created if it
+does not exist. Required: tantale does not write to the working
+directory unasked.}
 
 \item{prefix}{A scalar character vector containing a prefix that will be
 appended to TALE names by AnnoTALE. If not supplied, the function will try

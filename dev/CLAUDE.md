@@ -81,10 +81,11 @@ pd[pd$token == "SYMBOL_FUNCTION_CALL" &
    pd$text %in% c("stop", "warning", "message"), ]
 ```
 
-Legitimate exceptions: `cat()` inside `print`/`format` methods,
-`packageStartupMessage()` in `startup.R`, and `stopifnot()` for internal
-invariants that are not addressed to the user. No other call remains in
-`R/` (re-checked 2026-09-23).
+Legitimate exceptions: `cat()` inside `print`/`format` methods and
+`stopifnot()` for internal invariants that are not addressed to the user.
+No other call remains in `R/` (re-checked 2026-09-23). There is no
+startup message (rOpenSci forbids one unless necessary; `startup.R`
+removed 2026-10-04, §52 C1).
 
 **Run the environment's programs by absolute path, never via `PATH` or
 `conda run`.** `.tantale_bin(tools)` resolves them inside the conda prefix

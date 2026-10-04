@@ -680,7 +680,7 @@
 #'   array.
 #' @noRd
 .run_annotale_analyze <- function(fasta_file,
-                                  output_dir = getwd(),
+                                  output_dir,
                                   prefix = NULL,
                                   annotale_jar = .tantale_tool("annotale")) {
   stopifnot(dir.exists(output_dir) || dir.create(path = output_dir, showWarnings = TRUE,
@@ -1307,8 +1307,9 @@
 #'
 #' @param subject_file Fasta file with DNA sequence(s) to be searched for the
 #'   presence of TALE coding sequences (CDS).
-#' @param output_dir Path of the output directory. If not specified, results will
-#'   be written to current working folder.
+#' @param output_dir Path of the output directory, created if it does not
+#'   exist. Required: tantale does not write to the working directory
+#'   unasked.
 #' @param hmm_dir Folder holding the profile HMMs, if you do not want the
 #'   ones provided with tantale. It must hold files with the same names: the
 #'   three DNA profiles of the nhmmer search
@@ -1535,7 +1536,7 @@
 #' }
 tell_tales <- function(
   subject_file,
-  output_dir = getwd(),
+  output_dir,
   hmm_dir = system.file("extdata", "hmmProfile", package = "tantale", mustWork = T),
   nterm_min_score = 300,
   repeat_min_score = 20,

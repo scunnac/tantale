@@ -7,7 +7,7 @@ in subject DNA sequences}
 \usage{
 tell_tales(
   subject_file,
-  output_dir = getwd(),
+  output_dir,
   hmm_dir = system.file("extdata", "hmmProfile", package = "tantale", mustWork = T),
   nterm_min_score = 300,
   repeat_min_score = 20,
@@ -33,8 +33,9 @@ tell_tales(
 \item{subject_file}{Fasta file with DNA sequence(s) to be searched for the
 presence of TALE coding sequences (CDS).}
 
-\item{output_dir}{Path of the output directory. If not specified, results will
-be written to current working folder.}
+\item{output_dir}{Path of the output directory, created if it does not
+exist. Required: tantale does not write to the working directory
+unasked.}
 
 \item{hmm_dir}{Folder holding the profile HMMs, if you do not want the
 ones provided with tantale. It must hold files with the same names: the

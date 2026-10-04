@@ -1,7 +1,9 @@
-# R CMD check with the full test suite: on Linux for every push to main and
-# every pull request into it (not for changes confined to the site, dev/ or
-# pkgdown/), and by hand from the Actions tab or with
-# `gh workflow run R-CMD-check.yaml -f os=<runner>`, which also offers macOS.
+# R CMD check with the full test suite and the \donttest examples, on the
+# current, previous and development versions of R (rOpenSci asks for all
+# three): on Linux for every push to main and every pull request into it (not
+# for changes confined to the site, dev/ or pkgdown/), and by hand from the
+# Actions tab or with `gh workflow run R-CMD-check.yaml -f os=<runner>`,
+# which also offers macOS.
 # The tests need MAFFT and HMMER from the tantale conda environment, which
 # tantale_setup() builds here exactly as a user would: micromamba first,
 # then tantale_setup(install = TRUE), which also installs the Java tools
@@ -37,6 +39,11 @@ jobs:
   check:
     # inputs.os is empty on push and pull_request events
     runs-on: ${{ inputs.os || 'ubuntu-latest' }}
+    name: ${{ inputs.os || 'ubuntu-latest' }} (R ${{ matrix.r }})
+    strategy:
+      fail-fast: false
+      matrix:
+        r: [release, oldrel-1, devel]
     timeout-minutes: 120
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
@@ -50,6 +57,7 @@ jobs:
 
       - uses: r-lib/actions/setup-r@v2
         with:
+          r-version: ${{ matrix.r }}
           use-public-rspm: true
 
       - uses: r-lib/actions/setup-r-dependencies@v2
@@ -79,6 +87,6 @@ jobs:
 
       - uses: r-lib/actions/check-r-package@v2
         with:
-          args: 'c("--no-manual")'
+          args: 'c("--no-manual", "--run-donttest")'
           error-on: '"error"'
           upload-snapshots: true

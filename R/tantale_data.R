@@ -149,8 +149,9 @@
 #' NZ_CP007166.1) are complete genomes of African and Asian strains;
 #' the sequences are those of the records, with shortened FASTA headers.
 #' BAI3-1-1 is an unpublished assembly of a BAI3 derivative that carries
-#' sequencing and assembly errors in its TALE loci, distributed with tantale
-#' to illustrate frameshift correction.
+#' sequencing and assembly errors in its TALE loci. It was produced by the
+#' authors of tantale, is available only from the package's `genomes-1`
+#' release, and serves to illustrate frameshift correction.
 #'
 #' @param strain Which genome.
 #' @return The path of a FASTA file.

@@ -6,7 +6,7 @@
 \usage{
 run_annotale_build(
   fasta_file,
-  output_dir = getwd(),
+  output_dir,
   opt_param = "c=5 s=0.01",
   java_args = "-Xms512M -Xmx6G",
   annotale_jar = .tantale_tool("annotale")
@@ -17,8 +17,9 @@ run_annotale_build(
 written by \code{\link{run_annotale_predict}}'s "predict" stage, to be
 classified into groups.}
 
-\item{output_dir}{Directory where output will be written (created if it does not
-exist).}
+\item{output_dir}{Directory where output will be written, created if it
+does not exist. Required: tantale does not write to the working
+directory unasked.}
 
 \item{opt_param}{A single string of options for AnnoTALE build, as
 \code{key=value} pairs separated by spaces. The default writes out the

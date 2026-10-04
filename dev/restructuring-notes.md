@@ -3271,6 +3271,45 @@ cli conditions, object_verb naming, coverage 91%. Findings:
 - **C15** Code style: Air or styler recommended, not required (1100 long
   lines, F5). Leave.
 
+Maintainer, 2026-10-04 (Q94-Q103; the repository is public since the
+night of 2026-10-04): all yes. Q97: Codecov enabled by the maintainer
+(`CODECOV_TOKEN` secret present). Q99: no tantale paper to cite yet.
+Q100: the maintainer believed `simplescancode/` had been recoded in R;
+it has not (ARLEM was, §33): `talvez()` runs TALVEZ_3.2.pl, which calls
+`java simplescancode.Background` and `simplescancode.Scan`, so the cph
+question for its authors stays open (Q104). Q102: BAI3-1-1 was produced
+by the package authors and is available only in tantale. **Done:**
+- C1 `R/startup.R` removed (the greeting); dev/CLAUDE.md's cli rule
+  updated.
+- C2 `SystemRequirements: Java (>= 8), Perl, and conda, mamba or
+  micromamba` (the jars are class version 52).
+- C4 `.github/workflows/test-coverage.yaml` (covr with the tools
+  installed as in R-CMD-check, upload with `CODECOV_TOKEN`); Codecov
+  badge in the README draft.
+- C5/C6 R-CMD-check matrix over R release, oldrel-1 and devel;
+  `--run-donttest`.
+- C7 `inst/CITATION`: a Manual entry for the package, footer with the
+  DOIs of AnnoTALE, TALEcorrection, PrediTALE, TALVEZ, DisTAL/FuncTAL.
+- C8 Alvaro L. Pérez-Quintero as `cph` in `Authors@R`.
+- C10 BAI3-1-1's origin in `inst/COPYRIGHTS` and `?tantale_genome`.
+- C13 `output_dir` required in `tell_tales()`, `run_annotale_predict()`,
+  `run_annotale_build()` (and the internal `.run_annotale_analyze()`),
+  `corrected_path` in `correct_tales()`, which checks it before running
+  anything (`tantale_error_missing_output`, tested). No call in tests,
+  examples or articles relied on the defaults. NEWS entries.
+- Checks: targeted tests (error_conditions, correct_tales, annotale,
+  jar_args, golden: 40 tests, 0 failures); `rcmdcheck` without tests or
+  vignettes: 0 errors, 0 warnings, 0 notes.
+- C3/C9 README draft left uncommitted for the maintainer: repostatus and
+  Codecov badges, platforms paragraph (Linux and Intel macOS; why not
+  Windows), a Usage section (run for real: 31 s, 9 MAI1 arrays, TALVEZ
+  predictions on the SWEET promoters), Related software, Citation, the
+  daTALbase "to be done" bullet removed, contributing points to
+  CONTRIBUTING and the issues.
+- Maintainer, 2026-10-04: asks whether README should be generated from a
+  README.qmd ("discussed before and concluded not"; no record of that
+  decision in the ledger or the history). Q105.
+
 ---
 
 ## 53. Correction strategies inside `tell_tales()` (future release) **[P]**

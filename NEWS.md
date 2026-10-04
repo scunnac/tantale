@@ -1,5 +1,26 @@
 # tantale 0.9.9012
 
+## Output locations are required
+
+`tell_tales()`, `run_annotale_predict()` and `run_annotale_build()` no
+longer default `output_dir` to the working directory, and
+`correct_tales()` no longer writes `correctedTALEs.fa` there by default:
+`output_dir` and `corrected_path` must now be given. A package should not
+write to the working directory unasked (CRAN policy, rOpenSci review).
+A call that relied on the default now stops at once, naming the argument.
+
+## No startup message
+
+`library(tantale)` no longer prints a greeting.
+
+## Citation and system requirements
+
+`citation("tantale")` gives a reference for the package and lists the
+papers of the methods it wraps or reimplements. DESCRIPTION declares the
+system requirements (Java 8 or later, Perl, and conda, mamba or
+micromamba) and lists Alvaro L. Pérez-Quintero as copyright holder of the
+bundled TALVEZ and FuncTAL material.
+
 ## Options for the Java tools
 
 `run_annotale_predict()` and `run_annotale_build()` gain `opt_param`, a
