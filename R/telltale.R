@@ -625,8 +625,10 @@
       dplyr::filter(variable == which) %>%
       dplyr::select(-variable)
   }
+  # as.data.frame() first: see .telltale_add_array_measures() on R devel's
+  # merge.data.frame and the S4Vectors DataFrame method (ledger §56).
   S4Vectors::mcols(by_array) <- merge(
-    S4Vectors::mcols(by_array),
+    as.data.frame(S4Vectors::mcols(by_array)),
     dplyr::full_join(indels("insertions", "predicted_ins_count"),
                      indels("deletions", "predicted_dels_count"), by = "Seq"),
     by.x = "array_id", by.y = "Seq", all.x = TRUE)
@@ -1044,12 +1046,18 @@
     colnames(df) <- c("array_id", lengthCol)
     df
   })
-  S4Vectors::mcols(by_array) <- merge(S4Vectors::mcols(by_array),
+  # as.data.frame() first, rather than letting merge() reach an S4
+  # DataFrame: R devel's merge.data.frame calls as.data.frame(y, validRN =
+  # FALSE), and the S4Vectors method takes no validRN, so every tell_tales()
+  # call aborted there under R devel (ledger §56). merge()'s other side was
+  # already a plain data.frame, so this only makes explicit what the code
+  # relied on; mcols<- coerces back.
+  S4Vectors::mcols(by_array) <- merge(as.data.frame(S4Vectors::mcols(by_array)),
                                       do.call(merge, endsAAlength),
                                       by = "array_id", all.x = TRUE)
 
   moreInfo <- merge(
-    S4Vectors::mcols(by_array),
+    as.data.frame(S4Vectors::mcols(by_array)),
     data.frame(array_id = names(full_orf),
                longest_orf_length = Biostrings::nchar(full_orf),
                orf_coverage = round(100 * Biostrings::nchar(full_orf) /

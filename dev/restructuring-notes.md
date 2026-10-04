@@ -3549,6 +3549,15 @@ how S4Vectors tracks base's signature; (b) use a dplyr join on a plain
 data frame; (c) wait for S4Vectors to catch up and keep devel red.
 Prefer (a).
 
+**Devel fixed 2026-10-04 (Q138), option (a).** Three call sites, not two:
+`.telltale_add_array_measures()` (two `merge()` calls) and the
+correction path in `.telltale_array_orfs()` (the indel counts), all
+passing `S4Vectors::mcols(by_array)` straight to `merge()`. Each now
+wraps it in `as.data.frame()`; `mcols<-` coerces back. Behaviour-neutral
+on R release: golden 18/18 unchanged, `test_tell_tales.R`,
+`test_tell_tales_correction.R`, `test_tell_tales_guards.R` 31/31.
+Confirmation on devel needs a CI run.
+
 **R oldrel-1: the golden `all_ranges.gff` digest.** 2 failures
 (`test_golden.R:142` and `:249`), both row 1 of the fingerprint,
 `all_ranges.gff`: the digest differs while `n_lines` (199) and
