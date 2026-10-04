@@ -37,3 +37,22 @@ test_that("opt_param and java_args must be single strings", {
   expect_error(preditale(toy_fasta, subj_file = toy_fasta, java_args = 2),
                class = "tantale_error_jar_args")
 })
+
+test_that("the class tools refuse keys they set themselves", {
+  expect_error(run_annotale_assign(toy_fasta, toy_fasta, opt_param = "c=other.xml"),
+               class = "tantale_error_jar_args")
+  expect_error(run_annotale_assign(toy_fasta, toy_fasta, opt_param = "s=X outdir=/tmp"),
+               class = "tantale_error_jar_args")
+  expect_error(run_annotale_load_classes(opt_param = "cb=other.xml"),
+               class = "tantale_error_jar_args")
+})
+
+test_that("the class tools name a missing input before starting Java", {
+  missing <- file.path(tempdir(), "no_such_file.xml")
+  expect_error(run_annotale_assign(toy_fasta, class_builder = missing),
+               class = "tantale_error_missing_file")
+  expect_error(run_annotale_assign(missing, class_builder = toy_fasta),
+               class = "tantale_error_missing_file")
+  expect_error(run_annotale_load_classes(class_builder = missing),
+               class = "tantale_error_missing_file")
+})

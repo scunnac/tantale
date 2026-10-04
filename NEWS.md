@@ -1,5 +1,16 @@
 # tantale 0.99.0
 
+## TALEs can be assigned to AnnoTALE's published classes
+
+`run_annotale_load_classes()` fetches AnnoTALE's curated catalogue of TALE
+classes, and `run_annotale_assign()` places a set of TALEs into it,
+proposing the systematic names the literature uses (`TalAH`, `TalBK`).
+Until now tantale wrapped only `run_annotale_build()`, which groups the
+TALEs you give it among themselves and cannot say what the rest of the
+world calls them. The catalogue takes about a quarter of an hour to
+download and is around 440 MB, so keep it and reuse it rather than
+fetching it per call.
+
 ## A curated reference talome: `tale_annotations`
 
 A new dataset gives the TALEs of ten complete, published *Xanthomonas

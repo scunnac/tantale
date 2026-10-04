@@ -250,3 +250,189 @@ run_annotale_build <- function(fasta_file,
   }
   invisible(NULL)
 }
+
+
+#' Download AnnoTALE's catalogue of TALE classes
+#'
+#' A TALE class groups the TALEs of different strains that are similar
+#' enough to be considered the same effector, and carries the systematic
+#' name the literature uses for it (\code{TalAA}, \code{TalAB}, ...).
+#' AnnoTALE curates that catalogue and publishes it; this is an R wrapper
+#' around its 'AnnoTALEcli.jar loadAndView' call, which downloads the
+#' current definition. \code{\link{run_annotale_assign}} consumes what it
+#' writes.
+#'
+#' @details
+#' The download is slow and bulky: about a quarter of an hour, and some
+#' 440 MB of output, most of it the class builder itself, which carries a
+#' cached alignment between every pair of catalogued TALEs. The file is
+#' therefore kept once and reused rather than fetched per call, which is
+#' what \code{output_dir} is for: point it at a directory you keep, and
+#' pass the returned path to \code{\link{run_annotale_assign}} as often as
+#' you like.
+#'
+#' Record the date along with any class you take from it. A class name is
+#' stable, but the catalogue grows, and the index AnnoTALE appends to the
+#' class when it names a TALE (\code{TalAH30}, the thirtieth member of
+#' \code{TalAH}) is only true of the catalogue that produced it.
+#'
+#' @param output_dir Directory where the catalogue will be written, created
+#'   if it does not exist. The default is a new directory under
+#'   [tempdir()], which R deletes when the session ends: given how long the
+#'   download takes, give a path you keep.
+#' @param class_builder Path to a class builder XML to read instead of
+#'   downloading, as written by an earlier call. \code{NULL}, the default,
+#'   downloads the current definition.
+#' @param opt_param A single string of further options for the tool, as
+#'   \code{key=value} pairs separated by spaces. The keys this function
+#'   sets itself (\code{c}, \code{cb}, \code{outdir}) are refused: use
+#'   \code{class_builder} and \code{output_dir}.
+#' @param java_args A single string of options for the Java virtual
+#'   machine, placed before \code{-jar}. The default raises the heap to 8
+#'   GB, which the catalogue needs; rebuilding it was seen to hold 1.8 GB
+#'   resident.
+#' @param annotale_jar Path to the AnnoTALE jar file. The default is the
+#'   copy [tantale_setup()] downloads; give a path to use another version.
+#' @return The path of the class builder XML, invisibly, so the call can be
+#'   passed straight to \code{\link{run_annotale_assign}}. Beside it,
+#'   \code{output_dir} also holds \code{Lists_of_classes,_strains_and_TALEs/},
+#'   whose \code{List_of_classes.txt} gives every class as plain text, one
+#'   line per member with its aligned repeat-variable diresidues, strain
+#'   and systematic name. That file answers "which class is this TALE in"
+#'   without going through \code{\link{run_annotale_assign}} at all, when
+#'   the TALE is already catalogued.
+#' @export
+#' @family external TALE tools
+#' @seealso \code{\link{run_annotale_assign}}, which places TALEs into
+#'   these classes.
+#' @examples
+#' \dontrun{
+#' # Slow: downloads and rebuilds the catalogue, about 15 minutes.
+#' classes <- run_annotale_load_classes(output_dir = "annotale_classes")
+#' }
+run_annotale_load_classes <- function(output_dir = tempfile("annotale_classes_"),
+                                      class_builder = NULL,
+                                      opt_param = "",
+                                      java_args = "-Xms512M -Xmx8G",
+                                      annotale_jar = .tantale_tool("annotale")) {
+  .check_jar_args(opt_param, java_args,
+                  reserved = c(c = "class_builder", cb = "class_builder",
+                               outdir = "output_dir"),
+                  fn = "run_annotale_load_classes")
+  stopifnot(dir.exists(output_dir) ||
+              dir.create(output_dir, showWarnings = TRUE, recursive = TRUE))
+  source <- if (is.null(class_builder)) {
+    "c=\"Download current definition\""
+  } else {
+    if (!file.exists(class_builder)) {
+      cli::cli_abort("No class builder at {.file {class_builder}}.",
+                     class = c("tantale_error_missing_file", "tantale_error"))
+    }
+    paste0("c=\"Load from local file\" cb=", shQuote(class_builder))
+  }
+  command <- paste0(
+    "java ", java_args, " -jar ", shQuote(annotale_jar),
+    " loadAndView ", opt_param, " ", source,
+    " outdir=", shQuote(output_dir)
+  )
+  cli::cli_inform(c(
+    "Loading AnnoTALE's TALE classes",
+    if (is.null(class_builder)) c("i" = "Downloading the current definition; this takes several minutes."),
+    " " = "{command}"))
+  .annotale_exec(command, "loadAndView")
+
+  built <- list.files(output_dir, pattern = "^Class_builder.*\\.xml$",
+                      full.names = TRUE)
+  if (length(built) == 0L) {
+    cli::cli_abort(
+      c("{.fn run_annotale_load_classes} wrote no class builder to {.file {output_dir}}.",
+        "i" = "AnnoTALE reported no error, so this is unexpected."),
+      class = c("tantale_error_annotale_failed", "tantale_error"))
+  }
+  invisible(built[[1L]])
+}
+
+
+#' Assign TALEs to AnnoTALE's published classes
+#'
+#' An R wrapper around the 'AnnoTALEcli.jar assign' call. Each TALE given
+#' is placed in the class of the catalogue it belongs to, and any that fit
+#' none open a new class. Where
+#' \code{\link{run_annotale_build}} groups the TALEs you hand it among
+#' themselves, knowing nothing of what the rest of the world calls them,
+#' this one answers "which published class is this TALE in", so its names
+#' can be compared with the literature's.
+#'
+#' @param fasta_file Path to the TALEs to assign: DNA or protein sequences,
+#'   RVD sequences, or the \code{TALE DNA parts}/\code{TALE Protein parts}
+#'   written by \code{\link{run_annotale_predict}}'s analyze stage.
+#' @param class_builder Path to the class builder XML holding the classes
+#'   to assign against, as \code{\link{run_annotale_load_classes}} returns.
+#' @param output_dir Directory where output will be written, created if it
+#'   does not exist. The default is a new directory under [tempdir()],
+#'   which R deletes when the session ends: give a path to keep the results.
+#' @param strain The strain the TALEs come from. AnnoTALE uses it to build
+#'   the systematic names it proposes, so without it they are unnamed.
+#' @param accession The genome's accession number, recorded in the report.
+#' @param opt_param A single string of further options, as \code{key=value}
+#'   pairs separated by spaces. The keys this function sets itself
+#'   (\code{t}, \code{c}, \code{s}, \code{a}, \code{outdir}) are refused:
+#'   use \code{fasta_file}, \code{class_builder}, \code{strain},
+#'   \code{accession} and \code{output_dir}.
+#' @param java_args A single string of options for the Java virtual
+#'   machine, placed before \code{-jar}. The default raises the heap to 8
+#'   GB, which reading the catalogue needs.
+#' @param annotale_jar Path to the AnnoTALE jar file. The default is the
+#'   copy [tantale_setup()] downloads; give a path to use another version.
+#' @return \code{output_dir}, invisibly. It holds the per-TALE assignment
+#'   report, a table of original against proposed systematic names, a
+#'   report and figure for each class that changed or was created, and a
+#'   class builder extended with the TALEs given.
+#' @export
+#' @family external TALE tools
+#' @seealso \code{\link{run_annotale_load_classes}}, which fetches the
+#'   classes; \code{\link{run_annotale_build}}, which builds classes from
+#'   scratch instead.
+#' @examples
+#' \dontrun{
+#' # Needs a Java runtime and the catalogue, which takes a while to fetch.
+#' classes <- run_annotale_load_classes(output_dir = "annotale_classes")
+#' predicted <- run_annotale_predict(tantale_genome("MAI1"))
+#' tales <- list.files(file.path(predicted, "Predict"),
+#'                     pattern = "^TALE_DNA_sequences_", full.names = TRUE)
+#' run_annotale_assign(tales, class_builder = classes, strain = "MAI1")
+#' }
+run_annotale_assign <- function(fasta_file,
+                                class_builder,
+                                output_dir = tempfile("annotale_assign_"),
+                                strain = NULL,
+                                accession = NULL,
+                                opt_param = "",
+                                java_args = "-Xms512M -Xmx8G",
+                                annotale_jar = .tantale_tool("annotale")) {
+  .check_jar_args(opt_param, java_args,
+                  reserved = c(t = "fasta_file", c = "class_builder",
+                               s = "strain", a = "accession",
+                               outdir = "output_dir"),
+                  fn = "run_annotale_assign")
+  for (f in c(fasta_file = fasta_file, class_builder = class_builder)) {
+    if (!file.exists(f)) {
+      cli::cli_abort("No file at {.file {f}}.",
+                     class = c("tantale_error_missing_file", "tantale_error"))
+    }
+  }
+  stopifnot(dir.exists(output_dir) ||
+              dir.create(output_dir, showWarnings = TRUE, recursive = TRUE))
+  command <- paste0(
+    "java ", java_args, " -jar ", shQuote(annotale_jar),
+    " assign ", opt_param,
+    " t=", shQuote(fasta_file),
+    " c=", shQuote(class_builder),
+    if (!is.null(strain)) paste0(" s=", shQuote(strain)),
+    if (!is.null(accession)) paste0(" a=", shQuote(accession)),
+    " outdir=", shQuote(output_dir)
+  )
+  cli::cli_inform(c("Assigning TALEs to AnnoTALE classes", " " = "{command}"))
+  .annotale_exec(command, "assign")
+  invisible(output_dir)
+}

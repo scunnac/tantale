@@ -66,6 +66,8 @@ list.files(file.path(out, "Predict"))
 }
 \seealso{
 Other external TALE tools:
-\code{\link[=run_annotale_build]{run_annotale_build()}}
+\code{\link[=run_annotale_assign]{run_annotale_assign()}},
+\code{\link[=run_annotale_build]{run_annotale_build()}},
+\code{\link[=run_annotale_load_classes]{run_annotale_load_classes()}}
 }
 \concept{external TALE tools}

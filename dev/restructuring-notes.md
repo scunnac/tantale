@@ -3817,3 +3817,21 @@ drawn on this very dataset, would make a concrete case for the package's
 grouping as a complementary view. Vignettes come last, so this is noted,
 not started.
 
+### The two class wrappers (Q132, Q134-Q137) **[V]**
+
+`run_annotale_load_classes()` and `run_annotale_assign()` added to
+`R/annotale.R`, `@family external TALE tools`, so `_pkgdown.yml` needed
+no change (`check_pkgdown()` clean). Both take `opt_param`/`java_args` as
+§51 settled, refuse the keys they set themselves, and check their input
+files before Java starts. `java_args` defaults to `-Xmx8G` for both: the
+catalogue is large and rebuilding it was seen holding 1.8 GB resident.
+`run_annotale_load_classes()` returns the class builder path invisibly so
+it feeds straight into `run_annotale_assign()`, which returns its
+`output_dir`; `class_builder = ` reads a kept copy instead of
+downloading. Its `@return` points at `List_of_classes.txt` as the plain-text
+way to answer "which class is this TALE in" for a TALE already
+catalogued, which is how §57 filled `annotale_class` without running
+`assign` at all. Guard tests in `test_jar_args.R` (5/5, no Java needed);
+the download itself is not tested, being a quarter of an hour of network
+(Q137).
+
