@@ -5,7 +5,7 @@ test_that("tale_annotations has the documented shape and key", {
   expect_s3_class(tale_annotations, "tbl_df")
   expect_identical(dim(tale_annotations), c(128L, 10L))
   expect_named(tale_annotations,
-               c("strain", "label", "tal_name", "annotale_group",
+               c("strain", "label", "tal_name", "annotale_class",
                  "replicon_id", "genome_id", "pubmed", "truncTALE",
                  "rvd_seq", "unusual_feature"))
   # strain + label identifies a row, and neither is ever missing
@@ -49,6 +49,18 @@ test_that("truncTALE is logical and flags the documented nine", {
   expect_type(tale_annotations$truncTALE, "logical")
   expect_false(anyNA(tale_annotations$truncTALE))
   expect_identical(sum(tale_annotations$truncTALE), 9L)
+})
+
+test_that("annotale_class holds a class, never a member index", {
+  # "TalAH", not "TalAH30": the index renumbers as the catalogue grows, so
+  # storing it would store something already stale (ledger §57)
+  cls <- stats::na.omit(tale_annotations$annotale_class)
+  expect_true(all(grepl("^Tal[A-Z]+$", cls)))
+  expect_identical(sum(!is.na(tale_annotations$annotale_class)), 126L)
+  # the two without one are the documented pair
+  missing <- tale_annotations[is.na(tale_annotations$annotale_class), ]
+  expect_identical(paste(missing$strain, missing$label),
+                   c("MAI1 TalH", "PXO99A Tal7b"))
 })
 
 test_that("the three genomes tantale installs are all present", {

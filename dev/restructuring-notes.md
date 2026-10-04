@@ -3756,3 +3756,21 @@ number in a published dataset stores something already wrong and
 guaranteed to drift; the class letters are the stable part and they
 agree perfectly.
 
+**Done (Q140-Q142).** `annotale_group` replaced by `annotale_class`,
+holding the class alone, derived for all 128 rows by matching `strain` +
+upper-cased `rvd_seq` against the catalogue. 126 carry one; the two that
+do not (MAI1 `TalH`, PXO99A `Tal7b`) are asserted by name in
+`data-raw/tale_annotations.R` and documented, so a silent change in the
+match would fail the build. The member index is not kept in a second
+column (Q142): it invites the mistake this section just found.
+`List_of_classes.txt` is kept gzipped in `data-raw/` (677 KB), so the
+dataset rebuilds without the 17-minute download, and `?tale_annotations`
+and `@source` give the catalogue date. Tests 7/7.
+
+The completed column is what makes the dataset useful: the
+`talomes_heatmap()` example now draws **all ten strains over 38 classes**
+where only four could be plotted before, and the clustering separates the
+Asian strains (PXO61, PXO71, PXO86, PXO99A) from the African ones (MAI1,
+MAI68, MAI129, MAI134, BAI3, AXO1947), which share almost no classes
+with them.
+

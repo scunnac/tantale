@@ -13,8 +13,11 @@ A tibble with 128 rows and 10 columns. One row is one TALE gene.
 (\code{"tal4a"}). \code{strain} and \code{label} together identify
 a row: a label repeats across strains, never within one.
 \code{tal_name} is missing where the source gives no name.}
-\item{annotale_group}{The class AnnoTALE assigns the TALE
-(\code{"TalAH30"}), where it was recorded.}
+\item{annotale_class}{The AnnoTALE class the TALE belongs to
+(\code{"TalAH"}), from the catalogue of 2026-10-04. A class groups
+TALEs similar enough to be considered the same TALE across strains,
+and is how the literature refers to them. Missing for two rows, see
+Details.}
 \item{replicon_id, genome_id}{The RefSeq replicon and the GenBank
 assembly the TALE comes from, e.g. \code{"NC_010717"} and
 \code{"GCA_000019585.2"}. Present for every row: this is what lets a
@@ -39,7 +42,8 @@ deletions, duplications, a premature stop.}
 \source{
 Compiled by Bao Tram Vi during the work that became this package, from
 the genome records and publications cited in each row; published here for
-the first time. The genome sequences themselves are the GenBank
+the first time. \code{annotale_class} was taken from AnnoTALE's class
+catalogue as downloaded on 2026-10-04. The genome sequences themselves are the GenBank
 assemblies named in \code{genome_id}, at
 \url{https://www.ncbi.nlm.nih.gov/datasets/genome/}.
 }
@@ -56,9 +60,20 @@ recorded here.
 }
 \details{
 The table is sparse where the sources are: \code{tal_name} is absent for
-19 rows, \code{annotale_group} for 54, and \code{pubmed} for 19. The
-gaps are the state of the curation, not placeholders to be filled by a
-guess.
+19 rows and \code{pubmed} for 19. The gaps are the state of the
+curation, not placeholders to be filled by a guess.
+
+\code{annotale_class} is missing for two rows, both for a reason:
+PXO99A's \code{Tal7b} is the five-repeat allele its own
+\code{unusual_feature} describes, too short to be catalogued, and the
+RVD string of MAI1's \code{TalH} is one the catalogue attributes to
+another strain.
+
+The class is stored without the member index AnnoTALE appends to it
+(\code{"TalAH"}, not \code{"TalAH30"}). That index numbers the members
+of a class as of the day it is read, and the catalogue grows: every one
+of the 73 indices recorded when this table was curated in 2021 had moved
+by 2026, while the class itself agreed in every case.
 
 Identifiers that name an array within a single run are deliberately not
 included: the \code{\link{tell_tales}} array id and AnnoTALE's
@@ -76,12 +91,11 @@ vouched for. \code{\link{tales_compare_distal}} followed by
 \examples{
 # the TALEs of one strain
 subset(tale_annotations, strain == "PXO86",
-       select = c("label", "annotale_group", "truncTALE"))
+       select = c("label", "annotale_class", "truncTALE"))
 
-# the four strains with AnnoTALE classes, compared group by group;
-# truncTALEs are marked "T"
-grouped <- tale_annotations[!is.na(tale_annotations$annotale_group), ]
-talomes_heatmap(grouped, group_col = "annotale_group",
+# the ten strains compared class by class; truncTALEs are marked "T"
+grouped <- tale_annotations[!is.na(tale_annotations$annotale_class), ]
+talomes_heatmap(grouped, group_col = "annotale_class",
                 strain_col = "strain", rvd_col = "rvd_seq",
                 trunc_tales_col = "truncTALE")
 

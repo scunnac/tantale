@@ -5,7 +5,10 @@
 A new dataset gives the TALEs of ten complete, published *Xanthomonas
 oryzae* genomes, 128 of them, with the names the literature uses, AnnoTALE
 classes, RVD strings, the nine naturally truncated TALEs flagged, and
-notes on the arrays with an unusual structure. Three of the ten genomes
+notes on the arrays with an unusual structure. The AnnoTALE class is
+given without the member index that usually follows it (`TalAH`, not
+`TalAH30`): that index numbers a class's members as of the day it is
+read, and the catalogue grows. Three of the ten genomes
 are the ones `tantale_setup()` installs, so a `tell_tales()` run on MAI1,
 BAI3 or PXO86 can be checked against it. Compiled by Bao Tram Vi; see
 `?tale_annotations`.
