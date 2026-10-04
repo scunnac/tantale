@@ -3662,3 +3662,51 @@ not be normalised away. Only 4 of those 16 arrays also carry an
 `unusual_feature` note, so the two records of "atypical" are independent:
 the note is the curator's, the lowercase is the annotation pipeline's.
 
+### Filling the missing AnnoTALE classes (Q130-Q133, 2026-10-04) **[A]**
+
+The 54 rows without `annotale_group` are the six African strains
+(AXO1947, BAI3, MAI1, MAI68, MAI129, MAI134), nine TALEs each; the four
+Asian ones (PXO61, PXO71, PXO86, PXO99A) have all 74. Maintainer asked
+whether a script could fetch those genomes and compute the missing
+classes.
+
+**It can, with a tool tantale does not yet wrap.** `AnnoTALEcli-1.5.jar`
+holds eleven tools, not the three tantale calls. Two matter here, and
+both are already in the installed jar (`ClassAssignmentTool.class`,
+`LoadAndViewClassesTool.class`), so wrapping them adds no download, no
+licence question and no change to the `tools-1` release:
+- **`loadAndView`** downloads AnnoTALE's curated catalogue of TALE
+  classes (the shared `TalAA`, `TalAB`... naming) and writes it as a
+  Class builder XML. Slow: several minutes, since it rebuilds the class
+  definitions after downloading. A wrapper should cache the XML.
+- **`assign`** places a set of TALEs into those existing classes, opening
+  new ones for TALEs that fit none, and proposes systematic names from
+  the strain name given. This is what produced `TalAH30` and the rest.
+  Note `build`, which tantale does wrap, builds classes *de novo*
+  (`Class_1`, `Class_2`) and cannot produce catalogue names.
+
+Pipeline: `loadAndView` once -> per strain, fetch the genome by accession
+-> `run_annotale_predict()` -> `assign` with the strain name.
+Genome fetching is available: `biomartr` is already in Suggests and
+NCBI's datasets API answers for these accessions.
+
+Decisions: **Q130** recompute all 128, not just the 54, so the column has
+one class-definition vintage; the catalogue grows over time and Tram's
+assignments date from 2021, so mixing vintages would make the column
+mean two different things. **Q131** the script reports where a recomputed
+value disagrees with Tram's and changes nothing without the maintainer's
+sign-off. **Q133** match rows on `rvd_seq`, verifying the match rate first
+on the four strains that already have classes. Maintainer: that is how
+this was done with Tram; a duplicated TALE gene matches twice but both
+copies fall in the same class, so either serves. The case to watch is a
+near-identical pair differing by a repeat, which could land in different
+classes -- the table already carries such a note (an allele of
+`tal7b`/`tal8b` with a deletion in the repeat region).
+
+**Q132 open:** whether `assign` and `loadAndView` become exported
+wrappers (`@family external TALE tools`, `opt_param`/`java_args` as §51
+settled) or stay inside the `data-raw/` script. Recommended: wrap them,
+since "which published class is this TALE" is a question tantale cannot
+answer today. The interface is declared stable, so this is an addition,
+not a change.
+
