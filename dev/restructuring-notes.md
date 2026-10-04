@@ -3592,3 +3592,12 @@ uses, resolves them either way. R CMD check, CRAN and rOpenSci ignore the
 field. A Bioconductor submission would need more specific biocViews terms
 than `Software`.
 
+### Pre-submission inquiry posted (2026-10-04)
+
+The maintainer posted it as ropensci/software-review#813 (16:55 UTC,
+label `0/presubmission`). The bot acknowledged it and listed the "most
+similar" rOpenSci and CRAN packages from `pkgmatch`; none is TALE-related
+(geojson, rixpress, stats19, tepr...), which is consistent with the
+inquiry's "no other R package for TALE analysis". Editor reply expected
+within 5 business days.
+
