@@ -3389,3 +3389,71 @@ and scoring threshold (`-t`, `-a`), and its background model from
 `simplescancode.Background`; validate against `talvez()` on the SWEET
 promoters, as ARLEM was validated against its executable (§33).
 
+---
+
+## 55. Updating the RVD-to-nucleotide tables (2026-10-04) **[P]**
+
+Maintainer, 2026-10-04: look for published data, especially from the
+TALEN literature, that could update the RVD/base association tables.
+Search done (Q116); nothing changed, the maintainer judges the sources.
+
+**What tantale ships today.** Two tables, both from Pérez-Quintero's work
+and unchanged since 2015:
+- `inst/tools/TALVEZ_3.2/mat1` and `mat2`, used by `talvez()`: 17 rows
+  (HA NA HD ND HG IG NG HI NI NK HN NN NS H* N* OO XX), four weights each.
+- `rvd_dna_specificity` (QueTAL FuncTAL, the `rvd_sim` fill of
+  `plot.tales_msa()` and `tales_align()`): 404 rows, all amino-acid pairs
+  plus `H*`, `N*`, `OO`, `XX`. 86 rows are uniform (no information), and
+  only 58 have a value >= 30; the median row maximum is 3, so most of the
+  404 carry no real preference.
+
+**Gaps measured, not assumed** (RVD counts over the shipped RVD sets:
+`Sample_TALEs_RVDSeqs_AnnoTALE.fasta`, the SWEET control TALEs,
+`TalA_RVDSeqs_AnnoTALE.fasta`; 10 distinct RVDs):
+- **`NV` occurs in real TALEs (4 of 957 RVDs) and is absent from
+  `mat1`/`mat2`.** TALVEZ_3.2.pl lines 143 and 147 fall back to
+  `$RVDs{XX}`, which is `1 1 1 1`, so `talvez()` scores `NV` as entirely
+  non-specific. `rvd_dna_specificity` does give `NV` a maximum of 50.
+- **`N*` is the fifth most frequent RVD (4.7%)** and its
+  `rvd_dna_specificity` row is `1 4 1 4` (maximum 4), among the weakest
+  in the table, while `mat1` gives it `1 4 1 3`.
+
+**Candidate sources found** (provenance only; none assessed as correct,
+which is the maintainer's call, see
+`feedback_tantale_biology_ground_truth`):
+- **PrediTALE's own model, already shipped in `PrediTALE.jar`**:
+  `projects/tals/prediction/preditale_quantitative_PBM.xml` (132 KB).
+  Its RVD alphabet has 420 symbols (every amino-acid pair) and an
+  `indexMap` assigning all 420 to **6 parameter groups**, with 6 RVDs
+  given separate parameters: the rare RVDs inherit the specificity of
+  common ones sharing the 13th amino acid, which is TALVEZ's idea fitted
+  to quantitative data. Learned in the *Xanthomonas*/rice system (Erkes
+  A. et al. 2019, PLoS Comput Biol 15, e1007206,
+  doi:10.1371/journal.pcbi.1007206; CC-BY; source in
+  github.com/Jstacs/Jstacs). Closest provenance to tantale's own use, and
+  already redistributable. Reading the parameters out needs the Jstacs
+  encoding.
+- **Streubel J. et al. (2012), Nat Biotechnol 30, 593-595**
+  (doi:10.1038/nbt.2304), "TAL effector RVD specificities and
+  efficiencies": plant reporter assays, introduces `NH` as
+  guanine-specific and reports that `NK` performs worse than `NN`. Plant
+  system, so the closest assay context.
+- **Miller J.C. et al. (2015), Nat Methods 12, 465-471**
+  (doi:10.1038/nmeth.3330), expanded RVD repertoire for TALENs: many
+  non-canonical RVDs, measured in human cells. Broadest RVD coverage
+  found; the system differs from a TALE activating a plant promoter.
+- **Rogers J.M. et al. (2015), Nat Commun 6, 7440**
+  (doi:10.1038/ncomms8440), protein-binding microarrays, CC-BY, GEO
+  GSE56978: quantitative, but only the four common RVDs (NI, HD, NN,
+  NG); its value is neighbour context, not new RVDs. It is the PBM data
+  PrediTALE was trained on.
+
+**Open.** Which table to improve first (the target-prediction weights
+used by `talvez()`, or the `rvd_sim` similarity used for alignment and
+distances: the second is a different question from base preference);
+whether a TALEN assay in human cells transfers to a TALE activating a
+rice promoter; and whether adding `NV` to `mat1`/`mat2`, rather than
+leaving it at `XX`, is worth doing on its own. Note that `preditale()`
+already applies a data-derived model, so a user wanting current
+specificities has that route today.
+
