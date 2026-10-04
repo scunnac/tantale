@@ -2,6 +2,36 @@
 
 ## tantale 0.99.0
 
+### TALEs can be assigned to AnnoTALE’s published classes
+
+[`run_annotale_load_classes()`](https://scunnac.github.io/tantale/reference/run_annotale_load_classes.md)
+fetches AnnoTALE’s curated catalogue of TALE classes, and
+[`run_annotale_assign()`](https://scunnac.github.io/tantale/reference/run_annotale_assign.md)
+places a set of TALEs into it, proposing the systematic names the
+literature uses (`TalAH`, `TalBK`). Until now tantale wrapped only
+[`run_annotale_build()`](https://scunnac.github.io/tantale/reference/run_annotale_build.md),
+which groups the TALEs you give it among themselves and cannot say what
+the rest of the world calls them. The catalogue takes about a quarter of
+an hour to download and is around 440 MB, so keep it and reuse it rather
+than fetching it per call.
+
+### A curated reference talome: `tale_annotations`
+
+A new dataset gives the TALEs of ten complete, published *Xanthomonas
+oryzae* genomes, 128 of them, with the names the literature uses,
+AnnoTALE classes, RVD strings, the nine naturally truncated TALEs
+flagged, and notes on the arrays with an unusual structure. The AnnoTALE
+class is given without the member index that usually follows it
+(`TalAH`, not `TalAH30`): that index numbers a class’s members as of the
+day it is read, and the catalogue grows. 127 of the 128 TALEs carry a
+class. Three of the ten genomes are the ones
+[`tantale_setup()`](https://scunnac.github.io/tantale/reference/tantale_setup.md)
+installs, so a
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
+run on MAI1, BAI3 or PXO86 can be checked against it. Compiled by Bao
+Tram Vi; see
+[`?tale_annotations`](https://scunnac.github.io/tantale/reference/tale_annotations.md).
+
 ### Output goes to a temporary directory by default
 
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md),
@@ -561,8 +591,7 @@ alignment’s width, so
 [`tales_msa_width()`](https://scunnac.github.io/tantale/reference/tales_msa_width.md)
 kept answering on an object that no longer claims to be an alignment.
 The width is now removed on demotion, as it already was when
-`alignment_position` is dropped with
-[`select()`](https://dplyr.tidyverse.org/reference/select.html).
+`alignment_position` is dropped with `select()`.
 
 ### Articles checked against their own output
 

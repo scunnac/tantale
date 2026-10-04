@@ -74,6 +74,7 @@ sequences file.
 ## See also
 
 Other TALE discovery:
+[`tale_annotations`](https://scunnac.github.io/tantale/reference/tale_annotations.md),
 [`tales_from_annotale()`](https://scunnac.github.io/tantale/reference/tales_from_annotale.md),
 [`tales_from_telltales()`](https://scunnac.github.io/tantale/reference/tales_from_telltales.md),
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
@@ -89,6 +90,6 @@ out_fa <- tempfile(fileext = ".fa")
 correct_tales(uncorrected_path = subj, corrected_path = out_fa)
 #> Running nHMMER
 #> Performing TALEs cds correction on provided sequences.
-#> [1] "/tmp/RtmpOw6mu3/file18a955b1a7756.fa"
+#> [1] "/tmp/Rtmp8rsnUq/file1e3a235f5a322b.fa"
 # }
 ```

@@ -108,10 +108,19 @@ Find TALE genes in genomic sequence and parse them into arrays of parts.
 
 - [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
   : Correct TALE ORFs in error-prone sequences
+
+- [`tale_annotations`](https://scunnac.github.io/tantale/reference/tale_annotations.md)
+  :
+
+  Curated TALE annotations for ten published *Xanthomonas oryzae*
+  genomes
+
 - [`tales_from_annotale()`](https://scunnac.github.io/tantale/reference/tales_from_annotale.md)
   : Build a tales object from AnnoTALE's own TALE predictions
+
 - [`tales_from_telltales()`](https://scunnac.github.io/tantale/reference/tales_from_telltales.md)
   : Build a tales object from a tell_tales run directory
+
 - [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
   : Search and report on the features of TALE protein domains
   potentially encoded in subject DNA sequences
@@ -285,8 +294,12 @@ Package-level documentation.
 
 Wrappers around AnnoTALE and QueTAL.
 
+- [`run_annotale_assign()`](https://scunnac.github.io/tantale/reference/run_annotale_assign.md)
+  : Assign TALEs to AnnoTALE's published classes
 - [`run_annotale_build()`](https://scunnac.github.io/tantale/reference/run_annotale_build.md)
   : Run the "build" stage of AnnoTALE
+- [`run_annotale_load_classes()`](https://scunnac.github.io/tantale/reference/run_annotale_load_classes.md)
+  : Download AnnoTALE's catalogue of TALE classes
 - [`run_annotale_predict()`](https://scunnac.github.io/tantale/reference/run_annotale_predict.md)
   : Runs the "predict" and "analyze" steps of AnnoTALE on a fasta file
 

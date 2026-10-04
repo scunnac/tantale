@@ -77,6 +77,7 @@ GFF3 file is found under `annotale_dir`.
 
 Other TALE discovery:
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md),
+[`tale_annotations`](https://scunnac.github.io/tantale/reference/tale_annotations.md),
 [`tales_from_telltales()`](https://scunnac.github.io/tantale/reference/tales_from_telltales.md),
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
 

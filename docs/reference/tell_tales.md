@@ -393,6 +393,7 @@ that it starts elsewhere avoids this.
 
 Other TALE discovery:
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md),
+[`tale_annotations`](https://scunnac.github.io/tantale/reference/tale_annotations.md),
 [`tales_from_annotale()`](https://scunnac.github.io/tantale/reference/tales_from_annotale.md),
 [`tales_from_telltales()`](https://scunnac.github.io/tantale/reference/tales_from_telltales.md)
 
@@ -419,13 +420,13 @@ tell_tales(subject_file = subj, output_dir = out)
 #> Now running AnnoTALE analyze for ROI_00004
 #> #****************************************
 #> #**   tell_tales analysis done     **
-#> Current date:    Sun Oct  4 17:18:57 2026
+#> Current date:    Mon Oct  5 01:07:32 2026
 #> #_________Provided I/O parameters __________
 #> File of subject DNA sequences:   /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/bai3_sample_tal_genomic_regions.fasta
 #> TALE N-term CDS region detection HMM file:   /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Nterm_CDS_profile.hmm
 #> TALE repeat unit CDS detection HMM file: /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_repeat_CDS_profile.hmm
 #> TALE C-term CDS region detection HMM file:   /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Cterm_CDS_profile.hmm
-#> Output directory:    /tmp/RtmpOw6mu3/tell_tales_example18a9556ff82e93
+#> Output directory:    /tmp/Rtmp8rsnUq/tell_tales_example1e3a23258bfb0c
 #> #____________Other parameters________________
 #> nterm_min_score: 300
 #> repeat_min_score:    20
