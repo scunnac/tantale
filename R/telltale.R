@@ -551,7 +551,7 @@
       if (length(unlist(element)) == 0L) {
         next()
       } else {
-        info %<>% dplyr::bind_rows(tibble::tibble(variable = names(element), value = as.numeric(unlist(element))))
+        info <- info %>% dplyr::bind_rows(tibble::tibble(variable = names(element), value = as.numeric(unlist(element))))
       }
     }
     return(info)
@@ -630,7 +630,8 @@
     dplyr::full_join(indels("insertions", "predicted_ins_count"),
                      indels("deletions", "predicted_dels_count"), by = "Seq"),
     by.x = "array_id", by.y = "Seq", all.x = TRUE)
-  S4Vectors::mcols(by_array)[c("predicted_dels_count", "predicted_ins_count")] %<>%
+  counts <- c("predicted_dels_count", "predicted_ins_count")
+  S4Vectors::mcols(by_array)[counts] <- S4Vectors::mcols(by_array)[counts] %>%
     apply(., 2, function(v) ifelse(is.na(v), 0, v))
 
   for (n in names(corrected)[Biostrings::vcountPattern("N", corrected) > 0]) {
@@ -1142,7 +1143,7 @@
 #' @noRd
 .telltale_add_hit_seqs <- function(gr, subject_seqs) {
   hitSeqs <- BSgenome::getSeq(subject_seqs, gr)
-  S4Vectors::mcols(gr) %<>% cbind(
+  S4Vectors::mcols(gr) <- S4Vectors::mcols(gr) %>% cbind(
     data.frame(
       "seq" = as.character(hitSeqs),
       "codon_count" = Biostrings::nchar(hitSeqs) %/% 3,

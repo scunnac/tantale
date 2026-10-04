@@ -766,7 +766,7 @@ tales_anomalies <- function(x) {
 .tales_check_crd_unique <- function(x) {
   keep <- !is.na(x$position_in_crd)
   if (!any(keep)) return(invisible(NULL))
-  if (any(duplicated(data.frame(a = x$array_id[keep], p = x$position_in_crd[keep])))) {
+  if (anyDuplicated(data.frame(a = x$array_id[keep], p = x$position_in_crd[keep])) > 0L) {
     cli::cli_abort("{.field position_in_crd} must be unique within an array.",
                    class = c("tantale_error_tales_crd", "tantale_error"))
   }
@@ -815,7 +815,7 @@ tales_assert_complete <- function(x, arg = "x") {
   if (nrow(x) == 0L) return(invisible(x))
 
   n <- tapply(x$position_in_array, x$array_id, function(p) identical(sort(p), seq_along(p)))
-  if (any(!n)) {
+  if (!all(n)) {
     cli::cli_abort(
       c("{.arg {arg}} must hold complete arrays.",
         "x" = "{.field position_in_array} is not 1..n in {.val {utils::head(names(n)[!n], 5)}}.",

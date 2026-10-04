@@ -229,7 +229,7 @@ tantale_setup <- function(install = FALSE, conda = FALSE, conda_bin = "auto",
   pins <- .tantale_pins()
   checks <- .tantale_check_conda(pins, .tantale_installed(prefix))
 
-  if (isTRUE(install) && any(!checks$ok)) {
+  if (isTRUE(install) && !all(checks$ok)) {
     checks <- .tantale_repair(prefix, checks, conda_bin = conda_bin)
   }
 
@@ -256,7 +256,7 @@ tantale_setup <- function(install = FALSE, conda = FALSE, conda_bin = "auto",
   }
 
   ## what to do next ---------------------------------------------------------
-  if (any(!checks$ok) && !isTRUE(install)) {
+  if (!all(checks$ok) && !isTRUE(install)) {
     cli::cli_alert_info("Run {.run tantale_setup(install = TRUE)} to repair the environment.")
   } else if (all(checks$ok) && all(sys$ok) && all(archives$ok)) {
     cli::cli_alert_success("Everything tantale needs is present.")

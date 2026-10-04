@@ -412,7 +412,7 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
   # Append RVD OO
   predsForPlot <- filteredPreds %>% dplyr::mutate(rvds = paste("OO", rvds, sep = "-"))
   # Create yPos
-  predsForPlot %<>% dplyr::group_by(subjSeqId, strand) %>%
+  predsForPlot <- predsForPlot %>% dplyr::group_by(subjSeqId, strand) %>%
     dplyr::mutate(
       yPos = dplyr::if_else(strand == "+",
                             rank(start, ties.method = "random"),
@@ -423,7 +423,7 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
     dplyr::arrange(subjSeqId, yPos) #%>% print(n = Inf)
 
   # Create rvd and xPos
-  predsForPlot %<>% dplyr::group_by_all() %>%
+  predsForPlot <- predsForPlot %>% dplyr::group_by_all() %>%
     dplyr::group_modify( ~{
       tibble::tibble(
         # RVDs stay in TALE order on both strands: on the minus strand xPos

@@ -360,7 +360,7 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
     domainAlignLong <- .matrix_to_long(domain_align) %>%
       dplyr::as_tibble()
     colnames(domainAlignLong) <- c("array_id", "alignment_position", "dom_code")
-    domainAlignLong %<>% dplyr::mutate(array_id = as.character(array_id),
+    domainAlignLong <- domainAlignLong %>% dplyr::mutate(array_id = as.character(array_id),
                                        dom_code = stringr::str_pad(dom_code, 3, "left"))
     # Consensus match computed straight off x, the tales_msa itself: no need to
     # wait for domain_align/domainAlignLong above, since
@@ -369,7 +369,7 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
     # plot.tales_msa() that no longer touches the array-by-position matrix at all.
     domainMatchConsensusLong <- .tales_consensus_match_long(x, value_col = fill)
     colnames(domainMatchConsensusLong) <- c("array_id", "alignment_position", "matchConsensusDomain")
-    domainAlignLong %<>% dplyr::left_join(domainMatchConsensusLong,
+    domainAlignLong <- domainAlignLong %>% dplyr::left_join(domainMatchConsensusLong,
                                           by = dplyr::join_by(array_id, alignment_position))
   }
   
@@ -379,7 +379,7 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
     rvdAlignLong <- .matrix_to_long(rvd_align) %>%
       dplyr::as_tibble()
     colnames(rvdAlignLong) <- c("array_id", "alignment_position", "rvd")
-    rvdAlignLong %<>% dplyr::mutate(array_id = as.character(array_id),
+    rvdAlignLong <- rvdAlignLong %>% dplyr::mutate(array_id = as.character(array_id),
                                     rvd = gsub("NTERM", "N-", rvd),
                                     rvd = gsub("CTERM", "-C", rvd)
     )
@@ -403,9 +403,9 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
       .matrix_to_long() %>%
       dplyr::as_tibble()
     colnames(rvdSimAlignLong) <- c("array_id", "alignment_position", "rvdSimVsRef")
-    rvdSimAlignLong %<>% dplyr::mutate(array_id = as.character(array_id))
+    rvdSimAlignLong <- rvdSimAlignLong %>% dplyr::mutate(array_id = as.character(array_id))
     
-    rvdAlignLong %<>%
+    rvdAlignLong <- rvdAlignLong %>%
       dplyr::left_join(rvdMatchConsensusLong,
                        by = dplyr::join_by(array_id, alignment_position)) %>%
       dplyr::left_join(rvdSimAlignLong,
@@ -414,7 +414,7 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
   
   # Assign main alignment object in long format
   if (!is.null(domain_align) & !is.null(rvd_align)) {
-    domainAlignLong %<>% dplyr::inner_join(rvdAlignLong,
+    domainAlignLong <- domainAlignLong %>% dplyr::inner_join(rvdAlignLong,
                                            by = dplyr::join_by(array_id, alignment_position),
                                            unmatched = "error",
                                            relationship = "one-to-one")
@@ -452,7 +452,7 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
       dplyr::as_tibble()
     colnames(domainSimAlignLong) <- c("array_id", "alignment_position", "domainSimVsRef")
     # Join with main tible
-    domainAlignLong %<>%
+    domainAlignLong <- domainAlignLong %>%
       dplyr::left_join(domainClusterAlignLong,
                        by = dplyr::join_by(array_id, alignment_position)) %>%
       dplyr::left_join(domainSimAlignLong,

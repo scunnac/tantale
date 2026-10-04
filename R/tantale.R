@@ -6,7 +6,7 @@
 #'@description An integrated collection of functions for TALE mining and
 #'analysis in R.
 #'
-#'Please take a look at the package \href{https://scunnac.github.io/tantale}{website}
+#'Please take a look at the package \href{https://scunnac.github.io/tantale/}{website}
 #'for further details.
 #'
 #'@section A TALE-oriented OOP framework:
@@ -74,17 +74,17 @@
 #'
 #'
 #'@importFrom IRanges IRanges
-#'@import fs
-#'@import magrittr
-#'@import cli
-# Biostrings is imported wholesale rather than by name. Several calls in the
-# package rely on its S4 methods for base-looking generics -- nchar() on an
-# XStringSet is the trap, since it reads as base R and only differs for S4
-# arguments. This import used to arrive as a side effect of an S4 class
-# definition in telltale.R; it is declared deliberately here instead.
-# Narrowing it to importFrom() is ledger 7.3, and wants the call sites
-# qualified first.
-#'@import Biostrings
+#'@importFrom magrittr %>%
+# Biostrings: the package calls these base-named functions unqualified, and
+# they resolve to Biostrings' S4 generics -- nchar() on an XStringSet is the
+# trap, since it reads as base R and only differs for S4 arguments. The list
+# is every Biostrings export the package's code uses unqualified
+# (codetools::findGlobals(), 2026-10-04), so each call resolves exactly as it
+# did under the old import(Biostrings) (ledger 7.3, §52 F4). A new
+# unqualified call to such a generic must be added here or qualified.
+#'@importFrom Biostrings %in% as.data.frame as.list as.matrix duplicated
+#'@importFrom Biostrings end intersect match nchar order rank setdiff
+#'@importFrom Biostrings setequal sort start strsplit substr summary union
 #'@importFrom dplyr mutate if_else
 #'@importFrom ggplot2 ggplot aes labs geom_point geom_text facet_grid theme_light
 #'@importFrom ggplot2 scale_x_continuous

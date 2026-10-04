@@ -9,7 +9,7 @@
 An integrated collection of functions for TALE mining and
 analysis in R.
 
-Please take a look at the package \href{https://scunnac.github.io/tantale}{website}
+Please take a look at the package \href{https://scunnac.github.io/tantale/}{website}
 for further details.
 }
 \details{
@@ -89,7 +89,7 @@ existing conda, mamba or micromamba is found automatically through
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://scunnac.github.io/tantale}
+  \item \url{https://scunnac.github.io/tantale/}
   \item \url{https://github.com/scunnac/tantale}
   \item Report bugs at \url{https://github.com/scunnac/tantale/issues}
 }

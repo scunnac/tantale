@@ -1,15 +1,13 @@
 <!-- badges: start -->
 [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
-![Coverage: 90.03%](https://img.shields.io/badge/coverage-90.03%25-brightgreen.svg)
+[![R-CMD-check](https://github.com/scunnac/tantale/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/scunnac/tantale/actions/workflows/R-CMD-check.yaml)
 <!-- badges: end -->
 
-Test coverage measured locally with `covr::package_coverage()` on
-2026-09-24; this repo has no CI yet, so the badge is a manual snapshot.
 <p align="right">
   <img src="./man/figures/tantale_logo_small.gif">
 
 
-#### ⚠️ This release is a major revision of the package with breaking changes to the previous interface. Extensive refactoring, bug fixes, and performance improvements bring the package to its first stable release. The previous release (prototypical version) remains available as a release asset:[tantale-full-history-2026-09-22.bundle](https://github.com/scunnac/tantale/releases/download/v0.9.9004).
+#### ⚠️ This release is a major revision of the package with breaking changes to the previous interface. Extensive refactoring, bug fixes, and performance improvements bring the package to its first stable release. The previous release (prototypical version) remains available as a release asset:[tantale-full-history-2026-09-22.bundle](https://github.com/scunnac/tantale/releases/download/v0.9.9004/tantale-full-history-2026-09-22.bundle).
 
 
 
@@ -52,7 +50,7 @@ Here is a snapshot of the topics that are covered:
 ## Installation
 
 For further details, take a look at the package
-[website](https://scunnac.github.io/tantale).
+[website](https://scunnac.github.io/tantale/).
 
 ### 1. Install the R package
 
@@ -141,7 +139,7 @@ with upstream sources, in
 [`inst/COPYRIGHTS`](https://github.com/scunnac/tantale/blob/main/inst/COPYRIGHTS):
 
 - AnnoTALE, PrediTALE and TALEcorrection, from the
-  [Jstacs](https://www.jstacs.de) project, are under the GNU GPL,
+  [Jstacs](https://www.jstacs.de/index.php/Main_Page) project, are under the GNU GPL,
   version 3 or later. Their source code is at
   <https://github.com/Jstacs/Jstacs>; the licence text travels with them
   in the tools archive (`LICENSES/COPYING.GPL-3`).

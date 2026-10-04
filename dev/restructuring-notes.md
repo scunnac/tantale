@@ -3168,6 +3168,103 @@ ORCIDs, no R CMD check warning, coverage 91.1% (90.7% in §44). Findings:
 - **F9** Package size: 4636 lines of R (97th percentile), 217 functions
   (98th). Informational.
 
+Maintainer, 2026-10-04: all recommendations agreed. **Q87** fix F1 and
+confirm with a second pkgcheck run; **Q88** CI on push to `main` and on
+pull requests (Linux; macOS stays manual), badge in the README; **Q89**
+the manual coverage badge removed; **Q90** F4 as proposed; **Q91** the
+small F5 cleanups only; **Q92** F6 left until a reviewer asks; **Q93**
+the devguide checklist pass next, findings recorded here.
+
+**Done 2026-10-04** (Q87-Q91):
+- F1: `.telltale_file_digest()` rewrites the test data directory to
+  `/tests` before the tempdir rule; new test in `test_golden.R` (fails
+  without the rewrite: the line is dropped).
+- F2: `R-CMD-check.yaml` also runs on push to `main` and on pull
+  requests (Linux; `paths-ignore` for `docs/`, `dev/`, `pkgdown/`,
+  `.claude/`), a newer push cancels the older run; README CI badge.
+- Q89: the manual coverage badge and its note removed from the README.
+- F4: `import()` of `fs`, `cli`, `magrittr` and `Biostrings` replaced:
+  `importFrom(magrittr, "%>%")`; `cli::cli_inform()` in `startup.R`;
+  `importFrom(Biostrings, ...)` with the 19 base-named generics the code
+  calls unqualified, so name resolution is unchanged (the comment in
+  `R/tantale.R` says to extend the list for a new unqualified call). The
+  full suite caught one dependency codetools cannot see: `{qty()}`
+  inside two cli strings of `.tale_parts()` (cli evaluates them in the
+  caller's frame); now `{cli::qty()}`. A scan of every glue/cli string in
+  `R/` for `fs`, `Biostrings` or `magrittr` calls found nothing else.
+- F5: the 18 `%<>%` written as `x <- x %>% ...`; `grepl()` in place of
+  `ifelse(grepl(), TRUE, FALSE)`; `anyDuplicated() > 0L` (2); `!all()` (3).
+  The two `<<-` in `R/` left as they are (closures over a local list).
+- Full suite after F4/F5: 462 tests, 0 failures, 3 errors, all the `qty`
+  one; the two files rerun clean after the fix.
+- URLs (`urlchecker`, run because pkgcheck skipped it): redirects fixed
+  (site URL without its trailing slash in DESCRIPTION, README, `?tantale`
+  and the "Get started" page; the old PubMed URL in the AnnoTALE wrappers,
+  now the DOI; jstacs.de), and the README's link to the prototype bundle,
+  which lacked the file name (404). Two doi.org links answer 403 to the
+  checker (publisher bot blocking), left.
+
+### Devguide checklist pass (2026-10-04, Q93)
+
+Read: the author checklist of the submission template, the reviewer
+template, the packaging guide (`pkg_building`) and the CI chapter.
+Already met: Title Case title without "in R", program names quoted
+(Q85), roxygen2, examples and `@return` for every export (two internal
+Rd topics, `.tales_check_crd_unique` and `.tales_report_anomalies`,
+have no `\value`), `?tantale`, an HTML vignette, pkgdown, `@family`,
+NEWS, CONTRIBUTING, URL/BugReports/Maintainer, ORCIDs, `main` branch,
+cli conditions, object_verb naming, coverage 91%. Findings:
+- **C1** "MUST NOT use startup messages except when necessary": the
+  `.onAttach()` greeting ("Attaching the tantale package", "Email ... for
+  comments"). Recommend removing it.
+- **C2** "MUST indicate system dependencies in DESCRIPTION": no
+  `SystemRequirements`. Java (the jars are class version 52, Java 8),
+  Perl, conda/mamba/micromamba. Recommend adding the field.
+- **C3** "MUST run on Windows, macOS and Linux", exceptions for documented
+  reasons: Windows impossible (no bioconda builds of the pins; `OS_type:
+  unix`), macOS never run, README says "written with only Linux in mind".
+  Recommend a macOS CI run once public (free for public repositories) and
+  a README sentence giving the Windows reason; the inquiry already asks.
+- **C4** "CI must also be linked to a code coverage service", coverage
+  badge: Codecov (preferred). Needs the maintainer to enable the Codecov
+  GitHub app for the repository; then a coverage workflow (with the
+  tools installed, as in R-CMD-check) and a badge. Q89's removal of the
+  manual badge stands.
+- **C5** CI on R release, previous and devel. Recommend a Linux matrix.
+- **C6** Examples run in CI with `--run-donttest` (recommended): the CI
+  has the tools, so add it to the check arguments.
+- **C7** CITATION (should, bibentry): none. Recommend `inst/CITATION` for
+  the package, with a header asking to cite the wrapped tools' papers.
+- **C8** "MUST acknowledge bundled code authors with cph role": TALVEZ
+  3.2 and the FuncTAL table are by Alvaro L. Pérez-Quintero; TALVEZ's
+  `simplescancode/` is Java code credited to "Matzieu and Hatzigeorgiu
+  2010" in TALVEZ's header. Recommend `cph` entries in `Authors@R`.
+- **C9** README "MUST include ... usage": no usage example; also
+  recommended: repostatus badge, comparison with similar software,
+  citation guidance, code of conduct. Items reviewers will query: the
+  "Connector with daTALbase (to be done)" bullet, "contributing: send me
+  an email" next to the CONTRIBUTING file, "only Linux in mind". The README
+  is the maintainer's; the site home is `pkgdown/index.md`.
+- **C10** "MUST identify data sources (organisation, access URL)":
+  BAI3-1-1 is "an unpublished assembly of a BAI3 derivative" in
+  `inst/COPYRIGHTS`; who produced it is not stated. The maintainer has
+  the facts.
+- **C11** Console messages "SHOULD provide an opt-out (option or
+  environment variable)" and verbosity levels: none beyond
+  `suppressMessages()`. Recommend deferring until a reviewer asks.
+- **C12** "MUST NOT use print() or cat() except in print methods":
+  `.tales_group_hclust` prints a tree when `plot_tree = TRUE`;
+  `plot.tales_msa()` prints a patchwork copy (Q66 kept it). Both print
+  plots, not text; recommend leaving and explaining if asked.
+- **C13** Writing to the working directory by default (CRAN policy):
+  `tell_tales()`, `run_annotale_predict()`, `run_annotale_build()`
+  (`output_dir = getwd()`), `correct_tales()` (`corrected_path` in
+  `getwd()`). Removing the defaults breaks calls that rely on them.
+- **C14** Tests "SHOULD skip_on_cran() for external resources" against
+  the standing fail-not-skip rule: the inquiry asks the editors.
+- **C15** Code style: Air or styler recommended, not required (1100 long
+  lines, F5). Leave.
+
 ---
 
 ## 53. Correction strategies inside `tell_tales()` (future release) **[P]**

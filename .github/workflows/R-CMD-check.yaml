@@ -1,5 +1,7 @@
-# R CMD check with the full test suite, started by hand from the Actions tab
-# or with `gh workflow run R-CMD-check.yaml -f os=<runner>`.
+# R CMD check with the full test suite: on Linux for every push to main and
+# every pull request into it (not for changes confined to the site, dev/ or
+# pkgdown/), and by hand from the Actions tab or with
+# `gh workflow run R-CMD-check.yaml -f os=<runner>`, which also offers macOS.
 # The tests need MAFFT and HMMER from the tantale conda environment, which
 # tantale_setup() builds here exactly as a user would: micromamba first,
 # then tantale_setup(install = TRUE), which also installs the Java tools
@@ -10,6 +12,12 @@
 name: R-CMD-check
 
 on:
+  push:
+    branches: [main]
+    paths-ignore: ['docs/**', 'dev/**', 'pkgdown/**', '.claude/**']
+  pull_request:
+    branches: [main]
+    paths-ignore: ['docs/**', 'dev/**', 'pkgdown/**', '.claude/**']
   workflow_dispatch:
     inputs:
       os:
@@ -20,9 +28,15 @@ on:
           - macos-15-intel
         default: ubuntu-latest
 
+# A newer push to the same branch cancels the run still going for the older one.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   check:
-    runs-on: ${{ inputs.os }}
+    # inputs.os is empty on push and pull_request events
+    runs-on: ${{ inputs.os || 'ubuntu-latest' }}
     timeout-minutes: 120
     env:
       GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}

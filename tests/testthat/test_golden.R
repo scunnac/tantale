@@ -155,6 +155,23 @@ test_that("the tell_tales() fingerprint does not depend on where tantale is inst
                    .telltale_file_digest(log))
 })
 
+test_that("the fingerprint does not depend on where the tests run", {
+  # pkgcheck runs the tests from a directory under the test session's
+  # tempdir(), so the correction run's correction_ref, a test_path(), fell
+  # under the tempdir rule there (ledger §52, F1).
+  here <- normalizePath(test_path("data_for_tests"))
+  there <- file.path(tempdir(), "tantale.Rcheck", "tests", "testthat", "data_for_tests")
+  line <- function(dir) c(paste0("correction_ref\t:\t", dir, "/correction_ref_20.fa.gz"),
+                          "max_comparisons\t:\tall")
+  log_here <- tempfile("log_here")
+  log_there <- tempfile("log_there")
+  writeLines(line(here), log_here)
+  writeLines(line(there), log_there)
+  moved <- .telltale_file_digest(log_there, tests_dir = there)
+  expect_identical(moved$n_dropped, 0L)
+  expect_identical(moved, .telltale_file_digest(log_here))
+})
+
 test_that("golden: the tables tell_tales() writes, column by column", {
   # The digests above say "something changed"; these say which column, which
   # is what saves the time when it does.

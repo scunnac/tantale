@@ -162,7 +162,7 @@ validate_tales_msa <- function(x) {
   }
 
   ## 12. unique within an array
-  if (any(duplicated(data.frame(a = x$array_id, p = x$alignment_position)))) {
+  if (anyDuplicated(data.frame(a = x$array_id, p = x$alignment_position)) > 0L) {
     cli::cli_abort(
       "{.field alignment_position} must be unique within an array.",
       class = c("tantale_error_msa_duplicate", "tantale_error")

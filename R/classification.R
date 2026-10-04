@@ -461,13 +461,13 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
   if (!is.null(extra_col)) colnames(tale_annotation)[which(colnames(tale_annotation) == extra_col)] <- "extra_col"
   if (!is.null(trunc_tales_col)) colnames(tale_annotation)[which(colnames(tale_annotation) == trunc_tales_col)] <- "truncTale"
   
-  tale_annotation %<>% dplyr::mutate(aberrantRepeat = ifelse(grepl("[a-z]", rvdseq), TRUE, FALSE))
+  tale_annotation <- tale_annotation %>% dplyr::mutate(aberrantRepeat = grepl("[a-z]", rvdseq))
   tale_annotation$rvdseq <- toupper(tale_annotation$rvdseq)
   
   if(is.numeric(tale_annotation$group)) tale_annotation$group <- paste0("G", tale_annotation$group)
   
   ## convert rvdseq to rvdfac, ranking of abundance
-  tale_annotation %<>% dplyr::group_by(group) %>% dplyr::mutate(rvdfac = do.call((function(x) {
+  tale_annotation <- tale_annotation %>% dplyr::group_by(group) %>% dplyr::mutate(rvdfac = do.call((function(x) {
     levels(x) <- nlevels(x) + 1 - rank(table(x), ties.method = "first")
     return(as.integer(as.character(x)))
   }), list(as.factor(rvdseq))))
@@ -486,7 +486,7 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
   }, integer(1), USE.NAMES = TRUE)
   colnames(numAlleles) <- paste0(colnames(numAlleles), " #", variantsCount)
   
-  tale_annotation %<>% dplyr::group_by(group, strain) %>% dplyr::mutate(reprsntRVDfac = ifelse(1 %in% rvdfac, 1, rvdfac[1]))
+  tale_annotation <- tale_annotation %>% dplyr::group_by(group, strain) %>% dplyr::mutate(reprsntRVDfac = ifelse(1 %in% rvdfac, 1, rvdfac[1]))
   
   ## representative alleles per group per strain
   ## in case a strain has more than 1 rvd seqs in 1 group

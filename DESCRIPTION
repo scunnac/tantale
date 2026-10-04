@@ -28,7 +28,7 @@ Description: A toolkit for the study of transcription activator-like
 License: MIT + file LICENSE
 Copyright: tantale authors, except the bundled third-party programs and
     data listed with their licences in inst/COPYRIGHTS
-URL: https://scunnac.github.io/tantale, https://github.com/scunnac/tantale
+URL: https://scunnac.github.io/tantale/, https://github.com/scunnac/tantale
 BugReports: https://github.com/scunnac/tantale/issues
 Depends:
     R (>= 4.0.0)

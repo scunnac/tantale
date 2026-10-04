@@ -455,7 +455,7 @@ diag(identSubMat) <- 1
     BPPARAM = bpparam) %>%
     dplyr::bind_rows()
   
-  pair_align_scores %<>%
+  pair_align_scores <- pair_align_scores %>%
     dplyr::rowwise() %>%
     dplyr::mutate(
       max_length = max(Biostrings::nchar(part_aa_set[id1]), Biostrings::nchar(part_aa_set[id2])),
@@ -579,8 +579,8 @@ diag(identSubMat) <- 1
                                       processors = ncores, verbose = FALSE)
   pair_align_scores <- tibble::as_tibble(.matrix_to_long(as.matrix(distMat), value_name = "dissim"))
   colnames(pair_align_scores) <- c("id2", "id1", "dissim")
-  pair_align_scores %<>% dplyr::mutate(id2 = as.character(id2), id1 = as.character(id1))
-  pair_align_scores %<>% dplyr::mutate(dissim = dissim*100) %>%
+  pair_align_scores <- pair_align_scores %>% dplyr::mutate(id2 = as.character(id2), id1 = as.character(id1))
+  pair_align_scores <- pair_align_scores %>% dplyr::mutate(dissim = dissim*100) %>%
     dplyr::ungroup()
   
   # Check the pair_align_scores tibble

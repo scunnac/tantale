@@ -135,10 +135,15 @@ expect_golden <- function(x) {
 # test session's own tempdir(), where the tempdir rule above dropped those five
 # lines and changed the digest. The installation directory is therefore
 # rewritten first, to a path that .normalise_paths() reduces to "<path>/"
-# exactly as it reduces the real one.
-.telltale_file_digest <- function(path, pkg_dir = system.file(package = "tantale")) {
+# exactly as it reduces the real one. The test data directory gets the same
+# treatment: the correction run's correction_ref comes from test_path(), and
+# pkgcheck runs the tests from under that same tempdir() (ledger §52, F1).
+.telltale_file_digest <- function(path, pkg_dir = system.file(package = "tantale"),
+                                  tests_dir = normalizePath(test_path("data_for_tests"),
+                                                            mustWork = FALSE)) {
   txt <- readLines(path, warn = FALSE)
   if (nzchar(pkg_dir)) txt <- gsub(pkg_dir, "/pkg", txt, fixed = TRUE)
+  txt <- gsub(tests_dir, "/tests", txt, fixed = TRUE)
   keep <- txt[!grepl(.run_specific_pattern(), txt, perl = TRUE)]
   list(n_lines = length(txt),
        n_dropped = length(txt) - length(keep),

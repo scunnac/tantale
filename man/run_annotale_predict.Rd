@@ -48,7 +48,7 @@ function stops with an error of class
 }
 \description{
 An R wrapper around the
-\href{https://www.ncbi.nlm.nih.gov/pubmed/26876161}{AnnoTALE} 'AnnoTALE.jar
+\href{https://doi.org/10.1038/srep21077}{AnnoTALE} 'AnnoTALE.jar
 predict' and 'AnnoTALE.jar analyze' shell calls. The whole AnnoTALE workflow
 can be completed by a subsequent call to the \code{\link{run_annotale_build}}
 function.
