@@ -73,7 +73,16 @@ Copyright: Alvaro L. Pérez-Quintero (author of TALVEZ_3.2.pl).
 
 The Java classes in simplescancode/ are, according to the header of
 TALVEZ_3.2.pl, "java code from Matzieu and Hatzigeorgiu 2010",
-available at http://www.diana.pcbi.upenn.edu/Tools/PlantTFBS/.
+available at http://www.diana.pcbi.upenn.edu/Tools/PlantTFBS/. That is
+PlantTFBS, by Molly Megraw and Artemis G. Hatzigeorgiou, the command-line
+tools of the chapter "MicroRNA Promoter Analysis" (Methods in Molecular
+Biology, Plant MicroRNAs volume, Humana Press); its page,
+https://megraw.cgrb.oregonstate.edu/node/714, states that they are
+"freely available under the GNU Public License" and asks users to cite
+Megraw M. et al. (2006). RNA 12, 1612-1619. The archive that page links
+to (suppmats/PlantTFBS/PlantTFBS.zip) could not be downloaded on
+2026-10-04, so the bundled classes have not been compared with it, and
+their source code is not distributed with tantale.
 
 Licence: no licence is stated in the files, the archive or the
 download page. Redistributed with tantale by permission of the author.

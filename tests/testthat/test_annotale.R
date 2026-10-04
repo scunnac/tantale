@@ -10,8 +10,8 @@ predict_status <- suppressMessages(
   run_annotale_predict(toy_fasta, output_dir = predict_out, prefix = "toy")
 )
 
-test_that("run_annotale_predict() returns 0 and writes both stages", {
-  expect_identical(predict_status, 0L)
+test_that("run_annotale_predict() returns its output_dir and writes both stages", {
+  expect_identical(predict_status, predict_out)
   expect_true(file.exists(file.path(predict_out, "Predict", "protocol_predict.txt")))
   expect_true(all(file.exists(file.path(predict_out, "Analyze",
     c("TALE_RVDs.fasta", "TALE_Protein_parts.fasta", "TALE_DNA_parts.fasta")))))
@@ -35,10 +35,20 @@ test_that("run_annotale_build() puts the two copies in one class", {
                           pattern = "^TALE_DNA_sequences_", full.names = TRUE)
   build_out <- withr::local_tempdir()
   expect_identical(suppressMessages(run_annotale_build(predicted, output_dir = build_out)),
-                   0L)
+                   build_out)
   classes <- list.dirs(build_out, recursive = FALSE, full.names = FALSE)
   expect_identical(classes, "Class_1")
   expect_true(file.exists(file.path(build_out, "Class_builder.xml")))
+})
+
+test_that("run_annotale_build() writes under tempdir() by default and returns the directory", {
+  predicted <- list.files(file.path(predict_out, "Predict"),
+                          pattern = "^TALE_DNA_sequences_", full.names = TRUE)
+  build_out <- suppressMessages(run_annotale_build(predicted))
+  withr::defer(unlink(build_out, recursive = TRUE))
+  expect_true(startsWith(build_out, tempdir()))
+  expect_identical(list.dirs(build_out, recursive = FALSE, full.names = FALSE),
+                   "Class_1")
 })
 
 test_that("run_annotale_build()'s opt_param reaches AnnoTALE: c=0 splits the pair", {

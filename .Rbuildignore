@@ -16,3 +16,6 @@
 ^vignettes/\.quarto$
 ^vignettes/.*_files$
 ^\.github$
+^README\.qmd$
+^README_files$
+^\.quarto$

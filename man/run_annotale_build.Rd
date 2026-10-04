@@ -6,7 +6,7 @@
 \usage{
 run_annotale_build(
   fasta_file,
-  output_dir,
+  output_dir = tempfile("annotale_build_"),
   opt_param = "c=5 s=0.01",
   java_args = "-Xms512M -Xmx6G",
   annotale_jar = .tantale_tool("annotale")
@@ -18,8 +18,8 @@ written by \code{\link{run_annotale_predict}}'s "predict" stage, to be
 classified into groups.}
 
 \item{output_dir}{Directory where output will be written, created if it
-does not exist. Required: tantale does not write to the working
-directory unasked.}
+does not exist. The default is a new directory under \code{\link[=tempdir]{tempdir()}}, which
+R deletes when the session ends: give a path to keep the results.}
 
 \item{opt_param}{A single string of options for AnnoTALE build, as
 \code{key=value} pairs separated by spaces. The default writes out the
@@ -39,8 +39,8 @@ out of memory.}
 copy \code{\link[=tantale_setup]{tantale_setup()}} downloads; give a path to use another version.}
 }
 \value{
-\code{0}, invisibly; called for the files it writes to
-\code{output_dir}. If AnnoTALE exits with a non-zero status, the
+\code{output_dir}, invisibly. If AnnoTALE exits with a non-zero
+status, the
 function stops with an error of class
 \code{tantale_error_annotale_failed}.
 }

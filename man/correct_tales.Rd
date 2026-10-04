@@ -6,7 +6,7 @@
 \usage{
 correct_tales(
   uncorrected_path,
-  corrected_path,
+  corrected_path = tempfile("corrected_tales_", fileext = ".fa"),
   hmm_path = .tantale_tool("talecorrection_hmm"),
   return_corrections = FALSE,
   conda_bin = "auto",
@@ -16,8 +16,9 @@ correct_tales(
 \arguments{
 \item{uncorrected_path}{Path to the input sequence file}
 
-\item{corrected_path}{Path of the output file. Required: tantale does not
-write to the working directory unasked.}
+\item{corrected_path}{Path of the output file. The default is a new file
+under \code{\link[=tempdir]{tempdir()}}, which R deletes when the session ends: give a path to
+keep the corrected sequences.}
 
 \item{hmm_path}{Path to the folder containing the profile HMM files. The
 default points to the ones built from Xanthomonas oryzae pv. oryzae (Xoo)

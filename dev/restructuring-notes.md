@@ -3310,6 +3310,22 @@ by the package authors and is available only in tantale. **Done:**
   README.qmd ("discussed before and concluded not"; no record of that
   decision in the ledger or the history). Q105.
 
+Maintainer, 2026-10-04: **Q104** could not find the reference. Found it:
+"Matzieu" is Megraw. PlantTFBS (Molly Megraw, Artemis G. Hatzigeorgiou;
+chapter "MicroRNA Promoter Analysis", Methods Mol Biol, Plant MicroRNAs;
+page https://megraw.cgrb.oregonstate.edu/node/714) is "freely available
+under the GNU Public License". Both added as `cph`; `inst/COPYRIGHTS` and
+the README licence section say so. Open: the upstream zip now returns an
+HTML page, so the bundled classes were not compared with it, and tantale
+ships GPL class files without their source (Q111). **Q105** README.qmd
+adopted: `format: gfm` with `wrap: preserve`, install blocks not run,
+the Usage example run at each render (32 s; figure in
+`man/figures/README-usage-plot-1.png`); README.qmd, README_files and
+.quarto build-ignored. **Q106** draft approved. **Q107** push.
+Proposed, not yet answered: C13 revised to temporary-directory defaults
+with the output location returned, so calls compose
+(`tales_from_telltales(tell_tales(genome))`) (Q108-Q110).
+
 ---
 
 ## 53. Correction strategies inside `tell_tales()` (future release) **[P]**

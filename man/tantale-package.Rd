@@ -107,6 +107,8 @@ Authors:
 Other contributors:
 \itemize{
   \item Alvaro L. Pérez-Quintero (Author of the bundled TALVEZ 3.2 and of the FuncTAL table behind rvd_dna_specificity) [copyright holder]
+  \item Molly Megraw (Author of the PlantTFBS Java classes bundled with TALVEZ (simplescancode/)) [copyright holder]
+  \item Artemis G. Hatzigeorgiou (Author of the PlantTFBS Java classes bundled with TALVEZ (simplescancode/)) [copyright holder]
 }
 
 }

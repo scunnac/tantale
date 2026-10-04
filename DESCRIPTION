@@ -10,7 +10,11 @@ Authors@R: c(
     comment = c(ORCID = "0000-0002-3695-491X")),
     person(given = c("Alvaro", "L."), family = "Pérez-Quintero",
     role = "cph",
-    comment = "Author of the bundled TALVEZ 3.2 and of the FuncTAL table behind rvd_dna_specificity")
+    comment = "Author of the bundled TALVEZ 3.2 and of the FuncTAL table behind rvd_dna_specificity"),
+    person(given = "Molly", family = "Megraw", role = "cph",
+    comment = "Author of the PlantTFBS Java classes bundled with TALVEZ (simplescancode/)"),
+    person(given = c("Artemis", "G."), family = "Hatzigeorgiou", role = "cph",
+    comment = "Author of the PlantTFBS Java classes bundled with TALVEZ (simplescancode/)")
           )
 Maintainer: Sebastien Cunnac <sebastien.cunnac@ird.fr>
 Description: A toolkit for the study of transcription activator-like

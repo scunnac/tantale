@@ -26,8 +26,8 @@
 #' @param fasta_file Path to a fasta file containing DNA sequences (e.g. a
 #'   genome assembly) to be analyzed for TALE content.
 #' @param output_dir Directory where output will be written, created if it
-#'   does not exist. Required: tantale does not write to the working
-#'   directory unasked.
+#'   does not exist. The default is a new directory under [tempdir()], which
+#'   R deletes when the session ends: give a path to keep the results.
 #' @param prefix A scalar character vector containing a prefix that will be
 #'   appended to TALE names by AnnoTALE. If not supplied, the function will try
 #'   to guess the prefix from the input file name.
@@ -44,8 +44,9 @@
 #'   leaves Java's own defaults.
 #' @param annotale_jar Path to the AnnoTALE jar file. The default is the
 #'   copy [tantale_setup()] downloads; give a path to use another version.
-#' @return \code{0}, invisibly; called for the files it writes to
-#'   \code{output_dir}. If either stage exits with a non-zero status, the
+#' @return \code{output_dir}, invisibly, so that the call can be passed
+#'   straight to [tales_from_annotale()]. If either stage exits with a
+#'   non-zero status, the
 #'   function stops with an error of class
 #'   \code{tantale_error_annotale_failed}.
 #' @export
@@ -59,7 +60,7 @@
 #' list.files(file.path(out, "Predict"))
 #' }
 run_annotale_predict <- function(fasta_file,
-                            output_dir,
+                            output_dir = tempfile("annotale_predict_"),
                             prefix = NULL,
                             opt_param = "Sensitive=false",
                             java_args = "",
@@ -96,6 +97,7 @@ run_annotale_predict <- function(fasta_file,
   )
   cli::cli_inform(c("Running AnnoTALE analyze for {.val {prefix}}", " " = "{comAnalyze}"))
   .annotale_exec(comAnalyze, "analyze")
+  invisible(output_dir)
 }
 
 
@@ -113,8 +115,8 @@ run_annotale_predict <- function(fasta_file,
 #'   written by \code{\link{run_annotale_predict}}'s "predict" stage, to be
 #'   classified into groups.
 #' @param output_dir Directory where output will be written, created if it
-#'   does not exist. Required: tantale does not write to the working
-#'   directory unasked.
+#'   does not exist. The default is a new directory under [tempdir()], which
+#'   R deletes when the session ends: give a path to keep the results.
 #' @param opt_param A single string of options for AnnoTALE build, as
 #'   \code{key=value} pairs separated by spaces. The default writes out the
 #'   tool's own defaults: \code{c}, the cutoff on the distance that defines
@@ -129,8 +131,8 @@ run_annotale_predict <- function(fasta_file,
 #'   out of memory.
 #' @param annotale_jar Path to the AnnoTALE jar file. The default is the
 #'   copy [tantale_setup()] downloads; give a path to use another version.
-#' @return \code{0}, invisibly; called for the files it writes to
-#'   \code{output_dir}. If AnnoTALE exits with a non-zero status, the
+#' @return \code{output_dir}, invisibly. If AnnoTALE exits with a non-zero
+#'   status, the
 #'   function stops with an error of class
 #'   \code{tantale_error_annotale_failed}.
 #' @export
@@ -150,7 +152,7 @@ run_annotale_predict <- function(fasta_file,
 #' list.files(build_out)
 #' }
 run_annotale_build <- function(fasta_file,
-                          output_dir,
+                          output_dir = tempfile("annotale_build_"),
                           opt_param = "c=5 s=0.01",
                           java_args = "-Xms512M -Xmx6G",
                           annotale_jar = .tantale_tool("annotale")
@@ -167,6 +169,7 @@ run_annotale_build <- function(fasta_file,
   )
   cli::cli_inform(c("Running AnnoTALE build", " " = "{comBuild}"))
   .annotale_exec(comBuild, "build")
+  invisible(output_dir)
 }
 
 

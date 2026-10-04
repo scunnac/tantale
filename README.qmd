@@ -1,10 +1,21 @@
-
+---
+format:
+  gfm:
+    wrap: preserve
+knitr:
+  opts_chunk:
+    collapse: true
+    comment: "#>"
+    fig.path: "man/figures/README-"
+    message: false
+    warning: false
+---
 
 <!-- README.md is generated from README.qmd: edit README.qmd, then render
 it with `quarto render README.qmd` (needs the tantale environment, Java and
 the downloaded tools, since the Usage example runs). -->
-<!-- badges: start -->
 
+<!-- badges: start -->
 [![Project Status: Active – The project has reached a stable, usable state and is being actively developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
 [![Lifecycle: stable](https://img.shields.io/badge/lifecycle-stable-brightgreen.svg)](https://lifecycle.r-lib.org/articles/stages.html#stable)
 [![R-CMD-check](https://github.com/scunnac/tantale/actions/workflows/R-CMD-check.yaml/badge.svg)](https://github.com/scunnac/tantale/actions/workflows/R-CMD-check.yaml)
@@ -12,33 +23,47 @@ the downloaded tools, since the Usage example runs). -->
 <!-- badges: end -->
 
 <p align="right">
+  <img src="./man/figures/tantale_logo_small.gif">
 
-<img src="./man/figures/tantale_logo_small.gif">
 
 #### ⚠️ This release is a major revision of the package with breaking changes to the previous interface. Extensive refactoring, bug fixes, and performance improvements bring the package to its first stable release. The previous release (prototypical version) remains available as a release asset:[tantale-full-history-2026-09-22.bundle](https://github.com/scunnac/tantale/releases/download/v0.9.9004/tantale-full-history-2026-09-22.bundle).
 
+
+
+
+
 ## An integrated collection of functions for [TALE](https://en.wikipedia.org/wiki/Transcription_activator-like_effector) mining and analysis with the R language
 
-Analyzing TALEs in *Xanthomonas* genomes (mostly) typically means coordinating several concurrent and complementary tools running on different platforms (Java, Perl), which is cumbersome to script and automate. Making sense of the output is harder still, since there is no easy way to graphically represent the various objects of the analysis.
+
+Analyzing TALEs in  *Xanthomonas* genomes (mostly) typically means coordinating several concurrent and complementary tools running on different platforms (Java, Perl), which is cumbersome to script and automate. Making sense of the output is harder still, since there is no easy way to graphically represent the various objects of the analysis.
 
 With `tantale`, we compiled and extended our previous code wrapping TALE analysis tools into an integrated R interface that further provides an extensive list of utilities for easy plotting. This enables a moderately proficient R programmer to perform entire analysis pipelines directly in R and access result objects for custom manipulations.
 
 Here is a snapshot of the topics that are covered:
 
+
 - A TALE-oriented OOP framework:
-  - `tales`/`tales_msa` S3 classes, with subsetting, coercion, and plotting methods – see [the `tales` class article](https://scunnac.github.io/tantale/articles/tales_class.html) and [the `tales_msa` class article](https://scunnac.github.io/tantale/articles/tales_msa_class.html)
+    - `tales`/`tales_msa` S3 classes, with subsetting, coercion, and plotting methods -- see [the `tales` class article](https://scunnac.github.io/tantale/articles/tales_class.html) and [the `tales_msa` class article](https://scunnac.github.io/tantale/articles/tales_msa_class.html)
+
+
 - TALE mining in bacterial sequences:
-  - Wrappers around [AnnoTALE](https://doi.org/10.1038/srep21077) and [correcTALE](https://doi.org/10.1186/s12864-023-09228-1); AnnoTALE’s predictions load as a `tales` object
-  - A TALE finder built for error-prone assemblies: it locates TALE arrays from DNA evidence and can correct frameshifts before AnnoTALE reads them
-  - Analysis tools for RVD inventory, repeat length.
-  - Compact ‘talome’ plots
+    - Wrappers around [AnnoTALE](https://doi.org/10.1038/srep21077) and [correcTALE](https://doi.org/10.1186/s12864-023-09228-1); AnnoTALE's predictions load as a `tales` object
+    - A TALE finder built for error-prone assemblies: it locates TALE arrays from DNA evidence and can correct frameshifts before AnnoTALE reads them
+    - Analysis tools for RVD inventory, repeat length.
+    - Compact 'talome' plots
+
+
 - TALEs classification, phylogeny:
-  - R reimplementations of [DisTAL](https://doi.org/10.3389/fpls.2015.00545) and [functal](https://doi.org/10.3389/fpls.2015.00545) comparisons, plus a wrapper around AnnoTALE
-  - TALE groups inference with several methods
-  - Easily build multiple alignments and generate nice plots
+    - R reimplementations of [DisTAL](https://doi.org/10.3389/fpls.2015.00545) and [functal](https://doi.org/10.3389/fpls.2015.00545) comparisons, plus a wrapper around AnnoTALE
+    - TALE groups inference with several methods
+    - Easily build multiple alignments and generate nice plots
+
+
 - TALE targets predictions:
-  - Wrappers around target predictors ([Talvez](https://doi.org/10.1371/journal.pone.0068464) and [PrediTALE](https://doi.org/10.1371/journal.pcbi.1007206))
-  - General parser for results aggregation
+    - Wrappers around target predictors ([Talvez](https://doi.org/10.1371/journal.pone.0068464) and [PrediTALE](https://doi.org/10.1371/journal.pcbi.1007206))
+    - General parser for results aggregation
+
+
 
 ## Installation
 
@@ -47,7 +72,8 @@ For further details, take a look at the package
 
 ### 1. Install the R package
 
-``` r
+```{r}
+#| eval: false
 # install.packages("pak")  # if you don't already have it
 pak::pkg_install("scunnac/tantale", dependencies = TRUE, upgrade = FALSE)
 ```
@@ -61,7 +87,8 @@ prerequisite of the main workflow**.
 You do not have to install it by hand or know anything about it. If you have
 no conda at all, `reticulate` will install one from inside R:
 
-``` r
+```{r}
+#| eval: false
 install.packages("reticulate")
 reticulate::install_miniconda()
 ```
@@ -72,7 +99,8 @@ that instead, with nothing else to do.
 
 ### 3. Check everything is in place
 
-``` r
+```{r}
+#| eval: false
 tantale::tantale_setup()
 ```
 
@@ -97,7 +125,6 @@ Run it once with `install = TRUE` after installing tantale:
 - **Java and Perl on the PATH.** Several wrappers (AnnoTALE, PrediTALE, TALE
   correction, the target predictors) are written in other languages.
   `tantale_setup()` checks for these too.
-
 - **Linux, or macOS on an Intel processor.** The versions of MAFFT, HMMER
   and MMseqs2 that tantale pins (later MAFFT versions align TALE repeat
   strings differently) are built by bioconda for Linux and Intel macOS
@@ -117,48 +144,24 @@ Run it once with `install = TRUE` after installing tantale:
 
 ## Usage
 
-``` r
+```{r usage-find}
 library(tantale)
 
 # Find the TALE genes of a genome and load them as a `tales` object.
 # tell_tales() writes to a temporary directory unless given `output_dir`.
 mai1 <- tales_from_telltales(tell_tales(tantale_genome("MAI1")))
 mai1
-#> <tales> 9 arrays, 198 parts
-#>   layers: rvd   |   6 other columns
-#>              rvd
-#>   ROI_00001  NTERM NS NG NS HD NI NG NN NG HD NI NN N* NI NN HD NG NI NN N ...
-#>   ROI_00002  NTERM NN N* NN HD HD NI N* NG HD NI NG NN HD NS NG NI NG NN N ...
-#>   ...        ...
-#>   ROI_00009  NTERM NI HD NN NS NN NG HD NG HD NG NN NG HD NS HD NI NG HD H ...
-#>   ROI_00010  NTERM NN HD NN HD NG HD HD NG HD NI NI NN HD HD N* NG HD NI CTERM
 ```
 
-``` r
+```{r usage-plot, fig.width = 8, fig.height = 5, dpi = 120}
 plot(mai1)    # the repeat structure of each array
 ```
 
-![](man/figures/README-usage-plot-1.png)
-
-``` r
+```{r usage-targets}
 # Predict their target sites in a set of promoters
 promoters <- system.file("extdata", "cladeIII_sweet_promoters.fasta",
                          package = "tantale")
 tales_predict_targets(mai1, subj_file = promoters)
-#> # A tibble: 31 × 10
-#>    taleId    rvds         subjSeqId score strand start   end ebeSeq  rank method
-#>    <chr>     <chr>        <chr>     <dbl> <chr>  <dbl> <dbl> <chr>  <dbl> <chr> 
-#>  1 ROI_00001 NS-NG-NS-HD… SWEET14p… 15.0  +        346   368 CATGC…     1 talvez
-#>  2 ROI_00001 NS-NG-NS-HD… SWEET14p… 15.0  +        342   364 CATGC…     2 talvez
-#>  3 ROI_00001 NS-NG-NS-HD… SWEET11p…  8.56 -        262   284 TCTAC…     3 talvez
-#>  4 ROI_00001 NS-NG-NS-HD… SWEET11p…  7.97 -        505   527 TATAA…     4 talvez
-#>  5 ROI_00001 NS-NG-NS-HD… SWEET14p…  7.02 +        622   644 CTCTC…     5 talvez
-#>  6 ROI_00002 NN-N*-NN-HD… SWEET11p…  9.22 -        980  1006 TGTAC…     1 talvez
-#>  7 ROI_00003 NN-HD-NI-NS… SWEET11p…  9.00 +        135   149 TGCAT…     1 talvez
-#>  8 ROI_00003 NN-HD-NI-NS… SWEET11p…  9.00 +        130   144 TGCAT…     2 talvez
-#>  9 ROI_00003 NN-HD-NI-NS… SWEET11p…  9.00 +       1690  1704 TGCAT…     3 talvez
-#> 10 ROI_00003 NN-HD-NI-NS… SWEET11p…  9.00 +        128   142 TGCAT…     4 talvez
-#> # ℹ 21 more rows
 ```
 
 The [Get started](https://scunnac.github.io/tantale/articles/tantale.html)
@@ -177,7 +180,7 @@ FuncTAL comparisons of the QueTAL suite).
 Run `citation("tantale")` for a reference to the package and to the
 papers of the methods it wraps or reimplements.
 
-------------------------------------------------------------------------
+---
 
 **NOTE** :
 
@@ -192,11 +195,11 @@ papers of the methods it wraps or reimplements.
   Bug reports and questions go to the
   [issues](https://github.com/scunnac/tantale/issues).
 
-------------------------------------------------------------------------
+---
 
 ## Licence
 
-tantale’s own code is under the MIT licence. The programs and data it
+tantale's own code is under the MIT licence. The programs and data it
 bundles or downloads from other projects keep their own terms, listed file by file,
 with upstream sources, in
 [`inst/COPYRIGHTS`](https://github.com/scunnac/tantale/blob/main/inst/COPYRIGHTS):
@@ -214,7 +217,10 @@ with upstream sources, in
 
 ## Use of large language models
 
-The authors used large language models (Claude, Anthropic – including
+The authors used large language models (Claude, Anthropic -- including
 Claude Sonnet 5) to assist with code development, debugging, and
 documentation writing throughout this package. The authors affirm that they
 are fully responsible for the content of the codebase and its documentation.
+
+
+

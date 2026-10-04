@@ -6,7 +6,7 @@
 \usage{
 run_annotale_predict(
   fasta_file,
-  output_dir,
+  output_dir = tempfile("annotale_predict_"),
   prefix = NULL,
   opt_param = "Sensitive=false",
   java_args = "",
@@ -18,8 +18,8 @@ run_annotale_predict(
 genome assembly) to be analyzed for TALE content.}
 
 \item{output_dir}{Directory where output will be written, created if it
-does not exist. Required: tantale does not write to the working
-directory unasked.}
+does not exist. The default is a new directory under \code{\link[=tempdir]{tempdir()}}, which
+R deletes when the session ends: give a path to keep the results.}
 
 \item{prefix}{A scalar character vector containing a prefix that will be
 appended to TALE names by AnnoTALE. If not supplied, the function will try
@@ -42,8 +42,9 @@ leaves Java's own defaults.}
 copy \code{\link[=tantale_setup]{tantale_setup()}} downloads; give a path to use another version.}
 }
 \value{
-\code{0}, invisibly; called for the files it writes to
-\code{output_dir}. If either stage exits with a non-zero status, the
+\code{output_dir}, invisibly, so that the call can be passed
+straight to \code{\link[=tales_from_annotale]{tales_from_annotale()}}. If either stage exits with a
+non-zero status, the
 function stops with an error of class
 \code{tantale_error_annotale_failed}.
 }

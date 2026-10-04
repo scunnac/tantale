@@ -1,13 +1,20 @@
 # tantale 0.9.9012
 
-## Output locations are required
+## Output goes to a temporary directory by default
 
 `tell_tales()`, `run_annotale_predict()` and `run_annotale_build()` no
-longer default `output_dir` to the working directory, and
-`correct_tales()` no longer writes `correctedTALEs.fa` there by default:
-`output_dir` and `corrected_path` must now be given. A package should not
-write to the working directory unasked (CRAN policy, rOpenSci review).
-A call that relied on the default now stops at once, naming the argument.
+longer write to the working directory when `output_dir` is not given, and
+`correct_tales()` no longer writes `correctedTALEs.fa` there: the
+defaults are now a new directory, or file, under `tempdir()`, which R
+deletes when the session ends. Give `output_dir` or `corrected_path` to
+keep the results. A package should not write to the working directory
+unasked (CRAN policy, rOpenSci review).
+
+`run_annotale_predict()` and `run_annotale_build()` now return their
+output directory invisibly, as `tell_tales()` does, in place of `0`. Calls
+compose: `tales_from_telltales(tell_tales(genome))`,
+`tales_from_annotale(run_annotale_predict(genome))`,
+`tell_tales(correct_tales(genome))`.
 
 ## No startup message
 

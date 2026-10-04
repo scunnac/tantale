@@ -20,3 +20,5 @@ vignettes/articles/_cache/
 extra/
 dev/function-graph.html
 dev/notes_for_claude.html
+README_files/
+.quarto/
