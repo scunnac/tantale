@@ -1,5 +1,15 @@
 # tantale 0.99.0
 
+## A curated reference talome: `tale_annotations`
+
+A new dataset gives the TALEs of ten complete, published *Xanthomonas
+oryzae* genomes, 128 of them, with the names the literature uses, AnnoTALE
+classes, RVD strings, the nine naturally truncated TALEs flagged, and
+notes on the arrays with an unusual structure. Three of the ten genomes
+are the ones `tantale_setup()` installs, so a `tell_tales()` run on MAI1,
+BAI3 or PXO86 can be checked against it. Compiled by Bao Tram Vi; see
+`?tale_annotations`.
+
 ## Output goes to a temporary directory by default
 
 `tell_tales()`, `run_annotale_predict()` and `run_annotale_build()` no

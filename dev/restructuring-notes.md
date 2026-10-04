@@ -3601,3 +3601,50 @@ similar" rOpenSci and CRAN packages from `pkgmatch`; none is TALE-related
 inquiry's "no other R package for TALE analysis". Editor reply expected
 within 5 business days.
 
+---
+
+## 57. `tale_annotations`, a curated reference talome (2026-10-04) **[V]**
+
+Maintainer, 2026-10-04: Bao Tram Vi's curated table of the TALEs of ten
+published *X. oryzae* genomes, wanted in the package "if only to have a
+safe place for it". Source file
+`.../Tram/former_xanthopore-scripts/talomes_analysis/VXO_genomes/tal_analysis/ref_tale_annotation.tsv`,
+copied unchanged to `data-raw/ref_tale_annotation.tsv`. Note the sibling
+`all_tale_annotation.tsv` (305 rows, 20 strains) **must not** be used: it
+includes ten unpublished VXO genomes.
+
+Decisions (Q125-Q128): **Q125** first public appearance, Tram's
+unpublished work, so `@source` credits her and points at the GenBank
+assemblies each row names. **Q126** ship the gaps as they are (19 rows
+without `tal_name`, 54 without `annotale_group`, 19 without `pubmed`;
+the maintainer filled some PubMed ids first, BAI3 among them). **Q127** a
+plain tibble, not a `tales` object. **Q128** `distal_group` dropped: empty
+in every row here, and how the sibling file's values were computed is not
+recorded, so they cannot be vouched for; recomputing is
+`tales_compare_distal()` + `tales_group_hclust()`.
+
+Maintainer, same day: `telltale2_id` and `annotale_id` dropped too. Both
+name an array within one run (`ROI_00001`, `tempTALE1`) and neither
+survives a rerun. `annotale_group` is kept, being AnnoTALE's own class
+names (`TalAH30`). `strain` + `label` is the key: unique over all 128
+rows, never missing. `truncTALE` renamed `trunc_tale` for the snake_case
+rule.
+
+Result: 128 rows x 10 columns, 2.8 KB. `data-raw/tale_annotations.R`
+builds it with the invariants asserted; `?tale_annotations` documents
+every column; `test_tale_annotations.R` has 6 tests; NEWS entry;
+`@family TALE discovery` puts it on the site with no `_pkgdown.yml`
+change. `check_pkgdown()` clean, `rcmdcheck` (no tests, no vignettes)
+0/0/0.
+
+**Found while testing: the RVD strings carry lowercase RVDs** (`hd`,
+`ng`, `ni`, `nn`, `ns`, `n*`; 17 occurrences over 16 of the 128 arrays).
+Lowercase is the convention for a repeat of non-standard length, which
+tantale already reads that way (`grepl("[a-z]", rvdseq)` in
+`classification.R`, and §49's 32-aa `nv` repeat). A first test asserted
+`^[A-Z][A-Z*]$` and failed on real data, not the other way round. Both
+the test and `?tale_annotations` now say case carries meaning and must
+not be normalised away. Only 4 of those 16 arrays also carry an
+`unusual_feature` note, so the two records of "atypical" are independent:
+the note is the curator's, the lowercase is the annotation pipeline's.
+
