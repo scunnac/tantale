@@ -3835,3 +3835,22 @@ catalogued, which is how §57 filled `annotale_class` without running
 the download itself is not tested, being a quarter of an hour of network
 (Q137).
 
+**Verified by running it (2026-10-04).** `run_annotale_assign()` on
+`Sample_TALEs_RVDSeqs_AnnoTALE.fasta` against the downloaded catalogue:
+**9.4 minutes**, wrote `TALE_names_(<strain>).tsv`, the per-class reports
+and an augmented class builder. It assigned exactly the nine core African
+classes §57 had found from `List_of_classes.txt` (TalBS, TalDG, TalDH,
+TalDI, TalDJ, TalDK, TalDL, TalDM, TalDN), so the text-file route and
+`assign()` agree on the vocabulary -- a useful cross-check of how
+`annotale_class` was filled.
+
+For MAI1 the two routes agree on eight of nine, and `assign()` puts
+`TalH`, the row `tale_annotations` leaves `NA`, in **TalDN**. The `NA`
+was **not** filled from this: the sequence `assign()` classified is not
+the one in the table. The shipped sample file's `TalH_MAI1` has 16
+repeats (`NN-HD-NV-HD-NI-NG-NI-NN-NS-HD-HD-NI-NG-NI-NG-NI`), the table's
+MAI1 `TalH` has 12 (the same first twelve, without `NG-NI-NG-NI`). So
+Tram's curation and AnnoTALE's catalogue record different repeat counts
+for what looks like the same gene, which is a question for the maintainer
+(**Q146**) and not something to resolve by assuming. The `NA` stands.
+
