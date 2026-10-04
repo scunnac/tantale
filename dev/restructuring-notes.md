@@ -3203,6 +3203,12 @@ the devguide checklist pass next, findings recorded here.
   now the DOI; jstacs.de), and the README's link to the prototype bundle,
   which lacked the file name (404). Two doi.org links answer 403 to the
   checker (publisher bot blocking), left.
+- **Second pkgcheck run, on 06cb505** (21 min): R CMD check no error,
+  no warning, one note (the worktree's `.git`); coverage 91.15%; the
+  whole-package import check passes; 1388 lints (1396 before). Still
+  flagged: no CI (pkgcheck cannot see the workflow of a private
+  repository; the README badge is in place), 40 Imports, the four
+  "unused" internals (F7, F8).
 
 ### Devguide checklist pass (2026-10-04, Q93)
 
