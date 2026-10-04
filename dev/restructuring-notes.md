@@ -3854,3 +3854,17 @@ Tram's curation and AnnoTALE's catalogue record different repeat counts
 for what looks like the same gene, which is a question for the maintainer
 (**Q146**) and not something to resolve by assuming. The `NA` stands.
 
+**Q146 answered from the catalogue (2026-10-04).** Tram's 12-repeat MAI1
+`TalH` string matches **four catalogue entries exactly, all class
+`TalDN`**: TalDN2 (Xoo BAI3), TalDN8 (CFBP7320), TalDN9 (CFBP7321),
+TalDN12 (CFBP7324). So that sequence is a real catalogued TALE, recorded
+in BAI3 and three CFBP strains rather than in MAI1, whose own entry
+`TalDN23` has 16 repeats. The class is unambiguous from three
+directions: the exact string is TalDN elsewhere, MAI1's own entry is
+TalDN, and `assign()` put the 16-repeat version in TalDN. Only the
+*repeat count* stays open -- whether MAI1 carries a 12-repeat allele like
+BAI3's or the 16-repeat one. **Q147 put to the maintainer:** fill
+`annotale_class` as `TalDN` for that row, noting it matched other
+strains' entries rather than MAI1's own, which would make the column 127
+of 128. Not done without sign-off.
+
