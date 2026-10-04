@@ -238,21 +238,25 @@ before trusting any of it.*
 ### State
 
 - **2026-10-04, second session:** version **0.99.0**, the release
-  candidate of §43 (the repository is public since the night of
-  2026-10-04). §51 done (`opt_param`/`java_args` on the jar wrappers).
-  §52 rOpenSci readiness: two pkgcheck runs (the second clean: no R CMD
-  check error or warning), F1-F9 and devguide checklist C1-C15 triaged
-  and mostly done: CI on push/PR over R release/oldrel/devel with
-  `--run-donttest`, Codecov workflow (`CODECOV_TOKEN` set), narrowed
-  imports, no startup message, `inst/CITATION`, `SystemRequirements`,
-  `cph` authors (Pérez-Quintero; Megraw and Hatzigeorgiou for PlantTFBS),
-  outputs default to `tempdir()` and are returned (calls compose), README
-  generated from **README.qmd** (`quarto render README.qmd`; needs the
-  full environment). Inquiry draft `dev/ropensci-presubmission.md` for
-  the maintainer to post. A DOI archive will come from DataSud, not
-  Zenodo. §53 (hybrid correction, keep the API) and §54 (TALVEZ in R with
-  universalmotif) parked for a future release. Q IDs continue the
-  ledger's sequence (Q70-Q113 this session). macOS CI not yet run.
+  candidate of §43; the repository is public and CI runs on every push.
+  §51 done (`opt_param`/`java_args` on the jar wrappers). §52 rOpenSci
+  readiness: three pkgcheck runs, the last clean (no R CMD check error or
+  warning, coverage 91%); F1-F9 and devguide C1-C15 triaged and mostly
+  done (CI matrix over R release/oldrel/devel with `--run-donttest`,
+  Codecov, narrowed imports, no startup message, `inst/CITATION`,
+  `SystemRequirements`, `cph` authors, outputs default to `tempdir()` and
+  are returned so calls compose, README generated from **README.qmd**).
+  **Pre-submission inquiry posted: ropensci/software-review#813.**
+  §56: the R version matrix found two failures on its first run, both
+  fixed -- R devel's `merge()` reaching an S4 `DataFrame` (three call
+  sites), and rtracklayer's `##source-version` stamp in the golden GFFs
+  (now dropped, golden re-baselined). §57: new dataset
+  **`tale_annotations`** (128 curated TALEs, ten published genomes) and
+  two new wrappers, `run_annotale_load_classes()` and
+  `run_annotale_assign()`, which place TALEs in AnnoTALE's published
+  classes. Parked: §53 hybrid correction, §54 TALVEZ in R, §55 the RVD
+  tables. Q IDs continue the ledger's sequence (Q70-Q145 this session).
+  macOS CI not yet run; `v0.99.0` pre-release not yet cut.
 - **2026-10-03, fourth session (§49):** `max_comparisons` defaults to 50
   (same result as the full search on all four shipped genomes);
   `tales_from_telltales()` warns about candidate arrays AnnoTALE could not
