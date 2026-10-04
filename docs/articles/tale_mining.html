@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9012</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.99.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -83,7 +83,7 @@
 <p>This article covers TALE discovery with AnnoTALE and <code><a href="../reference/tell_tales.html">tell_tales()</a></code>. Because of their repetitive nature <em>tal</em> genes cannot be assembled from short read sequencing technologies data. This is why now most of the genomes of <em>tal</em> bearing bacteria are sequenced with long read technologies which may be error prone. Those assemblies are not always clean, and <code><a href="../reference/tell_tales.html">tell_tales()</a></code> can sometimes be fooled. tantale offers two ways to correct frameshifts. They work differently, neither is guaranteed to succeed, and <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> tells you which arrays still need attention after either one.</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://scunnac.github.io/tantale">tantale</a></span><span class="op">)</span></span>
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://scunnac.github.io/tantale/">tantale</a></span><span class="op">)</span></span>
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></code></pre></div>
 </details>
 </div>
@@ -571,7 +571,7 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 </section><section class="level3" data-number="5.3"><h3 data-number="5.3" id="what-is-the-best-method-for-correcting-the-dna-sequences-of-tale-arrays">
 <span class="header-section-number">5.3</span> What is the best method for correcting the DNA sequences of TALE arrays?<a class="anchor" aria-label="anchor" href="#what-is-the-best-method-for-correcting-the-dna-sequences-of-tale-arrays"></a>
 </h3>
-<p>On this genome, correction inside <code><a href="../reference/tell_tales.html">tell_tales()</a></code> gives the better result: 8 of 8 arrays come out as standard TALEs, against 6 of 8 after <code><a href="../reference/correct_tales.html">correct_tales()</a></code>. It is also about as fast: on the machine that built this page it took 72 seconds. The Java route needs two steps, <code><a href="../reference/correct_tales.html">correct_tales()</a></code> and then the <code><a href="../reference/tell_tales.html">tell_tales()</a></code> run that finds the arrays in the corrected genome, and together they took 52 seconds. One genome is a limited sample, however. <code><a href="../reference/correct_tales.html">correct_tales()</a></code> repairs the whole genome in one pass, and the corrected genome can serve other analyses as well. Furthermore, <code><a href="../reference/correct_tales.html">correct_tales()</a></code> does not suffer the <em>over-correction</em> behavior exhibited by <code><a href="../reference/tell_tales.html">tell_tales()</a></code> on <a href="trunctale_correction.html#sec-two-trunctales">truncTALEs</a>. On a new, error-prone assembly, running both routes and comparing their <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> costs a few minutes and shows the arrays on which they agree.</p>
+<p>On this genome, correction inside <code><a href="../reference/tell_tales.html">tell_tales()</a></code> gives the better result: 8 of 8 arrays come out as standard TALEs, against 6 of 8 after <code><a href="../reference/correct_tales.html">correct_tales()</a></code>. It is also about as fast: on the machine that built this page it took 61 seconds. The Java route needs two steps, <code><a href="../reference/correct_tales.html">correct_tales()</a></code> and then the <code><a href="../reference/tell_tales.html">tell_tales()</a></code> run that finds the arrays in the corrected genome, and together they took 40 seconds. One genome is a limited sample, however. <code><a href="../reference/correct_tales.html">correct_tales()</a></code> repairs the whole genome in one pass, and the corrected genome can serve other analyses as well. Furthermore, <code><a href="../reference/correct_tales.html">correct_tales()</a></code> does not suffer the <em>over-correction</em> behavior exhibited by <code><a href="../reference/tell_tales.html">tell_tales()</a></code> on <a href="trunctale_correction.html#sec-two-trunctales">truncTALEs</a>. On a new, error-prone assembly, running both routes and comparing their <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> costs a few minutes and shows the arrays on which they agree.</p>
 </section><section class="level3" data-number="5.4"><h3 data-number="5.4" id="sec-max-comparisons">
 <span class="header-section-number">5.4</span> <code>max_comparisons</code> sets the depth of the search<a class="anchor" aria-label="anchor" href="#sec-max-comparisons"></a>
 </h3>
@@ -772,7 +772,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script><script>var lightboxQuarto = GLightbox({"openEffect":"zoom","descPosition":"bottom","closeEffect":"zoom","selector":".lightbox","loop":false});
+</script><script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","selector":".lightbox","openEffect":"zoom","loop":false,"descPosition":"bottom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

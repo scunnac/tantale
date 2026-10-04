@@ -11,7 +11,7 @@ conventional tools (eg AnnoTALE).
 ``` r
 tell_tales(
   subject_file,
-  output_dir = getwd(),
+  output_dir = tempfile("tell_tales_"),
   hmm_dir = system.file("extdata", "hmmProfile", package = "tantale", mustWork = T),
   nterm_min_score = 300,
   repeat_min_score = 20,
@@ -43,8 +43,12 @@ tell_tales(
 
 - output_dir:
 
-  Path of the output directory. If not specified, results will be
-  written to current working folder.
+  Path of the output directory, created if it does not exist. The
+  default is a new directory under
+  [`tempdir()`](https://rdrr.io/r/base/tempfile.html), which R deletes
+  when the session ends: give a path to keep the results. The directory
+  is returned, so `tales_from_telltales(tell_tales(genome))` reads the
+  run straight back.
 
 - hmm_dir:
 
@@ -415,13 +419,13 @@ tell_tales(subject_file = subj, output_dir = out)
 #> Now running AnnoTALE analyze for ROI_00004
 #> #****************************************
 #> #**   tell_tales analysis done     **
-#> Current date:    Sun Oct  4 14:53:06 2026
+#> Current date:    Sun Oct  4 17:18:57 2026
 #> #_________Provided I/O parameters __________
 #> File of subject DNA sequences:   /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/bai3_sample_tal_genomic_regions.fasta
 #> TALE N-term CDS region detection HMM file:   /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Nterm_CDS_profile.hmm
 #> TALE repeat unit CDS detection HMM file: /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_repeat_CDS_profile.hmm
 #> TALE C-term CDS region detection HMM file:   /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Cterm_CDS_profile.hmm
-#> Output directory:    /tmp/RtmpTzTEsu/tell_tales_example1588682102759a
+#> Output directory:    /tmp/RtmpOw6mu3/tell_tales_example18a9556ff82e93
 #> #____________Other parameters________________
 #> nterm_min_score: 300
 #> repeat_min_score:    20

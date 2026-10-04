@@ -237,19 +237,22 @@ before trusting any of it.*
 
 ### State
 
-- **2026-10-04, second session:** §51 done: `opt_param` on
-  `run_annotale_predict()`/`run_annotale_build()` (defaults write out
-  AnnoTALE's own), `java_args` on the four jar wrappers, keys the wrapper
-  sets refused (`tantale_error_jar_args`). §52 opened (rOpenSci
-  readiness): pre-submission inquiry drafted in
-  `dev/ropensci-presubmission.md` for the maintainer to post once the
-  repository is public; DESCRIPTION Title/Description rewritten to present
-  the whole package (maintainer: tantale is not to be advertised as a
-  wrapper package only). A fresh pkgcheck was started on ac8c534; its
-  findings go into §52. §53 parked: hybrid correction methods for
-  `tell_tales()` (future release, current API kept intact). Site
-  partially rebuilt, pushed. Session Q IDs now continue the ledger's
-  sequence (Q70-Q86 this session).
+- **2026-10-04, second session:** version **0.99.0**, the release
+  candidate of §43 (the repository is public since the night of
+  2026-10-04). §51 done (`opt_param`/`java_args` on the jar wrappers).
+  §52 rOpenSci readiness: two pkgcheck runs (the second clean: no R CMD
+  check error or warning), F1-F9 and devguide checklist C1-C15 triaged
+  and mostly done: CI on push/PR over R release/oldrel/devel with
+  `--run-donttest`, Codecov workflow (`CODECOV_TOKEN` set), narrowed
+  imports, no startup message, `inst/CITATION`, `SystemRequirements`,
+  `cph` authors (Pérez-Quintero; Megraw and Hatzigeorgiou for PlantTFBS),
+  outputs default to `tempdir()` and are returned (calls compose), README
+  generated from **README.qmd** (`quarto render README.qmd`; needs the
+  full environment). Inquiry draft `dev/ropensci-presubmission.md` for
+  the maintainer to post. A DOI archive will come from DataSud, not
+  Zenodo. §53 (hybrid correction, keep the API) and §54 (TALVEZ in R with
+  universalmotif) parked for a future release. Q IDs continue the
+  ledger's sequence (Q70-Q113 this session). macOS CI not yet run.
 - **2026-10-03, fourth session (§49):** `max_comparisons` defaults to 50
   (same result as the full search on all four shipped genomes);
   `tales_from_telltales()` warns about candidate arrays AnnoTALE could not
@@ -287,8 +290,8 @@ before trusting any of it.*
   `tales_names()` added (§45); package-wide colour-blind-safe colour
   style, Tol muted in `R/palette.R`, reviewed by the maintainer plot by
   plot (§46).
-- Branch `main`, version **0.9.9012** (bumped 2026-10-04 with the full
-  site rebuild after R7), pushed 2026-10-04, with the local tag
+- Branch `main`, version **0.99.0** (bumped 2026-10-04, second session,
+  with a full site rebuild; 0.9.9012 before), pushed 2026-10-04, with the local tag
   `claude-reviewed` moved to that commit (check `git status -sb`). The
   repository goes public again from 2026-10-04 (maintainer). Reinstall
   after any change to `R/` before rendering articles.
@@ -318,10 +321,8 @@ before trusting any of it.*
 - The site's home page is `pkgdown/index.md`; README edits never reach it.
 - `tale_mining.qmd` still has mismatches the maintainer is revising
   (ledger §38, end).
-- **The GitHub repository is private** since 2026-09-24 (maintainer's
-  choice, to change things without users). The README's install command
-  works only with access; GitHub Pages for a private repository needs a
-  paid plan, so the published site may be offline until it is public.
+- **The GitHub repository is public** since the night of 2026-10-04
+  (private from 2026-09-24 until then). CI runs on every push to `main`.
 - Full `devtools::check()` on 0.9.9010, 2026-09-24: tests 0 failures,
   examples (with `--run-donttest`) and vignette OK. Its one remaining
   NOTE (no news entries in `NEWS.md`) is fixed: see "NEWS.md" below.

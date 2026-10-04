@@ -29,8 +29,9 @@ MAI1 (GenBank CP025609.1), BAI3 (CP025610.1) and PXO86 (RefSeq
 NZ_CP007166.1) are complete genomes of African and Asian strains; the
 sequences are those of the records, with shortened FASTA headers.
 BAI3-1-1 is an unpublished assembly of a BAI3 derivative that carries
-sequencing and assembly errors in its TALE loci, distributed with
-tantale to illustrate frameshift correction.
+sequencing and assembly errors in its TALE loci. It was produced by the
+authors of tantale, is available only from the package's `genomes-1`
+release, and serves to illustrate frameshift correction.
 
 ## See also
 

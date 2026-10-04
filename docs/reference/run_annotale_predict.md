@@ -1,9 +1,8 @@
 # Runs the "predict" and "analyze" steps of AnnoTALE on a fasta file
 
-An R wrapper around the
-[AnnoTALE](https://www.ncbi.nlm.nih.gov/pubmed/26876161) 'AnnoTALE.jar
-predict' and 'AnnoTALE.jar analyze' shell calls. The whole AnnoTALE
-workflow can be completed by a subsequent call to the
+An R wrapper around the [AnnoTALE](https://doi.org/10.1038/srep21077)
+'AnnoTALE.jar predict' and 'AnnoTALE.jar analyze' shell calls. The whole
+AnnoTALE workflow can be completed by a subsequent call to the
 [`run_annotale_build`](https://scunnac.github.io/tantale/reference/run_annotale_build.md)
 function.
 
@@ -12,7 +11,7 @@ function.
 ``` r
 run_annotale_predict(
   fasta_file,
-  output_dir = getwd(),
+  output_dir = tempfile("annotale_predict_"),
   prefix = NULL,
   opt_param = "Sensitive=false",
   java_args = "",
@@ -29,7 +28,10 @@ run_annotale_predict(
 
 - output_dir:
 
-  Directory where output will be written (created if it does not exist).
+  Directory where output will be written, created if it does not exist.
+  The default is a new directory under
+  [`tempdir()`](https://rdrr.io/r/base/tempfile.html), which R deletes
+  when the session ends: give a path to keep the results.
 
 - prefix:
 
@@ -60,8 +62,9 @@ run_annotale_predict(
 
 ## Value
 
-`0`, invisibly; called for the files it writes to `output_dir`. If
-either stage exits with a non-zero status, the function stops with an
+`output_dir`, invisibly, so that the call can be passed straight to
+[`tales_from_annotale()`](https://scunnac.github.io/tantale/reference/tales_from_annotale.md).
+If either stage exits with a non-zero status, the function stops with an
 error of class `tantale_error_annotale_failed`.
 
 ## See also
@@ -82,13 +85,13 @@ run_annotale_predict(fasta, output_dir = out)
 #>   '/home/cunnac/snap/codium/495/.local/share/R/tantale/tools-1/AnnoTALEcli-1.5.jar'
 #>   predict Sensitive=false
 #>   g='/home/cunnac/snap/codium/495/.local/share/R/tantale/genomes-1/MAI1.fa'
-#>   s='MAI1' outdir='/tmp/RtmpTzTEsu/annotale_predict_example/Predict'
+#>   s='MAI1' outdir='/tmp/RtmpOw6mu3/annotale_predict_example/Predict'
 #> Running AnnoTALE analyze for "MAI1"
 #>   java -jar
 #>   '/home/cunnac/snap/codium/495/.local/share/R/tantale/tools-1/AnnoTALEcli-1.5.jar'
 #>   analyze
-#>   t='/tmp/RtmpTzTEsu/annotale_predict_example/Predict/TALE_DNA_sequences_(MAI1).fasta'
-#>   outdir='/tmp/RtmpTzTEsu/annotale_predict_example/Analyze'
+#>   t='/tmp/RtmpOw6mu3/annotale_predict_example/Predict/TALE_DNA_sequences_(MAI1).fasta'
+#>   outdir='/tmp/RtmpOw6mu3/annotale_predict_example/Analyze'
 list.files(file.path(out, "Predict"))
 #> [1] "GFF__TALE_predictions_(MAI1).gff3"   "Genbank__TALE_predictions_(MAI1).gb"
 #> [3] "TALE_DNA_sequences_(MAI1).fasta"     "TALE_protein_sequences_(MAI1).fasta"

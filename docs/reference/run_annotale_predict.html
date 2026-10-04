@@ -15,7 +15,7 @@ function."><meta property="og:image" content="https://scunnac.github.io/tantale/
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.9.9012</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.99.0</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -54,7 +54,7 @@ function."><meta property="og:image" content="https://scunnac.github.io/tantale/
 
     <div class="ref-description section level2">
     <p>An R wrapper around the
-<a href="https://www.ncbi.nlm.nih.gov/pubmed/26876161" class="external-link">AnnoTALE</a> 'AnnoTALE.jar
+<a href="https://doi.org/10.1038/srep21077" class="external-link">AnnoTALE</a> 'AnnoTALE.jar
 predict' and 'AnnoTALE.jar analyze' shell calls. The whole AnnoTALE workflow
 can be completed by a subsequent call to the <code><a href="run_annotale_build.html">run_annotale_build</a></code>
 function.</p>
@@ -64,7 +64,7 @@ function.</p>
     <h2 id="ref-usage">Usage<a class="anchor" aria-label="anchor" href="#ref-usage"></a></h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">run_annotale_predict</span><span class="op">(</span></span>
 <span>  <span class="va">fasta_file</span>,</span>
-<span>  output_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/getwd.html" class="external-link">getwd</a></span><span class="op">(</span><span class="op">)</span>,</span>
+<span>  output_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempfile</a></span><span class="op">(</span><span class="st">"annotale_predict_"</span><span class="op">)</span>,</span>
 <span>  prefix <span class="op">=</span> <span class="cn">NULL</span>,</span>
 <span>  opt_param <span class="op">=</span> <span class="st">"Sensitive=false"</span>,</span>
 <span>  java_args <span class="op">=</span> <span class="st">""</span>,</span>
@@ -82,8 +82,9 @@ genome assembly) to be analyzed for TALE content.</p></dd>
 
 
 <dt id="arg-output-dir">output_dir<a class="anchor" aria-label="anchor" href="#arg-output-dir"></a></dt>
-<dd><p>Directory where output will be written (created if it does not
-exist).</p></dd>
+<dd><p>Directory where output will be written, created if it
+does not exist. The default is a new directory under <code><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir()</a></code>, which
+R deletes when the session ends: give a path to keep the results.</p></dd>
 
 
 <dt id="arg-prefix">prefix<a class="anchor" aria-label="anchor" href="#arg-prefix"></a></dt>
@@ -116,8 +117,9 @@ copy <code><a href="tantale_setup.html">tantale_setup()</a></code> downloads; gi
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p><code>0</code>, invisibly; called for the files it writes to
-<code>output_dir</code>. If either stage exits with a non-zero status, the
+    <p><code>output_dir</code>, invisibly, so that the call can be passed
+straight to <code><a href="tales_from_annotale.html">tales_from_annotale()</a></code>. If either stage exits with a
+non-zero status, the
 function stops with an error of class
 <code>tantale_error_annotale_failed</code>.</p>
     </div>
@@ -139,13 +141,13 @@ function stops with an error of class
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   '/home/cunnac/snap/codium/495/.local/share/R/tantale/tools-1/AnnoTALEcli-1.5.jar'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   predict Sensitive=false</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   g='/home/cunnac/snap/codium/495/.local/share/R/tantale/genomes-1/MAI1.fa'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   s='MAI1' outdir='/tmp/RtmpTzTEsu/annotale_predict_example/Predict'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   s='MAI1' outdir='/tmp/RtmpOw6mu3/annotale_predict_example/Predict'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Running AnnoTALE analyze for <span style="color: #0000BB;">"MAI1"</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   java -jar</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   '/home/cunnac/snap/codium/495/.local/share/R/tantale/tools-1/AnnoTALEcli-1.5.jar'</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span>   analyze</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   t='/tmp/RtmpTzTEsu/annotale_predict_example/Predict/TALE_DNA_sequences_(MAI1).fasta'</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span>   outdir='/tmp/RtmpTzTEsu/annotale_predict_example/Analyze'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   t='/tmp/RtmpOw6mu3/annotale_predict_example/Predict/TALE_DNA_sequences_(MAI1).fasta'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span>   outdir='/tmp/RtmpOw6mu3/annotale_predict_example/Analyze'</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/base/list.files.html" class="external-link">list.files</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out</span>, <span class="st">"Predict"</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "GFF__TALE_predictions_(MAI1).gff3"   "Genbank__TALE_predictions_(MAI1).gb"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [3] "TALE_DNA_sequences_(MAI1).fasta"     "TALE_protein_sequences_(MAI1).fasta"</span>

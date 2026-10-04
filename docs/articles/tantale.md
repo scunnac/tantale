@@ -9,9 +9,9 @@ and plot like any other tibble, with one row per repeat or terminus.
 
 This article is a two-minute tour. It loads a small result already
 sitting on disk, so there are no external tools to install first. The
-[package website](https://scunnac.github.io/tantale) has the full set of
-articles, which start from raw genomic FASTA and carry a handful of real
-*Xanthomonas oryzae* genomes through discovery, classification,
+[package website](https://scunnac.github.io/tantale/) has the full set
+of articles, which start from raw genomic FASTA and carry a handful of
+real *Xanthomonas oryzae* genomes through discovery, classification,
 alignment and target prediction.
 
 Code

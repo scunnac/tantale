@@ -1,6 +1,45 @@
 # Changelog
 
-## tantale 0.9.9012
+## tantale 0.99.0
+
+### Output goes to a temporary directory by default
+
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md),
+[`run_annotale_predict()`](https://scunnac.github.io/tantale/reference/run_annotale_predict.md)
+and
+[`run_annotale_build()`](https://scunnac.github.io/tantale/reference/run_annotale_build.md)
+no longer write to the working directory when `output_dir` is not given,
+and
+[`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
+no longer writes `correctedTALEs.fa` there: the defaults are now a new
+directory, or file, under
+[`tempdir()`](https://rdrr.io/r/base/tempfile.html), which R deletes
+when the session ends. Give `output_dir` or `corrected_path` to keep the
+results. A package should not write to the working directory unasked
+(CRAN policy, rOpenSci review).
+
+[`run_annotale_predict()`](https://scunnac.github.io/tantale/reference/run_annotale_predict.md)
+and
+[`run_annotale_build()`](https://scunnac.github.io/tantale/reference/run_annotale_build.md)
+now return their output directory invisibly, as
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
+does, in place of `0`. Calls compose:
+`tales_from_telltales(tell_tales(genome))`,
+`tales_from_annotale(run_annotale_predict(genome))`,
+`tell_tales(correct_tales(genome))`.
+
+### No startup message
+
+[`library(tantale)`](https://scunnac.github.io/tantale/) no longer
+prints a greeting.
+
+### Citation and system requirements
+
+`citation("tantale")` gives a reference for the package and lists the
+papers of the methods it wraps or reimplements. DESCRIPTION declares the
+system requirements (Java 8 or later, Perl, and conda, mamba or
+micromamba) and lists Alvaro L. Pérez-Quintero as copyright holder of
+the bundled TALVEZ and FuncTAL material.
 
 ### Options for the Java tools
 

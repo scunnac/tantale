@@ -1,4 +1,4 @@
-# tantale 0.9.9012
+# tantale 0.99.0
 
 ## Output goes to a temporary directory by default
 

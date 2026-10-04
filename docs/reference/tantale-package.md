@@ -3,7 +3,7 @@
 An integrated collection of functions for TALE mining and analysis in R.
 
 Please take a look at the package
-[website](https://scunnac.github.io/tantale) for further details.
+[website](https://scunnac.github.io/tantale/) for further details.
 
 ## Details
 
@@ -83,7 +83,7 @@ and used instead.
 
 Useful links:
 
-- <https://scunnac.github.io/tantale>
+- <https://scunnac.github.io/tantale/>
 
 - <https://github.com/scunnac/tantale>
 
@@ -101,3 +101,14 @@ Authors:
 
 - Bao Tram Vi <vbt576@gmail.com>
   ([ORCID](https://orcid.org/0000-0002-4319-5544))
+
+Other contributors:
+
+- Alvaro L. Pérez-Quintero (Author of the bundled TALVEZ 3.2 and of the
+  FuncTAL table behind rvd_dna_specificity) \[copyright holder\]
+
+- Molly Megraw (Author of the PlantTFBS Java classes bundled with TALVEZ
+  (simplescancode/)) \[copyright holder\]
+
+- Artemis G. Hatzigeorgiou (Author of the PlantTFBS Java classes bundled
+  with TALVEZ (simplescancode/)) \[copyright holder\]

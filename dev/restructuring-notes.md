@@ -3322,9 +3322,19 @@ adopted: `format: gfm` with `wrap: preserve`, install blocks not run,
 the Usage example run at each render (32 s; figure in
 `man/figures/README-usage-plot-1.png`); README.qmd, README_files and
 .quarto build-ignored. **Q106** draft approved. **Q107** push.
-Proposed, not yet answered: C13 revised to temporary-directory defaults
-with the output location returned, so calls compose
-(`tales_from_telltales(tell_tales(genome))`) (Q108-Q110).
+C13 revised (maintainer's proposal, **Q108** go ahead, **Q109** no
+message: the docs warn, **Q110** yes): `output_dir`/`corrected_path`
+default to `tempfile(...)` under `tempdir()`; `run_annotale_predict()`
+and `run_annotale_build()` return `output_dir` invisibly (was `0`), as
+`tell_tales()` and `correct_tales()` already returned their output, so
+`tales_from_telltales(tell_tales(genome))` works; the explicit
+`corrected_path` check and its test removed; new test of the default in
+`test_annotale.R`; README example shortened; NEWS rewritten. 57 tests
+in the affected files, 0 failures.
+**Q111** dropped (maintainer: enough has been done on PlantTFBS). **Q112**
+version 0.99.0 (the §43 release candidate: the repository is public),
+full site rebuild, push. **Q113** an archive with a DOI will come from
+DataSud, not Zenodo.
 
 ---
 
@@ -3364,3 +3374,18 @@ a new argument whose default reproduces today's behaviour. The
 `tell_tales()` arguments are flat (§43), so either fits. After 1.0.0 any
 later rename follows the lifecycle rules (dev/CLAUDE.md, API
 conventions).
+
+---
+
+## 54. TALVEZ in R (future release) **[P]**
+
+Maintainer, 2026-10-04: plan a port of TALVEZ to R for a future release.
+universalmotif, already imported (`tales_to_universalmotif()`), makes it
+more feasible than before. It would remove the bundled Perl script, the
+Perl dependency of the conda environment, and the PlantTFBS Java classes
+whose source tantale does not ship (§52 Q104, Q111). Starting points: the
+two RVD-DNA matrices `mat1`/`mat2`, TALVEZ's position correction (`-l`)
+and scoring threshold (`-t`, `-a`), and its background model from
+`simplescancode.Background`; validate against `talvez()` on the SWEET
+promoters, as ARLEM was validated against its executable (§33).
+

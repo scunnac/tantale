@@ -17,7 +17,7 @@ mode.
 ``` r
 correct_tales(
   uncorrected_path,
-  corrected_path = file.path(getwd(), "correctedTALEs.fa"),
+  corrected_path = tempfile("corrected_tales_", fileext = ".fa"),
   hmm_path = .tantale_tool("talecorrection_hmm"),
   return_corrections = FALSE,
   conda_bin = "auto",
@@ -33,7 +33,9 @@ correct_tales(
 
 - corrected_path:
 
-  Path of the output file
+  Path of the output file. The default is a new file under
+  [`tempdir()`](https://rdrr.io/r/base/tempfile.html), which R deletes
+  when the session ends: give a path to keep the corrected sequences.
 
 - hmm_path:
 
@@ -87,6 +89,6 @@ out_fa <- tempfile(fileext = ".fa")
 correct_tales(uncorrected_path = subj, corrected_path = out_fa)
 #> Running nHMMER
 #> Performing TALEs cds correction on provided sequences.
-#> [1] "/tmp/RtmpTzTEsu/file1588681aa6dd1d.fa"
+#> [1] "/tmp/RtmpOw6mu3/file18a955b1a7756.fa"
 # }
 ```
