@@ -3007,3 +3007,66 @@ then: which of today's hard-coded values become that default, and how
   (free x per domain type), bars coloured by candidate region (`roi`,
   kept by `tag_method()`; Okabe-Ito). Jittered points and stacked bars
   were tried and set aside.
+
+Maintainer, 2026-10-04 (second session): **Q70** one argument name across
+the wrappers, `opt_param` (already used by `preditale()` and `talvez()`;
+no rename). **Q71** the Java heap flags (`-Xms`/`-Xmx`) get an argument of
+their own, separate from the tool's options. (Asked in the session as Q1a
+and Q1b; renumbered here to follow the ledger's Q sequence.)
+
+Optional parameters each jar accepts, read from its own help (installed
+`tools-1` archive, 2026-10-04). Every wrapper today leaves them at the
+jar's default; the only hard-coded values are heap flags:
+
+| tool, stage | options not set by the wrapper (jar default) | heap flags today |
+|---|---|---|
+| AnnoTALE 1.5 `predict` (v1.4.2) | `Sensitive` (false) | none |
+| AnnoTALE `analyze` (v1.4.1) | `n` run name (cosmetic) | none |
+| AnnoTALE `build` (v1.4.1) | `c` class cutoff (5.0), `s` significance level (0.01) | `-Xms512M -Xmx6G` |
+| PrediTALE `preditale` | `b`/`bs` background, `t`/`sl`/`n` threshold (sl 1e-4), `Strand` (both), `r` reverse penalty (0.01) | `-Xms512M -Xmx2G` |
+| TALEcorrection `correct` | none (s, n, r, c, outdir are all set by the wrapper) | none |
+
+The same letter means different things per tool: `s=` is the strain
+(predict), the significance level (build) and the sequences (preditale,
+correct).
+
+**Q72** (maintainer, unsure, "I guess not"): `tell_tales()` does not
+forward options to its internal AnnoTALE `analyze` calls. Its only
+option, `n=`, is a run name, so nothing is lost.
+
+Maintainer, 2026-10-04: **Q73** no `opt_param` on `correct_tales()`
+(TALEcorrection has no options). **Q74** the heap flags go in `java_args`,
+a string placed before `-jar`; defaults are today's flags (`""` for
+predict and `correct_tales()`). **Q75** `opt_param` defaults to the
+values used today, `""` where there are none; read as the jar defaults
+written out (predict `"Sensitive=false"`, build `"c=5 s=0.01"`),
+`preditale()` keeping `""` (its options hang off selections, see Q81).
+**Q76** asked how hard a guard against keys the wrapper sets would be.
+Tested: PrediTALE given `outdir=` twice silently takes the last one (the
+first directory stays empty). The wrapper puts `opt_param` before its own
+keys, so a user's `s=` or `outdir=` would be silently ignored.
+
+---
+
+## 52. Readiness for rOpenSci review (2026-10-04) **[P]**
+
+Maintainer, 2026-10-04: the JOSS paper (R9) waits; first make sure the
+package would pass an rOpenSci review. §44 (pkgcheck, 2026-10-02) predates
+R7, which changed how tools and genomes are installed, so its verdict is
+stale.
+
+Scope (devguide "Aims and Scope", read 2026-10-04): tantale fits
+"scientific software wrappers" (non-trivial wrappers of field-specific
+programs) and "data munging" (tool outputs into tidy objects). "Data
+visualization packages are no longer in scope"; plotting as a secondary
+feature is not the same thing, but a pre-submission inquiry settles it.
+
+Candidates found before any audit (2026-10-04, by reading the code):
+- `tell_tales()`, `run_annotale_predict()`, `run_annotale_build()` default
+  `output_dir = getwd()`; `correct_tales()` defaults `corrected_path` to
+  the working directory. Writing to the working directory by default is a
+  CRAN policy breach that reviewers flag.
+- Tests fail rather than skip without Java, conda or the downloaded tools.
+  The rOpenSci bot runs pkgcheck in its own container, without them.
+- No `inst/CITATION`, no `codemeta.json`; README badges: lifecycle
+  "stable" at 0.9.x, coverage as a manual snapshot; CI is manual (§44 P7).
