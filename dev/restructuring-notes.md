@@ -3521,3 +3521,46 @@ table, over the 17 RVDs of `mat1`: 11 agree, 6 differ.
   data gives little ground for a confident `NV` vector either. Leaving
   `NV` at the flat `XX` is defensible on the evidence found.
 
+---
+
+## 56. The R version matrix finds two failures (2026-10-04) **[P]**
+
+The CI matrix added in §52 (C5) ran for the first time on 0.99.0
+(bab07a7, run 37213179171). **R release passed; R oldrel-1 and R devel
+failed.** Neither is a defect in tantale's logic, and both need a
+decision before the rOpenSci submission.
+
+**R devel: `merge()` on an S4 `DataFrame`.** 19 test failures and
+`checking examples ... ERROR`, all one cause:
+
+    Error in `.local(x, row.names, optional, ...)`: unused argument (validRN = FALSE)
+    .telltale_add_array_measures() -> base::merge() -> merge.default ->
+      base::merge(as.data.frame(x), as.data.frame(y), ...)
+
+R devel's `merge.data.frame` now calls `as.data.frame(y, validRN =
+FALSE)`; the S4Vectors method for `DataFrame` does not accept that
+argument. Triggered by `R/telltale.R:1047` and `:1051`, which call
+`merge()` directly on `S4Vectors::mcols(by_array)`. Upstream
+incompatibility between R devel and S4Vectors, which tantale meets by
+merging a `DataFrame` rather than a `data.frame`.
+Options: (a) convert with `as.data.frame()` before merging and put the
+result back into `mcols()` -- contained, and removes the dependency on
+how S4Vectors tracks base's signature; (b) use a dplyr join on a plain
+data frame; (c) wait for S4Vectors to catch up and keep devel red.
+Prefer (a).
+
+**R oldrel-1: the golden `all_ranges.gff` digest.** 2 failures
+(`test_golden.R:142` and `:249`), both row 1 of the fingerprint,
+`all_ranges.gff`: the digest differs while `n_lines` (199) and
+`n_dropped` (1) are unchanged, so the file has the same shape and
+different content, most likely rtracklayer/GenomeInfoDb writing the GFF
+differently on the older stack. The baseline is therefore tied to the
+package versions that recorded it, not only to the machine.
+Options: (a) find the differing line (download the oldrel check
+artefact, or run an oldrel container) and extend the normalisation if it
+is a version or formatting artefact; (b) restrict the golden tests to
+the release version; (c) drop `all_ranges.gff` from the fingerprint.
+Prefer (a): the point of the baseline is that a content change is
+explained before it is accepted (dev/CLAUDE.md), and the artefact is
+attached to the run.
+
