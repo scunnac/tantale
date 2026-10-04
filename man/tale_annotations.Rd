@@ -63,11 +63,19 @@ The table is sparse where the sources are: \code{tal_name} is absent for
 19 rows and \code{pubmed} for 19. The gaps are the state of the
 curation, not placeholders to be filled by a guess.
 
-\code{annotale_class} is missing for two rows, both for a reason:
-PXO99A's \code{Tal7b} is the five-repeat allele its own
-\code{unusual_feature} describes, too short to be catalogued, and the
-RVD string of MAI1's \code{TalH} is one the catalogue attributes to
-another strain.
+\code{annotale_class} is missing for one row: PXO99A's \code{Tal7b},
+the five-repeat allele its own \code{unusual_feature} describes, too
+short to be catalogued.
+
+MAI1's \code{TalH} is a case worth knowing about. Its \code{rvd_seq}
+here is twelve repeats, an exact prefix of the sixteen a
+\code{\link{tell_tales}} run on the MAI1 genome finds at that locus,
+which is also what AnnoTALE's catalogue records for MAI1. The twelve
+nonetheless match four catalogued TALEs exactly, in BAI3 and three
+CFBP strains, all of class \code{TalDN} \emph{-- the class the
+sixteen-repeat version belongs to as well}, so the class is not in
+doubt. The curated string is left as it is rather than rewritten from
+the genome.
 
 The class is stored without the member index AnnoTALE appends to it
 (\code{"TalAH"}, not \code{"TalAH30"}). That index numbers the members

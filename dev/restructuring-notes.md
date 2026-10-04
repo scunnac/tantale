@@ -3868,3 +3868,25 @@ BAI3's or the 16-repeat one. **Q147 put to the maintainer:** fill
 strains' entries rather than MAI1's own, which would make the column 127
 of 128. Not done without sign-off.
 
+**The length settled by running it (maintainer's suggestion, 2026-10-04).**
+A fresh `tell_tales()` on the shipped MAI1 genome finds that locus as
+`ROI_00007` with **16 repeats**,
+`NN-HD-NV-HD-NI-NG-NI-NN-NS-HD-HD-NI-NG-NI-NG-NI`, matching AnnoTALE's
+`TalDN23` for MAI1. Tram's 12-repeat string is an exact prefix of it: the
+final `NG-NI-NG-NI` is absent from her record, so the table's `rvd_seq`
+for that row is truncated against the genome it came from.
+
+**Q147 done.** `annotale_class` for MAI1 `TalH` set to `TalDN`, which both
+routes agree on (the 12-repeat string is TalDN in four other strains; the
+16-repeat array at that locus is MAI1's own TalDN). The fill is explicit
+in `data-raw/tale_annotations.R`, guarded by `stopifnot()` so it fails if
+the row ever stops being the unmatched one. Column now **127 of 128**;
+only PXO99A `Tal7b` has none. Docs, test and NEWS updated; tests 7/7.
+
+**Q148 open:** whether to correct that `rvd_seq` to the 16 repeats the
+genome shows. Arguments for: it is demonstrably what the sequence says,
+and the row would then match MAI1's own catalogue entry with no special
+case. Against: the table is a record of Tram's curation, and editing a
+curated value is a different act from completing a missing one. Left for
+the maintainer; `?tale_annotations` documents the discrepancy either way.
+

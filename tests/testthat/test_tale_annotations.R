@@ -56,11 +56,10 @@ test_that("annotale_class holds a class, never a member index", {
   # storing it would store something already stale (ledger §57)
   cls <- stats::na.omit(tale_annotations$annotale_class)
   expect_true(all(grepl("^Tal[A-Z]+$", cls)))
-  expect_identical(sum(!is.na(tale_annotations$annotale_class)), 126L)
-  # the two without one are the documented pair
+  expect_identical(sum(!is.na(tale_annotations$annotale_class)), 127L)
+  # the one without a class is the documented five-repeat allele
   missing <- tale_annotations[is.na(tale_annotations$annotale_class), ]
-  expect_identical(paste(missing$strain, missing$label),
-                   c("MAI1 TalH", "PXO99A Tal7b"))
+  expect_identical(paste(missing$strain, missing$label), "PXO99A Tal7b")
 })
 
 test_that("the three genomes tantale installs are all present", {

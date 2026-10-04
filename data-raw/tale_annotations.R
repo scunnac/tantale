@@ -71,6 +71,17 @@ tale_annotations$annotale_class <- catalogue$annotale_class[
 tale_annotations <- dplyr::relocate(tale_annotations, "annotale_class",
                                     .after = "tal_name")
 
+# MAI1 TalH: its rvd_seq is an exact 12-repeat prefix of the 16-repeat
+# array a tell_tales() run on the shipped MAI1 genome finds (ROI_00007),
+# which is also what the catalogue records for MAI1 (TalDN23). So the
+# string does not match MAI1's own entry, but it matches four entries of
+# class TalDN exactly, in BAI3 and three CFBP strains. The class is TalDN
+# from every direction (maintainer, Q147); the short rvd_seq is left as
+# curated, see ?tale_annotations (Q148).
+.talh <- with(tale_annotations, strain == "MAI1" & label == "TalH")
+stopifnot(sum(.talh) == 1L, is.na(tale_annotations$annotale_class[.talh]))
+tale_annotations$annotale_class[.talh] <- "TalDN"
+
 stopifnot(
   nrow(tale_annotations) == 128L,
   dplyr::n_distinct(tale_annotations$strain) == 10L,
@@ -81,10 +92,9 @@ stopifnot(
   # fetch the sequence (rOpenSci asks a dataset to name its source)
   !anyNA(tale_annotations$genome_id),
   !anyNA(tale_annotations$replicon_id),
-  # 126 of 128 carry a class. The two that do not: PXO99A Tal7b, the
-  # 5-repeat allele its own unusual_feature describes, and MAI1 TalH,
-  # whose RVD string the catalogue attributes to another strain (§57).
-  sum(!is.na(tale_annotations$annotale_class)) == 126L,
+  # 127 of 128 carry a class; only PXO99A Tal7b does not, being the
+  # 5-repeat allele its own unusual_feature describes (§57).
+  sum(!is.na(tale_annotations$annotale_class)) == 127L,
   # a class is letters only, with no member index
   all(grepl("^Tal[A-Z]+$", stats::na.omit(tale_annotations$annotale_class)))
 )
