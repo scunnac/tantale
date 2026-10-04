@@ -3580,3 +3580,15 @@ it finds the badge:
 own bot runs authenticated, so it will see CI. Set `GITHUB_PAT` for any
 future local pkgcheck run, or discount that one line.
 
+### Why DESCRIPTION keeps `biocViews: Software` (2026-10-04)
+
+Maintainer asked whether to remove it. Keep it: `remotes` (and so
+`devtools::install_github()`) decides whether to add the Bioconductor
+repositories by `is_bioconductor <- function(x) !is.null(x$biocviews)`
+(r-lib/remotes `R/utils.R`; used in `R/deps.R`, lines 137-144). Without
+the field, the ~15 Bioconductor Imports would not resolve for a user
+without Bioconductor repositories configured. `pak`, which the README
+uses, resolves them either way. R CMD check, CRAN and rOpenSci ignore the
+field. A Bioconductor submission would need more specific biocViews terms
+than `Software`.
+
