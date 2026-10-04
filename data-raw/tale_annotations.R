@@ -58,6 +58,19 @@ tale_annotations <- readr::read_tsv(
   dplyr::relocate("strain", "label", "tal_name") |>
   dplyr::arrange(.data$strain, .data$label)
 
+# One correction to the curated values (maintainer, Q148). MAI1 TalH was
+# recorded with 12 repeats; the genome it came from has 16 at that locus.
+# A tell_tales() run on the MAI1 genome tantale_genome() installs finds it
+# as one array of 16 (ROI_00007, 2026-10-05), and AnnoTALE's catalogue
+# records the same 16 for MAI1 (TalDN23). The 12 are an exact prefix: the
+# last four repeats, NG-NI-NG-NI, had been lost. The source TSV is kept
+# as Tram left it; the correction is made here, where it can be read.
+.talh <- with(tale_annotations, strain == "MAI1" & label == "TalH")
+stopifnot(sum(.talh) == 1L,
+          tale_annotations$rvd_seq[.talh] == "NN-HD-NV-HD-NI-NG-NI-NN-NS-HD-HD-NI")
+tale_annotations$rvd_seq[.talh] <-
+  "NN-HD-NV-HD-NI-NG-NI-NN-NS-HD-HD-NI-NG-NI-NG-NI"
+
 # Matched on strain plus the RVD string, case-insensitively: lowercase
 # marks an aberrant repeat here and the catalogue upper-cases. The strain
 # has to be part of the key -- a TALE shared between strains would
@@ -70,17 +83,6 @@ tale_annotations$annotale_class <- catalogue$annotale_class[
 ]
 tale_annotations <- dplyr::relocate(tale_annotations, "annotale_class",
                                     .after = "tal_name")
-
-# MAI1 TalH: its rvd_seq is an exact 12-repeat prefix of the 16-repeat
-# array a tell_tales() run on the shipped MAI1 genome finds (ROI_00007),
-# which is also what the catalogue records for MAI1 (TalDN23). So the
-# string does not match MAI1's own entry, but it matches four entries of
-# class TalDN exactly, in BAI3 and three CFBP strains. The class is TalDN
-# from every direction (maintainer, Q147); the short rvd_seq is left as
-# curated, see ?tale_annotations (Q148).
-.talh <- with(tale_annotations, strain == "MAI1" & label == "TalH")
-stopifnot(sum(.talh) == 1L, is.na(tale_annotations$annotale_class[.talh]))
-tale_annotations$annotale_class[.talh] <- "TalDN"
 
 stopifnot(
   nrow(tale_annotations) == 128L,
@@ -95,6 +97,8 @@ stopifnot(
   # 127 of 128 carry a class; only PXO99A Tal7b does not, being the
   # 5-repeat allele its own unusual_feature describes (§57).
   sum(!is.na(tale_annotations$annotale_class)) == 127L,
+  # MAI1 TalH, once corrected, matches MAI1's own catalogue entry
+  tale_annotations$annotale_class[.talh] == "TalDN",
   # a class is letters only, with no member index
   all(grepl("^Tal[A-Z]+$", stats::na.omit(tale_annotations$annotale_class)))
 )

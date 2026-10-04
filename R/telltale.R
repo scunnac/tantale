@@ -1062,7 +1062,11 @@
                longest_orf_length = Biostrings::nchar(full_orf),
                orf_coverage = round(100 * Biostrings::nchar(full_orf) /
                                        GenomicRanges::width(array_seqs[names(full_orf)])),
-               longest_orf_seq = full_orf),
+               # as.character(): an XStringSet handed to data.frame() goes
+               # through Biostrings' as.data.frame(), which R devel now calls
+               # with validRN = FALSE, an argument that method does not take
+               # (ledger §56). The column was character in the end anyway.
+               longest_orf_seq = unname(as.character(full_orf))),
     by = "array_id", all.x = TRUE, sort = FALSE)
   rownames(moreInfo) <- moreInfo$array_id
   S4Vectors::mcols(by_array) <- moreInfo[rownames(S4Vectors::mcols(by_array)), ]

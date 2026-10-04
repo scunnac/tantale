@@ -95,15 +95,11 @@
 #' the five-repeat allele its own \code{unusual_feature} describes, too
 #' short to be catalogued.
 #'
-#' MAI1's \code{TalH} is a case worth knowing about. Its \code{rvd_seq}
-#' here is twelve repeats, an exact prefix of the sixteen a
-#' \code{\link{tell_tales}} run on the MAI1 genome finds at that locus,
-#' which is also what AnnoTALE's catalogue records for MAI1. The twelve
-#' nonetheless match four catalogued TALEs exactly, in BAI3 and three
-#' CFBP strains, all of class \code{TalDN} \emph{-- the class the
-#' sixteen-repeat version belongs to as well}, so the class is not in
-#' doubt. The curated string is left as it is rather than rewritten from
-#' the genome.
+#' One curated value was corrected against the genome: MAI1's
+#' \code{TalH} had been recorded with twelve repeats, but the MAI1 genome
+#' carries sixteen at that locus, as both a \code{\link{tell_tales}} run
+#' on it and AnnoTALE's catalogue show. The twelve were an exact prefix of
+#' the sixteen, so \code{rvd_seq} gives the sixteen.
 #'
 #' The class is stored without the member index AnnoTALE appends to it
 #' (\code{"TalAH"}, not \code{"TalAH30"}). That index numbers the members

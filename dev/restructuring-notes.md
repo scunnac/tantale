@@ -3890,3 +3890,45 @@ case. Against: the table is a record of Tram's curation, and editing a
 curated value is a different act from completing a missing one. Left for
 the maintainer; `?tale_annotations` documents the discrepancy either way.
 
+### §56 devel, second round (2026-10-05)
+
+The first fix (as.data.frame() before merge()) was right but not
+sufficient: CI on f1626ac had **oldrel-1 passing** (the
+`##source-version` fix worked) and **devel still failing** at the same
+19 tests and the `tell_tales` example. The backtrace went one level
+deeper: `data.frame(..., longest_orf_seq = full_orf)` in
+`.telltale_add_array_measures()` puts an `XStringSet` in a base
+`data.frame()`, and R devel's `data.frame()` calls
+`as.data.frame(x[[i]], optional = TRUE, validRN = FALSE)` on each column.
+Now `unname(as.character(full_orf))`; output-neutral (golden 18/18).
+
+**Upstream cause and status.** CI's R devel job installs Bioconductor
+*release* packages (Biostrings 2.80.2, S4Vectors 0.50.3, rtracklayer
+1.72.0) next to R devel (2026-10-02). Biostrings fixed exactly this in
+devel: **2.81.9, 2026-09-05, "Fix issue with as.data.frame.XStringSet()"**,
+whose method now takes `validRN`. So the failure was R devel against
+an unpatched release Biostrings; the change here makes tantale work
+whichever Biostrings is installed.
+
+**Searched for the rest rather than waiting for the next CI failure.**
+Since R devel cannot be run locally, the full suite was run with a
+tracer on `S4Vectors:::as.data.frame.Vector`, recording each call with
+base `data.frame()` on the stack. After the fix, the only remaining path
+(30 calls) is inside rtracklayer: `export()` builds a `data.frame()`
+from an `Rle`. That one is safe: S4Vectors 0.50.3's `as.data.frame` for
+`Rle` decodes to a plain vector and passes `...` (so `validRN`) on to
+base R's own `as.data.frame()`. So the XStringSet was the only path
+that breaks; CI is the confirmation. Suite under the tracer: 472 tests,
+0 failures.
+
+### §57 Q148 done (2026-10-05)
+
+MAI1 `TalH` corrected to the 16 repeats of the genome
+(`NN-HD-NV-HD-NI-NG-NI-NN-NS-HD-HD-NI-NG-NI-NG-NI`), in
+`data-raw/tale_annotations.R`, guarded by `stopifnot()` on the old value;
+the source TSV stays as Tram left it. The special-case class fill of
+Q147 is gone: the corrected string matches MAI1's own catalogue entry
+(TalDN23) by the normal route, asserted. 127 of 128 classed; only PXO99A
+`Tal7b` has none. `?tale_annotations` says one curated value was
+corrected against the genome, and why.
+
