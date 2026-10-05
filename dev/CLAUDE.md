@@ -237,6 +237,24 @@ before trusting any of it.*
 
 ### State
 
+- **2026-10-06, second session -- start here.** All session work
+  pushed (`origin/main` at ba8a560); this briefing update is the one
+  local commit, held so as not to cancel CI on ba8a560: push it first.
+  **pkgcheck has not been dispatched yet** (see Open). Done:
+  system Perl dropped as a requirement (Q189, §12); `?tale_annotations`
+  `rvd_seq` wording (§57) and the maintainer's removal of the MAI1
+  paragraph (Q194); `talomes_heatmap()` name panels sized in cm to their
+  text, `save_path` at 300 dpi (Q192-Q193, §48); `merge_hits` removed from
+  `tell_tales()` (Q196, §36, golden log line re-baselined);
+  `max_comparisons` doc shortened; pkgcheck workflow runs pkgcheck
+  inline instead of the image's `/check.R` (Q186, §60). **Open:** pkgcheck
+  run 37385650827 failed only on "fails continuous integration checks",
+  because CI on a commit pushed mid-run had not finished when pkgcheck
+  read it (§60). Dispatch `gh workflow run pkgcheck.yaml` once the CI
+  runs on the pushed head are green, push nothing during its first half
+  hour (Q197); then rewrite the #813 reply around the green run (Q187).
+  Q198: unused internals left for the reviewers. GitHub Actions tutorial
+  still owed (Q188 unanswered). Last Q used: Q198.
 - **2026-10-06 -- start here.** `main` at 11f93d8, pushed; one local
   commit on top, **e162f49 (README installation sentence, Q184), not
   pushed** -- held so as not to cancel the CI runs on 11f93d8. Push it
