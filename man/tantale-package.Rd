@@ -21,9 +21,9 @@ CAUTIONARY NOTES:
 \itemize{
 \item tantale has been written with only Linux systems in mind and will very
 likely \strong{not work on other OS} (eg Windows)
-\item Some of tantale wrappers use code written in other languages :
-\strong{Java and Perl must be on the PATH} in your system.
-\code{\link[=tantale_setup]{tantale_setup()}} checks for both.}
+\item Some of tantale wrappers use code written in Java:
+\strong{Java must be on the PATH} in your system.
+\code{\link[=tantale_setup]{tantale_setup()}} checks for it.}
 }
 \section{A TALE-oriented OOP framework}{
 
@@ -68,9 +68,9 @@ MAFFT, HMMER, mmseqs2 and the Perl dependencies of the target predictors
 come from a conda environment the package builds for itself, so \strong{conda
 (or mamba, or micromamba) is a prerequisite of the main workflow}. The
 Java tools (AnnoTALE, PrediTALE, TALE correction), which have no conda
-package, ship with tantale itself. The environment is built on first
-use, so the first call needs a network connection and takes a few
-minutes.
+package, are downloaded by \code{tantale_setup(install = TRUE)}. The
+environment is built on first use, so the first call needs a network
+connection and takes a few minutes.
 
 Start with \code{\link[=tantale_setup]{tantale_setup()}}. Called bare it reports what is present and
 changes nothing; \code{tantale_setup(install = TRUE)} builds or repairs the

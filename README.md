@@ -96,9 +96,8 @@ Run it once with `install = TRUE` after installing tantale:
 
 ### Also needed
 
-- **Java and Perl on the PATH.** Several wrappers (AnnoTALE, PrediTALE, TALE
-  correction, the target predictors) are written in other languages.
-  `tantale_setup()` checks for these too.
+- **Java on the PATH.** AnnoTALE, PrediTALE and TALE correction are Java
+  programs. `tantale_setup()` checks for Java too.
 
 - **Linux, or macOS on an Intel processor.** The versions of MAFFT, HMMER
   and MMseqs2 that tantale pins (later MAFFT versions align TALE repeat

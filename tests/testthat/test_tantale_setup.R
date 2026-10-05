@@ -110,9 +110,9 @@ test_that(".tantale_conda_root() says so when the root is unset", {
 
 #### the system tools ####
 
-test_that(".tantale_check_system() looks for java and perl and says what needs them", {
+test_that(".tantale_check_system() looks for java and says what needs it", {
   out <- .tantale_check_system()
-  expect_setequal(out$tool, c("java", "perl"))
+  expect_setequal(out$tool, "java")
   expect_true(all(nzchar(out$needed_by)))
 })
 

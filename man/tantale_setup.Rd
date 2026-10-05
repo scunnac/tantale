@@ -33,7 +33,7 @@ frames of the checks, and \code{prefix}, so the result can be tested as well
 as read.
 \code{conda} is \code{NULL} and \code{prefix} is \code{NA} when no conda/mamba installation,
 or no \code{tantale} environment, was found at all; \code{system} is always a
-data frame, since Java and Perl are checked regardless.
+data frame, since Java is checked regardless.
 }
 \description{
 Reports whether the external programs tantale drives are present and at the
@@ -71,9 +71,9 @@ version (\verb{tools-1/}, \verb{genomes-1/}). Set the environment variable
 \code{TANTALE_DATA_DIR} to use another directory, for instance one shared by
 a team. The tools take about 60 MB, the genomes 20 MB.
 
-\strong{Java and Perl} are checked too. They are hard requirements of the
-AnnoTALE, PrediTALE and TALE-correction wrappers, they come from outside
-conda, and without this check they fail deep inside a \code{system()} call.
+\strong{Java} is checked too. It is a hard requirement of the AnnoTALE,
+PrediTALE and TALE-correction wrappers, it comes from outside conda, and
+without this check they fail deep inside a \code{system()} call.
 }
 \section{Installing conda itself}{
 

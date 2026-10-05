@@ -67,9 +67,9 @@ for further details.</p>
     <p>CAUTIONARY NOTES:</p>
 <ul><li><p>tantale has been written with only Linux systems in mind and will very
 likely <strong>not work on other OS</strong> (eg Windows)</p></li>
-<li><p>Some of tantale wrappers use code written in other languages :
-<strong>Java and Perl must be on the PATH</strong> in your system.
-<code><a href="tantale_setup.html">tantale_setup()</a></code> checks for both.</p></li>
+<li><p>Some of tantale wrappers use code written in Java:
+<strong>Java must be on the PATH</strong> in your system.
+<code><a href="tantale_setup.html">tantale_setup()</a></code> checks for it.</p></li>
 </ul></div>
     <div class="section level2">
     <h2 id="a-tale-oriented-oop-framework">A TALE-oriented OOP framework<a class="anchor" aria-label="anchor" href="#a-tale-oriented-oop-framework"></a></h2>
@@ -116,9 +116,9 @@ wrapper around annotale_jar</p></li>
 come from a conda environment the package builds for itself, so <strong>conda
 (or mamba, or micromamba) is a prerequisite of the main workflow</strong>. The
 Java tools (AnnoTALE, PrediTALE, TALE correction), which have no conda
-package, ship with tantale itself. The environment is built on first
-use, so the first call needs a network connection and takes a few
-minutes.</p>
+package, are downloaded by <code>tantale_setup(install = TRUE)</code>. The
+environment is built on first use, so the first call needs a network
+connection and takes a few minutes.</p>
 <p>Start with <code><a href="tantale_setup.html">tantale_setup()</a></code>. Called bare it reports what is present and
 changes nothing; <code>tantale_setup(install = TRUE)</code> builds or repairs the
 environment. It checks <strong>versions</strong> as well as presence, which matters

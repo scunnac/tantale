@@ -113,7 +113,7 @@ frames of the checks, and <code>prefix</code>, so the result can be tested as we
 as read.
 <code>conda</code> is <code>NULL</code> and <code>prefix</code> is <code>NA</code> when no conda/mamba installation,
 or no <code>tantale</code> environment, was found at all; <code>system</code> is always a
-data frame, since Java and Perl are checked regardless.</p>
+data frame, since Java is checked regardless.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -138,9 +138,9 @@ package and unpacked into <code>tools::R_user_dir("tantale", "data")</code>
 version (<code>tools-1/</code>, <code>genomes-1/</code>). Set the environment variable
 <code>TANTALE_DATA_DIR</code> to use another directory, for instance one shared by
 a team. The tools take about 60 MB, the genomes 20 MB.</p>
-<p><strong>Java and Perl</strong> are checked too. They are hard requirements of the
-AnnoTALE, PrediTALE and TALE-correction wrappers, they come from outside
-conda, and without this check they fail deep inside a <code><a href="https://rdrr.io/r/base/system.html" class="external-link">system()</a></code> call.</p>
+<p><strong>Java</strong> is checked too. It is a hard requirement of the AnnoTALE,
+PrediTALE and TALE-correction wrappers, it comes from outside conda, and
+without this check they fail deep inside a <code><a href="https://rdrr.io/r/base/system.html" class="external-link">system()</a></code> call.</p>
     </div>
     <div class="section level2">
     <h2 id="installing-conda-itself">Installing conda itself<a class="anchor" aria-label="anchor" href="#installing-conda-itself"></a></h2>
@@ -177,7 +177,6 @@ tools.</p></div>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> mafft               7.453</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> perl-list-moreutils 0.430</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> java                /usr/bin/java</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> perl                /usr/bin/perl</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> <span style="color: #00BB00;">✔</span> Everything tantale needs is present.</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>

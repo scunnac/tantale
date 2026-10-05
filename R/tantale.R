@@ -46,9 +46,9 @@
 #'  come from a conda environment the package builds for itself, so **conda
 #'  (or mamba, or micromamba) is a prerequisite of the main workflow**. The
 #'  Java tools (AnnoTALE, PrediTALE, TALE correction), which have no conda
-#'  package, ship with tantale itself. The environment is built on first
-#'  use, so the first call needs a network connection and takes a few
-#'  minutes.
+#'  package, are downloaded by `tantale_setup(install = TRUE)`. The
+#'  environment is built on first use, so the first call needs a network
+#'  connection and takes a few minutes.
 #'
 #'  Start with [tantale_setup()]. Called bare it reports what is present and
 #'  changes nothing; `tantale_setup(install = TRUE)` builds or repairs the
@@ -68,9 +68,9 @@
 #'  \itemize{
 #'    \item tantale has been written with only Linux systems in mind and will very
 #'     likely \strong{not work on other OS} (eg Windows)
-#'    \item Some of tantale wrappers use code written in other languages :
-#'     \strong{Java and Perl must be on the PATH} in your system.
-#'     [tantale_setup()] checks for both.}
+#'    \item Some of tantale wrappers use code written in Java:
+#'     \strong{Java must be on the PATH} in your system.
+#'     [tantale_setup()] checks for it.}
 #'
 #'
 #'@importFrom IRanges IRanges

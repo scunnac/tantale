@@ -39,7 +39,7 @@ URL: https://scunnac.github.io/tantale/, https://github.com/scunnac/tantale
 BugReports: https://github.com/scunnac/tantale/issues
 Depends:
     R (>= 4.0.0)
-SystemRequirements: Java (>= 8), Perl, and conda, mamba or micromamba
+SystemRequirements: Java (>= 8), and conda, mamba or micromamba
     (which tantale_setup() uses to install MAFFT, HMMER and MMseqs2)
 Imports:
     magrittr, fs, dplyr, ggplot2 (>= 3.5.0), tibble, stringr, readr, glue,

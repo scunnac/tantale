@@ -1007,6 +1007,13 @@ FuncTAL's Perl needs `Bio::Perl`, gone since BioPerl 1.7. Rebuilt in R
 
 ---
 
+Q189 (2026-10-06, maintainer: yes): system Perl dropped as a
+requirement. Talvez, the only Perl program left, runs the environment's
+`perl` by absolute path; nothing reached a system Perl, yet README,
+`DESCRIPTION`, `?tantale` and `?tantale_setup` listed it and
+`.tantale_check_system()` flagged its absence. That check is now Java
+only.
+
 ## 13. `stop()`/`message()`/`warning()` converted to cli **[V]**
 
 Re-checked 2026-09-23 with the parser audit in `dev/CLAUDE.md`: **no

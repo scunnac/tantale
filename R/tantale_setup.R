@@ -1,8 +1,8 @@
 #### Checking and building the package's external dependencies ####
 #
 # tantale drives seven programs it does not ship: MAFFT, HMMER, mmseqs2,
-# clustalo and igvtools from a conda environment, plus Java and Perl from the
-# system. Before 7.4 most of these were bundled; now they are not, so "is the
+# clustalo and igvtools from a conda environment, plus Java from the system.
+# (Perl, which Talvez needs, is the environment's own: no system Perl is used.) Before 7.4 most of these were bundled; now they are not, so "is the
 # environment right?" became a question a user can lose a day to.
 #
 # The reason this file exists is correctness rather than convenience.
@@ -85,17 +85,16 @@
 }
 
 
-#' The system tools conda does not provide
+#' The system tool conda does not provide
 #'
-#' Java and Perl are hard requirements of the AnnoTALE, PrediTALE and
-#' TALEcorrection wrappers. They are not conda's business, and today they
-#' fail deep inside a `system()` call with nothing useful said. This is the
-#' only place they are ever checked.
+#' Java is a hard requirement of the AnnoTALE, PrediTALE and TALEcorrection
+#' wrappers. It is not conda's business, and without it they fail deep
+#' inside a `system()` call with nothing useful said. This is the only place
+#' it is ever checked.
 #' @noRd
 .tantale_check_system <- function() {
   needs <- c(
-    java = "AnnoTALE, PrediTALE and TALE correction",
-    perl = "the target-prediction wrappers"
+    java = "AnnoTALE, PrediTALE and TALE correction"
   )
   paths <- Sys.which(names(needs))
   data.frame(
@@ -148,9 +147,9 @@
 #' `TANTALE_DATA_DIR` to use another directory, for instance one shared by
 #' a team. The tools take about 60 MB, the genomes 20 MB.
 #'
-#' **Java and Perl** are checked too. They are hard requirements of the
-#' AnnoTALE, PrediTALE and TALE-correction wrappers, they come from outside
-#' conda, and without this check they fail deep inside a `system()` call.
+#' **Java** is checked too. It is a hard requirement of the AnnoTALE,
+#' PrediTALE and TALE-correction wrappers, it comes from outside conda, and
+#' without this check they fail deep inside a `system()` call.
 #'
 #' @section Installing conda itself:
 #' `conda = TRUE` installs a conda distribution if none is found. It is
@@ -175,7 +174,7 @@
 #'   as read.
 #'   `conda` is `NULL` and `prefix` is `NA` when no conda/mamba installation,
 #'   or no `tantale` environment, was found at all; `system` is always a
-#'   data frame, since Java and Perl are checked regardless.
+#'   data frame, since Java is checked regardless.
 #' @seealso [tell_tales()], [tales_align()], [tales_compare_distal()],
 #'   [talvez()] and [correct_tales()], the entry points that need these
 #'   tools.
@@ -247,7 +246,7 @@ tantale_setup <- function(install = FALSE, conda = FALSE, conda_bin = "auto",
     }
   }
 
-  ## java and perl -----------------------------------------------------------
+  ## java --------------------------------------------------------------------
   for (i in seq_len(nrow(sys))) {
     r <- sys[i, ]
     label <- format(r$tool, width = width)

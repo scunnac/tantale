@@ -38,6 +38,12 @@ profile those hits cover (`*_dna_cover`) and how many there are
 be read from the report. `hits_report.tsv` and the two GFF files carry each
 hit's score, E-value and profile positions.
 
+## Perl is no longer a system requirement
+
+Talvez, the only Perl program tantale runs, uses the Perl of
+tantale's conda environment. `tantale_setup()` no longer looks for Perl
+on the PATH, and the README and `DESCRIPTION` no longer list it.
+
 ## A missing conda installation is reported as such
 
 When no conda or mamba installation can be found, the functions that run
