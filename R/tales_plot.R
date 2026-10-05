@@ -857,7 +857,7 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
   if (is.null(ref_tag)) {
     strippedAlignLengths <- apply(align, 1, function(seq) length(seq[!is.na(seq)]))
     longest <- rownames(align)[strippedAlignLengths == max(strippedAlignLengths)]
-    ifelse(length(longest) == 1, refName <- longest, refName <- sort(longest)[1])
+    refName <- sort(longest)[1]
   }
   return(refName)
 }

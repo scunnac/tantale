@@ -31,7 +31,7 @@
 #' aln
 #' tales_consensus(aln)
 tales_consensus <- function(align) {
-  sapply(seq_len(ncol(align)), function(x) {
+  vapply(seq_len(ncol(align)), function(x) {
   allElements <- align[,x]
   candidates <- sort(unique(allElements), na.last = TRUE)
   freq <- vapply(candidates, S4Vectors::countMatches, integer(1), allElements)
@@ -41,7 +41,7 @@ tales_consensus <- function(align) {
   # there.
   if (sum(freq == max(freq)) > 1L) return(NA_character_)
   candidates[which.max(freq)]
-})
+}, character(1))
 }
 
 #' Do elements in a TALE msa match the consensus?

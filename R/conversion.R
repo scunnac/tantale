@@ -37,37 +37,3 @@
   names(seqsAsVectors) <- names(seqs)
   return(seqsAsVectors)
 }
-
-
-
-#### Repeat-code / RVD alignment matrix conversion ####
-# Not called by production code (a tales_msa carries both layers at once, so
-# plot() names them directly -- fill = "dom_code", label = "rvd"). Kept
-# because it builds fixture data in test_plot_tales_msa.R. The inverse
-# direction, .rvd_to_repeat_align(), was in inst/legacy/conversion_retired.R
-# (§37), deleted with inst/legacy/ after commit 20755db (ledger §50).
-
-#' Substitute Distal repeat IDs for RVDs in a TALE alignment matrix
-#'
-#' @param repeat_align A multiple TALE repeat sequences alignment in the form
-#'   of a matrix, as returned by \code{\link{tales_align}}.
-#' @param rvd_map A data frame mapping each repeat code (\code{repeatID})
-#'   to its RVD (\code{RVD}).
-#' @return A TALE alignment matrix made up of RVD sequences.
-#' @noRd
-.repeat_to_rvd_align <- function(repeat_align, rvd_map) {
-  states <- unique(as.vector(repeat_align))
-  ##### TODO: check that all values in states are present in the rvd_map df ####
-  # If not, error
-  rvd_align <- t(
-    apply(repeat_align, 1,
-          function(repeatSeq){
-            rvdSeq <- rvd_map$RVD[match(repeatSeq, rvd_map$repeatID)]
-          }
-    )
-  )
-  rvd_align <- matrix(rvd_align, nrow = nrow(repeat_align)) # in case of 1-row matrix
-  rownames(rvd_align) <- rownames(repeat_align)
-  colnames(rvd_align) <- colnames(repeat_align)
-  return(rvd_align)
-}

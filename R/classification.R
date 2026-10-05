@@ -111,7 +111,8 @@ tales_group_hclust <- function(x, tale_distances, k = NULL, plot_tree = FALSE) {
   # tidytree::MRCA() emits a cli "Invalid edge matrix for <phylo>" message
   # for some subtree shapes, harmlessly -- it still returns the right MRCA
   # (a <tbl_df> internal fallback, not an error); see ledger section 6.
-  clades <- sapply(g, function(nms) suppressMessages(tidytree::MRCA(p, nms)))
+  clades <- vapply(g, function(nms) suppressMessages(tidytree::MRCA(p, nms)),
+                   numeric(1))
   p <- tidytree::groupClade(p, clades, group_name = "subtree") +
     ggtree::aes(color = subtree)
 
@@ -612,7 +613,7 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
           if (is.null(trunc_tales_col)) {
             truncTale <- NA
           } else {
-            truncTale <- sapply(g1s1$truncTale, ifelse, "T", NA)
+            truncTale <- ifelse(g1s1$truncTale, "T", NA)
           }
           # plot.index <- r + (c-1)*nrow(uniqueRVD)
           color.elements <- colmat[rvd.factor]
@@ -640,13 +641,10 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
     if (!is.null(extra_col)) {
       ## extra column
       # extra.bar <- sample(c("Hanoi", "Hatay", "Namdinh", NA), nrow(uniqueRVD), replace = T)
-      extra.bar <- sapply(rownames(uniqueRVD), function(s) {
-        ext <- unique(tale_annotation$extra_col[tale_annotation$strain == s])
-        return(ext)
-      })
+      extra.bar <- tale_annotation$extra_col[match(rownames(uniqueRVD), tale_annotation$strain)]
       rextra.bar <- unique(extra.bar[!is.na(extra.bar)])
       rextra.bar <- data.frame("lab" = sort(rextra.bar), "fac" = seq_along(rextra.bar))
-      extra.col <- rep_len(.tol_light, nrow(rextra.bar))[sapply(extra.bar, function(e) ifelse(is.na(e), NA, rextra.bar$fac[rextra.bar$lab == e]), simplify = T)]
+      extra.col <- rep_len(.tol_light, nrow(rextra.bar))[match(extra.bar, rextra.bar$lab)]
       extra.col[is.na(extra.col)] <- .tantale_colours$no_value
       par(mar = c(0, 0, 0, 0))
       image(z = matrix(seq_len(nrow(uniqueRVD)), nrow = 1), col = rev(extra.col), yaxt = "n", xaxt = "n", axes = F)

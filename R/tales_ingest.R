@@ -28,9 +28,8 @@
   # ("MAI1-tempTALE1 [624136-627961:1]"); the id is the first word
   tibble::tibble(array_id = sub(" .*$", "", gsub("(.*): .*", "\\1", names(taleStrings))),
                  domain_type = gsub(".*: (.*?)[ ]?[0-9]{0,}$", "\\1", names(taleStrings)),
-                 position_in_crd = gsub(".*: repeat[ ]([0-9]{0,})$", "\\1", names(taleStrings)) %>%
-                   as.integer() %>%
-                   suppressWarnings(),
+                 position_in_crd = suppressWarnings(as.integer(
+                   gsub(".*: repeat[ ]([0-9]{0,})$", "\\1", names(taleStrings)))),
                  string = as.character(taleStrings) %>% as.vector(),
                  source_directory = dirname(fasta)
   )

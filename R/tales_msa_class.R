@@ -756,8 +756,8 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
   msaAsHexVectors <- stringr::str_split(as.character(msaOfHex), pattern = stringr::fixed(" "))
   msaAsHexVectors <- lapply(msaAsHexVectors, function(x) x[-length(x)]) # Remove last "" element
   #cat(knitr::kable(t(matrix(msaAsHexVectors))), sep = " ")
-  msaOfResiduesAsMatrix <- t(
-    sapply(msaAsHexVectors, function(x) {
+  msaOfResiduesAsMatrix <- do.call(rbind,
+    lapply(msaAsHexVectors, function(x) {
       idxs <- match(x, asciitableForMafft$hex, nomatch = NA)
       #cat("idx in asciiTable: ", idxs, "\n")
       seqOfResidues <- residues[idxs]

@@ -4121,3 +4121,35 @@ Final: macOS run 37301244765 green on R release, oldrel-1 and devel;
 Linux run 37301468672 on `main` (0f33e9c) green on all three. Branch
 `ci-macos-diag` deleted (the diagnostic workflow survives in commit
 9fe8e4b). §58 closed.
+
+**Reply rewritten (Q158, 2026-10-05).** Blocking items first, then the
+lints by severity. goodpractice 1.2.0.1 was already installed; its lint
+check is `lintr::lint_package(linters = goodpractice:::linters_to_lint())`,
+rerun on 0f33e9c. The earlier draft claimed every lint but line length
+was fixed; untrue. Left in `R/`: 10 `sapply()`, 4 implicit assignments
+(among them `ifelse(..., refName <- ...)` used for control flow,
+`R/tales_plot.R:860`), 2 `<<-` (`.tales_anomalies()`'s `add()`, the
+calling handler in `R/telltale.R:765`), 1 nested pipe, 3 `%in% TRUE`.
+Tests: 35 implicit assignments (`expect_warning(x <- f())`), 26 `:::`,
+4 `<<-` (caches). Open for the maintainer: Q162 fix the `sapply()` calls,
+the `ifelse` assignment and the nested pipe before posting; Q163 move
+`.repeat_to_rvd_align()` into a test helper, which clears the "unused
+internal functions" item of its one real case; Q164 run the macOS check
+on `main` before the reply claims macOS (pushes run Linux only).
+
+**Q162, Q163, Q164 yes (maintainer, 2026-10-05).**
+- Q162 done: the 10 `sapply()` replaced (`vapply()` with a declared type,
+  `lapply()` for the XStringSet lists in `.telltale_align_termini()` and
+  `.telltale_array_gaps()`, `do.call(rbind, lapply())` in
+  `.build_repeat_msa()`, `match()` for `talomes_heatmap()`'s side bar,
+  vectorised `ifelse()` for its truncation labels); the four implicit
+  assignments and the nested pipe in `R/` rewritten. A test of the
+  suspicion that the outer `sapply()` of `.telltale_align_termini()` could
+  simplify two equal-sized XStringSets into a list-matrix: it does not
+  (S4 elements stay a named list). `talomes_heatmap()`'s side bar now
+  takes a strain's first `extra_col` value, where several values used to
+  make `sapply()` return a list. Left in `R/`: 21 duplicate arguments,
+  2 `<<-`, 3 `%in% TRUE`, 1 `paste(sep = "/")`, 1 `length(unique())`.
+- Q163 done: `.repeat_to_rvd_align()` moved from `R/conversion.R` into
+  `test_plot_tales_msa.R`, its only user.
+- Q164: needs the commit on `main`, so the push comes first.

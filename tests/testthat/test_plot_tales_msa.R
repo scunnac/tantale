@@ -6,6 +6,19 @@ rvd_map_of <- function(parts) {
   dplyr::distinct(data.frame(repeatID = parts$dom_code, RVD = parts$rvd))
 }
 
+# Repeat-code alignment matrix -> RVD alignment matrix, for the matrix
+# fixtures below. Lived in R/conversion.R until 2026-10-05; the package never
+# called it, since a tales_msa carries both layers (ledger §60, Q163).
+.repeat_to_rvd_align <- function(repeat_align, rvd_map) {
+  rvd_align <- t(apply(repeat_align, 1, function(repeatSeq) {
+    rvd_map$RVD[match(repeatSeq, rvd_map$repeatID)]
+  }))
+  rvd_align <- matrix(rvd_align, nrow = nrow(repeat_align)) # in case of 1-row matrix
+  rownames(rvd_align) <- rownames(repeat_align)
+  colnames(rvd_align) <- colnames(repeat_align)
+  rvd_align
+}
+
 # The alignment as the class holds it: one object carrying every layer, which
 # is what plot() takes. Built by tales_align() from the same three arrays the
 # matrix fixture covers.

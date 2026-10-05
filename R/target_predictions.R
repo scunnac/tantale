@@ -84,7 +84,8 @@ preditale <- function(rvd_seqs, subj_file, opt_param = "", output_dir = NULL,
     output_dir <- tempfile(pattern = "preditale_")
     dir.create(output_dir, recursive = TRUE)
   }
-  if (length(f <- list.files(path = output_dir, pattern = "^Predicted_binding.*tsv$", full.names = TRUE)) != 0) {
+  f <- list.files(path = output_dir, pattern = "^Predicted_binding.*tsv$", full.names = TRUE)
+  if (length(f) != 0) {
     cli::cli_abort(
       c("{.file {output_dir}} already holds what look like previous {.fn preditale} results.",
         "x" = "Remove {length(f)} file{?s} first: {.file {f}}"),
@@ -506,11 +507,11 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
       breaks = unique(c(predsForPlot$yPos, relevantTidySubjSeqs$yPos)),
       minor_breaks = NULL,
       labels = function(brks) {
-        sapply(brks, function(brk){
+        vapply(brks, function(brk){
           if (brk == yposSenseStrd) return("5'")
           if (brk == yposAntisenseStrd) return("3'")
-          return(predsForPlot$taleId[match(brk, predsForPlot$yPos)])
-        }, simplify = TRUE)
+          return(as.character(predsForPlot$taleId[match(brk, predsForPlot$yPos)]))
+        }, character(1))
       },
       expand = ggplot2::expansion(add = 0.5)
     ) +

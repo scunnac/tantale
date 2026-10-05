@@ -762,8 +762,8 @@
         if (Biostrings::width(seqOfRVDs) == 0) file.remove(annoTaleRVD_file) # should also return TRUE
       }
     )) {
-      messages <<- c(messages,
-                     (m <- glue::glue("Annotale failed to parse TALE domains for {talOrfID}.")))
+      m <- glue::glue("Annotale failed to parse TALE domains for {talOrfID}.")
+      messages <<- c(messages, m)
       cli::cli_warn(m, parent = if (inherits(checkAnnoTale, "try-error")) {
         attr(checkAnnoTale, "condition")
       })
@@ -824,13 +824,13 @@
 
   partFiles <- list.files(annotale_dir, spec$parts, recursive = TRUE, full.names = TRUE)
 
-  sapply(c("N-terminus", "C-terminus"), function(part) {
-    allpart <- sapply(partFiles, function(p) {
+  lapply(c(`N-terminus` = "N-terminus", `C-terminus` = "C-terminus"), function(part) {
+    allpart <- lapply(partFiles, function(p) {
       allpart <- spec$read(p, seek.first.rec = TRUE)
       onepart <- allpart[grepl(part, names(allpart))]
       names(onepart) <- basename(dirname(p))   # the ROI this part came from
       onepart
-    }, simplify = "array", USE.NAMES = FALSE) %>%
+    }) %>%
       spec$setlist() %>%
       unlist()
 
@@ -843,7 +843,7 @@
       cli::cli_warn("Skipping {part} TALE {spec$label} regions alignment because the input sequence has less than 2 putative TALEs.")
     }
     allpart
-  }, USE.NAMES = TRUE)
+  })
 }
 
 
@@ -1100,7 +1100,7 @@
 #' @noRd
 .telltale_array_gaps <- function(arrays) {
   bySeqlevel <- split(arrays, GenomicRanges::seqnames(arrays))
-  gaps <- sapply(bySeqlevel, function(x) {
+  gaps <- lapply(bySeqlevel, function(x) {
     t(as.data.frame(GenomicRanges::distanceToNearest(x)))[3, ]
   })
   gaps <- unlist(gaps)
