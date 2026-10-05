@@ -31,8 +31,10 @@ on:
         default: ubuntu-latest
 
 # A newer push to the same branch cancels the run still going for the older one.
+# The runner is part of the key, so a macOS run started by hand and the Linux
+# run of a push do not cancel each other.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}-${{ inputs.os || 'ubuntu-latest' }}
   cancel-in-progress: true
 
 jobs:

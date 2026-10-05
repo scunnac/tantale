@@ -4162,3 +4162,13 @@ on `main` before the reply claims macOS (pushes run Linux only).
   when the summary has a blocking item, as the action does. The official
   action itself cannot take a setup step: it is a Docker action, so
   earlier steps run on the host, outside its container.
+  First run (37360975924): setup, `tantale_setup()` and goodpractice's
+  steps (covr, rcmdcheck) went through; pkgcheck then aborted in its
+  ORCID check. The image carries pkgcheck 0.2.0.044 (c4743df), whose
+  `paste(x$given, x$family)` gives two names for "Bao Tram"; fixed
+  upstream 2026-09-29, and the bot runs 0.3.2. The workflow now updates
+  pkgcheck from GitHub first. Java is not in the image either: pak
+  installed `default-jdk` as a system requirement of tantale's
+  dependencies. Also, the hand-started macOS run had cancelled the Linux
+  run of the same push (one concurrency group per branch);
+  `R-CMD-check.yaml` now adds the runner to the group.

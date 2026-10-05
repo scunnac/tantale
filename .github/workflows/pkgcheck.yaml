@@ -49,6 +49,12 @@ jobs:
           Rscript -e 'pak::lockfile_create("local::.", lockfile = file.path(tempdir(), "pkg.lock"), dependencies = "all");
           pak::lockfile_install(file.path(tempdir(), "pkg.lock"))'
 
+      # The image's pkgcheck can lag behind the one the review bot runs
+      # (0.2.0.044 against 0.3.2 on 2026-10-05, and the older one fails on an
+      # author with two given names), so take the current one.
+      - name: Update pkgcheck
+        run: Rscript -e 'pak::pak("ropensci-review-tools/pkgcheck")'
+
       - name: Build the tantale environment, install the archives
         run: Rscript -e 'tantale::tantale_setup(install = TRUE)'
 
