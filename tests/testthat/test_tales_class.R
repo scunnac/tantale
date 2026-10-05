@@ -73,7 +73,7 @@ test_that("a wrong column type is an error", {
 test_that("an empty tales is valid", {
   x <- tales(minimal_tales_df()[0, ])
   expect_s3_class(x, "tales")
-  expect_equal(nrow(x), 0L)
+  expect_identical(nrow(x), 0L)
 })
 
 test_that("a duplicated key is an error", {
@@ -114,7 +114,7 @@ test_that("more than one terminus of a kind is an anomaly", {
   df$domain_type[3] <- "C-terminus"
   df$position_in_crd[3] <- NA_integer_
   expect_warning(x <- tales(df), class = "tantale_warning_tales_anomalous")
-  expect_true(any(grepl("terminus", tales_anomalies(x)$check)))
+  expect_true(any(grepl("terminus", tales_anomalies(x)$check, fixed = TRUE)))
 })
 
 test_that("zero termini is allowed - a repeats-only subset stays valid", {
@@ -214,7 +214,7 @@ test_that("different aa_seq sharing one rvd is not an anomaly", {
   df$aa_seq[df$array_id == "a2" & df$position_in_array == 2] <- "LTPZ"
   df$dom_code[df$array_id == "a2" & df$position_in_array == 2] <- "5"
   x <- tales(df)
-  expect_equal(nrow(tales_anomalies(x)), 0L)
+  expect_identical(nrow(tales_anomalies(x)), 0L)
 })
 
 
@@ -232,7 +232,7 @@ test_that("filtering to no rows is allowed", {
   x <- tales(minimal_tales_df())
   out <- dplyr::filter(x, array_id == "nope")
   expect_s3_class(out, "tales")
-  expect_equal(nrow(out), 0L)
+  expect_identical(nrow(out), 0L)
 })
 
 test_that("dropping a required column degrades silently to a tibble", {
@@ -287,7 +287,7 @@ test_that("tales_names() lists each array once, in row order", {
   x <- tales(minimal_tales_df())
   expect_identical(tales_names(x), c("a1", "a2"))
   expect_identical(tales_names(dplyr::filter(x, array_id == "a2")), "a2")
-  expect_identical(names(x), colnames(minimal_tales_df()))
+  expect_named(x, colnames(minimal_tales_df()))
 })
 
 test_that("tales_names() works on a tales_msa", {
@@ -331,8 +331,8 @@ test_that("as_tales() accepts a BStringSet and a list, matching the file path re
   from_path <- as_tales(p, sep = "-")
   from_set <- as_tales(Biostrings::readBStringSet(p), sep = "-")
   from_list <- as_tales(as.list(as.character(Biostrings::readBStringSet(p))), sep = "-")
-  expect_equal(from_set, from_path)
-  expect_equal(from_list, from_path)
+  expect_identical(from_set, from_path)
+  expect_identical(from_list, from_path)
 })
 
 test_that("as_tales() puts repeat codes in dom_code when asked", {
@@ -354,7 +354,7 @@ test_that("as_tales() errors on unnamed sequences", {
 
 test_that("as_tales() on a data frame is tales()", {
   df <- minimal_tales_df()
-  expect_equal(as_tales(df), tales(df))
+  expect_identical(as_tales(df), tales(df))
 })
 
 
@@ -412,7 +412,7 @@ test_that("a real distalr tale_parts table validates as tales", {
   tp <- readRDS(test_path("data_for_tests", "sampleDistalrOutput.rds"))$tale_parts
   x <- tales_quietly(tp)
   expect_s3_class(x, "tales")
-  expect_equal(nrow(x), nrow(tp))
+  expect_identical(nrow(x), nrow(tp))
   expect_true(all(c("array_id", "position_in_array", "dom_code") %in% names(x)))
 })
 
@@ -430,7 +430,7 @@ test_that("a missing residue is now a biological anomaly, not a structural error
   expect_s3_class(x, "tales")
   expect_identical(tales_anomalies(x)$array_id, "a")
   expect_identical(tales_anomalies(x)$check, "missing_rvd")
-  expect_equal(nrow(suppressWarnings(tales(df, sanitize = TRUE))), 0L)
+  expect_identical(nrow(suppressWarnings(tales(df, sanitize = TRUE))), 0L)
 })
 
 

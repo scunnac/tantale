@@ -40,21 +40,20 @@
   if (!grepl("TALE_RVDs.fasta", basename(fasta))) {
     cli::cli_abort("{.file {fasta}} is not an AnnoTALE RVD file ({.file TALE_RVDs.fasta}).",
                    class = c("tantale_error_annotale_file", "tantale_error"))
-  } else {
-    # AnnoTALE writes an empty record for a TALE in which it found no repeat
-    # (seen on pseudogenes); that TALE simply has no RVD
-    rvdTble <- withCallingHandlers(
-      .split_list(fasta),
-      tantale_warning_empty_element = function(w) invokeRestart("muffleWarning"))
-    names(rvdTble) <- sub(" .*$", "", names(rvdTble))
-    rvdTble <- rvdTble %>%
-      lapply(function(x) tibble::tibble(string = x,
-                                        position_in_crd = seq_along(x))
-             ) %>%
-      dplyr::bind_rows(.id = "array_id")
-    rvdTble <- rvdTble %>% dplyr::mutate(source_directory = dirname(fasta),
-                                         domain_type = "repeat")
   }
+  # AnnoTALE writes an empty record for a TALE in which it found no repeat
+  # (seen on pseudogenes); that TALE simply has no RVD
+  rvdTble <- withCallingHandlers(
+    .split_list(fasta),
+    tantale_warning_empty_element = function(w) invokeRestart("muffleWarning"))
+  names(rvdTble) <- sub(" .*$", "", names(rvdTble))
+  rvdTble <- rvdTble %>%
+    lapply(function(x) tibble::tibble(string = x,
+                                      position_in_crd = seq_along(x))
+           ) %>%
+    dplyr::bind_rows(.id = "array_id")
+  rvdTble <- rvdTble %>% dplyr::mutate(source_directory = dirname(fasta),
+                                       domain_type = "repeat")
   return(rvdTble)
 }
 
@@ -158,7 +157,7 @@
                                  taleProtString %>% dplyr::rename(aa_seq = string),
                                  by = c("array_id", "domain_type", "position_in_crd", "source_directory"),
                                  relationship = "one-to-one") %>%
-    dplyr::mutate(aa_seq = gsub("[*]", "", aa_seq))
+    dplyr::mutate(aa_seq = gsub("*", "", aa_seq, fixed = TRUE))
 
   # A part in only one of AnnoTALE's two files means the files disagree about
   # that array. The whole array goes: dropping only the part would leave a

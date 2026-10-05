@@ -308,7 +308,7 @@ run_annotale_build <- function(fasta_file,
 #' @examples
 #' \dontrun{
 #' # Slow: downloads and rebuilds the catalogue, about 15 minutes.
-#' classes <- run_annotale_load_classes(output_dir = "annotale_classes")
+#' classes <- run_annotale_load_classes(output_dir = tempfile("annotale_classes_"))
 #' }
 run_annotale_load_classes <- function(output_dir = tempfile("annotale_classes_"),
                                       class_builder = NULL,
@@ -396,7 +396,7 @@ run_annotale_load_classes <- function(output_dir = tempfile("annotale_classes_")
 #' @examples
 #' \dontrun{
 #' # Needs a Java runtime and the catalogue, which takes a while to fetch.
-#' classes <- run_annotale_load_classes(output_dir = "annotale_classes")
+#' classes <- run_annotale_load_classes(output_dir = tempfile("annotale_classes_"))
 #' predicted <- run_annotale_predict(tantale_genome("MAI1"))
 #' tales <- list.files(file.path(predicted, "Predict"),
 #'                     pattern = "^TALE_DNA_sequences_", full.names = TRUE)

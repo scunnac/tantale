@@ -49,7 +49,7 @@ test_that("dom_code is in one-to-one correspondence with aa_seq", {
   # the invariant validate_tales() enforces, here on freshly minted codes
   res <- relatedness_once()
   tp <- res$tales
-  expect_equal(dplyr::n_distinct(tp$dom_code), dplyr::n_distinct(tp$aa_seq))
+  expect_identical(dplyr::n_distinct(tp$dom_code), dplyr::n_distinct(tp$aa_seq))
   expect_silent(validate_tales(tp))
 })
 
@@ -169,9 +169,9 @@ test_that("the dna_seq path gives the same distances as the aa_seq path", {
   viaAa  <- suppressWarnings(suppressMessages(tales_compare_distal(x)))
   viaDna <- suppressWarnings(suppressMessages(
     tales_compare_distal(x[, setdiff(names(x), "aa_seq")])))
-  expect_equal(as.data.frame(viaDna$domain_distances),
+  expect_identical(as.data.frame(viaDna$domain_distances),
                as.data.frame(viaAa$domain_distances))
-  expect_equal(as.data.frame(viaDna$tale_distances),
+  expect_identical(as.data.frame(viaDna$tale_distances),
                as.data.frame(viaAa$tale_distances))
 })
 

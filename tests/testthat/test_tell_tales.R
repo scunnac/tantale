@@ -24,7 +24,7 @@ test_that("the closing log is printed line by line, braces in paths as text", {
     subject_file = system.file("extdata", "bai3_sample_tal_genomic_regions.fasta",
                                package = "tantale", mustWork = TRUE),
     output_dir = out)))
-  printed <- unlist(strsplit(paste(msgs, collapse = ""), "\n"))
+  printed <- unlist(strsplit(paste(msgs, collapse = ""), "\n", fixed = TRUE))
   log <- readLines(file.path(out, "tell_tales.log"))
   expect_true(grep("^nterm_min_score:", log, value = TRUE) %in% printed)
   expect_true(paste0("Output directory:\t", out) %in% printed)
@@ -114,7 +114,7 @@ test_that("tell_tales() codes termini from the protein profiles and drops DNA-on
   expect_true(all(c("n_dna_hits", "nterm_dna_hit", "cterm_dna_hit", "nterm_aa_evalue",
                     "cterm_aa_evalue", "nterm_aa_hit", "cterm_aa_hit") %in% names(report)))
   truncated <- report[report$cterm_aa_length == 42 & !is.na(report$cterm_aa_length), ]
-  expect_equal(nrow(truncated), 1)
+  expect_identical(nrow(truncated), 1L)
   # the nhmmer DNA search misses this truncated C-terminus; the protein profile does not
   expect_false(truncated$cterm_dna_hit)
   expect_true(truncated$cterm_aa_hit)

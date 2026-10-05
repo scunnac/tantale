@@ -71,7 +71,7 @@ class when it names a TALE (\code{TalAH30}, the thirtieth member of
 \examples{
 \dontrun{
 # Slow: downloads and rebuilds the catalogue, about 15 minutes.
-classes <- run_annotale_load_classes(output_dir = "annotale_classes")
+classes <- run_annotale_load_classes(output_dir = tempfile("annotale_classes_"))
 }
 }
 \seealso{

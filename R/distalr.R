@@ -461,7 +461,7 @@ diag(identSubMat) <- 1
       max_length = max(Biostrings::nchar(part_aa_set[id1]), Biostrings::nchar(part_aa_set[id2])),
       # This is an approximate equivalent of how Alvaro computed dissimilarity in distal
       dissim = 100 - 100 * (max_length - score) / max_length,
-      dissim = ifelse(dissim < 0, 100, 100 - dissim),
+      dissim = ifelse(dissim < 0, 100, 100 - dissim)
     ) %>%
     dplyr::ungroup() %>%
     dplyr::select(-max_length)
@@ -514,7 +514,9 @@ diag(identSubMat) <- 1
                                "--format-output query,target,evalue,raw,pident,nident,mismatch,gapopen,qstart,qend,qlen,tstart,tend,tlen,alnlen,bits,qcov,tcov",
                                .sep = " ")
   
-  if (!as.logical(.create_tantale_env(conda_bin = conda_bin))) {
+  if (as.logical(.create_tantale_env(conda_bin = conda_bin))) {
+    .abort_no_env("mmseqs2")
+  } else {
     # Each stage is checked. Previously all four statuses were assigned to
     # `res` and none was tested, so a failed prefilter surfaced only as a
     # confusing error from convertalis -- or not at all.
@@ -522,8 +524,6 @@ diag(identSubMat) <- 1
     .tantale_exec(mmseq2prefilter,   what = "mmseqs prefilter")
     .tantale_exec(mmseq2align,       what = "mmseqs align")
     .tantale_exec(mmseq2convertalis, what = "mmseqs convertalis")
-  } else {
-    .abort_no_env("mmseqs2")
   }
   
 

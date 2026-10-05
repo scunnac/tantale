@@ -590,7 +590,7 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
     # Read after the output device is chosen: par() on no device opens one.
     df <- par(no.readonly = TRUE)
 
-    layout(laymat, widths = c(widleft, rep(1, ncol(uniqueRVD)), ifelse(is.null(extra_col), 0.1, .7), widright, ifelse(is.null(extra_col), 0.1, 3)), heights = c(2, heitop, rep(1, nrow(uniqueRVD)), heibot))
+    layout(laymat, widths = c(widleft, rep(1, ncol(uniqueRVD)), ifelse(is.null(extra_col), 0.1, 0.7), widright, ifelse(is.null(extra_col), 0.1, 3)), heights = c(2, heitop, rep(1, nrow(uniqueRVD)), heibot))
     # layout.show(nplots+7)
     
     
@@ -612,7 +612,7 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
           if (is.null(trunc_tales_col)) {
             truncTale <- NA
           } else {
-            truncTale <- sapply(g1s1$truncTale, function(l) ifelse(l, "T", NA))
+            truncTale <- sapply(g1s1$truncTale, ifelse, "T", NA)
           }
           # plot.index <- r + (c-1)*nrow(uniqueRVD)
           color.elements <- colmat[rvd.factor]
@@ -621,7 +621,7 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
           text(seq(0,1, length.out = nelements), 0, labels = truncTale, cex = 1, font = 2,
                col = .text_colour_on(color.elements))
           if (nelements > 1) {
-            abline(v = seq(0.5/(nelements-1), 1-.5/(nelements-1), length.out = nelements -1), col = inner_sep_color, lty = 1)
+            abline(v = seq(0.5/(nelements-1), 1-0.5/(nelements-1), length.out = nelements -1), col = inner_sep_color, lty = 1)
           }
           if (sep_width > 0) {
             par(mar = rep(0, 4))
@@ -661,13 +661,13 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
     par(mar = c(0, 0.5, 0, 0))
     image(z = matrix(seq_len(nrow(uniqueRVD)), nrow = 1), col = "white", yaxt = "n", xaxt = "n", axes = F)
     text(-1, seq(0, 1, length.out = nrow(uniqueRVD)), labels = rev(rownames(uniqueRVD)), font = 1, col = "black", cex = 1.2, adj = 0)
-    mtext(side = 4, at = .5, text = y_lab, col = "black", padj = 0, line = -1)
+    mtext(side = 4, at = 0.5, text = y_lab, col = "black", padj = 0, line = -1)
     
     if (!is.null(extra_col)) {
       ## legend column
       par(mar = c(0,0.5,1,0))
-      plot(rep(0, nrow(rextra.bar)), -seq(from = 0, by = .8, length.out = nrow(rextra.bar)), type = "p", pch = 15, col = rep_len(.tol_light, nrow(rextra.bar)), axes = F, main = extra_col, xlab = NA, ylab = NA, cex = 4, ylim = c(-nrow(uniqueRVD), 0), xlim = c(0,2))
-      text(rep(.3, nrow(rextra.bar)), -seq(from = 0, by = .8, length.out = nrow(rextra.bar)), labels = rextra.bar$lab, font = 1, col = "black", bg = "red", cex = 1.2, adj = 0)
+      plot(rep(0, nrow(rextra.bar)), -seq(from = 0, by = 0.8, length.out = nrow(rextra.bar)), type = "p", pch = 15, col = rep_len(.tol_light, nrow(rextra.bar)), axes = F, main = extra_col, xlab = NA, ylab = NA, cex = 4, ylim = c(-nrow(uniqueRVD), 0), xlim = c(0,2))
+      text(rep(0.3, nrow(rextra.bar)), -seq(from = 0, by = 0.8, length.out = nrow(rextra.bar)), labels = rextra.bar$lab, font = 1, col = "black", bg = "red", cex = 1.2, adj = 0)
     } else {
       par(mar = c(0,0,0,0))
       image(matrix(0), col = "white", axes = F)

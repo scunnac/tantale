@@ -80,7 +80,7 @@ test_that("print.tales_msa() aligns its columns so gaps line up", {
   expect_match(out, "-")
   # every previewed row is the same printed length, which is what makes an
   # alignment readable down the page
-  rows <- grep("ROI_", strsplit(out, "\n")[[1]], value = TRUE)
+  rows <- grep("ROI_", strsplit(out, "\n", fixed = TRUE)[[1]], fixed = TRUE, value = TRUE)
   expect_gt(length(rows), 1L)
   expect_length(unique(nchar(rows)), 1L)
 })

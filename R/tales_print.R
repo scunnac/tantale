@@ -43,7 +43,7 @@
 .tales_header <- function(x, summary_line) {
   layers <- intersect(TALES_RESIDUE_COLS, names(x))
   bits <- character()
-  if (length(layers)) bits <- c(bits, paste0("layers: ", paste(layers, collapse = ", ")))
+  if (length(layers)) bits <- c(bits, paste0("layers: ", toString(layers)))
   ns <- tales_namespace(x)
   if (!is.null(ns) && nzchar(ns)) bits <- c(bits, paste0("namespace: ", ns))
   other <- setdiff(names(x), c("array_id", "position_in_array", "alignment_position", layers))

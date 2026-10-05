@@ -11,8 +11,8 @@ expect_grouped <- function(out, k = NULL) {
   testthat::expect_false(anyNA(out$group))
   perArray <- tapply(out$group, out$array_id, function(z) length(unique(z)))
   testthat::expect_true(all(perArray == 1L))
-  testthat::expect_equal(length(unique(out$array_id)), nTales)
-  if (!is.null(k)) testthat::expect_equal(length(unique(out$group)), k)
+  testthat::expect_length(unique(out$array_id), nTales)
+  if (!is.null(k)) testthat::expect_length(unique(out$group), k)
   invisible(out)
 }
 
@@ -50,7 +50,7 @@ test_that("the k-medoids clustering returned is a real PAM assignment, not a pla
   set.seed(7)
   expected <- cluster::pam(stats::as.dist(distMat), 3)$clustering
   out <- unique(as.data.frame(grp)[c("array_id", "group")])
-  expect_equal(out$group[match(names(expected), out$array_id)], unname(expected))
+  expect_identical(out$group[match(names(expected), out$array_id)], unname(expected))
 })
 
 
@@ -106,10 +106,10 @@ test_that("seed is documented and overridable, defaulting to the old hardcoded 7
   baseline <- cluster::pam(stats::as.dist(distMat), 3)$clustering
   grp_default <- tales_group_kmedoids(tls, tale_dist, k_range = 2:6, k = 3)
   out_default <- unique(as.data.frame(grp_default)[c("array_id", "group")])
-  expect_equal(out_default$group[match(names(baseline), out_default$array_id)],
+  expect_identical(out_default$group[match(names(baseline), out_default$array_id)],
                unname(baseline))
 
-  expect_equal(formals(tales_group_kmedoids)$seed, 7)
+  expect_identical(formals(tales_group_kmedoids)$seed, 7)
 })
 
 
@@ -150,5 +150,5 @@ test_that("the bare mapping is recoverable from the returned object", {
   local_no_display()
   out <- tales_group_kmedoids(tls, tale_dist, k_range = 2:6, k = 3)
   mapping <- unique(as.data.frame(out)[c("array_id", "group")])
-  expect_equal(nrow(mapping), nTales)
+  expect_identical(nrow(mapping), nTales)
 })

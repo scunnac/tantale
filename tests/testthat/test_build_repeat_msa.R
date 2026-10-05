@@ -5,7 +5,7 @@ test_that("build_repeat_msa result with RVDs is of expected dims",
                                  sep = "-", domain_distances = NULL,
                                  mafft_opts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1",
                                  gap_symbol = "-")
-          expect_true(identical(dim(aln), c(11L, 26L)))}
+          expect_identical(dim(aln), c(11L, 26L))}
 )
 
 
@@ -14,7 +14,7 @@ test_that("build_repeat_msa result with coded parts is of expected dims",
                                  sep = " ", domain_distances = NULL,
                                  mafft_opts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1",
                                  gap_symbol = "-")
-          expect_true(identical(dim(aln), c(3L, 28L)))}
+          expect_identical(dim(aln), c(3L, 28L))}
 )
 
 
@@ -24,7 +24,7 @@ test_that("build_repeat_msa throughts a warning and return a NA matrix if provid
                                                sep = " ", domain_distances = NULL,
                                                mafft_opts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1",
                                                gap_symbol = "-"))
-          expect_equal(aln, matrix())}
+          expect_identical(aln, matrix())}
 )
 
 test_that("build_repeat_msa deals properly with single sequence inputs",
@@ -33,7 +33,7 @@ test_that("build_repeat_msa deals properly with single sequence inputs",
                                 sep = " ", domain_distances = NULL,
                                 mafft_opts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1",
                                 gap_symbol = "-")
-          expect_true(identical(dim(aln), c(1L, 28L)))}
+          expect_identical(dim(aln), c(1L, 28L))}
 )
 
 
@@ -46,10 +46,10 @@ test_that(".as_mafft_score_table() accepts the canonical and legacy vocabularies
   canonical <- data.frame(id1 = c("a","b"), id2 = c("b","a"), dissim = c(0, 40))
   out <- tantale:::.as_mafft_score_table(canonical)
   expect_named(out, c("id1", "id2", "sim"))
-  expect_equal(out$sim, c(100, 60))
+  expect_identical(out$sim, c(100, 60))
 
   similar <- data.frame(id1 = c("a","b"), id2 = c("b","a"), sim = c(100, 60))
-  expect_equal(tantale:::.as_mafft_score_table(similar)$sim, c(100, 60))
+  expect_identical(tantale:::.as_mafft_score_table(similar)$sim, c(100, 60))
 })
 
 test_that(".as_mafft_score_table() refuses a table it cannot read", {
@@ -74,7 +74,7 @@ test_that("tales_align() accepts a domain_distances object", {
     tales_align(sub, residue_col = "dom_code",
                 domain_distances = d$repeat.similarity)))
   expect_s3_class(viaClass, "tales_msa")
-  expect_equal(as.data.frame(viaClass), as.data.frame(viaPlain))
+  expect_identical(as.data.frame(viaClass), as.data.frame(viaPlain))
 })
 
 
@@ -130,7 +130,7 @@ test_that("NULL and FALSE both mean no matrix", {
   a <- suppressWarnings(suppressMessages(tales_align(sub, residue_col = "dom_code")))
   b <- suppressWarnings(suppressMessages(
     tales_align(sub, residue_col = "dom_code", domain_distances = FALSE)))
-  expect_equal(as.data.frame(a), as.data.frame(b))
+  expect_identical(as.data.frame(a), as.data.frame(b))
 })
 
 
@@ -153,7 +153,7 @@ test_that("the default RVD alignment is unchanged by this feature", {
   a <- suppressWarnings(suppressMessages(tales_align(sub, residue_col = "rvd")))
   b <- suppressWarnings(suppressMessages(
     tales_align(sub, residue_col = "rvd", domain_distances = FALSE)))
-  expect_equal(as.data.frame(a), as.data.frame(b))
+  expect_identical(as.data.frame(a), as.data.frame(b))
 })
 
 

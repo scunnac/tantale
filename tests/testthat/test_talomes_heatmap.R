@@ -48,7 +48,7 @@ test_that("column labels count the distinct RVD sequences per group", {
 })
 
 test_that("a numeric group is shown with a G prefix", {
-  num <- transform(ann, group = as.integer(sub("G", "", group)))
+  num <- transform(ann, group = as.integer(sub("G", "", group, fixed = TRUE)))
   txt <- drawn_strings(talomes_heatmap(num, "group", "strain", "rvdseq"))
   expect_true("G1 #2" %in% txt)
 })
@@ -67,7 +67,8 @@ test_that("save_path writes the file and closes its device", {
     devs <- grDevices::dev.list()
     talomes_heatmap(ann, "group", "strain", "rvdseq", plot_type = type,
                     save_path = f)
-    expect_true(file.exists(f) && file.size(f) > 0, info = type)
+    expect_true(file.exists(f), info = type)
+    expect_gt(file.size(f), 0, label = type)
     expect_identical(grDevices::dev.list(), devs, info = type)
   }
 })
@@ -105,7 +106,8 @@ test_that("a tales object draws the same heatmap as its annotation table", {
 
   txt <- drawn_strings(talomes_heatmap(x, "group", "strain"))
   expect_true(all(c("G1 #2", "G2 #2") %in% txt))
-  expect_true(any(startsWith(txt, "S1 ")) && any(startsWith(txt, "S2 ")))
+  expect_true(any(startsWith(txt, "S1 ")))
+  expect_true(any(startsWith(txt, "S2 ")))
   for (type in c("all", "single")) {
     f_tales <- tempfile(fileext = ".png")
     f_tbl <- tempfile(fileext = ".png")

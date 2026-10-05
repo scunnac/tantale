@@ -36,7 +36,7 @@ test_that("tales_from_annotale() and tales_from_telltales() agree on the same TA
 test_that("tales_from_annotale() works without predict's GFF3, leaving out seqnames", {
   x <- tales_from_annotale(annotale_copy(with_gff = FALSE))
   expect_false("seqnames" %in% names(x))
-  expect_identical(length(unique(x$array_id)), 4L)
+  expect_length(unique(x$array_id), 4L)
 })
 
 test_that("a terminus unlike the TALE profile is coded XXXXX", {
@@ -80,5 +80,5 @@ test_that("a TALE in which AnnoTALE found no repeat is read with its two termini
   expect_identical(pseudo$domain_type, c("N-terminus", "C-terminus"))
   an <- tales_anomalies(x)
   expect_identical(an$check[an$array_id == "BAI3-1-1-tempTALE8"], "no_repeat")
-  expect_identical(length(unique(x$array_id)), 5L)
+  expect_length(unique(x$array_id), 5L)
 })

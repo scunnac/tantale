@@ -7,7 +7,7 @@ test_that("talvez output a tibble with the expected dims", {
                                                      package = "tantale", mustWork = T),
                         opt_param = "-t 0 -l 19",
                         conda_bin = "auto")
-  expect_true(identical(dim(talvezPreds), c(90L,9L)))
+  expect_identical(dim(talvezPreds), c(90L,9L))
 })
 
 
@@ -39,7 +39,7 @@ test_that("tales_predict_targets() matches calling the backend directly", {
   viaGeneric <- suppressMessages(tales_predict_targets(
     rvds, subj_file = subj, method = "talvez", opt_param = "-t 0 -l 19"
   ))
-  expect_equal(viaGeneric[names(direct)], direct)
+  expect_identical(viaGeneric[names(direct)], direct)
 })
 
 
@@ -62,7 +62,7 @@ test_that("preditale() returns the documented columns, one row per site", {
 })
 
 test_that("each predicted site covers position 0 plus one base per RVD", {
-  n_rvds <- lengths(strsplit(pt_preds$rvds, "-"))
+  n_rvds <- lengths(strsplit(pt_preds$rvds, "-", fixed = TRUE))
   expect_identical(as.integer(pt_preds$end - pt_preds$start + 1L),
                    as.integer(n_rvds + 1L))
   expect_identical(nchar(pt_preds$ebeSeq), as.integer(n_rvds + 1L))
@@ -110,7 +110,7 @@ test_that("plot_target_preds() draws one label per RVD and the DNA in the window
   expect_s3_class(p, "ggplot")
   expect_no_warning(ggplot2::ggplot_build(p))
   # the RVD layer: one cell per RVD, plus position 0
-  n_rvds <- length(strsplit(best$rvds, "-")[[1]])
+  n_rvds <- length(strsplit(best$rvds, "-", fixed = TRUE)[[1]])
   expect_identical(nrow(p$data), n_rvds + 1L)
   expect_equal(range(p$data$xPos), c(best$start, best$end))
   # the sequence layer: both strands over the whole window
@@ -120,7 +120,7 @@ test_that("plot_target_preds() draws one label per RVD and the DNA in the window
 
 test_that("plot_target_preds() refuses predictions made on other sequences", {
   wrong <- best
-  wrong$ebeSeq <- paste(rev(strsplit(wrong$ebeSeq, "")[[1]]), collapse = "")
+  wrong$ebeSeq <- paste(rev(strsplit(wrong$ebeSeq, "", fixed = TRUE)[[1]]), collapse = "")
   expect_error(plot_target_preds(wrong, subj_file = sweet, filter_range = window),
                class = "tantale_error_ebe_mismatch")
 })

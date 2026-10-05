@@ -10,17 +10,17 @@ test_that(".pairwise_align_biostrings output a tibble with the expected dims", {
   # path, just within the CRAN-safe limit, rather than dropping to the
   # single-worker default and testing nothing about parallelism at all.
   pair_align_scores <- .pairwise_align_biostrings(part_aa_set, ncores = 2)
-  expect_true(identical(dim(pair_align_scores), c(9216L,5L)))
+  expect_identical(dim(pair_align_scores), c(9216L,5L))
 })
 
 test_that(".pairwise_align_mmseq2 output a tibble with the expected dims", {
   pair_align_scores <- .pairwise_align_mmseq2(part_aa_set, conda_bin = "auto")
-  expect_true(identical(dim(pair_align_scores), c(9216L,19L)))
+  expect_identical(dim(pair_align_scores), c(9216L,19L))
 })
 
 test_that(".pairwise_align_decipher output a tibble with the expected dims", {
   pair_align_scores <- .pairwise_align_decipher(part_aa_set)
-  expect_true(identical(dim(pair_align_scores), c(9216L,3L)))
+  expect_identical(dim(pair_align_scores), c(9216L,3L))
 })
 
 # A 20-aa half-repeat that is an exact prefix of a 34-aa full repeat. DisTAL
@@ -41,7 +41,7 @@ test_that("all three backends count a half-repeat's missing residues once (§32.
     expect_true("dissim" %in% names(tbl))
     expect_equal(dissim_of(tbl, "half", "full"), 100 * 14 / 34, tolerance = 0.05)
     expect_equal(dissim_of(tbl, "full", "one_mismatch"), 100 * 1 / 34, tolerance = 0.05)
-    expect_equal(dissim_of(tbl, "full", "full"), 0)
+    expect_identical(dissim_of(tbl, "full", "full"), 0)
   }
 })
 

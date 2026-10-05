@@ -78,8 +78,8 @@ test_that("position = 'alignment' lays parts out on the alignment coordinate", {
   arrayLayout <- plot(back, position = "array")
   alignLayout <- plot(back, position = "alignment")
   # the aligned layout spans the alignment width; the array one only the longest array
-  expect_equal(max(alignLayout$data$.x), tales_msa_width(msa))
-  expect_equal(max(arrayLayout$data$.x), max(back$position_in_array))
+  expect_identical(max(alignLayout$data$.x), tales_msa_width(msa))
+  expect_identical(max(arrayLayout$data$.x), max(back$position_in_array))
   expect_gt(max(alignLayout$data$.x), max(arrayLayout$data$.x))
 })
 
@@ -104,9 +104,9 @@ test_that("facet_by chooses the panel columns", {
   x <- tales_quietly(out$tale_parts)
   x$strain <- sub("_ROI_.*", "", x$array_id)
   p <- plot(x, facet_by = "strain")
-  expect_identical(names(p$facet$params$rows), "strain")
+  expect_named(p$facet$params$rows, "strain")
   p <- plot(x, facet_by = c("strain", "seqnames"))
-  expect_identical(names(p$facet$params$rows), c("strain", "seqnames"))
+  expect_named(p$facet$params$rows, c("strain", "seqnames"))
   expect_s3_class(plot(x, facet_by = NULL)$facet, "FacetNull")
 })
 

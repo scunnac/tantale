@@ -217,7 +217,7 @@ talvez <- function(rvd_seqs, subj_file, opt_param = "-t 0 -l 19", output_dir = N
 
   # Formatting rvd sequences to fit the talvez format and write to tempfile
   rvdSeqsFileForTv <- tempfile(pattern = "rvdSeqsTalvez_", tmpdir = tempOutDir, fileext = ".tsv")
-  writeLines(text = paste(">", names(rvd_seqs), "\t", as.character(rvd_seqs), sep = ""),
+  writeLines(text = paste0(">", names(rvd_seqs), "\t", as.character(rvd_seqs)),
              con = rvdSeqsFileForTv)
   
   # Assembling and running talvez command
@@ -288,8 +288,8 @@ talvez <- function(rvd_seqs, subj_file, opt_param = "-t 0 -l 19", output_dir = N
   # Come up with some kind of a scoring function for these comparaison (best = 3, worst = 1, intermediate = 2)
   # Attribute a score refecting how well the RVD match the nucleotide.
   # Return a vector of match quality scores of lenght equal to the number of RVDs - Nucleotide pairs in input sequences
-  RVDSeqVector <- unlist(stringr::str_split(rvd_seq, pattern = "-"))
-  EBESeqVector <- unlist(stringr::str_split(ebe_seq, pattern = ""))
+  RVDSeqVector <- unlist(stringr::str_split(rvd_seq, pattern = stringr::fixed("-")))
+  EBESeqVector <- unlist(strsplit(ebe_seq, "", fixed = TRUE))
   if (length(RVDSeqVector) != length(EBESeqVector)) {
     cli::cli_abort(
       c("The RVD and DNA sequences describe different numbers of positions.",
@@ -428,12 +428,12 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
       tibble::tibble(
         # RVDs stay in TALE order on both strands: on the minus strand xPos
         # runs from end to start, which pairs RVD 1 with the EBE's 5' base
-        rvd = unlist(stringr::str_split(.y$rvds, pattern = "-")),
+        rvd = unlist(stringr::str_split(.y$rvds, pattern = stringr::fixed("-"))),
         xPos = if(.y$strand == "+") .y$start:.y$end else .y$end:.y$start,
         rvd2ntMatchScore = .compute_match_string(rvd_seq = .y$rvds, ebe_seq = .y$ebeSeq)
       )
     }) %>%
-    dplyr::mutate(rvd = vapply(stringr::str_split(string = rvd, pattern = ""), paste, character(1), collapse = "\n"))
+    dplyr::mutate(rvd = vapply(strsplit(rvd, "", fixed = TRUE), paste, character(1), collapse = "\n"))
 
   # Create a derived tibble to add prediction scores and EBE box to the plot
   predsForScoreAndEbe <- predsForPlot %>% dplyr::group_by(subjSeqId, taleId, ebeSeq, score, strand, yPos) %>%
@@ -461,7 +461,7 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
                         colour = "grey30",
                         linewidth = 0.2,
                         fill = .tol_muted[["sand"]],
-                        alpha = 0.3,
+                        alpha = 0.3
     ) +
 
     ggplot2::geom_text(data = relevantTidySubjSeqs, #<--------- double stranded DNA sequence
@@ -544,7 +544,7 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
   aln <- msa
   alnmat <- lapply(seq_along(aln), function(i) {
     ##Preventing function collisions
-    base::strsplit(as.character(aln[[i]]), '')[[1]]
+    base::strsplit(as.character(aln[[i]]), '', fixed = TRUE)[[1]]
   }) %>% do.call('rbind', .)
   ## for DNAbin and AAbin
   alndf <- as.data.frame(alnmat, stringsAsFactors = FALSE)
@@ -555,15 +555,15 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
     cli::cli_abort("Sequences must have unique names.",
                    class = c("tantale_error_duplicate_names", "tantale_error"))
   }
-  cn = colnames(alndf)
-  cn <- cn[!cn %in% "name"]
+  cn <- colnames(alndf)
+  cn <- cn[cn != "name"]
   df <- tidyr::gather(alndf, "position", "character", cn)
   
   y <- df
-  y$position = as.numeric(sub("V", "", y$position))
-  y$character = toupper(y$character)
+  y$position <- as.numeric(sub("V", "", y$position, fixed = TRUE))
+  y$character <- toupper(y$character)
   
-  y$name = factor(y$name, levels=rev(names(aln)))
+  y$name <- factor(y$name, levels=rev(names(aln)))
   
   
   if (is.null(start)) start <- min(y$position)

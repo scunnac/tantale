@@ -53,7 +53,7 @@ test_that(".rvd_to_match_align() runs against the internal rvdSimDf", {
   m[is.na(m)] <- "NG"
   out <- tantale:::.rvd_to_match_align(m)
   expect_true(is.matrix(out))
-  expect_equal(dim(out), dim(m))
+  expect_identical(dim(out), dim(m))
   expect_type(out, "double")
 })
 

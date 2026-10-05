@@ -50,7 +50,7 @@ test_that("disjoint array_id across inputs binds cleanly", {
   out <- tales_bind(a, b)
   expect_s3_class(out, "tales")
   expect_setequal(out$array_id, c("A1", "A2"))
-  expect_equal(nrow(out), nrow(a) + nrow(b))
+  expect_identical(nrow(out), nrow(a) + nrow(b))
 })
 
 
@@ -101,7 +101,7 @@ test_that("a shared namespace binds without recoding", {
   # codes unchanged from the shared coding -- a and b are disjoint row
   # subsets of coded, in the same relative order, so binding them back
   # reproduces it exactly.
-  expect_equal(as.data.frame(out), as.data.frame(coded))
+  expect_identical(as.data.frame(out), as.data.frame(coded))
 })
 
 test_that("mismatched namespaces recode dom_code by default, with a message", {
@@ -113,7 +113,7 @@ test_that("mismatched namespaces recode dom_code by default, with a message", {
   expect_false(identical(tales_namespace(out), tales_namespace(a)))
   expect_false(identical(tales_namespace(out), tales_namespace(b)))
   # a fresh, one-to-one code <-> sequence correspondence over the union
-  expect_equal(dplyr::n_distinct(out$dom_code), dplyr::n_distinct(out$aa_seq))
+  expect_identical(dplyr::n_distinct(out$dom_code), dplyr::n_distinct(out$aa_seq))
 })
 
 test_that("on_namespace_mismatch = 'error' aborts instead of recoding", {

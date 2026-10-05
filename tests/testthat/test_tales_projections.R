@@ -279,6 +279,6 @@ test_that("arrays come out in C-locale order whatever the session's collation", 
   expect_identical(Sys.getlocale("LC_COLLATE"), "en_US.UTF-8")
   expect_identical(sort(unique(x$array_id))[1], "BAI3_ROI_00001")
   expected <- c("BAI3-1-1_ROI_00001", "BAI3_ROI_00001")
-  expect_identical(names(tales_rvd_strings(x)), expected)
-  expect_identical(names(tales_rvd_strings(x, repeats_only = FALSE)), expected)
+  expect_named(tales_rvd_strings(x), expected)
+  expect_named(tales_rvd_strings(x, repeats_only = FALSE), expected)
 })

@@ -442,8 +442,6 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
     for (j in seq_len(ncol(distalRepeatDist))) {
       if (is.na(distalRepeatDist[i, j])) {
         distalRepeatDist[i, j] <- distalRepeatDist[j, i]
-      } else {
-        next()
       }
     }
   }
@@ -571,7 +569,7 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
   mafftHexOutFile <- tempfile(pattern = "mafftHexOutFile")
 
   # This is the data frame that will enable conversion of RVDs to Hexadecimal codes
-  asciitable = data.frame(hex = as.raw(1:255),
+  asciitable <- data.frame(hex = as.raw(1:255),
                           printable =rawToChar(as.raw(1:255),multiple=TRUE),
                           stringsAsFactors = FALSE)
   mafftExcludedHex <- as.raw(c(0x0, 0x3E, 0x3D, 0x3C, 0x2D, 0x20, 0x0d, 0x0a))
@@ -608,14 +606,14 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
     repeatType <- "repeatUnit"
   } else {
     frequentRvds <- c("NN", "NG", "HD", "NI", "N*", "NS")
-    if(! any(residues %in% frequentRvds)) {
+    if (any(residues %in% frequentRvds)) {
+      cli::cli_inform("Input sequences are detected as RVD sequences.")
+      repeatType <- "rvds"
+    } else {
       cli::cli_inform(paste0("Will be assuming sequences contain repeat unit codes because ",
                        "none of the RVDs obtained from input sequences matches ",
                        "a list of 'frequent RVDs': {paste(frequentRvds, collapse = ' ')}"))
       repeatType <- "repeatUnit"
-    } else {
-      cli::cli_inform("Input sequences are detected as RVD sequences.")
-      repeatType <- "rvds"
     }
   }
   if( length(residues) > nrow(asciitableForMafft) ) {
@@ -755,7 +753,7 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
   } else {
   }
   #cat(as.character(msaOfHex), sep = "\n")
-  msaAsHexVectors <- stringr::str_split(as.character(msaOfHex), pattern = " ")
+  msaAsHexVectors <- stringr::str_split(as.character(msaOfHex), pattern = stringr::fixed(" "))
   msaAsHexVectors <- lapply(msaAsHexVectors, function(x) x[-length(x)]) # Remove last "" element
   #cat(knitr::kable(t(matrix(msaAsHexVectors))), sep = " ")
   msaOfResiduesAsMatrix <- t(

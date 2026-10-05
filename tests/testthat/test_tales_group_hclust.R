@@ -12,8 +12,8 @@ expect_grouped <- function(out, k = NULL) {
   # group is an array-level property: constant within each array
   perArray <- tapply(out$group, out$array_id, function(z) length(unique(z)))
   testthat::expect_true(all(perArray == 1L))
-  testthat::expect_equal(length(unique(out$array_id)), nTales)
-  if (!is.null(k)) testthat::expect_equal(length(unique(out$group)), k)
+  testthat::expect_length(unique(out$array_id), nTales)
+  if (!is.null(k)) testthat::expect_length(unique(out$group), k)
   invisible(out)
 }
 
@@ -42,7 +42,7 @@ test_that("cutree(k=) never fails on a tied tree, unlike the old bisection searc
     5, 5, 2, 0
   ), 4, 4, dimnames = list(c("T1", "T2", "T3", "T4"), c("T1", "T2", "T3", "T4")))
   tree <- stats::hclust(stats::as.dist(d), method = "ward.D")
-  expect_equal(tree$height[1], tree$height[2]) # the tie this test relies on
+  expect_identical(tree$height[1], tree$height[2]) # the tie this test relies on
 
   cuts <- stats::cutree(tree, k = 3)
   expect_length(unique(cuts), 3L)
@@ -72,7 +72,7 @@ test_that("clusters the distance matrix directly, not the Euclidean distance bet
   grp <- tales_group_hclust(fake_tls, fake_sim, k = 2)
   out <- unique(as.data.frame(grp)[c("array_id", "group")])
   abc <- out$group[out$array_id %in% c("A", "B", "C")]
-  expect_true(length(unique(abc)) == 1L)
+  expect_length(unique(abc), 1L)
   expect_false(out$group[out$array_id == "D"] %in% abc)
 })
 
@@ -112,5 +112,5 @@ test_that("needs a tales object", {
 test_that("the bare mapping is recoverable from the returned object", {
   out <- tales_group_hclust(tls, tale_dist, k = 3)
   mapping <- unique(as.data.frame(out)[c("array_id", "group")])
-  expect_equal(nrow(mapping), nTales)
+  expect_identical(nrow(mapping), nTales)
 })

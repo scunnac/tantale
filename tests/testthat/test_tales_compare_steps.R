@@ -28,7 +28,7 @@ test_that("tales_assign_domain_codes() gives one code per distinct sequence", {
   expect_true("dom_code" %in% names(out))
   expect_false(anyNA(out$dom_code))
   # the defining property: code <-> sequence is one to one
-  expect_equal(dplyr::n_distinct(out$dom_code), dplyr::n_distinct(out$aa_seq))
+  expect_identical(dplyr::n_distinct(out$dom_code), dplyr::n_distinct(out$aa_seq))
   bySeq <- tapply(out$dom_code, out$aa_seq, function(z) length(unique(z)))
   expect_true(all(bySeq == 1L))
 })
@@ -38,7 +38,7 @@ test_that("tales_assign_domain_codes() codes termini as well as repeats", {
   # parts like the repeats are, and get codes too.
   out <- tales_assign_domain_codes(cmp_fixture())
   coded <- out$dom_code[out$domain_type != "repeat"]
-  expect_true(length(coded) > 0L)
+  expect_gt(length(coded), 0L)
   expect_false(anyNA(coded))
 })
 
@@ -148,7 +148,7 @@ test_that("the three steps reproduce tales_compare_distal()", {
   dd <- suppressMessages(tales_domain_distances(coded))
   td <- suppressMessages(tales_tale_distances(coded, dd))
 
-  expect_equal(as.data.frame(whole$tales), as.data.frame(coded))
-  expect_equal(as.data.frame(whole$domain_distances), as.data.frame(dd))
-  expect_equal(as.data.frame(whole$tale_distances), as.data.frame(td))
+  expect_identical(as.data.frame(whole$tales), as.data.frame(coded))
+  expect_identical(as.data.frame(whole$domain_distances), as.data.frame(dd))
+  expect_identical(as.data.frame(whole$tale_distances), as.data.frame(td))
 })

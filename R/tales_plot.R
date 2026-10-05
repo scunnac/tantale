@@ -380,8 +380,8 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
       dplyr::as_tibble()
     colnames(rvdAlignLong) <- c("array_id", "alignment_position", "rvd")
     rvdAlignLong <- rvdAlignLong %>% dplyr::mutate(array_id = as.character(array_id),
-                                    rvd = gsub("NTERM", "N-", rvd),
-                                    rvd = gsub("CTERM", "-C", rvd)
+                                    rvd = gsub("NTERM", "N-", rvd, fixed = TRUE),
+                                    rvd = gsub("CTERM", "-C", rvd, fixed = TRUE)
     )
     
     # Tale rvd text color if possible: coloring of RVDs in alignment depending
@@ -636,7 +636,7 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
   # Merge tree and align
   if (exists("taleshclust")) {
     t <- ggtree::ggtree(ape::as.phylo(taleshclust))
-    finalPlot <- p %>% aplot::insert_left(t, width = .08)
+    finalPlot <- p %>% aplot::insert_left(t, width = 0.08)
   } else {
     finalPlot <- p
   }
@@ -703,8 +703,8 @@ plot.tales_msa <- function(x, fill = NULL, label = NULL,
 #' @noRd
 .consensus_panel <- function(align, n_positions, pad = FALSE) {
   cons <- tales_consensus(align)
-  cons <- gsub("NTERM", "N-", cons)
-  cons <- gsub("CTERM", "-C", cons)
+  cons <- gsub("NTERM", "N-", cons, fixed = TRUE)
+  cons <- gsub("CTERM", "-C", cons, fixed = TRUE)
   if (isTRUE(pad)) cons <- stringr::str_pad(cons, 3, "left")
   df <- tibble::tibble(position_in_array = seq_along(cons),
                        array_id = "Consensus",

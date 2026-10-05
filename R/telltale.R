@@ -131,7 +131,7 @@
 
   lines <- lapply(files, function(f) readLines(con = f))
   names <- unlist(lapply(lines, function(x) {
-    hmmName <- grep("NAME", x, perl = TRUE, value = TRUE)
+    hmmName <- grep("NAME", x, fixed = TRUE, value = TRUE)
     hmmName <- unlist(strsplit(hmmName, split = "\\s+"))
     if (length(hmmName) != 2) {
       cli::cli_abort(
@@ -275,7 +275,7 @@
         g, reduced, minoverlap = 2, type = "within", ignore.strand = FALSE, select = "all")) %>%
       dplyr::group_by(subjectHits) %>%
       dplyr::group_map({
-        ~ paste0(g[as.numeric(.x$queryHits)]$hit_id, collapse = "|")
+        ~ paste(g[as.numeric(.x$queryHits)]$hit_id, collapse = "|")
       }) %>%
       unlist()
     reduced$nhmmer_hit_id <- formerIDs
@@ -548,9 +548,7 @@
     colnames(info) <- c("variable","value")
     for (talOrfID in seq_along(lst)) {
       element <- lst[talOrfID]
-      if (length(unlist(element)) == 0L) {
-        next()
-      } else {
+      if (length(unlist(element)) > 0L) {
         info <- info %>% dplyr::bind_rows(tibble::tibble(variable = names(element), value = as.numeric(unlist(element))))
       }
     }
@@ -1014,7 +1012,7 @@
   ## Write a fasta file of the seqs of RVDs
   rvds <- Biostrings::BStringSet(S4Vectors::mcols(by_array)$rvd_string)
   names(rvds) <- S4Vectors::mcols(by_array)$array_id
-  rvds <- rvds[!Biostrings::width(rvds) == 0]
+  rvds <- rvds[Biostrings::width(rvds) != 0]
   Biostrings::writeXStringSet(x = rvds, paths$rvd_sequences)
 
   arrayReport

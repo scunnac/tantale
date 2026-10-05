@@ -58,7 +58,7 @@ test_that("tales_compare_functal() is exactly compare_motifs() on this conversio
   expected <- 1 - as.vector(sim)
   actual <- out$dissim[match(paste(rownames(sim)[row(sim)], rownames(sim)[col(sim)]),
                              paste(out$id1, out$id2))]
-  expect_equal(actual, expected)
+  expect_identical(actual, expected)
 })
 
 
@@ -87,7 +87,7 @@ test_that("the result plugs directly into tales_group_hclust()", {
   out <- tales_compare_functal(x)
   grp <- tales_group_hclust(x, out, k = 2)
   expect_s3_class(grp, "tales")
-  expect_equal(length(unique(grp$group)), 2L)
+  expect_length(unique(grp$group), 2L)
 })
 
 test_that("needs a tales object", {
@@ -118,7 +118,7 @@ test_that("an RVD absent from the specificity table is scored, not dropped", {
   )
   x <- suppressWarnings(tales(df))
   expect_no_error(out <- tales_compare_functal(x))
-  expect_equal(nrow(out), 4L)
+  expect_identical(nrow(out), 4L)
 })
 
 test_that("the RVD NA has its own row, not the flat fallback", {
@@ -127,7 +127,7 @@ test_that("the RVD NA has its own row, not the flat fallback", {
   spec <- tantale::rvd_dna_specificity
   expect_false(anyNA(spec$rvd))
   expect_true("NA" %in% spec$rvd)
-  expect_equal(unname(.functal_pwm("NA")[, 1]), c(1, 2, 1, 0))
+  expect_identical(unname(.functal_pwm("NA")[, 1]), c(1, 2, 1, 0))
 })
 
 test_that("an all-terminus array (no repeats) errors rather than being silently dropped", {

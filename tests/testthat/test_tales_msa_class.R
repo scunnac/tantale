@@ -80,7 +80,7 @@ test_that("gaps are absent rows, so arrays may have different row counts", {
 test_that("as.matrix() materialises the grid with NA gaps", {
   x <- tales_msa(minimal_msa_df())
   m <- as.matrix(x)
-  expect_equal(dim(m), c(2L, 4L))
+  expect_identical(dim(m), c(2L, 4L))
   expect_setequal(rownames(m), c("a1", "a2"))
   expect_identical(m["a1", ], c("1" = "NTERM", "2" = "NI", "3" = "HD", "4" = NA))
   expect_identical(m["a2", "2"], NA_character_)   # the implicit gap

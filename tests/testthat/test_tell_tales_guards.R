@@ -69,7 +69,7 @@ test_that("min_array_length drops only the arrays below it", {
 
   report <- readr::read_tsv(file.path(out, "array_report.tsv"),
                             show_col_types = FALSE, progress = FALSE)
-  expect_equal(nrow(report), 3L)
+  expect_identical(nrow(report), 3L)
 })
 
 test_that("min_array_length counts repeats, not all hits", {
@@ -132,7 +132,7 @@ test_that("too low a max_comparisons degrades the correction", {
     r$predicted_ins_count + r$predicted_dels_count
   }
   uncapped <- run(NULL)
-  expect_equal(run(10), uncapped)          # enough of the 20 to be reached
+  expect_identical(run(10), uncapped)          # enough of the 20 to be reached
   expect_false(isTRUE(all.equal(run(2), uncapped)))  # not enough
   expect_gt(sum(run(2)), sum(uncapped))    # and it errs by over-correcting
 })

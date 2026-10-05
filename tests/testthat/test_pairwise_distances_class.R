@@ -31,7 +31,7 @@ test_that("the subclasses add semantics but no structure", {
   expect_s3_class(domain_distances(df), "domain_distances")
   expect_s3_class(domain_distances(df), "pairwise_distances")
   # identical payload, differing only in class
-  expect_equal(as.data.frame(tale_distances(df)), as.data.frame(domain_distances(df)))
+  expect_identical(as.data.frame(tale_distances(df)), as.data.frame(domain_distances(df)))
 })
 
 
@@ -94,7 +94,7 @@ test_that("filtering both id columns keeps a table square", {
 test_that("as.matrix() builds the square matrix with sorted dimnames", {
   x <- pairwise_distances(minimal_distances_df())
   m <- as.matrix(x)
-  expect_equal(dim(m), c(3L, 3L))
+  expect_identical(dim(m), c(3L, 3L))
   expect_identical(rownames(m), c("a", "b", "c"))
   expect_identical(colnames(m), c("a", "b", "c"))
   expect_identical(diag(m), c(a = 0, b = 0, c = 0))
@@ -108,7 +108,7 @@ test_that("as.matrix() matches the acast() call it replaces", {
   # own definition above.
   expected <- matrix(c(0, 50, 50, 50, 0, 50, 50, 50, 0), nrow = 3,
                       dimnames = list(c("a", "b", "c"), c("a", "b", "c")))
-  expect_equal(as.matrix(x), expected)
+  expect_identical(as.matrix(x), expected)
 })
 
 test_that("as.matrix() errors on a non-square table and on a missing column", {
@@ -173,8 +173,8 @@ test_that("the real distalr similarity tables validate", {
   # both are complete squares, as recorded in the design doc
   expect_silent(distances_assert_square(rs))
   expect_silent(distances_assert_square(ts))
-  expect_equal(dim(as.matrix(rs)), c(251L, 251L))
-  expect_equal(dim(as.matrix(ts)), c(44L, 44L))
+  expect_identical(dim(as.matrix(rs)), c(251L, 251L))
+  expect_identical(dim(as.matrix(ts)), c(44L, 44L))
 })
 
 test_that("as.matrix() reproduces what the existing call sites compute", {

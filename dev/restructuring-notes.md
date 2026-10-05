@@ -3943,3 +3943,133 @@ over the pushed branch: a tag pinning one commit, since `main` had moved
 24 commits under the same version number). macOS check dispatched,
 `macos-15-intel`, run 37242907805; result not yet read.
 
+
+## 58. macOS check, first run (2026-10-05) **[P]**
+
+Run 37242907805 (`macos-15-intel`, on b090fd5) failed on all three R
+versions. Three separate causes, read from the job logs:
+- **gdtools binary needs XQuartz.** `plot.tales_msa()` with a tree panel
+  and `tales_group_hclust(plot_tree = TRUE)` load ggtree, whose chain
+  loads `gdtools.so`, linked against `/opt/X11/lib/libXrender.1.dylib`;
+  the runner has no XQuartz. Three tests (R release, oldrel-1). R devel
+  passes them. A runner setup matter: install XQuartz in the macOS job.
+- **R oldrel-1 segfaults** later, in a `dyn.load()` called by pillar while
+  formatting a tibble, after "stack imbalance" warnings that follow the
+  failed loads. Probably a consequence of the failed `dyn.load()`;
+  recheck once XQuartz is installed.
+- **Three golden failures on every version.** (i) `tales_compare_distal()`
+  on four arrays: `domain_distances`, column `dissim`, 43 distinct values
+  on Linux, 38 on macOS; `tales` identical. (ii) and (iii) both
+  `tell_tales()` runs: `n_terminus_aa_alignment.html` differs in content,
+  same line count. Both outputs come from `DECIPHER::AlignSeqs()` (the
+  default `aln_method = "DECIPHER"` of the domain distances, and
+  `.telltale_align_termini()`, which writes the HTML with `BrowseSeqs()`);
+  MAFFT and HMMER are not involved. Suspects: a different DECIPHER version
+  in the macOS binaries (3.8.0 here), or platform-dependent arithmetic
+  inside DECIPHER. A first guess, `ceiling()` in `.arlem_cost_matrix()`,
+  was rejected before the failing table was identified correctly.
+- **Diagnostic run (Q154, agreed):** branch `ci-macos-diag` (temporary,
+  delete once the cause is known) carries the XQuartz step in
+  `R-CMD-check.yaml` and a workflow `diag-macos-golden.yaml` that dumps,
+  on Linux and macOS, package versions, the conda list, the four-array
+  `domain_distances`/`tale_distances`/ARLEM costs at 17 digits and the
+  golden `n_terminus_aa_alignment.html`, uploaded as artifacts. Runs
+  37290907358 (diagnostic) and 37290907077 (R CMD check, macOS, on the
+  branch). Local Linux reference produced with the same script.
+
+- **Diagnostic result (run 37290907358).** Same versions on both runners
+  (R 4.6.1, DECIPHER 3.8.1, Biostrings 2.80.2; MAFFT 7.453 and HMMER
+  3.3.2, platform builds). Linux CI reproduces the local values exactly.
+  On macOS, 328 of 2304 `domain_distances` pairs differ, by up to 0.53
+  (one alignment column on ~264), and the N-terminus protein alignment
+  differs on three lines (`ROI_00001` and two consensus lines). So
+  `DECIPHER::AlignSeqs()` places some gaps differently on macOS with the
+  same version: platform arithmetic inside DECIPHER (compiler, floating
+  point tie-breaks). The ARLEM costs differ as a consequence, yet
+  `tale_distances` is identical on both. Both alignments are valid; the
+  golden baseline is what cannot be shared. Proposed: per-platform
+  snapshots (`expect_snapshot_value(variant = )`) for the DECIPHER-based
+  golden expectations, the macOS variant taken from the check's uploaded
+  snapshots (Q159).
+
+## 59. `ROI_00019` of PXO86: C-terminus evidence at the DNA level (2026-10-05) **[P]**
+
+Maintainer: the truncTALE article shows `ROI_00019` with a C-terminus
+protein hit (`cterm_aa_evalue` 5.9e-18, code `CTERM`) and
+`cterm_dna_hit = FALSE`; how can both hold? Reopens the cut-off for
+`NTERM`/`CTERM` against `XXXXX` (§42).
+
+Checked by running `tell_tales()` on PXO86 with `cterm_min_score` 200
+(default) and 0. nhmmer does find the C-terminus profile on DNA downstream
+of the last repeat (array on the minus strand, 2812633-2815116), in two
+adjacent pieces:
+- profile 1-97 at 2812653-2812557, 94.3 bits, E 3.4e-27;
+- profile 783-861 at 2812559-2812482, 56.1 bits, E 1.1e-15.
+
+Both are below `cterm_min_score = 200`, so neither reaches
+`hits_report.tsv` and `cterm_dna_hit` is `FALSE`. All other C-terminus
+hits in the genome score 228-1115 bits (complete ones ~1100). The
+profile positions skipped between the two pieces (98-782, 685 nt) are not
+a multiple of three. Translation agrees: AnnoTALE's 43-residue segment is
+`SIVAQLSRRDPALAALTNDQLVALACLGGRPA` (canonical start of the C-terminal
+region) followed by `PHSRKRKSHD*`; the second piece, read in another
+frame, gives `PAFKEEEIA*LMELLPQ`, the canonical end of the TALE
+C-terminus (`...PAFNEEELAWLMELLPQ`) with a stop in place of the Trp.
+So the locus carries the two ends of a C-terminus joined by a
+frame-shifting deletion of ~685 nt. Whether this describes the genuine
+gene is the maintainer's call.
+
+Consequences:
+- The article's "nothing downstream of its last repeat resembles a TALE
+  C-terminus to any of the three profiles" is wrong (Q151).
+- The two flags measure different things at different stringency:
+  `cterm_dna_hit` is a bit-score cut-off of nhmmer on the genome, tuned
+  for discovery (200 bits, about a fifth of a complete C-terminus);
+  `cterm_aa_hit` is an E-value on hmmsearch over a handful of protein
+  segments, where a 37-residue match passes easily (Q152, Q153).
+
+## 60. rOpenSci #813: first editor reply and the bot's pkgcheck (2026-10-05) **[P]**
+
+Adam Sparks (editor, 2026-10-05 06:08 UTC) ran `@ropensci-review-bot
+check package` (report 2026-10-04 23:57), is discussing the fit with the
+editorial team, and asks to run goodpractice locally, singling out the
+"duplicate arguments" lints as severe. Items the bot marks blocking:
+- **R CMD check error, coverage failed:** 76 test failures, all from the
+  absent external tools (the case the inquiry asked about). 64 of them
+  surface as reticulate's base `stop()` "Unable to find conda binary",
+  wrapped in a `%in%` evaluation error, from `.create_tantale_env()`
+  (`R/tantale_conda_env.R`); 7 are tantale's own
+  `tantale_error_tool_missing`. The 64 deserve the same cli condition.
+- **`\dontrun{}`** in `run_annotale_load_classes()` and
+  `run_annotale_assign()`, whose examples also write to the working
+  directory (`output_dir = "annotale_classes"`).
+- **Unused internal functions, unreachable URLs:** urlchecker finds only
+  `doi.org/10.1142/S0219720009004060` (World Scientific answers 403 to
+  scripts; the link works in a browser). The unused functions were
+  false positives in §44 (S3 methods, `%||%`, a fixture builder).
+- **The 20 duplicate arguments** (rechecked with lintr): all repeated
+  `"i"`/`"x"` names in cli bullet vectors, which is how cli takes several
+  bullets. The two "missing argument" lints are trailing commas
+  (`R/distalr.R:465`, `R/target_predictions.R:465`).
+
+**Maintainer, 2026-10-05: Q155-Q158 yes.** Done the same day, local
+commits on `main` (version 0.99.0.9000, NEWS entry for the conda error):
+- Q155: `.tantale_env_prefix()` checks `reticulate::conda_binary()` first
+  and aborts with `tantale_error_tool_missing`, pointing to
+  `tantale_setup(install = TRUE, conda = TRUE)`; test in
+  `test_tantale_setup.R`.
+- Q156: both examples write under `tempfile()`; the trailing commas are
+  gone. `\dontrun{}` kept for now: under `--run-donttest` (CI, and
+  `--as-cran`) the two examples would add the catalogue download twice
+  (~15 min each, plus the assignment, ~9 min) to every check job, and R
+  devel already takes ~57 of its 120 minutes (Q160).
+- Q157: lint pass with lintr 3 on the goodpractice categories, 66 edits
+  plus 77 `expect_equal()` -> `expect_identical()`. The 11
+  `expect_equal()` left compare integers with doubles (`nrow()` against
+  `n^2`, `choose()`, ARLEM ids). Left on purpose: the 21 duplicate-argument
+  lints (cli bullets), `length(unique()) == nrow()` in `summary.tales`
+  (a count, not a duplicate test), the URL built with `paste(sep = "/")`,
+  one `<<-` in a calling handler, `%in% TRUE` (NA-safe on purpose),
+  `:::` in tests, line length. Full suite after the pass: only the 11
+  type-strict expectations failed, since reverted; golden 46/46.
+- Q158: draft reply in the session, for the maintainer to post.

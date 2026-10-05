@@ -286,7 +286,7 @@ as_tales.default <- function(x, sep = "-", residue_col = c("rvd", "dom_code"), .
 
   out <- tibble::tibble(
     array_id = rep(names(seqs), lengths(seqs)),
-    position_in_array = unlist(lapply(lengths(seqs), seq_len), use.names = FALSE),
+    position_in_array = sequence(lengths(seqs)),
     residue = unlist(seqs, use.names = FALSE)
   )
   names(out)[names(out) == "residue"] <- residue_col

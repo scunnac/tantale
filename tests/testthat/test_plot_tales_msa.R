@@ -92,8 +92,8 @@ test_that(".consensus_panel() reproduces tales_consensus(), with terminus relabe
   skip_if_not(file.exists(test_path("data_for_tests", "sampleRepeatMsaByGroup.rds")))
   m <- readRDS(test_path("data_for_tests", "sampleRepeatMsaByGroup.rds"))[[4]]
   expected <- tales_consensus(m)
-  expected <- gsub("NTERM", "N-", expected)
-  expected <- gsub("CTERM", "-C", expected)
+  expected <- gsub("NTERM", "N-", expected, fixed = TRUE)
+  expected <- gsub("CTERM", "-C", expected, fixed = TRUE)
   panel <- tantale:::.consensus_panel(m, n_positions = ncol(m))
   expect_identical(panel$data$label, expected)
 })
@@ -154,9 +154,9 @@ test_that("an RVD outside the similarity table scores 1 only where identical", {
              b   = c("NTERM", "NG", "NV", "NI", NA))
   colnames(m) <- 1:5
   sc <- tantale:::.rvd_to_match_align(m, ref_tag = "ref")
-  expect_equal(unname(sc["a", ]), c(NA, 1, NA, NA, NA))
-  expect_equal(unname(sc["b", ]), c(NA, NA, 1, 1, NA))
-  expect_equal(unname(sc["ref", ]), c(NA, 1, 1, 1, NA))
+  expect_identical(unname(sc["a", ]), c(NA, 1, NA, NA, NA))
+  expect_identical(unname(sc["b", ]), c(NA, NA, 1, 1, NA))
+  expect_identical(unname(sc["ref", ]), c(NA, 1, 1, 1, NA))
 })
 
 test_that("rvd_sim needs a labelled RVD layer", {
@@ -179,10 +179,10 @@ test_that("the tree panel is built from a plain table or a tale_distances", {
   canonical <- suppressMessages(plot(msa, tale_distances = tale_distances(d$tal.similarity)))
   expect_s3_class(plain, "aplot")
   # a tree panel was actually added, not silently skipped
-  expect_true(any(vapply(plain$plotlist, function(p) inherits(p, "ggtree"), logical(1))))
+  expect_true(any(vapply(plain$plotlist, inherits, logical(1), what = "ggtree")))
 
   tips <- function(p) {
-    tr <- p$plotlist[[which(vapply(p$plotlist, function(q) inherits(q, "ggtree"), logical(1)))]]
+    tr <- p$plotlist[[which(vapply(p$plotlist, inherits, logical(1), what = "ggtree"))]]
     tr$data$label[tr$data$isTip][order(tr$data$y[tr$data$isTip])]
   }
   expect_identical(tips(plain), tips(canonical))

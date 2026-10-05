@@ -22,7 +22,7 @@ test_that("the consensus does not depend on the order of the arrays", {
 
 test_that("matches are TRUE/FALSE, NA where there is no consensus, gaps never match", {
   m <- tales_consensus_match(aln, long = FALSE)
-  expect_true(is.logical(m))
+  expect_type(m, "logical")
   expect_identical(dimnames(m), dimnames(aln))
   expect_identical(unname(m[, 1]), c(TRUE, TRUE, FALSE))
   expect_true(all(is.na(m[, 2])))

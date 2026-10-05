@@ -62,7 +62,7 @@ test_that("the fixture is what its answer key says it is", {
   # the frameshifted copy is its twin plus exactly one base
   w <- Biostrings::width(seqs)
   names(w) <- names(seqs)
-  expect_equal(unname(w[["toy_frameshift"]]), unname(w[["toy_intact"]]) + 1L)
+  expect_identical(unname(w[["toy_frameshift"]]), unname(w[["toy_intact"]]) + 1L)
   # and identical to it up to the insertion point
   at <- truth$insertion_at[truth$seqname == "toy_frameshift"]
   expect_identical(
@@ -90,7 +90,7 @@ test_that("the inserted base truncates the ORF when correction is off", {
   expect_gt(intact$orf_coverage, shifted$orf_coverage)
   # both still found as arrays -- the frameshift breaks the ORF, not the
   # HMMER-level detection of the repeats
-  expect_equal(intact$n_dna_hits, shifted$n_dna_hits)
+  expect_identical(intact$n_dna_hits, shifted$n_dna_hits)
 })
 
 
@@ -102,8 +102,8 @@ test_that("correction recovers the intact TALE from the frameshifted copy", {
   shifted <- a[a$seqnames == "toy_frameshift", ]
 
   expect_identical(shifted$rvd_string, intact$rvd_string)
-  expect_equal(shifted$longest_orf_length, intact$longest_orf_length)
-  expect_equal(shifted$orf_coverage, intact$orf_coverage)
+  expect_identical(shifted$longest_orf_length, intact$longest_orf_length)
+  expect_identical(shifted$orf_coverage, intact$orf_coverage)
 })
 
 
@@ -116,6 +116,6 @@ test_that("correction charges the extra base to the frameshifted copy", {
   intact <- a[a$seqnames == "toy_intact", ]
   shifted <- a[a$seqnames == "toy_frameshift", ]
 
-  expect_equal(shifted$predicted_ins_count, intact$predicted_ins_count + 1L)
-  expect_equal(shifted$predicted_dels_count, intact$predicted_dels_count)
+  expect_identical(shifted$predicted_ins_count, intact$predicted_ins_count + 1L)
+  expect_identical(shifted$predicted_dels_count, intact$predicted_dels_count)
 })

@@ -96,7 +96,7 @@ tales_requirements <- function() {
     tibble::tibble(
       fn = fn,
       requirement = present,
-      columns = vapply(present, function(k) paste(req[[k]], collapse = ", "), character(1))
+      columns = vapply(present, function(k) toString(req[[k]]), character(1))
     )
   })
   out <- do.call(rbind, rows)

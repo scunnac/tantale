@@ -8,7 +8,7 @@ test_that("an array without an N-terminus part is kept, renumbered from its firs
   roi4 <- talParts[talParts$array_id == "ROI_00004", ]
   expect_false("N-terminus" %in% roi4$domain_type)
   expect_identical(roi4$domain_type[1], "repeat")
-  expect_equal(sort(roi4$position_in_array), seq_len(nrow(roi4)))
+  expect_identical(sort(roi4$position_in_array), seq_len(nrow(roi4)))
   expect_identical(roi4$domain_type[which.max(roi4$position_in_array)], "C-terminus")
 })
 
@@ -64,7 +64,7 @@ test_that("repeat RVDs are AnnoTALE's", {
 
 test_that("tale_parts is of expected dims",
           {talParts <- .tale_parts(test_path("data_for_tests", "example_output"))
-          expect_true(identical(dim(talParts), c(96L, 9L)))}
+          expect_identical(dim(talParts), c(96L, 9L))}
 )
 
 test_that("tale_parts emits the canonical snake_case column vocabulary",

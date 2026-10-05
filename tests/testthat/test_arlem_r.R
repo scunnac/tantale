@@ -29,32 +29,32 @@ test_that("matching, and a leading unit explained as an insertion", {
   coded <- toy_coded("1 1 2 3", "1 2 3 3", "2 2 2")
   # 0-1: pure substitutions (1/2, 2/3); 0-2 and 1-2: one unit inserted
   # before the first match, at the insertion cost
-  expect_equal(scores_of(coded, cost, dup = 10, ins = 10), c(10, 20, 20))
+  expect_identical(scores_of(coded, cost, dup = 10, ins = 10), c(10, 20, 20))
 })
 
 test_that("duplication and insertion costs each enter where they should", {
   cost <- toy_cost(c(50, 80, 50))
   coded <- toy_coded("1 2 3", "1 3", "2", "1 1 1 3")
-  expect_equal(scores_of(coded, cost, dup = 10, ins = 10),
+  expect_identical(scores_of(coded, cost, dup = 10, ins = 10),
                c(10, 20, 30, 30, 20, 50))
   # expensive insertions: runs must be grown by duplication instead
-  expect_equal(scores_of(coded, cost, dup = 10, ins = 1000),
+  expect_identical(scores_of(coded, cost, dup = 10, ins = 1000),
                c(60, 120, 60, 140, 20, 160))
   # cheap duplications: "1 1 1" costs two copies of 1, not two insertions
-  expect_equal(scores_of(coded, cost, dup = 1, ins = 10),
+  expect_identical(scores_of(coded, cost, dup = 1, ins = 10),
                c(10, 20, 12, 30, 2, 32))
 })
 
 test_that("scores are reported like the binary's: one row per pair, 0-based", {
   out <- arlem_quiet(toy_coded("1", "2", "1 2"), toy_cost(5))
   expect_named(out, c("id1", "id2", "arlem_score"))
-  expect_equal(out$id1, c(0, 0, 1))
-  expect_equal(out$id2, c(1, 2, 2))
+  expect_identical(out$id1, c(0L, 0L, 1L))
+  expect_identical(out$id2, c(1L, 2L, 2L))
 })
 
 test_that("a single array has no pairs to score", {
   out <- arlem_quiet(toy_coded("1 2"), toy_cost(5))
-  expect_equal(nrow(out), 0L)
+  expect_identical(nrow(out), 0L)
 })
 
 test_that("a domain code missing from the cost matrix is refused", {
