@@ -70,12 +70,6 @@ curation, not placeholders to be filled by a guess.
 the five-repeat allele its own \code{unusual_feature} describes, too
 short to be catalogued.
 
-One curated value was corrected against the genome: MAI1's
-\code{TalH} had been recorded with twelve repeats, but the MAI1 genome
-carries sixteen at that locus, as both a \code{\link{tell_tales}} run
-on it and AnnoTALE's catalogue show. The twelve were an exact prefix of
-the sixteen, so \code{rvd_seq} gives the sixteen.
-
 The class is stored without the member index AnnoTALE appends to it
 (\code{"TalAH"}, not \code{"TalAH30"}). That index numbers the members
 of a class as of the day it is read, and the catalogue grows: every one

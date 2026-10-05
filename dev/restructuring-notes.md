@@ -3954,8 +3954,10 @@ MAI1 `TalH` corrected to the 16 repeats of the genome
 the source TSV stays as Tram left it. The special-case class fill of
 Q147 is gone: the corrected string matches MAI1's own catalogue entry
 (TalDN23) by the normal route, asserted. 127 of 128 classed; only PXO99A
-`Tal7b` has none. `?tale_annotations` says one curated value was
-corrected against the genome, and why.
+`Tal7b` has none. `?tale_annotations` said one curated value was
+corrected against the genome, and why; the maintainer removed that
+paragraph on 2026-10-06 (Q194), the correction itself stays in
+`data-raw/tale_annotations.R`.
 
 2026-10-06 (maintainer's catch): `?tale_annotations` said `rvd_seq` is
 "the form `tales_predict_targets()` takes"; that function takes a

@@ -98,7 +98,6 @@
 #' the five-repeat allele its own \code{unusual_feature} describes, too
 #' short to be catalogued.
 #'
-#'
 #' The class is stored without the member index AnnoTALE appends to it
 #' (\code{"TalAH"}, not \code{"TalAH30"}). That index numbers the members
 #' of a class as of the day it is read, and the catalogue grows: every one
