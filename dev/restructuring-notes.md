@@ -4091,6 +4091,34 @@ N-terminus, 0.844). It rejects PthXo3 (PXO61), tal6b (PXO99A) and tal1b
 (PXO61), each with a full-length DNA match and a short protein segment;
 whether those genes are genuine is the maintainer's call. Q177-Q180.
 
+**Q177-Q180 (maintainer, 2026-10-05).** Q177 yes: the rule is adopted,
+`terminus_min_cover = 0.9` in `tell_tales()` and `tales_from_annotale()`
+(`.terminus_min_cover`), on top of the E-value and the repeat-side gap.
+Q178 no: the three outliers (PXO61 PthXo3 and tal1b, PXO99A tal6b) are a
+separate job. Q179: the anomaly check is renamed `terminus_noncanonical`;
+`sanitize = TRUE` must not drop truncTALEs, so a more permissive sanitize
+is to be defined (Q181). Q180: TalC/TalE are canonical, an unquestionable
+transcription factor (maintainer).
+Done: rule, argument, docs (`?tales_anchor_codes` rewritten for the new
+meaning), tests (the PXO86 truncTALE C-terminus is now `XXXXX`; the
+frameshift test needs both tolerances loosened). Golden: the reference
+anomaly renamed, and `tell_tales.log` one line longer (the new parameter)
+in both runs; the BAI3 sample's four TALEs keep their codes. On the
+calibration set the rule recodes 18 termini to `XXXXX`: both termini of
+the 8 truncTALEs that had matched, PthXo3 and tal1b (PXO61, C), tal6b
+(PXO99A, N). Articles not yet re-rendered (truncTALE, mining).
+
+**Q181 (maintainer, 2026-10-05): a permissive sanitize.** Q181a yes, Q181b
+yes (`terminus_absent` is kept), Q181c the filter on `tales_anomalies()`
+is enough for canonical-only, to be seen once implemented. Done:
+`tales_anomalies()` has a `kind` column (`noncanonical` for
+`terminus_noncanonical` and `terminus_absent`, `integrity` for every other
+check); `sanitize = TRUE` drops only arrays with an `integrity` anomaly
+(warning `tantale_warning_tales_sanitized`) and keeps the others with a
+message (`tantale_message_tales_noncanonical`); the example of
+`?tales_anomalies` shows the canonical-only filter. Golden: the reference
+anomaly table gains the column.
+
 ## 60. rOpenSci #813: first editor reply and the bot's pkgcheck (2026-10-05) **[P]**
 
 Adam Sparks (editor, 2026-10-05 06:08 UTC) ran `@ropensci-review-bot

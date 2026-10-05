@@ -1,5 +1,28 @@
 # tantale 0.99.0.9000
 
+## `NTERM` and `CTERM` now mean a canonical terminus
+
+A terminus is coded `NTERM` or `CTERM` only when its protein segment
+matches the TALE terminal-domain profile over at least 90% of the profile
+(new argument `terminus_min_cover` of `tell_tales()` and
+`tales_from_annotale()`), on top of the E-value and the requirement to
+reach the repeats. A truncated terminus, such as the C-terminus of a
+truncTALE, is now `XXXXX`. The threshold was set on the curated TALEs of
+`tale_annotations`: their canonical termini cover 0.93 of the profile or
+more, the truncTALE termini 0.84 or less. `tales_anomalies()` reports such
+termini as `terminus_noncanonical` (formerly `terminus_unmatched`).
+
+## `sanitize = TRUE` keeps non-canonical TALEs
+
+`tales_anomalies()` gains a `kind` column. `"noncanonical"` marks a TALE of
+non-standard structure, with a terminus that is not canonical or none on
+one side; `"integrity"` marks data that are inconsistent or incomplete,
+and arrays without repeats. `sanitize = TRUE` (in `tales()`,
+`tales_bind()`, `tales_from_telltales()` and `tales_from_annotale()`) now
+drops only the arrays with an anomaly of kind `"integrity"`, and keeps
+truncTALEs and other non-canonical TALEs with a message. The example of
+`?tales_anomalies` shows how to keep canonical TALEs only.
+
 ## `tell_tales()` reports more about each terminus
 
 `array_report.tsv` now says, for each terminus, how much of the TALE

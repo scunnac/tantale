@@ -28,29 +28,31 @@ TALES_DOMAIN_TYPES <- c("N-terminus", "repeat", "C-terminus")
 #' AnnoTALE reports as N-terminus whatever the ORF encodes upstream of the
 #' first repeat, and as C-terminus whatever it encodes downstream of the last
 #' one. \code{\link[tantale:tell_tales]{tell_tales}} searches each of these
-#' segments with the TALE N- or C-terminal protein profile (\code{hmmsearch},
-#' E-value at most \code{terminus_max_evalue}, the match reaching the end of
-#' the profile that adjoins the repeats). \code{"NTERM"} and
-#' \code{"CTERM"} mark a segment that matches its profile, a canonical TALE
-#' terminal domain, complete or truncated at its far end. \code{"XXXXX"}
-#' marks a segment that does not match, typically unrelated sequence where
-#' the ORF starts or ends inside a frameshifted region, or a terminus whose
-#' repeat-side part a frameshift has put in another reading frame. An array for which AnnoTALE reported no
-#' segment on one side has no terminus part on that side.
+#' segments with the TALE N- or C-terminal protein profile (\code{hmmsearch}).
+#' \code{"NTERM"} and \code{"CTERM"} mark a canonical TALE terminal domain,
+#' one that can be expected to do its usual job: the match has an E-value of
+#' at most \code{terminus_max_evalue}, covers at least
+#' \code{terminus_min_cover} of the profile (0.9 by default) and reaches the
+#' end of the profile that adjoins the repeats. \code{"XXXXX"} marks any
+#' other segment. An array for which AnnoTALE reported no segment on one side
+#' has no terminus part on that side.
 #'
-#' The codes record sequence relatedness only. A terminus shorter than the
-#' canonical one is coded \code{"NTERM"} or \code{"CTERM"} as long as it
-#' matches its profile, which it can do over its whole length: an internal
-#' deletion, or a C-terminus that stops early, still aligns with the part of
-#' the profile it keeps. Such a terminus has probably lost functional
-#' regions. The N-terminal region carries the type III secretion signal and,
-#' next to the repeats, the degenerate repeats that bind the thymine
-#' preceding the target; the C-terminal region carries the nuclear
-#' localisation signals and, at its far end, the transcription activation
-#' domain. The truncTALEs of \emph{Xanthomonas oryzae} have lost the
-#' activation domain, and their C-termini are coded \code{"CTERM"}. The
-#' length of the terminus parts, \code{nchar(aa_seq)}, is the quickest way to
-#' spot such arrays.
+#' A terminus can fail to be canonical in several ways, which
+#' \code{array_report.tsv} tells apart (its \code{*_aa_*} and
+#' \code{*_dna_*} columns, see \code{\link{tell_tales}}). The segment may
+#' be unrelated sequence, where the ORF starts or ends inside a frameshifted
+#' region. Its repeat-side part may be in another reading frame after a
+#' frameshift. Or it may be a TALE terminus that has lost a large part: the
+#' N-terminal region carries the type III secretion signal and, next to the
+#' repeats, the degenerate repeats that bind the thymine preceding the
+#' target; the C-terminal region carries the nuclear localisation signals
+#' and, at its far end, the transcription activation domain. The truncTALEs
+#' of \emph{Xanthomonas oryzae} have lost the activation domain, and their
+#' C-termini are coded \code{"XXXXX"}. A smaller internal deletion, such as
+#' the one in the N-terminus of TalC, a major TALE of African
+#' \emph{X. oryzae} pv. \emph{oryzae}, leaves a terminus canonical.
+
+
 #'
 #' These share the \code{rvd} column with real RVDs, so code that distinguishes
 #' repeats from termini by value should use this function rather than spelling
@@ -191,12 +193,14 @@ tales_names <- function(x) {
 #'   preserved untouched.
 #' @param dom_code_namespace Optional scalar string, see
 #'   \code{\link{tales_namespace}}.
-#' @param sanitize If \code{TRUE}, arrays carrying biological anomalies (the
-#'   ones \code{\link{tales_anomalies}} lists) are removed, with a warning
-#'   naming them and why. If
-#'   \code{FALSE} (default) they are kept and merely warned about, so odd
-#'   predictions can still be loaded and inspected. Structural corruption is
-#'   an error either way. See \code{\link{tales_anomalies}}.
+#' @param sanitize If \code{TRUE}, arrays whose data are inconsistent or
+#'   incomplete (the anomalies of kind \code{"integrity"} that
+#'   \code{\link{tales_anomalies}} lists) are removed, with a warning naming
+#'   them and why. Arrays that are only non-canonical, such as truncTALEs or
+#'   TALEs lacking a terminus, are kept, with a message. If \code{FALSE}
+#'   (default) every array is kept and the anomalies are merely warned about,
+#'   so odd predictions can still be loaded and inspected. Structural
+#'   corruption is an error either way.
 #' @return A validated \code{tales} object.
 #' @export
 #' @family tales objects
@@ -537,8 +541,8 @@ validate_tales <- function(x) {
 #' @description
 #' Lists the arrays whose content is biologically odd: missing sequence data,
 #' a structure other than that of a standard TALE (an N-terminus, one or more
-#' repeats and a C-terminus, both termini matched by the profile of their
-#' TALE domain), impossible domain-type arrangements, coordinate
+#' repeats and a C-terminus, both termini canonical TALE terminal domains),
+#' impossible domain-type arrangements, coordinate
 #' disagreements, an amino acid sequence paired with more than one RVD, or
 #' an attribute that varies within an array when it should not. Structurally broken input (a
 #' duplicated key, a missing required column) is an error in
@@ -546,19 +550,31 @@ validate_tales <- function(x) {
 #'
 #' Such arrays are accepted by \code{\link{tales}} -- real TALE predictions are
 #' messy, and refusing to load them would force cleaning outside the package and
-#' destroy the diagnostic signal. Construction warns about them, this function
-#' tells you which and why, and \code{tales(x, sanitize = TRUE)} removes them.
+#' destroy the diagnostic signal. Construction warns about them and this
+#' function tells you which and why.
+#'
+#' Each anomaly is of one of two kinds. \code{"noncanonical"} marks a TALE
+#' whose structure departs from the standard one: a terminus that is not a
+#' canonical TALE terminal domain (\code{terminus_noncanonical}), such as
+#' the C-terminus of a truncTALE, or no terminus part on one side
+#' (\code{terminus_absent}). Such TALEs can be real and interesting.
+#' \code{"integrity"} marks every other anomaly: data that are inconsistent
+#' or incomplete, or an array without repeats. \code{tales(x, sanitize =
+#' TRUE)} removes the arrays with an anomaly of kind \code{"integrity"} and
+#' keeps the others; the example below shows how to keep canonical TALEs
+#' only.
 #'
 #' The structure checks need a \code{domain_type} column, and the terminus
 #' profile check an \code{rvd} column; they are skipped when it is absent.
 #' The structure checks report \code{terminus_absent} (no N- or no
 #' C-terminus part), \code{no_repeat} (no repeat part) and
-#' \code{terminus_unmatched} (a terminus coded \code{XXXXX}, see
+#' \code{terminus_noncanonical} (a terminus coded \code{XXXXX}, see
 #' \code{\link{tales_anchor_codes}}). They apply to whole arrays: a subset
 #' keeping only the repeats is reported as lacking its termini.
 #'
 #' @param x A \code{\link{tales}} object.
-#' @return A tibble of \code{array_id}, \code{check} and \code{detail}, one
+#' @return A tibble of \code{array_id}, \code{check}, \code{kind}
+#'   (\code{"integrity"} or \code{"noncanonical"}) and \code{detail}, one
 #'   row per anomaly. Zero rows if the object is clean.
 #' @export
 #' @family tales objects
@@ -574,6 +590,20 @@ validate_tales <- function(x) {
 #' x <- suppressWarnings(tales(odd))
 #' tales_anomalies(x)
 #' tales(odd, sanitize = TRUE) # drops A2 instead of merely warning
+#'
+#' # B2 is a truncTALE-like array: its C-terminus is not canonical.
+#' # sanitize = TRUE keeps it; to keep canonical TALEs only, drop every
+#' # array with an anomaly of either kind.
+#' parts <- data.frame(
+#'   array_id = rep(c("B1", "B2"), each = 3),
+#'   position_in_array = rep(1:3, 2),
+#'   domain_type = rep(c("N-terminus", "repeat", "C-terminus"), 2),
+#'   rvd = c("NTERM", "HD", "CTERM", "NTERM", "NI", "XXXXX")
+#' )
+#' y <- tales(parts, sanitize = TRUE)
+#' tales_anomalies(y)
+#' canonical <- y[!y$array_id %in% tales_anomalies(y)$array_id, ]
+#' unique(canonical$array_id)
 tales_anomalies <- function(x) {
   .tales_anomalies(x)
 }
@@ -609,10 +639,7 @@ tales_anomalies <- function(x) {
     if (length(ids)) out[[length(out) + 1L]] <<-
       tibble::tibble(array_id = ids, check = check, detail = detail)
   }
-  if (nrow(x) == 0L) {
-    return(tibble::tibble(array_id = character(), check = character(),
-                          detail = character()))
-  }
+  if (nrow(x) == 0L) return(.tales_no_anomaly())
 
   ## missing sequence data ---------------------------------------------------
   for (nm in intersect(c(TALES_RESIDUE_COLS, "aa_seq", "dna_seq"), cols)) {
@@ -652,7 +679,7 @@ tales_anomalies <- function(x) {
           paste0("more than one ", type))
     }
     # A standard TALE is N-terminus, at least one repeat, C-terminus, with
-    # both termini matched by the TALE terminal-domain profiles.
+    # both termini canonical (coded NTERM/CTERM).
     for (type in c("N-terminus", "C-terminus")) {
       has <- tapply(x$domain_type %in% type, x$array_id, any)
       add(names(has)[!has], "terminus_absent", paste0("no ", type))
@@ -662,8 +689,8 @@ tales_anomalies <- function(x) {
     if ("rvd" %in% cols) {
       for (type in c("N-terminus", "C-terminus")) {
         unmatched <- x$domain_type %in% type & x$rvd %in% tales_anchor_codes()[[3]]
-        add(x$array_id[unmatched], "terminus_unmatched",
-            paste0(type, " not matched by its TALE domain profile (coded XXXXX)"))
+        add(x$array_id[unmatched], "terminus_noncanonical",
+            paste0(type, " is not a canonical TALE terminal domain (coded XXXXX)"))
       }
     }
     nterm <- x$domain_type == "N-terminus" & x$position_in_array != 1L
@@ -704,13 +731,23 @@ tales_anomalies <- function(x) {
         paste0(nm, " varies within the array"))
   }
 
-  if (!length(out)) {
-    return(tibble::tibble(array_id = character(), check = character(),
-                          detail = character()))
-  }
+  if (!length(out)) return(.tales_no_anomaly())
   out <- unique(do.call(rbind, out))
+  # a real TALE of non-standard structure, as against data that cannot be
+  # trusted (ledger §59, Q181)
+  out$kind <- ifelse(out$check %in% c("terminus_noncanonical", "terminus_absent"),
+                     "noncanonical", "integrity")
+  out <- out[c("array_id", "check", "kind", "detail")]
   # byte order, as the projections sort arrays (ledger §40)
   out[order(out$array_id, out$check, method = "radix"), ]
+}
+
+
+#' The empty anomaly table
+#' @noRd
+.tales_no_anomaly <- function() {
+  tibble::tibble(array_id = character(), check = character(),
+                 kind = character(), detail = character())
 }
 
 
@@ -722,13 +759,25 @@ tales_anomalies <- function(x) {
   ids <- unique(an$array_id)
   reasons <- unique(an$check)
   if (isTRUE(sanitize)) {
-    cli::cli_warn(
-      c("Dropped {length(ids)} array{?s} with biological anomalies.",
-        "x" = "Array{?s}: {.val {utils::head(ids, 8)}}",
-        "i" = "Reason{?s}: {.field {reasons}}"),
-      class = c("tantale_warning_tales_sanitized", "tantale_warning")
-    )
-    return(x[!x$array_id %in% ids, , drop = FALSE])
+    dropped <- unique(an$array_id[an$kind == "integrity"])
+    kept <- setdiff(ids, dropped)
+    if (length(dropped)) {
+      cli::cli_warn(
+        c("Dropped {length(dropped)} array{?s} with inconsistent or incomplete data.",
+          "x" = "Array{?s}: {.val {utils::head(dropped, 8)}}",
+          "i" = "Reason{?s}: {.field {unique(an$check[an$kind == 'integrity'])}}"),
+        class = c("tantale_warning_tales_sanitized", "tantale_warning")
+      )
+    }
+    if (length(kept)) {
+      cli::cli_inform(
+        c("Kept {length(kept)} non-canonical array{?s}.",
+          "i" = "Array{?s}: {.val {utils::head(kept, 8)}}",
+          "i" = "{cli::qty(length(kept))}{.fn tales_anomalies} lists {?it/them}, with the reason."),
+        class = c("tantale_message_tales_noncanonical", "tantale_message")
+      )
+    }
+    return(x[!x$array_id %in% dropped, , drop = FALSE])
   }
   cli::cli_warn(
     c("{length(ids)} array{?s} {?has/have} biological anomalies.",

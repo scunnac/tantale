@@ -105,13 +105,14 @@
 #'
 #' Implementation behind \code{\link{tales_from_annotale}}.
 #' @noRd
-.tale_parts_annotale <- function(annotale_dir, terminus_max_evalue, hmm_dir) {
+.tale_parts_annotale <- function(annotale_dir, terminus_max_evalue, terminus_min_cover, hmm_dir) {
   tale_parts <- .tale_parts_assemble(annotale_dir)
   termini <- lapply(c(`N-terminus` = "N-terminus", `C-terminus` = "C-terminus"), function(part) {
     x <- tale_parts[tale_parts$domain_type == part, ]
     stats::setNames(Biostrings::AAStringSet(x$aa_seq), x$array_id)
   })
-  aaHits <- .tale_termini_hmmsearch(termini, max_evalue = terminus_max_evalue, hmm_dir = hmm_dir)
+  aaHits <- .tale_termini_hmmsearch(termini, max_evalue = terminus_max_evalue,
+                                    min_cover = terminus_min_cover, hmm_dir = hmm_dir)
   # the contig of each TALE, from predict's GFF3 when it is there
   gffFiles <- list.files(annotale_dir, "^GFF__.*\\.gff3$", recursive = TRUE, full.names = TRUE)
   seqnames <- if (length(gffFiles) > 0L) {
@@ -274,8 +275,9 @@
 #' One row per part: the N-terminus, each repeat and the C-terminus, as
 #' AnnoTALE split the array's longest ORF. The \code{rvd} column holds the RVD
 #' of a repeat, or a terminus code (see \code{\link{tales_anchor_codes}}):
-#' \code{NTERM}/\code{CTERM} when the terminus matches the TALE
-#' terminal-domain protein profile, \code{XXXXX} when it does not. When
+#' \code{NTERM}/\code{CTERM} when the terminus is a canonical TALE terminal
+#' domain by the protein profile search of \code{\link{tell_tales}},
+#' \code{XXXXX} when it is not. When
 #' AnnoTALE reported no terminus on one side, the array has no part there, with
 #' a warning. An array whose protein and DNA parts disagree is left out, with
 #' a warning.
@@ -294,9 +296,11 @@
 #' The result carries no \code{dom_code}: that surrogate key is minted later,
 #' by the relatedness computation, over the whole set of parts being analysed.
 #'
-#' @param sanitize If \code{TRUE}, arrays carrying biological anomalies are
-#'   removed with a warning naming them and why; if \code{FALSE} (default) they
-#'   are kept and merely warned about. See \code{\link{tales_anomalies}}.
+#' @param sanitize If \code{TRUE}, arrays whose data are inconsistent or
+#'   incomplete are removed with a warning naming them and why, and
+#'   non-canonical TALEs (truncTALEs, for instance) are kept; if \code{FALSE}
+#'   (default) every array is kept and the anomalies are merely warned about.
+#'   See \code{\link{tales_anomalies}}.
 #' @param telltale_dir Path to a single \code{\link[tantale:tell_tales]{tell_tales}}
 #'   output directory.
 #' @return A validated \code{tales} object.
@@ -326,8 +330,9 @@ tales_from_telltales <- function(telltale_dir, sanitize = FALSE) {
 #' As in \code{tell_tales()}, each terminal segment is searched with the TALE
 #' N- or C-terminal protein profile (\code{hmmsearch}, from the tantale
 #' environment; see \code{\link{tantale_setup}}). The \code{rvd} column holds
-#' \code{NTERM}/\code{CTERM} for a segment that matches its profile and
-#' \code{XXXXX} for one that does not (see \code{\link{tales_anchor_codes}}).
+#' \code{NTERM}/\code{CTERM} for a segment that is a canonical terminus by
+#' that search and \code{XXXXX} for any other (see
+#' \code{\link{tales_anchor_codes}}).
 #'
 #' \code{array_id} is AnnoTALE's name for the TALE (\code{MAI1-tempTALE1}),
 #' without the location AnnoTALE appends to it. \code{seqnames} is filled
@@ -337,8 +342,9 @@ tales_from_telltales <- function(telltale_dir, sanitize = FALSE) {
 #'   \code{TALE_Protein_parts.fasta}, \code{TALE_DNA_parts.fasta} and
 #'   \code{TALE_RVDs.fasta}, in it or in a subdirectory: the
 #'   \code{output_dir} of \code{run_annotale_predict()} will do.
-#' @param terminus_max_evalue Maximum \code{hmmsearch} E-value for a
-#'   terminal segment to be coded \code{NTERM}/\code{CTERM}. As in
+#' @param terminus_max_evalue,terminus_min_cover Maximum \code{hmmsearch}
+#'   E-value, and minimum fraction of the profile covered, for a terminal
+#'   segment to be coded \code{NTERM}/\code{CTERM}. As in
 #'   \code{\link{tell_tales}}, the match must also reach the end of the
 #'   profile that adjoins the repeats.
 #' @param hmm_dir Directory holding the TALE terminus protein profiles.
@@ -352,10 +358,11 @@ tales_from_telltales <- function(telltale_dir, sanitize = FALSE) {
 #' tales_from_annotale(system.file("extdata", "annotaleExampleOutput",
 #'                                 package = "tantale"))
 #' }
-tales_from_annotale <- function(annotale_dir, terminus_max_evalue = 1e-5, sanitize = FALSE,
+tales_from_annotale <- function(annotale_dir, terminus_max_evalue = 1e-5,
+                                terminus_min_cover = 0.9, sanitize = FALSE,
                                 hmm_dir = system.file("extdata", "hmmProfile", package = "tantale",
                                                       mustWork = TRUE)) {
   tales(.tale_parts_annotale(annotale_dir, terminus_max_evalue = terminus_max_evalue,
-                             hmm_dir = hmm_dir),
+                             terminus_min_cover = terminus_min_cover, hmm_dir = hmm_dir),
         sanitize = sanitize)
 }

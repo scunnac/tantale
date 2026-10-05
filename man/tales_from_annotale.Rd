@@ -7,6 +7,7 @@
 tales_from_annotale(
   annotale_dir,
   terminus_max_evalue = 1e-05,
+  terminus_min_cover = 0.9,
   sanitize = FALSE,
   hmm_dir = system.file("extdata", "hmmProfile", package = "tantale", mustWork = TRUE)
 )
@@ -17,14 +18,17 @@ tales_from_annotale(
 \code{TALE_RVDs.fasta}, in it or in a subdirectory: the
 \code{output_dir} of \code{run_annotale_predict()} will do.}
 
-\item{terminus_max_evalue}{Maximum \code{hmmsearch} E-value for a
-terminal segment to be coded \code{NTERM}/\code{CTERM}. As in
+\item{terminus_max_evalue, terminus_min_cover}{Maximum \code{hmmsearch}
+E-value, and minimum fraction of the profile covered, for a terminal
+segment to be coded \code{NTERM}/\code{CTERM}. As in
 \code{\link{tell_tales}}, the match must also reach the end of the
 profile that adjoins the repeats.}
 
-\item{sanitize}{If \code{TRUE}, arrays carrying biological anomalies are
-removed with a warning naming them and why; if \code{FALSE} (default) they
-are kept and merely warned about. See \code{\link{tales_anomalies}}.}
+\item{sanitize}{If \code{TRUE}, arrays whose data are inconsistent or
+incomplete are removed with a warning naming them and why, and
+non-canonical TALEs (truncTALEs, for instance) are kept; if \code{FALSE}
+(default) every array is kept and the anomalies are merely warned about.
+See \code{\link{tales_anomalies}}.}
 
 \item{hmm_dir}{Directory holding the TALE terminus protein profiles.}
 }
@@ -47,8 +51,9 @@ not report the same set of TALEs.
 As in \code{tell_tales()}, each terminal segment is searched with the TALE
 N- or C-terminal protein profile (\code{hmmsearch}, from the tantale
 environment; see \code{\link{tantale_setup}}). The \code{rvd} column holds
-\code{NTERM}/\code{CTERM} for a segment that matches its profile and
-\code{XXXXX} for one that does not (see \code{\link{tales_anchor_codes}}).
+\code{NTERM}/\code{CTERM} for a segment that is a canonical terminus by
+that search and \code{XXXXX} for any other (see
+\code{\link{tales_anchor_codes}}).
 
 \code{array_id} is AnnoTALE's name for the TALE (\code{MAI1-tempTALE1}),
 without the location AnnoTALE appends to it. \code{seqnames} is filled

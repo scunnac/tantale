@@ -10,9 +10,11 @@ tales_from_telltales(telltale_dir, sanitize = FALSE)
 \item{telltale_dir}{Path to a single \code{\link[tantale:tell_tales]{tell_tales}}
 output directory.}
 
-\item{sanitize}{If \code{TRUE}, arrays carrying biological anomalies are
-removed with a warning naming them and why; if \code{FALSE} (default) they
-are kept and merely warned about. See \code{\link{tales_anomalies}}.}
+\item{sanitize}{If \code{TRUE}, arrays whose data are inconsistent or
+incomplete are removed with a warning naming them and why, and
+non-canonical TALEs (truncTALEs, for instance) are kept; if \code{FALSE}
+(default) every array is kept and the anomalies are merely warned about.
+See \code{\link{tales_anomalies}}.}
 }
 \value{
 A validated \code{tales} object.
@@ -26,8 +28,9 @@ validated \code{\link{tales}} object.
 One row per part: the N-terminus, each repeat and the C-terminus, as
 AnnoTALE split the array's longest ORF. The \code{rvd} column holds the RVD
 of a repeat, or a terminus code (see \code{\link{tales_anchor_codes}}):
-\code{NTERM}/\code{CTERM} when the terminus matches the TALE
-terminal-domain protein profile, \code{XXXXX} when it does not. When
+\code{NTERM}/\code{CTERM} when the terminus is a canonical TALE terminal
+domain by the protein profile search of \code{\link{tell_tales}},
+\code{XXXXX} when it is not. When
 AnnoTALE reported no terminus on one side, the array has no part there, with
 a warning. An array whose protein and DNA parts disagree is left out, with
 a warning.

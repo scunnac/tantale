@@ -16,29 +16,29 @@ The values a \code{rvd} column takes on non-repeat parts.
 AnnoTALE reports as N-terminus whatever the ORF encodes upstream of the
 first repeat, and as C-terminus whatever it encodes downstream of the last
 one. \code{\link[tantale:tell_tales]{tell_tales}} searches each of these
-segments with the TALE N- or C-terminal protein profile (\code{hmmsearch},
-E-value at most \code{terminus_max_evalue}, the match reaching the end of
-the profile that adjoins the repeats). \code{"NTERM"} and
-\code{"CTERM"} mark a segment that matches its profile, a canonical TALE
-terminal domain, complete or truncated at its far end. \code{"XXXXX"}
-marks a segment that does not match, typically unrelated sequence where
-the ORF starts or ends inside a frameshifted region, or a terminus whose
-repeat-side part a frameshift has put in another reading frame. An array for which AnnoTALE reported no
-segment on one side has no terminus part on that side.
+segments with the TALE N- or C-terminal protein profile (\code{hmmsearch}).
+\code{"NTERM"} and \code{"CTERM"} mark a canonical TALE terminal domain,
+one that can be expected to do its usual job: the match has an E-value of
+at most \code{terminus_max_evalue}, covers at least
+\code{terminus_min_cover} of the profile (0.9 by default) and reaches the
+end of the profile that adjoins the repeats. \code{"XXXXX"} marks any
+other segment. An array for which AnnoTALE reported no segment on one side
+has no terminus part on that side.
 
-The codes record sequence relatedness only. A terminus shorter than the
-canonical one is coded \code{"NTERM"} or \code{"CTERM"} as long as it
-matches its profile, which it can do over its whole length: an internal
-deletion, or a C-terminus that stops early, still aligns with the part of
-the profile it keeps. Such a terminus has probably lost functional
-regions. The N-terminal region carries the type III secretion signal and,
-next to the repeats, the degenerate repeats that bind the thymine
-preceding the target; the C-terminal region carries the nuclear
-localisation signals and, at its far end, the transcription activation
-domain. The truncTALEs of \emph{Xanthomonas oryzae} have lost the
-activation domain, and their C-termini are coded \code{"CTERM"}. The
-length of the terminus parts, \code{nchar(aa_seq)}, is the quickest way to
-spot such arrays.
+A terminus can fail to be canonical in several ways, which
+\code{array_report.tsv} tells apart (its \code{*_aa_*} and
+\code{*_dna_*} columns, see \code{\link{tell_tales}}). The segment may
+be unrelated sequence, where the ORF starts or ends inside a frameshifted
+region. Its repeat-side part may be in another reading frame after a
+frameshift. Or it may be a TALE terminus that has lost a large part: the
+N-terminal region carries the type III secretion signal and, next to the
+repeats, the degenerate repeats that bind the thymine preceding the
+target; the C-terminal region carries the nuclear localisation signals
+and, at its far end, the transcription activation domain. The truncTALEs
+of \emph{Xanthomonas oryzae} have lost the activation domain, and their
+C-termini are coded \code{"XXXXX"}. A smaller internal deletion, such as
+the one in the N-terminus of TalC, a major TALE of African
+\emph{X. oryzae} pv. \emph{oryzae}, leaves a terminus canonical.
 
 These share the \code{rvd} column with real RVDs, so code that distinguishes
 repeats from termini by value should use this function rather than spelling

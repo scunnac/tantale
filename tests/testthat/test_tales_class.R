@@ -462,7 +462,7 @@ test_that("a terminus coded XXXXX is an anomaly", {
   expect_warning(x <- tales(df), class = "tantale_warning_tales_anomalous")
   an <- tales_anomalies(x)
   expect_identical(an$array_id, "a2")
-  expect_identical(an$check, "terminus_unmatched")
+  expect_identical(an$check, "terminus_noncanonical")
   expect_match(an$detail, "C-terminus")
 })
 
@@ -476,16 +476,42 @@ test_that("anomalies are sorted by array, then by check", {
   df$position_in_array[df$array_id == "a2"] <- 1:2
   an <- tales_anomalies(suppressWarnings(tales(df)))
   expect_identical(an$array_id, c("a1", "a2", "a2"))
-  expect_identical(an$check, c("terminus_unmatched", "no_repeat", "terminus_unmatched"))
+  expect_identical(an$check, c("terminus_noncanonical", "no_repeat", "terminus_noncanonical"))
 })
 
-test_that("sanitize = TRUE drops the non-standard arrays", {
+test_that("sanitize = TRUE keeps non-canonical arrays and drops inconsistent ones", {
+  # a1's N-terminus is not canonical: kept, with a message (ledger §59, Q181)
   df <- minimal_tales_df()
   df$rvd[1] <- "XXXXX"
   df$aa_seq[1] <- "MAS"
   df$dom_code[1] <- "5"
+  expect_message(x <- tales(df, sanitize = TRUE), class = "tantale_message_tales_noncanonical")
+  expect_identical(unique(x$array_id), c("a1", "a2"))
+  expect_identical(tales_anomalies(x)$kind, "noncanonical")
+  # so is an array lacking a terminus
+  expect_message(x <- tales(minimal_tales_df()[-4, ], sanitize = TRUE),
+                 class = "tantale_message_tales_noncanonical")
+  expect_true("a1" %in% x$array_id)
+  # an array without repeats is not a TALE: dropped
+  df <- minimal_tales_df()[-(2:3), ]
+  df$position_in_array[2] <- 2L
   expect_warning(x <- tales(df, sanitize = TRUE), class = "tantale_warning_tales_sanitized")
   expect_identical(unique(x$array_id), "a2")
+})
+
+test_that("each anomaly has a kind", {
+  df <- minimal_tales_df()
+  df$rvd[8] <- "XXXXX"
+  df$aa_seq[8] <- "QRRP"
+  df$dom_code[8] <- "5"
+  df <- df[-(2:3), ]
+  df$position_in_array[df$array_id == "a1"] <- 1:2
+  an <- tales_anomalies(suppressWarnings(tales(df)))
+  expect_identical(names(an), c("array_id", "check", "kind", "detail"))
+  expect_identical(an$kind[an$check == "no_repeat"], "integrity")
+  expect_identical(an$kind[an$check == "terminus_noncanonical"], "noncanonical")
+  expect_identical(names(tales_anomalies(tales(minimal_tales_df()))),
+                   c("array_id", "check", "kind", "detail"))
 })
 
 test_that("without domain_type the structure checks do not run", {

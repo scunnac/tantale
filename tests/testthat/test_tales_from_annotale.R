@@ -48,7 +48,7 @@ test_that("a terminus unlike the TALE profile is coded XXXXX", {
   parts[hit] <- Biostrings::AAStringSet("MSTNPKPQRKTKRNTNRRPQDVKFPGGGQIVGGVYLLPRRGPRLGVRATRKTSERSQPRG")
   Biostrings::writeXStringSet(parts, f)
   expect_warning(x <- tales_from_annotale(dir), class = "tantale_warning_tales_anomalous")
-  expect_identical(tales_anomalies(x)$check, "terminus_unmatched")
+  expect_identical(tales_anomalies(x)$check, "terminus_noncanonical")
   cterm <- x[x$domain_type == "C-terminus", ]
   expect_identical(cterm$rvd[cterm$array_id == "bai3_sample_tal_genomic_regions-tempTALE2"], "XXXXX")
   expect_identical(sum(cterm$rvd == "CTERM"), 3L)

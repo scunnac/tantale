@@ -1,17 +1,18 @@
 #****************************************
 #**   tell_tales analysis done     **
-Current date:	Mon Oct  5 22:39:23 2026
+Current date:	Mon Oct  5 23:10:35 2026
 #_________Provided I/O parameters __________
 File of subject DNA sequences:	/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/bai3_sample_tal_genomic_regions.fasta
 TALE N-term CDS region detection HMM file:	/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Nterm_CDS_profile.hmm
 TALE repeat unit CDS detection HMM file:	/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_repeat_CDS_profile.hmm
 TALE C-term CDS region detection HMM file:	/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Cterm_CDS_profile.hmm
-Output directory:	/tmp/RtmpdDaXOs/tell_tales_example
+Output directory:	/tmp/Rtmp5UafNg/tell_tales_example
 #____________Other parameters________________
 nterm_min_score:	300
 repeat_min_score:	20
 cterm_min_score:	200
 terminus_max_evalue:	1e-05
+terminus_min_cover:	0.9
 min_dna_hits:	4
 min_array_length:	0
 merge_hits:	TRUE

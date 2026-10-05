@@ -114,9 +114,9 @@ seq1                 -          TALE_C-terminus_CDS_aligned_curated_long -      
 # Program:         nhmmer
 # Version:         3.3.2 (Nov 2020)
 # Pipeline mode:   SEARCH
-# Query file:      /tmp/RtmpdDaXOs/tell_tales_example/tale_cds_all_diagnostic_regions_hmmfile.out
-# Target file:     /tmp/RtmpdDaXOs/file250f601ca00ca4
-# Option settings: /home/cunnac/mamba/envs/tantale/bin/nhmmer --tblout /tmp/RtmpdDaXOs/tell_tales_example/hmmer_search_out.txt /tmp/RtmpdDaXOs/tell_tales_example/tale_cds_all_diagnostic_regions_hmmfile.out /tmp/RtmpdDaXOs/file250f601ca00ca4 
+# Query file:      /tmp/Rtmp5UafNg/tell_tales_example/tale_cds_all_diagnostic_regions_hmmfile.out
+# Target file:     /tmp/Rtmp5UafNg/file263faa3bab074b
+# Option settings: /home/cunnac/mamba/envs/tantale/bin/nhmmer --tblout /tmp/Rtmp5UafNg/tell_tales_example/hmmer_search_out.txt /tmp/Rtmp5UafNg/tell_tales_example/tale_cds_all_diagnostic_regions_hmmfile.out /tmp/Rtmp5UafNg/file263faa3bab074b 
 # Current dir:     /home/cunnac/Lab-Related/MyScripts/tantale
-# Date:            Mon Oct  5 22:39:13 2026
+# Date:            Mon Oct  5 23:10:25 2026
 # [ok]

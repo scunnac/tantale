@@ -13,6 +13,7 @@ tell_tales(
   repeat_min_score = 20,
   cterm_min_score = 200,
   terminus_max_evalue = 1e-05,
+  terminus_min_cover = 0.9,
   min_dna_hits = 4,
   min_array_length = 0,
   merge_hits = TRUE,
@@ -57,19 +58,18 @@ the hit as genuine}
 \item{cterm_min_score}{Minimal nhmmer score cut_off value to
 consider the hit as genuine}
 
-\item{terminus_max_evalue}{Maximum \code{hmmsearch} E-value for the
-segment AnnoTALE reports on either side of the repeats to count as a TALE
-N- or C-terminus. The segments are searched with the TALE terminal-domain
-protein profiles of \code{hmm_dir}; this decides the \code{NTERM},
-\code{CTERM} and \code{XXXXX} codes (see \code{\link{tales_anchor_codes}}).
-Genuine termini truncated to about 40 residues still match with E-values
-below 1e-18. The match must also reach, within 10 positions, the end of
-the profile that adjoins the repeats: a terminus whose repeat-side part
-is in another reading frame after a frameshift matches only up to the
-frameshift, and is coded \code{XXXXX}. A terminus shorter than the
-canonical one that matches is coded \code{NTERM}/\code{CTERM}, though
-it has probably lost part of its function; see
-\code{\link{tales_anchor_codes}}.}
+\item{terminus_max_evalue, terminus_min_cover}{What it takes for the
+segment AnnoTALE reports on either side of the repeats to be coded as a
+canonical TALE N- or C-terminus, \code{NTERM} or \code{CTERM} rather
+than \code{XXXXX} (see \code{\link{tales_anchor_codes}}). The segment
+is searched with the TALE terminal-domain protein profile of
+\code{hmm_dir}; the match must have an E-value of at most
+\code{terminus_max_evalue}, cover at least \code{terminus_min_cover} of
+the profile's positions, and reach, within 10 positions, the end of the
+profile that adjoins the repeats. The default of 0.9 comes from the
+termini of the curated TALEs of \code{\link{tale_annotations}}: their
+canonical termini cover 0.93 of the profile or more, the truncated
+termini of the truncTALEs 0.84 or less.}
 
 \item{min_dna_hits}{Minimum number of nhmmer hits for a subject
 sequence (a contig, a chromosome) to be considered further. A cheap way
@@ -244,10 +244,11 @@ gaps when part of the terminus is missing in between.
 separate stretches of the profile the match consists of. More than
 one means the terminus is split, by a deletion or a change of
 reading frame.
-\item \emph{nterm_aa_hit}, \emph{cterm_aa_hit}: \code{TRUE} when that
-E-value is at most \code{terminus_max_evalue} and the profile gap at
-most 10, \code{FALSE} for a segment that does not match,
-\code{NA} when AnnoTALE reported no segment on that side.
+\item \emph{nterm_aa_hit}, \emph{cterm_aa_hit}: \code{TRUE} for a
+canonical terminus: E-value at most \code{terminus_max_evalue},
+cover at least \code{terminus_min_cover}, profile gap at most 10.
+\code{FALSE} for any other segment, \code{NA} when AnnoTALE
+reported no segment on that side.
 \item \emph{nterm_aa_length}, \emph{cterm_aa_length}: length of those
 segments in amino acid residues, excluding a stop codon, as in the
 \code{tales} object's \code{aa_seq}.

@@ -10,14 +10,15 @@ tales_anomalies(x)
 \item{x}{A \code{\link{tales}} object.}
 }
 \value{
-A tibble of \code{array_id}, \code{check} and \code{detail}, one
+A tibble of \code{array_id}, \code{check}, \code{kind}
+(\code{"integrity"} or \code{"noncanonical"}) and \code{detail}, one
 row per anomaly. Zero rows if the object is clean.
 }
 \description{
 Lists the arrays whose content is biologically odd: missing sequence data,
 a structure other than that of a standard TALE (an N-terminus, one or more
-repeats and a C-terminus, both termini matched by the profile of their
-TALE domain), impossible domain-type arrangements, coordinate
+repeats and a C-terminus, both termini canonical TALE terminal domains),
+impossible domain-type arrangements, coordinate
 disagreements, an amino acid sequence paired with more than one RVD, or
 an attribute that varies within an array when it should not. Structurally broken input (a
 duplicated key, a missing required column) is an error in
@@ -25,14 +26,25 @@ duplicated key, a missing required column) is an error in
 
 Such arrays are accepted by \code{\link{tales}} -- real TALE predictions are
 messy, and refusing to load them would force cleaning outside the package and
-destroy the diagnostic signal. Construction warns about them, this function
-tells you which and why, and \code{tales(x, sanitize = TRUE)} removes them.
+destroy the diagnostic signal. Construction warns about them and this
+function tells you which and why.
+
+Each anomaly is of one of two kinds. \code{"noncanonical"} marks a TALE
+whose structure departs from the standard one: a terminus that is not a
+canonical TALE terminal domain (\code{terminus_noncanonical}), such as
+the C-terminus of a truncTALE, or no terminus part on one side
+(\code{terminus_absent}). Such TALEs can be real and interesting.
+\code{"integrity"} marks every other anomaly: data that are inconsistent
+or incomplete, or an array without repeats. \code{tales(x, sanitize =
+TRUE)} removes the arrays with an anomaly of kind \code{"integrity"} and
+keeps the others; the example below shows how to keep canonical TALEs
+only.
 
 The structure checks need a \code{domain_type} column, and the terminus
 profile check an \code{rvd} column; they are skipped when it is absent.
 The structure checks report \code{terminus_absent} (no N- or no
 C-terminus part), \code{no_repeat} (no repeat part) and
-\code{terminus_unmatched} (a terminus coded \code{XXXXX}, see
+\code{terminus_noncanonical} (a terminus coded \code{XXXXX}, see
 \code{\link{tales_anchor_codes}}). They apply to whole arrays: a subset
 keeping only the repeats is reported as lacking its termini.
 }
@@ -48,6 +60,20 @@ odd <- data.frame(
 x <- suppressWarnings(tales(odd))
 tales_anomalies(x)
 tales(odd, sanitize = TRUE) # drops A2 instead of merely warning
+
+# B2 is a truncTALE-like array: its C-terminus is not canonical.
+# sanitize = TRUE keeps it; to keep canonical TALEs only, drop every
+# array with an anomaly of either kind.
+parts <- data.frame(
+  array_id = rep(c("B1", "B2"), each = 3),
+  position_in_array = rep(1:3, 2),
+  domain_type = rep(c("N-terminus", "repeat", "C-terminus"), 2),
+  rvd = c("NTERM", "HD", "CTERM", "NTERM", "NI", "XXXXX")
+)
+y <- tales(parts, sanitize = TRUE)
+tales_anomalies(y)
+canonical <- y[!y$array_id \%in\% tales_anomalies(y)$array_id, ]
+unique(canonical$array_id)
 }
 \seealso{
 Other tales objects:

@@ -83,7 +83,7 @@
         "names": {
           "type": "character",
           "attributes": {},
-          "value": ["array_id", "check", "detail"]
+          "value": ["array_id", "check", "kind", "detail"]
         },
         "row.names": {
           "type": "integer",
@@ -105,12 +105,17 @@
         {
           "type": "character",
           "attributes": {},
-          "value": ["terminus_unmatched"]
+          "value": ["terminus_noncanonical"]
         },
         {
           "type": "character",
           "attributes": {},
-          "value": ["C-terminus not matched by its TALE domain profile (coded XXXXX)"]
+          "value": ["noncanonical"]
+        },
+        {
+          "type": "character",
+          "attributes": {},
+          "value": ["C-terminus is not a canonical TALE terminal domain (coded XXXXX)"]
         }
       ]
     }
@@ -800,7 +805,7 @@
         {
           "type": "integer",
           "attributes": {},
-          "value": [199, 57, 57, 3, 9, 55, 33, 33, 3, 9, 40, 57, 57, 3, 9, 55, 49, 49, 3, 9, 50, 5, 37, 77, 97, 99, 97, 122, 37, 87, 2421, 0, 200, 10, 5550, 42]
+          "value": [199, 57, 57, 3, 9, 55, 33, 33, 3, 9, 40, 57, 57, 3, 9, 55, 49, 49, 3, 9, 50, 5, 37, 77, 97, 99, 97, 122, 37, 87, 2421, 0, 200, 10, 5550, 43]
         },
         {
           "type": "integer",
@@ -810,7 +815,7 @@
         {
           "type": "character",
           "attributes": {},
-          "value": ["824db9eab0082cd781411b97ef9eeb6f", "9e72973f27d92d9414692db2ad6fc09c", "049a21a7c09f687cc81a7b15ab6bdeb6", "23afd6523c33ab2f7c0d969d31aa86cf", "69fc61a95869ec7b6fae45c866d596a9", "718f3deaacf42fbb208aed622ac60a98", "00c89a4a2f2071af75b5194b6909a86a", "97d7c2b0b3b92bbdda7902173fddb03d", "b3ab79d5d8f436a6a0ffa6345b501d1f", "b3e2c179e43132cf747ba65da1ca9ff9", "ac2e11824dead7c52fcb473c78c69f91", "67ef58d13c2ad5895e1f6fda32f1afc7", "185b8d320bb61f2a3c5aeec9efc5eb53", "c780528efec6d565f97dcdf2de07342b", "01cd2bcc87ba7db5ab25e517f49f119a", "d0fe14c43e7f56f0ccb2da78ef76015a", "eb022d9d6e2cdda5740911add74deba7", "c150a2539f239d7e586439c1af93442a", "31aada0cd7bfd31e9273c4e3b180e090", "580525511219a4028aab66d959e7ce1e", "f9cfb82adbd5a0835571721f96bc86be", "7d0ffeff34af27984bedddc441eabb60", null, "1a8cadaaf472338a42e8dd131dea2e67", "2b1c8a7d0abe873f122ef42d5e516615", "d7e495c4fc59d3f30692f2da018df546", "c929ceb99d46f08d4a54bf82134d1aa7", "0b52294f4536c785111676c0ac62f6bf", null, "54a6879268017fdc8e3bdf51cfdc0929", "0c1d6405967718ed187b7cf61796185d", "5152ac13bdd09110d9ee9c169a3d9237", "8322432d7c86ddc9b826fe7740f4114e", "966d0eb34a6311b1250a2bbb417c9aac", "89fca75b113315c1f07021f041b8c506", "97802ca9628392b42f9d772db407422c"]
+          "value": ["824db9eab0082cd781411b97ef9eeb6f", "9e72973f27d92d9414692db2ad6fc09c", "049a21a7c09f687cc81a7b15ab6bdeb6", "23afd6523c33ab2f7c0d969d31aa86cf", "69fc61a95869ec7b6fae45c866d596a9", "718f3deaacf42fbb208aed622ac60a98", "00c89a4a2f2071af75b5194b6909a86a", "97d7c2b0b3b92bbdda7902173fddb03d", "b3ab79d5d8f436a6a0ffa6345b501d1f", "b3e2c179e43132cf747ba65da1ca9ff9", "ac2e11824dead7c52fcb473c78c69f91", "67ef58d13c2ad5895e1f6fda32f1afc7", "185b8d320bb61f2a3c5aeec9efc5eb53", "c780528efec6d565f97dcdf2de07342b", "01cd2bcc87ba7db5ab25e517f49f119a", "d0fe14c43e7f56f0ccb2da78ef76015a", "eb022d9d6e2cdda5740911add74deba7", "c150a2539f239d7e586439c1af93442a", "31aada0cd7bfd31e9273c4e3b180e090", "580525511219a4028aab66d959e7ce1e", "f9cfb82adbd5a0835571721f96bc86be", "7d0ffeff34af27984bedddc441eabb60", null, "1a8cadaaf472338a42e8dd131dea2e67", "2b1c8a7d0abe873f122ef42d5e516615", "d7e495c4fc59d3f30692f2da018df546", "c929ceb99d46f08d4a54bf82134d1aa7", "0b52294f4536c785111676c0ac62f6bf", null, "54a6879268017fdc8e3bdf51cfdc0929", "0c1d6405967718ed187b7cf61796185d", "5152ac13bdd09110d9ee9c169a3d9237", "8322432d7c86ddc9b826fe7740f4114e", "966d0eb34a6311b1250a2bbb417c9aac", "89fca75b113315c1f07021f041b8c506", "b6603af06ca0993071c2aec5f71aa8d4"]
         }
       ]
     }
@@ -1065,7 +1070,7 @@
         {
           "type": "integer",
           "attributes": {},
-          "value": [199, 57, 57, 3, 9, 55, 33, 33, 3, 9, 40, 57, 57, 3, 9, 55, 49, 49, 3, 9, 50, 5, 37, 77, 124, 97, 124, 124, 358, 268, 358, 331, 97, 99, 97, 122, 37, 87, 2421, 0, 200, 10, 5550, 42]
+          "value": [199, 57, 57, 3, 9, 55, 33, 33, 3, 9, 40, 57, 57, 3, 9, 55, 49, 49, 3, 9, 50, 5, 37, 77, 124, 97, 124, 124, 358, 268, 358, 331, 97, 99, 97, 122, 37, 87, 2421, 0, 200, 10, 5550, 43]
         },
         {
           "type": "integer",
@@ -1075,7 +1080,7 @@
         {
           "type": "character",
           "attributes": {},
-          "value": ["8a51317c6443dc9960b3bc22ba5b96e6", "9e72973f27d92d9414692db2ad6fc09c", "049a21a7c09f687cc81a7b15ab6bdeb6", "23afd6523c33ab2f7c0d969d31aa86cf", "69fc61a95869ec7b6fae45c866d596a9", "718f3deaacf42fbb208aed622ac60a98", "00c89a4a2f2071af75b5194b6909a86a", "97d7c2b0b3b92bbdda7902173fddb03d", "b3ab79d5d8f436a6a0ffa6345b501d1f", "b3e2c179e43132cf747ba65da1ca9ff9", "ac2e11824dead7c52fcb473c78c69f91", "67ef58d13c2ad5895e1f6fda32f1afc7", "185b8d320bb61f2a3c5aeec9efc5eb53", "c780528efec6d565f97dcdf2de07342b", "01cd2bcc87ba7db5ab25e517f49f119a", "d0fe14c43e7f56f0ccb2da78ef76015a", "eb022d9d6e2cdda5740911add74deba7", "c150a2539f239d7e586439c1af93442a", "31aada0cd7bfd31e9273c4e3b180e090", "580525511219a4028aab66d959e7ce1e", "f9cfb82adbd5a0835571721f96bc86be", "097731c9d403df82201e83ec6b1d9b53", null, "1a8cadaaf472338a42e8dd131dea2e67", "192ee93266dae1ce775665e4217c8c46", "044518e3f7950feb628be40d193b53ae", "252e0ef1c4f31cf9f2d03f67cbb7ff6b", "292b7ce13365b5804c92a2db198896d2", "500241a675ae43db9565f2fe09f33bc0", "90d934b4b57504459b064f6d762e80db", "4766c58765b876892eedc1fb7f269e61", "30f2ca66d1adfda555da232185d29974", "2b1c8a7d0abe873f122ef42d5e516615", "d7e495c4fc59d3f30692f2da018df546", "c929ceb99d46f08d4a54bf82134d1aa7", "0b52294f4536c785111676c0ac62f6bf", null, "54a6879268017fdc8e3bdf51cfdc0929", "0c1d6405967718ed187b7cf61796185d", "5152ac13bdd09110d9ee9c169a3d9237", "8322432d7c86ddc9b826fe7740f4114e", "966d0eb34a6311b1250a2bbb417c9aac", "89fca75b113315c1f07021f041b8c506", "70fc794a9694ff2c6113e0632dd05444"]
+          "value": ["8a51317c6443dc9960b3bc22ba5b96e6", "9e72973f27d92d9414692db2ad6fc09c", "049a21a7c09f687cc81a7b15ab6bdeb6", "23afd6523c33ab2f7c0d969d31aa86cf", "69fc61a95869ec7b6fae45c866d596a9", "718f3deaacf42fbb208aed622ac60a98", "00c89a4a2f2071af75b5194b6909a86a", "97d7c2b0b3b92bbdda7902173fddb03d", "b3ab79d5d8f436a6a0ffa6345b501d1f", "b3e2c179e43132cf747ba65da1ca9ff9", "ac2e11824dead7c52fcb473c78c69f91", "67ef58d13c2ad5895e1f6fda32f1afc7", "185b8d320bb61f2a3c5aeec9efc5eb53", "c780528efec6d565f97dcdf2de07342b", "01cd2bcc87ba7db5ab25e517f49f119a", "d0fe14c43e7f56f0ccb2da78ef76015a", "eb022d9d6e2cdda5740911add74deba7", "c150a2539f239d7e586439c1af93442a", "31aada0cd7bfd31e9273c4e3b180e090", "580525511219a4028aab66d959e7ce1e", "f9cfb82adbd5a0835571721f96bc86be", "097731c9d403df82201e83ec6b1d9b53", null, "1a8cadaaf472338a42e8dd131dea2e67", "192ee93266dae1ce775665e4217c8c46", "044518e3f7950feb628be40d193b53ae", "252e0ef1c4f31cf9f2d03f67cbb7ff6b", "292b7ce13365b5804c92a2db198896d2", "500241a675ae43db9565f2fe09f33bc0", "90d934b4b57504459b064f6d762e80db", "4766c58765b876892eedc1fb7f269e61", "30f2ca66d1adfda555da232185d29974", "2b1c8a7d0abe873f122ef42d5e516615", "d7e495c4fc59d3f30692f2da018df546", "c929ceb99d46f08d4a54bf82134d1aa7", "0b52294f4536c785111676c0ac62f6bf", null, "54a6879268017fdc8e3bdf51cfdc0929", "0c1d6405967718ed187b7cf61796185d", "5152ac13bdd09110d9ee9c169a3d9237", "8322432d7c86ddc9b826fe7740f4114e", "966d0eb34a6311b1250a2bbb417c9aac", "89fca75b113315c1f07021f041b8c506", "163daa4e3ed777fc1400fad8fef126ac"]
         }
       ]
     }

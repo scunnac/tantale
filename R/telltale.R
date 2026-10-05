@@ -512,6 +512,7 @@
     paste("repeat_min_score:", params$repeat_min_score, sep = "\t"),
     paste("cterm_min_score:", params$cterm_min_score, sep = "\t"),
     paste("terminus_max_evalue:", params$terminus_max_evalue, sep = "\t"),
+    paste("terminus_min_cover:", params$terminus_min_cover, sep = "\t"),
     paste("min_dna_hits:", params$min_dna_hits, sep = "\t"),
     paste("min_array_length:", params$min_array_length, sep = "\t"),
     paste("merge_hits:", params$merge_hits, sep = "\t"),
@@ -931,8 +932,15 @@
 # (ledger §42).
 .terminus_max_profile_gap <- 10L
 
+# How much of the terminal-domain profile a match must cover for the terminus
+# to count as canonical. From data-raw/terminus_calibration.R: the canonical
+# termini of tale_annotations cover 0.927 or more (TalC's N-terminus, with an
+# internal deletion, is the lowest), the truncTALE termini 0.844 or less
+# (ledger §59).
+.terminus_min_cover <- 0.9
 
-#' Does each terminus look like a canonical TALE terminal domain?
+
+#' Is each terminus a canonical TALE terminal domain?
 #'
 #' AnnoTALE calls "N-terminus" whatever the ORF encodes upstream of the first
 #' repeat, and "C-terminus" whatever it encodes downstream of the last one.
@@ -946,8 +954,11 @@
 #' (the last positions of the N-terminal profile, the first ones of the
 #' C-terminal profile), within \code{max_profile_gap} positions. A frameshift
 #' inside a terminus puts its repeat-side part in another reading frame, so
-#' such a segment matches only up to the frameshift; a genuine truncated
-#' terminus is shortened at its far end and still reaches the repeats (ledger
+#' such a segment matches only up to the frameshift. And the match must
+#' cover at least \code{min_cover} of the profile: a terminus that stops
+#' early, like the C-terminus of a truncTALE, or that lacks a large part, is
+#' not canonical (ledger §59). Earlier, a terminus truncated at its far end
+#' still counted when it reached the repeats (ledger
 #' §42).
 #'
 #' Kept as a function because it is meant to serve every reader of AnnoTALE
@@ -962,6 +973,8 @@
 #'   at most this count towards the profile coverage.
 #' @param max_profile_gap How many profile positions a match may stop short
 #'   of the end adjoining the repeats.
+#' @param min_cover The fraction of the profile's positions a match must
+#'   cover.
 #' @param hmm_dir Directory holding \code{Xo_TALE_Nterm_AA_profile.hmm} and
 #'   \code{Xo_TALE_Cterm_AA_profile.hmm}.
 #' @param hmmer_path Directory holding the \code{hmmsearch} binary;
@@ -980,7 +993,8 @@
 #'   segment without one, \code{NA} without a segment).
 #' @noRd
 .tale_termini_hmmsearch <- function(termini, max_evalue, hmm_dir, hmmer_path = NULL,
-                                    max_profile_gap = .terminus_max_profile_gap) {
+                                    max_profile_gap = .terminus_max_profile_gap,
+                                    min_cover = .terminus_min_cover) {
   if (is.null(hmmer_path)) hmmer_path <- .get_hmmer()
   profiles <- c(`N-terminus` = file.path(hmm_dir, "Xo_TALE_Nterm_AA_profile.hmm"),
                 `C-terminus` = file.path(hmm_dir, "Xo_TALE_Cterm_AA_profile.hmm"))
@@ -1049,7 +1063,8 @@
     }
     found %>%
       dplyr::mutate(hit = !is.na(evalue) & evalue <= max_evalue &
-                      !is.na(profile_gap) & profile_gap <= max_profile_gap) %>%
+                      !is.na(profile_gap) & profile_gap <= max_profile_gap &
+                      !is.na(cover) & cover >= min_cover) %>%
       dplyr::rename_with(~ paste0(if (isNterm) "nterm" else "cterm", "_aa_", .x),
                          c(evalue, score, profile_gap, far_gap, cover, domains, hit))
   })
@@ -1448,19 +1463,18 @@
 #'   the hit as genuine
 #' @param cterm_min_score Minimal nhmmer score cut_off value to
 #'   consider the hit as genuine
-#' @param terminus_max_evalue Maximum \code{hmmsearch} E-value for the
-#'   segment AnnoTALE reports on either side of the repeats to count as a TALE
-#'   N- or C-terminus. The segments are searched with the TALE terminal-domain
-#'   protein profiles of \code{hmm_dir}; this decides the \code{NTERM},
-#'   \code{CTERM} and \code{XXXXX} codes (see \code{\link{tales_anchor_codes}}).
-#'   Genuine termini truncated to about 40 residues still match with E-values
-#'   below 1e-18. The match must also reach, within 10 positions, the end of
-#'   the profile that adjoins the repeats: a terminus whose repeat-side part
-#'   is in another reading frame after a frameshift matches only up to the
-#'   frameshift, and is coded \code{XXXXX}. A terminus shorter than the
-#'   canonical one that matches is coded \code{NTERM}/\code{CTERM}, though
-#'   it has probably lost part of its function; see
-#'   \code{\link{tales_anchor_codes}}.
+#' @param terminus_max_evalue,terminus_min_cover What it takes for the
+#'   segment AnnoTALE reports on either side of the repeats to be coded as a
+#'   canonical TALE N- or C-terminus, \code{NTERM} or \code{CTERM} rather
+#'   than \code{XXXXX} (see \code{\link{tales_anchor_codes}}). The segment
+#'   is searched with the TALE terminal-domain protein profile of
+#'   \code{hmm_dir}; the match must have an E-value of at most
+#'   \code{terminus_max_evalue}, cover at least \code{terminus_min_cover} of
+#'   the profile's positions, and reach, within 10 positions, the end of the
+#'   profile that adjoins the repeats. The default of 0.9 comes from the
+#'   termini of the curated TALEs of \code{\link{tale_annotations}}: their
+#'   canonical termini cover 0.93 of the profile or more, the truncated
+#'   termini of the truncTALEs 0.84 or less.
 #' @param min_dna_hits Minimum number of nhmmer hits for a subject
 #'   sequence (a contig, a chromosome) to be considered further. A cheap way
 #'   to discard whole sequences that carry nothing but stray matches, before
@@ -1621,10 +1635,11 @@
 #'     separate stretches of the profile the match consists of. More than
 #'     one means the terminus is split, by a deletion or a change of
 #'     reading frame.
-#'     \item \emph{nterm_aa_hit}, \emph{cterm_aa_hit}: \code{TRUE} when that
-#'     E-value is at most \code{terminus_max_evalue} and the profile gap at
-#'     most 10, \code{FALSE} for a segment that does not match,
-#'     \code{NA} when AnnoTALE reported no segment on that side.
+#'     \item \emph{nterm_aa_hit}, \emph{cterm_aa_hit}: \code{TRUE} for a
+#'     canonical terminus: E-value at most \code{terminus_max_evalue},
+#'     cover at least \code{terminus_min_cover}, profile gap at most 10.
+#'     \code{FALSE} for any other segment, \code{NA} when AnnoTALE
+#'     reported no segment on that side.
 #'     \item \emph{nterm_aa_length}, \emph{cterm_aa_length}: length of those
 #'     segments in amino acid residues, excluding a stop codon, as in the
 #'     \code{tales} object's \code{aa_seq}.
@@ -1694,6 +1709,7 @@ tell_tales <- function(
   repeat_min_score = 20,
   cterm_min_score = 200,
   terminus_max_evalue = 1e-5,
+  terminus_min_cover = 0.9,
   min_dna_hits = 4,
   min_array_length = 0,
   merge_hits = TRUE,
@@ -1830,6 +1846,7 @@ tell_tales <- function(
 
   #### Do the termini look like TALE terminal domains? ####
   terminiHits <- .tale_termini_hmmsearch(endsAA, max_evalue = terminus_max_evalue,
+                                         min_cover = terminus_min_cover,
                                          hmm_dir = hmm_dir, hmmer_path = hmmer_path)
 
   #### RVD strings ####
@@ -1899,6 +1916,7 @@ tell_tales <- function(
                   repeat_min_score = repeat_min_score,
                   cterm_min_score = cterm_min_score,
                   terminus_max_evalue = terminus_max_evalue,
+                  terminus_min_cover = terminus_min_cover,
                   min_dna_hits = min_dna_hits,
                   min_array_length = min_array_length, merge_hits = merge_hits,
                   min_gap = min_gap, extend_len = extend_len,

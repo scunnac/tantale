@@ -64,16 +64,18 @@ termini_cases <- function() {
   list(`N-terminus` = s[part == "N-terminus"], `C-terminus` = s[part == "C-terminus"])
 }
 
-test_that("genuine termini match their profile, complete or truncated; unrelated segments do not", {
+test_that("canonical termini match their profile; truncated and unrelated segments do not", {
   hits <- .tale_termini_hmmsearch(termini_cases(), max_evalue = 1e-5,
                                   hmm_dir = system.file("extdata", "hmmProfile", package = "tantale"))
   hit <- function(id, col) hits[[col]][hits$array_id == id]
   expect_true(hit("MAI1_ROI_00006", "nterm_aa_hit"))
-  expect_true(hit("PXO86_truncTALE", "cterm_aa_hit"))            # 42 aa
+  # a truncTALE C-terminus (42 aa) matches strongly but covers too little
+  # of the profile to be canonical (ledger §59)
+  expect_false(hit("PXO86_truncTALE", "cterm_aa_hit"))
   expect_lt(hit("PXO86_truncTALE", "cterm_aa_evalue"), 1e-10)
   expect_false(hit("BAI3-1-1_ROI_00001", "cterm_aa_hit"))
   expect_false(hit("BAI3-1-1_ROI_00006", "nterm_aa_hit"))
-  # complete and truncated termini reach the profile end next to the repeats
+  # both reach the profile end next to the repeats
   expect_identical(hit("MAI1_ROI_00006", "nterm_aa_profile_gap"), 0L)
   expect_identical(hit("PXO86_truncTALE", "cterm_aa_profile_gap"), 0L)
   # the far end tells them apart: the complete N-terminus covers its whole
@@ -83,6 +85,10 @@ test_that("genuine termini match their profile, complete or truncated; unrelated
   expect_gt(hit("MAI1_ROI_00006", "nterm_aa_cover"), 0.95)
   expect_gt(hit("PXO86_truncTALE", "cterm_aa_far_gap"), 200L)
   expect_lt(hit("PXO86_truncTALE", "cterm_aa_cover"), 0.2)
+  # with a looser cover threshold it would count
+  loose <- .tale_termini_hmmsearch(termini_cases(), max_evalue = 1e-5, min_cover = 0.1,
+                                   hmm_dir = system.file("extdata", "hmmProfile", package = "tantale"))
+  expect_true(loose$cterm_aa_hit[loose$array_id == "PXO86_truncTALE"])
   expect_gt(hit("PXO86_truncTALE", "cterm_aa_score"), 0)
   # no segment on the other side: NA, not FALSE
   expect_true(is.na(hit("MAI1_ROI_00006", "cterm_aa_hit")))
@@ -98,8 +104,10 @@ test_that("a terminus that a frameshift cuts short of the repeats is no match", 
   expect_lt(row$nterm_aa_evalue, 1e-80)
   expect_identical(row$nterm_aa_profile_gap, 138L)
   expect_false(row$nterm_aa_hit)
-  # the tolerance decides it: allowing 138 positions makes it a match
+  # the tolerances decide it: allowing 138 positions, and a match over half
+  # the profile, makes it a match
   loose <- .tale_termini_hmmsearch(termini_cases(), max_evalue = 1e-5, max_profile_gap = 138L,
+                                   min_cover = 0.5,
                                    hmm_dir = system.file("extdata", "hmmProfile", package = "tantale"))
   expect_true(loose$nterm_aa_hit[loose$array_id == "BAI3-1-1_ROI_00002"])
 })
@@ -125,7 +133,7 @@ test_that("tell_tales() codes termini from the protein profiles and drops DNA-on
   expect_identical(nrow(truncated), 1L)
   # the nhmmer DNA search misses this truncated C-terminus; the protein profile does not
   expect_false(truncated$cterm_dna_hit)
-  expect_true(truncated$cterm_aa_hit)
+  expect_false(truncated$cterm_aa_hit)   # not canonical (ledger §59)
   # below the score threshold, the DNA still carries the two ends of a
   # C-terminus, split by a deletion (ledger §59)
   expect_true(all(c("nterm_dna_score", "cterm_dna_score", "nterm_dna_cover", "cterm_dna_cover",
@@ -137,7 +145,7 @@ test_that("tell_tales() codes termini from the protein profiles and drops DNA-on
   hits <- readr::read_tsv(file.path(out, "hits_report.tsv"), show_col_types = FALSE, progress = FALSE)
   expect_true(all(c("score", "evalue", "hmm_from", "hmm_to") %in% names(hits)))
   expect_false(anyNA(hits$score))
-  expect_match(truncated$rvd_string, "-CTERM$")
+  expect_match(truncated$rvd_string, "-XXXXX$")
 
   # AnnoTALE splits ROI_00001's DNA but cannot translate it: no parts file is left
   expect_false(file.exists(file.path(out, "annotale", "ROI_00001", "TALE_DNA_parts.fasta")))
@@ -146,7 +154,7 @@ test_that("tell_tales() codes termini from the protein profiles and drops DNA-on
   expect_warning(x <- tales_from_telltales(out), "ROI_00001",
                  class = "tantale_warning_annotale_unparsed")
   expect_false("ROI_00001" %in% x$array_id)
-  expect_identical(x$rvd[x$array_id == truncated$array_id & x$domain_type == "C-terminus"], "CTERM")
+  expect_identical(x$rvd[x$array_id == truncated$array_id & x$domain_type == "C-terminus"], "XXXXX")
 })
 
 
