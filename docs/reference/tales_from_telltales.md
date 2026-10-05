@@ -21,9 +21,11 @@ tales_from_telltales(telltale_dir, sanitize = FALSE)
 
 - sanitize:
 
-  If `TRUE`, arrays carrying biological anomalies are removed with a
-  warning naming them and why; if `FALSE` (default) they are kept and
-  merely warned about. See
+  `FALSE` (default) keeps every array and warns about the anomalies;
+  `TRUE` removes the arrays whose data are inconsistent or incomplete
+  and keeps non-canonical TALEs (truncTALEs, for instance);
+  `"canonical"` keeps canonical TALEs only. See
+  [`tales`](https://scunnac.github.io/tantale/reference/tales.md) and
   [`tales_anomalies`](https://scunnac.github.io/tantale/reference/tales_anomalies.md).
 
 ## Value
@@ -36,10 +38,12 @@ One row per part: the N-terminus, each repeat and the C-terminus, as
 AnnoTALE split the array's longest ORF. The `rvd` column holds the RVD
 of a repeat, or a terminus code (see
 [`tales_anchor_codes`](https://scunnac.github.io/tantale/reference/tales_anchor_codes.md)):
-`NTERM`/`CTERM` when the terminus matches the TALE terminal-domain
-protein profile, `XXXXX` when it does not. When AnnoTALE reported no
-terminus on one side, the array has no part there, with a warning. An
-array whose protein and DNA parts disagree is left out, with a warning.
+`NTERM`/`CTERM` when the terminus is a canonical TALE terminal domain by
+the protein profile search of
+[`tell_tales`](https://scunnac.github.io/tantale/reference/tell_tales.md),
+`XXXXX` when it is not. When AnnoTALE reported no terminus on one side,
+the array has no part there, with a warning. An array whose protein and
+DNA parts disagree is left out, with a warning.
 
 A candidate array with a TALE terminus DNA hit that AnnoTALE could not
 split into parts is absent from the result, with a warning naming it.

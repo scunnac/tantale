@@ -13,7 +13,7 @@ tales_from_telltales."><meta property="og:image" content="https://scunnac.github
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.99.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.99.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,6 +62,7 @@ tales_from_telltales."><meta property="og:image" content="https://scunnac.github
     <div class="sourceCode"><pre class="sourceCode r"><code><span><span class="fu">tales_from_annotale</span><span class="op">(</span></span>
 <span>  <span class="va">annotale_dir</span>,</span>
 <span>  terminus_max_evalue <span class="op">=</span> <span class="fl">1e-05</span>,</span>
+<span>  terminus_min_cover <span class="op">=</span> <span class="fl">0.9</span>,</span>
 <span>  sanitize <span class="op">=</span> <span class="cn">FALSE</span>,</span>
 <span>  hmm_dir <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/system.file.html" class="external-link">system.file</a></span><span class="op">(</span><span class="st">"extdata"</span>, <span class="st">"hmmProfile"</span>, package <span class="op">=</span> <span class="st">"tantale"</span>, mustWork <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="op">)</span></span></code></pre></div>
@@ -78,17 +79,20 @@ tales_from_telltales."><meta property="og:image" content="https://scunnac.github
 <code>output_dir</code> of <code><a href="run_annotale_predict.html">run_annotale_predict()</a></code> will do.</p></dd>
 
 
-<dt id="arg-terminus-max-evalue">terminus_max_evalue<a class="anchor" aria-label="anchor" href="#arg-terminus-max-evalue"></a></dt>
-<dd><p>Maximum <code>hmmsearch</code> E-value for a
-terminal segment to be coded <code>NTERM</code>/<code>CTERM</code>. As in
+<dt id="arg-terminus-max-evalue-terminus-min-cover">terminus_max_evalue, terminus_min_cover<a class="anchor" aria-label="anchor" href="#arg-terminus-max-evalue-terminus-min-cover"></a></dt>
+<dd><p>Maximum <code>hmmsearch</code>
+E-value, and minimum fraction of the profile covered, for a terminal
+segment to be coded <code>NTERM</code>/<code>CTERM</code>. As in
 <code><a href="tell_tales.html">tell_tales</a></code>, the match must also reach the end of the
 profile that adjoins the repeats.</p></dd>
 
 
 <dt id="arg-sanitize">sanitize<a class="anchor" aria-label="anchor" href="#arg-sanitize"></a></dt>
-<dd><p>If <code>TRUE</code>, arrays carrying biological anomalies are
-removed with a warning naming them and why; if <code>FALSE</code> (default) they
-are kept and merely warned about. See <code><a href="tales_anomalies.html">tales_anomalies</a></code>.</p></dd>
+<dd><p><code>FALSE</code> (default) keeps every array and warns about
+the anomalies; <code>TRUE</code> removes the arrays whose data are
+inconsistent or incomplete and keeps non-canonical TALEs (truncTALEs,
+for instance); <code>"canonical"</code> keeps canonical TALEs only. See
+<code><a href="tales.html">tales</a></code> and <code><a href="tales_anomalies.html">tales_anomalies</a></code>.</p></dd>
 
 
 <dt id="arg-hmm-dir">hmm_dir<a class="anchor" aria-label="anchor" href="#arg-hmm-dir"></a></dt>
@@ -109,8 +113,9 @@ not report the same set of TALEs.</p>
 <p>As in <code><a href="tell_tales.html">tell_tales()</a></code>, each terminal segment is searched with the TALE
 N- or C-terminal protein profile (<code>hmmsearch</code>, from the tantale
 environment; see <code><a href="tantale_setup.html">tantale_setup</a></code>). The <code>rvd</code> column holds
-<code>NTERM</code>/<code>CTERM</code> for a segment that matches its profile and
-<code>XXXXX</code> for one that does not (see <code><a href="tales_anchor_codes.html">tales_anchor_codes</a></code>).</p>
+<code>NTERM</code>/<code>CTERM</code> for a segment that is a canonical terminus by
+that search and <code>XXXXX</code> for any other (see
+<code><a href="tales_anchor_codes.html">tales_anchor_codes</a></code>).</p>
 <p><code>array_id</code> is AnnoTALE's name for the TALE (<code>MAI1-tempTALE1</code>),
 without the location AnnoTALE appends to it. <code>seqnames</code> is filled
 when predict's GFF3 file is found under <code>annotale_dir</code>.</p>

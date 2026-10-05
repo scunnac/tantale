@@ -4125,6 +4125,19 @@ or `"canonical"` (anything else is `tantale_error_bad_argument`);
 `tantale_warning_tales_sanitized` warning; the construction warning names
 both levels; the `?tales_anomalies` example uses it.
 
+**Site revised (2026-10-06).** Articles: `trunctale_correction.qmd`
+(both truncTALEs now flagged, coverage evidence, `sanitize` levels, and
+`ROI_00019`'s C-terminus fragments, correcting the Q151 sentence),
+`tale_mining.qmd` (meaning of the codes, report columns, both `sanitize`
+levels; raw BAI3-1-1 now has six arrays with both termini `XXXXX`, and
+`ROI_00002` is flagged too), `tales_class.qmd` (anomaly kinds, `sanitize`
+levels). Article cache rebuilt from scratch (backup in the session
+scratchpad); `tale_classification`, `tale_msa`, `tales_msa_class` and
+`tale_target_prediction` render identical text, so the grouping is
+unchanged. Home, all reference pages (now stamped 0.99.0.9000), news,
+llm docs and search rebuilt without wiping `docs/`; `check_built_site()`
+clean.
+
 ## 60. rOpenSci #813: first editor reply and the bot's pkgcheck (2026-10-05) **[P]**
 
 Adam Sparks (editor, 2026-10-05 06:08 UTC) ran `@ropensci-review-bot

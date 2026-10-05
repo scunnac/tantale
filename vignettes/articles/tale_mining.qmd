@@ -64,10 +64,11 @@ bai3_sample
 ```
 
 Each terminal region is searched with the profile HMM of the TALE N- or
-C-terminal domain, and marked `NTERM` or `CTERM` when it matches (`XXXXX`
-otherwise). A match shows that the region is related to a TALE terminus.
-A shorter terminus that matches is coded the same way, although it has
-probably lost part of its function (see
+C-terminal domain, and marked `NTERM` or `CTERM` when it is a canonical
+terminus, one that can be expected to do its usual job: the match must
+cover at least 90% of the profile (`XXXXX` otherwise). A terminus that
+has lost a large part, like the C-terminus of a truncTALE, is coded
+`XXXXX` even though it is related to a TALE terminus (see
 [Genuine truncTALEs](trunctale_correction.html#sec-two-trunctales)).
 On a whole genome, the same object comes from two calls
 (not run here, as `predict` takes a couple of minutes per genome):
@@ -95,9 +96,9 @@ inspection. The rest of this article uses `tell_tales()`.
 tuned to the N-terminus, the repeat unit, and the C-terminus of a TALE
 CDS. Hits are merged, grouped into candidate arrays by proximity, and each
 array's longest ORF is handed to AnnoTALE to split into parts and call its
-RVD sequence. `NTERM`/`CTERM` markers are added at either end of the RVD
-string wherever a terminus was identified this way, so a downstream
-alignment knows where an array actually starts and ends.
+RVD sequence. Terminus codes are added at either end of the RVD string,
+`NTERM`/`CTERM` for a canonical terminus and `XXXXX` for any other, so a
+downstream alignment knows where an array actually starts and ends.
 
 A scratch directory holds everything this set of articles builds:
 
@@ -161,9 +162,9 @@ since they carry a few things the `tales` object does not.
 ```{r report_table, echo = FALSE}
 knitr::kable(tibble::tribble(
   ~file, ~`one row per`, ~`worth knowing`,
-  "`hits_report.tsv`", "raw `nhmmer` hit", "`codon_count`, `frameshift_count` per hit -- before any merging or correction",
+  "`hits_report.tsv`", "`nhmmer` hit", "`score`, `evalue`, the profile positions covered, `codon_count`, `frameshift_count` -- before any correction",
   "`domains_report.tsv`", "domain, after AnnoTALE", "what AnnoTALE actually parsed out of the ORF",
-  "`array_report.tsv`", "candidate array", "`nterm_dna_hit`/`cterm_dna_hit`, `nterm_aa_hit`/`cterm_aa_hit`, `has_aberrant_repeat`, `orf_coverage`, and (with correction) `predicted_ins_count`/`predicted_dels_count`"
+  "`array_report.tsv`", "candidate array", "the DNA evidence for each terminus (`*_dna_hit`, `*_dna_score`, `*_dna_cover`), its protein match (`*_aa_cover`, `*_aa_hit`), `has_aberrant_repeat`, `orf_coverage`, and (with correction) `predicted_ins_count`/`predicted_dels_count`"
 ))
 ```
 
@@ -213,9 +214,9 @@ bai311_raw <- tales_from_telltales(bai311_raw_dir)
 
 `tales_anomalies()` lists the arrays concerned and why. It reports every
 array that is not a standard TALE (an N-terminus, one or more repeats and
-a C-terminus, both termini matching the profile of their TALE domain),
-and every array whose content is inconsistent (missing sequence data,
-impossible terminus arrangements, coordinate disagreements):
+a C-terminus, both termini canonical), and every array whose content is
+inconsistent (missing sequence data, impossible terminus arrangements,
+coordinate disagreements). The `kind` column tells the two apart:
 
 ```{r anomalies_raw}
 tales_anomalies(bai311_raw)
@@ -223,9 +224,9 @@ tales_anomalies(bai311_raw)
 ```
 
 `ROI_00003` and `ROI_00005` have no repeat at all: AnnoTALE could not
-parse a repeat-array structure out of the longest predicted ORF. Five
-other arrays have a terminus coded `XXXXX`, which does not match the
-profile of its TALE domain. Their `orf_coverage` shows why:
+parse a repeat-array structure out of the longest predicted ORF. The six
+other arrays have both termini coded `XXXXX`, which is not a canonical TALE
+terminal domain. Their `orf_coverage` shows why:
 
 ```{r orf_coverage_raw}
 readr::read_tsv(file.path(bai311_raw_dir, "array_report.tsv"),
@@ -239,7 +240,7 @@ readr::read_tsv(file.path(bai311_raw_dir, "array_report.tsv"),
 `ROI_00003` and `ROI_00005` predicted ORFs cover 19% and 23% of their candidate region.
 
 No array in this assembly reaches MAI1's 91-93%: the
-others fall between 38% and 70%. This is unusual, and `tales_anomalies()` flags every one of them except `ROI_00002`.
+others fall between 38% and 70%. This is unusual, and `tales_anomalies()` flags every one of them.
 A close look at the 'array_report.tsv' table indicates that loci such as `ROI_00001` and `ROI_00007` have a predicted ORF encoding very few repeats (4-6), and only repeats (see `rvd_string`), even if both termini profiles were found at the DNA level (`nterm_dna_hit` and `cterm_dna_hit` are both `TRUE`).
 
 Because, in practice this barely happens in high quality genomes, in the absence of any further evidence, this could be explained by in/del(s) along the CDS that completely break them.
@@ -379,7 +380,7 @@ tales_anomalies(bai311_java)
 ```
 
 `correct_tales()` fixes most arrays but fails to repair the N-termini of `ROI_00006` and
-`ROI_00009`, which still do not match the TALE N-terminal profile.
+`ROI_00009`, which are still not canonical.
 
 Compared with the correction made inside `tell_tales()`, bound the same
 way:
@@ -462,8 +463,8 @@ has one such array, `ROI_00001`. Measured once on this genome, against the
 
 | `max_comparisons` | seconds | standard TALEs | `ROI_00001` |
 |---|---|---|---|
-| no correction | 19 | 0 of 8 | 4 repeats, neither terminus matched |
-| 2 to 5 | 19-22 | 7 of 8 | N-terminus unmatched, 19 of its 26 repeats |
+| no correction | 19 | 0 of 8 | 4 repeats, neither terminus canonical |
+| 2 to 5 | 19-22 | 7 of 8 | N-terminus not canonical, 19 of its 26 repeats |
 | 10, 20 | 26, 34 | 7 of 7 | not parsed by AnnoTALE |
 | 50 (default) | 61 | 8 of 8 | N-terminus, 26 repeats, C-terminus |
 | 100 | 101 | 8 of 8 | as at 50 |
@@ -499,13 +500,24 @@ at `max_comparisons = NULL` before relying on the cap.
 
 `bai311_corr` needs none of this: it is already clean. A route that stops
 short of that, such as `correct_tales()` above (which left the N-termini
-of `ROI_00006` and `ROI_00009` unmatched), still needs a decision about
-what to do with what remains flagged. `tales(x, sanitize = TRUE)`
-drops it so an analysis can proceed on what is clean, with a warning
-naming each dropped array and the reason:
+of `ROI_00006` and `ROI_00009` not canonical), still needs a decision
+about what to do with what remains flagged. `sanitize` makes it when the
+object is built. `sanitize = TRUE` removes only the arrays whose data are
+inconsistent or incomplete, and keeps TALEs that are merely not canonical,
+since a truncTALE, for one, is real biology; here it keeps both arrays,
+with a message:
 
-```{r sanitize, warning = TRUE}
-bai311_clean <- tales(bai311_java, sanitize = TRUE)
+```{r sanitize, message = TRUE}
+bai311_kept <- tales(bai311_java, sanitize = TRUE)
+n_distinct(bai311_java$array_id) - n_distinct(bai311_kept$array_id)
+```
+
+`sanitize = "canonical"` removes every flagged array, so that only
+canonical TALEs remain, with a warning naming each dropped array and the
+reason:
+
+```{r sanitize_canonical, warning = TRUE}
+bai311_clean <- tales(bai311_java, sanitize = "canonical")
 n_distinct(bai311_java$array_id) - n_distinct(bai311_clean$array_id)
 ```
 

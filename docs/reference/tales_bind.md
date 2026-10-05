@@ -36,7 +36,7 @@ tales_bind(..., on_namespace_mismatch = c("recode", "error"), sanitize = FALSE)
 
   Passed to
   [`tales`](https://scunnac.github.io/tantale/reference/tales.md) for
-  the final construction.
+  the final construction: `FALSE`, `TRUE` or `"canonical"`.
 
 ## Value
 

@@ -165,34 +165,41 @@ A class that insisted on clean input would force cleaning outside the
 package and throw away exactly the signal a user would want to inspect.
 
 "Anomalous" means "worth a second look", which is broader than "wrong".
-Any array that is not a standard TALE is flagged. A standard TALE has an
-N-terminus, one or more repeats and a C-terminus, and both termini match
-the profile of their TALE domain (`NTERM` and `CTERM`, rather than
-`XXXXX`). An array missing its C-terminus is flagged, although it may
-sit at the edge of a contig or be a genuinely truncated TALE. Also
-flagged are a part arrangement that cannot be biologically real (two
-N-termini in one array, say, or one that is not at the start), a part
-missing the sequence data it should carry, one amino acid sequence
-paired with two different RVDs, and position columns that disagree with
-each other:
+`tales_anomalies()` reports two kinds of anomaly. The first kind,
+`"noncanonical"`, is a TALE that is not standard. A standard TALE has an
+N-terminus, one or more repeats and a C-terminus, and both termini are
+canonical TALE terminal domains (`NTERM` and `CTERM`, rather than
+`XXXXX`; see `tales_anchor_codes()`). An array missing its C-terminus is
+flagged, although it may sit at the edge of a contig or be a genuinely
+truncated TALE; so is a truncTALE, whose C-terminus is coded `XXXXX`.
+Such TALEs can be real biology. The second kind, `"integrity"`, is data
+that cannot be trusted: a part arrangement that cannot be biologically
+real (two N-termini in one array, say, or one that is not at the start),
+an array without repeats, a part missing the sequence data it should
+carry, one amino acid sequence paired with two different RVDs, and
+position columns that disagree with each other:
 
 ```{r anomaly_demo}
 odd <- tibble::tibble(
-  array_id = c("a1", "a1", "a1", "a2", "a2", "a2"),
-  position_in_array = c(1L, 2L, 3L, 1L, 2L, 3L),
+  array_id = c("a1", "a1", "a1", "a2", "a2", "a2", "a3", "a3", "a3"),
+  position_in_array = rep(1:3, 3),
   domain_type = c("N-terminus", "N-terminus", "repeat",
+                  "N-terminus", "repeat", "C-terminus",
                   "N-terminus", "repeat", "C-terminus"),
-  rvd = c("NTERM", "NTERM", "HD", "NTERM", "HD", "CTERM")
+  rvd = c("NTERM", "NTERM", "HD", "NTERM", "HD", "CTERM", "NTERM", "NI", "XXXXX")
 )
 x_odd <- suppressWarnings(tales(odd))
 tales_anomalies(x_odd)
 ```
 
-`tales(sanitize = TRUE)` drops the flagged arrays instead of merely warning
-about them:
+`sanitize` drops flagged arrays instead of merely warning about them.
+`sanitize = TRUE` drops the arrays with an `"integrity"` anomaly and keeps
+the non-canonical ones; `sanitize = "canonical"` keeps canonical TALEs
+only:
 
 ```{r sanitize_demo}
-tales(odd, sanitize = TRUE)
+unique(tales(odd, sanitize = TRUE)$array_id)
+unique(tales(odd, sanitize = "canonical")$array_id)
 ```
 
 Structural problems, such as a duplicated key or an `NA` where one is not
@@ -274,8 +281,8 @@ reps %>% filter(rvd == "HD") %>% distinct(dom_code, aa_seq) %>% head(4)
 ```
 
 A terminus, meanwhile, has no RVD at all: its `rvd` column holds a
-placeholder (`"NTERM"`, `"CTERM"`, or `"XXXXX"` for a terminus whose CDS
-was detected but not identified; see `tales_anchor_codes()`), while its
+placeholder (`"NTERM"`, `"CTERM"`, or `"XXXXX"` for a terminus that is
+not a canonical TALE terminal domain; see `tales_anchor_codes()`), while its
 `dom_code` identifies a real sequence.
 
 ## How they are computed

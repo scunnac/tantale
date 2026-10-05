@@ -9,7 +9,7 @@ per (array, slot)."><meta property="og:image" content="https://scunnac.github.io
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.99.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.99.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -75,12 +75,16 @@ preserved untouched.</p></dd>
 
 
 <dt id="arg-sanitize">sanitize<a class="anchor" aria-label="anchor" href="#arg-sanitize"></a></dt>
-<dd><p>If <code>TRUE</code>, arrays carrying biological anomalies (the
-ones <code><a href="tales_anomalies.html">tales_anomalies</a></code> lists) are removed, with a warning
-naming them and why. If
-<code>FALSE</code> (default) they are kept and merely warned about, so odd
-predictions can still be loaded and inspected. Structural corruption is
-an error either way. See <code><a href="tales_anomalies.html">tales_anomalies</a></code>.</p></dd>
+<dd><p>Which arrays to remove, among those
+<code><a href="tales_anomalies.html">tales_anomalies</a></code> lists:</p><ul><li><p><code>FALSE</code> (default): none. The anomalies are warned about, so
+odd predictions can still be loaded and inspected.</p></li>
+<li><p><code>TRUE</code>: the arrays whose data are inconsistent or incomplete
+(anomalies of kind <code>"integrity"</code>), with a warning naming them and
+why. Non-canonical TALEs, such as truncTALEs or TALEs lacking a
+terminus, are kept, with a message.</p></li>
+<li><p><code>"canonical"</code>: every array with an anomaly, so that only
+canonical TALEs remain.</p></li>
+</ul><p>Structural corruption is an error either way.</p></dd>
 
 </dl></div>
     <div class="section level2">

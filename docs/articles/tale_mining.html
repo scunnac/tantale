@@ -26,7 +26,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.99.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.99.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -111,7 +111,7 @@
 <span><span class="co">#&gt;   bai3_sample_tal_genomic_regions-tempTALE4  NTERM NI HD NN NS NN NG HD NG HD NG NN NG  ...</span></span></code></pre></div>
 </details>
 </div>
-<p>Each terminal region is searched with the profile HMM of the TALE N- or C-terminal domain, and marked <code>NTERM</code> or <code>CTERM</code> when it matches (<code>XXXXX</code> otherwise). A match shows that the region is related to a TALE terminus. A shorter terminus that matches is coded the same way, although it has probably lost part of its function (see <a href="trunctale_correction.html#sec-two-trunctales">Genuine truncTALEs</a>). On a whole genome, the same object comes from two calls (not run here, as <code>predict</code> takes a couple of minutes per genome):</p>
+<p>Each terminal region is searched with the profile HMM of the TALE N- or C-terminal domain, and marked <code>NTERM</code> or <code>CTERM</code> when it is a canonical terminus, one that can be expected to do its usual job: the match must cover at least 90% of the profile (<code>XXXXX</code> otherwise). A terminus that has lost a large part, like the C-terminus of a truncTALE, is coded <code>XXXXX</code> even though it is related to a TALE terminus (see <a href="trunctale_correction.html#sec-two-trunctales">Genuine truncTALEs</a>). On a whole genome, the same object comes from two calls (not run here, as <code>predict</code> takes a couple of minutes per genome):</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">mai1_annotale_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"MAI1_annotale"</span><span class="op">)</span></span>
@@ -124,7 +124,7 @@
 </section><section class="level2" data-number="2"><h2 data-number="2" id="finding-tale-loci-in-genomic-dna">
 <span class="header-section-number">2</span> Finding TALE loci in genomic DNA<a class="anchor" aria-label="anchor" href="#finding-tale-loci-in-genomic-dna"></a>
 </h2>
-<p><code><a href="../reference/tell_tales.html">tell_tales()</a></code> searches a genome with <code>nhmmer</code>, using three profile HMMs tuned to the N-terminus, the repeat unit, and the C-terminus of a TALE CDS. Hits are merged, grouped into candidate arrays by proximity, and each array’s longest ORF is handed to AnnoTALE to split into parts and call its RVD sequence. <code>NTERM</code>/<code>CTERM</code> markers are added at either end of the RVD string wherever a terminus was identified this way, so a downstream alignment knows where an array actually starts and ends.</p>
+<p><code><a href="../reference/tell_tales.html">tell_tales()</a></code> searches a genome with <code>nhmmer</code>, using three profile HMMs tuned to the N-terminus, the repeat unit, and the C-terminus of a TALE CDS. Hits are merged, grouped into candidate arrays by proximity, and each array’s longest ORF is handed to AnnoTALE to split into parts and call its RVD sequence. Terminus codes are added at either end of the RVD string, <code>NTERM</code>/<code>CTERM</code> for a canonical terminus and <code>XXXXX</code> for any other, so a downstream alignment knows where an array actually starts and ends.</p>
 <p>A scratch directory holds everything this set of articles builds:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb4"><pre class="downlit sourceCode r">
@@ -188,9 +188,9 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 <div class="cell-output-display">
 <table class="table caption-top">
 <colgroup>
-<col style="width: 9%">
-<col style="width: 10%">
-<col style="width: 79%">
+<col style="width: 7%">
+<col style="width: 8%">
+<col style="width: 84%">
 </colgroup>
 <thead><tr class="header">
 <th style="text-align: left;">file</th>
@@ -200,9 +200,10 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 <tbody>
 <tr class="odd">
 <td style="text-align: left;"><code>hits_report.tsv</code></td>
-<td style="text-align: left;">raw <code>nhmmer</code> hit</td>
 <td style="text-align: left;">
-<code>codon_count</code>, <code>frameshift_count</code> per hit – before any merging or correction</td>
+<code>nhmmer</code> hit</td>
+<td style="text-align: left;">
+<code>score</code>, <code>evalue</code>, the profile positions covered, <code>codon_count</code>, <code>frameshift_count</code> – before any correction</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;"><code>domains_report.tsv</code></td>
@@ -212,8 +213,7 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 <tr class="odd">
 <td style="text-align: left;"><code>array_report.tsv</code></td>
 <td style="text-align: left;">candidate array</td>
-<td style="text-align: left;">
-<code>nterm_dna_hit</code>/<code>cterm_dna_hit</code>, <code>nterm_aa_hit</code>/<code>cterm_aa_hit</code>, <code>has_aberrant_repeat</code>, <code>orf_coverage</code>, and (with correction) <code>predicted_ins_count</code>/<code>predicted_dels_count</code>
+<td style="text-align: left;">the DNA evidence for each terminus (<code>*_dna_hit</code>, <code>*_dna_score</code>, <code>*_dna_cover</code>), its protein match (<code>*_aa_cover</code>, <code>*_aa_hit</code>), <code>has_aberrant_repeat</code>, <code>orf_coverage</code>, and (with correction) <code>predicted_ins_count</code>/<code>predicted_dels_count</code>
 </td>
 </tr>
 </tbody>
@@ -267,33 +267,37 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 <span><span class="co">#&gt; Warning: 8 arrays have biological anomalies.</span></span>
 <span><span class="co">#&gt; ✖ Arrays: "ROI_00001", "ROI_00002", "ROI_00003", "ROI_00005", "ROI_00006",</span></span>
 <span><span class="co">#&gt;   "ROI_00007", "ROI_00008", and "ROI_00009"</span></span>
-<span><span class="co">#&gt; ℹ Reasons: terminus_unmatched and no_repeat</span></span>
-<span><span class="co">#&gt; ℹ Inspect with `tales_anomalies()`, or drop with `sanitize = TRUE`.</span></span></code></pre></div>
+<span><span class="co">#&gt; ℹ Reasons: terminus_noncanonical and no_repeat</span></span>
+<span><span class="co">#&gt; ℹ Inspect with `tales_anomalies()`; drop with `sanitize = TRUE` (inconsistent</span></span>
+<span><span class="co">#&gt;   data) or `sanitize = "canonical"` (all of them).</span></span></code></pre></div>
 </details>
 </div>
-<p><code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> lists the arrays concerned and why. It reports every array that is not a standard TALE (an N-terminus, one or more repeats and a C-terminus, both termini matching the profile of their TALE domain), and every array whose content is inconsistent (missing sequence data, impossible terminus arrangements, coordinate disagreements):</p>
+<p><code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> lists the arrays concerned and why. It reports every array that is not a standard TALE (an N-terminus, one or more repeats and a C-terminus, both termini canonical), and every array whose content is inconsistent (missing sequence data, impossible terminus arrangements, coordinate disagreements). The <code>kind</code> column tells the two apart:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/tales_anomalies.html">tales_anomalies</a></span><span class="op">(</span><span class="va">bai311_raw</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 13 × 3</span></span>
-<span><span class="co">#&gt;    array_id  check              detail                                          </span></span>
-<span><span class="co">#&gt;    &lt;chr&gt;     &lt;chr&gt;              &lt;chr&gt;                                           </span></span>
-<span><span class="co">#&gt;  1 ROI_00001 terminus_unmatched N-terminus not matched by its TALE domain profi…</span></span>
-<span><span class="co">#&gt;  2 ROI_00001 terminus_unmatched C-terminus not matched by its TALE domain profi…</span></span>
-<span><span class="co">#&gt;  3 ROI_00002 terminus_unmatched N-terminus not matched by its TALE domain profi…</span></span>
-<span><span class="co">#&gt;  4 ROI_00003 no_repeat          no repeat                                       </span></span>
-<span><span class="co">#&gt;  5 ROI_00003 terminus_unmatched C-terminus not matched by its TALE domain profi…</span></span>
-<span><span class="co">#&gt;  6 ROI_00005 no_repeat          no repeat                                       </span></span>
-<span><span class="co">#&gt;  7 ROI_00005 terminus_unmatched C-terminus not matched by its TALE domain profi…</span></span>
-<span><span class="co">#&gt;  8 ROI_00006 terminus_unmatched N-terminus not matched by its TALE domain profi…</span></span>
-<span><span class="co">#&gt;  9 ROI_00007 terminus_unmatched N-terminus not matched by its TALE domain profi…</span></span>
-<span><span class="co">#&gt; 10 ROI_00007 terminus_unmatched C-terminus not matched by its TALE domain profi…</span></span>
-<span><span class="co">#&gt; 11 ROI_00008 terminus_unmatched N-terminus not matched by its TALE domain profi…</span></span>
-<span><span class="co">#&gt; 12 ROI_00008 terminus_unmatched C-terminus not matched by its TALE domain profi…</span></span>
-<span><span class="co">#&gt; 13 ROI_00009 terminus_unmatched N-terminus not matched by its TALE domain profi…</span></span></code></pre></div>
+<span><span class="co">#&gt; # A tibble: 16 × 4</span></span>
+<span><span class="co">#&gt;    array_id  check                 kind         detail                          </span></span>
+<span><span class="co">#&gt;    &lt;chr&gt;     &lt;chr&gt;                 &lt;chr&gt;        &lt;chr&gt;                           </span></span>
+<span><span class="co">#&gt;  1 ROI_00001 terminus_noncanonical noncanonical N-terminus is not a canonical T…</span></span>
+<span><span class="co">#&gt;  2 ROI_00001 terminus_noncanonical noncanonical C-terminus is not a canonical T…</span></span>
+<span><span class="co">#&gt;  3 ROI_00002 terminus_noncanonical noncanonical N-terminus is not a canonical T…</span></span>
+<span><span class="co">#&gt;  4 ROI_00002 terminus_noncanonical noncanonical C-terminus is not a canonical T…</span></span>
+<span><span class="co">#&gt;  5 ROI_00003 no_repeat             integrity    no repeat                       </span></span>
+<span><span class="co">#&gt;  6 ROI_00003 terminus_noncanonical noncanonical C-terminus is not a canonical T…</span></span>
+<span><span class="co">#&gt;  7 ROI_00005 no_repeat             integrity    no repeat                       </span></span>
+<span><span class="co">#&gt;  8 ROI_00005 terminus_noncanonical noncanonical C-terminus is not a canonical T…</span></span>
+<span><span class="co">#&gt;  9 ROI_00006 terminus_noncanonical noncanonical N-terminus is not a canonical T…</span></span>
+<span><span class="co">#&gt; 10 ROI_00006 terminus_noncanonical noncanonical C-terminus is not a canonical T…</span></span>
+<span><span class="co">#&gt; 11 ROI_00007 terminus_noncanonical noncanonical N-terminus is not a canonical T…</span></span>
+<span><span class="co">#&gt; 12 ROI_00007 terminus_noncanonical noncanonical C-terminus is not a canonical T…</span></span>
+<span><span class="co">#&gt; 13 ROI_00008 terminus_noncanonical noncanonical N-terminus is not a canonical T…</span></span>
+<span><span class="co">#&gt; 14 ROI_00008 terminus_noncanonical noncanonical C-terminus is not a canonical T…</span></span>
+<span><span class="co">#&gt; 15 ROI_00009 terminus_noncanonical noncanonical N-terminus is not a canonical T…</span></span>
+<span><span class="co">#&gt; 16 ROI_00009 terminus_noncanonical noncanonical C-terminus is not a canonical T…</span></span></code></pre></div>
 </details>
 </div>
-<p><code>ROI_00003</code> and <code>ROI_00005</code> have no repeat at all: AnnoTALE could not parse a repeat-array structure out of the longest predicted ORF. Five other arrays have a terminus coded <code>XXXXX</code>, which does not match the profile of its TALE domain. Their <code>orf_coverage</code> shows why:</p>
+<p><code>ROI_00003</code> and <code>ROI_00005</code> have no repeat at all: AnnoTALE could not parse a repeat-array structure out of the longest predicted ORF. The six other arrays have both termini coded <code>XXXXX</code>, which is not a canonical TALE terminal domain. Their <code>orf_coverage</code> shows why:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_tsv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">bai311_raw_dir</span>, <span class="st">"array_report.tsv"</span><span class="op">)</span>,</span>
@@ -335,7 +339,7 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: right;">2385</td>
 <td style="text-align: right;">70</td>
-<td style="text-align: left;">XXXXX-NN-HD-NI-NN-HD-NG-HD-HD-NG-NG-NI-NG-NI-NG-CTERM</td>
+<td style="text-align: left;">XXXXX-NN-HD-NI-NN-HD-NG-HD-HD-NG-NG-NI-NG-NI-NG-XXXXX</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">ROI_00003</td>
@@ -367,7 +371,7 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: right;">1446</td>
 <td style="text-align: right;">45</td>
-<td style="text-align: left;">XXXXX-NV-HD-NI-NG-NI-NN-NS-HD-HD-NI-CTERM</td>
+<td style="text-align: left;">XXXXX-NV-HD-NI-NG-NI-NN-NS-HD-HD-NI-XXXXX</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">ROI_00007</td>
@@ -391,14 +395,14 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 <td style="text-align: left;">TRUE</td>
 <td style="text-align: right;">1791</td>
 <td style="text-align: right;">47</td>
-<td style="text-align: left;">XXXXX-NV-HD-NI-NN-HD-HD-HD-NI-NN-NN-HD-HD-N*-NG-HD-NI-CTERM</td>
+<td style="text-align: left;">XXXXX-NV-HD-NI-NN-HD-HD-HD-NI-NN-NN-HD-HD-N*-NG-HD-NI-XXXXX</td>
 </tr>
 </tbody>
 </table>
 </div>
 </div>
 <p><code>ROI_00003</code> and <code>ROI_00005</code> predicted ORFs cover 19% and 23% of their candidate region.</p>
-<p>No array in this assembly reaches MAI1’s 91-93%: the others fall between 38% and 70%. This is unusual, and <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> flags every one of them except <code>ROI_00002</code>. A close look at the ‘array_report.tsv’ table indicates that loci such as <code>ROI_00001</code> and <code>ROI_00007</code> have a predicted ORF encoding very few repeats (4-6), and only repeats (see <code>rvd_string</code>), even if both termini profiles were found at the DNA level (<code>nterm_dna_hit</code> and <code>cterm_dna_hit</code> are both <code>TRUE</code>).</p>
+<p>No array in this assembly reaches MAI1’s 91-93%: the others fall between 38% and 70%. This is unusual, and <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> flags every one of them. A close look at the ‘array_report.tsv’ table indicates that loci such as <code>ROI_00001</code> and <code>ROI_00007</code> have a predicted ORF encoding very few repeats (4-6), and only repeats (see <code>rvd_string</code>), even if both termini profiles were found at the DNA level (<code>nterm_dna_hit</code> and <code>cterm_dna_hit</code> are both <code>TRUE</code>).</p>
 <p>Because, in practice this barely happens in high quality genomes, in the absence of any further evidence, this could be explained by in/del(s) along the CDS that completely break them.</p>
 <p>A premature stop could also be genuine: some strains carry naturally truncated TALEs (see <a href="trunctale_correction.html">Genuine truncTALEs and frameshift correction</a>). In BAI3-1-1 the corrections below settle it: once repaired, both arrays recover the coverage of a clean MAI1 array, as expected of assembly frameshifts.</p>
 </section><section class="level2" data-number="5"><h2 data-number="5" id="correcting-frameshifts-two-ways">
@@ -445,8 +449,8 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">bai311_corr</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tales_from_telltales.html">tales_from_telltales</a></span><span class="op">(</span><span class="va">bai311_corr_dir</span><span class="op">)</span></span>
 <span><span class="fu"><a href="../reference/tales_anomalies.html">tales_anomalies</a></span><span class="op">(</span><span class="va">bai311_corr</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 0 × 3</span></span>
-<span><span class="co">#&gt; # ℹ 3 variables: array_id &lt;chr&gt;, check &lt;chr&gt;, detail &lt;chr&gt;</span></span></code></pre></div>
+<span><span class="co">#&gt; # A tibble: 0 × 4</span></span>
+<span><span class="co">#&gt; # ℹ 4 variables: array_id &lt;chr&gt;, check &lt;chr&gt;, kind &lt;chr&gt;, detail &lt;chr&gt;</span></span></code></pre></div>
 </details>
 </div>
 <p>To see what changed, <code><a href="../reference/tales_bind.html">tales_bind()</a></code> combines the uncorrected and the corrected arrays into one object, which <code><a href="https://rdrr.io/r/graphics/plot.default.html" class="external-link">plot()</a></code> draws with a single legend. The array identifiers must be unique across the objects it binds, so each object’s get a prefix; a <code>method</code> column records the correction each array went through (a factor, which sets the order of the panels), and <code>roi</code> keeps the original identifier:</p>
@@ -524,14 +528,14 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/tales_anomalies.html">tales_anomalies</a></span><span class="op">(</span><span class="va">bai311_java</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 2 × 3</span></span>
-<span><span class="co">#&gt;   array_id  check              detail                                           </span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;     &lt;chr&gt;              &lt;chr&gt;                                            </span></span>
-<span><span class="co">#&gt; 1 ROI_00006 terminus_unmatched N-terminus not matched by its TALE domain profil…</span></span>
-<span><span class="co">#&gt; 2 ROI_00009 terminus_unmatched N-terminus not matched by its TALE domain profil…</span></span></code></pre></div>
+<span><span class="co">#&gt; # A tibble: 2 × 4</span></span>
+<span><span class="co">#&gt;   array_id  check                 kind         detail                           </span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;     &lt;chr&gt;                 &lt;chr&gt;        &lt;chr&gt;                            </span></span>
+<span><span class="co">#&gt; 1 ROI_00006 terminus_noncanonical noncanonical N-terminus is not a canonical TA…</span></span>
+<span><span class="co">#&gt; 2 ROI_00009 terminus_noncanonical noncanonical N-terminus is not a canonical TA…</span></span></code></pre></div>
 </details>
 </div>
-<p><code><a href="../reference/correct_tales.html">correct_tales()</a></code> fixes most arrays but fails to repair the N-termini of <code>ROI_00006</code> and <code>ROI_00009</code>, which still do not match the TALE N-terminal profile.</p>
+<p><code><a href="../reference/correct_tales.html">correct_tales()</a></code> fixes most arrays but fails to repair the N-termini of <code>ROI_00006</code> and <code>ROI_00009</code>, which are still not canonical.</p>
 <p>Compared with the correction made inside <code><a href="../reference/tell_tales.html">tell_tales()</a></code>, bound the same way:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb26"><pre class="downlit sourceCode r">
@@ -571,12 +575,18 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 </section><section class="level3" data-number="5.3"><h3 data-number="5.3" id="what-is-the-best-method-for-correcting-the-dna-sequences-of-tale-arrays">
 <span class="header-section-number">5.3</span> What is the best method for correcting the DNA sequences of TALE arrays?<a class="anchor" aria-label="anchor" href="#what-is-the-best-method-for-correcting-the-dna-sequences-of-tale-arrays"></a>
 </h3>
-<p>On this genome, correction inside <code><a href="../reference/tell_tales.html">tell_tales()</a></code> gives the better result: 8 of 8 arrays come out as standard TALEs, against 6 of 8 after <code><a href="../reference/correct_tales.html">correct_tales()</a></code>. It is also about as fast: on the machine that built this page it took 61 seconds. The Java route needs two steps, <code><a href="../reference/correct_tales.html">correct_tales()</a></code> and then the <code><a href="../reference/tell_tales.html">tell_tales()</a></code> run that finds the arrays in the corrected genome, and together they took 40 seconds. One genome is a limited sample, however. <code><a href="../reference/correct_tales.html">correct_tales()</a></code> repairs the whole genome in one pass, and the corrected genome can serve other analyses as well. Furthermore, <code><a href="../reference/correct_tales.html">correct_tales()</a></code> does not suffer the <em>over-correction</em> behavior exhibited by <code><a href="../reference/tell_tales.html">tell_tales()</a></code> on <a href="trunctale_correction.html#sec-two-trunctales">truncTALEs</a>. On a new, error-prone assembly, running both routes and comparing their <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> costs a few minutes and shows the arrays on which they agree.</p>
+<p>On this genome, correction inside <code><a href="../reference/tell_tales.html">tell_tales()</a></code> gives the better result: 8 of 8 arrays come out as standard TALEs, against 6 of 8 after <code><a href="../reference/correct_tales.html">correct_tales()</a></code>. It is also about as fast: on the machine that built this page it took 70 seconds. The Java route needs two steps, <code><a href="../reference/correct_tales.html">correct_tales()</a></code> and then the <code><a href="../reference/tell_tales.html">tell_tales()</a></code> run that finds the arrays in the corrected genome, and together they took 47 seconds. One genome is a limited sample, however. <code><a href="../reference/correct_tales.html">correct_tales()</a></code> repairs the whole genome in one pass, and the corrected genome can serve other analyses as well. Furthermore, <code><a href="../reference/correct_tales.html">correct_tales()</a></code> does not suffer the <em>over-correction</em> behavior exhibited by <code><a href="../reference/tell_tales.html">tell_tales()</a></code> on <a href="trunctale_correction.html#sec-two-trunctales">truncTALEs</a>. On a new, error-prone assembly, running both routes and comparing their <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> costs a few minutes and shows the arrays on which they agree.</p>
 </section><section class="level3" data-number="5.4"><h3 data-number="5.4" id="sec-max-comparisons">
 <span class="header-section-number">5.4</span> <code>max_comparisons</code> sets the depth of the search<a class="anchor" aria-label="anchor" href="#sec-max-comparisons"></a>
 </h3>
 <p><code>max_comparisons</code> is the main control on how long correction inside <code><a href="../reference/tell_tales.html">tell_tales()</a></code> takes. <code><a href="https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html" class="external-link">DECIPHER::CorrectFrameshifts()</a></code> ranks the references by a quick distance and aligns each array against the closest <code>max_comparisons</code> of them. When the cap is too low, an array whose good references rank further down is corrected against a poor one. BAI3-1-1 has one such array, <code>ROI_00001</code>. Measured once on this genome, against the 494 shipped references:</p>
 <table class="table caption-top">
+<colgroup>
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+<col style="width: 25%">
+</colgroup>
 <thead><tr class="header">
 <th><code>max_comparisons</code></th>
 <th>seconds</th>
@@ -588,13 +598,13 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 <td>no correction</td>
 <td>19</td>
 <td>0 of 8</td>
-<td>4 repeats, neither terminus matched</td>
+<td>4 repeats, neither terminus canonical</td>
 </tr>
 <tr class="even">
 <td>2 to 5</td>
 <td>19-22</td>
 <td>7 of 8</td>
-<td>N-terminus unmatched, 19 of its 26 repeats</td>
+<td>N-terminus not canonical, 19 of its 26 repeats</td>
 </tr>
 <tr class="odd">
 <td>10, 20</td>
@@ -650,13 +660,24 @@ Figure 1: Domain composition of the nine TALE arrays found in MAI1.
 </section></section><section class="level2" data-number="6"><h2 data-number="6" id="moving-on-with-what-you-have">
 <span class="header-section-number">6</span> Moving on with what you have<a class="anchor" aria-label="anchor" href="#moving-on-with-what-you-have"></a>
 </h2>
-<p><code>bai311_corr</code> needs none of this: it is already clean. A route that stops short of that, such as <code><a href="../reference/correct_tales.html">correct_tales()</a></code> above (which left the N-termini of <code>ROI_00006</code> and <code>ROI_00009</code> unmatched), still needs a decision about what to do with what remains flagged. <code>tales(x, sanitize = TRUE)</code> drops it so an analysis can proceed on what is clean, with a warning naming each dropped array and the reason:</p>
+<p><code>bai311_corr</code> needs none of this: it is already clean. A route that stops short of that, such as <code><a href="../reference/correct_tales.html">correct_tales()</a></code> above (which left the N-termini of <code>ROI_00006</code> and <code>ROI_00009</code> not canonical), still needs a decision about what to do with what remains flagged. <code>sanitize</code> makes it when the object is built. <code>sanitize = TRUE</code> removes only the arrays whose data are inconsistent or incomplete, and keeps TALEs that are merely not canonical, since a truncTALE, for one, is real biology; here it keeps both arrays, with a message:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb31"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span><span class="va">bai311_clean</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tales.html">tales</a></span><span class="op">(</span><span class="va">bai311_java</span>, sanitize <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
-<span><span class="co">#&gt; Warning: Dropped 2 arrays with biological anomalies.</span></span>
+<code class="sourceCode R"><span><span class="va">bai311_kept</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tales.html">tales</a></span><span class="op">(</span><span class="va">bai311_java</span>, sanitize <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Kept 2 non-canonical arrays.</span></span>
+<span><span class="co">#&gt; ℹ Arrays: "ROI_00006" and "ROI_00009"</span></span>
+<span><span class="co">#&gt; ℹ `tales_anomalies()` lists them, with the reason.</span></span>
+<span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">bai311_java</span><span class="op">$</span><span class="va">array_id</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">bai311_kept</span><span class="op">$</span><span class="va">array_id</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] 0</span></span></code></pre></div>
+</details>
+</div>
+<p><code>sanitize = "canonical"</code> removes every flagged array, so that only canonical TALEs remain, with a warning naming each dropped array and the reason:</p>
+<div class="cell">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb32"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">bai311_clean</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tales.html">tales</a></span><span class="op">(</span><span class="va">bai311_java</span>, sanitize <span class="op">=</span> <span class="st">"canonical"</span><span class="op">)</span></span>
+<span><span class="co">#&gt; Warning: Dropped 2 arrays that are not canonical TALEs.</span></span>
 <span><span class="co">#&gt; ✖ Arrays: "ROI_00006" and "ROI_00009"</span></span>
-<span><span class="co">#&gt; ℹ Reason: terminus_unmatched</span></span>
+<span><span class="co">#&gt; ℹ Reason: terminus_noncanonical</span></span>
 <span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">bai311_java</span><span class="op">$</span><span class="va">array_id</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/n_distinct.html" class="external-link">n_distinct</a></span><span class="op">(</span><span class="va">bai311_clean</span><span class="op">$</span><span class="va">array_id</span><span class="op">)</span></span>
 <span><span class="co">#&gt; [1] 2</span></span></code></pre></div>
 </details>
@@ -772,7 +793,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script><script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","selector":".lightbox","openEffect":"zoom","loop":false,"descPosition":"bottom"});
+</script><script>var lightboxQuarto = GLightbox({"closeEffect":"zoom","selector":".lightbox","loop":false,"openEffect":"zoom","descPosition":"bottom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

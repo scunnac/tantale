@@ -11,7 +11,7 @@ validated tales object."><meta property="og:image" content="https://scunnac.gith
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.99.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.99.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -69,9 +69,11 @@ output directory.</p></dd>
 
 
 <dt id="arg-sanitize">sanitize<a class="anchor" aria-label="anchor" href="#arg-sanitize"></a></dt>
-<dd><p>If <code>TRUE</code>, arrays carrying biological anomalies are
-removed with a warning naming them and why; if <code>FALSE</code> (default) they
-are kept and merely warned about. See <code><a href="tales_anomalies.html">tales_anomalies</a></code>.</p></dd>
+<dd><p><code>FALSE</code> (default) keeps every array and warns about
+the anomalies; <code>TRUE</code> removes the arrays whose data are
+inconsistent or incomplete and keeps non-canonical TALEs (truncTALEs,
+for instance); <code>"canonical"</code> keeps canonical TALEs only. See
+<code><a href="tales.html">tales</a></code> and <code><a href="tales_anomalies.html">tales_anomalies</a></code>.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -83,8 +85,9 @@ are kept and merely warned about. See <code><a href="tales_anomalies.html">tales
     <p>One row per part: the N-terminus, each repeat and the C-terminus, as
 AnnoTALE split the array's longest ORF. The <code>rvd</code> column holds the RVD
 of a repeat, or a terminus code (see <code><a href="tales_anchor_codes.html">tales_anchor_codes</a></code>):
-<code>NTERM</code>/<code>CTERM</code> when the terminus matches the TALE
-terminal-domain protein profile, <code>XXXXX</code> when it does not. When
+<code>NTERM</code>/<code>CTERM</code> when the terminus is a canonical TALE terminal
+domain by the protein profile search of <code><a href="tell_tales.html">tell_tales</a></code>,
+<code>XXXXX</code> when it is not. When
 AnnoTALE reported no terminus on one side, the array has no part there, with
 a warning. An array whose protein and DNA parts disagree is left out, with
 a warning.</p>

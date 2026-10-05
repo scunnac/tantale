@@ -19,28 +19,28 @@ first repeat, and as C-terminus whatever it encodes downstream of the
 last one.
 [`tell_tales`](https://scunnac.github.io/tantale/reference/tell_tales.md)
 searches each of these segments with the TALE N- or C-terminal protein
-profile (`hmmsearch`, E-value at most `terminus_max_evalue`, the match
-reaching the end of the profile that adjoins the repeats). `"NTERM"` and
-`"CTERM"` mark a segment that matches its profile, a canonical TALE
-terminal domain, complete or truncated at its far end. `"XXXXX"` marks a
-segment that does not match, typically unrelated sequence where the ORF
-starts or ends inside a frameshifted region, or a terminus whose
-repeat-side part a frameshift has put in another reading frame. An array
-for which AnnoTALE reported no segment on one side has no terminus part
-on that side.
+profile (`hmmsearch`). `"NTERM"` and `"CTERM"` mark a canonical TALE
+terminal domain, one that can be expected to do its usual job: the match
+has an E-value of at most `terminus_max_evalue`, covers at least
+`terminus_min_cover` of the profile (0.9 by default) and reaches the end
+of the profile that adjoins the repeats. `"XXXXX"` marks any other
+segment. An array for which AnnoTALE reported no segment on one side has
+no terminus part on that side.
 
-The codes record sequence relatedness only. A terminus shorter than the
-canonical one is coded `"NTERM"` or `"CTERM"` as long as it matches its
-profile, which it can do over its whole length: an internal deletion, or
-a C-terminus that stops early, still aligns with the part of the profile
-it keeps. Such a terminus has probably lost functional regions. The
-N-terminal region carries the type III secretion signal and, next to the
-repeats, the degenerate repeats that bind the thymine preceding the
-target; the C-terminal region carries the nuclear localisation signals
-and, at its far end, the transcription activation domain. The truncTALEs
-of *Xanthomonas oryzae* have lost the activation domain, and their
-C-termini are coded `"CTERM"`. The length of the terminus parts,
-`nchar(aa_seq)`, is the quickest way to spot such arrays.
+A terminus can fail to be canonical in several ways, which
+`array_report.tsv` tells apart (its `*_aa_*` and `*_dna_*` columns, see
+[`tell_tales`](https://scunnac.github.io/tantale/reference/tell_tales.md)).
+The segment may be unrelated sequence, where the ORF starts or ends
+inside a frameshifted region. Its repeat-side part may be in another
+reading frame after a frameshift. Or it may be a TALE terminus that has
+lost a large part: the N-terminal region carries the type III secretion
+signal and, next to the repeats, the degenerate repeats that bind the
+thymine preceding the target; the C-terminal region carries the nuclear
+localisation signals and, at its far end, the transcription activation
+domain. The truncTALEs of *Xanthomonas oryzae* have lost the activation
+domain, and their C-termini are coded `"XXXXX"`. A smaller internal
+deletion, such as the one in the N-terminus of TalC, a major TALE of
+African *X. oryzae* pv. *oryzae*, leaves a terminus canonical.
 
 These share the `rvd` column with real RVDs, so code that distinguishes
 repeats from termini by value should use this function rather than

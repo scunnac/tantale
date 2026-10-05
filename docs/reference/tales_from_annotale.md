@@ -13,6 +13,7 @@ with the same columns as
 tales_from_annotale(
   annotale_dir,
   terminus_max_evalue = 1e-05,
+  terminus_min_cover = 0.9,
   sanitize = FALSE,
   hmm_dir = system.file("extdata", "hmmProfile", package = "tantale", mustWork = TRUE)
 )
@@ -28,19 +29,21 @@ tales_from_annotale(
   [`run_annotale_predict()`](https://scunnac.github.io/tantale/reference/run_annotale_predict.md)
   will do.
 
-- terminus_max_evalue:
+- terminus_max_evalue, terminus_min_cover:
 
-  Maximum `hmmsearch` E-value for a terminal segment to be coded
-  `NTERM`/`CTERM`. As in
+  Maximum `hmmsearch` E-value, and minimum fraction of the profile
+  covered, for a terminal segment to be coded `NTERM`/`CTERM`. As in
   [`tell_tales`](https://scunnac.github.io/tantale/reference/tell_tales.md),
   the match must also reach the end of the profile that adjoins the
   repeats.
 
 - sanitize:
 
-  If `TRUE`, arrays carrying biological anomalies are removed with a
-  warning naming them and why; if `FALSE` (default) they are kept and
-  merely warned about. See
+  `FALSE` (default) keeps every array and warns about the anomalies;
+  `TRUE` removes the arrays whose data are inconsistent or incomplete
+  and keeps non-canonical TALEs (truncTALEs, for instance);
+  `"canonical"` keeps canonical TALEs only. See
+  [`tales`](https://scunnac.github.io/tantale/reference/tales.md) and
   [`tales_anomalies`](https://scunnac.github.io/tantale/reference/tales_anomalies.md).
 
 - hmm_dir:
@@ -65,8 +68,8 @@ As in
 each terminal segment is searched with the TALE N- or C-terminal protein
 profile (`hmmsearch`, from the tantale environment; see
 [`tantale_setup`](https://scunnac.github.io/tantale/reference/tantale_setup.md)).
-The `rvd` column holds `NTERM`/`CTERM` for a segment that matches its
-profile and `XXXXX` for one that does not (see
+The `rvd` column holds `NTERM`/`CTERM` for a segment that is a canonical
+terminus by that search and `XXXXX` for any other (see
 [`tales_anchor_codes`](https://scunnac.github.io/tantale/reference/tales_anchor_codes.md)).
 
 `array_id` is AnnoTALE's name for the TALE (`MAI1-tempTALE1`), without

@@ -1,5 +1,63 @@
 # Changelog
 
+## tantale 0.99.0.9000
+
+### `NTERM` and `CTERM` now mean a canonical terminus
+
+A terminus is coded `NTERM` or `CTERM` only when its protein segment
+matches the TALE terminal-domain profile over at least 90% of the
+profile (new argument `terminus_min_cover` of
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
+and
+[`tales_from_annotale()`](https://scunnac.github.io/tantale/reference/tales_from_annotale.md)),
+on top of the E-value and the requirement to reach the repeats. A
+truncated terminus, such as the C-terminus of a truncTALE, is now
+`XXXXX`. The threshold was set on the curated TALEs of
+`tale_annotations`: their canonical termini cover 0.93 of the profile or
+more, the truncTALE termini 0.84 or less.
+[`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
+reports such termini as `terminus_noncanonical` (formerly
+`terminus_unmatched`).
+
+### `sanitize = TRUE` keeps non-canonical TALEs
+
+[`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
+gains a `kind` column. `"noncanonical"` marks a TALE of non-standard
+structure, with a terminus that is not canonical or none on one side;
+`"integrity"` marks data that are inconsistent or incomplete, and arrays
+without repeats. `sanitize = TRUE` (in
+[`tales()`](https://scunnac.github.io/tantale/reference/tales.md),
+[`tales_bind()`](https://scunnac.github.io/tantale/reference/tales_bind.md),
+[`tales_from_telltales()`](https://scunnac.github.io/tantale/reference/tales_from_telltales.md)
+and
+[`tales_from_annotale()`](https://scunnac.github.io/tantale/reference/tales_from_annotale.md))
+now drops only the arrays with an anomaly of kind `"integrity"`, and
+keeps truncTALEs and other non-canonical TALEs with a message.
+`sanitize = "canonical"` drops every array with an anomaly of either
+kind, so that only canonical TALEs remain.
+
+### `tell_tales()` reports more about each terminus
+
+`array_report.tsv` now says, for each terminus, how much of the TALE
+terminal-domain profile its protein segment covers (`*_aa_cover`), how
+far the match stops from the far end of the profile (`*_aa_far_gap`), in
+how many pieces it matches (`*_aa_domains`) and its bit score
+(`*_aa_score`). At the DNA level, it reports the best nhmmer hit of the
+terminus profile next to the repeats even when it scores below
+`nterm_min_score` or `cterm_min_score` (`*_dna_score`, `*_dna_evalue`),
+the fraction of the profile those hits cover (`*_dna_cover`) and how
+many there are (`*_dna_pieces`). A truncated terminus, or one split by a
+deletion, can now be read from the report. `hits_report.tsv` and the two
+GFF files carry each hit’s score, E-value and profile positions.
+
+### A missing conda installation is reported as such
+
+When no conda or mamba installation can be found, the functions that run
+MAFFT, HMMER or mmseqs2 stop with a message that says so and points to
+[`tantale_setup()`](https://scunnac.github.io/tantale/reference/tantale_setup.md),
+under the condition class `tantale_error_tool_missing`. The error used
+to come from reticulate, wrapped in an unrelated message about `%in%`.
+
 ## tantale 0.99.0
 
 ### TALEs can be assigned to AnnoTALE’s published classes
@@ -591,7 +649,8 @@ alignment’s width, so
 [`tales_msa_width()`](https://scunnac.github.io/tantale/reference/tales_msa_width.md)
 kept answering on an object that no longer claims to be an alignment.
 The width is now removed on demotion, as it already was when
-`alignment_position` is dropped with `select()`.
+`alignment_position` is dropped with
+[`select()`](https://dplyr.tidyverse.org/reference/select.html).
 
 ### Articles checked against their own output
 

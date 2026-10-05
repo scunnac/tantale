@@ -7,7 +7,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.99.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.99.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -62,28 +62,28 @@
     <p>AnnoTALE reports as N-terminus whatever the ORF encodes upstream of the
 first repeat, and as C-terminus whatever it encodes downstream of the last
 one. <code><a href="tell_tales.html">tell_tales</a></code> searches each of these
-segments with the TALE N- or C-terminal protein profile (<code>hmmsearch</code>,
-E-value at most <code>terminus_max_evalue</code>, the match reaching the end of
-the profile that adjoins the repeats). <code>"NTERM"</code> and
-<code>"CTERM"</code> mark a segment that matches its profile, a canonical TALE
-terminal domain, complete or truncated at its far end. <code>"XXXXX"</code>
-marks a segment that does not match, typically unrelated sequence where
-the ORF starts or ends inside a frameshifted region, or a terminus whose
-repeat-side part a frameshift has put in another reading frame. An array for which AnnoTALE reported no
-segment on one side has no terminus part on that side.</p>
-<p>The codes record sequence relatedness only. A terminus shorter than the
-canonical one is coded <code>"NTERM"</code> or <code>"CTERM"</code> as long as it
-matches its profile, which it can do over its whole length: an internal
-deletion, or a C-terminus that stops early, still aligns with the part of
-the profile it keeps. Such a terminus has probably lost functional
-regions. The N-terminal region carries the type III secretion signal and,
-next to the repeats, the degenerate repeats that bind the thymine
-preceding the target; the C-terminal region carries the nuclear
-localisation signals and, at its far end, the transcription activation
-domain. The truncTALEs of <em>Xanthomonas oryzae</em> have lost the
-activation domain, and their C-termini are coded <code>"CTERM"</code>. The
-length of the terminus parts, <code>nchar(aa_seq)</code>, is the quickest way to
-spot such arrays.</p>
+segments with the TALE N- or C-terminal protein profile (<code>hmmsearch</code>).
+<code>"NTERM"</code> and <code>"CTERM"</code> mark a canonical TALE terminal domain,
+one that can be expected to do its usual job: the match has an E-value of
+at most <code>terminus_max_evalue</code>, covers at least
+<code>terminus_min_cover</code> of the profile (0.9 by default) and reaches the
+end of the profile that adjoins the repeats. <code>"XXXXX"</code> marks any
+other segment. An array for which AnnoTALE reported no segment on one side
+has no terminus part on that side.</p>
+<p>A terminus can fail to be canonical in several ways, which
+<code>array_report.tsv</code> tells apart (its <code>*_aa_*</code> and
+<code>*_dna_*</code> columns, see <code><a href="tell_tales.html">tell_tales</a></code>). The segment may
+be unrelated sequence, where the ORF starts or ends inside a frameshifted
+region. Its repeat-side part may be in another reading frame after a
+frameshift. Or it may be a TALE terminus that has lost a large part: the
+N-terminal region carries the type III secretion signal and, next to the
+repeats, the degenerate repeats that bind the thymine preceding the
+target; the C-terminal region carries the nuclear localisation signals
+and, at its far end, the transcription activation domain. The truncTALEs
+of <em>Xanthomonas oryzae</em> have lost the activation domain, and their
+C-termini are coded <code>"XXXXX"</code>. A smaller internal deletion, such as
+the one in the N-terminus of TalC, a major TALE of African
+<em>X. oryzae</em> pv. <em>oryzae</em>, leaves a terminus canonical.</p>
 <p>These share the <code>rvd</code> column with real RVDs, so code that distinguishes
 repeats from termini by value should use this function rather than spelling
 the codes out.</p>

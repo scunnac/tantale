@@ -97,12 +97,12 @@ Other external TALE tools:
 ## Examples
 
 ``` r
-if (FALSE) { # \dontrun{
+if (FALSE) { # interactive()
 # Needs a Java runtime and the catalogue, which takes a while to fetch.
-classes <- run_annotale_load_classes(output_dir = "annotale_classes")
+classes <- run_annotale_load_classes(output_dir = tempfile("annotale_classes_"))
 predicted <- run_annotale_predict(tantale_genome("MAI1"))
 tales <- list.files(file.path(predicted, "Predict"),
                     pattern = "^TALE_DNA_sequences_", full.names = TRUE)
 run_annotale_assign(tales, class_builder = classes, strain = "MAI1")
-} # }
+}
 ```

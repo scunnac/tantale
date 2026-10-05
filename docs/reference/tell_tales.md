@@ -17,6 +17,7 @@ tell_tales(
   repeat_min_score = 20,
   cterm_min_score = 200,
   terminus_max_evalue = 1e-05,
+  terminus_min_cover = 0.9,
   min_dna_hits = 4,
   min_array_length = 0,
   merge_hits = TRUE,
@@ -71,21 +72,21 @@ tell_tales(
 
   Minimal nhmmer score cut_off value to consider the hit as genuine
 
-- terminus_max_evalue:
+- terminus_max_evalue, terminus_min_cover:
 
-  Maximum `hmmsearch` E-value for the segment AnnoTALE reports on either
-  side of the repeats to count as a TALE N- or C-terminus. The segments
-  are searched with the TALE terminal-domain protein profiles of
-  `hmm_dir`; this decides the `NTERM`, `CTERM` and `XXXXX` codes (see
+  What it takes for the segment AnnoTALE reports on either side of the
+  repeats to be coded as a canonical TALE N- or C-terminus, `NTERM` or
+  `CTERM` rather than `XXXXX` (see
   [`tales_anchor_codes`](https://scunnac.github.io/tantale/reference/tales_anchor_codes.md)).
-  Genuine termini truncated to about 40 residues still match with
-  E-values below 1e-18. The match must also reach, within 10 positions,
-  the end of the profile that adjoins the repeats: a terminus whose
-  repeat-side part is in another reading frame after a frameshift
-  matches only up to the frameshift, and is coded `XXXXX`. A terminus
-  shorter than the canonical one that matches is coded `NTERM`/`CTERM`,
-  though it has probably lost part of its function; see
-  [`tales_anchor_codes`](https://scunnac.github.io/tantale/reference/tales_anchor_codes.md).
+  The segment is searched with the TALE terminal-domain protein profile
+  of `hmm_dir`; the match must have an E-value of at most
+  `terminus_max_evalue`, cover at least `terminus_min_cover` of the
+  profile's positions, and reach, within 10 positions, the end of the
+  profile that adjoins the repeats. The default of 0.9 comes from the
+  termini of the curated TALEs of
+  [`tale_annotations`](https://scunnac.github.io/tantale/reference/tale_annotations.md):
+  their canonical termini cover 0.93 of the profile or more, the
+  truncated termini of the truncTALEs 0.84 or less.
 
 - min_dna_hits:
 
@@ -252,7 +253,8 @@ List of output files:
   - *array_seq*: DNA sequence of that span.
 
   - *nterm_dna_hit*, *cterm_dna_hit*: whether an nhmmer hit of the N-
-    (C-) terminus DNA profile is part of the array, anywhere in it.
+    (C-) terminus DNA profile is part of the array, anywhere in it. Only
+    hits scoring at least `nterm_min_score` (`cterm_min_score`) count.
 
   - *rvd_string*: the RVDs AnnoTALE read, separated by `rvd_sep`, with
     the terminus codes described under *rvd_sequences.fas*. Empty when
@@ -261,9 +263,24 @@ List of output files:
   - *has_aberrant_repeat*: whether AnnoTALE flagged a repeat of
     non-canonical length (a lowercase letter in its RVD).
 
-  - *nterm_aa_evalue*, *cterm_aa_evalue*: E-value of the `hmmsearch`
-    match between the segment AnnoTALE reported upstream (downstream) of
-    the repeats and the TALE N- (C-) terminal protein profile. `NA` when
+  - *nterm_dna_score*, *cterm_dna_score*, *nterm_dna_evalue*,
+    *cterm_dna_evalue*: bit score and E-value of the best nhmmer hit of
+    the N- (C-) terminus DNA profile next to the array's repeats,
+    whatever its score: on the same strand, upstream of the first repeat
+    (downstream of the last one), within twice the profile length. `NA`
+    when there is none.
+
+  - *nterm_dna_cover*, *cterm_dna_cover*: fraction of the DNA profile's
+    positions those hits cover together; `0` when there is none.
+
+  - *nterm_dna_pieces*, *cterm_dna_pieces*: how many such hits. More
+    than one usually means the terminus is split, often by an insertion
+    or a deletion.
+
+  - *nterm_aa_evalue*, *cterm_aa_evalue*, *nterm_aa_score*,
+    *cterm_aa_score*: E-value and bit score of the `hmmsearch` match
+    between the segment AnnoTALE reported upstream (downstream) of the
+    repeats and the TALE N- (C-) terminal protein profile. `NA` when
     there is no segment, or no match with an E-value up to 10.
 
   - *nterm_aa_profile_gap*, *cterm_aa_profile_gap*: number of profile
@@ -272,10 +289,23 @@ List of output files:
     profile, the first of the C-terminal one). `0` for a match that
     reaches the repeats, `NA` when there is no match.
 
-  - *nterm_aa_hit*, *cterm_aa_hit*: `TRUE` when that E-value is at most
-    `terminus_max_evalue` and the profile gap at most 10, `FALSE` for a
-    segment that does not match, `NA` when AnnoTALE reported no segment
-    on that side.
+  - *nterm_aa_far_gap*, *cterm_aa_far_gap*: the same at the other end of
+    the profile, the start of the N-terminal one (the end of the
+    C-terminal one). A terminus that stops early, like the C-terminus of
+    a truncTALE, leaves a large gap here.
+
+  - *nterm_aa_cover*, *cterm_aa_cover*: fraction of the protein
+    profile's positions the match covers. Below 1 minus the two gaps
+    when part of the terminus is missing in between.
+
+  - *nterm_aa_domains*, *cterm_aa_domains*: how many separate stretches
+    of the profile the match consists of. More than one means the
+    terminus is split, by a deletion or a change of reading frame.
+
+  - *nterm_aa_hit*, *cterm_aa_hit*: `TRUE` for a canonical terminus:
+    E-value at most `terminus_max_evalue`, cover at least
+    `terminus_min_cover`, profile gap at most 10. `FALSE` for any other
+    segment, `NA` when AnnoTALE reported no segment on that side.
 
   - *nterm_aa_length*, *cterm_aa_length*: length of those segments in
     amino acid residues, excluding a stop codon, as in the `tales`
@@ -293,7 +323,10 @@ List of output files:
     [`CorrectFrameshifts`](https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html)
     corrected.
 
-- hits_report.tsv: report of all hits detected by HMMer
+- hits_report.tsv: report of all hits detected by HMMer, with their bit
+  *score*, *evalue* and the profile positions they cover, *hmm_from* to
+  *hmm_to* (for hits merged into one, the best score and E-value and the
+  span they cover together)
 
 - hits_report.gff: gff file of all hits detected by HMMer
 
@@ -420,18 +453,19 @@ tell_tales(subject_file = subj, output_dir = out)
 #> Now running AnnoTALE analyze for ROI_00004
 #> #****************************************
 #> #**   tell_tales analysis done     **
-#> Current date:    Mon Oct  5 01:07:32 2026
+#> Current date:    Mon Oct  5 23:42:55 2026
 #> #_________Provided I/O parameters __________
 #> File of subject DNA sequences:   /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/bai3_sample_tal_genomic_regions.fasta
 #> TALE N-term CDS region detection HMM file:   /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Nterm_CDS_profile.hmm
 #> TALE repeat unit CDS detection HMM file: /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_repeat_CDS_profile.hmm
 #> TALE C-term CDS region detection HMM file:   /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Cterm_CDS_profile.hmm
-#> Output directory:    /tmp/Rtmp8rsnUq/tell_tales_example1e3a23258bfb0c
+#> Output directory:    /tmp/RtmpcjOv6d/tell_tales_example2749e15709af32
 #> #____________Other parameters________________
 #> nterm_min_score: 300
 #> repeat_min_score:    20
 #> cterm_min_score: 200
 #> terminus_max_evalue: 1e-05
+#> terminus_min_cover:  0.9
 #> min_dna_hits:    4
 #> min_array_length:    0
 #> merge_hits:  TRUE

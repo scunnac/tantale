@@ -214,51 +214,66 @@ would force cleaning outside the package and throw away exactly the
 signal a user would want to inspect.
 
 “Anomalous” means “worth a second look”, which is broader than “wrong”.
-Any array that is not a standard TALE is flagged. A standard TALE has an
-N-terminus, one or more repeats and a C-terminus, and both termini match
-the profile of their TALE domain (`NTERM` and `CTERM`, rather than
-`XXXXX`). An array missing its C-terminus is flagged, although it may
-sit at the edge of a contig or be a genuinely truncated TALE. Also
-flagged are a part arrangement that cannot be biologically real (two
-N-termini in one array, say, or one that is not at the start), a part
-missing the sequence data it should carry, one amino acid sequence
-paired with two different RVDs, and position columns that disagree with
-each other:
+[`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
+reports two kinds of anomaly. The first kind, `"noncanonical"`, is a
+TALE that is not standard. A standard TALE has an N-terminus, one or
+more repeats and a C-terminus, and both termini are canonical TALE
+terminal domains (`NTERM` and `CTERM`, rather than `XXXXX`; see
+[`tales_anchor_codes()`](https://scunnac.github.io/tantale/reference/tales_anchor_codes.md)).
+An array missing its C-terminus is flagged, although it may sit at the
+edge of a contig or be a genuinely truncated TALE; so is a truncTALE,
+whose C-terminus is coded `XXXXX`. Such TALEs can be real biology. The
+second kind, `"integrity"`, is data that cannot be trusted: a part
+arrangement that cannot be biologically real (two N-termini in one
+array, say, or one that is not at the start), an array without repeats,
+a part missing the sequence data it should carry, one amino acid
+sequence paired with two different RVDs, and position columns that
+disagree with each other:
 
 Code
 
 ``` r
 odd <- tibble::tibble(
-  array_id = c("a1", "a1", "a1", "a2", "a2", "a2"),
-  position_in_array = c(1L, 2L, 3L, 1L, 2L, 3L),
+  array_id = c("a1", "a1", "a1", "a2", "a2", "a2", "a3", "a3", "a3"),
+  position_in_array = rep(1:3, 3),
   domain_type = c("N-terminus", "N-terminus", "repeat",
+                  "N-terminus", "repeat", "C-terminus",
                   "N-terminus", "repeat", "C-terminus"),
-  rvd = c("NTERM", "NTERM", "HD", "NTERM", "HD", "CTERM")
+  rvd = c("NTERM", "NTERM", "HD", "NTERM", "HD", "CTERM", "NTERM", "NI", "XXXXX")
 )
 x_odd <- suppressWarnings(tales(odd))
 tales_anomalies(x_odd)
-#> # A tibble: 3 × 3
-#>   array_id check               detail                      
-#>   <chr>    <chr>               <chr>                       
-#> 1 a1       terminus_absent     no C-terminus               
-#> 2 a1       terminus_duplicated more than one N-terminus    
-#> 3 a1       terminus_misplaced  N-terminus not at position 1
+#> # A tibble: 4 × 4
+#>   array_id check                 kind         detail                            
+#>   <chr>    <chr>                 <chr>        <chr>                             
+#> 1 a1       terminus_absent       noncanonical no C-terminus                     
+#> 2 a1       terminus_duplicated   integrity    more than one N-terminus          
+#> 3 a1       terminus_misplaced    integrity    N-terminus not at position 1      
+#> 4 a3       terminus_noncanonical noncanonical C-terminus is not a canonical TAL…
 ```
 
-`tales(sanitize = TRUE)` drops the flagged arrays instead of merely
-warning about them:
+`sanitize` drops flagged arrays instead of merely warning about them.
+`sanitize = TRUE` drops the arrays with an `"integrity"` anomaly and
+keeps the non-canonical ones; `sanitize = "canonical"` keeps canonical
+TALEs only:
 
 Code
 
 ``` r
-tales(odd, sanitize = TRUE)
-#> Warning: Dropped 1 array with biological anomalies.
+unique(tales(odd, sanitize = TRUE)$array_id)
+#> Warning: Dropped 1 array with inconsistent or incomplete data.
 #> ✖ Array: "a1"
-#> ℹ Reasons: terminus_absent, terminus_duplicated, and terminus_misplaced
-#> <tales> 1 array, 3 parts
-#>   layers: rvd   |   1 other column
-#>       rvd
-#>   a2  NTERM HD CTERM
+#> ℹ Reasons: terminus_duplicated and terminus_misplaced
+#> Kept 1 non-canonical array.
+#> ℹ Array: "a3"
+#> ℹ `tales_anomalies()` lists it, with the reason.
+#> [1] "a2" "a3"
+unique(tales(odd, sanitize = "canonical")$array_id)
+#> Warning: Dropped 2 arrays that are not canonical TALEs.
+#> ✖ Arrays: "a1" and "a3"
+#> ℹ Reasons: terminus_absent, terminus_duplicated, terminus_misplaced, and
+#>   terminus_noncanonical
+#> [1] "a2"
 ```
 
 Structural problems, such as a duplicated key or an `NA` where one is
@@ -373,8 +388,8 @@ reps %>% filter(rvd == "HD") %>% distinct(dom_code, aa_seq) %>% head(4)
 ```
 
 A terminus, meanwhile, has no RVD at all: its `rvd` column holds a
-placeholder (`"NTERM"`, `"CTERM"`, or `"XXXXX"` for a terminus whose CDS
-was detected but not identified; see
+placeholder (`"NTERM"`, `"CTERM"`, or `"XXXXX"` for a terminus that is
+not a canonical TALE terminal domain; see
 [`tales_anchor_codes()`](https://scunnac.github.io/tantale/reference/tales_anchor_codes.md)),
 while its `dom_code` identifies a real sequence.
 
@@ -537,7 +552,7 @@ Code
 
 ``` r
 xa %>% mutate(position_in_array = 1L)
-#> Error in `.tales_check_key()` at tantale/R/tales_class.R:878:3:
+#> Error in `.tales_check_key()` at tantale/R/tales_class.R:946:3:
 #> ! array_id and position_in_array must together be unique.
 #> ✖ 92 duplicated rows in 4 arrays: "ROI_00001", "ROI_00002", "ROI_00003", and
 #>   "ROI_00004"

@@ -71,10 +71,11 @@ bai3_sample
 ```
 
 Each terminal region is searched with the profile HMM of the TALE N- or
-C-terminal domain, and marked `NTERM` or `CTERM` when it matches
-(`XXXXX` otherwise). A match shows that the region is related to a TALE
-terminus. A shorter terminus that matches is coded the same way,
-although it has probably lost part of its function (see [Genuine
+C-terminal domain, and marked `NTERM` or `CTERM` when it is a canonical
+terminus, one that can be expected to do its usual job: the match must
+cover at least 90% of the profile (`XXXXX` otherwise). A terminus that
+has lost a large part, like the C-terminus of a truncTALE, is coded
+`XXXXX` even though it is related to a TALE terminus (see [Genuine
 truncTALEs](https://scunnac.github.io/tantale/articles/trunctale_correction.html#sec-two-trunctales)).
 On a whole genome, the same object comes from two calls (not run here,
 as `predict` takes a couple of minutes per genome):
@@ -107,9 +108,9 @@ searches a genome with `nhmmer`, using three profile HMMs tuned to the
 N-terminus, the repeat unit, and the C-terminus of a TALE CDS. Hits are
 merged, grouped into candidate arrays by proximity, and each array’s
 longest ORF is handed to AnnoTALE to split into parts and call its RVD
-sequence. `NTERM`/`CTERM` markers are added at either end of the RVD
-string wherever a terminus was identified this way, so a downstream
-alignment knows where an array actually starts and ends.
+sequence. Terminus codes are added at either end of the RVD string,
+`NTERM`/`CTERM` for a canonical terminus and `XXXXX` for any other, so a
+downstream alignment knows where an array actually starts and ends.
 
 A scratch directory holds everything this set of articles builds:
 
@@ -190,11 +191,11 @@ writes three tab-separated reports, which
 reads back to build the object above. They are worth knowing about
 directly, since they carry a few things the `tales` object does not.
 
-| file                 | one row per            | worth knowing                                                                                                                                                             |
-|:---------------------|:-----------------------|:--------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `hits_report.tsv`    | raw `nhmmer` hit       | `codon_count`, `frameshift_count` per hit – before any merging or correction                                                                                              |
-| `domains_report.tsv` | domain, after AnnoTALE | what AnnoTALE actually parsed out of the ORF                                                                                                                              |
-| `array_report.tsv`   | candidate array        | `nterm_dna_hit`/`cterm_dna_hit`, `nterm_aa_hit`/`cterm_aa_hit`, `has_aberrant_repeat`, `orf_coverage`, and (with correction) `predicted_ins_count`/`predicted_dels_count` |
+| file                 | one row per            | worth knowing                                                                                                                                                                                                                           |
+|:---------------------|:-----------------------|:----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `hits_report.tsv`    | `nhmmer` hit           | `score`, `evalue`, the profile positions covered, `codon_count`, `frameshift_count` – before any correction                                                                                                                             |
+| `domains_report.tsv` | domain, after AnnoTALE | what AnnoTALE actually parsed out of the ORF                                                                                                                                                                                            |
+| `array_report.tsv`   | candidate array        | the DNA evidence for each terminus (`*_dna_hit`, `*_dna_score`, `*_dna_cover`), its protein match (`*_aa_cover`, `*_aa_hit`), `has_aberrant_repeat`, `orf_coverage`, and (with correction) `predicted_ins_count`/`predicted_dels_count` |
 
 `array_report.tsv` is the one this article leans on most, so it is worth
 reading directly:
@@ -266,43 +267,47 @@ bai311_raw <- tales_from_telltales(bai311_raw_dir)
 #> Warning: 8 arrays have biological anomalies.
 #> ✖ Arrays: "ROI_00001", "ROI_00002", "ROI_00003", "ROI_00005", "ROI_00006",
 #>   "ROI_00007", "ROI_00008", and "ROI_00009"
-#> ℹ Reasons: terminus_unmatched and no_repeat
-#> ℹ Inspect with `tales_anomalies()`, or drop with `sanitize = TRUE`.
+#> ℹ Reasons: terminus_noncanonical and no_repeat
+#> ℹ Inspect with `tales_anomalies()`; drop with `sanitize = TRUE` (inconsistent
+#>   data) or `sanitize = "canonical"` (all of them).
 ```
 
 [`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
 lists the arrays concerned and why. It reports every array that is not a
 standard TALE (an N-terminus, one or more repeats and a C-terminus, both
-termini matching the profile of their TALE domain), and every array
-whose content is inconsistent (missing sequence data, impossible
-terminus arrangements, coordinate disagreements):
+termini canonical), and every array whose content is inconsistent
+(missing sequence data, impossible terminus arrangements, coordinate
+disagreements). The `kind` column tells the two apart:
 
 Code
 
 ``` r
 tales_anomalies(bai311_raw)
-#> # A tibble: 13 × 3
-#>    array_id  check              detail                                          
-#>    <chr>     <chr>              <chr>                                           
-#>  1 ROI_00001 terminus_unmatched N-terminus not matched by its TALE domain profi…
-#>  2 ROI_00001 terminus_unmatched C-terminus not matched by its TALE domain profi…
-#>  3 ROI_00002 terminus_unmatched N-terminus not matched by its TALE domain profi…
-#>  4 ROI_00003 no_repeat          no repeat                                       
-#>  5 ROI_00003 terminus_unmatched C-terminus not matched by its TALE domain profi…
-#>  6 ROI_00005 no_repeat          no repeat                                       
-#>  7 ROI_00005 terminus_unmatched C-terminus not matched by its TALE domain profi…
-#>  8 ROI_00006 terminus_unmatched N-terminus not matched by its TALE domain profi…
-#>  9 ROI_00007 terminus_unmatched N-terminus not matched by its TALE domain profi…
-#> 10 ROI_00007 terminus_unmatched C-terminus not matched by its TALE domain profi…
-#> 11 ROI_00008 terminus_unmatched N-terminus not matched by its TALE domain profi…
-#> 12 ROI_00008 terminus_unmatched C-terminus not matched by its TALE domain profi…
-#> 13 ROI_00009 terminus_unmatched N-terminus not matched by its TALE domain profi…
+#> # A tibble: 16 × 4
+#>    array_id  check                 kind         detail                          
+#>    <chr>     <chr>                 <chr>        <chr>                           
+#>  1 ROI_00001 terminus_noncanonical noncanonical N-terminus is not a canonical T…
+#>  2 ROI_00001 terminus_noncanonical noncanonical C-terminus is not a canonical T…
+#>  3 ROI_00002 terminus_noncanonical noncanonical N-terminus is not a canonical T…
+#>  4 ROI_00002 terminus_noncanonical noncanonical C-terminus is not a canonical T…
+#>  5 ROI_00003 no_repeat             integrity    no repeat                       
+#>  6 ROI_00003 terminus_noncanonical noncanonical C-terminus is not a canonical T…
+#>  7 ROI_00005 no_repeat             integrity    no repeat                       
+#>  8 ROI_00005 terminus_noncanonical noncanonical C-terminus is not a canonical T…
+#>  9 ROI_00006 terminus_noncanonical noncanonical N-terminus is not a canonical T…
+#> 10 ROI_00006 terminus_noncanonical noncanonical C-terminus is not a canonical T…
+#> 11 ROI_00007 terminus_noncanonical noncanonical N-terminus is not a canonical T…
+#> 12 ROI_00007 terminus_noncanonical noncanonical C-terminus is not a canonical T…
+#> 13 ROI_00008 terminus_noncanonical noncanonical N-terminus is not a canonical T…
+#> 14 ROI_00008 terminus_noncanonical noncanonical C-terminus is not a canonical T…
+#> 15 ROI_00009 terminus_noncanonical noncanonical N-terminus is not a canonical T…
+#> 16 ROI_00009 terminus_noncanonical noncanonical C-terminus is not a canonical T…
 ```
 
 `ROI_00003` and `ROI_00005` have no repeat at all: AnnoTALE could not
-parse a repeat-array structure out of the longest predicted ORF. Five
-other arrays have a terminus coded `XXXXX`, which does not match the
-profile of its TALE domain. Their `orf_coverage` shows why:
+parse a repeat-array structure out of the longest predicted ORF. The six
+other arrays have both termini coded `XXXXX`, which is not a canonical
+TALE terminal domain. Their `orf_coverage` shows why:
 
 Code
 
@@ -318,14 +323,14 @@ readr::read_tsv(file.path(bai311_raw_dir, "array_report.tsv"),
 | array_id  | nterm_dna_hit | cterm_dna_hit | longest_orf_length | orf_coverage | rvd_string                                                           |
 |:----------|:--------------|:--------------|-------------------:|-------------:|:---------------------------------------------------------------------|
 | ROI_00001 | TRUE          | TRUE          |               1764 |           38 | XXXXX-NN-NG-NN-PG-XXXXX                                              |
-| ROI_00002 | TRUE          | TRUE          |               2385 |           70 | XXXXX-NN-HD-NI-NN-HD-NG-HD-HD-NG-NG-NI-NG-NI-NG-CTERM                |
+| ROI_00002 | TRUE          | TRUE          |               2385 |           70 | XXXXX-NN-HD-NI-NN-HD-NG-HD-HD-NG-NG-NI-NG-NI-NG-XXXXX                |
 | ROI_00003 | TRUE          | TRUE          |                864 |           19 | NA                                                                   |
 | ROI_00004 | FALSE         | FALSE         |                 NA |           NA | NA                                                                   |
 | ROI_00005 | TRUE          | TRUE          |                864 |           23 | NA                                                                   |
-| ROI_00006 | TRUE          | TRUE          |               1446 |           45 | XXXXX-NV-HD-NI-NG-NI-NN-NS-HD-HD-NI-CTERM                            |
+| ROI_00006 | TRUE          | TRUE          |               1446 |           45 | XXXXX-NV-HD-NI-NG-NI-NN-NS-HD-HD-NI-XXXXX                            |
 | ROI_00007 | TRUE          | TRUE          |               1827 |           47 | XXXXX-NN-HD-HD-NN-NN-PG-XXXXX                                        |
 | ROI_00008 | TRUE          | TRUE          |               2841 |           67 | XXXXX-NI-HD-NN-NS-NN-NG-HD-NG-HD-NG-NN-NG-HD-NS-HD-NI-NG-HD-HD-XXXXX |
-| ROI_00009 | TRUE          | TRUE          |               1791 |           47 | XXXXX-NV-HD-NI-NN-HD-HD-HD-NI-NN-NN-HD-HD-N\*-NG-HD-NI-CTERM         |
+| ROI_00009 | TRUE          | TRUE          |               1791 |           47 | XXXXX-NV-HD-NI-NN-HD-HD-HD-NI-NN-NN-HD-HD-N\*-NG-HD-NI-XXXXX         |
 
 `ROI_00003` and `ROI_00005` predicted ORFs cover 19% and 23% of their
 candidate region.
@@ -333,12 +338,11 @@ candidate region.
 No array in this assembly reaches MAI1’s 91-93%: the others fall between
 38% and 70%. This is unusual, and
 [`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
-flags every one of them except `ROI_00002`. A close look at the
-‘array_report.tsv’ table indicates that loci such as `ROI_00001` and
-`ROI_00007` have a predicted ORF encoding very few repeats (4-6), and
-only repeats (see `rvd_string`), even if both termini profiles were
-found at the DNA level (`nterm_dna_hit` and `cterm_dna_hit` are both
-`TRUE`).
+flags every one of them. A close look at the ‘array_report.tsv’ table
+indicates that loci such as `ROI_00001` and `ROI_00007` have a predicted
+ORF encoding very few repeats (4-6), and only repeats (see
+`rvd_string`), even if both termini profiles were found at the DNA level
+(`nterm_dna_hit` and `cterm_dna_hit` are both `TRUE`).
 
 Because, in practice this barely happens in high quality genomes, in the
 absence of any further evidence, this could be explained by in/del(s)
@@ -417,8 +421,8 @@ Code
 ``` r
 bai311_corr <- tales_from_telltales(bai311_corr_dir)
 tales_anomalies(bai311_corr)
-#> # A tibble: 0 × 3
-#> # ℹ 3 variables: array_id <chr>, check <chr>, detail <chr>
+#> # A tibble: 0 × 4
+#> # ℹ 4 variables: array_id <chr>, check <chr>, kind <chr>, detail <chr>
 ```
 
 To see what changed,
@@ -530,16 +534,16 @@ Code
 
 ``` r
 tales_anomalies(bai311_java)
-#> # A tibble: 2 × 3
-#>   array_id  check              detail                                           
-#>   <chr>     <chr>              <chr>                                            
-#> 1 ROI_00006 terminus_unmatched N-terminus not matched by its TALE domain profil…
-#> 2 ROI_00009 terminus_unmatched N-terminus not matched by its TALE domain profil…
+#> # A tibble: 2 × 4
+#>   array_id  check                 kind         detail                           
+#>   <chr>     <chr>                 <chr>        <chr>                            
+#> 1 ROI_00006 terminus_noncanonical noncanonical N-terminus is not a canonical TA…
+#> 2 ROI_00009 terminus_noncanonical noncanonical N-terminus is not a canonical TA…
 ```
 
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
 fixes most arrays but fails to repair the N-termini of `ROI_00006` and
-`ROI_00009`, which still do not match the TALE N-terminal profile.
+`ROI_00009`, which are still not canonical.
 
 Compared with the correction made inside
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md),
@@ -605,13 +609,13 @@ On this genome, correction inside
 gives the better result: 8 of 8 arrays come out as standard TALEs,
 against 6 of 8 after
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md).
-It is also about as fast: on the machine that built this page it took 61
+It is also about as fast: on the machine that built this page it took 70
 seconds. The Java route needs two steps,
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
 and then the
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
 run that finds the arrays in the corrected genome, and together they
-took 40 seconds. One genome is a limited sample, however.
+took 47 seconds. One genome is a limited sample, however.
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
 repairs the whole genome in one pass, and the corrected genome can serve
 other analyses as well. Furthermore,
@@ -636,14 +640,14 @@ whose good references rank further down is corrected against a poor one.
 BAI3-1-1 has one such array, `ROI_00001`. Measured once on this genome,
 against the 494 shipped references:
 
-| `max_comparisons` | seconds | standard TALEs | `ROI_00001`                                |
-|-------------------|---------|----------------|--------------------------------------------|
-| no correction     | 19      | 0 of 8         | 4 repeats, neither terminus matched        |
-| 2 to 5            | 19-22   | 7 of 8         | N-terminus unmatched, 19 of its 26 repeats |
-| 10, 20            | 26, 34  | 7 of 7         | not parsed by AnnoTALE                     |
-| 50 (default)      | 61      | 8 of 8         | N-terminus, 26 repeats, C-terminus         |
-| 100               | 101     | 8 of 8         | as at 50                                   |
-| all 494           | 455     | 8 of 8         | as at 50                                   |
+| `max_comparisons` | seconds | standard TALEs | `ROI_00001`                                    |
+|-------------------|---------|----------------|------------------------------------------------|
+| no correction     | 19      | 0 of 8         | 4 repeats, neither terminus canonical          |
+| 2 to 5            | 19-22   | 7 of 8         | N-terminus not canonical, 19 of its 26 repeats |
+| 10, 20            | 26, 34  | 7 of 7         | not parsed by AnnoTALE                         |
+| 50 (default)      | 61      | 8 of 8         | N-terminus, 26 repeats, C-terminus             |
+| 100               | 101     | 8 of 8         | as at 50                                       |
+| all 494           | 455     | 8 of 8         | as at 50                                       |
 
 At 2 to 5,
 [`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
@@ -691,19 +695,35 @@ at `max_comparisons = NULL` before relying on the cap.
 `bai311_corr` needs none of this: it is already clean. A route that
 stops short of that, such as
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
-above (which left the N-termini of `ROI_00006` and `ROI_00009`
-unmatched), still needs a decision about what to do with what remains
-flagged. `tales(x, sanitize = TRUE)` drops it so an analysis can proceed
-on what is clean, with a warning naming each dropped array and the
+above (which left the N-termini of `ROI_00006` and `ROI_00009` not
+canonical), still needs a decision about what to do with what remains
+flagged. `sanitize` makes it when the object is built. `sanitize = TRUE`
+removes only the arrays whose data are inconsistent or incomplete, and
+keeps TALEs that are merely not canonical, since a truncTALE, for one,
+is real biology; here it keeps both arrays, with a message:
+
+Code
+
+``` r
+bai311_kept <- tales(bai311_java, sanitize = TRUE)
+#> Kept 2 non-canonical arrays.
+#> ℹ Arrays: "ROI_00006" and "ROI_00009"
+#> ℹ `tales_anomalies()` lists them, with the reason.
+n_distinct(bai311_java$array_id) - n_distinct(bai311_kept$array_id)
+#> [1] 0
+```
+
+`sanitize = "canonical"` removes every flagged array, so that only
+canonical TALEs remain, with a warning naming each dropped array and the
 reason:
 
 Code
 
 ``` r
-bai311_clean <- tales(bai311_java, sanitize = TRUE)
-#> Warning: Dropped 2 arrays with biological anomalies.
+bai311_clean <- tales(bai311_java, sanitize = "canonical")
+#> Warning: Dropped 2 arrays that are not canonical TALEs.
 #> ✖ Arrays: "ROI_00006" and "ROI_00009"
-#> ℹ Reason: terminus_unmatched
+#> ℹ Reason: terminus_noncanonical
 n_distinct(bai311_java$array_id) - n_distinct(bai311_clean$array_id)
 #> [1] 2
 ```

@@ -24,7 +24,7 @@
 
     <a class="navbar-brand me-2" href="../index.html">tantale</a>
 
-    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.99.0</small>
+    <small class="nav-text text-muted me-auto" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Released version">0.99.0.9000</small>
 
 
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation">
@@ -145,38 +145,88 @@
 <span><span class="co">#&gt; 18 ROI_00017          288          297</span></span></code></pre></div>
 </details>
 </div>
-<p><code>ROI_00019</code>’s C-terminus is barely a seventh of the 286-297 aa every other array carries. <code>ROI_00001</code>’s is shorter than normal, at 183 aa, but far less drastically so. Both arrays share the same reduced N-terminus, 230 aa against 283-288 aa elsewhere, in line with the partial N-terminal loss Read et al. describe. Neither shows up in <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code>:</p>
+<p><code>ROI_00019</code>’s C-terminus is barely a seventh of the 286-297 aa every other array carries. <code>ROI_00001</code>’s is shorter than normal, at 183 aa, but far less drastically so. Both arrays share the same reduced N-terminus, 230 aa against 283-288 aa elsewhere, in line with the partial N-terminal loss Read et al. describe. <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> reports all four termini:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="../reference/tales_anomalies.html">tales_anomalies</a></span><span class="op">(</span><span class="va">pxo86</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 0 × 3</span></span>
-<span><span class="co">#&gt; # ℹ 3 variables: array_id &lt;chr&gt;, check &lt;chr&gt;, detail &lt;chr&gt;</span></span></code></pre></div>
+<span><span class="co">#&gt; # A tibble: 4 × 4</span></span>
+<span><span class="co">#&gt;   array_id  check                 kind         detail                           </span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;     &lt;chr&gt;                 &lt;chr&gt;        &lt;chr&gt;                            </span></span>
+<span><span class="co">#&gt; 1 ROI_00001 terminus_noncanonical noncanonical N-terminus is not a canonical TA…</span></span>
+<span><span class="co">#&gt; 2 ROI_00001 terminus_noncanonical noncanonical C-terminus is not a canonical TA…</span></span>
+<span><span class="co">#&gt; 3 ROI_00019 terminus_noncanonical noncanonical N-terminus is not a canonical TA…</span></span>
+<span><span class="co">#&gt; 4 ROI_00019 terminus_noncanonical noncanonical C-terminus is not a canonical TA…</span></span></code></pre></div>
 </details>
 </div>
-<p>Both arrays have the structure of a standard TALE as <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> defines it: an N-terminus, repeats and a C-terminus, each terminus matching the protein profile of its TALE domain. <code>array_report.tsv</code> holds the evidence for the termini:</p>
+<p><code>NTERM</code> and <code>CTERM</code> mark a canonical TALE terminal domain, one that can be expected to do its usual job; any other terminus is coded <code>XXXXX</code> (see <code><a href="../reference/tales_anchor_codes.html">tales_anchor_codes()</a></code>). <code><a href="../reference/tell_tales.html">tell_tales()</a></code> decides it from a search of each terminus with the protein profile of its TALE domain, and <code>array_report.tsv</code> holds the evidence:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_tsv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">pxo86_raw_dir</span>, <span class="st">"array_report.tsv"</span><span class="op">)</span>,</span>
 <span>                show_col_types <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
 <span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">array_id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ROI_00001"</span>, <span class="st">"ROI_00019"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">array_id</span>, <span class="va">nterm_aa_evalue</span>, <span class="va">nterm_aa_profile_gap</span>,</span>
-<span>         <span class="va">cterm_aa_evalue</span>, <span class="va">cterm_aa_profile_gap</span>, <span class="va">rvd_string</span><span class="op">)</span></span>
-<span><span class="co">#&gt; # A tibble: 2 × 6</span></span>
-<span><span class="co">#&gt;   array_id  nterm_aa_evalue nterm_aa_profile_gap cterm_aa_evalue</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;               &lt;dbl&gt;                &lt;dbl&gt;           &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 ROI_00019       2.40e-129                    0       5.90e- 18</span></span>
-<span><span class="co">#&gt; 2 ROI_00001       2.40e-129                    0       7.4 e-123</span></span>
-<span><span class="co">#&gt; # ℹ 2 more variables: cterm_aa_profile_gap &lt;dbl&gt;, rvd_string &lt;chr&gt;</span></span></code></pre></div>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">array_id</span>, <span class="va">nterm_aa_evalue</span>, <span class="va">nterm_aa_cover</span>, <span class="va">nterm_aa_domains</span>,</span>
+<span>         <span class="va">cterm_aa_evalue</span>, <span class="va">cterm_aa_cover</span>, <span class="va">cterm_aa_far_gap</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/across.html" class="external-link">across</a></span><span class="op">(</span><span class="fu"><a href="https://tidyselect.r-lib.org/reference/starts_with.html" class="external-link">ends_with</a></span><span class="op">(</span><span class="st">"_evalue"</span><span class="op">)</span>, <span class="op">~</span> <span class="fu"><a href="https://rdrr.io/r/base/format.html" class="external-link">format</a></span><span class="op">(</span><span class="va">.x</span>, digits <span class="op">=</span> <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu">knitr</span><span class="fu">::</span><span class="fu"><a href="https://rdrr.io/pkg/knitr/man/kable.html" class="external-link">kable</a></span><span class="op">(</span><span class="op">)</span></span></code></pre></div>
+</details><div class="cell-output-display">
+<table class="table caption-top" style="width:100%;">
+<colgroup>
+<col style="width: 9%">
+<col style="width: 15%">
+<col style="width: 14%">
+<col style="width: 16%">
+<col style="width: 15%">
+<col style="width: 14%">
+<col style="width: 16%">
+</colgroup>
+<thead><tr class="header">
+<th style="text-align: left;">array_id</th>
+<th style="text-align: left;">nterm_aa_evalue</th>
+<th style="text-align: right;">nterm_aa_cover</th>
+<th style="text-align: right;">nterm_aa_domains</th>
+<th style="text-align: left;">cterm_aa_evalue</th>
+<th style="text-align: right;">cterm_aa_cover</th>
+<th style="text-align: right;">cterm_aa_far_gap</th>
+</tr></thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">ROI_00019</td>
+<td style="text-align: left;">2.4e-129</td>
+<td style="text-align: right;">0.844</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">5.9e-18</td>
+<td style="text-align: right;">0.133</td>
+<td style="text-align: right;">242</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">ROI_00001</td>
+<td style="text-align: left;">2.4e-129</td>
+<td style="text-align: right;">0.844</td>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">7.4e-123</td>
+<td style="text-align: right;">0.656</td>
+<td style="text-align: right;">96</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<p>Each short terminus matches its profile strongly: these segments are TALE termini. But a canonical terminus must cover at least 90% of the profile (<code>terminus_min_cover</code>), and none of these does. The two 230-aa N-termini align with the N-terminal profile everywhere except profile positions 106-150, an internal deletion of about 45 residues, so the match comes in two pieces (<code>nterm_aa_domains</code>) covering 84% of the profile. The 183-aa C-terminus of <code>ROI_00001</code> aligns over its full length with profile positions 1-183, and the 42-aa C-terminus of <code>ROI_00019</code> with positions 1-37 over its first 37 residues. These C-termini lack the far end of the profile, 96 and 242 positions respectively (<code>cterm_aa_far_gap</code>). The 90% threshold comes from the curated TALEs of <code>tale_annotations</code>: their canonical termini cover 93% of the profile or more, the truncTALE termini 84% or less.</p>
+<p>Function is what the threshold stands for. The C-terminal region of a TALE carries the nuclear localisation signals and, at its far end, the acidic activation domain that recruits the host’s transcription machinery: both C-termini here stop well before it, consistent with the loss of the activation domain that Ji et al. and Read et al. report for truncTALEs. The N-terminal region carries the type III secretion signal and, next to the repeats, the degenerate repeats that bind the thymine preceding the target; which function, if any, the 45-residue deletion affects is not something sequence alone can settle.</p>
+<p>Both arrays are real TALEs, and truncTALEs have a function of their own: they suppress the <em>Xa1</em> resistance. So <code>tales(x, sanitize = TRUE)</code>, which removes arrays whose data are inconsistent or incomplete, keeps them; <code>sanitize = "canonical"</code> removes them when an analysis needs canonical TALEs only:</p>
+<div class="cell">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pxo86_canonical</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/warning.html" class="external-link">suppressWarnings</a></span><span class="op">(</span><span class="fu"><a href="../reference/tales.html">tales</a></span><span class="op">(</span><span class="va">pxo86</span>, sanitize <span class="op">=</span> <span class="st">"canonical"</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://generics.r-lib.org/reference/setops.html" class="external-link">setdiff</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">pxo86</span><span class="op">$</span><span class="va">array_id</span><span class="op">)</span>, <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">pxo86_canonical</span><span class="op">$</span><span class="va">array_id</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="co">#&gt; [1] "ROI_00001" "ROI_00019"</span></span></code></pre></div>
 </details>
 </div>
-<p>A terminus is coded <code>NTERM</code> or <code>CTERM</code> when it matches its profile, from the end next to the repeats, whatever its length. Here each short terminus matches over nearly its whole length. The two 230-aa N-termini align with the N-terminal profile everywhere except profile positions 106-150, an internal deletion of about 45 residues. The 183-aa C-terminus of <code>ROI_00001</code> aligns over its full length with profile positions 1-183, and the 42-aa C-terminus of <code>ROI_00019</code> aligns with positions 1-37 over its first 37 residues. These C-termini lack the far end of the profile, 96 and 242 positions respectively. The segments are related to the canonical TALE termini, and the codes record that relatedness.</p>
-<p>Their molecular function is another matter. A terminus shorter than the canonical one has probably lost functional regions. The C-terminal region of a TALE carries the nuclear localisation signals and, at its far end, the acidic activation domain that recruits the host’s transcription machinery: both C-termini here stop well before it, consistent with the loss of the activation domain that Ji et al. and Read et al. report for truncTALEs. The N-terminal region carries the type III secretion signal and, next to the repeats, the degenerate repeats that bind the thymine preceding the target; which function, if any, the 45-residue deletion affects is not something sequence alone can settle. <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> checks structure, so the length of the terminus parts, as in the table above, is how such arrays are found.</p>
 </section><section class="section level2" data-number="2"><h2 data-number="2" id="sec-mechanism">
 <span class="header-section-number">2</span> Not the same kind of short<a class="anchor" aria-label="anchor" href="#sec-mechanism"></a>
 </h2>
 <p><code>array_report.tsv</code>’s <code>cterm_dna_hit</code> column already distinguishes the two arrays, and the reason is worth tracing back to discovery:</p>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pxo86_report</span> <span class="op">&lt;-</span> <span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_tsv</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">pxo86_raw_dir</span>, <span class="st">"array_report.tsv"</span><span class="op">)</span>, show_col_types <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
@@ -192,7 +242,7 @@
 </div>
 <p><code><a href="../reference/tell_tales.html">tell_tales()</a></code> finds TALE loci with three separate profile HMMs (one each for the N-terminus, the repeat unit, and the C-terminus), and <code>nterm_dna_hit</code> and <code>cterm_dna_hit</code> record whether the N- and C-terminus profiles matched somewhere in an array’s merged hits, independently of how the final protein turns out. <code>hits_report.tsv</code>, one of the three reports <code><a href="../reference/tell_tales.html">tell_tales()</a></code> always writes (the other two are <code>domains_report.tsv</code> and <code>array_report.tsv</code> itself), carries every individual hit with its profile name and <code>frameshift_count</code>, and shows exactly what happened downstream of each array’s last complete repeat:</p>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb9"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">hits</span> <span class="op">&lt;-</span> <span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_tsv</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">pxo86_raw_dir</span>, <span class="st">"hits_report.tsv"</span><span class="op">)</span>, show_col_types <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span>
 <span></span>
 <span><span class="va">hits</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
@@ -210,8 +260,22 @@
 <span><span class="co">#&gt; 2 ROI_00019 FALSE                                   NA</span></span></code></pre></div>
 </details>
 </div>
-<p><code>ROI_00001</code> has a real C-terminus hit, full length at ~286 codons, but the nhmmer alignment needed two internal reframings to call it at all. The repeat immediately before it is short and frameshifted the same way. A C-terminus-shaped signal is there, just out of frame. <code>ROI_00019</code> has no C-terminus hit at any frameshift count: nothing downstream of its last repeat resembles a TALE C-terminus to any of the three profiles.</p>
-<p>That difference carries forward into correction. Frameshift correction, by either path, acts on the DNA span <code><a href="../reference/tell_tales.html">tell_tales()</a></code> merges from these hits. <code>ROI_00001</code>’s span already contains a full-length, C-terminus-shaped template, out of frame; <code>ROI_00019</code>’s span never acquired one. Only one array gives a correction tool material to reframe into.</p>
+<p><code>ROI_00001</code> has a real C-terminus hit, full length at ~286 codons, but the nhmmer alignment needed two internal reframings to call it at all. The repeat immediately before it is short and frameshifted the same way. A C-terminus-shaped signal is there, just out of frame.</p>
+<p><code>ROI_00019</code> has no C-terminus hit. The hits that make up an array must score above a threshold (<code>cterm_min_score</code>, 200 bits for the C-terminus profile), set for finding arrays. Weaker matches next to the repeats are not part of the array, but <code>array_report.tsv</code> still describes them:</p>
+<div class="cell">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">pxo86_report</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">array_id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"ROI_00001"</span>, <span class="st">"ROI_00019"</span><span class="op">)</span><span class="op">)</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">array_id</span>, <span class="va">cterm_dna_hit</span>, <span class="va">cterm_dna_score</span>, <span class="va">cterm_dna_cover</span>, <span class="va">cterm_dna_pieces</span><span class="op">)</span></span>
+<span><span class="co">#&gt; # A tibble: 2 × 5</span></span>
+<span><span class="co">#&gt;   array_id  cterm_dna_hit cterm_dna_score cterm_dna_cover cterm_dna_pieces</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;     &lt;lgl&gt;                   &lt;dbl&gt;           &lt;dbl&gt;            &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 ROI_00019 FALSE                    94.3           0.204                2</span></span>
+<span><span class="co">#&gt; 2 ROI_00001 TRUE                   1074.            1                    1</span></span></code></pre></div>
+</details>
+</div>
+<p>Downstream of <code>ROI_00019</code>’s last repeat, the C-terminus profile matches in two pieces, the best at 94 bits, covering together a fifth of the profile; a complete C-terminus scores around 1100 bits. The raw nhmmer output (<code>hmmer_search_out.txt</code>) places them at the two ends of the profile, positions 1-97 and 783-861. The DNA thus keeps the start and the end of a C-terminus, with about 685 nt between them that match nothing, and the protein stops 42 residues into the first piece.</p>
+<p>That difference carries forward into correction. Frameshift correction, by either path, acts on the DNA span <code><a href="../reference/tell_tales.html">tell_tales()</a></code> merges from these hits. <code>ROI_00001</code>’s span already contains a full-length, C-terminus-shaped template, out of frame; <code>ROI_00019</code>’s span holds no C-terminus hit, only these fragments beside it. Only one array gives a correction tool a template to reframe into.</p>
 </section><section class="section level2" data-number="3"><h2 data-number="3" id="sec-does-correction-respect-it">
 <span class="header-section-number">3</span> Does correction respect that difference?<a class="anchor" aria-label="anchor" href="#sec-does-correction-respect-it"></a>
 </h2>
@@ -220,12 +284,12 @@
 <a class="anchor" aria-label="anchor" href="#correct_array-true"></a>
 </h3>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb10"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pxo86_decipher_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out</span>, <span class="st">"PXO86_decipher"</span><span class="op">)</span></span></code></pre></div>
 </details>
 </div>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb11"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="fu"><a href="../reference/tell_tales.html">tell_tales</a></span><span class="op">(</span></span>
 <span>  subject_file <span class="op">=</span> <span class="va">pxo86_fa</span>, output_dir <span class="op">=</span> <span class="va">pxo86_decipher_dir</span>,</span>
 <span>  correct_array <span class="op">=</span> <span class="cn">TRUE</span>, max_comparisons <span class="op">=</span> <span class="fl">20</span></span>
@@ -233,14 +297,14 @@
 <span><span class="co">#&gt; Finding the closest reference amino acid sequences:</span></span>
 <span><span class="co">#&gt; ================================================================================</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Time difference of 5.74 secs</span></span>
+<span><span class="co">#&gt; Time difference of 6.23 secs</span></span>
 <span><span class="co">#&gt; ================================================================================</span></span>
 <span><span class="co">#&gt; </span></span>
-<span><span class="co">#&gt; Time difference of 34.24 secs</span></span></code></pre></div>
+<span><span class="co">#&gt; Time difference of 38.26 secs</span></span></code></pre></div>
 </details>
 </div>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb12"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">decipher_report</span> <span class="op">&lt;-</span> <span class="fu">readr</span><span class="fu">::</span><span class="fu"><a href="https://readr.tidyverse.org/reference/read_delim.html" class="external-link">read_tsv</a></span><span class="op">(</span></span>
 <span>  <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">pxo86_decipher_dir</span>, <span class="st">"array_report.tsv"</span><span class="op">)</span>, show_col_types <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span></span>
@@ -293,12 +357,12 @@
 <a class="anchor" aria-label="anchor" href="#correct_tales"></a>
 </h3>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb13"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pxo86_java_fa</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out</span>, <span class="st">"PXO86_java_corrected.fa"</span><span class="op">)</span></span></code></pre></div>
 </details>
 </div>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb14"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">corrections</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/correct_tales.html">correct_tales</a></span><span class="op">(</span></span>
 <span>  uncorrected_path <span class="op">=</span> <span class="va">pxo86_fa</span>, corrected_path <span class="op">=</span> <span class="va">pxo86_java_fa</span>,</span>
 <span>  return_corrections <span class="op">=</span> <span class="cn">TRUE</span></span>
@@ -307,7 +371,7 @@
 </div>
 <p>Genome-wide, <code><a href="../reference/correct_tales.html">correct_tales()</a></code> needed only 1 correction:</p>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb15"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">corrections</span></span>
 <span><span class="co">#&gt; # A tibble: 1 × 4</span></span>
 <span><span class="co">#&gt;   seqName     posInOriginSeq type      substitution</span></span>
@@ -316,12 +380,12 @@
 </details>
 </div>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb16"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb18"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">pxo86_java_dir</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="va">out</span>, <span class="st">"PXO86_java_tell"</span><span class="op">)</span></span></code></pre></div>
 </details>
 </div>
 <div class="cell">
-<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb17"><pre class="downlit sourceCode r">
+<details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/invisible.html" class="external-link">invisible</a></span><span class="op">(</span><span class="fu"><a href="../reference/tell_tales.html">tell_tales</a></span><span class="op">(</span></span>
 <span>  subject_file <span class="op">=</span> <span class="va">pxo86_java_fa</span>, output_dir <span class="op">=</span> <span class="va">pxo86_java_dir</span>, correct_array <span class="op">=</span> <span class="cn">FALSE</span></span>
 <span><span class="op">)</span><span class="op">)</span></span>
@@ -360,7 +424,7 @@
 <tbody>
 <tr class="odd">
 <td style="text-align: left;">ROI_00019</td>
-<td style="text-align: left;">clean early stop, no downstream C-terminus hit</td>
+<td style="text-align: left;">early stop, only fragments of a C-terminus downstream</td>
 <td style="text-align: left;">unchanged</td>
 <td style="text-align: left;">unchanged</td>
 </tr>
@@ -374,11 +438,11 @@
 </table>
 </div>
 </div>
-<p>Two genuine truncTALEs in the same genome respond differently to the same correction tool, because they arose from different underlying DNA-level events. A clean early stop leaves nothing downstream that resembles a C-terminus, so a frameshift corrector has nothing to reframe into. A genuine, evolved frameshift leaves exactly the kind of disrupted-but-recognisable signal these tools exist to fix. <code>correct_array = TRUE</code> cannot tell that signal from a sequencing error, and “fixes” it.</p>
-<p><strong>On this evidence, <code><a href="../reference/correct_tales.html">correct_tales()</a></code> is the more transparent choice for a genome suspected of carrying real truncTALEs.</strong> It left both arrays’ sequence alone, where <code>tell_tales(correct_array = TRUE)</code> rewrote the genuine frameshift’s C-terminus as though it were an assembly error. One genome and two arrays is a narrow base for a general rule. In practice: check <code>cterm_dna_hit</code> and <code>orf_coverage</code> in <code>array_report.tsv</code> before correcting, and verify any change a correction makes to a documented or suspected truncTALE’s sequence.</p>
+<p>Two genuine truncTALEs in the same genome respond differently to the same correction tool, because they arose from different underlying DNA-level events. In <code>ROI_00019</code>, the protein stops early and only fragments of a C-terminus remain downstream, too weak to count as a hit, so a frameshift corrector has no template to reframe into. A genuine, evolved frameshift leaves exactly the kind of disrupted-but-recognisable signal these tools exist to fix. <code>correct_array = TRUE</code> cannot tell that signal from a sequencing error, and “fixes” it.</p>
+<p><strong>On this evidence, <code><a href="../reference/correct_tales.html">correct_tales()</a></code> is the more transparent choice for a genome suspected of carrying real truncTALEs.</strong> It left both arrays’ sequence alone, where <code>tell_tales(correct_array = TRUE)</code> rewrote the genuine frameshift’s C-terminus as though it were an assembly error. One genome and two arrays is a narrow base for a general rule. In practice: check the terminus columns and <code>orf_coverage</code> in <code>array_report.tsv</code> before correcting, and verify any change a correction makes to a documented or suspected truncTALE’s sequence.</p>
 <ul>
-<li>A short array with <code>cterm_dna_hit = FALSE</code> and <code>orf_coverage</code> in the normal range is very likely a genuine short protein. Any sequence a correction adds to it was never there.</li>
-<li>A short array with <code>cterm_dna_hit = TRUE</code> but reduced <code>orf_coverage</code> may carry a genuine frameshift that is part of the strain’s biology. <code>correct_array = TRUE</code> will extend it regardless of whether that is what your analysis needs.</li>
+<li>A short C-terminus (<code>cterm_aa_cover</code> well below 1) with <code>cterm_dna_hit = FALSE</code>, only weak DNA fragments (<code>cterm_dna_cover</code> low) and <code>orf_coverage</code> in the normal range is very likely a genuine short protein. Any sequence a correction adds to it was never there.</li>
+<li>A short C-terminus with <code>cterm_dna_hit = TRUE</code>, a full-length DNA match (<code>cterm_dna_cover</code> near 1) but reduced <code>orf_coverage</code> may carry a genuine frameshift that is part of the strain’s biology. <code>correct_array = TRUE</code> will extend it regardless of whether that is what your analysis needs.</li>
 </ul>
 <p>Neither correction path can make the underlying biological judgement call for you.</p>
 </section><section class="section level2" data-number="5"><h2 data-number="5" id="next">

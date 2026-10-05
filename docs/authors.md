@@ -25,13 +25,13 @@ Source:
 [`inst/CITATION`](https://github.com/scunnac/tantale/blob/HEAD/inst/CITATION)
 
 Vi BT, Cunnac S (2026). tantale: Mining and Analysis of Transcription
-Activator-Like Effectors. R package version 0.99.0.
+Activator-Like Effectors. R package version 0.99.0.9000.
 https://github.com/scunnac/tantale
 
     @Manual{,
       title = {tantale: Mining and Analysis of Transcription Activator-Like Effectors},
       author = {Bao Tram Vi and Sebastien Cunnac},
       year = {2026},
-      note = {R package version 0.99.0},
+      note = {R package version 0.99.0.9000},
       url = {https://github.com/scunnac/tantale},
     }

@@ -118,22 +118,30 @@ pxo86 %>%
 other array carries. `ROI_00001`’s is shorter than normal, at 183 aa,
 but far less drastically so. Both arrays share the same reduced
 N-terminus, 230 aa against 283-288 aa elsewhere, in line with the
-partial N-terminal loss Read et al. describe. Neither shows up in
-[`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md):
+partial N-terminal loss Read et al. describe.
+[`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
+reports all four termini:
 
 Code
 
 ``` r
 tales_anomalies(pxo86)
-#> # A tibble: 0 × 3
-#> # ℹ 3 variables: array_id <chr>, check <chr>, detail <chr>
+#> # A tibble: 4 × 4
+#>   array_id  check                 kind         detail                           
+#>   <chr>     <chr>                 <chr>        <chr>                            
+#> 1 ROI_00001 terminus_noncanonical noncanonical N-terminus is not a canonical TA…
+#> 2 ROI_00001 terminus_noncanonical noncanonical C-terminus is not a canonical TA…
+#> 3 ROI_00019 terminus_noncanonical noncanonical N-terminus is not a canonical TA…
+#> 4 ROI_00019 terminus_noncanonical noncanonical C-terminus is not a canonical TA…
 ```
 
-Both arrays have the structure of a standard TALE as
-[`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
-defines it: an N-terminus, repeats and a C-terminus, each terminus
-matching the protein profile of its TALE domain. `array_report.tsv`
-holds the evidence for the termini:
+`NTERM` and `CTERM` mark a canonical TALE terminal domain, one that can
+be expected to do its usual job; any other terminus is coded `XXXXX`
+(see
+[`tales_anchor_codes()`](https://scunnac.github.io/tantale/reference/tales_anchor_codes.md)).
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
+decides it from a search of each terminus with the protein profile of
+its TALE domain, and `array_report.tsv` holds the evidence:
 
 Code
 
@@ -141,42 +149,54 @@ Code
 readr::read_tsv(file.path(pxo86_raw_dir, "array_report.tsv"),
                 show_col_types = FALSE) %>%
   filter(array_id %in% c("ROI_00001", "ROI_00019")) %>%
-  select(array_id, nterm_aa_evalue, nterm_aa_profile_gap,
-         cterm_aa_evalue, cterm_aa_profile_gap, rvd_string)
-#> # A tibble: 2 × 6
-#>   array_id  nterm_aa_evalue nterm_aa_profile_gap cterm_aa_evalue
-#>   <chr>               <dbl>                <dbl>           <dbl>
-#> 1 ROI_00019       2.40e-129                    0       5.90e- 18
-#> 2 ROI_00001       2.40e-129                    0       7.4 e-123
-#> # ℹ 2 more variables: cterm_aa_profile_gap <dbl>, rvd_string <chr>
+  select(array_id, nterm_aa_evalue, nterm_aa_cover, nterm_aa_domains,
+         cterm_aa_evalue, cterm_aa_cover, cterm_aa_far_gap) %>%
+  mutate(across(ends_with("_evalue"), ~ format(.x, digits = 2))) %>%
+  knitr::kable()
 ```
 
-A terminus is coded `NTERM` or `CTERM` when it matches its profile, from
-the end next to the repeats, whatever its length. Here each short
-terminus matches over nearly its whole length. The two 230-aa N-termini
-align with the N-terminal profile everywhere except profile positions
-106-150, an internal deletion of about 45 residues. The 183-aa
-C-terminus of `ROI_00001` aligns over its full length with profile
-positions 1-183, and the 42-aa C-terminus of `ROI_00019` aligns with
-positions 1-37 over its first 37 residues. These C-termini lack the far
-end of the profile, 96 and 242 positions respectively. The segments are
-related to the canonical TALE termini, and the codes record that
-relatedness.
+| array_id  | nterm_aa_evalue | nterm_aa_cover | nterm_aa_domains | cterm_aa_evalue | cterm_aa_cover | cterm_aa_far_gap |
+|:----------|:----------------|---------------:|-----------------:|:----------------|---------------:|-----------------:|
+| ROI_00019 | 2.4e-129        |          0.844 |                2 | 5.9e-18         |          0.133 |              242 |
+| ROI_00001 | 2.4e-129        |          0.844 |                2 | 7.4e-123        |          0.656 |               96 |
 
-Their molecular function is another matter. A terminus shorter than the
-canonical one has probably lost functional regions. The C-terminal
-region of a TALE carries the nuclear localisation signals and, at its
-far end, the acidic activation domain that recruits the host’s
-transcription machinery: both C-termini here stop well before it,
-consistent with the loss of the activation domain that Ji et al. and
-Read et al. report for truncTALEs. The N-terminal region carries the
-type III secretion signal and, next to the repeats, the degenerate
-repeats that bind the thymine preceding the target; which function, if
-any, the 45-residue deletion affects is not something sequence alone can
-settle.
-[`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
-checks structure, so the length of the terminus parts, as in the table
-above, is how such arrays are found.
+Each short terminus matches its profile strongly: these segments are
+TALE termini. But a canonical terminus must cover at least 90% of the
+profile (`terminus_min_cover`), and none of these does. The two 230-aa
+N-termini align with the N-terminal profile everywhere except profile
+positions 106-150, an internal deletion of about 45 residues, so the
+match comes in two pieces (`nterm_aa_domains`) covering 84% of the
+profile. The 183-aa C-terminus of `ROI_00001` aligns over its full
+length with profile positions 1-183, and the 42-aa C-terminus of
+`ROI_00019` with positions 1-37 over its first 37 residues. These
+C-termini lack the far end of the profile, 96 and 242 positions
+respectively (`cterm_aa_far_gap`). The 90% threshold comes from the
+curated TALEs of `tale_annotations`: their canonical termini cover 93%
+of the profile or more, the truncTALE termini 84% or less.
+
+Function is what the threshold stands for. The C-terminal region of a
+TALE carries the nuclear localisation signals and, at its far end, the
+acidic activation domain that recruits the host’s transcription
+machinery: both C-termini here stop well before it, consistent with the
+loss of the activation domain that Ji et al. and Read et al. report for
+truncTALEs. The N-terminal region carries the type III secretion signal
+and, next to the repeats, the degenerate repeats that bind the thymine
+preceding the target; which function, if any, the 45-residue deletion
+affects is not something sequence alone can settle.
+
+Both arrays are real TALEs, and truncTALEs have a function of their own:
+they suppress the *Xa1* resistance. So `tales(x, sanitize = TRUE)`,
+which removes arrays whose data are inconsistent or incomplete, keeps
+them; `sanitize = "canonical"` removes them when an analysis needs
+canonical TALEs only:
+
+Code
+
+``` r
+pxo86_canonical <- suppressWarnings(tales(pxo86, sanitize = "canonical"))
+setdiff(unique(pxo86$array_id), unique(pxo86_canonical$array_id))
+#> [1] "ROI_00001" "ROI_00019"
+```
 
 ## 2 Not the same kind of short
 
@@ -234,17 +254,41 @@ hits %>%
 `ROI_00001` has a real C-terminus hit, full length at ~286 codons, but
 the nhmmer alignment needed two internal reframings to call it at all.
 The repeat immediately before it is short and frameshifted the same way.
-A C-terminus-shaped signal is there, just out of frame. `ROI_00019` has
-no C-terminus hit at any frameshift count: nothing downstream of its
-last repeat resembles a TALE C-terminus to any of the three profiles.
+A C-terminus-shaped signal is there, just out of frame.
+
+`ROI_00019` has no C-terminus hit. The hits that make up an array must
+score above a threshold (`cterm_min_score`, 200 bits for the C-terminus
+profile), set for finding arrays. Weaker matches next to the repeats are
+not part of the array, but `array_report.tsv` still describes them:
+
+Code
+
+``` r
+pxo86_report %>%
+  filter(array_id %in% c("ROI_00001", "ROI_00019")) %>%
+  select(array_id, cterm_dna_hit, cterm_dna_score, cterm_dna_cover, cterm_dna_pieces)
+#> # A tibble: 2 × 5
+#>   array_id  cterm_dna_hit cterm_dna_score cterm_dna_cover cterm_dna_pieces
+#>   <chr>     <lgl>                   <dbl>           <dbl>            <dbl>
+#> 1 ROI_00019 FALSE                    94.3           0.204                2
+#> 2 ROI_00001 TRUE                   1074.            1                    1
+```
+
+Downstream of `ROI_00019`’s last repeat, the C-terminus profile matches
+in two pieces, the best at 94 bits, covering together a fifth of the
+profile; a complete C-terminus scores around 1100 bits. The raw nhmmer
+output (`hmmer_search_out.txt`) places them at the two ends of the
+profile, positions 1-97 and 783-861. The DNA thus keeps the start and
+the end of a C-terminus, with about 685 nt between them that match
+nothing, and the protein stops 42 residues into the first piece.
 
 That difference carries forward into correction. Frameshift correction,
 by either path, acts on the DNA span
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
 merges from these hits. `ROI_00001`’s span already contains a
 full-length, C-terminus-shaped template, out of frame; `ROI_00019`’s
-span never acquired one. Only one array gives a correction tool material
-to reframe into.
+span holds no C-terminus hit, only these fragments beside it. Only one
+array gives a correction tool a template to reframe into.
 
 ## 3 Does correction respect that difference?
 
@@ -266,10 +310,10 @@ invisible(tell_tales(
 #> Finding the closest reference amino acid sequences:
 #> ================================================================================
 #> 
-#> Time difference of 5.74 secs
+#> Time difference of 6.23 secs
 #> ================================================================================
 #> 
-#> Time difference of 34.24 secs
+#> Time difference of 38.26 secs
 ```
 
 Code
@@ -380,17 +424,17 @@ at 83%, against the 33 amino acids `correct_array = TRUE` adds.
 
 | Array     | What it actually is                                       | correct_array = TRUE    | correct_tales() |
 |:----------|:----------------------------------------------------------|:------------------------|:----------------|
-| ROI_00019 | clean early stop, no downstream C-terminus hit            | unchanged               | unchanged       |
+| ROI_00019 | early stop, only fragments of a C-terminus downstream     | unchanged               | unchanged       |
 | ROI_00001 | genuine frameshift, C-terminus hit present (out of frame) | over-corrected (+33 aa) | unchanged       |
 
 Two genuine truncTALEs in the same genome respond differently to the
 same correction tool, because they arose from different underlying
-DNA-level events. A clean early stop leaves nothing downstream that
-resembles a C-terminus, so a frameshift corrector has nothing to reframe
-into. A genuine, evolved frameshift leaves exactly the kind of
-disrupted-but-recognisable signal these tools exist to fix.
-`correct_array = TRUE` cannot tell that signal from a sequencing error,
-and “fixes” it.
+DNA-level events. In `ROI_00019`, the protein stops early and only
+fragments of a C-terminus remain downstream, too weak to count as a hit,
+so a frameshift corrector has no template to reframe into. A genuine,
+evolved frameshift leaves exactly the kind of disrupted-but-recognisable
+signal these tools exist to fix. `correct_array = TRUE` cannot tell that
+signal from a sequencing error, and “fixes” it.
 
 **On this evidence,
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
@@ -398,16 +442,18 @@ is the more transparent choice for a genome suspected of carrying real
 truncTALEs.** It left both arrays’ sequence alone, where
 `tell_tales(correct_array = TRUE)` rewrote the genuine frameshift’s
 C-terminus as though it were an assembly error. One genome and two
-arrays is a narrow base for a general rule. In practice: check
-`cterm_dna_hit` and `orf_coverage` in `array_report.tsv` before
+arrays is a narrow base for a general rule. In practice: check the
+terminus columns and `orf_coverage` in `array_report.tsv` before
 correcting, and verify any change a correction makes to a documented or
 suspected truncTALE’s sequence.
 
-- A short array with `cterm_dna_hit = FALSE` and `orf_coverage` in the
-  normal range is very likely a genuine short protein. Any sequence a
-  correction adds to it was never there.
-- A short array with `cterm_dna_hit = TRUE` but reduced `orf_coverage`
-  may carry a genuine frameshift that is part of the strain’s biology.
+- A short C-terminus (`cterm_aa_cover` well below 1) with
+  `cterm_dna_hit = FALSE`, only weak DNA fragments (`cterm_dna_cover`
+  low) and `orf_coverage` in the normal range is very likely a genuine
+  short protein. Any sequence a correction adds to it was never there.
+- A short C-terminus with `cterm_dna_hit = TRUE`, a full-length DNA
+  match (`cterm_dna_cover` near 1) but reduced `orf_coverage` may carry
+  a genuine frameshift that is part of the strain’s biology.
   `correct_array = TRUE` will extend it regardless of whether that is
   what your analysis needs.
 

@@ -75,8 +75,8 @@ Code
 
 ``` r
 tales_anomalies(x)
-#> # A tibble: 0 × 3
-#> # ℹ 3 variables: array_id <chr>, check <chr>, detail <chr>
+#> # A tibble: 0 × 4
+#> # ℹ 4 variables: array_id <chr>, check <chr>, kind <chr>, detail <chr>
 ```
 
 Zero rows means none did, here. The [mining
