@@ -60,6 +60,13 @@ jobs:
           r-version: ${{ matrix.r }}
           use-public-rspm: true
 
+      # The macOS binary of gdtools (loaded through ggtree by the tree
+      # panels of the plots) links against XQuartz's libXrender, which the
+      # runner image lacks (ledger §58).
+      - name: Install XQuartz
+        if: runner.os == 'macOS'
+        run: brew install --cask xquartz
+
       - uses: r-lib/actions/setup-r-dependencies@v2
         with:
           extra-packages: any::rcmdcheck, local::.
