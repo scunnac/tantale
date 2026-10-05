@@ -4342,3 +4342,17 @@ cached goodpractice report for 3570f42, with or without `GITHUB_PAT`)
 `checks_to_markdown()` returns a character vector, so the list arises
 only on the runner. Q187 (maintainer: yes): the #813 reply waits for a
 green run.
+
+**pkgcheck run 37385650827 (57115b6, Q186a), read 2026-10-06.** The
+inline step worked: report written, `status` set. One blocking item:
+"Package fails continuous integration checks". pkgcheck reads the latest
+push-triggered run of each workflow from the GitHub API when it starts
+(~20 min into the job, after setup), and at that moment R-CMD-check and
+test-coverage on 4cd7008, pushed mid-run, had not finished; the runs on
+57115b6 had been cancelled by that push. So the next pkgcheck run must
+be dispatched when the CI runs on the pushed head are green, with no
+push during its first half hour. Everything else as in the local run:
+R CMD check 0 errors 0 warnings, coverage 90.6%, ORCID check passes,
+goodpractice notes (long functions, three unused internals, coverage
+lines), 40 Imports. No artifact: upload-artifact skips hidden
+directories by default, `include-hidden-files: true` added.

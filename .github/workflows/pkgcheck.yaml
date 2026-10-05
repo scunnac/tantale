@@ -104,6 +104,9 @@ jobs:
         with:
           name: pkgcheck-report
           path: .pkgcheck/
+          # .pkgcheck is a hidden directory, which upload-artifact skips
+          # unless told otherwise
+          include-hidden-files: true
           if-no-files-found: ignore
 
       - name: Fail if pkgcheck found problems
