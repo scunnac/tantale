@@ -4368,3 +4368,7 @@ R CMD check 0 errors 0 warnings, coverage 90.6%, ORCID check passes,
 goodpractice notes (long functions, three unused internals, coverage
 lines), 40 Imports. No artifact: upload-artifact skips hidden
 directories by default, `include-hidden-files: true` added.
+Q198 (maintainer, 2026-10-06): the three internals goodpractice calls
+unused (`R/pairwise_distances_class.R:373`, `R/tales_class.R:983`,
+`R/tales_msa_class.R:264`) are left as they are unless the reviewers
+raise them.
