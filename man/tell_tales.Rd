@@ -131,40 +131,15 @@ intact TALE. A reference of only intact TALEs risks "repairing" a
 genuine pseudogene into an ORF no strain carries.}
 
 \item{max_comparisons}{How many reference proteins each array may be
-aligned against during frameshift correction, and \strong{the main
-control on how long correction takes}. \code{NULL} allows all of them.
-
-\code{DECIPHER::CorrectFrameshifts()} scores every reference with a
-cheap distance first, sorts them, and only then aligns against the
-closest \code{max_comparisons} of them -- stopping sooner if one is
-close enough. So the references never reached cost almost nothing, and
-lowering this does not change \emph{which} references are preferred,
-only how deep the search goes before settling for the best seen.
-
-The default, 50, gives the same result as the full search on the four
-genomes shipped with the package, corrected against the default
-reference (494 proteins): identical corrected sequences and RVD strings
-for every array of MAI1 (10 candidate arrays), BAI3 (10), PXO86 (19)
-and BAI3-1-1 (9), at about a quarter of the time or less. On BAI3-1-1,
-an error-prone assembly, the full search took 455 s and 50 took 61 s.
-
-A smaller cap risks a divergent array whose only good reference lies
-outside the closest \code{max_comparisons} by the cheap pre-screen. The
-array is then corrected against a poor reference, which is worse than
-leaving it uncorrected, because the result still looks like a corrected
-ORF. On BAI3-1-1, one array of the nine needs more than 20 references:
-
-\tabular{lrl}{
-\strong{max_comparisons} \tab \strong{seconds} \tab \strong{that array} \cr
-2 to 5 \tab 19-22 \tab N-terminus unmatched, 19 of its 26 repeats \cr
-10, 20 \tab 26, 34 \tab not parsed by AnnoTALE, absent \cr
-50 \tab 61 \tab N-terminus, 26 repeats, C-terminus \cr
-}
-
-\code{\link{tales_anomalies}} reports the first outcome, and
-\code{\link{tales_from_telltales}} warns about the second. With a
-reference of your own, especially a small or a distant one, compare a
-run at the default with one at \code{NULL} before relying on the cap.}
+aligned against during frameshift correction, and the main control on
+how long correction takes. \code{NULL} allows all of them. It is
+passed to \code{DECIPHER::CorrectFrameshifts()}, which ranks the
+references by a quick distance and aligns the array against the closest
+\code{max_comparisons} of them. In our tests on the genomes shipped with
+the package, 50 gave the same corrections as the full search in a
+quarter of the time or less. See the
+\href{https://scunnac.github.io/tantale/articles/tale_mining.html#sec-max-comparisons}{TALE
+mining article} for the measurements.}
 
 \item{frameshift}{Frameshift penalty passed to
 \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}}'s
