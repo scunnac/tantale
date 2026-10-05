@@ -53,7 +53,7 @@ Invisibly, a list with `conda`, `system` and `archives` data frames of
 the checks, and `prefix`, so the result can be tested as well as read.
 `conda` is `NULL` and `prefix` is `NA` when no conda/mamba installation,
 or no `tantale` environment, was found at all; `system` is always a data
-frame, since Java and Perl are checked regardless.
+frame, since Java is checked regardless.
 
 ## Details
 
@@ -81,9 +81,9 @@ the package and unpacked into `tools::R_user_dir("tantale", "data")`
 `TANTALE_DATA_DIR` to use another directory, for instance one shared by
 a team. The tools take about 60 MB, the genomes 20 MB.
 
-**Java and Perl** are checked too. They are hard requirements of the
-AnnoTALE, PrediTALE and TALE-correction wrappers, they come from outside
-conda, and without this check they fail deep inside a
+**Java** is checked too. It is a hard requirement of the AnnoTALE,
+PrediTALE and TALE-correction wrappers, it comes from outside conda, and
+without this check they fail deep inside a
 [`system()`](https://rdrr.io/r/base/system.html) call.
 
 ## Installing conda itself
@@ -122,7 +122,6 @@ tantale_setup()
 #> ✔ mafft               7.453
 #> ✔ perl-list-moreutils 0.430
 #> ✔ java                /usr/bin/java
-#> ✔ perl                /usr/bin/perl
 #> ✔ Everything tantale needs is present.
 # }
 ```

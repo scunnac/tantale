@@ -97,8 +97,10 @@ talomes_heatmap(
   Space for the row dendrogram, column dendrogram, row names and column
   names, in that order, counted in heatmap cells. `NULL` (default) sizes
   the dendrograms to a quarter of the heatmap's width and height,
-  between 1.5 and 5 cells, with 3 cells for the names. With
-  `plot_type = "single"` the column dendrogram also holds the title and
+  between 1.5 and 5 cells. With `plot_type = "all"`, it gives the names
+  and the title the room their text takes, whatever the size of the
+  device, and the cells share the rest; with `plot_type = "single"`, the
+  names get 3 cells, and the column dendrogram also holds the title and
   gets at least 3.5 cells.
 
 - sep_width:

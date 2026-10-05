@@ -16,10 +16,10 @@ CAUTIONARY NOTES:
 - tantale has been written with only Linux systems in mind and will very
   likely **not work on other OS** (eg Windows)
 
-- Some of tantale wrappers use code written in other languages : **Java
-  and Perl must be on the PATH** in your system.
+- Some of tantale wrappers use code written in Java: **Java must be on
+  the PATH** in your system.
   [`tantale_setup()`](https://scunnac.github.io/tantale/reference/tantale_setup.md)
-  checks for both.
+  checks for it.
 
 ## A TALE-oriented OOP framework
 
@@ -57,9 +57,9 @@ MAFFT, HMMER, mmseqs2 and the Perl dependencies of the target predictors
 come from a conda environment the package builds for itself, so **conda
 (or mamba, or micromamba) is a prerequisite of the main workflow**. The
 Java tools (AnnoTALE, PrediTALE, TALE correction), which have no conda
-package, ship with tantale itself. The environment is built on first
-use, so the first call needs a network connection and takes a few
-minutes.
+package, are downloaded by `tantale_setup(install = TRUE)`. The
+environment is built on first use, so the first call needs a network
+connection and takes a few minutes.
 
 Start with
 [`tantale_setup()`](https://scunnac.github.io/tantale/reference/tantale_setup.md).

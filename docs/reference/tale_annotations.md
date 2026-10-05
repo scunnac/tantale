@@ -58,12 +58,14 @@ A tibble with 128 rows and 10 columns. One row is one TALE gene.
 - rvd_seq:
 
   The repeat-variable diresidues in array order, dash-separated
-  (`"NI-HD-NG-..."`), the form
+  (`"NI-HD-NG-..."`), the format of
+  [`tales_rvd_strings`](https://scunnac.github.io/tantale/reference/tales_rvd_strings.md).
   [`tales_predict_targets`](https://scunnac.github.io/tantale/reference/tales_predict_targets.md)
-  takes. A *lowercase* RVD (`"ng"`, `"n*"`) marks a repeat of
-  non-standard length, the usual convention; 16 of the 128 arrays carry
-  at least one, so do not upper-case this column before comparing it
-  with anything.
+  takes them as a named `BStringSet`:
+  `Biostrings::BStringSet(setNames(rvd_seq, paste(strain, label)))`. A
+  *lowercase* RVD (`"ng"`, `"n*"`) marks a repeat of non-standard
+  length, the usual convention; 16 of the 128 arrays carry at least one,
+  so do not upper-case this column before comparing it with anything.
 
 - unusual_feature:
 
@@ -89,13 +91,6 @@ placeholders to be filled by a guess.
 `annotale_class` is missing for one row: PXO99A's `Tal7b`, the
 five-repeat allele its own `unusual_feature` describes, too short to be
 catalogued.
-
-One curated value was corrected against the genome: MAI1's `TalH` had
-been recorded with twelve repeats, but the MAI1 genome carries sixteen
-at that locus, as both a
-[`tell_tales`](https://scunnac.github.io/tantale/reference/tell_tales.md)
-run on it and AnnoTALE's catalogue show. The twelve were an exact prefix
-of the sixteen, so `rvd_seq` gives the sixteen.
 
 The class is stored without the member index AnnoTALE appends to it
 (`"TalAH"`, not `"TalAH30"`). That index numbers the members of a class
