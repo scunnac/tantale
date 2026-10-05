@@ -17,14 +17,19 @@ preserved untouched.}
 \item{dom_code_namespace}{Optional scalar string, see
 \code{\link{tales_namespace}}.}
 
-\item{sanitize}{If \code{TRUE}, arrays whose data are inconsistent or
-incomplete (the anomalies of kind \code{"integrity"} that
-\code{\link{tales_anomalies}} lists) are removed, with a warning naming
-them and why. Arrays that are only non-canonical, such as truncTALEs or
-TALEs lacking a terminus, are kept, with a message. If \code{FALSE}
-(default) every array is kept and the anomalies are merely warned about,
-so odd predictions can still be loaded and inspected. Structural
-corruption is an error either way.}
+\item{sanitize}{Which arrays to remove, among those
+\code{\link{tales_anomalies}} lists:
+\itemize{
+\item \code{FALSE} (default): none. The anomalies are warned about, so
+odd predictions can still be loaded and inspected.
+\item \code{TRUE}: the arrays whose data are inconsistent or incomplete
+(anomalies of kind \code{"integrity"}), with a warning naming them and
+why. Non-canonical TALEs, such as truncTALEs or TALEs lacking a
+terminus, are kept, with a message.
+\item \code{"canonical"}: every array with an anomaly, so that only
+canonical TALEs remain.
+}
+Structural corruption is an error either way.}
 }
 \value{
 A validated \code{tales} object.

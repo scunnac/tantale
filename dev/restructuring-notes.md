@@ -4118,6 +4118,12 @@ check); `sanitize = TRUE` drops only arrays with an `integrity` anomaly
 message (`tantale_message_tales_noncanonical`); the example of
 `?tales_anomalies` shows the canonical-only filter. Golden: the reference
 anomaly table gains the column.
+Q182 (maintainer): `sanitize = "canonical"` rather than a filter, easier
+for moderately proficient R users. Done: `sanitize` takes `FALSE`, `TRUE`
+or `"canonical"` (anything else is `tantale_error_bad_argument`);
+`"canonical"` drops every array with an anomaly, with the
+`tantale_warning_tales_sanitized` warning; the construction warning names
+both levels; the `?tales_anomalies` example uses it.
 
 ## 60. rOpenSci #813: first editor reply and the bot's pkgcheck (2026-10-05) **[P]**
 

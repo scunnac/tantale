@@ -20,8 +20,9 @@ one side; `"integrity"` marks data that are inconsistent or incomplete,
 and arrays without repeats. `sanitize = TRUE` (in `tales()`,
 `tales_bind()`, `tales_from_telltales()` and `tales_from_annotale()`) now
 drops only the arrays with an anomaly of kind `"integrity"`, and keeps
-truncTALEs and other non-canonical TALEs with a message. The example of
-`?tales_anomalies` shows how to keep canonical TALEs only.
+truncTALEs and other non-canonical TALEs with a message.
+`sanitize = "canonical"` drops every array with an anomaly of either kind,
+so that only canonical TALEs remain.
 
 ## `tell_tales()` reports more about each terminus
 

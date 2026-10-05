@@ -24,11 +24,11 @@ segment to be coded \code{NTERM}/\code{CTERM}. As in
 \code{\link{tell_tales}}, the match must also reach the end of the
 profile that adjoins the repeats.}
 
-\item{sanitize}{If \code{TRUE}, arrays whose data are inconsistent or
-incomplete are removed with a warning naming them and why, and
-non-canonical TALEs (truncTALEs, for instance) are kept; if \code{FALSE}
-(default) every array is kept and the anomalies are merely warned about.
-See \code{\link{tales_anomalies}}.}
+\item{sanitize}{\code{FALSE} (default) keeps every array and warns about
+the anomalies; \code{TRUE} removes the arrays whose data are
+inconsistent or incomplete and keeps non-canonical TALEs (truncTALEs,
+for instance); \code{"canonical"} keeps canonical TALEs only. See
+\code{\link{tales}} and \code{\link{tales_anomalies}}.}
 
 \item{hmm_dir}{Directory holding the TALE terminus protein profiles.}
 }

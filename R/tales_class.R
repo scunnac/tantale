@@ -193,14 +193,19 @@ tales_names <- function(x) {
 #'   preserved untouched.
 #' @param dom_code_namespace Optional scalar string, see
 #'   \code{\link{tales_namespace}}.
-#' @param sanitize If \code{TRUE}, arrays whose data are inconsistent or
-#'   incomplete (the anomalies of kind \code{"integrity"} that
-#'   \code{\link{tales_anomalies}} lists) are removed, with a warning naming
-#'   them and why. Arrays that are only non-canonical, such as truncTALEs or
-#'   TALEs lacking a terminus, are kept, with a message. If \code{FALSE}
-#'   (default) every array is kept and the anomalies are merely warned about,
-#'   so odd predictions can still be loaded and inspected. Structural
-#'   corruption is an error either way.
+#' @param sanitize Which arrays to remove, among those
+#'   \code{\link{tales_anomalies}} lists:
+#'   \itemize{
+#'   \item \code{FALSE} (default): none. The anomalies are warned about, so
+#'   odd predictions can still be loaded and inspected.
+#'   \item \code{TRUE}: the arrays whose data are inconsistent or incomplete
+#'   (anomalies of kind \code{"integrity"}), with a warning naming them and
+#'   why. Non-canonical TALEs, such as truncTALEs or TALEs lacking a
+#'   terminus, are kept, with a message.
+#'   \item \code{"canonical"}: every array with an anomaly, so that only
+#'   canonical TALEs remain.
+#'   }
+#'   Structural corruption is an error either way.
 #' @return A validated \code{tales} object.
 #' @export
 #' @family tales objects
@@ -339,7 +344,8 @@ as_tales.default <- function(x, sep = "-", residue_col = c("rvd", "dom_code"), .
 #'   \code{\link{tales_assign_domain_codes}} on the bound result, over the
 #'   union of \code{aa_seq}; \code{"error"} aborts instead, for callers who
 #'   want that stricter behaviour.
-#' @param sanitize Passed to \code{\link{tales}} for the final construction.
+#' @param sanitize Passed to \code{\link{tales}} for the final construction:
+#'   \code{FALSE}, \code{TRUE} or \code{"canonical"}.
 #' @return A validated \code{\link{tales}} object.
 #' @export
 #' @family tales objects
@@ -561,8 +567,8 @@ validate_tales <- function(x) {
 #' \code{"integrity"} marks every other anomaly: data that are inconsistent
 #' or incomplete, or an array without repeats. \code{tales(x, sanitize =
 #' TRUE)} removes the arrays with an anomaly of kind \code{"integrity"} and
-#' keeps the others; the example below shows how to keep canonical TALEs
-#' only.
+#' keeps the others; \code{tales(x, sanitize = "canonical")} keeps
+#' canonical TALEs only.
 #'
 #' The structure checks need a \code{domain_type} column, and the terminus
 #' profile check an \code{rvd} column; they are skipped when it is absent.
@@ -592,18 +598,16 @@ validate_tales <- function(x) {
 #' tales(odd, sanitize = TRUE) # drops A2 instead of merely warning
 #'
 #' # B2 is a truncTALE-like array: its C-terminus is not canonical.
-#' # sanitize = TRUE keeps it; to keep canonical TALEs only, drop every
-#' # array with an anomaly of either kind.
 #' parts <- data.frame(
 #'   array_id = rep(c("B1", "B2"), each = 3),
 #'   position_in_array = rep(1:3, 2),
 #'   domain_type = rep(c("N-terminus", "repeat", "C-terminus"), 2),
 #'   rvd = c("NTERM", "HD", "CTERM", "NTERM", "NI", "XXXXX")
 #' )
-#' y <- tales(parts, sanitize = TRUE)
+#' y <- tales(parts, sanitize = TRUE)          # keeps B2, with a message
 #' tales_anomalies(y)
-#' canonical <- y[!y$array_id %in% tales_anomalies(y)$array_id, ]
-#' unique(canonical$array_id)
+#' z <- tales(parts, sanitize = "canonical")   # drops B2
+#' unique(z$array_id)
 tales_anomalies <- function(x) {
   .tales_anomalies(x)
 }
@@ -754,10 +758,25 @@ tales_anomalies <- function(x) {
 #' Warn about, or drop, the arrays flagged by .tales_anomalies()
 #' @keywords internal
 .tales_report_anomalies <- function(x, sanitize = FALSE, arg = "x") {
+  if (!(isFALSE(sanitize) || isTRUE(sanitize) || identical(sanitize, "canonical"))) {
+    cli::cli_abort(
+      c("{.arg sanitize} must be {.code FALSE}, {.code TRUE} or {.val canonical}.",
+        "x" = "It is {.obj_type_friendly {sanitize}}."),
+      class = c("tantale_error_bad_argument", "tantale_error"))
+  }
   an <- .tales_anomalies(x)
   if (nrow(an) == 0L) return(x)
   ids <- unique(an$array_id)
   reasons <- unique(an$check)
+  if (identical(sanitize, "canonical")) {
+    cli::cli_warn(
+      c("Dropped {length(ids)} array{?s} that {?is not a/are not} canonical TALE{?s}.",
+        "x" = "Array{?s}: {.val {utils::head(ids, 8)}}",
+        "i" = "Reason{?s}: {.field {reasons}}"),
+      class = c("tantale_warning_tales_sanitized", "tantale_warning")
+    )
+    return(x[!x$array_id %in% ids, , drop = FALSE])
+  }
   if (isTRUE(sanitize)) {
     dropped <- unique(an$array_id[an$kind == "integrity"])
     kept <- setdiff(ids, dropped)
@@ -783,7 +802,7 @@ tales_anomalies <- function(x) {
     c("{length(ids)} array{?s} {?has/have} biological anomalies.",
       "x" = "Array{?s}: {.val {utils::head(ids, 8)}}",
       "i" = "Reason{?s}: {.field {reasons}}",
-      "i" = "Inspect with {.fn tales_anomalies}, or drop with {.code sanitize = TRUE}."),
+      "i" = "Inspect with {.fn tales_anomalies}; drop with {.code sanitize = TRUE} (inconsistent data) or {.code sanitize = \"canonical\"} (all of them)."),
     class = c("tantale_warning_tales_anomalous", "tantale_warning")
   )
   x

@@ -16,7 +16,8 @@ namespaces (see \code{\link{tales_namespace}}) disagree. \code{"recode"}
 union of \code{aa_seq}; \code{"error"} aborts instead, for callers who
 want that stricter behaviour.}
 
-\item{sanitize}{Passed to \code{\link{tales}} for the final construction.}
+\item{sanitize}{Passed to \code{\link{tales}} for the final construction:
+\code{FALSE}, \code{TRUE} or \code{"canonical"}.}
 }
 \value{
 A validated \code{\link{tales}} object.

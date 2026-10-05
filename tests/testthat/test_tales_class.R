@@ -499,6 +499,23 @@ test_that("sanitize = TRUE keeps non-canonical arrays and drops inconsistent one
   expect_identical(unique(x$array_id), "a2")
 })
 
+test_that("sanitize = \"canonical\" keeps canonical TALEs only", {
+  df <- minimal_tales_df()
+  df$rvd[1] <- "XXXXX"
+  df$aa_seq[1] <- "MAS"
+  df$dom_code[1] <- "5"
+  expect_warning(x <- tales(df, sanitize = "canonical"), class = "tantale_warning_tales_sanitized")
+  expect_identical(unique(x$array_id), "a2")
+  expect_identical(nrow(tales_anomalies(x)), 0L)
+  # a clean object is left alone, quietly
+  expect_no_condition(tales(minimal_tales_df(), sanitize = "canonical"))
+})
+
+test_that("sanitize takes FALSE, TRUE or \"canonical\" only", {
+  expect_error(tales(minimal_tales_df(), sanitize = "strict"), class = "tantale_error_bad_argument")
+  expect_error(tales(minimal_tales_df(), sanitize = NA), class = "tantale_error_bad_argument")
+})
+
 test_that("each anomaly has a kind", {
   df <- minimal_tales_df()
   df$rvd[8] <- "XXXXX"

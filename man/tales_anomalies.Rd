@@ -37,8 +37,8 @@ the C-terminus of a truncTALE, or no terminus part on one side
 \code{"integrity"} marks every other anomaly: data that are inconsistent
 or incomplete, or an array without repeats. \code{tales(x, sanitize =
 TRUE)} removes the arrays with an anomaly of kind \code{"integrity"} and
-keeps the others; the example below shows how to keep canonical TALEs
-only.
+keeps the others; \code{tales(x, sanitize = "canonical")} keeps
+canonical TALEs only.
 
 The structure checks need a \code{domain_type} column, and the terminus
 profile check an \code{rvd} column; they are skipped when it is absent.
@@ -62,18 +62,16 @@ tales_anomalies(x)
 tales(odd, sanitize = TRUE) # drops A2 instead of merely warning
 
 # B2 is a truncTALE-like array: its C-terminus is not canonical.
-# sanitize = TRUE keeps it; to keep canonical TALEs only, drop every
-# array with an anomaly of either kind.
 parts <- data.frame(
   array_id = rep(c("B1", "B2"), each = 3),
   position_in_array = rep(1:3, 2),
   domain_type = rep(c("N-terminus", "repeat", "C-terminus"), 2),
   rvd = c("NTERM", "HD", "CTERM", "NTERM", "NI", "XXXXX")
 )
-y <- tales(parts, sanitize = TRUE)
+y <- tales(parts, sanitize = TRUE)          # keeps B2, with a message
 tales_anomalies(y)
-canonical <- y[!y$array_id \%in\% tales_anomalies(y)$array_id, ]
-unique(canonical$array_id)
+z <- tales(parts, sanitize = "canonical")   # drops B2
+unique(z$array_id)
 }
 \seealso{
 Other tales objects:
