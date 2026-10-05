@@ -42,8 +42,10 @@ Here is a snapshot of the topics that are covered:
 
 ## Installation
 
-For further details, take a look at the package
-[website](https://scunnac.github.io/tantale/).
+The three steps below install tantale and the programs it runs; “Also
+needed” lists what they assume. The reference page of
+[`tantale_setup()`](https://scunnac.github.io/tantale/reference/tantale_setup.html)
+describes the conda environment and the release archives in more detail.
 
 ### 1. Install the R package
 
@@ -102,7 +104,8 @@ Run it once with `install = TRUE` after installing tantale:
   and MMseqs2 that tantale pins (later MAFFT versions align TALE repeat
   strings differently) are built by bioconda for Linux and Intel macOS
   only. Windows and Apple Silicon are therefore not supported. Continuous
-  integration checks the package on Linux.
+  integration checks the package on Linux at every change, and on Intel
+  macOS.
 
 - **The Java programs and example genomes are downloaded once.**
   AnnoTALE, PrediTALE and TALE correction (about 60 MB, with no conda
