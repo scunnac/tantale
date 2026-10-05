@@ -2705,6 +2705,20 @@ article now calls `talomes_heatmap(grouped, group_col = "group",
 strain_col = "strain")`; its rendered figure is byte-identical to the
 one built from the hand-made table.
 
+**2026-10-06, Q192-Q193 (maintainer: yes).** The `?tale_annotations`
+example (38 classes, 10 strains) rendered badly on the site: with
+`plot_type = "all"` the name panels were 3 cells wide, and pkgdown's fixed
+7.3 x 4.5 in figure makes 38 cells narrow, so strain names were clipped,
+"Strain" sat on them and "TALE Group" on the group names. `save_path`
+hid it (one cell = 1 cm there). With `margins = NULL`, the name panels and
+the title are now sized in cm from their text (`strwidth()` on the device
+drawn on, or on `pdf(NULL)` before a file device opens; scaled by 0.66,
+the text size `layout()` uses for a grid of three rows or more); a given
+`margins` and `plot_type = "single"` behave as before. Drafts checked at
+pkgdown's size on the dataset example, the small `?talomes_heatmap`
+example and a `save_path` file. File output is now 300 dpi (was 1440:
+26076 x 9166 px for the dataset example).
+
 ---
 
 ## 49. `max_comparisons` on BAI3-1-1, and the array that disappears (2026-10-03) **[V]**

@@ -38,6 +38,13 @@ profile those hits cover (`*_dna_cover`) and how many there are
 be read from the report. `hits_report.tsv` and the two GFF files carry each
 hit's score, E-value and profile positions.
 
+## `talomes_heatmap()` labels fit the figure
+
+With `plot_type = "all"` and the default `margins`, the strain names, the
+group names and the title get the room their text takes, whatever the size
+of the device, so they are no longer clipped or overlapped in a small
+figure. Images written with `save_path` are 300 dpi (formerly 1440).
+
 ## Perl is no longer a system requirement
 
 Talvez, the only Perl program tantale runs, uses the Perl of

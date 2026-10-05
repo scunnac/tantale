@@ -395,9 +395,11 @@ tales_group_kmedoids <- function(x, tale_distances, k_range = NULL, k = NULL,
 #' @param margins Space for the row dendrogram, column dendrogram, row
 #'   names and column names, in that order, counted in heatmap cells.
 #'   \code{NULL} (default) sizes the dendrograms to a quarter of the
-#'   heatmap's width and height, between 1.5 and 5 cells, with 3 cells for
-#'   the names. With \code{plot_type = "single"} the column dendrogram also
-#'   holds the title and gets at least 3.5 cells.
+#'   heatmap's width and height, between 1.5 and 5 cells. With
+#'   \code{plot_type = "all"}, it gives the names and the title the room
+#'   their text takes, whatever the size of the device, and the cells share
+#'   the rest; with \code{plot_type = "single"}, the names get 3 cells, and
+#'   the column dendrogram also holds the title and gets at least 3.5 cells.
 #' @param sep_width Width of the separator between adjacent cells.
 #' @param sep_color Colour of the separator between adjacent cells.
 #' @param inner_sep_color Colour of the separator between variants within
@@ -511,6 +513,7 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
   
   
   ## plot sizes
+  auto_names <- is.null(margins)
   if (is.null(margins)) {
     # heatmap.2() ("single") draws the title inside the column-dendrogram
     # panel, which then needs room for it
@@ -531,7 +534,7 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
       img_format <- gsub(".*\\.", "", basename(save_path))
       img_size <-  list(save_path, width = (widleft + ncol(codedAlleles1) + widright)/2.54, height = (heitop + nrow(codedAlleles1) + heibot)/2.54)
       if (img_format %in% c("bmp", "jpeg", "png", "tiff")) {
-        img_size <- c(img_size, units = "in", res = 1440)
+        img_size <- c(img_size, units = "in", res = 300)
       }
       do.call(img_format, img_size)
     }
@@ -565,6 +568,25 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
     
     
     colmat <- rankColours
+    rowLabels <- paste0(rownames(uniqueRVD), "  #", rowSums(uniqueRVD, na.rm = TRUE))
+    titleHeight <- 2
+    if (auto_names) {
+      # The name panels and the title get room in cm, measured from their
+      # text, so that they fit whatever the size of the device; the cells
+      # share what is left. Measured on the device drawn on, or, when the
+      # file device is not open yet, on a throwaway one.
+      if (!is.null(save_path)) grDevices::pdf(NULL)
+      # layout() draws text at 0.66 of its size once the grid has three rows
+      # or columns (see mfrow in ?par), and this one always has.
+      line_cm <- graphics::par("csi") * 2.54 * 0.66
+      text_cm <- function(s) max(graphics::strwidth(s, units = "inches", cex = 1.2 * 0.66)) * 2.54
+      widright <- text_cm(rowLabels) + 2.5 * line_cm
+      heibot <- text_cm(colnames(uniqueRVD)) + 2.5 * line_cm
+      titleHeight <- 4 * line_cm
+      if (!is.null(save_path)) grDevices::dev.off()
+    }
+    inCm <- function(x) if (auto_names) graphics::lcm(x) else x
+
     ## plot layout
     nplots <- nrow(uniqueRVD)*ncol(uniqueRVD)
     mainmat <- matrix(1:nplots, nrow = nrow(uniqueRVD))
@@ -582,16 +604,17 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
     laymat <- rbind(titmat, laymat)
     if (!is.null(save_path)) {
       img_format <- gsub(".*\\.", "", basename(save_path))
-      img_size <-  list(save_path, width = sum(widleft, rep(1, ncol(uniqueRVD)), widright)/2.54, height = sum(2, heitop, rep(1, nrow(uniqueRVD)), heibot)/2.54)
+      img_size <-  list(save_path, width = sum(widleft, rep(1, ncol(uniqueRVD)), widright)/2.54, height = sum(titleHeight, heitop, rep(1, nrow(uniqueRVD)), heibot)/2.54)
       if (img_format %in% c("bmp", "jpeg", "png", "tiff")) {
-        img_size <- c(img_size, units = "in", res = 1440)
+        img_size <- c(img_size, units = "in", res = 300)
       }
       do.call(img_format, img_size)
     }
     # Read after the output device is chosen: par() on no device opens one.
     df <- par(no.readonly = TRUE)
 
-    layout(laymat, widths = c(widleft, rep(1, ncol(uniqueRVD)), ifelse(is.null(extra_col), 0.1, 0.7), widright, ifelse(is.null(extra_col), 0.1, 3)), heights = c(2, heitop, rep(1, nrow(uniqueRVD)), heibot))
+    layout(laymat, widths = c(widleft, rep(1, ncol(uniqueRVD)), ifelse(is.null(extra_col), 0.1, 0.7), inCm(widright), ifelse(is.null(extra_col), 0.1, 3)),
+           heights = c(inCm(titleHeight), heitop, rep(1, nrow(uniqueRVD)), inCm(heibot)))
     # layout.show(nplots+7)
     
     
@@ -655,10 +678,9 @@ talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, tru
     
     
     ## rownames
-    rownames(uniqueRVD) <- paste0(rownames(uniqueRVD),"  #", rowSums(uniqueRVD, na.rm = T))
     par(mar = c(0, 0.5, 0, 0))
     image(z = matrix(seq_len(nrow(uniqueRVD)), nrow = 1), col = "white", yaxt = "n", xaxt = "n", axes = F)
-    text(-1, seq(0, 1, length.out = nrow(uniqueRVD)), labels = rev(rownames(uniqueRVD)), font = 1, col = "black", cex = 1.2, adj = 0)
+    text(-1, seq(0, 1, length.out = nrow(uniqueRVD)), labels = rev(rowLabels), font = 1, col = "black", cex = 1.2, adj = 0)
     mtext(side = 4, at = 0.5, text = y_lab, col = "black", padj = 0, line = -1)
     
     if (!is.null(extra_col)) {
