@@ -4153,3 +4153,12 @@ on `main` before the reply claims macOS (pushes run Linux only).
 - Q163 done: `.repeat_to_rvd_align()` moved from `R/conversion.R` into
   `test_plot_tales_msa.R`, its only user.
 - Q164: needs the commit on `main`, so the push comes first.
+- Q168 (maintainer: yes): `.github/workflows/pkgcheck.yaml`, run by hand.
+  Job container `ghcr.io/ropensci-review-tools/pkgcheck-action:latest`
+  (the official action's image, built on the bot's), so every step runs
+  in rOpenSci's environment; micromamba, the pak install `/check.R` does,
+  `tantale_setup(install = TRUE)`, then the image's own `/check.R`. The
+  report goes to the run's summary page and an artifact; the job fails
+  when the summary has a blocking item, as the action does. The official
+  action itself cannot take a setup step: it is a Docker action, so
+  earlier steps run on the host, outside its container.

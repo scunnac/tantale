@@ -251,7 +251,14 @@ before trusting any of it.*
   ~685-nt frame-shifting deletion, below `cterm_min_score`), whose Q151
   (the truncTALE article's sentence is wrong) and Q152-Q153 (DNA and
   protein terminus flags at different stringency) await the maintainer.
-  Last Q used: Q161.
+  Since then (same day): goodpractice lints in `R/` fixed (Q162),
+  `.repeat_to_rvd_align()` moved into its test (Q163), and
+  `.github/workflows/pkgcheck.yaml` (Q168): pkgcheck in the pkgcheck-action
+  image with `tantale_setup()` added, by hand only, to show the editors
+  that the checks pass in rOpenSci's own environment once the tools are
+  there. Open: Q166 (narrow `ROPENSCI` skip or not). **A GitHub Actions
+  tutorial is owed to the maintainer**, built on these workflow files.
+  Last Q used: Q168.
 - **2026-10-04/05, second session.** **`v0.99.0` released**
   (GitHub pre-release, tag on 162b9f1), the release candidate of §43.
   **CI green on R release, oldrel-1 and devel** (run 37239246389) after

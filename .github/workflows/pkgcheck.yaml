@@ -1,0 +1,74 @@
+# pkgcheck, rOpenSci's submission checks, run inside the Docker image of the
+# official pkgcheck action (ghcr.io/ropensci-review-tools/pkgcheck-action),
+# built on the image rOpenSci's review bot uses. That image has Java but no
+# conda, so the tests cannot run there as it stands. This workflow adds the
+# one missing step, tantale_setup(), then runs the action's own script
+# (/check.R in the image) and reports as the action does (ledger §60, Q168).
+# The full report is shown on the run's summary page and kept as an artifact.
+# By hand only: from the Actions tab or with `gh workflow run pkgcheck.yaml`.
+name: pkgcheck
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pkgcheck:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    # Every step below runs inside this image, the setup steps included.
+    container: ghcr.io/ropensci-review-tools/pkgcheck-action:latest
+    env:
+      GITHUB_PAT: ${{ secrets.GITHUB_TOKEN }}
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # The checkout belongs to the runner's user and the container runs as
+      # root; git (and pkgcheck's calls to it) refuse such a repository
+      # unless it is declared safe.
+      - name: Trust the checkout
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
+
+      - uses: mamba-org/setup-micromamba@v2
+        with:
+          init-shell: none
+
+      - name: Point reticulate at micromamba
+        run: echo "RETICULATE_CONDA=$(command -v micromamba)" >> "$GITHUB_ENV"
+
+      # Installed the way /check.R installs them, so that tantale_setup() can
+      # run before it; /check.R then finds everything in place.
+      - name: Install tantale and its dependencies
+        run: >
+          Rscript -e 'pak::lockfile_create("local::.", lockfile = file.path(tempdir(), "pkg.lock"), dependencies = "all");
+          pak::lockfile_install(file.path(tempdir(), "pkg.lock"))'
+
+      - name: Build the tantale environment, install the archives
+        run: Rscript -e 'tantale::tantale_setup(install = TRUE)'
+
+      - name: Run pkgcheck
+        id: pkgcheck
+        run: Rscript /check.R
+
+      - name: Show the report on the run page
+        if: always()
+        run: |
+          if [ -f .pkgcheck/full.md ]; then
+            cat .pkgcheck/full.md >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: pkgcheck-report
+          path: .pkgcheck/
+          if-no-files-found: ignore
+
+      - name: Fail if pkgcheck found problems
+        run: exit ${{ steps.pkgcheck.outputs.status }}
