@@ -4282,3 +4282,10 @@ on `main` before the reply claims macOS (pushes run Linux only).
   dependencies. Also, the hand-started macOS run had cancelled the Linux
   run of the same push (one concurrency group per branch);
   `R-CMD-check.yaml` now adds the runner to the group.
+
+**End of session (2026-10-06).** CI on 11f93d8 still running at session
+end: pkgcheck 37380949134, Linux 37380940975, macOS 37380952515;
+test-coverage 37380940798 passed. e162f49 (README) committed, not pushed.
+Seen in passing, not acted on: `tell_tales.log`'s "Number of gaps of size
+below 500nt" divides by 2 and can print 1.5 (pre-existing, in the shipped
+example log too).

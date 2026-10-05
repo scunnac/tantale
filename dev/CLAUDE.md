@@ -232,12 +232,44 @@ stamp exists to catch cross-run mixing, and is enforced, not advisory.
 
 ## Where things stand
 
-*Updated 2026-10-04 (second session). Re-check with `git log --oneline -5` and `git status`
+*Updated 2026-10-06. Re-check with `git log --oneline -5` and `git status`
 before trusting any of it.*
 
 ### State
 
-- **2026-10-05 -- start here.** Version **0.99.0.9000**, pushed
+- **2026-10-06 -- start here.** `main` at 11f93d8, pushed; one local
+  commit on top, **e162f49 (README installation sentence, Q184), not
+  pushed** -- held so as not to cancel the CI runs on 11f93d8. Push it
+  first thing (the maintainer approved the change).
+  **Read first:** the CI runs dispatched/started on 11f93d8 at session
+  end: pkgcheck workflow 37380949134 (rOpenSci's pkgcheck-action image
+  plus `tantale_setup()`, Q168), Linux R-CMD-check 37380940975 (oldrel-1
+  already green), macOS R-CMD-check 37380952515; test-coverage passed.
+  Earlier pkgcheck attempts: one crashed on the image's old pkgcheck
+  (ORCID check; fixed by updating pkgcheck in the workflow), two never
+  got a runner (GitHub Actions outage, 2026-10-05 evening).
+  **Done this session (§59, §60):** terminus calls redefined: `NTERM`/
+  `CTERM` = canonical terminus, protein match covering >= 0.9 of the
+  profile (`terminus_min_cover`, calibrated on `tale_annotations` by
+  `data-raw/terminus_calibration.R`, data in `../tantale_calibration/`);
+  new terminus columns in `array_report.tsv` (`*_aa_cover`,
+  `*_aa_far_gap`, `*_aa_domains`, `*_aa_score`, sub-threshold
+  `*_dna_score/evalue/cover/pieces`) and scores in `hits_report.tsv`;
+  anomaly `terminus_unmatched` renamed `terminus_noncanonical`;
+  `tales_anomalies()` has a `kind` column; `sanitize` takes `FALSE`,
+  `TRUE` (drops `integrity` anomalies only, keeps truncTALEs) or
+  `"canonical"`. truncTALE, mining and tales-class articles revised, site
+  rebuilt (no wipe). Goodpractice lints fixed (Q162-Q163).
+  **Open:** (1) the reply to rOpenSci #813, draft in
+  `../tantale_ropensci/813-reply-draft.md`; rewrite its first blocking
+  item around the pkgcheck workflow run once green (link to the run) and
+  drop the question about a setup step; Q166 (narrow `ROPENSCI` skip) is
+  moot if that argument is accepted. (2) Q178: the three curated TALEs
+  the new rule recodes `XXXXX` (PXO61 PthXo3 and tal1b C-termini, PXO99A
+  tal6b N-terminus; full-length DNA, short protein) are a separate job.
+  (3) **A GitHub Actions tutorial is owed to the maintainer.** Last Q
+  used: Q184.
+- **2026-10-05.** Version **0.99.0.9000**, pushed
   (0f33e9c, `claude-reviewed` on it). **CI green on Linux and macOS
   (`macos-15-intel`), R release, oldrel-1 and devel** (§58 closed: XQuartz
   for gdtools; the distance golden now uses mmseqs2, since DECIPHER's
