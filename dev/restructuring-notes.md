@@ -3943,6 +3943,15 @@ Q147 is gone: the corrected string matches MAI1's own catalogue entry
 `Tal7b` has none. `?tale_annotations` says one curated value was
 corrected against the genome, and why.
 
+2026-10-06 (maintainer's catch): `?tale_annotations` said `rvd_seq` is
+"the form `tales_predict_targets()` takes"; that function takes a
+`tales`, a fasta path or a `BStringSet`, and a character vector would be
+read as a file path. The entry now points to `tales_rvd_strings()`'s
+format and gives the `BStringSet(setNames(rvd_seq, paste(strain,
+label)))` wrapping. Verified for real on three rows, PXO61 PthXo2b with
+its lowercase `hd`/`ns` among them: Talvez and PrediTALE both run (PthXo2b
+hits the SWEET13 promoters).
+
 ### Closing the session (2026-10-05)
 
 **CI green on all three R versions** on f2e402b (run 37239246389): the

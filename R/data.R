@@ -76,8 +76,11 @@
 #'     activate transcription. See the truncTALE article for what this does
 #'     to discovery and to frameshift correction.}
 #'   \item{rvd_seq}{The repeat-variable diresidues in array order,
-#'     dash-separated (\code{"NI-HD-NG-..."}), the form
-#'     \code{\link{tales_predict_targets}} takes. A \emph{lowercase} RVD
+#'     dash-separated (\code{"NI-HD-NG-..."}), the format of
+#'     \code{\link{tales_rvd_strings}}. \code{\link{tales_predict_targets}}
+#'     takes them as a named \code{BStringSet}:
+#'     \code{Biostrings::BStringSet(setNames(rvd_seq, paste(strain, label)))}.
+#'     A \emph{lowercase} RVD
 #'     (\code{"ng"}, \code{"n*"}) marks a repeat of non-standard length,
 #'     the usual convention; 16 of the 128 arrays carry at least one, so
 #'     do not upper-case this column before comparing it with anything.}
@@ -95,11 +98,6 @@
 #' the five-repeat allele its own \code{unusual_feature} describes, too
 #' short to be catalogued.
 #'
-#' One curated value was corrected against the genome: MAI1's
-#' \code{TalH} had been recorded with twelve repeats, but the MAI1 genome
-#' carries sixteen at that locus, as both a \code{\link{tell_tales}} run
-#' on it and AnnoTALE's catalogue show. The twelve were an exact prefix of
-#' the sixteen, so \code{rvd_seq} gives the sixteen.
 #'
 #' The class is stored without the member index AnnoTALE appends to it
 #' (\code{"TalAH"}, not \code{"TalAH30"}). That index numbers the members

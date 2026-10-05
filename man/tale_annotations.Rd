@@ -29,8 +29,11 @@ C-terminal region is naturally shortened so that they no longer
 activate transcription. See the truncTALE article for what this does
 to discovery and to frameshift correction.}
 \item{rvd_seq}{The repeat-variable diresidues in array order,
-dash-separated (\code{"NI-HD-NG-..."}), the form
-\code{\link{tales_predict_targets}} takes. A \emph{lowercase} RVD
+dash-separated (\code{"NI-HD-NG-..."}), the format of
+\code{\link{tales_rvd_strings}}. \code{\link{tales_predict_targets}}
+takes them as a named \code{BStringSet}:
+\code{Biostrings::BStringSet(setNames(rvd_seq, paste(strain, label)))}.
+A \emph{lowercase} RVD
 (\code{"ng"}, \code{"n*"}) marks a repeat of non-standard length,
 the usual convention; 16 of the 128 arrays carry at least one, so
 do not upper-case this column before comparing it with anything.}

@@ -105,8 +105,11 @@ to discovery and to frameshift correction.</p></dd>
 
 <dt>rvd_seq</dt>
 <dd><p>The repeat-variable diresidues in array order,
-dash-separated (<code>"NI-HD-NG-..."</code>), the form
-<code><a href="tales_predict_targets.html">tales_predict_targets</a></code> takes. A <em>lowercase</em> RVD
+dash-separated (<code>"NI-HD-NG-..."</code>), the format of
+<code><a href="tales_rvd_strings.html">tales_rvd_strings</a></code>. <code><a href="tales_predict_targets.html">tales_predict_targets</a></code>
+takes them as a named <code>BStringSet</code>:
+<code>Biostrings::BStringSet(setNames(rvd_seq, paste(strain, label)))</code>.
+A <em>lowercase</em> RVD
 (<code>"ng"</code>, <code>"n*"</code>) marks a repeat of non-standard length,
 the usual convention; 16 of the 128 arrays carry at least one, so
 do not upper-case this column before comparing it with anything.</p></dd>
