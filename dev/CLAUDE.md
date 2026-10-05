@@ -237,7 +237,22 @@ before trusting any of it.*
 
 ### State
 
-- **2026-10-04/05, second session -- start here.** **`v0.99.0` released**
+- **2026-10-05 -- start here.** Version **0.99.0.9000**, pushed
+  (0f33e9c, `claude-reviewed` on it). **CI green on Linux and macOS
+  (`macos-15-intel`), R release, oldrel-1 and devel** (§58 closed: XQuartz
+  for gdtools; the distance golden now uses mmseqs2, since DECIPHER's
+  values differ by platform). rOpenSci #813: the editor (Adam Sparks) ran
+  the bot's pkgcheck and asked for goodpractice; done (§60, Q155-Q160:
+  cli error for missing conda, lint pass, class wrapper examples
+  `@examplesIf interactive()`). Local pkgcheck clean apart from known
+  false positives. **Open:** the reply to the editor, drafted in
+  `../tantale_ropensci/813-reply-draft.md` (outside the repo), for the
+  maintainer to post; §59 (`ROI_00019` of PXO86: a C-terminus split by a
+  ~685-nt frame-shifting deletion, below `cterm_min_score`), whose Q151
+  (the truncTALE article's sentence is wrong) and Q152-Q153 (DNA and
+  protein terminus flags at different stringency) await the maintainer.
+  Last Q used: Q161.
+- **2026-10-04/05, second session.** **`v0.99.0` released**
   (GitHub pre-release, tag on 162b9f1), the release candidate of §43.
   **CI green on R release, oldrel-1 and devel** (run 37239246389) after
   the §56 fixes: R devel broke where tantale handed an `XStringSet` to

@@ -3944,7 +3944,7 @@ over the pushed branch: a tag pinning one commit, since `main` had moved
 `macos-15-intel`, run 37242907805; result not yet read.
 
 
-## 58. macOS check, first run (2026-10-05) **[P]**
+## 58. macOS check, first run (2026-10-05) **[V]**
 
 Run 37242907805 (`macos-15-intel`, on b090fd5) failed on all three R
 versions. Three separate causes, read from the job logs:
@@ -4099,3 +4099,25 @@ batch is complete.
   is checked by the macOS run on `ci-macos-diag`.
 - Q160: `@examplesIf interactive()` for both class wrappers; no
   `\dontrun{}` left in `R/`.
+
+**Local pkgcheck on 0f33e9c (2026-10-05).** pkgcheck 0.3.2, ctags/global
+from a scratch micromamba prefix, detached worktree, 21 min. Report
+rendered with `checks_to_markdown()` to
+`../tantale_ropensci/pkgcheck-local-2026-10-05.html` (outside the repo),
+network page beside it. With the tools installed: R CMD check no errors,
+no warnings (one NOTE, `.git` in a worktree); coverage 90.4%; URLs all
+reachable from here. Still failing: "no continuous integration" (an
+artefact of the detached worktree, where pkgcheck finds no default
+branch to query; the bot saw the badge and the runs) and "all internal
+functions are used", the same four as §44: `.repeat_to_rvd_align()`
+(used only by `test_plot_tales_msa.R`), `[.tales` and
+`[.pairwise_distances` (registered S3 methods), `%||%` (an infix, called
+four times). Dependency table: fs, gplots, cluster, ggnewscale and
+rtracklayer all have call sites; pkgstats misses them, and attributes
+calls to mgcv and Matrix, which tantale does not use. macOS check on
+`ci-macos-diag` (run 37301244765): R release and oldrel-1 pass with the
+mmseqs2 golden; R devel still running.
+Final: macOS run 37301244765 green on R release, oldrel-1 and devel;
+Linux run 37301468672 on `main` (0f33e9c) green on all three. Branch
+`ci-macos-diag` deleted (the diagnostic workflow survives in commit
+9fe8e4b). §58 closed.
