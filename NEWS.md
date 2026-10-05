@@ -1,3 +1,13 @@
+# tantale 0.99.0.9000
+
+## A missing conda installation is reported as such
+
+When no conda or mamba installation can be found, the functions that run
+MAFFT, HMMER or mmseqs2 stop with a message that says so and points to
+`tantale_setup()`, under the condition class `tantale_error_tool_missing`.
+The error used to come from reticulate, wrapped in an unrelated message
+about `%in%`.
+
 # tantale 0.99.0
 
 ## TALEs can be assigned to AnnoTALE's published classes

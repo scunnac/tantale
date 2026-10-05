@@ -130,7 +130,7 @@ test_that("tantale_setup() reports the real environment and changes nothing", {
   # every pinned package present and at the pinned version
   expect_true(all(out$conda$ok),
               info = paste("unmet pins:",
-                           paste(out$conda$tool[!out$conda$ok], collapse = ", ")))
+                           toString(out$conda$tool[!out$conda$ok])))
   expect_setequal(out$conda$tool, names(.tantale_pins()))
 })
 
@@ -155,6 +155,11 @@ test_that(".tantale_bin() knows the tools that are not in bin/", {
 
 test_that(".tantale_bin() names everything that is missing", {
   expect_error(.tantale_bin(c("mafft", "no_such_tool", "other_missing_tool")),
+               class = "tantale_error_tool_missing")
+})
+
+test_that("a missing conda installation is a tantale condition", {
+  expect_error(.tantale_env_prefix(conda_bin = file.path(tempdir(), "no_such_conda")),
                class = "tantale_error_tool_missing")
 })
 

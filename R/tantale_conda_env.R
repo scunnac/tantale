@@ -17,7 +17,13 @@
 
 .create_tantale_env <- function(conda_bin = "auto") {
   env_name <- "tantale"
-  if (!env_name %in% (reticulate::conda_list(conda = conda_bin)["name"] %>% unlist())) {
+  if (env_name %in% (reticulate::conda_list(conda = conda_bin)["name"] %>% unlist())) {
+    # Deliberately silent. This used to announce that the environment "can be
+    # used for analysis" -- on every run, and without having looked inside it.
+    # Both halves were wrong: it is noise when true, and a false assurance
+    # when the environment holds the wrong MAFFT (7.4a).
+    return(invisible(0L))
+  } else {
     cli::cli_inform("A custom conda env will be installed on your system to run external dependencies...")
     condayml <- system.file("tools", "tantale_conda_env.yaml", package = "tantale", mustWork = T)
     res <- reticulate::conda_create(envname = env_name,
@@ -26,12 +32,6 @@
       cli::cli_warn("Installation of the conda environment failed.")
       return(invisible(res))
     }
-    return(invisible(0L))
-  } else {
-    # Deliberately silent. This used to announce that the environment "can be
-    # used for analysis" -- on every run, and without having looked inside it.
-    # Both halves were wrong: it is noise when true, and a false assurance
-    # when the environment holds the wrong MAFFT (7.4a).
     return(invisible(0L))
   }
 }
@@ -74,6 +74,16 @@
 #' @return The environment's prefix directory.
 #' @noRd
 .tantale_env_prefix <- function(conda_bin = "auto") {
+  # Without this, reticulate's own stop() surfaces from inside conda_list(),
+  # wrapped in an unrelated `%in%` evaluation error (ledger §60).
+  if (is.null(tryCatch(reticulate::conda_binary(conda_bin),
+                       error = function(e) NULL))) {
+    cli::cli_abort(
+      c("No conda or mamba installation found.",
+        "i" = "tantale runs MAFFT, HMMER and mmseqs2 from a conda environment.",
+        "i" = "Run {.run tantale::tantale_setup(install = TRUE, conda = TRUE)} to install one, or install mamba yourself."),
+      class = c("tantale_error_tool_missing", "tantale_error"))
+  }
   if (as.logical(.create_tantale_env(conda_bin = conda_bin))) {
     cli::cli_abort(
       c("Could not create the {.val tantale} conda environment.",

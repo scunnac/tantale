@@ -1,6 +1,6 @@
 Package: tantale
 Title: Mining and Analysis of Transcription Activator-Like Effectors
-Version: 0.99.0
+Version: 0.99.0.9000
 Authors@R: c(
     person(given = c("Bao", "Tram"), family ="Vi",
     email = "vbt576@gmail.com", role = c("aut"),
