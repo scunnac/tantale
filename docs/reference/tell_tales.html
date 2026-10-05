@@ -70,7 +70,6 @@ that would otherwise be missed by conventional tools (eg AnnoTALE).</p>
 <span>  terminus_min_cover <span class="op">=</span> <span class="fl">0.9</span>,</span>
 <span>  min_dna_hits <span class="op">=</span> <span class="fl">4</span>,</span>
 <span>  min_array_length <span class="op">=</span> <span class="fl">0</span>,</span>
-<span>  merge_hits <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  min_gap <span class="op">=</span> <span class="fl">35</span>,</span>
 <span>  extremity_codes <span class="op">=</span> <span class="cn">TRUE</span>,</span>
 <span>  rvd_sep <span class="op">=</span> <span class="st">"-"</span>,</span>
@@ -163,13 +162,6 @@ target box it recognises.</p>
 judgement about the biology, which is why nothing is discarded unless you
 ask. A pseudogene with three surviving repeats is real, and may be what
 you are looking for.</p></dd>
-
-
-<dt id="arg-merge-hits">merge_hits<a class="anchor" aria-label="anchor" href="#arg-merge-hits"></a></dt>
-<dd><p>Merge overlapping nhmmer hits of the same domain type,
-since nhmmer can report one repeat as two overlapping hits. With
-<code>FALSE</code>, such a repeat is counted twice in <code>n_dna_hits</code> and
-by <code>min_array_length</code>, and a warning names the arrays concerned.</p></dd>
 
 
 <dt id="arg-min-gap">min_gap<a class="anchor" aria-label="anchor" href="#arg-min-gap"></a></dt>
@@ -436,13 +428,13 @@ sequence so that it starts elsewhere avoids this.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Now running AnnoTALE analyze for ROI_00004</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> #****************************************</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> #**   tell_tales analysis done     **</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Current date:	Mon Oct  5 23:42:55 2026</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Current date:	Tue Oct  6 01:43:47 2026</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> #_________Provided I/O parameters __________</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> File of subject DNA sequences:	/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/bai3_sample_tal_genomic_regions.fasta</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> TALE N-term CDS region detection HMM file:	/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Nterm_CDS_profile.hmm</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> TALE repeat unit CDS detection HMM file:	/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_repeat_CDS_profile.hmm</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> TALE C-term CDS region detection HMM file:	/home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Cterm_CDS_profile.hmm</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> Output directory:	/tmp/RtmpcjOv6d/tell_tales_example2749e15709af32</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> Output directory:	/tmp/Rtmp76907h/tell_tales_example2999102631e197</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> #____________Other parameters________________</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> nterm_min_score:	300</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> repeat_min_score:	20</span>
@@ -451,7 +443,6 @@ sequence so that it starts elsewhere avoids this.</p>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> terminus_min_cover:	0.9</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> min_dna_hits:	4</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> min_array_length:	0</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> merge_hits:	TRUE</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> min_gap:	35</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> extend_len:	300</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> correct_array:	FALSE</span>

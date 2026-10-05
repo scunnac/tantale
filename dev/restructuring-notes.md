@@ -2102,6 +2102,18 @@ files are removed):
   range"; the termini test in `test_tell_tales.R` asserts the PXO86
   excerpt run no longer emits it.
 
+**2026-10-06, Q196 (maintainer's proposal):** `merge_hits` removed from
+`tell_tales()`; merging always happens and the unmerged hits always go
+to `all_ranges.gff`. `FALSE` only double-counted split repeats in
+`n_dna_hits` and `min_array_length` (RVDs, termini and grouping
+unchanged). The same-type overlap check in `.telltale_group_arrays()`
+stays, now a guard against a merge bug ("please report this"); its unit
+test on synthetic hits stays, the `merge_hits = FALSE` run test is gone.
+The `merge_hits:` line was deleted by hand from the shipped example log
+and the test fixture log. Side note: an old call passing `merge_hits`
+lands in `tell_tales()`'s `...`, which goes to
+`DECIPHER::CorrectFrameshifts()`.
+
 ## 37. `tales_from_annotale()`, renames and retirements (road map step 3) **[V]**
 
 Investigated 2026-10-01; plan awaiting the maintainer's approval.

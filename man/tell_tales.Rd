@@ -16,7 +16,6 @@ tell_tales(
   terminus_min_cover = 0.9,
   min_dna_hits = 4,
   min_array_length = 0,
-  merge_hits = TRUE,
   min_gap = 35,
   extremity_codes = TRUE,
   rvd_sep = "-",
@@ -90,11 +89,6 @@ Whether a short array is noise or a genuinely truncated TALE is a
 judgement about the biology, which is why nothing is discarded unless you
 ask. A pseudogene with three surviving repeats is real, and may be what
 you are looking for.}
-
-\item{merge_hits}{Merge overlapping nhmmer hits of the same domain type,
-since nhmmer can report one repeat as two overlapping hits. With
-\code{FALSE}, such a repeat is counted twice in \code{n_dna_hits} and
-by \code{min_array_length}, and a warning names the arrays concerned.}
 
 \item{min_gap}{Minimum gap in base pairs between two tale domain hits for
 them to be considered distinct. If the length of the gap is below this

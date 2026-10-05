@@ -216,12 +216,3 @@ test_that("overlapping hits of the same domain type are reported", {
                  class = "tantale_warning_overlapping_hits")
 })
 
-# PXO86's ROI_00003 carries two overlapping repeat hits, merged by default
-# (the merged run is checked in the termini test above).
-test_that("tell_tales() reports overlapping hits of one domain type when they are not merged", {
-  expect_warning(suppressMessages(tell_tales(
-    subject_file = test_path("data_for_tests", "pxo86_roi18_19_excerpt.fa"),
-    output_dir = withr::local_tempdir(), merge_hits = FALSE)),
-    class = "tantale_warning_overlapping_hits") %>%
-    suppressWarnings()
-})

@@ -10,7 +10,6 @@
 # repeat_min_score = 20
 # cterm_min_score = 200
 # min_dna_hits = 4
-# merge_hits = TRUE
 # min_gap = 35
 # taleArrayStartAnchorCode = "NTERM"
 # taleArrayEndAnchorCode = "CTERM"
@@ -30,7 +29,6 @@
 # repeat_min_score = 20
 # cterm_min_score = 200
 # min_dna_hits = 4
-# merge_hits = TRUE
 # min_gap = 35
 # extremity_codes = TRUE
 # rvd_sep = "-"
@@ -440,7 +438,7 @@
     cli::cli_warn(
       c("Some nhmmer hits of the same domain type overlap, so {.field n_dna_hits} counts these domains twice.",
         "i" = "Region{?s}: {.val {names(doHitsOverlap)[doHitsOverlap]}}",
-        "i" = "{.fn tell_tales} merges such hits unless {.code merge_hits = FALSE}."),
+        "i" = "The merge stage should have joined them: please report this."),
       class = "tantale_warning_overlapping_hits")
   }
 
@@ -515,7 +513,6 @@
     paste("terminus_min_cover:", params$terminus_min_cover, sep = "\t"),
     paste("min_dna_hits:", params$min_dna_hits, sep = "\t"),
     paste("min_array_length:", params$min_array_length, sep = "\t"),
-    paste("merge_hits:", params$merge_hits, sep = "\t"),
     paste("min_gap:", params$min_gap, sep = "\t"),
     paste("extend_len:", params$extend_len, sep = "\t"),
     paste("correct_array:", params$correct_array, sep = "\t"),
@@ -1088,7 +1085,7 @@
 #'
 #' @param by_array The grouped hits, carrying the per-array metadata.
 #' @param domains_report What AnnoTALE reported, per part.
-#' @param unmerged The hits before merging, or \code{NULL}.
+#' @param unmerged The hits before merging.
 #' @param paths What \code{.telltale_paths()} returned.
 #' @return The array report, which the run log also summarises.
 #' @noRd
@@ -1115,8 +1112,8 @@
                S4Vectors::mcols(by_array),
                seqnames.field = "seqnames",
                keep.extra.columns = TRUE),
-             # the unmerged hits are included only when merging happened, so
-             # that a merged range can be compared against what went into it
+             # the unmerged hits, so that a merged range can be compared
+             # against what went into it
              unmerged)
   rtracklayer::export.gff3(allGR, paths$all_ranges_gff)
 
@@ -1493,10 +1490,6 @@
 #'   judgement about the biology, which is why nothing is discarded unless you
 #'   ask. A pseudogene with three surviving repeats is real, and may be what
 #'   you are looking for.
-#' @param merge_hits Merge overlapping nhmmer hits of the same domain type,
-#'   since nhmmer can report one repeat as two overlapping hits. With
-#'   \code{FALSE}, such a repeat is counted twice in \code{n_dna_hits} and
-#'   by \code{min_array_length}, and a warning names the arrays concerned.
 #' @param min_gap Minimum gap in base pairs between two tale domain hits for
 #'   them to be considered distinct. If the length of the gap is below this
 #'   value, domains are considered "contiguous" and grouped in the same array.
@@ -1712,7 +1705,6 @@ tell_tales <- function(
   terminus_min_cover = 0.9,
   min_dna_hits = 4,
   min_array_length = 0,
-  merge_hits = TRUE,
   min_gap = 35,
   extremity_codes = TRUE,
   rvd_sep = "-",
@@ -1770,11 +1762,7 @@ tell_tales <- function(
     nhmmerTabularOutput, subjectDNASequences, originalSeqlevels, originalSeqInfo)
 
   #####   Domain-wise merge of overlapping hits  #####
-  nhmmerOutputGR <- if (merge_hits) {
-    .telltale_merge_overlapping_hits(nhmmerOutputGRBeforeMerge)
-  } else {
-    nhmmerOutputGRBeforeMerge
-  }
+  nhmmerOutputGR <- .telltale_merge_overlapping_hits(nhmmerOutputGRBeforeMerge)
 
   #####   Record each hit's DNA sequence   #####
   nhmmerOutputGR <- .telltale_add_hit_seqs(nhmmerOutputGR, subjectDNASequences)
@@ -1906,7 +1894,7 @@ tell_tales <- function(
   ####   Write tabulated reports and sequence files   #####
   arrayReport <- .telltale_write_reports(
     by_array = hitsByArraysLst, domains_report = domainsReport,
-    unmerged = if (merge_hits) nhmmerOutputGRBeforeMerge else NULL,
+    unmerged = nhmmerOutputGRBeforeMerge,
     paths = paths)
 
   ####   Generate info messages and log file about the analysis   #####
@@ -1918,7 +1906,7 @@ tell_tales <- function(
                   terminus_max_evalue = terminus_max_evalue,
                   terminus_min_cover = terminus_min_cover,
                   min_dna_hits = min_dna_hits,
-                  min_array_length = min_array_length, merge_hits = merge_hits,
+                  min_array_length = min_array_length,
                   min_gap = min_gap, extend_len = extend_len,
                   correct_array = correct_array, correction_ref = correction_ref,
                   max_comparisons = max_comparisons,

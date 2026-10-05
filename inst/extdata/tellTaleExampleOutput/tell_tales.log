@@ -15,7 +15,6 @@ terminus_max_evalue:	1e-05
 terminus_min_cover:	0.9
 min_dna_hits:	4
 min_array_length:	0
-merge_hits:	TRUE
 min_gap:	35
 extend_len:	300
 correct_array:	FALSE

@@ -38,6 +38,14 @@ profile those hits cover (`*_dna_cover`) and how many there are
 be read from the report. `hits_report.tsv` and the two GFF files carry each
 hit's score, E-value and profile positions.
 
+## `tell_tales()` loses `merge_hits`
+
+`tell_tales()` always merges overlapping nhmmer hits of the same domain
+type, and the `merge_hits` argument is gone. With `merge_hits = FALSE`, a
+repeat reported as two overlapping hits was counted twice in `n_dna_hits`
+and by `min_array_length`, with no other effect. The unmerged hits are
+still written to `all_ranges.gff`, beside the merged ranges.
+
 ## `talomes_heatmap()` labels fit the figure
 
 With `plot_type = "all"` and the default `margins`, the strain names, the
