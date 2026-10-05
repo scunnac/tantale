@@ -62,7 +62,9 @@ test_that("golden: tales_compare_distal() on four arrays", {
   d <- fx()
   x <- tales_quietly(d$tale_parts)
   sub <- x[x$array_id %in% unique(x$array_id)[1:4], ]
-  out <- suppressWarnings(suppressMessages(tales_compare_distal(sub)))
+  # mmseqs2: DECIPHER, the default backend, aligns a few domains differently
+  # on macOS (ledger §58), and Biostrings is too slow for this file.
+  out <- suppressWarnings(suppressMessages(tales_compare_distal(sub, aln_method = "mmseq2")))
 
   expect_named(out, c("tales", "domain_distances", "tale_distances"))
   expect_golden(fingerprint(out$tales))

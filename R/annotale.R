@@ -305,11 +305,9 @@ run_annotale_build <- function(fasta_file,
 #' @family external TALE tools
 #' @seealso \code{\link{run_annotale_assign}}, which places TALEs into
 #'   these classes.
-#' @examples
-#' \dontrun{
+#' @examplesIf interactive()
 #' # Slow: downloads and rebuilds the catalogue, about 15 minutes.
 #' classes <- run_annotale_load_classes(output_dir = tempfile("annotale_classes_"))
-#' }
 run_annotale_load_classes <- function(output_dir = tempfile("annotale_classes_"),
                                       class_builder = NULL,
                                       opt_param = "",
@@ -393,15 +391,13 @@ run_annotale_load_classes <- function(output_dir = tempfile("annotale_classes_")
 #' @seealso \code{\link{run_annotale_load_classes}}, which fetches the
 #'   classes; \code{\link{run_annotale_build}}, which builds classes from
 #'   scratch instead.
-#' @examples
-#' \dontrun{
+#' @examplesIf interactive()
 #' # Needs a Java runtime and the catalogue, which takes a while to fetch.
 #' classes <- run_annotale_load_classes(output_dir = tempfile("annotale_classes_"))
 #' predicted <- run_annotale_predict(tantale_genome("MAI1"))
 #' tales <- list.files(file.path(predicted, "Predict"),
 #'                     pattern = "^TALE_DNA_sequences_", full.names = TRUE)
 #' run_annotale_assign(tales, class_builder = classes, strain = "MAI1")
-#' }
 run_annotale_assign <- function(fasta_file,
                                 class_builder,
                                 output_dir = tempfile("annotale_assign_"),

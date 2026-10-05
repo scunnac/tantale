@@ -69,10 +69,10 @@ class when it names a TALE (\code{TalAH30}, the thirtieth member of
 \code{TalAH}) is only true of the catalogue that produced it.
 }
 \examples{
-\dontrun{
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 # Slow: downloads and rebuilds the catalogue, about 15 minutes.
 classes <- run_annotale_load_classes(output_dir = tempfile("annotale_classes_"))
-}
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link{run_annotale_assign}}, which places TALEs into

@@ -61,14 +61,14 @@ this one answers "which published class is this TALE in", so its names
 can be compared with the literature's.
 }
 \examples{
-\dontrun{
+\dontshow{if (interactive()) withAutoprint(\{ # examplesIf}
 # Needs a Java runtime and the catalogue, which takes a while to fetch.
 classes <- run_annotale_load_classes(output_dir = tempfile("annotale_classes_"))
 predicted <- run_annotale_predict(tantale_genome("MAI1"))
 tales <- list.files(file.path(predicted, "Predict"),
                     pattern = "^TALE_DNA_sequences_", full.names = TRUE)
 run_annotale_assign(tales, class_builder = classes, strain = "MAI1")
-}
+\dontshow{\}) # examplesIf}
 }
 \seealso{
 \code{\link{run_annotale_load_classes}}, which fetches the

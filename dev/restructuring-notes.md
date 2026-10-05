@@ -4073,3 +4073,29 @@ commits on `main` (version 0.99.0.9000, NEWS entry for the conda error):
   `:::` in tests, line length. Full suite after the pass: only the 11
   type-strict expectations failed, since reverted; golden 46/46.
 - Q158: draft reply in the session, for the maintainer to post.
+
+**Follow-up (2026-10-05).** macOS check on `ci-macos-diag` (run
+37290907077): XQuartz installed, the three plot tests pass, the oldrel-1
+segfault is gone; only the three DECIPHER golden expectations fail
+(release, oldrel-1). The reply draft and the bot's report are kept
+outside the repository, in `../tantale_ropensci/` (maintainer: not in the
+git tree until things are settled). Q159: maintainer accepts per-platform
+snapshots if nothing lighter exists. Q161: push deferred until the
+batch is complete.
+
+**Q159b, Q160 (maintainer, 2026-10-05), done.**
+- Q159b with mmseqs2 for the distance golden (Biostrings is too slow,
+  maintainer). `test_golden.R` runs `tales_compare_distal(aln_method =
+  "mmseq2")`; `helper-golden.R` keeps only the line counts of
+  `*_terminus_aa_alignment.html` (`.PLATFORM_DEPENDENT`). Re-baselined,
+  every changed row explained: `domain_distances` gains mmseqs2's output
+  columns (`evalue`, `raw`, `pident`...; 664 of 2304 pairs without an
+  mmseqs2 hit, so `NA` there) and `dissim` has 39 distinct values (43
+  with DECIPHER); `tale_distances` changes in `dissim` and `arlem_score`
+  only, following from those distances; in both `tell_tales()`
+  fingerprints the two protein terminus alignments now carry `NA` digests,
+  nothing else moved. Golden 46/46 twice. The DECIPHER backend keeps its
+  non-golden tests. Whether mmseqs2's osx-64 build gives the same values
+  is checked by the macOS run on `ci-macos-diag`.
+- Q160: `@examplesIf interactive()` for both class wrappers; no
+  `\dontrun{}` left in `R/`.

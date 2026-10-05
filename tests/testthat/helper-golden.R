@@ -157,10 +157,16 @@ expect_golden <- function(x) {
        digest = digest::digest(.normalise_paths(keep), algo = "md5"))
 }
 
+# The protein alignments of the termini come from DECIPHER::AlignSeqs(),
+# which places a few gaps differently on macOS with the same DECIPHER version
+# (ledger §58). They are display output, so only their line counts are kept.
+.PLATFORM_DEPENDENT <- "_terminus_aa_alignment\\.html$"
+
 telltale_fingerprint <- function(dir) {
   files <- sort(list.files(dir, recursive = TRUE))
   rows <- lapply(files, function(f) {
     d <- .telltale_file_digest(file.path(dir, f))
+    if (grepl(.PLATFORM_DEPENDENT, f)) d$digest <- NA_character_
     data.frame(file = f, n_lines = d$n_lines, n_dropped = d$n_dropped,
                digest = d$digest, stringsAsFactors = FALSE)
   })
