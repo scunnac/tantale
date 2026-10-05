@@ -4289,3 +4289,24 @@ test-coverage 37380940798 passed. e162f49 (README) committed, not pushed.
 Seen in passing, not acted on: `tell_tales.log`'s "Number of gaps of size
 below 500nt" divides by 2 and can print 1.5 (pre-existing, in the shipped
 example log too).
+
+**CI on 11f93d8, read 2026-10-06.** R-CMD-check green on Linux and macOS
+(`macos-15-intel`), R release, oldrel-1 and devel. pkgcheck 37380949134
+failed, but after every check had run (goodpractice's covr, rcmdcheck,
+lintr etc. all prepared): the image's `/check.R` (pkgcheck-action
+`R/check.R`, line 43) died in `writeLines(md[1:(s_break - 1)],
+"summary.md")` with "can only write character objects". So
+`checks_to_markdown()` of the current pkgcheck (taken by the "Update
+pkgcheck" step) returns something that is not a character vector, which
+the image's script, written for the older pkgcheck, does not expect. No
+report was written, hence no artifact and an empty summary page. Not a
+verdict on tantale either way.
+Q186 (maintainer: a): the workflow no longer calls `/check.R`; its "Run
+pkgcheck" step runs the same steps inline (`Rscript {0}`), flattens the
+report to character if `checks_to_markdown()` returns anything else (and
+logs the non-character elements, material for an upstream issue, Q186c),
+writes `full.md`/`summary.md` and sets `status`. Locally (pkgcheck 0.3.2,
+cached goodpractice report for 3570f42, with or without `GITHUB_PAT`)
+`checks_to_markdown()` returns a character vector, so the list arises
+only on the runner. Q187 (maintainer: yes): the #813 reply waits for a
+green run.

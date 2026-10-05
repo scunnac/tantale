@@ -2,8 +2,9 @@
 # official pkgcheck action (ghcr.io/ropensci-review-tools/pkgcheck-action),
 # built on the image rOpenSci's review bot uses. That image has Java but no
 # conda, so the tests cannot run there as it stands. This workflow adds the
-# one missing step, tantale_setup(), then runs the action's own script
-# (/check.R in the image) and reports as the action does (ledger §60, Q168).
+# one missing step, tantale_setup(), then runs pkgcheck as the action's own
+# script (/check.R in the image) does and reports as the action does (ledger
+# §60, Q168, Q186).
 # The full report is shown on the run's summary page and kept as an artifact.
 # By hand only: from the Actions tab or with `gh workflow run pkgcheck.yaml`.
 name: pkgcheck
@@ -42,8 +43,7 @@ jobs:
       - name: Point reticulate at micromamba
         run: echo "RETICULATE_CONDA=$(command -v micromamba)" >> "$GITHUB_ENV"
 
-      # Installed the way /check.R installs them, so that tantale_setup() can
-      # run before it; /check.R then finds everything in place.
+      # Installed the way /check.R installs them.
       - name: Install tantale and its dependencies
         run: >
           Rscript -e 'pak::lockfile_create("local::.", lockfile = file.path(tempdir(), "pkg.lock"), dependencies = "all");
@@ -58,9 +58,39 @@ jobs:
       - name: Build the tantale environment, install the archives
         run: Rscript -e 'tantale::tantale_setup(install = TRUE)'
 
+      # The steps of /check.R after its install. The image's script expects
+      # checks_to_markdown() to return a character vector; the current
+      # pkgcheck returned something else on this job (run 37380949134), so
+      # the report is flattened first, and what was not character is logged.
       - name: Run pkgcheck
         id: pkgcheck
-        run: Rscript /check.R
+        shell: Rscript {0}
+        run: |
+          library(pkgcheck)
+          dir.create(".pkgcheck", showWarnings = FALSE)
+          usethis::use_build_ignore(".pkgcheck")
+          pkgstats::ctags_install(sudo = TRUE)
+
+          check <- pkgcheck()
+          md <- checks_to_markdown(check, render = FALSE)
+          if (!is.character(md)) {
+            message("checks_to_markdown() returned a ", class(md)[1],
+                    "; its non-character elements:")
+            str(Filter(Negate(is.character), md))
+            md <- unlist(lapply(md, function(x) as.character(unlist(x))))
+          }
+          s_break <- grep("---", md)[1]
+          writeLines(md, ".pkgcheck/full.md")
+          writeLines(md[seq_len(s_break - 1)], ".pkgcheck/summary.md")
+          print(check)
+
+          errors <- grep("^- :heavy_multiplication_x:", md[seq_len(s_break)],
+                         value = TRUE)
+          for (e in sub("^- :heavy_multiplication_x: ", "", errors)) {
+            cat("::error::", e, "\n", sep = "")
+          }
+          cat("status=", as.integer(length(errors) > 0), "\n", sep = "",
+              file = Sys.getenv("GITHUB_OUTPUT"), append = TRUE)
 
       - name: Show the report on the run page
         if: always()
