@@ -122,7 +122,8 @@
 #' @param merged_file Where to write the concatenation.
 #' @return A list with the \code{nterm}, \code{repeats} and \code{cterm}
 #'   profile names, in the order nhmmer will see them, plus \code{files},
-#'   the three paths they were read from.
+#'   the three paths they were read from, and \code{lengths}, the three
+#'   profile lengths in nucleotides (their \code{LENG} tag).
 #' @noRd
 .telltale_hmm_profiles <- function(hmm_dir, merged_file) {
   files <- c(file.path(hmm_dir, "Xo_TALE_Nterm_CDS_profile.hmm"),
@@ -142,10 +143,15 @@
     hmmName[2]
   }))
 
+  lengths <- vapply(lines, function(x) {
+    as.integer(unlist(strsplit(grep("^LENG", x, value = TRUE)[1], "\\s+"))[2])
+  }, integer(1))
+
   writeLines(text = unlist(lines), con = merged_file)
   list(nterm = names[1], repeats = names[2], cterm = names[3],
        # the paths are reported in the run log, so they are carried too
-       files = stats::setNames(files, c("nterm", "repeats", "cterm")))
+       files = stats::setNames(files, c("nterm", "repeats", "cterm")),
+       lengths = stats::setNames(lengths, c("nterm", "repeats", "cterm")))
 }
 
 
@@ -187,14 +193,12 @@
                      search_out_file = paths$hmmer_search,
                      readable_out_file = paths$hmmer_readable)
 
-  hits <- try(read.table(paths$hmmer_search), silent = TRUE)
-  if (inherits(hits, "try-error")) {
+  hits <- .telltale_read_nhmmer(paths$hmmer_search)
+  if (is.null(hits)) {
     cli::cli_warn("No TALE CDS hits found in {.file {subject_file}}.",
                   class = "tantale_warning_no_hits")
     return(NULL)
   }
-  colnames(hits) <- c("target_name", "accession", "query_name", "accession", "hmmfrom", "hmm_to", "alifrom",
-                      "ali_to", "envfrom", "env_to", "sq_len", "strand", "Evalue", "score", "bias", "description_of_target")
 
   ## filtering results differentially depending on the query HMM
   hits <- subset(hits,
@@ -251,7 +255,9 @@
 #'
 #' The identifiers of the hits that went into each merged range are kept in
 #' \code{nhmmer_hit_id}, separated by \code{|}, so a merged range can be traced
-#' back to the raw search output.
+#' back to the raw search output. A merged range carries the best
+#' \code{score} and \code{evalue} of its hits, and the profile span they
+#' cover together (\code{hmm_from}, \code{hmm_to}).
 #'
 #' @param gr Hits as a \code{GRanges}, with \code{query_name} naming the
 #'   domain type and \code{hit_id} identifying each hit.
@@ -279,6 +285,12 @@
       }) %>%
       unlist()
     reduced$nhmmer_hit_id <- formerIDs
+    # the best of the merged hits, and the profile span they cover together
+    members <- lapply(strsplit(formerIDs, "|", fixed = TRUE), function(ids) g[ids])
+    reduced$score <- vapply(members, function(m) max(m$score), numeric(1))
+    reduced$evalue <- vapply(members, function(m) min(m$evalue), numeric(1))
+    reduced$hmm_from <- vapply(members, function(m) min(m$hmm_from), integer(1))
+    reduced$hmm_to <- vapply(members, function(m) max(m$hmm_to), integer(1))
     reduced
   }) %>%
     plyranges::bind_ranges(.id = "query_name")
@@ -286,6 +298,72 @@
   merged$hit_id <- paste("MDOM", sprintf("%05.0f", seq_along(merged)), sep = "_")
   names(merged) <- merged$hit_id
   merged
+}
+
+
+#' DNA evidence for each terminus of each array, whatever its score
+#'
+#' The score thresholds of \code{tell_tales()} decide which nhmmer hits make
+#' up an array. They are set for finding arrays, so a terminus can carry
+#' real but weaker DNA matches that fall below them: a truncated terminus,
+#' or one split by a deletion into two partial matches. This looks again at
+#' every terminus hit nhmmer reported next to each array's repeats, on the
+#' same strand and within twice the profile length of the outermost repeat
+#' (the N-terminus upstream of the first one, the C-terminus downstream of
+#' the last one), and summarises them.
+#'
+#' @param by_array The grouped hits, named by array.
+#' @param raw_hits Every terminus hit nhmmer reported, as ranges.
+#' @param hmm What \code{.telltale_hmm_profiles()} returned.
+#' @return A data frame with one row per array: \code{array_id}, then for
+#'   \code{nterm} and \code{cterm} the best hit's \code{_dna_score} and
+#'   \code{_dna_evalue}, \code{_dna_cover} (the fraction of profile
+#'   positions the hits cover together) and \code{_dna_pieces} (how many
+#'   hits; more than one means a terminus split, often by an indel).
+#'   \code{NA} scores and E-values, and 0 for the other two, where no
+#'   terminus hit lies next to the repeats.
+#' @noRd
+.telltale_terminus_dna_evidence <- function(by_array, raw_hits, hmm) {
+  # how far a terminus hit may reach into the outermost repeat
+  overlap <- 100L
+  out <- data.frame(array_id = names(by_array))
+  for (end in c("nterm", "cterm")) {
+    profileLength <- hmm$lengths[[end]]
+    window <- 2L * profileLength
+    candidates <- raw_hits[as.character(raw_hits$query_name) == hmm[[end]]]
+    evidence <- lapply(by_array, function(x) {
+      repeats <- x[as.character(x$query_name) == hmm$repeats]
+      none <- c(score = NA_real_, evalue = NA_real_, cover = 0, pieces = 0)
+      if (length(repeats) == 0L || length(candidates) == 0L) return(none)
+      first <- min(BiocGenerics::start(repeats))
+      last <- max(BiocGenerics::end(repeats))
+      plus <- as.character(BiocGenerics::strand(repeats)[1]) == "+"
+      # upstream of the repeats in the gene's own direction: lower
+      # coordinates on the plus strand, higher ones on the minus strand
+      upstream <- (end == "nterm") == plus
+      near <- candidates[as.character(GenomicRanges::seqnames(candidates)) ==
+                           as.character(GenomicRanges::seqnames(repeats)[1]) &
+                           BiocGenerics::strand(candidates) == BiocGenerics::strand(repeats)[1]]
+      near <- if (upstream) {
+        near[BiocGenerics::end(near) <= first + overlap &
+               BiocGenerics::start(near) >= first - window]
+      } else {
+        near[BiocGenerics::start(near) >= last - overlap &
+               BiocGenerics::end(near) <= last + window]
+      }
+      if (length(near) == 0L) return(none)
+      covered <- sum(IRanges::width(IRanges::reduce(IRanges::IRanges(near$hmm_from, near$hmm_to))))
+      best <- which.max(near$score)
+      c(score = near$score[best], evalue = near$evalue[best],
+        cover = round(covered / profileLength, 3), pieces = length(near))
+    })
+    evidence <- do.call(rbind, evidence)
+    out[[paste0(end, "_dna_score")]] <- unname(evidence[, "score"])
+    out[[paste0(end, "_dna_evalue")]] <- unname(evidence[, "evalue"])
+    out[[paste0(end, "_dna_cover")]] <- unname(evidence[, "cover"])
+    out[[paste0(end, "_dna_pieces")]] <- as.integer(evidence[, "pieces"])
+  }
+  out
 }
 
 
@@ -889,13 +967,17 @@
 #' @param hmmer_path Directory holding the \code{hmmsearch} binary;
 #'   \code{NULL} uses the tantale conda environment.
 #' @return A tibble with one row per array holding at least one terminus:
-#'   \code{array_id}, \code{nterm_aa_evalue}, \code{cterm_aa_evalue} (\code{NA}
-#'   when there is no segment or \code{hmmsearch} reports no match),
-#'   \code{nterm_aa_profile_gap}, \code{cterm_aa_profile_gap} (profile
-#'   positions between the match and the end adjoining the repeats; \code{NA}
-#'   without a significant domain), \code{nterm_aa_hit}, \code{cterm_aa_hit}
-#'   (\code{TRUE} for a match, \code{FALSE} for a segment without one,
-#'   \code{NA} without a segment).
+#'   \code{array_id}, then for each of \code{nterm} and \code{cterm}:
+#'   \code{_aa_evalue} and \code{_aa_score}, the full-sequence E-value and
+#'   bit score (\code{NA} when there is no segment or \code{hmmsearch}
+#'   reports no match); \code{_aa_profile_gap} and \code{_aa_far_gap}, the
+#'   profile positions between the match and the end adjoining the repeats,
+#'   and between the match and the far end; \code{_aa_cover}, the fraction
+#'   of profile positions the significant domains cover together;
+#'   \code{_aa_domains}, how many significant domains (more than one means
+#'   the match is split); the last four \code{NA} without a significant
+#'   domain; \code{_aa_hit} (\code{TRUE} for a match, \code{FALSE} for a
+#'   segment without one, \code{NA} without a segment).
 #' @noRd
 .tale_termini_hmmsearch <- function(termini, max_evalue, hmm_dir, hmmer_path = NULL,
                                     max_profile_gap = .terminus_max_profile_gap) {
@@ -913,7 +995,9 @@
     isNterm <- part == "N-terminus"
     seqs <- Biostrings::AAStringSet(gsub("*", "", as.character(termini[[part]]), fixed = TRUE))
     found <- tibble::tibble(array_id = as.character(names(seqs)), evalue = NA_real_,
-                            profile_gap = NA_integer_)
+                            score = NA_real_, profile_gap = NA_integer_,
+                            far_gap = NA_integer_, cover = NA_real_,
+                            domains = NA_integer_)
     # hmmsearch cannot take an empty sequence; such a segment simply matches nothing
     seqs <- seqs[Biostrings::width(seqs) > 0L]
     if (length(seqs) > 0L) {
@@ -931,11 +1015,14 @@
       readFields <- function(f) {
         strsplit(grep("^#", readLines(f), value = TRUE, invert = TRUE), "\\s+")
       }
-      # --tblout: target name in field 1, full-sequence E-value in field 5
+      # --tblout: target name in field 1, full-sequence E-value and score in
+      # fields 5 and 6
       fields <- readFields(tblFile)
       hits <- tibble::tibble(array_id = vapply(fields, `[`, character(1), 1),
-                             evalue = as.numeric(vapply(fields, `[`, character(1), 5)))
+                             evalue = as.numeric(vapply(fields, `[`, character(1), 5)),
+                             score = as.numeric(vapply(fields, `[`, character(1), 6)))
       found$evalue <- hits$evalue[match(found$array_id, hits$array_id)]
+      found$score <- hits$score[match(found$array_id, hits$array_id)]
       # --domtblout: target name in field 1, profile length in field 6, the
       # domain's independent E-value in field 13, its profile coordinates in
       # fields 16 and 17
@@ -946,16 +1033,25 @@
                                 hmm_from = as.integer(vapply(fields, `[`, character(1), 16)),
                                 hmm_to = as.integer(vapply(fields, `[`, character(1), 17))) %>%
         dplyr::filter(i_evalue <= max_evalue) %>%
-        dplyr::mutate(gap = if (isNterm) qlen - hmm_to else hmm_from - 1L) %>%
+        dplyr::mutate(gap = if (isNterm) qlen - hmm_to else hmm_from - 1L,
+                      far = if (isNterm) hmm_from - 1L else qlen - hmm_to) %>%
         dplyr::group_by(array_id) %>%
-        dplyr::summarise(gap = min(gap), .groups = "drop")
-      found$profile_gap <- domains$gap[match(found$array_id, domains$array_id)]
+        dplyr::summarise(
+          gap = min(gap), far = min(far), domains = dplyr::n(),
+          cover = round(sum(IRanges::width(IRanges::reduce(IRanges::IRanges(hmm_from, hmm_to)))) /
+                          qlen[1], 3),
+          .groups = "drop")
+      at <- match(found$array_id, domains$array_id)
+      found$profile_gap <- domains$gap[at]
+      found$far_gap <- domains$far[at]
+      found$cover <- domains$cover[at]
+      found$domains <- domains$domains[at]
     }
     found %>%
       dplyr::mutate(hit = !is.na(evalue) & evalue <= max_evalue &
                       !is.na(profile_gap) & profile_gap <= max_profile_gap) %>%
       dplyr::rename_with(~ paste0(if (isNterm) "nterm" else "cterm", "_aa_", .x),
-                         c(evalue, profile_gap, hit))
+                         c(evalue, score, profile_gap, far_gap, cover, domains, hit))
   })
 
   dplyr::full_join(evalues[[1]], evalues[[2]], by = "array_id") %>%
@@ -1142,6 +1238,22 @@
     gr, value = seqlevels[names(seqlevels) %in% GenomeInfoDb::seqlevels(gr)])
   GenomeInfoDb::seqinfo(gr, pruning.mode = "coarse") <- seqinfo[GenomeInfoDb::seqlevels(gr)]
   gr
+}
+
+
+#' Read nhmmer's tabular output
+#'
+#' @param file The \code{--tblout} file.
+#' @return A data frame with one row per hit, every hit nhmmer reported
+#'   (its own reporting threshold, E-value 10), or \code{NULL} when there is
+#'   none.
+#' @noRd
+.telltale_read_nhmmer <- function(file) {
+  hits <- try(utils::read.table(file), silent = TRUE)
+  if (inherits(hits, "try-error")) return(NULL)
+  colnames(hits) <- c("target_name", "accession", "query_name", "accession", "hmm_from", "hmm_to", "alifrom",
+                      "ali_to", "envfrom", "env_to", "sq_len", "strand", "evalue", "score", "bias", "description_of_target")
+  hits
 }
 
 
@@ -1468,22 +1580,47 @@
 #'     \item \emph{array_seq}: DNA sequence of that span.
 #'     \item \emph{nterm_dna_hit}, \emph{cterm_dna_hit}: whether an nhmmer hit
 #'     of the N- (C-) terminus DNA profile is part of the array, anywhere in
-#'     it.
+#'     it. Only hits scoring at least \code{nterm_min_score}
+#'     (\code{cterm_min_score}) count.
 #'     \item \emph{rvd_string}: the RVDs AnnoTALE read, separated by
 #'     \code{rvd_sep}, with the terminus codes described under
 #'     \emph{rvd_sequences.fas}. Empty when AnnoTALE found no RVD.
 #'     \item \emph{has_aberrant_repeat}: whether AnnoTALE flagged a repeat of
 #'     non-canonical length (a lowercase letter in its RVD).
-#'     \item \emph{nterm_aa_evalue}, \emph{cterm_aa_evalue}: E-value of the
-#'     \code{hmmsearch} match between the segment AnnoTALE reported upstream
-#'     (downstream) of the repeats and the TALE N- (C-) terminal protein
-#'     profile. \code{NA} when there is no segment, or no match with an
-#'     E-value up to 10.
+#'     \item \emph{nterm_dna_score}, \emph{cterm_dna_score},
+#'     \emph{nterm_dna_evalue}, \emph{cterm_dna_evalue}: bit score and
+#'     E-value of the best nhmmer hit of the N- (C-) terminus DNA profile
+#'     next to the array's repeats, whatever its score: on the same strand,
+#'     upstream of the first repeat (downstream of the last one), within
+#'     twice the profile length. \code{NA} when there is none.
+#'     \item \emph{nterm_dna_cover}, \emph{cterm_dna_cover}: fraction of
+#'     the DNA profile's positions those hits cover together; \code{0} when
+#'     there is none.
+#'     \item \emph{nterm_dna_pieces}, \emph{cterm_dna_pieces}: how many
+#'     such hits. More than one usually means the terminus is split, often
+#'     by an insertion or a deletion.
+#'     \item \emph{nterm_aa_evalue}, \emph{cterm_aa_evalue},
+#'     \emph{nterm_aa_score}, \emph{cterm_aa_score}: E-value and bit score
+#'     of the \code{hmmsearch} match between the segment AnnoTALE reported
+#'     upstream (downstream) of the repeats and the TALE N- (C-) terminal
+#'     protein profile. \code{NA} when there is no segment, or no match with
+#'     an E-value up to 10.
 #'     \item \emph{nterm_aa_profile_gap}, \emph{cterm_aa_profile_gap}:
 #'     number of profile positions between the end of that match and the end
 #'     of the profile that adjoins the repeats (the last position of the
 #'     N-terminal profile, the first of the C-terminal one). \code{0} for a
 #'     match that reaches the repeats, \code{NA} when there is no match.
+#'     \item \emph{nterm_aa_far_gap}, \emph{cterm_aa_far_gap}: the same at
+#'     the other end of the profile, the start of the N-terminal one (the end
+#'     of the C-terminal one). A terminus that stops early, like the
+#'     C-terminus of a truncTALE, leaves a large gap here.
+#'     \item \emph{nterm_aa_cover}, \emph{cterm_aa_cover}: fraction of the
+#'     protein profile's positions the match covers. Below 1 minus the two
+#'     gaps when part of the terminus is missing in between.
+#'     \item \emph{nterm_aa_domains}, \emph{cterm_aa_domains}: how many
+#'     separate stretches of the profile the match consists of. More than
+#'     one means the terminus is split, by a deletion or a change of
+#'     reading frame.
 #'     \item \emph{nterm_aa_hit}, \emph{cterm_aa_hit}: \code{TRUE} when that
 #'     E-value is at most \code{terminus_max_evalue} and the profile gap at
 #'     most 10, \code{FALSE} for a segment that does not match,
@@ -1502,7 +1639,10 @@
 #'     \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}}
 #'     corrected.
 #'   }
-#'   \item hits_report.tsv: report of all hits detected by HMMer
+#'   \item hits_report.tsv: report of all hits detected by HMMer, with
+#'   their bit \emph{score}, \emph{evalue} and the profile positions they
+#'   cover, \emph{hmm_from} to \emph{hmm_to} (for hits merged into one, the
+#'   best score and E-value and the span they cover together)
 #'   \item hits_report.gff: gff file of all hits detected by HMMer
 #'   \item domains_report.tsv: report of all Tal amino acid domains detected by AnnoTALE analyze
 #'   \item putative_tal_orf.fasta: for each array in which AnnoTALE found
@@ -1630,6 +1770,16 @@ tell_tales <- function(
   arraysGR <- grouped$arrays
   hitsByArraysLst <- grouped$by_array
 
+  #####   DNA evidence for the termini, below the score thresholds too   #####
+  rawTermini <- .telltale_read_nhmmer(paths$hmmer_search)
+  rawTermini <- rawTermini[rawTermini$query_name %in% c(hmm$nterm, hmm$cterm), ]
+  rawTermini$hit_id <- paste("RAW", sprintf("%05.0f", seq_len(nrow(rawTermini))), sep = "_")
+  rawTermini$start <- pmin(rawTermini$envfrom, rawTermini$env_to)
+  rawTermini$end <- pmax(rawTermini$envfrom, rawTermini$env_to)
+  rawTermini <- .telltale_hits_to_ranges(rawTermini, subjectDNASequences,
+                                         originalSeqlevels, originalSeqInfo)
+  terminiDNA <- .telltale_terminus_dna_evidence(hitsByArraysLst, rawTermini, hmm)
+
   #####   Extend DNA Tal arrays   #####
   ## Extract the genomic sequence of arrays +-bp on the borders
   ## An array near a sequence end is extended past it; resize() warns about
@@ -1711,13 +1861,20 @@ tell_tales <- function(
   arrayMeta$rvd_string <- unname(rvdStrings[arrayMeta$array_id])
   arrayMeta$rvd_string[is.na(arrayMeta$rvd_string)] <- ""
   arrayMeta$has_aberrant_repeat <- unname(hasAberrantRepeat[arrayMeta$array_id])
+  endDNA <- terminiDNA[match(arrayMeta$array_id, terminiDNA$array_id), ]
   endHits <- terminiHits[match(arrayMeta$array_id, terminiHits$array_id), ]
-  arrayMeta$nterm_aa_evalue <- endHits$nterm_aa_evalue
-  arrayMeta$cterm_aa_evalue <- endHits$cterm_aa_evalue
-  arrayMeta$nterm_aa_profile_gap <- endHits$nterm_aa_profile_gap
-  arrayMeta$cterm_aa_profile_gap <- endHits$cterm_aa_profile_gap
-  arrayMeta$nterm_aa_hit <- endHits$nterm_aa_hit
-  arrayMeta$cterm_aa_hit <- endHits$cterm_aa_hit
+  # paired columns, N-terminus then C-terminus, DNA evidence first
+  for (what in c("dna_score", "dna_evalue", "dna_cover", "dna_pieces")) {
+    for (end in c("nterm", "cterm")) {
+      arrayMeta[[paste(end, what, sep = "_")]] <- endDNA[[paste(end, what, sep = "_")]]
+    }
+  }
+  for (what in c("aa_evalue", "aa_score", "aa_profile_gap", "aa_far_gap",
+                 "aa_cover", "aa_domains", "aa_hit")) {
+    for (end in c("nterm", "cterm")) {
+      arrayMeta[[paste(end, what, sep = "_")]] <- endHits[[paste(end, what, sep = "_")]]
+    }
+  }
   S4Vectors::mcols(hitsByArraysLst) <- arrayMeta
 
   #### Per-array measures from the ORF and the termini ####

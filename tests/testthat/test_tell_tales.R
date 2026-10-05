@@ -76,6 +76,14 @@ test_that("genuine termini match their profile, complete or truncated; unrelated
   # complete and truncated termini reach the profile end next to the repeats
   expect_identical(hit("MAI1_ROI_00006", "nterm_aa_profile_gap"), 0L)
   expect_identical(hit("PXO86_truncTALE", "cterm_aa_profile_gap"), 0L)
+  # the far end tells them apart: the complete N-terminus covers its whole
+  # profile in one stretch, the truncated C-terminus stops after 42 residues
+  expect_identical(hit("MAI1_ROI_00006", "nterm_aa_far_gap"), 0L)
+  expect_identical(hit("MAI1_ROI_00006", "nterm_aa_domains"), 1L)
+  expect_gt(hit("MAI1_ROI_00006", "nterm_aa_cover"), 0.95)
+  expect_gt(hit("PXO86_truncTALE", "cterm_aa_far_gap"), 200L)
+  expect_lt(hit("PXO86_truncTALE", "cterm_aa_cover"), 0.2)
+  expect_gt(hit("PXO86_truncTALE", "cterm_aa_score"), 0)
   # no segment on the other side: NA, not FALSE
   expect_true(is.na(hit("MAI1_ROI_00006", "cterm_aa_hit")))
   expect_true(is.na(hit("PXO86_truncTALE", "nterm_aa_evalue")))
@@ -118,6 +126,17 @@ test_that("tell_tales() codes termini from the protein profiles and drops DNA-on
   # the nhmmer DNA search misses this truncated C-terminus; the protein profile does not
   expect_false(truncated$cterm_dna_hit)
   expect_true(truncated$cterm_aa_hit)
+  # below the score threshold, the DNA still carries the two ends of a
+  # C-terminus, split by a deletion (ledger §59)
+  expect_true(all(c("nterm_dna_score", "cterm_dna_score", "nterm_dna_cover", "cterm_dna_cover",
+                    "nterm_dna_pieces", "cterm_dna_pieces") %in% names(report)))
+  expect_identical(truncated$cterm_dna_pieces, 2)
+  expect_lt(truncated$cterm_dna_score, 200)
+  expect_gt(truncated$cterm_dna_cover, 0.15)
+  expect_lt(truncated$cterm_dna_cover, 0.3)
+  hits <- readr::read_tsv(file.path(out, "hits_report.tsv"), show_col_types = FALSE, progress = FALSE)
+  expect_true(all(c("score", "evalue", "hmm_from", "hmm_to") %in% names(hits)))
+  expect_false(anyNA(hits$score))
   expect_match(truncated$rvd_string, "-CTERM$")
 
   # AnnoTALE splits ROI_00001's DNA but cannot translate it: no parts file is left

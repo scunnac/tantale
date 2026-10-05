@@ -3389,6 +3389,10 @@ and scoring threshold (`-t`, `-a`), and its background model from
 `simplescancode.Background`; validate against `talvez()` on the SWEET
 promoters, as ARLEM was validated against its executable (§33).
 
+**Q111 settled (maintainer, 2026-10-05):** no action on the PlantTFBS
+classes; if someone raises it, the answer is this port, which removes
+them.
+
 ---
 
 ## 55. Updating the RVD-to-nucleotide tables (2026-10-04) **[P]**
@@ -4027,6 +4031,65 @@ Consequences:
   for discovery (200 bits, about a fifth of a complete C-terminus);
   `cterm_aa_hit` is an E-value on hmmsearch over a handful of protein
   segments, where a 37-residue match passes easily (Q152, Q153).
+
+**The maintainer's proposal (2026-10-05).** Maintainer: (1) report more about the terminus hits, DNA and protein, in
+`array_report.tsv` and/or `hits_report.tsv` (to be designed together);
+(2) code a terminus `NTERM`/`CTERM` only when it has both the protein
+match and a DNA hit, documented in the function docs. Claude's reading:
+(1) yes; (2) to be measured first, because the DNA cut-offs are
+discovery thresholds (C 200 bits, about a fifth of a complete
+C-terminus), the §42 rule deliberately codes a terminus truncated at its
+far end as `CTERM`, and `tales_from_annotale()` has no DNA hits to apply
+the condition to. Alternative put to the maintainer: keep the protein
+code, report the discordance as a `tales_anomalies()` check. Q170-Q172.
+
+**Maintainer, 2026-10-05: a new paradigm for terminus calls.** Q171: yes,
+step (1) for both termini. Q172: `NTERM`/`CTERM` are to mean a canonical
+terminus, one the maintainer can be reasonably confident performs its
+usual function; anything else is `XXXXX`, and the TSV files say what it
+may be. So the protein match must be full-length or close to it, with
+"close" learned from the match features of a set of canonical TALEs and
+applied to new sequences. This replaces §42's rule (a terminus truncated
+at its far end is `CTERM`). Proposed calibration set: `tale_annotations`
+(10 published genomes, 128 TALEs; 9 `truncTALE`, 9 with an
+`unusual_feature`, some of which concern the termini). Q173-Q176.
+
+**Q173-Q176 (maintainer, 2026-10-05).** Q173 yes; Q174 exclude both
+termini of every TALE with an `unusual_feature`; Q175 keep `NTERM`/`CTERM`
+unless better names come up; Q176 no joint design needed. Maintainer's
+remark: what `sanitize = TRUE` drops should follow the new definition.
+
+Step (1) done: `array_report.tsv` gains, per terminus, `*_dna_score`,
+`*_dna_evalue`, `*_dna_cover`, `*_dna_pieces` (every nhmmer hit of the
+terminus profile next to the repeats, whatever its score, within twice the
+profile length) and `*_aa_score`, `*_aa_far_gap`, `*_aa_cover`,
+`*_aa_domains`; `hits_report.tsv` (and the two GFFs) gain `score`,
+`evalue`, `hmm_from`, `hmm_to`. On PXO86 `ROI_00019`: `cterm_dna_score`
+94.3, `cterm_dna_cover` 0.204, 2 pieces, as found by hand above. Golden:
+only `all_ranges.gff`, `array_report.tsv`, `hits_report.gff`,
+`hits_report.tsv` changed, in both runs; every existing column's digest
+is unchanged; the table fingerprints only gain the new columns.
+
+Calibration (`data-raw/terminus_calibration.R`, data in
+`../tantale_calibration/`): all 128 curated TALEs matched an array by RVD
+string; arrays: 112 canonical, 9 truncTALE, 7 unusual, 11 unannotated
+(10 without any terminus segment). `*_aa_cover` of the canonical termini:
+- C-terminus: 111 of 112 at 0.99 or more; one at 0.452, PXO61
+  tal6c/PthXo3 (133 aa, DNA cover 1.0). truncTALE C-termini 0.133 (42 aa)
+  and 0.656 (183 aa); PXO71 `ROI_00005` (truncTALE) has a 14-aa segment
+  and no match, DNA cover 1.0.
+- N-terminus: 103 at 0.99 or more; 7 at 0.927, TalC/TalE of the African
+  strains (264-265 aa, two domains, an internal deletion); one at 0.833,
+  PXO99A tal6b (240 aa, far gap 48, DNA cover 1.0); PXO71 `ROI_00008`
+  (curated canonical) has a 22-aa segment and no match, DNA cover 0.999.
+  truncTALE N-termini 0.844 (230 aa, two domains).
+- `unusual` TALEs: every terminus at 1.0 except PXO61 tal1b's C-terminus
+  (133 aa, 0.430).
+Proposed rule: `*_aa_cover` at least 0.9 for both termini (between the
+lowest accepted canonical value, 0.927, and the highest truncTALE
+N-terminus, 0.844). It rejects PthXo3 (PXO61), tal6b (PXO99A) and tal1b
+(PXO61), each with a full-length DNA match and a short protein segment;
+whether those genes are genuine is the maintainer's call. Q177-Q180.
 
 ## 60. rOpenSci #813: first editor reply and the bot's pkgcheck (2026-10-05) **[P]**
 

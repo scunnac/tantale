@@ -203,22 +203,47 @@ boundary between the two domains.
 \item \emph{array_seq}: DNA sequence of that span.
 \item \emph{nterm_dna_hit}, \emph{cterm_dna_hit}: whether an nhmmer hit
 of the N- (C-) terminus DNA profile is part of the array, anywhere in
-it.
+it. Only hits scoring at least \code{nterm_min_score}
+(\code{cterm_min_score}) count.
 \item \emph{rvd_string}: the RVDs AnnoTALE read, separated by
 \code{rvd_sep}, with the terminus codes described under
 \emph{rvd_sequences.fas}. Empty when AnnoTALE found no RVD.
 \item \emph{has_aberrant_repeat}: whether AnnoTALE flagged a repeat of
 non-canonical length (a lowercase letter in its RVD).
-\item \emph{nterm_aa_evalue}, \emph{cterm_aa_evalue}: E-value of the
-\code{hmmsearch} match between the segment AnnoTALE reported upstream
-(downstream) of the repeats and the TALE N- (C-) terminal protein
-profile. \code{NA} when there is no segment, or no match with an
-E-value up to 10.
+\item \emph{nterm_dna_score}, \emph{cterm_dna_score},
+\emph{nterm_dna_evalue}, \emph{cterm_dna_evalue}: bit score and
+E-value of the best nhmmer hit of the N- (C-) terminus DNA profile
+next to the array's repeats, whatever its score: on the same strand,
+upstream of the first repeat (downstream of the last one), within
+twice the profile length. \code{NA} when there is none.
+\item \emph{nterm_dna_cover}, \emph{cterm_dna_cover}: fraction of
+the DNA profile's positions those hits cover together; \code{0} when
+there is none.
+\item \emph{nterm_dna_pieces}, \emph{cterm_dna_pieces}: how many
+such hits. More than one usually means the terminus is split, often
+by an insertion or a deletion.
+\item \emph{nterm_aa_evalue}, \emph{cterm_aa_evalue},
+\emph{nterm_aa_score}, \emph{cterm_aa_score}: E-value and bit score
+of the \code{hmmsearch} match between the segment AnnoTALE reported
+upstream (downstream) of the repeats and the TALE N- (C-) terminal
+protein profile. \code{NA} when there is no segment, or no match with
+an E-value up to 10.
 \item \emph{nterm_aa_profile_gap}, \emph{cterm_aa_profile_gap}:
 number of profile positions between the end of that match and the end
 of the profile that adjoins the repeats (the last position of the
 N-terminal profile, the first of the C-terminal one). \code{0} for a
 match that reaches the repeats, \code{NA} when there is no match.
+\item \emph{nterm_aa_far_gap}, \emph{cterm_aa_far_gap}: the same at
+the other end of the profile, the start of the N-terminal one (the end
+of the C-terminal one). A terminus that stops early, like the
+C-terminus of a truncTALE, leaves a large gap here.
+\item \emph{nterm_aa_cover}, \emph{cterm_aa_cover}: fraction of the
+protein profile's positions the match covers. Below 1 minus the two
+gaps when part of the terminus is missing in between.
+\item \emph{nterm_aa_domains}, \emph{cterm_aa_domains}: how many
+separate stretches of the profile the match consists of. More than
+one means the terminus is split, by a deletion or a change of
+reading frame.
 \item \emph{nterm_aa_hit}, \emph{cterm_aa_hit}: \code{TRUE} when that
 E-value is at most \code{terminus_max_evalue} and the profile gap at
 most 10, \code{FALSE} for a segment that does not match,
@@ -237,7 +262,10 @@ in the raw sequence that
 \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}}
 corrected.
 }
-\item hits_report.tsv: report of all hits detected by HMMer
+\item hits_report.tsv: report of all hits detected by HMMer, with
+their bit \emph{score}, \emph{evalue} and the profile positions they
+cover, \emph{hmm_from} to \emph{hmm_to} (for hits merged into one, the
+best score and E-value and the span they cover together)
 \item hits_report.gff: gff file of all hits detected by HMMer
 \item domains_report.tsv: report of all Tal amino acid domains detected by AnnoTALE analyze
 \item putative_tal_orf.fasta: for each array in which AnnoTALE found

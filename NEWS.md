@@ -1,5 +1,19 @@
 # tantale 0.99.0.9000
 
+## `tell_tales()` reports more about each terminus
+
+`array_report.tsv` now says, for each terminus, how much of the TALE
+terminal-domain profile its protein segment covers (`*_aa_cover`), how far
+the match stops from the far end of the profile (`*_aa_far_gap`), in how
+many pieces it matches (`*_aa_domains`) and its bit score (`*_aa_score`).
+At the DNA level, it reports the best nhmmer hit of the terminus profile
+next to the repeats even when it scores below `nterm_min_score` or
+`cterm_min_score` (`*_dna_score`, `*_dna_evalue`), the fraction of the
+profile those hits cover (`*_dna_cover`) and how many there are
+(`*_dna_pieces`). A truncated terminus, or one split by a deletion, can now
+be read from the report. `hits_report.tsv` and the two GFF files carry each
+hit's score, E-value and profile positions.
+
 ## A missing conda installation is reported as such
 
 When no conda or mamba installation can be found, the functions that run
