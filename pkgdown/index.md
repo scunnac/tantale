@@ -39,6 +39,20 @@ consistent set of R objects, so that a whole study (discovery, correction,
 classification, alignment, target prediction) can be scripted and
 reproduced without switching tools or file formats along the way.
 
+<img src="function_map.svg"
+     alt="The main functions of tantale in the order of an analysis, from tell_tales() to plot.tales_msa()"
+     style="max-width: 100%; height: auto;"/>
+
+The main functions, in the order of an analysis. Filled boxes are the R
+objects passed between functions; outlined boxes are functions, with plot
+methods outlined in sand. `tell_tales()` finds the TALE genes in a genome,
+and `tales_from_telltales()` reads its results into a `tales` object, a
+table with one row per repeat or terminus of each TALE. Distances between
+TALEs, computed from their domains or in one step, group related TALEs
+across genomes; a group can then be aligned, drawn as a heatmap, or used to
+predict target sites. The [Reference](reference/index.html) page opens with
+a map of every exported function.
+
 ## A typical study, in one figure
 
 Grouping arrays into related TALEs answers the question the package is

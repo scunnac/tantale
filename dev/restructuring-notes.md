@@ -1406,6 +1406,29 @@ skipped `NULL` return values, and it returns `invisible(NULL)`. Fixed
 afterwards (`returnValue(default = )`, so only an exit by error is
 skipped) but not rerun; it will appear at the next recording.
 
+### 29.4 The data-flow map on the site -- built, 2026-10-06 **[V]**
+
+Maintainer's request (Q207-Q218). `pkgdown/function_map.R` holds the
+data-flow code formerly inline in `dev/function-graph.qmd` (which now
+sources it) and, run as a script after the recorder, writes two assets:
+`pkgdown/assets/function_map.html`, the interactive map of every export,
+shown in an iframe by a first "Overview" section of the reference index
+(`_pkgdown.yml`; pkgdown keeps raw HTML in a section `desc`); and
+`pkgdown/assets/function_map.svg`, a ggplot2 figure of the main path
+(19 nodes, top to bottom, positions and edges set by hand, each edge
+checked against the recording) on the home page below the introductory
+paragraph. The grouped `tales` is drawn a second time below the grouping
+functions so the figure reads downwards. One edge is allowed without a
+recording: `tale_distances` into `tales_group_kmedoids()`, whose tests
+pass the similarity tibble. Both maps in Tol muted colours (Q217); the
+widget turns its physics off once stabilised. Rejected along the way: a
+dedicated article (the reference index serves), vis.js hierarchical
+layout (uniform column widths, labels unreadable at article width), and
+a widget screenshot as the home figure (needs a browser). The
+maintainer's laptop ran out of memory twice that day with a 22 GB Firefox
+tab; the map pages stayed flat (~0.5-1 GB) in 90-s tests in Chromium and
+Firefox, so the cause is unconfirmed.
+
 ## 30. Full website prose review against `feedback_writing_tone` -- articles/README/index and reference pages DONE; parallel-phrasing sweep deferred **[V]**
 
 2026-09-23. All 8 articles, README, `pkgdown/index.md` and the 63

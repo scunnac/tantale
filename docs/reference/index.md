@@ -1,5 +1,13 @@
 # Package index
 
+## Overview
+
+Which object each exported function takes and returns. Boxes are object
+classes, dots are functions. Hover over a node to see what it takes and
+returns, click it to highlight its neighbours, and scroll to zoom. [Open
+the map in a full
+window](https://scunnac.github.io/tantale/function_map.md).
+
 ## TALE discovery
 
 Find TALE genes in genomic sequence and parse them into arrays of parts.
