@@ -39,7 +39,7 @@ an exported function or changing what one takes or returns; the lists
 under the graph show when the recording is out of date. Plain R types
 (tibbles, character vectors, plots) are left out of the drawing and given
 in each function's tooltip, apart from one link through files on disk:
-`tell_tales()` writes a results folder that `tales_from_telltale()` reads.
+`tell_tales()` writes a results folder that `tales_from_telltales()` reads.
 
 Validators, predicates, and the `print`, `format` and `[` methods are left
 out: they take an object and return it unchanged, or return a logical.
@@ -93,9 +93,9 @@ links <- unique(as.data.frame(do.call(rbind, links)))
 names(links) <- c("from", "to", "label")
 
 # The one link through files on disk.
-stopifnot(all(c("tell_tales", "tales_from_telltale") %in% exported_now))
+stopifnot(all(c("tell_tales", "tales_from_telltales") %in% exported_now))
 links <- rbind(links, data.frame(from = fn_id("tell_tales"),
-                                 to = fn_id("tales_from_telltale"),
+                                 to = fn_id("tales_from_telltales"),
                                  label = "results folder"))
 
 ids <- unique(c(links$from, links$to))

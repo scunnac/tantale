@@ -1,4 +1,4 @@
-# Recorded 2026-10-01 at commit 6550ce9 by dev/function-graph-shapes.R
+# Recorded 2026-10-06 at commit 4072c7a by dev/function-graph-shapes.R
 fn	direction	arg	shape	calls
 .abort_no_env	never called			0
 .arlem_align	in	hr	list of matrices<double>	7799
@@ -13,46 +13,44 @@ fn	direction	arg	shape	calls
 .build_repeat_msa	out	<value>	matrix<logical>	1
 .col_min	in	x	matrix<double>	508559
 .consensus_panel	in	align	matrix<character>	5
-.domain_to_cluster_align	in	domain_align	matrix<character>	5
-.domain_to_cluster_align	out	<value>	matrix<double>	5
-.domain_to_sim_align	in	domain_align	matrix<character>	5
-.domain_to_sim_align	out	<value>	matrix<double>	5
+.domain_to_cluster_align	in	domain_align	matrix<character>	6
+.domain_to_cluster_align	out	<value>	matrix<double>	6
+.domain_to_sim_align	in	domain_align	matrix<character>	6
+.domain_to_sim_align	out	<value>	matrix<double>	6
 .format_domain_distances_mat	never called			0
 .functal_pwm	out	<value>	matrix<double>	39
-.greet_startup_cli	never called			0
-.matrix_to_long	in	mat	matrix<double>	54
-.matrix_to_long	in	mat	matrix<character>	28
+.matrix_to_long	in	mat	matrix<double>	56
+.matrix_to_long	in	mat	matrix<character>	30
 .matrix_to_long	in	mat	matrix<logical>	2
-.pairwise_long_to_matrix	out	<value>	matrix<double>	38
-.pick_ref_name	in	align	matrix<character>	34
-.repeat_to_rvd_align	in	repeat_align	matrix<character>	5
-.repeat_to_rvd_align	out	<value>	matrix<character>	5
-.rvd_to_match_align	in	rvd_align	matrix<character>	16
-.rvd_to_match_align	out	<value>	matrix<double>	16
+.pairwise_long_to_matrix	out	<value>	matrix<double>	39
+.pick_ref_name	in	align	matrix<character>	43
+.rvd_to_match_align	in	rvd_align	matrix<character>	17
+.rvd_to_match_align	out	<value>	matrix<double>	17
 .split_list	in	strings	list of scalars<character>	32
-.split_list	in	strings	list of vectors<character>	1
-.split_list	out	<value>	list of vectors<character>	186
+.split_list	in	strings	list of vectors<character>	2
+.split_list	out	<value>	list of vectors<character>	202
 .tales_group_distmat	out	<value>	matrix<double>	27
 .tantale_repair	never called			0
 .telltale_align_termini	in	paths	list of scalars<character>	32
 .telltale_array_gaps	out	<value>	list of vectors<double/integer>	16
 .telltale_array_orfs	in	paths	list of scalars<character>	16
-.telltale_find_domain_hits	in	hmm	list of vectors<character>	22
+.telltale_find_domain_hits	in	hmm	list of vectors<character/integer>	22
 .telltale_find_domain_hits	in	paths	list of scalars<character>	22
-.telltale_group_arrays	in	hmm	list of vectors<character>	17
+.telltale_group_arrays	in	hmm	list of vectors<character/integer>	17
 .telltale_group_arrays	in	hmm	list of scalars<character>	2
-.telltale_hmm_profiles	out	<value>	list of vectors<character>	22
-.telltale_log	in	hmm	list of vectors<character>	16
-.telltale_log	in	params	list of scalars<character/double/logical>	3
+.telltale_hmm_profiles	out	<value>	list of vectors<character/integer>	22
+.telltale_log	in	hmm	list of vectors<character/integer>	16
+.telltale_log	in	params	list of scalars<character/double/logical>	14
 .telltale_paths	out	<value>	list of scalars<character>	22
+.telltale_terminus_dna_evidence	in	hmm	list of vectors<character/integer>	16
 .telltale_write_reports	in	paths	list of scalars<character>	16
 as_tales	in	x	list of scalars<character>	3
 as_tales.default	in	x	list of scalars<character>	3
 as.matrix.pairwise_distances	out	<value>	matrix<double>	34
-as.matrix.tales_msa	out	<value>	matrix<character>	53
-dplyr_col_modify.tales	in	cols	list of vectors<character/integer>	10
+as.matrix.tales_msa	out	<value>	matrix<character>	55
+dplyr_col_modify.tales	in	cols	list of vectors<character/integer>	40
+dplyr_col_modify.tales	in	cols	list of vectors<character>	2
 dplyr_col_modify.tales	in	cols	list of vectors<integer>	1
-dplyr_col_modify.tales	in	cols	list of vectors<character>	1
 dplyr_col_modify.tales	in	cols	list of vectors<double>	1
 tales_consensus	in	align	matrix<character>	54
 tales_consensus_match	in	align	matrix<character>	13
