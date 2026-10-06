@@ -55,7 +55,7 @@ minimal_copy <- function(name) {
 
 drop_nterm <- function(file) {
   seqs <- Biostrings::readBStringSet(file)
-  Biostrings::writeXStringSet(seqs[!grepl("N-terminus", names(seqs))], file)
+  Biostrings::writeXStringSet(seqs[!grepl("N-terminus", names(seqs), fixed = TRUE)], file)
 }
 
 roi <- minimal_copy("err_missing_nterm")

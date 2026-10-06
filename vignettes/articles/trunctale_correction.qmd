@@ -188,8 +188,8 @@ hits %>%
   filter(array_id %in% c("ROI_00001", "ROI_00019")) %>%
   group_by(array_id) %>%
   summarise(
-    cterm_hit_found = any(grepl("C-terminus", query_name)),
-    cterm_hit_frameshift_count = frameshift_count[grepl("C-terminus", query_name)][1],
+    cterm_hit_found = any(grepl("C-terminus", query_name, fixed = TRUE)),
+    cterm_hit_frameshift_count = frameshift_count[grepl("C-terminus", query_name, fixed = TRUE)][1],
     .groups = "drop"
   )
 ```

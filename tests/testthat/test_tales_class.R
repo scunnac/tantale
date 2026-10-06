@@ -524,11 +524,11 @@ test_that("each anomaly has a kind", {
   df <- df[-(2:3), ]
   df$position_in_array[df$array_id == "a1"] <- 1:2
   an <- tales_anomalies(suppressWarnings(tales(df)))
-  expect_identical(names(an), c("array_id", "check", "kind", "detail"))
+  expect_named(an, c("array_id", "check", "kind", "detail"))
   expect_identical(an$kind[an$check == "no_repeat"], "integrity")
   expect_identical(an$kind[an$check == "terminus_noncanonical"], "noncanonical")
-  expect_identical(names(tales_anomalies(tales(minimal_tales_df()))),
-                   c("array_id", "check", "kind", "detail"))
+  expect_named(tales_anomalies(tales(minimal_tales_df())),
+               c("array_id", "check", "kind", "detail"))
 })
 
 test_that("without domain_type the structure checks do not run", {
