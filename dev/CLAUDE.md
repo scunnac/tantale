@@ -237,6 +237,12 @@ before trusting any of it.*
 
 ### State
 
+- **2026-10-06, third session -- start here.** pkgcheck run
+  37440091896 on e0b14f3 is green (§60). The #813 reply draft
+  (`../tantale_ropensci/813-reply-draft.md`) is rewritten around it
+  (Q187) and waits for the maintainer to post it. Pushes touching only
+  `docs/`, `dev/`, `pkgdown/` or `.claude/` start no CI. Open: Q178,
+  GitHub Actions tutorial (Q188). Q199-Q201 (push, dispatch, rewrite: done); Q202 open (push this ledger commit). Last Q used: Q202.
 - **2026-10-06, second session -- start here.** All session work
   pushed (`origin/main` at ba8a560); this briefing update is the one
   local commit, held so as not to cancel CI on ba8a560: push it first.

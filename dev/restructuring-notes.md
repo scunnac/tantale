@@ -4372,3 +4372,15 @@ Q198 (maintainer, 2026-10-06): the three internals goodpractice calls
 unused (`R/pairwise_distances_class.R:373`, `R/tales_class.R:983`,
 `R/tales_msa_class.R:264`) are left as they are unless the reviewers
 raise them.
+
+**pkgcheck run 37440091896 (e0b14f3), 2026-10-06: green.** "Wowsers,
+that's some fine code!": CI checks pass, coverage 90.6%, ORCID, R CMD
+check 0 errors 0 warnings; goodpractice notes as in the previous run,
+plus a README URL flag that did not reproduce (every README link
+answered 200 afterwards; the Pages site was answering 503 at times that
+morning). Dispatched at once after the push of e0b14f3: that commit
+touched only `dev/`, which R-CMD-check and test-coverage skip
+(`paths-ignore`), so pkgcheck read the green runs on ba8a560. Q187 done:
+the #813 draft's first blocking item now links the workflow and the run,
+and the question about a setup step is dropped. Posting the reply is the
+maintainer's.
