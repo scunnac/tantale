@@ -4384,3 +4384,27 @@ touched only `dev/`, which R-CMD-check and test-coverage skip
 the #813 draft's first blocking item now links the workflow and the run,
 and the question about a setup step is dropped. Posting the reply is the
 maintainer's.
+
+**#813 draft fact-checked (2026-10-06).** Each claim checked against
+the bot's report (162b9f1), a lintr run with goodpractice's linters on
+162b9f1 (reproduces the bot's counts, 1413 lints with the 17 `library()`
+in vignettes and tests it skips) and on HEAD, and the code. Corrected
+in the draft: 7 of the 76 failures are uninstalled Java tools (only 64
+come from the missing conda, 5 more from tools absent); the workflow
+adds micromamba and a pkgcheck update besides `tantale_setup()`; macOS
+CI is by hand; the bot does not name the unreachable URL; `<<-` is six
+uses (lintr counts `R/telltale.R`'s twice), the package one in
+`.telltale_run_annotale()` sits in its `lapply()` function, not a
+calling handler as this ledger said earlier, and one of the four in
+tests collects warnings instead of filling a cache; the 35 implicit
+assignments in tests sit in several expectation wrappers; of the 11
+`expect_equal()` left, ten are integer against double (each tried as
+`expect_identical()`, all fail) and `test_pairwise_distances_class.R:193`
+differs by rounding; 23 of 26 fixed-pattern lints fixed (left: one in
+`data-raw/`, two in `trunctale_correction.qmd`); still left: 2
+`expect_named()` forms in `test_tales_class.R`, 4 `%in%` scalars, one
+`length(unique())` count, one `paste(sep = "/")` URL, one
+`system.file()` form in `data-raw/sysdata.R`. Confirmed: the 22
+duplicate-argument lints on HEAD (20 in the bot's) are all repeated
+`"i"`/`"x"` cli bullets; `%||%` has four call sites; the five Imports
+the bot's table shows as NA all have `pkg::` calls.
