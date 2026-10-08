@@ -1,45 +1,4 @@
 
-# subject_file = system.file("extdata", "bai3_sample_tal_regions.fasta", package = "tantale", mustWork = T)
-# output_dir = tempdir(check = TRUE)
-# hmm_dir = system.file("extdata", "hmmProfile", package = "tantale", mustWork = T)
-# hmmer_path = NULL   # NULL -> the tantale conda env
-# correct_array = TRUE
-# correction_ref = system.file("extdata", "tale_correction_ref.fa.gz", package = "tantale", mustWork = T)
-# frameshift = -11
-# nterm_min_score = 300
-# repeat_min_score = 20
-# cterm_min_score = 200
-# min_dna_hits = 4
-# min_gap = 35
-# taleArrayStartAnchorCode = "NTERM"
-# taleArrayEndAnchorCode = "CTERM"
-# extremity_codes = TRUE
-# rvd_sep = "-"
-# extend_len = 300
-# ... = NULL
-
-# subject_file = system.file("extdata", "bai3_sample_tal_genomic_regions.fasta", package = "tantale", mustWork = T)
-# output_dir = file.path(tempdir(), gsub("(\\.fasta)|(\\.fa)|(\\.fna)|(\\.fsa)", "", basename(subject_file)))
-# hmm_dir = system.file("extdata", "hmmProfile", package = "tantale", mustWork = T)
-# hmmer_path = NULL   # NULL -> the tantale conda env
-# correct_array = FALSE
-# correction_ref = system.file("extdata", "tale_correction_ref.fa.gz", package = "tantale", mustWork = T)
-# frameshift = -11
-# nterm_min_score = 300
-# repeat_min_score = 20
-# cterm_min_score = 200
-# min_dna_hits = 4
-# min_gap = 35
-# extremity_codes = TRUE
-# rvd_sep = "-"
-# extend_len = 300
-# ... = NULL
-
-
-
-
-
-
 #### Helpers for tell_tales() ####
 #
 
@@ -1403,13 +1362,13 @@
 #' \code{tell_tales} has been primarily written to report on 'corrected' TALE RVD
 #' sequences in indels prone, noisy DNA sequences (suboptimally polished genomes
 #' assembly, raw reads of long read sequencing technologies such as PacBio or ONT)
-#' that would otherwise be missed by conventional tools (eg AnnoTALE).
+#' that may otherwise be missed by conventional tools (eg AnnoTALE).
 #'
 #' The approach is first to use \href{http://hmmer.org/}{HMMER} to find and
 #' categorize regions in the input DNA sequence that are related to the coding
 #' sequence of canonical TALE protein domains (N-Term, repeats, C-term). Hits
 #' that are (nearly -- see the `min_gap` parameter) adjacent are grouped in
-#' "taleArrays" which are considered as potential tal genes.
+#' "talArrays" which are considered as potential \emph{tal} genes.
 #'
 #'
 #' If the \code{correct_array} parameter is turned off, the longest
@@ -1455,13 +1414,13 @@
 #'   the terminus check (\code{Xo_TALE_Nterm_AA_profile.hmm},
 #'   \code{Xo_TALE_Cterm_AA_profile.hmm}).
 #' @param nterm_min_score Minimal nhmmer score cut_off value to
-#'   consider the hit as genuine
+#'   consider the DNA hit as genuine
 #' @param repeat_min_score Minimal nhmmer score cut_off value to consider
-#'   the hit as genuine
+#'   the DNA hit as genuine
 #' @param cterm_min_score Minimal nhmmer score cut_off value to
 #'   consider the hit as genuine
 #' @param terminus_max_evalue,terminus_min_cover What it takes for the
-#'   segment AnnoTALE reports on either side of the repeats to be coded as a
+#'   segment AnnoTALE reports on either side of the repeats to be flagged as a
 #'   canonical TALE N- or C-terminus, \code{NTERM} or \code{CTERM} rather
 #'   than \code{XXXXX} (see \code{\link{tales_anchor_codes}}). The segment
 #'   is searched with the TALE terminal-domain protein profile of
@@ -1490,7 +1449,7 @@
 #'   judgement about the biology, which is why nothing is discarded unless you
 #'   ask. A pseudogene with three surviving repeats is real, and may be what
 #'   you are looking for.
-#' @param min_gap Minimum gap in base pairs between two tale domain hits for
+#' @param min_gap Minimum gap in base pairs between two tale domain DNA hits for
 #'   them to be considered distinct. If the length of the gap is below this
 #'   value, domains are considered "contiguous" and grouped in the same array.
 #' @param extremity_codes Set this to \code{FALSE} if you do not want the
@@ -1519,20 +1478,15 @@
 #'   }
 #'
 #'   Both keep the pseudogenes. Their frameshifts came from high-quality
-#'   genomes and so are real biology, and correction is meant to recover a
+#'   genomes and so are assumed real. Correction is meant to recover a
 #'   sequence as it exists in nature rather than reshape every array into an
-#'   intact TALE. A reference of only intact TALEs risks "repairing" a
-#'   genuine pseudogene into an ORF no strain carries.
+#'   intact TALE.
 #' @param max_comparisons How many reference proteins each array may be
 #'   aligned against during frameshift correction, and the main control on
 #'   how long correction takes. \code{NULL} allows all of them. It is
 #'   passed to \code{DECIPHER::CorrectFrameshifts()}, which ranks the
 #'   references by a quick distance and aligns the array against the closest
-#'   \code{max_comparisons} of them. In our tests on the genomes shipped with
-#'   the package, 50 gave the same corrections as the full search in a
-#'   quarter of the time or less. See the
-#'   \href{https://scunnac.github.io/tantale/articles/tale_mining.html#sec-max-comparisons}{TALE
-#'   mining article} for the measurements.
+#'   \code{max_comparisons} of them.
 #' @param frameshift Frameshift penalty passed to
 #'   \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}}'s
 #'   \code{frameShift}. tantale's default is \code{-11}, overriding
@@ -1561,8 +1515,8 @@
 #'     boundary between the two domains.
 #'     \item \emph{array_seq}: DNA sequence of that span.
 #'     \item \emph{nterm_dna_hit}, \emph{cterm_dna_hit}: whether an nhmmer hit
-#'     of the N- (C-) terminus DNA profile is part of the array, anywhere in
-#'     it. Only hits scoring at least \code{nterm_min_score}
+#'     of the N- (C-) terminus DNA profile is part of the array.
+#'     Only hits scoring at least \code{nterm_min_score}
 #'     (\code{cterm_min_score}) count.
 #'     \item \emph{rvd_string}: the RVDs AnnoTALE read, separated by
 #'     \code{rvd_sep}, with the terminus codes described under

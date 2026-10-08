@@ -9,10 +9,8 @@
 
 #' Domain-coded strings, one per TALE array
 #'
-#' Renders each array as a separated string of its `dom_code`s in part order:
-#' the encoding the array alignments consume (MAFFT's text mode, and
-#' [tales_tale_distances()]), where each distinct
-#' domain sequence is one "residue".
+#' Renders each array as a separated string of its `dom_code`s in part order,
+#' where each distinct domain sequence is one "residue".
 #'
 #' @details
 #' This is the sibling of [tales_rvd_strings()] and takes the same two

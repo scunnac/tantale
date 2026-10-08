@@ -51,10 +51,7 @@
 #'
 #' The tree is built directly on the distances
 #' (\code{stats::hclust(stats::as.dist(distMat))}), matching the original
-#' DisTAL clustering this package reimplements, so arrays that are close to
-#' each other end up together. (A Euclidean distance between the arrays'
-#' distance *profiles* would instead group arrays that relate to the rest of
-#' the population in the same way.) The tree is cut with
+#' DisTAL clustering this package reimplements. The tree is cut with
 #' \code{stats::cutree(tree, k = k)}, which always succeeds, including when
 #' a tie in merge heights would make a height-based cut ambiguous.
 #'
@@ -62,9 +59,8 @@
 #' @param tale_distances A [tale_distances] object, as returned by [tales_compare_distal()].
 #'   A plain data frame with the same columns is also accepted and coerced.
 #' @param k Integer, the number of groups to cut the tree into.
-#' @param plot_tree Logical, whether to draw the dendrogram: colored by
-#'   group, with a dashed line at the cut height. `FALSE` by default, so the
-#'   `ggtree`/`tidytree` machinery only runs when a plot is actually wanted.
+#' @param plot_tree Logical, whether to draw the `ggtree` dendrogram: colored by
+#'   group, with a dashed line at the cut height. `FALSE` by default.
 #' @return `x` with an added (or replaced) `group` column.
 #' @seealso [tales_group_kmedoids()], the alternative method;
 #'   [tales_compare_distal()], which produces both inputs.

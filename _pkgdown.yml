@@ -79,5 +79,5 @@ reference:
   contents:
   - tantale-package
 - title: External tool wrappers
-  desc: Wrappers around AnnoTALE and QueTAL.
+  desc: Wrappers around AnnoTALE programs.
   contents: has_concept("external TALE tools")

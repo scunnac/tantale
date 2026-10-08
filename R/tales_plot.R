@@ -24,9 +24,7 @@
 #' its RVD, each terminus the short name of its code (\code{N-}, \code{-C},
 #' or \code{??} for a terminus that does not match its TALE domain profile; see
 #' \code{\link{tales_anchor_codes}}). Arrays are listed from the top in
-#' alphabetical order of \code{array_id}, compared byte by byte as in every
-#' projection of a \code{tales} object, so the order does not depend on the
-#' locale.
+#' alphabetical order of \code{array_id}.
 #'
 #' The fill colours follow the role of each part. The canonical 34-aa repeat
 #' and the 20-aa half-repeat that ends every array get calm colours, so a

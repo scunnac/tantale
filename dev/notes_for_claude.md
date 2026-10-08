@@ -1,34 +1,30 @@
 
-# Suggested modifications
+# Minor thinkgs that need a fix
 
-tales_anomalies() returned df should be sorted on `array_id` and `check`
+- tales_predict_targets(): depending on the method argument, the order of the column in the returned object is not the same. This comes from inconsistency at the level of the individual prediction functions (see their exemple). Those should be updated to have a matching column order. Tool specific columns being last. A bonnus of the function could be to enable running both methods in one call and return a combinded results table.
 
-plots.tales() the legend for the 'Part and length' section is not what I had written initially. Why is the N-teminus, repeat, ... prefix are repeated when the outline provide the domain type.
+- In tales_consensus() documentation indicate how one can obtain the aling object from a tales_msa (ie as.matrix).
 
+- the exemple plot in plot_target_preds is awful. `filter_range` should be a lot shorter.
 
+- talomes_heatmap()'s default value for `group_col` should be "group"
 
+- review the documentation for tantale-package. Some facts are obsolete or clumsily stated.
 
-# Findings
+- This kind of wording 'Each TALE given is placed' (the passive form) is found too often in the website and package documentation. When found, a decision must be made as to whether a direct wording is not more desirable.
 
-Now that we have debugged the way termini codes were added to the RVD sequences, it turns out that even a `max_comparisons=5` is enough to correct all BAI3-1-1 arrays. However, it seems that one array just disappear... What happens to the the 8th one? we should look into the array_report.tsv.
-We need to revise the documentation, and our preconceived ideas about this parameter. You could rerun the test you once ran to try and define adapted values but this time the read out is the 'new' rvd_string column and the number of arrays both in the sanitize and non sanitized output.
-I tried to re-frame the tale mining article in this direction but I wonder if I nailed it correctly. An important consequence of this is that now tell_tales in correction mode runs pretty fast, may be even faster that the java implementation for similar of even best results. Can you try to get a sense of that using the BAI3-1-1 genome?
-
-This:
-```
-#' @param max_comparisons How many references each array may be aligned
-#'   against. \code{NULL} means all of them.
-```
-should be changed to the values found 'optimal' best results at the fastest speed.
-
-# For discussion
-
-  - The more I think about it the more I believe the cut off alignment length with the termini protein sequences with the hmm should be increased, potentially to the length of the profile + o - a small margin. Biologically a termini that do align with the expected profile indicates that it is related to it. But biologicall, it is pretty unlikely that a severely truncated terminus is going to perform its biological function. Hence, we should assign a N or CTERM tag only if this promize can reasonably be realized and give a XXXXX otherwise. What is you opinion on that?
+- unless I am wrong, the various obects (DNA, or protein sequnces, rvd sequence, parts) that the `fasta_file` argument can take are not garanteed to work by a specific test. This may need to be fixed. Also the exact nature of what can be passed to this argument needs more details in the doc (what type of objects concretely?).
 
 
-  - At some point we adressed a question regarding the sorting of the arrays in an object or a plot. I cannot remember. Now, I wonder if it should be done alphabetically on array_id when ploting `tales`. What do you think?
+# Questions/ideas
 
+- Rather that a msa, can one extract from maftt distance between sequence? That could be an alternative to ARLEM.
 
-# Note
+- Shouldn't a tales_msa hold a reference to the actual residues layer (rvd or dom code and distance object reference) used to compute it?
 
-I have added 'comments' for you in the qmd file. The comments can be found because the line starts with @CLAUDE and are single liners.
+- talvez() is currently to take custom rdv <-> nt association matrices. A mecanisms enabling users to suply could be used introduced in a subsequent release of the package as a new feature.
+
+- if nothing is supplied to do something usefull with the extended class builder written by run_annotale_assign. This function is of limited value if this object carries more information than what is aleady covered by the written tables. Even though a bit cumbersome, a parser function could be created to load this info into R. The desirability and the details of the implementaton need to be discussed.
+
+- shouldn't the default values of the `java_args` argument be homogenized across the java functions of tantale?
+
