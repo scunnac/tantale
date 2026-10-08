@@ -29,7 +29,10 @@ no terminus part at the protein level on that side.
 
 A terminus can fail to be canonical in several ways, which
 `array_report.tsv` tells apart (its `*_aa_*` and `*_dna_*` columns, see
-[`tell_tales`](https://scunnac.github.io/tantale/reference/tell_tales.md)).
+[`tell_tales`](https://scunnac.github.io/tantale/reference/tell_tales.md)):
+the segment may be unrelated sequence where the ORF starts or ends
+inside a frameshifted region, its repeat-side part may be in another
+reading frame, or the terminus may have lost a large part of its domain.
 The truncTALEs of *Xanthomonas oryzae* have lost the activation domain,
 and their C-termini are coded `"XXXXX"`. A smaller internal deletion,
 such as the one in the N-terminus of TalC, a major TALE of African *X.

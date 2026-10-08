@@ -10,7 +10,8 @@
 #' Domain-coded strings, one per TALE array
 #'
 #' Renders each array as a separated string of its `dom_code`s in part order,
-#' where each distinct domain sequence is one "residue".
+#' where each distinct domain sequence is one "residue". [tales_align()] and
+#' [tales_tale_distances()] work on arrays in this form.
 #'
 #' @details
 #' This is the sibling of [tales_rvd_strings()] and takes the same two
@@ -26,8 +27,8 @@
 #'
 #' The separator is free to choose here in a way it is not for RVDs: a
 #' `dom_code` is a bare integer rendered as text, so `"1 2 3"` and `"1-2-3"`
-#' are equally unambiguous. It defaults to a space because that is what the
-#' documented consumers of this encoding expect.
+#' are equally unambiguous. It defaults to a space because that is what
+#' MAFFT's text mode expects.
 #'
 #' The termini are kept by default, where [tales_rvd_strings()] drops them.
 #' Target prediction concerns the repeat domain only, so dropping them there

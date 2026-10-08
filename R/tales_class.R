@@ -39,7 +39,10 @@ TALES_DOMAIN_TYPES <- c("N-terminus", "repeat", "C-terminus")
 #'
 #' A terminus can fail to be canonical in several ways, which
 #' \code{array_report.tsv} tells apart (its \code{*_aa_*} and
-#' \code{*_dna_*} columns, see \code{\link{tell_tales}}). The truncTALEs
+#' \code{*_dna_*} columns, see \code{\link{tell_tales}}): the segment may
+#' be unrelated sequence where the ORF starts or ends inside a frameshifted
+#' region, its repeat-side part may be in another reading frame, or the
+#' terminus may have lost a large part of its domain. The truncTALEs
 #' of \emph{Xanthomonas oryzae} have lost the activation domain, and their
 #' C-termini are coded \code{"XXXXX"}. A smaller internal deletion, such as
 #' the one in the N-terminus of TalC, a major TALE of African

@@ -3,74 +3,67 @@
 #'\if{html}{\figure{tantale_logo_small.gif}{options: width=100 alt="tantale_logo"}}
 #'
 #'
-#'@description An integrated collection of functions for TALE mining and
-#'analysis in R.
+#'@description Tools to find the TALE genes of \emph{Xanthomonas} in DNA
+#'sequences, compare and group them, align their repeat arrays and predict
+#'the plant promoter sites they bind. The
+#'\href{https://scunnac.github.io/tantale/}{package website} has worked
+#'examples of each step.
 #'
-#'Please take a look at the package \href{https://scunnac.github.io/tantale/}{website}
-#'for further details.
+#'@section Finding TALEs:
+#'  [tell_tales()] finds TALE genes with HMMER profiles of the TALE domains,
+#'  much as AnnoTALE does, and is written for noisy sequences such as draft
+#'  assemblies or long reads: it can correct frameshifts against reference
+#'  TALEs before AnnoTALE reads out the RVDs. [run_annotale_predict()] runs
+#'  AnnoTALE itself, and [correct_tales()] runs TALEcorrection.
+#'  [tales_from_telltales()] and [tales_from_annotale()] load either result
+#'  as a [tales] object.
 #'
-#'@section A TALE-oriented OOP framework:
+#'@section Working with TALEs in R:
+#'  A [tales] object holds one row per part (N-terminus, repeat or
+#'  C-terminus) of each TALE, and [tales_anomalies()] reports the TALEs
+#'  whose structure is not standard. A [tales_msa] adds the alignment of the
+#'  arrays. [tale_distances] and [domain_distances] objects hold distances
+#'  between TALEs or between their domains.
 #'
-#'  \itemize{
-#'    \item \code{tales}/\code{tales_msa} S3 classes, with subsetting,
-#'    coercion, and plotting methods}
+#'@section Comparing and grouping TALEs:
+#'  [tales_compare_distal()] and [tales_compare_functal()] reimplement the
+#'  DisTAL and FuncTAL comparisons of QueTAL. [tales_group_kmedoids()] and
+#'  [tales_group_hclust()] group TALEs from these distances, and
+#'  [talomes_heatmap()] compares the groups across strains. AnnoTALE's own
+#'  classes come from [run_annotale_build()], and its published catalogue
+#'  from [run_annotale_load_classes()] and [run_annotale_assign()]. The
+#'  [tale_annotations] dataset gives 128 curated TALEs of ten
+#'  \emph{X. oryzae} genomes to compare against.
 #'
+#'@section Aligning TALEs:
+#'  [tales_align()] aligns the RVD or domain sequences of the arrays with
+#'  MAFFT; [tales_consensus()] and the \code{plot()} method summarise the
+#'  alignment.
 #'
-#'@section TALE mining in bacterial sequences:
-#'
-#'  \itemize{
-#'    \item Wrapper around annotale_jar and correcTALE
-#'    \item tell_tales, an R function similar to annotale_jar
-#'    \item Analysis tools for RVD inventory, repeat length}
-#'
-#'
-#'@section TALEs classification, phylogeny:
-#'
-#'  \itemize{
-#'    \item R reimplementations of distal and functal comparisons, plus a
-#'    wrapper around annotale_jar
-#'    \item TALE groups inference
-#'    \item Easily build Multiple alignments and generate nice plots}
-#'
-#'
-#'@section TALE targets mining:
-#'
-#'  \itemize{
-#'    \item Wrappers around target predictors
-#'    \item General parser for results aggregation
-#'    \item Connector with daTALbase (to be done)}
+#'@section Predicting targets:
+#'  [tales_predict_targets()] runs Talvez ([talvez()]) or PrediTALE
+#'  ([preditale()]) on DNA sequences such as promoters, and
+#'  [plot_target_preds()] draws a predicted site with the RVDs facing their
+#'  bases.
 #'
 #'@section Setting up:
+#'  MAFFT, HMMER, mmseqs2 and the Perl that Talvez runs on come from a
+#'  conda environment the package builds for itself, so conda (or mamba, or
+#'  micromamba) is needed for most of the package. [tantale_setup()] called
+#'  bare reports what is present and changes nothing;
+#'  \code{tantale_setup(install = TRUE)} builds or repairs the environment
+#'  and downloads the Java tools (AnnoTALE, PrediTALE, TALEcorrection) and
+#'  the example genomes. It checks tool versions as well as presence: MAFFT
+#'  and HMMER are pinned because later MAFFT versions align TALE repeat
+#'  strings differently.
 #'
-#'  MAFFT, HMMER, mmseqs2 and the Perl dependencies of the target predictors
-#'  come from a conda environment the package builds for itself, so **conda
-#'  (or mamba, or micromamba) is a prerequisite of the main workflow**. The
-#'  Java tools (AnnoTALE, PrediTALE, TALE correction), which have no conda
-#'  package, are downloaded by `tantale_setup(install = TRUE)`. The
-#'  environment is built on first use, so the first call needs a network
-#'  connection and takes a few minutes.
+#'  Without conda, [reticulate::install_miniconda()] installs one from
+#'  inside R. An existing conda, mamba or micromamba is found through
+#'  \code{reticulate::conda_binary()}.
 #'
-#'  Start with [tantale_setup()]. Called bare it reports what is present and
-#'  changes nothing; `tantale_setup(install = TRUE)` builds or repairs the
-#'  environment. It checks **versions** as well as presence, which matters
-#'  because MAFFT changed its `--text` mode gap handling after 7.4x and later
-#'  versions align TALE repeat strings differently -- an environment left
-#'  over from an older tantale gives different alignments from the same
-#'  input, and nothing else would report it.
-#'
-#'  If you have no conda at all, `reticulate` will install one from inside R
-#'  with [reticulate::install_miniconda()] (this installs miniconda). An
-#'  existing conda, mamba or micromamba is found automatically through
-#'  `reticulate::conda_binary()` and used instead.
-#'
-#'@note CAUTIONARY NOTES:
-#'
-#'  \itemize{
-#'    \item tantale has been written with only Linux systems in mind and will very
-#'     likely \strong{not work on other OS} (eg Windows)
-#'    \item Some of tantale wrappers use code written in Java:
-#'     \strong{Java must be on the PATH} in your system.
-#'     [tantale_setup()] checks for it.}
+#'@note tantale runs on Linux and on Intel macOS, the platforms the pinned
+#'  conda tools exist for; it does not run on Windows. The Java tools need
+#'  Java on the PATH, which [tantale_setup()] checks.
 #'
 #'
 #'@importFrom IRanges IRanges

@@ -72,7 +72,10 @@ other segment. An array for which AnnoTALE reported no segment on one side
 has no terminus part at the protein level on that side.</p>
 <p>A terminus can fail to be canonical in several ways, which
 <code>array_report.tsv</code> tells apart (its <code>*_aa_*</code> and
-<code>*_dna_*</code> columns, see <code><a href="tell_tales.html">tell_tales</a></code>). The truncTALEs
+<code>*_dna_*</code> columns, see <code><a href="tell_tales.html">tell_tales</a></code>): the segment may
+be unrelated sequence where the ORF starts or ends inside a frameshifted
+region, its repeat-side part may be in another reading frame, or the
+terminus may have lost a large part of its domain. The truncTALEs
 of <em>Xanthomonas oryzae</em> have lost the activation domain, and their
 C-termini are coded <code>"XXXXX"</code>. A smaller internal deletion, such as
 the one in the N-terminus of TalC, a major TALE of African

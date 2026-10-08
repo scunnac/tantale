@@ -1478,15 +1478,16 @@
 #'   }
 #'
 #'   Both keep the pseudogenes. Their frameshifts came from high-quality
-#'   genomes and so are assumed real. Correction is meant to recover a
-#'   sequence as it exists in nature rather than reshape every array into an
-#'   intact TALE.
+#'   genomes and so are assumed real. A reference holding only intact TALEs
+#'   would "repair" a genuine pseudogene into an ORF that no strain carries.
 #' @param max_comparisons How many reference proteins each array may be
 #'   aligned against during frameshift correction, and the main control on
 #'   how long correction takes. \code{NULL} allows all of them. It is
 #'   passed to \code{DECIPHER::CorrectFrameshifts()}, which ranks the
 #'   references by a quick distance and aligns the array against the closest
-#'   \code{max_comparisons} of them.
+#'   \code{max_comparisons} of them. The
+#'   \href{https://scunnac.github.io/tantale/articles/tale_mining.html#sec-max-comparisons}{TALE
+#'   mining article} compares values on the genomes shipped with the package.
 #' @param frameshift Frameshift penalty passed to
 #'   \code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}}'s
 #'   \code{frameShift}. tantale's default is \code{-11}, overriding

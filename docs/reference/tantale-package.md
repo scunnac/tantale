@@ -1,9 +1,10 @@
 # tantale: Transcription Activator-Like Effectors (TALEs) tools
 
-An integrated collection of functions for TALE mining and analysis in R.
-
-Please take a look at the package
-[website](https://scunnac.github.io/tantale/) for further details.
+Tools to find the TALE genes of *Xanthomonas* in DNA sequences, compare
+and group them, align their repeat arrays and predict the plant promoter
+sites they bind. The [package
+website](https://scunnac.github.io/tantale/) has worked examples of each
+step.
 
 ## Details
 
@@ -11,73 +12,102 @@ Please take a look at the package
 
 ## Note
 
-CAUTIONARY NOTES:
+tantale runs on Linux and on Intel macOS, the platforms the pinned conda
+tools exist for; it does not run on Windows. The Java tools need Java on
+the PATH, which
+[`tantale_setup()`](https://scunnac.github.io/tantale/reference/tantale_setup.md)
+checks.
 
-- tantale has been written with only Linux systems in mind and will very
-  likely **not work on other OS** (eg Windows)
+## Finding TALEs
 
-- Some of tantale wrappers use code written in Java: **Java must be on
-  the PATH** in your system.
-  [`tantale_setup()`](https://scunnac.github.io/tantale/reference/tantale_setup.md)
-  checks for it.
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
+finds TALE genes with HMMER profiles of the TALE domains, much as
+AnnoTALE does, and is written for noisy sequences such as draft
+assemblies or long reads: it can correct frameshifts against reference
+TALEs before AnnoTALE reads out the RVDs.
+[`run_annotale_predict()`](https://scunnac.github.io/tantale/reference/run_annotale_predict.md)
+runs AnnoTALE itself, and
+[`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
+runs TALEcorrection.
+[`tales_from_telltales()`](https://scunnac.github.io/tantale/reference/tales_from_telltales.md)
+and
+[`tales_from_annotale()`](https://scunnac.github.io/tantale/reference/tales_from_annotale.md)
+load either result as a
+[tales](https://scunnac.github.io/tantale/reference/tales.md) object.
 
-## A TALE-oriented OOP framework
+## Working with TALEs in R
 
-- `tales`/`tales_msa` S3 classes, with subsetting, coercion, and
-  plotting methods
+A [tales](https://scunnac.github.io/tantale/reference/tales.md) object
+holds one row per part (N-terminus, repeat or C-terminus) of each TALE,
+and
+[`tales_anomalies()`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
+reports the TALEs whose structure is not standard. A
+[tales_msa](https://scunnac.github.io/tantale/reference/tales_msa.md)
+adds the alignment of the arrays.
+[tale_distances](https://scunnac.github.io/tantale/reference/pairwise_distances.md)
+and
+[domain_distances](https://scunnac.github.io/tantale/reference/pairwise_distances.md)
+objects hold distances between TALEs or between their domains.
 
-## TALE mining in bacterial sequences
+## Comparing and grouping TALEs
 
-- Wrapper around annotale_jar and correcTALE
+[`tales_compare_distal()`](https://scunnac.github.io/tantale/reference/tales_compare_distal.md)
+and
+[`tales_compare_functal()`](https://scunnac.github.io/tantale/reference/tales_compare_functal.md)
+reimplement the DisTAL and FuncTAL comparisons of QueTAL.
+[`tales_group_kmedoids()`](https://scunnac.github.io/tantale/reference/tales_group_kmedoids.md)
+and
+[`tales_group_hclust()`](https://scunnac.github.io/tantale/reference/tales_group_hclust.md)
+group TALEs from these distances, and
+[`talomes_heatmap()`](https://scunnac.github.io/tantale/reference/talomes_heatmap.md)
+compares the groups across strains. AnnoTALE's own classes come from
+[`run_annotale_build()`](https://scunnac.github.io/tantale/reference/run_annotale_build.md),
+and its published catalogue from
+[`run_annotale_load_classes()`](https://scunnac.github.io/tantale/reference/run_annotale_load_classes.md)
+and
+[`run_annotale_assign()`](https://scunnac.github.io/tantale/reference/run_annotale_assign.md).
+The
+[tale_annotations](https://scunnac.github.io/tantale/reference/tale_annotations.md)
+dataset gives 128 curated TALEs of ten *X. oryzae* genomes to compare
+against.
 
-- tell_tales, an R function similar to annotale_jar
+## Aligning TALEs
 
-- Analysis tools for RVD inventory, repeat length
+[`tales_align()`](https://scunnac.github.io/tantale/reference/tales_align.md)
+aligns the RVD or domain sequences of the arrays with MAFFT;
+[`tales_consensus()`](https://scunnac.github.io/tantale/reference/tales_consensus.md)
+and the [`plot()`](https://rdrr.io/r/graphics/plot.default.html) method
+summarise the alignment.
 
-## TALEs classification, phylogeny
+## Predicting targets
 
-- R reimplementations of distal and functal comparisons, plus a wrapper
-  around annotale_jar
-
-- TALE groups inference
-
-- Easily build Multiple alignments and generate nice plots
-
-## TALE targets mining
-
-- Wrappers around target predictors
-
-- General parser for results aggregation
-
-- Connector with daTALbase (to be done)
+[`tales_predict_targets()`](https://scunnac.github.io/tantale/reference/tales_predict_targets.md)
+runs Talvez
+([`talvez()`](https://scunnac.github.io/tantale/reference/talvez.md)) or
+PrediTALE
+([`preditale()`](https://scunnac.github.io/tantale/reference/preditale.md))
+on DNA sequences such as promoters, and
+[`plot_target_preds()`](https://scunnac.github.io/tantale/reference/plot_target_preds.md)
+draws a predicted site with the RVDs facing their bases.
 
 ## Setting up
 
-MAFFT, HMMER, mmseqs2 and the Perl dependencies of the target predictors
-come from a conda environment the package builds for itself, so **conda
-(or mamba, or micromamba) is a prerequisite of the main workflow**. The
-Java tools (AnnoTALE, PrediTALE, TALE correction), which have no conda
-package, are downloaded by `tantale_setup(install = TRUE)`. The
-environment is built on first use, so the first call needs a network
-connection and takes a few minutes.
+MAFFT, HMMER, mmseqs2 and the Perl that Talvez runs on come from a conda
+environment the package builds for itself, so conda (or mamba, or
+micromamba) is needed for most of the package.
+[`tantale_setup()`](https://scunnac.github.io/tantale/reference/tantale_setup.md)
+called bare reports what is present and changes nothing;
+`tantale_setup(install = TRUE)` builds or repairs the environment and
+downloads the Java tools (AnnoTALE, PrediTALE, TALEcorrection) and the
+example genomes. It checks tool versions as well as presence: MAFFT and
+HMMER are pinned because later MAFFT versions align TALE repeat strings
+differently.
 
-Start with
-[`tantale_setup()`](https://scunnac.github.io/tantale/reference/tantale_setup.md).
-Called bare it reports what is present and changes nothing;
-`tantale_setup(install = TRUE)` builds or repairs the environment. It
-checks **versions** as well as presence, which matters because MAFFT
-changed its `--text` mode gap handling after 7.4x and later versions
-align TALE repeat strings differently – an environment left over from an
-older tantale gives different alignments from the same input, and
-nothing else would report it.
-
-If you have no conda at all, `reticulate` will install one from inside R
-with
+Without conda,
 [`reticulate::install_miniconda()`](https://rstudio.github.io/reticulate/reference/install_miniconda.html)
-(this installs miniconda). An existing conda, mamba or micromamba is
-found automatically through
-[`reticulate::conda_binary()`](https://rstudio.github.io/reticulate/reference/conda-tools.html)
-and used instead.
+installs one from inside R. An existing conda, mamba or micromamba is
+found through
+[`reticulate::conda_binary()`](https://rstudio.github.io/reticulate/reference/conda-tools.html).
 
 ## See also
 

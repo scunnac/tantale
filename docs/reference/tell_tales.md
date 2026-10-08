@@ -158,9 +158,9 @@ tell_tales(
     diversity-sampled subset, for a smaller footprint.
 
   Both keep the pseudogenes. Their frameshifts came from high-quality
-  genomes and so are assumed real. Correction is meant to recover a
-  sequence as it exists in nature rather than reshape every array into
-  an intact TALE.
+  genomes and so are assumed real. A reference holding only intact TALEs
+  would "repair" a genuine pseudogene into an ORF that no strain
+  carries.
 
 - max_comparisons:
 
@@ -169,7 +169,9 @@ tell_tales(
   takes. `NULL` allows all of them. It is passed to
   [`DECIPHER::CorrectFrameshifts()`](https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html),
   which ranks the references by a quick distance and aligns the array
-  against the closest `max_comparisons` of them.
+  against the closest `max_comparisons` of them. The [TALE mining
+  article](https://scunnac.github.io/tantale/articles/tale_mining.html#sec-max-comparisons)
+  compares values on the genomes shipped with the package.
 
 - frameshift:
 
@@ -411,13 +413,13 @@ tell_tales(subject_file = subj, output_dir = out)
 #> Now running AnnoTALE analyze for ROI_00004
 #> #****************************************
 #> #**   tell_tales analysis done     **
-#> Current date:    Fri Oct  9 00:39:48 2026
+#> Current date:    Fri Oct  9 01:11:33 2026
 #> #_________Provided I/O parameters __________
 #> File of subject DNA sequences:   /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/bai3_sample_tal_genomic_regions.fasta
 #> TALE N-term CDS region detection HMM file:   /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Nterm_CDS_profile.hmm
 #> TALE repeat unit CDS detection HMM file: /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_repeat_CDS_profile.hmm
 #> TALE C-term CDS region detection HMM file:   /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Cterm_CDS_profile.hmm
-#> Output directory:    /tmp/Rtmp3232ae/tell_tales_examplea465d1d38955b
+#> Output directory:    /tmp/Rtmp17aOMt/tell_tales_exampleae2b43e9a4994
 #> #____________Other parameters________________
 #> nterm_min_score: 300
 #> repeat_min_score:    20
