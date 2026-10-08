@@ -4431,3 +4431,53 @@ differs by rounding; 23 of 26 fixed-pattern lints fixed (left: one in
 duplicate-argument lints on HEAD (20 in the bot's) are all repeated
 `"i"`/`"x"` cli bullets; `%||%` has four call sites; the five Imports
 the bot's table shows as NA all have `pkg::` calls.
+
+## 61. The maintainer's notes of 2026-10-08 and the f85a290 review (2026-10-09) **[P]**
+
+`dev/notes_for_claude.md` was rewritten by the maintainer in f85a290 (a
+documentation pass whose `devtools::document()` had not been run). Items
+triaged as Q219-Q230; the maintainer agreed with every recommendation
+unless noted.
+
+**Done.** Rd regenerated, two typos of f85a290 fixed (620271b). Review
+of f85a290 (ecbafcb): the `?tales_anomalies` list repaired (missing
+comma, trailing spaces, "In contrast ... instead" doubled), the three
+`*_min_score` params all say "DNA hit", "TALES" and "key arrays
+features" in the Get started page; page re-rendered. Q219: `talvez()`
+and `preditale()` return `taleId`, `rvds`, `subjSeqId`, `start`, `end`,
+`strand`, `ebeSeq`, `score`, then `rank`/`pval` (constant
+`PREDICTION_COLS`); `talvez()` no longer selects columns by position (it
+dropped `TALBS_distance_from_end`); `tales_predict_targets()` puts
+`method` before the tool's column. Talvez's `RANK` is the site's rank
+among the TALE's predictions by score (checked on `output_complete`).
+Running both methods in one call is deferred. Q220: `?tales_consensus`
+documents the matrix and the `as.matrix()` route, with an example. Q221:
+`plot_target_preds()` example shows the best site with 10 bp either
+side. Q222: `talomes_heatmap(group_col = "group")`; no other column has
+a tantale-made default (maintainer). Q225: `run_annotale_assign()`'s
+`fasta_file` lists the four input forms, from AnnoTALE's own usage text
+(`assign` without arguments) and the files `run_annotale_predict()`
+writes (checked on a real run); no tests (maintainer). The passive
+"Each TALE given is placed" rewritten. Q227: `tales_align()` stores
+`alignment_params` (`residue_col`, `domain_distances`, `mafft_opts`),
+carried by `[`/dplyr like `alignment_width`, dropped on demotion;
+exported accessor `tales_msa_params()`. Q230: `java_args` docs share one
+rule (the default, then "raise `-Xmx` if it runs out of memory"); `""`
+documented as Java's default heap, a quarter of physical memory
+(`MaxRAMPercentage` 25 checked).
+
+**Parked.** Q226 (MAFFT distances instead of ARLEM): MAFFT 7.453 has
+`--distout`, writing `<input>.hat2`; with `--localpair` these come from
+the local pairwise alignments, not k-mer counts, so a comparison against
+`tale_distances` on `tale_annotations` is worth an experiment after
+1.0.0. Q228 (custom RVD-nucleotide matrices for `talvez()`): a post-1.0
+feature, with §55. Q229 (parser for the extended class builder): §57
+found the XML is Jstacs serialisation, mostly cached pairwise
+alignments; the class of each TALE given is already in
+`TALE_names_(<strain>).tsv`. No parser; possibly a reader for that
+table instead.
+
+**Open.** Q223 (`?tantale-package` list, sent to the maintainer), Q224
+(passive-voice sweep: 203 candidate lines in `R/`, 69 in the articles,
+README and home page; to be triaged into a list of proposed rewrites),
+Q231-Q238 (new, in the reply of 2026-10-09).
