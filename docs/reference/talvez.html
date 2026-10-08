@@ -113,10 +113,13 @@ reticulate package functions.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A tibble with the EBE predictions. <strong>Note that column names
-have been modified</strong> relative to the column names found in the original
-program's output in order to homogenize column names across TALE target
-prediction programs in tantale.</p>
+    <p>A tibble with one row per predicted EBE (effector binding
+element), the columns renamed from the tool's own output so that
+<code>talvez</code> and <code><a href="preditale.html">preditale</a></code> return the same ones
+in the same order: <code>taleId</code>, <code>rvds</code>, <code>subjSeqId</code>,
+<code>start</code>, <code>end</code>, <code>strand</code>, <code>ebeSeq</code> and
+<code>score</code>, followed by the tool's own column: <code>rank</code>, the
+site's rank among the TALE's predictions by score.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -145,17 +148,17 @@ first use.</p>
 <span class="r-in"><span><span class="va">preds</span> <span class="op">&lt;-</span> <span class="fu">talvez</span><span class="op">(</span>rvd_seqs <span class="op">=</span> <span class="va">rvds</span>, subj_file <span class="op">=</span> <span class="va">subj</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Invoking Talvez using the following command:</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> '/home/cunnac/mamba/envs/tantale/bin/perl' TALVEZ_3.2.pl -t 0 -l 19 -e mat1 -z</span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> mat2 'rvdSeqsTalvez_994ff25d467e8.tsv' 'cladeIII_sweet_promoters.fasta'</span>
+<span class="r-msg co"><span class="r-pr">#&gt;</span> mat2 'rvdSeqsTalvez_a465d15b3a8a9.tsv' 'cladeIII_sweet_promoters.fasta'</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">preds</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 6 × 9</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   taleId    rvds                 subjSeqId score strand start   end ebeSeq  rank</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> ROI_00001 NN-NG-NN-HD-HD-NI-N… SWEET11p… 10.0  -        980  <span style="text-decoration: underline;">1</span>006 TGTAC…     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> ROI_00001 NN-NG-NN-HD-HD-NI-N… SWEET14p…  6.35 -        160   186 TGTTT…     2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> ROI_00002 NN-HD-NI-NN-HD-NG-H… SWEET11p…  6.96 +       <span style="text-decoration: underline;">1</span>395  <span style="text-decoration: underline;">1</span>409 TGTAC…     1</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> ROI_00002 NN-HD-NI-NN-HD-NG-H… SWEET11p…  6.66 +       <span style="text-decoration: underline;">1</span>489  <span style="text-decoration: underline;">1</span>503 TCCAG…     2</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> ROI_00002 NN-HD-NI-NN-HD-NG-H… SWEET11p…  6.53 +        135   149 TGCAT…     3</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> ROI_00002 NN-HD-NI-NN-HD-NG-H… SWEET11p…  6.53 +        130   144 TGCAT…     4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   taleId    rvds                 subjSeqId start   end strand ebeSeq score  rank</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> ROI_00001 NN-NG-NN-HD-HD-NI-N… SWEET11p…   980  <span style="text-decoration: underline;">1</span>006 -      TGTAC… 10.0      1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">2</span> ROI_00001 NN-NG-NN-HD-HD-NI-N… SWEET14p…   160   186 -      TGTTT…  6.35     2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">3</span> ROI_00002 NN-HD-NI-NN-HD-NG-H… SWEET11p…  <span style="text-decoration: underline;">1</span>395  <span style="text-decoration: underline;">1</span>409 +      TGTAC…  6.96     1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">4</span> ROI_00002 NN-HD-NI-NN-HD-NG-H… SWEET11p…  <span style="text-decoration: underline;">1</span>489  <span style="text-decoration: underline;">1</span>503 +      TCCAG…  6.66     2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">5</span> ROI_00002 NN-HD-NI-NN-HD-NG-H… SWEET11p…   135   149 +      TGCAT…  6.53     3</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">6</span> ROI_00002 NN-HD-NI-NN-HD-NG-H… SWEET11p…   130   144 +      TGCAT…  6.53     4</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

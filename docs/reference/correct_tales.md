@@ -62,9 +62,10 @@ correct_tales(
 - java_args:
 
   A single string of options for the Java virtual machine, placed before
-  `-jar`, such as `"-Xmx8G"` to raise its memory limit. The default,
-  `""`, leaves Java's own defaults. TALEcorrection itself takes no
-  options beyond its inputs.
+  `-jar`. The default, `""`, leaves Java's own defaults (a heap of up to
+  a quarter of the physical memory); give a `-Xmx` value, such as
+  `"-Xmx8G"`, if TALEcorrection runs out of memory. TALEcorrection
+  itself takes no options beyond its inputs.
 
 ## Value
 
@@ -90,6 +91,6 @@ out_fa <- tempfile(fileext = ".fa")
 correct_tales(uncorrected_path = subj, corrected_path = out_fa)
 #> Running nHMMER
 #> Performing TALEs cds correction on provided sequences.
-#> [1] "/tmp/Rtmpa8Rb5w/file994ff64c965f3.fa"
+#> [1] "/tmp/Rtmp3232ae/filea465d6fdc9022.fa"
 # }
 ```

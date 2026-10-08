@@ -79,7 +79,10 @@ tales_align(
 
 ## Value
 
-A `tales_msa` object.
+A `tales_msa` object. The settings it was aligned with (`residue_col`,
+`domain_distances`, `mafft_opts`) are kept with it;
+[`tales_msa_params`](https://scunnac.github.io/tantale/reference/tales_msa_params.md)
+returns them.
 
 ## Details
 
@@ -98,6 +101,7 @@ Other TALE alignment:
 [`tales_consensus()`](https://scunnac.github.io/tantale/reference/tales_consensus.md),
 [`tales_consensus_match()`](https://scunnac.github.io/tantale/reference/tales_consensus_match.md),
 [`tales_msa()`](https://scunnac.github.io/tantale/reference/tales_msa.md),
+[`tales_msa_params()`](https://scunnac.github.io/tantale/reference/tales_msa_params.md),
 [`tales_msa_width()`](https://scunnac.github.io/tantale/reference/tales_msa_width.md),
 [`validate_tales_msa()`](https://scunnac.github.io/tantale/reference/validate_tales_msa.md)
 

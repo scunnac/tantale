@@ -131,7 +131,9 @@ fails, so nothing is lost for diagnosis.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A <code>tales_msa</code> object.</p>
+    <p>A <code>tales_msa</code> object. The settings it was aligned with
+(<code>residue_col</code>, <code>domain_distances</code>, <code>mafft_opts</code>) are
+kept with it; <code><a href="tales_msa_params.html">tales_msa_params</a></code> returns them.</p>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
@@ -148,6 +150,7 @@ this function builds MAFFT's input from <code>x</code> itself, which is why
 <code><a href="tales_consensus.html">tales_consensus()</a></code>,
 <code><a href="tales_consensus_match.html">tales_consensus_match()</a></code>,
 <code><a href="tales_msa.html">tales_msa()</a></code>,
+<code><a href="tales_msa_params.html">tales_msa_params()</a></code>,
 <code><a href="tales_msa_width.html">tales_msa_width()</a></code>,
 <code><a href="validate_tales_msa.html">validate_tales_msa()</a></code></p></div>
     </div>

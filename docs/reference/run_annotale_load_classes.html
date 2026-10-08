@@ -104,8 +104,8 @@ sets itself (<code>c</code>, <code>cb</code>, <code>outdir</code>) are refused: 
 <dt id="arg-java-args">java_args<a class="anchor" aria-label="anchor" href="#arg-java-args"></a></dt>
 <dd><p>A single string of options for the Java virtual
 machine, placed before <code>-jar</code>. The default raises the heap to 8
-GB, which the catalogue needs; rebuilding it was seen to hold 1.8 GB
-resident.</p></dd>
+GB, which the catalogue needs (rebuilding it was seen to hold 1.8 GB
+resident); raise <code>-Xmx</code> if it runs out of memory.</p></dd>
 
 
 <dt id="arg-annotale-jar">annotale_jar<a class="anchor" aria-label="anchor" href="#arg-annotale-jar"></a></dt>

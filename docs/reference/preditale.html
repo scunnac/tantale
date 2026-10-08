@@ -121,10 +121,13 @@ runs out of memory on a large subject.</p></dd>
 </dl></div>
     <div class="section level2">
     <h2 id="value">Value<a class="anchor" aria-label="anchor" href="#value"></a></h2>
-    <p>A tibble with the EBE predictions. <strong>Note that column names
-have been modified</strong> relative to the column names found in the original
-program's output in order to homogenize column names across TALE target
-prediction programs in tantale</p>
+    <p>A tibble with one row per predicted EBE (effector binding
+element), the columns renamed from the tool's own output so that
+<code><a href="talvez.html">talvez</a></code> and <code>preditale</code> return the same ones
+in the same order: <code>taleId</code>, <code>rvds</code>, <code>subjSeqId</code>,
+<code>start</code>, <code>end</code>, <code>strand</code>, <code>ebeSeq</code> and
+<code>score</code>, followed by the tool's own column: <code>pval</code>, the
+approximate p-value PrediTALE gives each site.</p>
     </div>
     <div class="section level2">
     <h2 id="see-also">See also<a class="anchor" aria-label="anchor" href="#see-also"></a></h2>
@@ -146,9 +149,9 @@ prediction programs in tantale</p>
 <span class="r-in"><span><span class="va">preds</span> <span class="op">&lt;-</span> <span class="fu">preditale</span><span class="op">(</span>rvd_seqs <span class="op">=</span> <span class="va">rvds</span>, subj_file <span class="op">=</span> <span class="va">subj</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">preds</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #949494;"># A tibble: 1 × 9</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   subjSeqId            start   end strand score ebeSeq         pval rvds  taleId</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>                <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>         <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span> </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> SWEET11p_93-11_Sense   210   236 +      0.242 TATAAAAATG… 5.86<span style="color: #949494;">e</span><span style="color: #BB0000;">-5</span> NN-N… ROI_0…</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   taleId    rvds               subjSeqId start   end strand ebeSeq score    pval</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>              <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>     <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span> <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;chr&gt;</span>  <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span>   <span style="color: #949494; font-style: italic;">&lt;dbl&gt;</span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> <span style="color: #BCBCBC;">1</span> ROI_00001 NN-NG-NN-HD-HD-NI… SWEET11p…   210   236 +      TATAA… 0.242 5.86<span style="color: #949494;">e</span><span style="color: #BB0000;">-5</span></span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

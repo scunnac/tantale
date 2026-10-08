@@ -1,8 +1,8 @@
 # Assign TALEs to AnnoTALE's published classes
 
-An R wrapper around the 'AnnoTALEcli.jar assign' call. Each TALE given
-is placed in the class of the catalogue it belongs to, and any that fit
-none open a new class. Where
+An R wrapper around the 'AnnoTALEcli.jar assign' call. AnnoTALE places
+each TALE in the class of the catalogue it belongs to, and opens a new
+class for any that fit none. Where
 [`run_annotale_build`](https://scunnac.github.io/tantale/reference/run_annotale_build.md)
 groups the TALEs you hand it among themselves, knowing nothing of what
 the rest of the world calls them, this one answers "which published
@@ -28,10 +28,25 @@ run_annotale_assign(
 
 - fasta_file:
 
-  Path to the TALEs to assign: DNA or protein sequences, RVD sequences,
-  or the `TALE DNA parts`/`TALE Protein parts` written by
-  [`run_annotale_predict`](https://scunnac.github.io/tantale/reference/run_annotale_predict.md)'s
-  analyze stage.
+  Path to a FASTA file of the TALEs to assign, one record per TALE (or
+  per TALE part), in one of these forms:
+
+  - full-length TALE coding sequences, such as the
+    `Predict/TALE_DNA_sequences_*.fasta` file
+    [`run_annotale_predict`](https://scunnac.github.io/tantale/reference/run_annotale_predict.md)
+    writes;
+
+  - the corresponding protein sequences, such as its
+    `Predict/TALE_protein_sequences_*.fasta`;
+
+  - the parts of each TALE, one record per N-terminus, repeat and
+    C-terminus, as in its `Analyze/TALE_DNA_parts.fasta` or
+    `Analyze/TALE_Protein_parts.fasta`;
+
+  - RVD sequences, the RVDs separated by hyphens (`NI-HD-NG-NN-...`), as
+    in its `Analyze/TALE_RVDs.fasta` or the shipped
+    `Sample_TALEs_RVDSeqs_AnnoTALE.fasta`
+    (`system.file("extdata", package = "tantale")`).
 
 - class_builder:
 
@@ -67,7 +82,7 @@ run_annotale_assign(
 
   A single string of options for the Java virtual machine, placed before
   `-jar`. The default raises the heap to 8 GB, which reading the
-  catalogue needs.
+  catalogue needs; raise `-Xmx` if it runs out of memory.
 
 - annotale_jar:
 

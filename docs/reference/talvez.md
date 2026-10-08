@@ -60,10 +60,13 @@ talvez(
 
 ## Value
 
-A tibble with the EBE predictions. **Note that column names have been
-modified** relative to the column names found in the original program's
-output in order to homogenize column names across TALE target prediction
-programs in tantale.
+A tibble with one row per predicted EBE (effector binding element), the
+columns renamed from the tool's own output so that `talvez` and
+[`preditale`](https://scunnac.github.io/tantale/reference/preditale.md)
+return the same ones in the same order: `taleId`, `rvds`, `subjSeqId`,
+`start`, `end`, `strand`, `ebeSeq` and `score`, followed by the tool's
+own column: `rank`, the site's rank among the TALE's predictions by
+score.
 
 ## Details
 
@@ -92,16 +95,16 @@ subj <- system.file("extdata", "cladeIII_sweet_promoters.fasta",
 preds <- talvez(rvd_seqs = rvds, subj_file = subj)
 #> Invoking Talvez using the following command:
 #> '/home/cunnac/mamba/envs/tantale/bin/perl' TALVEZ_3.2.pl -t 0 -l 19 -e mat1 -z
-#> mat2 'rvdSeqsTalvez_994ff25d467e8.tsv' 'cladeIII_sweet_promoters.fasta'
+#> mat2 'rvdSeqsTalvez_a465d15b3a8a9.tsv' 'cladeIII_sweet_promoters.fasta'
 head(preds)
 #> # A tibble: 6 × 9
-#>   taleId    rvds                 subjSeqId score strand start   end ebeSeq  rank
-#>   <chr>     <chr>                <chr>     <dbl> <chr>  <dbl> <dbl> <chr>  <dbl>
-#> 1 ROI_00001 NN-NG-NN-HD-HD-NI-N… SWEET11p… 10.0  -        980  1006 TGTAC…     1
-#> 2 ROI_00001 NN-NG-NN-HD-HD-NI-N… SWEET14p…  6.35 -        160   186 TGTTT…     2
-#> 3 ROI_00002 NN-HD-NI-NN-HD-NG-H… SWEET11p…  6.96 +       1395  1409 TGTAC…     1
-#> 4 ROI_00002 NN-HD-NI-NN-HD-NG-H… SWEET11p…  6.66 +       1489  1503 TCCAG…     2
-#> 5 ROI_00002 NN-HD-NI-NN-HD-NG-H… SWEET11p…  6.53 +        135   149 TGCAT…     3
-#> 6 ROI_00002 NN-HD-NI-NN-HD-NG-H… SWEET11p…  6.53 +        130   144 TGCAT…     4
+#>   taleId    rvds                 subjSeqId start   end strand ebeSeq score  rank
+#>   <chr>     <chr>                <chr>     <dbl> <dbl> <chr>  <chr>  <dbl> <dbl>
+#> 1 ROI_00001 NN-NG-NN-HD-HD-NI-N… SWEET11p…   980  1006 -      TGTAC… 10.0      1
+#> 2 ROI_00001 NN-NG-NN-HD-HD-NI-N… SWEET14p…   160   186 -      TGTTT…  6.35     2
+#> 3 ROI_00002 NN-HD-NI-NN-HD-NG-H… SWEET11p…  1395  1409 +      TGTAC…  6.96     1
+#> 4 ROI_00002 NN-HD-NI-NN-HD-NG-H… SWEET11p…  1489  1503 +      TCCAG…  6.66     2
+#> 5 ROI_00002 NN-HD-NI-NN-HD-NG-H… SWEET11p…   135   149 +      TGCAT…  6.53     3
+#> 6 ROI_00002 NN-HD-NI-NN-HD-NG-H… SWEET11p…   130   144 +      TGCAT…  6.53     4
 # }
 ```

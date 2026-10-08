@@ -12,7 +12,13 @@ tales_consensus(align)
 
 - align:
 
-  A multiple Tal sequences alignment in the form of a matrix.
+  A TALE alignment as a character matrix, one row per array and one
+  column per alignment position, with `NA` for gaps.
+  [`as.matrix()`](https://rdrr.io/r/base/matrix.html) on a
+  [`tales_msa`](https://scunnac.github.io/tantale/reference/tales_msa.md)
+  returns one (see
+  [`as.matrix.tales_msa`](https://scunnac.github.io/tantale/reference/as.matrix.tales_msa.md)),
+  filled with RVDs or domain codes.
 
 ## Value
 
@@ -34,6 +40,7 @@ Other TALE alignment:
 [`tales_align()`](https://scunnac.github.io/tantale/reference/tales_align.md),
 [`tales_consensus_match()`](https://scunnac.github.io/tantale/reference/tales_consensus_match.md),
 [`tales_msa()`](https://scunnac.github.io/tantale/reference/tales_msa.md),
+[`tales_msa_params()`](https://scunnac.github.io/tantale/reference/tales_msa_params.md),
 [`tales_msa_width()`](https://scunnac.github.io/tantale/reference/tales_msa_width.md),
 [`validate_tales_msa()`](https://scunnac.github.io/tantale/reference/validate_tales_msa.md)
 
@@ -51,4 +58,14 @@ aln
 #> A3 "NI" "HD"
 tales_consensus(aln)
 #> [1] "HD" NA  
+
+# From a tales_msa, such as tales_align() returns
+msa <- tales_msa(data.frame(
+  array_id = c("A1", "A1", "A1", "A2", "A2", "A3", "A3", "A3"),
+  position_in_array = c(1L, 2L, 3L, 1L, 2L, 1L, 2L, 3L),
+  alignment_position = c(1L, 2L, 3L, 1L, 3L, 1L, 2L, 3L),
+  rvd = c("NTERM", "HD", "CTERM", "NTERM", "CTERM", "NTERM", "HD", "CTERM")
+))
+tales_consensus(as.matrix(msa))
+#> [1] "NTERM" "HD"    "CTERM"
 ```

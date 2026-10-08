@@ -16,7 +16,13 @@ tales_consensus_match(align, long = TRUE)
 
 - align:
 
-  A multiple Tal sequences alignment in the form of a matrix.
+  A TALE alignment as a character matrix, one row per array and one
+  column per alignment position, with `NA` for gaps.
+  [`as.matrix()`](https://rdrr.io/r/base/matrix.html) on a
+  [`tales_msa`](https://scunnac.github.io/tantale/reference/tales_msa.md)
+  returns one (see
+  [`as.matrix.tales_msa`](https://scunnac.github.io/tantale/reference/as.matrix.tales_msa.md)),
+  filled with RVDs or domain codes.
 
 - long:
 
@@ -37,6 +43,7 @@ Other TALE alignment:
 [`tales_align()`](https://scunnac.github.io/tantale/reference/tales_align.md),
 [`tales_consensus()`](https://scunnac.github.io/tantale/reference/tales_consensus.md),
 [`tales_msa()`](https://scunnac.github.io/tantale/reference/tales_msa.md),
+[`tales_msa_params()`](https://scunnac.github.io/tantale/reference/tales_msa_params.md),
 [`tales_msa_width()`](https://scunnac.github.io/tantale/reference/tales_msa_width.md),
 [`validate_tales_msa()`](https://scunnac.github.io/tantale/reference/validate_tales_msa.md)
 

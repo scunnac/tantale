@@ -70,8 +70,10 @@ there is nothing there to match.</p>
 
 
 <dl><dt id="arg-align">align<a class="anchor" aria-label="anchor" href="#arg-align"></a></dt>
-<dd><p>A multiple Tal sequences alignment in the form of a
-matrix.</p></dd>
+<dd><p>A TALE alignment as a character matrix, one row per array
+and one column per alignment position, with <code>NA</code> for gaps.
+<code><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix()</a></code> on a <code><a href="tales_msa.html">tales_msa</a></code> returns one (see
+<code><a href="as.matrix.tales_msa.html">as.matrix.tales_msa</a></code>), filled with RVDs or domain codes.</p></dd>
 
 
 <dt id="arg-long">long<a class="anchor" aria-label="anchor" href="#arg-long"></a></dt>
@@ -94,6 +96,7 @@ a long tibble representing the original alignment otherwise (default).</p>
 <code><a href="tales_align.html">tales_align()</a></code>,
 <code><a href="tales_consensus.html">tales_consensus()</a></code>,
 <code><a href="tales_msa.html">tales_msa()</a></code>,
+<code><a href="tales_msa_params.html">tales_msa_params()</a></code>,
 <code><a href="tales_msa_width.html">tales_msa_width()</a></code>,
 <code><a href="validate_tales_msa.html">validate_tales_msa()</a></code></p></div>
     </div>

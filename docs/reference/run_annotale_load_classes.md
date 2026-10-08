@@ -46,8 +46,9 @@ run_annotale_load_classes(
 - java_args:
 
   A single string of options for the Java virtual machine, placed before
-  `-jar`. The default raises the heap to 8 GB, which the catalogue
-  needs; rebuilding it was seen to hold 1.8 GB resident.
+  `-jar`. The default raises the heap to 8 GB, which the catalogue needs
+  (rebuilding it was seen to hold 1.8 GB resident); raise `-Xmx` if it
+  runs out of memory.
 
 - annotale_jar:
 

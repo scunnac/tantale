@@ -247,6 +247,8 @@ Multiple alignment of TALE arrays and consensus over it.
   : Do elements in a TALE msa match the consensus?
 - [`tales_msa()`](https://scunnac.github.io/tantale/reference/tales_msa.md)
   : Create a tales_msa object
+- [`tales_msa_params()`](https://scunnac.github.io/tantale/reference/tales_msa_params.md)
+  : Settings a TALE alignment was made with
 - [`tales_msa_width()`](https://scunnac.github.io/tantale/reference/tales_msa_width.md)
   : Width of a TALE alignment
 - [`validate_tales_msa()`](https://scunnac.github.io/tantale/reference/validate_tales_msa.md)

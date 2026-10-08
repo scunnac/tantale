@@ -45,6 +45,7 @@ Other TALE alignment:
 [`tales_align()`](https://scunnac.github.io/tantale/reference/tales_align.md),
 [`tales_consensus()`](https://scunnac.github.io/tantale/reference/tales_consensus.md),
 [`tales_consensus_match()`](https://scunnac.github.io/tantale/reference/tales_consensus_match.md),
+[`tales_msa_params()`](https://scunnac.github.io/tantale/reference/tales_msa_params.md),
 [`tales_msa_width()`](https://scunnac.github.io/tantale/reference/tales_msa_width.md),
 [`validate_tales_msa()`](https://scunnac.github.io/tantale/reference/validate_tales_msa.md)
 

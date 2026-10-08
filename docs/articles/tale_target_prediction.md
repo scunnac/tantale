@@ -24,11 +24,11 @@ models where a real EBE tends to sit relative to a transcription start
 site. Both are wrapped as
 [`talvez()`](https://scunnac.github.io/tantale/reference/talvez.md) and
 [`preditale()`](https://scunnac.github.io/tantale/reference/preditale.md),
-which take the same inputs and share their core columns (`taleId`,
-`subjSeqId`, `start`, `end`, `strand`, `score`, `ebeSeq`), so their
-predictions can be compared directly. Their scores are on different
-scales, though, and each adds its own column: `rank` for TALVEZ, `pval`
-for PrediTALE.
+which take the same inputs and return the same core columns in the same
+order (`taleId`, `rvds`, `subjSeqId`, `start`, `end`, `strand`,
+`ebeSeq`, `score`), so their predictions can be compared directly. Their
+scores are on different scales, though, and each adds its own column
+last: `rank` for TALVEZ, `pval` for PrediTALE.
 
 ## 1 Getting RVD sequences to predict with
 
@@ -83,13 +83,13 @@ Code
 ``` r
 talvez_preds |> arrange(desc(score)) |> head(5)
 #> # A tibble: 5 × 9
-#>   taleId         rvds            subjSeqId score strand start   end ebeSeq  rank
-#>   <chr>          <chr>           <chr>     <dbl> <chr>  <dbl> <dbl> <chr>  <dbl>
-#> 1 MAI1_ROI_00010 NN-HD-NN-HD-NG… SWEET14p…  15.1 +        430   448 TAAGC…     1
-#> 2 MAI1_ROI_00010 NN-HD-NN-HD-NG… SWEET14p…  15.1 +        426   444 TAAGC…     2
-#> 3 BAI3_ROI_00001 NS-NG-NS-HD-NI… SWEET14p…  15.0 +        346   368 CATGC…     1
-#> 4 BAI3_ROI_00001 NS-NG-NS-HD-NI… SWEET14p…  15.0 +        342   364 CATGC…     2
-#> 5 MAI1_ROI_00001 NS-NG-NS-HD-NI… SWEET14p…  15.0 +        346   368 CATGC…     1
+#>   taleId         rvds            subjSeqId start   end strand ebeSeq score  rank
+#>   <chr>          <chr>           <chr>     <dbl> <dbl> <chr>  <chr>  <dbl> <dbl>
+#> 1 MAI1_ROI_00010 NN-HD-NN-HD-NG… SWEET14p…   430   448 +      TAAGC…  15.1     1
+#> 2 MAI1_ROI_00010 NN-HD-NN-HD-NG… SWEET14p…   426   444 +      TAAGC…  15.1     2
+#> 3 BAI3_ROI_00001 NS-NG-NS-HD-NI… SWEET14p…   346   368 +      CATGC…  15.0     1
+#> 4 BAI3_ROI_00001 NS-NG-NS-HD-NI… SWEET14p…   342   364 +      CATGC…  15.0     2
+#> 5 MAI1_ROI_00001 NS-NG-NS-HD-NI… SWEET14p…   346   368 +      CATGC…  15.0     1
 ```
 
 ## 3 PrediTALE
@@ -107,13 +107,13 @@ nrow(preditale_preds)
 #> [1] 23
 preditale_preds |> arrange(desc(score)) |> head(5)
 #> # A tibble: 5 × 9
-#>   subjSeqId                 start   end strand score ebeSeq    pval rvds  taleId
-#>   <chr>                     <dbl> <dbl> <chr>  <dbl> <chr>    <dbl> <chr> <chr> 
-#> 1 SWEET14p_BT07_Sense         430   448 +      0.520 TAAGC… 1.04e-7 NN-H… MAI1_…
-#> 2 SWEET14p_Nipponbare_Sense   426   444 +      0.520 TAAGC… 1.04e-7 NN-H… MAI1_…
-#> 3 SWEET14p_BT07_Sense         346   368 +      0.476 CATGC… 5.44e-9 NS-N… BAI3_…
-#> 4 SWEET14p_Nipponbare_Sense   342   364 +      0.476 CATGC… 5.44e-9 NS-N… BAI3_…
-#> 5 SWEET14p_BT07_Sense         346   368 +      0.476 CATGC… 5.44e-9 NS-N… MAI1_…
+#>   taleId         rvds          subjSeqId start   end strand ebeSeq score    pval
+#>   <chr>          <chr>         <chr>     <dbl> <dbl> <chr>  <chr>  <dbl>   <dbl>
+#> 1 MAI1_ROI_00010 NN-HD-NN-HD-… SWEET14p…   430   448 +      TAAGC… 0.520 1.04e-7
+#> 2 MAI1_ROI_00010 NN-HD-NN-HD-… SWEET14p…   426   444 +      TAAGC… 0.520 1.04e-7
+#> 3 BAI3_ROI_00001 NS-NG-NS-HD-… SWEET14p…   346   368 +      CATGC… 0.476 5.44e-9
+#> 4 BAI3_ROI_00001 NS-NG-NS-HD-… SWEET14p…   342   364 +      CATGC… 0.476 5.44e-9
+#> 5 MAI1_ROI_00001 NS-NG-NS-HD-… SWEET14p…   346   368 +      CATGC… 0.476 5.44e-9
 ```
 
 > **PrediTALE’s `pval`**

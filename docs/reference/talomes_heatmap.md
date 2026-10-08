@@ -19,7 +19,7 @@ strains and groups by the similarity of their variant profiles.
 ``` r
 talomes_heatmap(
   tale_annotation,
-  group_col,
+  group_col = "group",
   strain_col,
   rvd_col,
   trunc_tales_col = NULL,
@@ -53,8 +53,11 @@ talomes_heatmap(
 - group_col:
 
   Name of the `tale_annotation` column holding TALE groups, drawn as
-  columns (e.g. the `group` from
-  [`tales_group_kmedoids`](https://scunnac.github.io/tantale/reference/tales_group_kmedoids.md)).
+  columns. The default, `"group"`, is the column
+  [`tales_group_kmedoids`](https://scunnac.github.io/tantale/reference/tales_group_kmedoids.md)
+  and
+  [`tales_group_hclust`](https://scunnac.github.io/tantale/reference/tales_group_hclust.md)
+  add.
 
 - strain_col:
 
@@ -151,5 +154,5 @@ x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
 x$group <- c(ROI_00001 = 1, ROI_00002 = 1, ROI_00003 = 2, ROI_00004 = 2)[x$array_id]
 x$strain <- c(ROI_00001 = "S1", ROI_00002 = "S2", ROI_00003 = "S1",
               ROI_00004 = "S2")[x$array_id]
-talomes_heatmap(x, group_col = "group", strain_col = "strain")
+talomes_heatmap(x, strain_col = "strain")
 ```

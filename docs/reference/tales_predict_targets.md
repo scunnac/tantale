@@ -41,8 +41,10 @@ tales_predict_targets(x, subj_file, method = c("talvez", "preditale"), ...)
 
 ## Value
 
-A tibble of EBE predictions, with column names homogenised across
-backends, plus a `method` column recording which tool produced them.
+A tibble of EBE predictions with the columns both backends share (see
+[`talvez`](https://scunnac.github.io/tantale/reference/talvez.md)), then
+`method`, which tool produced them, then the tool's own column (`rank`
+for Talvez, `pval` for PrediTALE).
 
 ## Details
 
@@ -78,20 +80,20 @@ subj <- system.file("extdata", "cladeIII_sweet_promoters.fasta",
 head(tales_predict_targets(x, subj_file = subj))
 #> Invoking Talvez using the following command:
 #> '/home/cunnac/mamba/envs/tantale/bin/perl' TALVEZ_3.2.pl -t 0 -l 19 -e mat1 -z
-#> mat2 'rvdSeqsTalvez_994ff19472aec.tsv' 'cladeIII_sweet_promoters.fasta'
+#> mat2 'rvdSeqsTalvez_a465d96e964a.tsv' 'cladeIII_sweet_promoters.fasta'
 #> # A tibble: 6 × 10
-#>   taleId    rvds          subjSeqId score strand start   end ebeSeq  rank method
-#>   <chr>     <chr>         <chr>     <dbl> <chr>  <dbl> <dbl> <chr>  <dbl> <chr> 
-#> 1 ROI_00001 NN-NG-NN-HD-… SWEET11p… 10.0  -        980  1006 TGTAC…     1 talvez
-#> 2 ROI_00001 NN-NG-NN-HD-… SWEET14p…  6.35 -        160   186 TGTTT…     2 talvez
-#> 3 ROI_00002 NN-HD-NI-NN-… SWEET11p…  6.96 +       1395  1409 TGTAC…     1 talvez
-#> 4 ROI_00002 NN-HD-NI-NN-… SWEET11p…  6.66 +       1489  1503 TCCAG…     2 talvez
-#> 5 ROI_00002 NN-HD-NI-NN-… SWEET11p…  6.53 +        135   149 TGCAT…     3 talvez
-#> 6 ROI_00002 NN-HD-NI-NN-… SWEET11p…  6.53 +        130   144 TGCAT…     4 talvez
+#>   taleId    rvds          subjSeqId start   end strand ebeSeq score method  rank
+#>   <chr>     <chr>         <chr>     <dbl> <dbl> <chr>  <chr>  <dbl> <chr>  <dbl>
+#> 1 ROI_00001 NN-NG-NN-HD-… SWEET11p…   980  1006 -      TGTAC… 10.0  talvez     1
+#> 2 ROI_00001 NN-NG-NN-HD-… SWEET14p…   160   186 -      TGTTT…  6.35 talvez     2
+#> 3 ROI_00002 NN-HD-NI-NN-… SWEET11p…  1395  1409 +      TGTAC…  6.96 talvez     1
+#> 4 ROI_00002 NN-HD-NI-NN-… SWEET11p…  1489  1503 +      TCCAG…  6.66 talvez     2
+#> 5 ROI_00002 NN-HD-NI-NN-… SWEET11p…   135   149 +      TGCAT…  6.53 talvez     3
+#> 6 ROI_00002 NN-HD-NI-NN-… SWEET11p…   130   144 +      TGCAT…  6.53 talvez     4
 head(tales_predict_targets(x, subj_file = subj, method = "preditale"))
 #> # A tibble: 1 × 10
-#>   subjSeqId          start   end strand score ebeSeq    pval rvds  taleId method
-#>   <chr>              <dbl> <dbl> <chr>  <dbl> <chr>    <dbl> <chr> <chr>  <chr> 
-#> 1 SWEET11p_93-11_Se…   210   236 +      0.242 TATAA… 5.86e-5 NN-N… ROI_0… predi…
+#>   taleId    rvds        subjSeqId start   end strand ebeSeq score method    pval
+#>   <chr>     <chr>       <chr>     <dbl> <dbl> <chr>  <chr>  <dbl> <chr>    <dbl>
+#> 1 ROI_00001 NN-NG-NN-H… SWEET11p…   210   236 +      TATAA… 0.242 predi… 5.86e-5
 # }
 ```

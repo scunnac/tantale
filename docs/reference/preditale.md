@@ -67,10 +67,13 @@ preditale(
 
 ## Value
 
-A tibble with the EBE predictions. **Note that column names have been
-modified** relative to the column names found in the original program's
-output in order to homogenize column names across TALE target prediction
-programs in tantale
+A tibble with one row per predicted EBE (effector binding element), the
+columns renamed from the tool's own output so that
+[`talvez`](https://scunnac.github.io/tantale/reference/talvez.md) and
+`preditale` return the same ones in the same order: `taleId`, `rvds`,
+`subjSeqId`, `start`, `end`, `strand`, `ebeSeq` and `score`, followed by
+the tool's own column: `pval`, the approximate p-value PrediTALE gives
+each site.
 
 ## See also
 
@@ -92,8 +95,8 @@ subj <- system.file("extdata", "cladeIII_sweet_promoters.fasta",
 preds <- preditale(rvd_seqs = rvds, subj_file = subj)
 head(preds)
 #> # A tibble: 1 × 9
-#>   subjSeqId            start   end strand score ebeSeq         pval rvds  taleId
-#>   <chr>                <dbl> <dbl> <chr>  <dbl> <chr>         <dbl> <chr> <chr> 
-#> 1 SWEET11p_93-11_Sense   210   236 +      0.242 TATAAAAATG… 5.86e-5 NN-N… ROI_0…
+#>   taleId    rvds               subjSeqId start   end strand ebeSeq score    pval
+#>   <chr>     <chr>              <chr>     <dbl> <dbl> <chr>  <chr>  <dbl>   <dbl>
+#> 1 ROI_00001 NN-NG-NN-HD-HD-NI… SWEET11p…   210   236 +      TATAA… 0.242 5.86e-5
 # }
 ```

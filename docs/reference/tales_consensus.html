@@ -61,8 +61,10 @@ matrix.</p>
 
 
 <dl><dt id="arg-align">align<a class="anchor" aria-label="anchor" href="#arg-align"></a></dt>
-<dd><p>A multiple Tal sequences alignment in the form of a
-matrix.</p></dd>
+<dd><p>A TALE alignment as a character matrix, one row per array
+and one column per alignment position, with <code>NA</code> for gaps.
+<code><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix()</a></code> on a <code><a href="tales_msa.html">tales_msa</a></code> returns one (see
+<code><a href="as.matrix.tales_msa.html">as.matrix.tales_msa</a></code>), filled with RVDs or domain codes.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -86,6 +88,7 @@ position is a gap.</p>
 <code><a href="tales_align.html">tales_align()</a></code>,
 <code><a href="tales_consensus_match.html">tales_consensus_match()</a></code>,
 <code><a href="tales_msa.html">tales_msa()</a></code>,
+<code><a href="tales_msa_params.html">tales_msa_params()</a></code>,
 <code><a href="tales_msa_width.html">tales_msa_width()</a></code>,
 <code><a href="validate_tales_msa.html">validate_tales_msa()</a></code></p></div>
     </div>
@@ -103,6 +106,16 @@ position is a gap.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> A3 "NI" "HD"</span>
 <span class="r-in"><span><span class="fu">tales_consensus</span><span class="op">(</span><span class="va">aln</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "HD" NA  </span>
+<span class="r-in"><span></span></span>
+<span class="r-in"><span><span class="co"># From a tales_msa, such as tales_align() returns</span></span></span>
+<span class="r-in"><span><span class="va">msa</span> <span class="op">&lt;-</span> <span class="fu"><a href="tales_msa.html">tales_msa</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span></span></span>
+<span class="r-in"><span>  array_id <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"A1"</span>, <span class="st">"A1"</span>, <span class="st">"A1"</span>, <span class="st">"A2"</span>, <span class="st">"A2"</span>, <span class="st">"A3"</span>, <span class="st">"A3"</span>, <span class="st">"A3"</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  position_in_array <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="fl">2L</span>, <span class="fl">3L</span>, <span class="fl">1L</span>, <span class="fl">2L</span>, <span class="fl">1L</span>, <span class="fl">2L</span>, <span class="fl">3L</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  alignment_position <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1L</span>, <span class="fl">2L</span>, <span class="fl">3L</span>, <span class="fl">1L</span>, <span class="fl">3L</span>, <span class="fl">1L</span>, <span class="fl">2L</span>, <span class="fl">3L</span><span class="op">)</span>,</span></span>
+<span class="r-in"><span>  rvd <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"NTERM"</span>, <span class="st">"HD"</span>, <span class="st">"CTERM"</span>, <span class="st">"NTERM"</span>, <span class="st">"CTERM"</span>, <span class="st">"NTERM"</span>, <span class="st">"HD"</span>, <span class="st">"CTERM"</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">tales_consensus</span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">as.matrix</a></span><span class="op">(</span><span class="va">msa</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "NTERM" "HD"    "CTERM"</span>
 </code></pre></div>
     </div>
   </main><aside class="col-md-3"><nav id="toc" aria-label="Table of contents"><h2>On this page</h2>

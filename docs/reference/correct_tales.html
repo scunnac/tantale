@@ -118,9 +118,11 @@ reticulate package functions.</p></dd>
 
 <dt id="arg-java-args">java_args<a class="anchor" aria-label="anchor" href="#arg-java-args"></a></dt>
 <dd><p>A single string of options for the Java virtual
-machine, placed before <code>-jar</code>, such as <code>"-Xmx8G"</code> to raise
-its memory limit. The default, <code>""</code>, leaves Java's own defaults.
-TALEcorrection itself takes no options beyond its inputs.</p></dd>
+machine, placed before <code>-jar</code>. The default, <code>""</code>, leaves
+Java's own defaults (a heap of up to a quarter of the physical memory);
+give a <code>-Xmx</code> value, such as <code>"-Xmx8G"</code>, if TALEcorrection
+runs out of memory. TALEcorrection itself takes no options beyond its
+inputs.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -147,7 +149,7 @@ corrected sequences file.</p>
 <span class="r-in"><span><span class="fu">correct_tales</span><span class="op">(</span>uncorrected_path <span class="op">=</span> <span class="va">subj</span>, corrected_path <span class="op">=</span> <span class="va">out_fa</span><span class="op">)</span></span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Running nHMMER</span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> Performing TALEs cds correction on provided sequences.</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/tmp/Rtmpa8Rb5w/file994ff64c965f3.fa"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "/tmp/Rtmp3232ae/filea465d6fdc9022.fa"</span>
 <span class="r-in"><span><span class="co"># }</span></span></span>
 </code></pre></div>
     </div>

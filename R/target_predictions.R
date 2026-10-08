@@ -354,8 +354,10 @@ talvez <- function(rvd_seqs, subj_file, opt_param = "-t 0 -l 19", output_dir = N
 #'                     package = "tantale")
 #' preds <- preditale(rvd_seqs = rvds, subj_file = subj)
 #' best <- preds[order(-preds$score), ][1, ]
+#' # The site with 10 bp on either side
 #' plot_target_preds(preds = best, subj_file = subj,
-#'                   filter_range = paste0(best$subjSeqId, ":1-2000"))
+#'                   filter_range = paste0(best$subjSeqId, ":",
+#'                                         best$start - 10, "-", best$end + 10))
 #' }
 plot_target_preds <- function(preds, subj_file, filter_range) {
   ######### Check and parse arguments
