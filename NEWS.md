@@ -1,5 +1,12 @@
 # tantale 0.99.0.9000
 
+## `talvez()` and `preditale()` return their columns in one order
+
+Both return `taleId`, `rvds`, `subjSeqId`, `start`, `end`, `strand`,
+`ebeSeq` and `score`, in that order, then their own column (`rank` for
+Talvez, `pval` for PrediTALE). `tales_predict_targets()` puts its `method`
+column before the tool's own.
+
 ## A `tales_msa` keeps the settings it was aligned with
 
 `tales_align()` stores the column it aligned on (`residue_col`), the

@@ -34,10 +34,11 @@ position-weight-matrix scan, and
 [PrediTALE](https://doi.org/10.1371/journal.pcbi.1007206), which also
 models where a real EBE tends to sit relative to a transcription start
 site. Both are wrapped as `talvez()` and `preditale()`, which take the
-same inputs and share their core columns (`taleId`, `subjSeqId`, `start`,
-`end`, `strand`, `score`, `ebeSeq`), so their predictions can be compared
-directly. Their scores are on different scales, though, and each adds
-its own column: `rank` for TALVEZ, `pval` for PrediTALE.
+same inputs and return the same core columns in the same order
+(`taleId`, `rvds`, `subjSeqId`, `start`, `end`, `strand`, `ebeSeq`,
+`score`), so their predictions can be compared directly. Their scores are
+on different scales, though, and each adds its own column last: `rank`
+for TALVEZ, `pval` for PrediTALE.
 
 ## Getting RVD sequences to predict with
 

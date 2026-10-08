@@ -3,6 +3,12 @@
 ##### Compute TALE targets predictions #####
 
 
+# The columns talvez() and preditale() share, in the order both return them;
+# each tool's own column (rank, pval) comes after these.
+PREDICTION_COLS <- c("taleId", "rvds", "subjSeqId", "start", "end", "strand",
+                     "ebeSeq", "score")
+
+
 #' Run TALE target predictions on DNA sequence(s) using PrediTale
 #'
 #'
@@ -39,10 +45,13 @@
 #'   runs out of memory on a large subject.
 #' @param predictor_path Path to "PrediTALE.jar". The default is the copy
 #'   [tantale_setup()] downloads; give a path to use another version.
-#' @return A tibble with the EBE predictions. \strong{Note that column names
-#'   have been modified} relative to the column names found in the original
-#'   program's output in order to homogenize column names across TALE target
-#'   prediction programs in tantale
+#' @return A tibble with one row per predicted EBE (effector binding
+#'   element), the columns renamed from the tool's own output so that
+#'   \code{\link{talvez}} and \code{\link{preditale}} return the same ones
+#'   in the same order: \code{taleId}, \code{rvds}, \code{subjSeqId},
+#'   \code{start}, \code{end}, \code{strand}, \code{ebeSeq} and
+#'   \code{score}, followed by the tool's own column: \code{pval}, the
+#'   approximate p-value PrediTALE gives each site.
 #' @export
 #' @family target prediction
 #' @examples
@@ -112,8 +121,8 @@ preditale <- function(rvd_seqs, subj_file, opt_param = "", output_dir = NULL,
                   taleId = TALE) %>%
     dplyr::mutate(start = start + 1) %>%
     dplyr::mutate(end = nchar(ebeSeq) + (start - 1)) %>%
-    dplyr::relocate(end, .after = start) %>%
-    dplyr::mutate_if(is.factor, as.character)
+    dplyr::mutate_if(is.factor, as.character) %>%
+    dplyr::select(dplyr::all_of(PREDICTION_COLS), pval)
   # Returning
   return(predictions)
 }
@@ -157,10 +166,13 @@ preditale <- function(rvd_seqs, subj_file, opt_param = "", output_dir = NULL,
 #' @param conda_bin Path to your Conda binary file if you need to specify
 #'   a path different from the one that is automatically searched by the
 #'   reticulate package functions.
-#' @return A tibble with the EBE predictions. \strong{Note that column names
-#'   have been modified} relative to the column names found in the original
-#'   program's output in order to homogenize column names across TALE target
-#'   prediction programs in tantale.
+#' @return A tibble with one row per predicted EBE (effector binding
+#'   element), the columns renamed from the tool's own output so that
+#'   \code{\link{talvez}} and \code{\link{preditale}} return the same ones
+#'   in the same order: \code{taleId}, \code{rvds}, \code{subjSeqId},
+#'   \code{start}, \code{end}, \code{strand}, \code{ebeSeq} and
+#'   \code{score}, followed by the tool's own column: \code{rank}, the
+#'   site's rank among the TALE's predictions by score.
 #' @export
 #' @family target prediction
 #' @examples
@@ -252,7 +264,7 @@ talvez <- function(rvd_seqs, subj_file, opt_param = "-t 0 -l 19", output_dir = N
       strand = gsub(pattern = "strand$", "", strand),
       start = start + 1 # THIS SEEEMS TO BE NECESSARY TO EXTRACT EXACT EBE FROM SUBJ SEQ...
                   ) %>%
-    dplyr::select(c(1,2,3,4,5,7,8,9, 10))
+    dplyr::select(dplyr::all_of(PREDICTION_COLS), rank)
   # copy output files to output_dir if it is not null
   if (!is.null(output_dir)) {
     list.files(tempOutDir, all.files = TRUE)
@@ -612,8 +624,10 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
 #'   accept \code{output_dir}. Note the two take different \code{opt_param}
 #'   defaults, since the options are the tools' own.
 #'
-#' @return A tibble of EBE predictions, with column names homogenised across
-#'   backends, plus a \code{method} column recording which tool produced them.
+#' @return A tibble of EBE predictions with the columns both backends share
+#'   (see \code{\link{talvez}}), then \code{method}, which tool produced
+#'   them, then the tool's own column (\code{rank} for Talvez, \code{pval}
+#'   for PrediTALE).
 #'
 #' @seealso \code{\link{talvez}}, \code{\link{preditale}}
 #' @export
@@ -641,5 +655,5 @@ tales_predict_targets <- function(x, subj_file, method = c("talvez", "preditale"
   # Which tool produced a prediction is not recoverable from the homogenised
   # columns, so record it rather than lose it.
   predictions$method <- method
-  predictions
+  dplyr::relocate(predictions, method, .after = dplyr::all_of(PREDICTION_COLS))
 }

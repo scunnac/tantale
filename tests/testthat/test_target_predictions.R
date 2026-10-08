@@ -8,6 +8,8 @@ test_that("talvez output a tibble with the expected dims", {
                         opt_param = "-t 0 -l 19",
                         conda_bin = "auto")
   expect_identical(dim(talvezPreds), c(90L,9L))
+  expect_named(talvezPreds, c("taleId", "rvds", "subjSeqId", "start", "end",
+                              "strand", "ebeSeq", "score", "rank"))
 })
 
 
@@ -23,7 +25,8 @@ test_that("tales_predict_targets() accepts a tales object and records the method
     method = "talvez"
   )))
   expect_s3_class(preds, "tbl_df")
-  expect_true("method" %in% names(preds))
+  expect_named(preds, c("taleId", "rvds", "subjSeqId", "start", "end",
+                        "strand", "ebeSeq", "score", "method", "rank"))
   expect_true(all(preds$method == "talvez"))
   # predictions are for the arrays we supplied
   expect_true(all(preds$taleId %in% unique(x$array_id)))
@@ -55,8 +58,8 @@ pt_preds <- suppressMessages(preditale(rvd_file, subj_file = sweet,
 
 test_that("preditale() returns the documented columns, one row per site", {
   expect_s3_class(pt_preds, "tbl_df")
-  expect_named(pt_preds, c("subjSeqId", "start", "end", "strand", "score",
-                           "ebeSeq", "pval", "rvds", "taleId"))
+  expect_named(pt_preds, c("taleId", "rvds", "subjSeqId", "start", "end",
+                           "strand", "ebeSeq", "score", "pval"))
   expect_gt(nrow(pt_preds), 0)
   expect_true(all(pt_preds$taleId %in% names(Biostrings::readBStringSet(rvd_file))))
 })

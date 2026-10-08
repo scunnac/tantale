@@ -24,8 +24,10 @@ accept \code{output_dir}. Note the two take different \code{opt_param}
 defaults, since the options are the tools' own.}
 }
 \value{
-A tibble of EBE predictions, with column names homogenised across
-backends, plus a \code{method} column recording which tool produced them.
+A tibble of EBE predictions with the columns both backends share
+(see \code{\link{talvez}}), then \code{method}, which tool produced
+them, then the tool's own column (\code{rank} for Talvez, \code{pval}
+for PrediTALE).
 }
 \description{
 Runs a TALE target (EBE) prediction tool over a set of TALE RVD sequences

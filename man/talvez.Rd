@@ -41,10 +41,13 @@ a path different from the one that is automatically searched by the
 reticulate package functions.}
 }
 \value{
-A tibble with the EBE predictions. \strong{Note that column names
-have been modified} relative to the column names found in the original
-program's output in order to homogenize column names across TALE target
-prediction programs in tantale.
+A tibble with one row per predicted EBE (effector binding
+element), the columns renamed from the tool's own output so that
+\code{\link{talvez}} and \code{\link{preditale}} return the same ones
+in the same order: \code{taleId}, \code{rvds}, \code{subjSeqId},
+\code{start}, \code{end}, \code{strand}, \code{ebeSeq} and
+\code{score}, followed by the tool's own column: \code{rank}, the
+site's rank among the TALE's predictions by score.
 }
 \description{
 An R wrapper around the
