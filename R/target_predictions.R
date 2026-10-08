@@ -572,7 +572,7 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
   }
   cn <- colnames(alndf)
   cn <- cn[cn != "name"]
-  df <- tidyr::gather(alndf, "position", "character", cn)
+  df <- tidyr::gather(alndf, "position", "character", dplyr::all_of(cn))
   
   y <- df
   y$position <- as.numeric(sub("V", "", y$position, fixed = TRUE))

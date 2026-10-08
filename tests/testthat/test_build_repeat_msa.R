@@ -1,5 +1,12 @@
 
 
+# Two spellings of the same scoring give the same alignment; only the
+# settings tales_align() records (tales_msa_params()) tell them apart.
+without_params <- function(msa) {
+  attr(msa, "alignment_params") <- NULL
+  as.data.frame(msa)
+}
+
 test_that("build_repeat_msa result with RVDs is of expected dims",
           {aln <- .build_repeat_msa(input_seqs = system.file("extdata", "TalA_RVDSeqs_AnnoTALE.fasta",package = "tantale", mustWork = TRUE),
                                  sep = "-", domain_distances = NULL,
@@ -74,7 +81,7 @@ test_that("tales_align() accepts a domain_distances object", {
     tales_align(sub, residue_col = "dom_code",
                 domain_distances = d$repeat.similarity)))
   expect_s3_class(viaClass, "tales_msa")
-  expect_identical(as.data.frame(viaClass), as.data.frame(viaPlain))
+  expect_identical(without_params(viaClass), without_params(viaPlain))
 })
 
 
@@ -130,7 +137,7 @@ test_that("NULL and FALSE both mean no matrix", {
   a <- suppressWarnings(suppressMessages(tales_align(sub, residue_col = "dom_code")))
   b <- suppressWarnings(suppressMessages(
     tales_align(sub, residue_col = "dom_code", domain_distances = FALSE)))
-  expect_identical(as.data.frame(a), as.data.frame(b))
+  expect_identical(without_params(a), without_params(b))
 })
 
 
@@ -153,7 +160,7 @@ test_that("the default RVD alignment is unchanged by this feature", {
   a <- suppressWarnings(suppressMessages(tales_align(sub, residue_col = "rvd")))
   b <- suppressWarnings(suppressMessages(
     tales_align(sub, residue_col = "rvd", domain_distances = FALSE)))
-  expect_identical(as.data.frame(a), as.data.frame(b))
+  expect_identical(without_params(a), without_params(b))
 })
 
 

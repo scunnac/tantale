@@ -4477,7 +4477,35 @@ alignments; the class of each TALE given is already in
 `TALE_names_(<strain>).tsv`. No parser; possibly a reader for that
 table instead.
 
-**Open.** Q223 (`?tantale-package` list, sent to the maintainer), Q224
-(passive-voice sweep: 203 candidate lines in `R/`, 69 in the articles,
-README and home page; to be triaged into a list of proposed rewrites),
-Q231-Q238 (new, in the reply of 2026-10-09).
+**Second round (2026-10-09, evening).** Maintainer's answers: Q234 keep
+"at the protein level" as written. Q235 two sentences at most, since
+users know TALE biology and the site covers it: the "several ways" are
+listed again in one sentence, the domain biology is not restored. Q236
+the pseudogene-repair sentence restored. Q237 the link to the mining
+article restored; linking a pkgdown article from Rd by URL is the usual
+way when the article is not a shipped vignette (`vignettes/articles/`
+never reaches the tarball). Q238 one sentence: `tales_align()` and
+`tales_tale_distances()` work on arrays in this form; "the documented
+consumers" in Details became "MAFFT's text mode". Q223 done:
+`?tantale-package` rewritten, one section per step with linked
+functions; Q223b softened (`tell_tales()` works "much as AnnoTALE does");
+platform note now Linux and Intel macOS. Q224: candidate list with
+proposed rewrites in `dev/passive-review.md` (32 items from ~360 hits;
+the rest are fine), waiting for the maintainer's Y/N. Item 14 found an
+inaccuracy: `?tell_tales` says the log reports arrays AnnoTALE could not
+parse; it does not, `tales_from_telltales()` warns about them.
+
+**CI on e6016f1 failed** (R-CMD-check and test-coverage):
+`test_build_repeat_msa.R` compares alignments made with two spellings of
+the same scoring with `identical(as.data.frame())`, and the new
+`alignment_params` attribute differs. Missed because only the class's own
+test files were run after Q227: grep every test calling the changed
+function. Fixed with a `without_params()` helper in that file; full
+suite 0 failures. Also fixed: the tidyselect deprecation behind the 18
+warnings of `test_target_predictions.R` (`gather()` with `all_of(cn)` in
+`.tidy_biostrings_msa()`).
+
+**Open.** Q224 answers; Q231 (remove `tales_align()`'s unusable `...`),
+Q232 (snake_case prediction columns), Q233 (`plot_target_preds()` score
+label `"%05.2f"` shows 0.24 as "00.24"; legend 1-3 unexplained) were not
+answered. Last Q used: Q238.
