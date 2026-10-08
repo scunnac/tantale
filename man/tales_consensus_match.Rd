@@ -7,8 +7,10 @@
 tales_consensus_match(align, long = TRUE)
 }
 \arguments{
-\item{align}{A multiple Tal sequences alignment in the form of a
-matrix.}
+\item{align}{A TALE alignment as a character matrix, one row per array
+and one column per alignment position, with \code{NA} for gaps.
+\code{as.matrix()} on a \code{\link{tales_msa}} returns one (see
+\code{\link{as.matrix.tales_msa}}), filled with RVDs or domain codes.}
 
 \item{long}{Set to \code{TRUE} (default) to return a long tibble, or
 \code{FALSE} to return a logical matrix with the same shape as
@@ -40,6 +42,7 @@ Other TALE alignment:
 \code{\link[=tales_align]{tales_align()}},
 \code{\link[=tales_consensus]{tales_consensus()}},
 \code{\link[=tales_msa]{tales_msa()}},
+\code{\link[=tales_msa_params]{tales_msa_params()}},
 \code{\link[=tales_msa_width]{tales_msa_width()}},
 \code{\link[=validate_tales_msa]{validate_tales_msa()}}
 }

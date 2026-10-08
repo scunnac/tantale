@@ -7,8 +7,10 @@
 tales_consensus(align)
 }
 \arguments{
-\item{align}{A multiple Tal sequences alignment in the form of a
-matrix.}
+\item{align}{A TALE alignment as a character matrix, one row per array
+and one column per alignment position, with \code{NA} for gaps.
+\code{as.matrix()} on a \code{\link{tales_msa}} returns one (see
+\code{\link{as.matrix.tales_msa}}), filled with RVDs or domain codes.}
 }
 \value{
 A vector of consensus elements in each column of \code{align}.
@@ -32,6 +34,15 @@ aln <- matrix(c("HD", "HD", "NI",
              nrow = 3, dimnames = list(c("A1", "A2", "A3"), NULL))
 aln
 tales_consensus(aln)
+
+# From a tales_msa, such as tales_align() returns
+msa <- tales_msa(data.frame(
+  array_id = c("A1", "A1", "A1", "A2", "A2", "A3", "A3", "A3"),
+  position_in_array = c(1L, 2L, 3L, 1L, 2L, 1L, 2L, 3L),
+  alignment_position = c(1L, 2L, 3L, 1L, 3L, 1L, 2L, 3L),
+  rvd = c("NTERM", "HD", "CTERM", "NTERM", "CTERM", "NTERM", "HD", "CTERM")
+))
+tales_consensus(as.matrix(msa))
 }
 \seealso{
 Other TALE alignment:
@@ -40,6 +51,7 @@ Other TALE alignment:
 \code{\link[=tales_align]{tales_align()}},
 \code{\link[=tales_consensus_match]{tales_consensus_match()}},
 \code{\link[=tales_msa]{tales_msa()}},
+\code{\link[=tales_msa_params]{tales_msa_params()}},
 \code{\link[=tales_msa_width]{tales_msa_width()}},
 \code{\link[=validate_tales_msa]{validate_tales_msa()}}
 }

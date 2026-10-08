@@ -39,9 +39,10 @@
 #'   \code{fasta_file}, \code{prefix} and \code{output_dir}. The analyze
 #'   stage has no option of its own beyond a run name.
 #' @param java_args A single string of options for the Java virtual
-#'   machine, placed before \code{-jar} in both stages, such as
-#'   \code{"-Xmx8G"} to raise its memory limit. The default, \code{""},
-#'   leaves Java's own defaults.
+#'   machine, placed before \code{-jar} in both stages. The default,
+#'   \code{""}, leaves Java's own defaults (a heap of up to a quarter of the
+#'   physical memory); give a \code{-Xmx} value, such as \code{"-Xmx8G"},
+#'   if AnnoTALE runs out of memory.
 #' @param annotale_jar Path to the AnnoTALE jar file. The default is the
 #'   copy [tantale_setup()] downloads; give a path to use another version.
 #' @return \code{output_dir}, invisibly, so that the call can be passed
@@ -289,8 +290,8 @@ run_annotale_build <- function(fasta_file,
 #'   \code{class_builder} and \code{output_dir}.
 #' @param java_args A single string of options for the Java virtual
 #'   machine, placed before \code{-jar}. The default raises the heap to 8
-#'   GB, which the catalogue needs; rebuilding it was seen to hold 1.8 GB
-#'   resident.
+#'   GB, which the catalogue needs (rebuilding it was seen to hold 1.8 GB
+#'   resident); raise \code{-Xmx} if it runs out of memory.
 #' @param annotale_jar Path to the AnnoTALE jar file. The default is the
 #'   copy [tantale_setup()] downloads; give a path to use another version.
 #' @return The path of the class builder XML, invisibly, so the call can be
@@ -353,17 +354,28 @@ run_annotale_load_classes <- function(output_dir = tempfile("annotale_classes_")
 
 #' Assign TALEs to AnnoTALE's published classes
 #'
-#' An R wrapper around the 'AnnoTALEcli.jar assign' call. Each TALE given
-#' is placed in the class of the catalogue it belongs to, and any that fit
-#' none open a new class. Where
+#' An R wrapper around the 'AnnoTALEcli.jar assign' call. AnnoTALE places
+#' each TALE in the class of the catalogue it belongs to, and opens a new
+#' class for any that fit none. Where
 #' \code{\link{run_annotale_build}} groups the TALEs you hand it among
 #' themselves, knowing nothing of what the rest of the world calls them,
 #' this one answers "which published class is this TALE in", so its names
 #' can be compared with the literature's.
 #'
-#' @param fasta_file Path to the TALEs to assign: DNA or protein sequences,
-#'   RVD sequences, or the \code{TALE DNA parts}/\code{TALE Protein parts}
-#'   written by \code{\link{run_annotale_predict}}'s analyze stage.
+#' @param fasta_file Path to a FASTA file of the TALEs to assign, one record
+#'   per TALE (or per TALE part), in one of these forms:
+#'   - full-length TALE coding sequences, such as the
+#'     \code{Predict/TALE_DNA_sequences_*.fasta} file
+#'     \code{\link{run_annotale_predict}} writes;
+#'   - the corresponding protein sequences, such as its
+#'     \code{Predict/TALE_protein_sequences_*.fasta};
+#'   - the parts of each TALE, one record per N-terminus, repeat and
+#'     C-terminus, as in its \code{Analyze/TALE_DNA_parts.fasta} or
+#'     \code{Analyze/TALE_Protein_parts.fasta};
+#'   - RVD sequences, the RVDs separated by hyphens
+#'     (\code{NI-HD-NG-NN-...}), as in its \code{Analyze/TALE_RVDs.fasta}
+#'     or the shipped \code{Sample_TALEs_RVDSeqs_AnnoTALE.fasta}
+#'     (\code{system.file("extdata", package = "tantale")}).
 #' @param class_builder Path to the class builder XML holding the classes
 #'   to assign against, as \code{\link{run_annotale_load_classes}} returns.
 #' @param output_dir Directory where output will be written, created if it
@@ -379,7 +391,8 @@ run_annotale_load_classes <- function(output_dir = tempfile("annotale_classes_")
 #'   \code{accession} and \code{output_dir}.
 #' @param java_args A single string of options for the Java virtual
 #'   machine, placed before \code{-jar}. The default raises the heap to 8
-#'   GB, which reading the catalogue needs.
+#'   GB, which reading the catalogue needs; raise \code{-Xmx} if it runs
+#'   out of memory.
 #' @param annotale_jar Path to the AnnoTALE jar file. The default is the
 #'   copy [tantale_setup()] downloads; give a path to use another version.
 #' @return \code{output_dir}, invisibly. It holds the per-TALE assignment

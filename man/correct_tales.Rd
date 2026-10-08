@@ -36,9 +36,11 @@ path different from the one that is automatically searched by the
 reticulate package functions.}
 
 \item{java_args}{A single string of options for the Java virtual
-machine, placed before \code{-jar}, such as \code{"-Xmx8G"} to raise
-its memory limit. The default, \code{""}, leaves Java's own defaults.
-TALEcorrection itself takes no options beyond its inputs.}
+machine, placed before \code{-jar}. The default, \code{""}, leaves
+Java's own defaults (a heap of up to a quarter of the physical memory);
+give a \code{-Xmx} value, such as \code{"-Xmx8G"}, if TALEcorrection
+runs out of memory. TALEcorrection itself takes no options beyond its
+inputs.}
 }
 \value{
 A tibble if \code{return_corrections} is \code{TRUE} or the path to the

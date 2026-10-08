@@ -182,6 +182,22 @@ test_that("tales_align() round-trips the residues it aligned on", {
   }
 })
 
+test_that("tales_align() keeps its settings, subsets carry them, as_tales() drops them", {
+  x <- as_tales(system.file("extdata", "TalA_RVDSeqs_AnnoTALE.fasta",
+                            package = "tantale"), sep = "-")
+  msa <- suppressWarnings(tales_align(x, residue_col = "rvd", domain_distances = "rvd"))
+  params <- tales_msa_params(msa)
+  expect_named(params, c("residue_col", "domain_distances", "mafft_opts"))
+  expect_identical(params$residue_col, "rvd")
+  expect_identical(params$domain_distances, "rvd")
+  expect_identical(params$mafft_opts, eval(formals(tales_align)$mafft_opts))
+  expect_identical(tales_msa_params(msa[msa$array_id == msa$array_id[1], ]), params)
+  expect_identical(tales_msa_params(dplyr::filter(msa, position_in_array > 1L)), params)
+  expect_null(tales_msa_params(as_tales(msa)))
+  expect_null(tales_msa_params(dplyr::select(msa, -alignment_position)))
+  expect_null(tales_msa_params(tales_msa(minimal_msa_df())))
+})
+
 test_that("tales_align() refuses an incomplete tales", {
   x <- suppressWarnings(
     tales_from_telltales(test_path("data_for_tests", "example_output"))

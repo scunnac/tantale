@@ -6,7 +6,7 @@
 \usage{
 talomes_heatmap(
   tale_annotation,
-  group_col,
+  group_col = "group",
   strain_col,
   rvd_col,
   trunc_tales_col = NULL,
@@ -33,8 +33,9 @@ the RVD sequences are then computed with
 out.}
 
 \item{group_col}{Name of the \code{tale_annotation} column holding TALE
-groups, drawn as columns (e.g. the \code{group} from
-\code{\link{tales_group_kmedoids}}).}
+groups, drawn as columns. The default, \code{"group"}, is the column
+\code{\link{tales_group_kmedoids}} and \code{\link{tales_group_hclust}}
+add.}
 
 \item{strain_col}{Name of the column holding strain names, drawn as rows.}
 
@@ -115,7 +116,7 @@ x <- tales_from_telltales(system.file("extdata", "tellTaleExampleOutput",
 x$group <- c(ROI_00001 = 1, ROI_00002 = 1, ROI_00003 = 2, ROI_00004 = 2)[x$array_id]
 x$strain <- c(ROI_00001 = "S1", ROI_00002 = "S2", ROI_00003 = "S1",
               ROI_00004 = "S2")[x$array_id]
-talomes_heatmap(x, group_col = "group", strain_col = "strain")
+talomes_heatmap(x, strain_col = "strain")
 }
 \seealso{
 Other TALE plots:

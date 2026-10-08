@@ -74,6 +74,35 @@ tales_msa_width <- function(x) {
   attr(x, "alignment_width", exact = TRUE)
 }
 
+#' Settings a TALE alignment was made with
+#'
+#' What \code{\link{tales_align}} aligned on and how, kept with the
+#' alignment so that it can be reproduced or interpreted later, for example
+#' to tell whether a \code{tales_msa} holding both \code{rvd} and
+#' \code{dom_code} columns was aligned on its RVDs or on its domain codes.
+#' Subsetting keeps these settings; returning to a plain \code{tales}
+#' (\code{\link{as_tales}}) drops them.
+#'
+#' @param x A \code{tales_msa} object.
+#' @return A list with \code{residue_col}, the column aligned on;
+#'   \code{domain_distances}, the scoring given to \code{tales_align()}
+#'   (\code{NULL}, \code{"rvd"}, or the matrix, table or file supplied);
+#'   and \code{mafft_opts}, the options MAFFT ran with. \code{NULL} for a
+#'   \code{tales_msa} built by hand with \code{\link{tales_msa}}.
+#' @examples
+#' \donttest{
+#' # Needs MAFFT, resolved from the tantale conda environment on first use.
+#' rvd_fasta <- system.file("extdata", "TalA_RVDSeqs_AnnoTALE.fasta",
+#'                          package = "tantale")
+#' msa <- tales_align(as_tales(rvd_fasta, sep = "-"), residue_col = "rvd")
+#' tales_msa_params(msa)$residue_col
+#' }
+#' @export
+#' @family TALE alignment
+tales_msa_params <- function(x) {
+  attr(x, "alignment_params", exact = TRUE)
+}
+
 #' Create a tales_msa object
 #'
 #' A \code{\link{tales}} object plus an \code{alignment_position} column. Gaps
@@ -313,7 +342,9 @@ as.matrix.tales_msa <- function(x, value = NULL, gap = NA, ...) {
 #' @param ... Further arguments to the MAFFT runner, chiefly
 #'   \code{gap_symbol}, the value gaps take in the returned matrix
 #'   (\code{NA} by default).
-#' @return A \code{tales_msa} object.
+#' @return A \code{tales_msa} object. The settings it was aligned with
+#'   (\code{residue_col}, \code{domain_distances}, \code{mafft_opts}) are
+#'   kept with it; \code{\link{tales_msa_params}} returns them.
 #' @export
 #' @family TALE alignment
 #' @examples
@@ -387,9 +418,13 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
 
   out <- dplyr::left_join(x, mapping, by = c("array_id", "position_in_array"))
   # x was reported on when it was built; aligning changes no anomaly
-  withCallingHandlers(
+  msa <- withCallingHandlers(
     tales_msa(out, alignment_width = ncol(m), dom_code_namespace = tales_namespace(x)),
     tantale_warning_tales_anomalous = function(w) invokeRestart("muffleWarning"))
+  attr(msa, "alignment_params") <- list(residue_col = residue_col,
+                                        domain_distances = domain_distances,
+                                        mafft_opts = mafft_opts)
+  msa
 }
 
 

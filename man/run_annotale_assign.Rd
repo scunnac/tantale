@@ -16,9 +16,22 @@ run_annotale_assign(
 )
 }
 \arguments{
-\item{fasta_file}{Path to the TALEs to assign: DNA or protein sequences,
-RVD sequences, or the \code{TALE DNA parts}/\code{TALE Protein parts}
-written by \code{\link{run_annotale_predict}}'s analyze stage.}
+\item{fasta_file}{Path to a FASTA file of the TALEs to assign, one record
+per TALE (or per TALE part), in one of these forms:
+\itemize{
+\item full-length TALE coding sequences, such as the
+\code{Predict/TALE_DNA_sequences_*.fasta} file
+\code{\link{run_annotale_predict}} writes;
+\item the corresponding protein sequences, such as its
+\code{Predict/TALE_protein_sequences_*.fasta};
+\item the parts of each TALE, one record per N-terminus, repeat and
+C-terminus, as in its \code{Analyze/TALE_DNA_parts.fasta} or
+\code{Analyze/TALE_Protein_parts.fasta};
+\item RVD sequences, the RVDs separated by hyphens
+(\code{NI-HD-NG-NN-...}), as in its \code{Analyze/TALE_RVDs.fasta}
+or the shipped \code{Sample_TALEs_RVDSeqs_AnnoTALE.fasta}
+(\code{system.file("extdata", package = "tantale")}).
+}}
 
 \item{class_builder}{Path to the class builder XML holding the classes
 to assign against, as \code{\link{run_annotale_load_classes}} returns.}
@@ -40,7 +53,8 @@ use \code{fasta_file}, \code{class_builder}, \code{strain},
 
 \item{java_args}{A single string of options for the Java virtual
 machine, placed before \code{-jar}. The default raises the heap to 8
-GB, which reading the catalogue needs.}
+GB, which reading the catalogue needs; raise \code{-Xmx} if it runs
+out of memory.}
 
 \item{annotale_jar}{Path to the AnnoTALE jar file. The default is the
 copy \code{\link[=tantale_setup]{tantale_setup()}} downloads; give a path to use another version.}
@@ -52,9 +66,9 @@ report and figure for each class that changed or was created, and a
 class builder extended with the TALEs given.
 }
 \description{
-An R wrapper around the 'AnnoTALEcli.jar assign' call. Each TALE given
-is placed in the class of the catalogue it belongs to, and any that fit
-none open a new class. Where
+An R wrapper around the 'AnnoTALEcli.jar assign' call. AnnoTALE places
+each TALE in the class of the catalogue it belongs to, and opens a new
+class for any that fit none. Where
 \code{\link{run_annotale_build}} groups the TALEs you hand it among
 themselves, knowing nothing of what the rest of the world calls them,
 this one answers "which published class is this TALE in", so its names

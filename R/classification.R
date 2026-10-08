@@ -372,8 +372,9 @@ tales_group_kmedoids <- function(x, tale_distances, k_range = NULL, k = NULL,
 #'   \code{\link{tales_rvd_strings}}, and arrays without repeats are left
 #'   out.
 #' @param group_col Name of the \code{tale_annotation} column holding TALE
-#'   groups, drawn as columns (e.g. the \code{group} from
-#'   \code{\link{tales_group_kmedoids}}).
+#'   groups, drawn as columns. The default, \code{"group"}, is the column
+#'   \code{\link{tales_group_kmedoids}} and \code{\link{tales_group_hclust}}
+#'   add.
 #' @param strain_col Name of the column holding strain names, drawn as rows.
 #' @param rvd_col Name of the column holding RVD sequences (e.g. from
 #'   \code{\link{tales_rvd_strings}}). Not needed when
@@ -425,8 +426,8 @@ tales_group_kmedoids <- function(x, tale_distances, k_range = NULL, k = NULL,
 #' x$group <- c(ROI_00001 = 1, ROI_00002 = 1, ROI_00003 = 2, ROI_00004 = 2)[x$array_id]
 #' x$strain <- c(ROI_00001 = "S1", ROI_00002 = "S2", ROI_00003 = "S1",
 #'               ROI_00004 = "S2")[x$array_id]
-#' talomes_heatmap(x, group_col = "group", strain_col = "strain")
-talomes_heatmap <- function(tale_annotation, group_col, strain_col, rvd_col, trunc_tales_col = NULL, extra_col = NULL,
+#' talomes_heatmap(x, strain_col = "strain")
+talomes_heatmap <- function(tale_annotation, group_col = "group", strain_col, rvd_col, trunc_tales_col = NULL, extra_col = NULL,
                             x_lab = "TALE Group", y_lab = "Strain", title = "RVD sequences variants",
                             plot_type = "all",
                             colors = .tantale_colours$variant_ranks, margins = NULL,

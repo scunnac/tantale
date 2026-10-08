@@ -81,6 +81,7 @@ new_tales <- function(x, dom_code_namespace = NULL) {
   # a claim only a tales_msa can make (new_tales_msa() sets it after this), so
   # a stale one would let tales_msa_width() answer on a demoted object (§32.1).
   attr(x, "alignment_width") <- NULL
+  attr(x, "alignment_params") <- NULL
   if (!is.null(dom_code_namespace)) {
     attr(x, "dom_code_namespace") <- dom_code_namespace
   }
@@ -992,6 +993,7 @@ dplyr_col_modify.tales <- function(data, cols) {
   class(x) <- setdiff(class(x), c("tales_msa", "tales"))
   attr(x, "dom_code_namespace") <- NULL
   attr(x, "alignment_width") <- NULL
+  attr(x, "alignment_params") <- NULL
   tibble::as_tibble(x)
 }
 
@@ -1006,9 +1008,11 @@ dplyr_col_modify.tales <- function(data, cols) {
   if (inherits(out, "tales_msa")) {
     if (.tales_msa_contract_holds(out)) {
       attr(out, "alignment_width") <- attr(template, "alignment_width", exact = TRUE)
+      attr(out, "alignment_params") <- attr(template, "alignment_params", exact = TRUE)
     } else {
       class(out) <- setdiff(class(out), "tales_msa")
       attr(out, "alignment_width") <- NULL
+      attr(out, "alignment_params") <- NULL
     }
   }
   out

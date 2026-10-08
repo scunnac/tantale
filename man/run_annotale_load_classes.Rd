@@ -29,8 +29,8 @@ sets itself (\code{c}, \code{cb}, \code{outdir}) are refused: use
 
 \item{java_args}{A single string of options for the Java virtual
 machine, placed before \code{-jar}. The default raises the heap to 8
-GB, which the catalogue needs; rebuilding it was seen to hold 1.8 GB
-resident.}
+GB, which the catalogue needs (rebuilding it was seen to hold 1.8 GB
+resident); raise \code{-Xmx} if it runs out of memory.}
 
 \item{annotale_jar}{Path to the AnnoTALE jar file. The default is the
 copy \code{\link[=tantale_setup]{tantale_setup()}} downloads; give a path to use another version.}

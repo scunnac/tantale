@@ -17,8 +17,10 @@
 #'   report. \code{NA} is likewise returned when the most common thing at a
 #'   position is a gap.
 #'
-#' @param align A multiple Tal sequences alignment in the form of a
-#'   matrix.
+#' @param align A TALE alignment as a character matrix, one row per array
+#'   and one column per alignment position, with \code{NA} for gaps.
+#'   \code{as.matrix()} on a \code{\link{tales_msa}} returns one (see
+#'   \code{\link{as.matrix.tales_msa}}), filled with RVDs or domain codes.
 #' @return A vector of consensus elements in each column of \code{align}.
 #' 
 #' @export
@@ -30,6 +32,15 @@
 #'              nrow = 3, dimnames = list(c("A1", "A2", "A3"), NULL))
 #' aln
 #' tales_consensus(aln)
+#'
+#' # From a tales_msa, such as tales_align() returns
+#' msa <- tales_msa(data.frame(
+#'   array_id = c("A1", "A1", "A1", "A2", "A2", "A3", "A3", "A3"),
+#'   position_in_array = c(1L, 2L, 3L, 1L, 2L, 1L, 2L, 3L),
+#'   alignment_position = c(1L, 2L, 3L, 1L, 3L, 1L, 2L, 3L),
+#'   rvd = c("NTERM", "HD", "CTERM", "NTERM", "CTERM", "NTERM", "HD", "CTERM")
+#' ))
+#' tales_consensus(as.matrix(msa))
 tales_consensus <- function(align) {
   vapply(seq_len(ncol(align)), function(x) {
   allElements <- align[,x]
@@ -51,8 +62,10 @@ tales_consensus <- function(align) {
 #' see \code{\link{tales_consensus}} -- are \code{NA} throughout, since
 #' there is nothing there to match.
 #'
-#' @param align A multiple Tal sequences alignment in the form of a
-#'   matrix.
+#' @param align A TALE alignment as a character matrix, one row per array
+#'   and one column per alignment position, with \code{NA} for gaps.
+#'   \code{as.matrix()} on a \code{\link{tales_msa}} returns one (see
+#'   \code{\link{as.matrix.tales_msa}}), filled with RVDs or domain codes.
 #' @param long Set to \code{TRUE} (default) to return a long tibble, or
 #'   \code{FALSE} to return a logical matrix with the same shape as
 #'   \code{align}.

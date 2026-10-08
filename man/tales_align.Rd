@@ -58,7 +58,9 @@ fails, so nothing is lost for diagnosis.}
 (\code{NA} by default).}
 }
 \value{
-A \code{tales_msa} object.
+A \code{tales_msa} object. The settings it was aligned with
+(\code{residue_col}, \code{domain_distances}, \code{mafft_opts}) are
+kept with it; \code{\link{tales_msa_params}} returns them.
 }
 \description{
 Aligns TALE arrays on one of their residue layers with MAFFT's text mode,
@@ -89,6 +91,7 @@ Other TALE alignment:
 \code{\link[=tales_consensus]{tales_consensus()}},
 \code{\link[=tales_consensus_match]{tales_consensus_match()}},
 \code{\link[=tales_msa]{tales_msa()}},
+\code{\link[=tales_msa_params]{tales_msa_params()}},
 \code{\link[=tales_msa_width]{tales_msa_width()}},
 \code{\link[=validate_tales_msa]{validate_tales_msa()}}
 }

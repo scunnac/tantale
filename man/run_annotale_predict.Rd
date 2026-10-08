@@ -34,9 +34,10 @@ runs its sensitive scan. The keys this function sets itself
 stage has no option of its own beyond a run name.}
 
 \item{java_args}{A single string of options for the Java virtual
-machine, placed before \code{-jar} in both stages, such as
-\code{"-Xmx8G"} to raise its memory limit. The default, \code{""},
-leaves Java's own defaults.}
+machine, placed before \code{-jar} in both stages. The default,
+\code{""}, leaves Java's own defaults (a heap of up to a quarter of the
+physical memory); give a \code{-Xmx} value, such as \code{"-Xmx8G"},
+if AnnoTALE runs out of memory.}
 
 \item{annotale_jar}{Path to the AnnoTALE jar file. The default is the
 copy \code{\link[=tantale_setup]{tantale_setup()}} downloads; give a path to use another version.}

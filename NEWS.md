@@ -1,5 +1,17 @@
 # tantale 0.99.0.9000
 
+## A `tales_msa` keeps the settings it was aligned with
+
+`tales_align()` stores the column it aligned on (`residue_col`), the
+scoring it was given (`domain_distances`) and MAFFT's options with the
+alignment. The new `tales_msa_params()` returns them, so an alignment
+holding both `rvd` and `dom_code` says which one it was made from.
+
+## `talomes_heatmap()` groups on `group` by default
+
+`group_col` defaults to `"group"`, the column `tales_group_kmedoids()` and
+`tales_group_hclust()` add.
+
 ## `NTERM` and `CTERM` now mean a canonical terminus
 
 A terminus is coded `NTERM` or `CTERM` only when its protein segment

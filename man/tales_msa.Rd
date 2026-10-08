@@ -46,6 +46,7 @@ Other TALE alignment:
 \code{\link[=tales_align]{tales_align()}},
 \code{\link[=tales_consensus]{tales_consensus()}},
 \code{\link[=tales_consensus_match]{tales_consensus_match()}},
+\code{\link[=tales_msa_params]{tales_msa_params()}},
 \code{\link[=tales_msa_width]{tales_msa_width()}},
 \code{\link[=validate_tales_msa]{validate_tales_msa()}}
 }
