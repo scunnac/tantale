@@ -15,16 +15,20 @@ A tibble of \code{array_id}, \code{check}, \code{kind}
 row per anomaly. Zero rows if the object is clean.
 }
 \description{
-Lists the arrays whose content is biologically odd: missing sequence data,
-a structure other than that of a standard TALE (an N-terminus, one or more
-repeats and a C-terminus, both termini canonical TALE terminal domains),
-impossible domain-type arrangements, coordinate
-disagreements, an amino acid sequence paired with more than one RVD, or
-an attribute that varies within an array when it should not. Structurally broken input (a
-duplicated key, a missing required column) is an error in
-\code{\link{tales}} instead.
+Lists the arrays whose content is biologically odd:
+\itemize{
+\item missing sequence data,
+\item a structure other than that of a standard TALE (an N-terminus, one or more
+repeats and a C-terminus, both termini canonical TALE terminal domains)
+\item impossible domain-type arrangements,
+\item coordinate disagreements,
+\item an amino acid sequence paired with more than one RVD,
+\item an attribute that varies within an array when it should not.
+}
 
-Such arrays are accepted by \code{\link{tales}} -- real TALE predictions are
+In contrast, structurally broken input (a duplicated key, a missing required column) is an error in \code{\link{tales}} instead.
+
+"Odd" arrays are accepted by \code{\link{tales}} -- real TALE predictions are
 messy, and refusing to load them would force cleaning outside the package and
 destroy the diagnostic signal. Construction warns about them and this
 function tells you which and why.

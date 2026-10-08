@@ -14,9 +14,8 @@ A plain data frame with the same columns is also accepted and coerced.}
 
 \item{k}{Integer, the number of groups to cut the tree into.}
 
-\item{plot_tree}{Logical, whether to draw the dendrogram: colored by
-group, with a dashed line at the cut height. \code{FALSE} by default, so the
-\code{ggtree}/\code{tidytree} machinery only runs when a plot is actually wanted.}
+\item{plot_tree}{Logical, whether to draw the \code{ggtree} dendrogram: colored by
+group, with a dashed line at the cut height. \code{FALSE} by default.}
 }
 \value{
 \code{x} with an added (or replaced) \code{group} column.
@@ -44,10 +43,7 @@ The bare mapping is still one line away if you want it:
 
 The tree is built directly on the distances
 (\code{stats::hclust(stats::as.dist(distMat))}), matching the original
-DisTAL clustering this package reimplements, so arrays that are close to
-each other end up together. (A Euclidean distance between the arrays'
-distance \emph{profiles} would instead group arrays that relate to the rest of
-the population in the same way.) The tree is cut with
+DisTAL clustering this package reimplements. The tree is cut with
 \code{stats::cutree(tree, k = k)}, which always succeeds, including when
 a tie in merge heights would make a height-based cut ambiguous.
 }

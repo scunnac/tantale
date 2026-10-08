@@ -18,10 +18,8 @@ tales_coded_strings(x, sep = " ", repeats_only = FALSE)
 A \link[Biostrings:BStringSet]{Biostrings::BStringSet}, named by \code{array_id}.
 }
 \description{
-Renders each array as a separated string of its \code{dom_code}s in part order:
-the encoding the array alignments consume (MAFFT's text mode, and
-\code{\link[=tales_tale_distances]{tales_tale_distances()}}), where each distinct
-domain sequence is one "residue".
+Renders each array as a separated string of its \code{dom_code}s in part order,
+where each distinct domain sequence is one "residue".
 }
 \details{
 This is the sibling of \code{\link[=tales_rvd_strings]{tales_rvd_strings()}} and takes the same two

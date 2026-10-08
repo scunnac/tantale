@@ -23,18 +23,11 @@ at most \code{terminus_max_evalue}, covers at least
 \code{terminus_min_cover} of the profile (0.9 by default) and reaches the
 end of the profile that adjoins the repeats. \code{"XXXXX"} marks any
 other segment. An array for which AnnoTALE reported no segment on one side
-has no terminus part on that side.
+has no terminus part at the protein level on that side.
 
 A terminus can fail to be canonical in several ways, which
 \code{array_report.tsv} tells apart (its \code{*_aa_*} and
-\code{*_dna_*} columns, see \code{\link{tell_tales}}). The segment may
-be unrelated sequence, where the ORF starts or ends inside a frameshifted
-region. Its repeat-side part may be in another reading frame after a
-frameshift. Or it may be a TALE terminus that has lost a large part: the
-N-terminal region carries the type III secretion signal and, next to the
-repeats, the degenerate repeats that bind the thymine preceding the
-target; the C-terminal region carries the nuclear localisation signals
-and, at its far end, the transcription activation domain. The truncTALEs
+\code{*_dna_*} columns, see \code{\link{tell_tales}}). The truncTALEs
 of \emph{Xanthomonas oryzae} have lost the activation domain, and their
 C-termini are coded \code{"XXXXX"}. A smaller internal deletion, such as
 the one in the N-terminus of TalC, a major TALE of African

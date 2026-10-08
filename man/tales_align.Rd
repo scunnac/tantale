@@ -18,7 +18,7 @@ tales_align(
 \item{x}{A \code{\link{tales}} object holding complete arrays.}
 
 \item{residue_col}{Which layer to align on: \code{"rvd"} (default) or
-\code{"dom_code"}. It is never guessed from the values.}
+\code{"dom_code"}.}
 
 \item{domain_distances}{Scoring matrix for the residues being aligned.
 \code{NULL} (default) means none. Pass \code{"rvd"} to opt in to the
@@ -40,7 +40,7 @@ do correspond. Raise \code{--op} if the alignment fragments into too
 many small gaps.}
 
 \item{mafft_path}{Where to find MAFFT. \code{NULL}, the default, uses the
-\code{tantale} conda environment, creating it on first use. Give the root
+\code{tantale} conda environment, created on first use. Give the root
 of a standalone MAFFT directory instead (one holding \code{mafft.bat}
 with the helpers under \code{mafftdir/libexec}) to use your own copy --
 but note that the version matters: MAFFT changed how it aligns text-mode

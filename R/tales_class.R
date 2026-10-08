@@ -35,7 +35,7 @@ TALES_DOMAIN_TYPES <- c("N-terminus", "repeat", "C-terminus")
 #' \code{terminus_min_cover} of the profile (0.9 by default) and reaches the
 #' end of the profile that adjoins the repeats. \code{"XXXXX"} marks any
 #' other segment. An array for which AnnoTALE reported no segment on one side
-#' has no terminus part at the protien level on that side.
+#' has no terminus part at the protein level on that side.
 #'
 #' A terminus can fail to be canonical in several ways, which
 #' \code{array_report.tsv} tells apart (its \code{*_aa_*} and

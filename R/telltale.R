@@ -1368,7 +1368,7 @@
 #' categorize regions in the input DNA sequence that are related to the coding
 #' sequence of canonical TALE protein domains (N-Term, repeats, C-term). Hits
 #' that are (nearly -- see the `min_gap` parameter) adjacent are grouped in
-#' "talArrays" which are considered as potential \emph{tal} genes.
+#' "taleArrays" which are considered as potential \emph{tal} genes.
 #'
 #'
 #' If the \code{correct_array} parameter is turned off, the longest
