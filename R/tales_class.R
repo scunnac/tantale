@@ -537,16 +537,18 @@ validate_tales <- function(x) {
 #'
 #' @description
 #' Lists the arrays whose content is biologically odd:
-#' 
+#'
 #'  - missing sequence data,
-#'  - a structure other than that of a standard TALE (an N-terminus, one or more
-#' repeats and a C-terminus, both termini canonical TALE terminal domains)
+#'  - a structure other than that of a standard TALE (an N-terminus, one or
+#'    more repeats and a C-terminus, both termini canonical TALE terminal
+#'    domains),
 #'  - impossible domain-type arrangements,
 #'  - coordinate disagreements,
 #'  - an amino acid sequence paired with more than one RVD,
 #'  - an attribute that varies within an array when it should not.
-#' 
-#'  In contrast, structurally broken input (a duplicated key, a missing required column) is an error in \code{\link{tales}} instead.
+#'
+#' Structurally broken input (a duplicated key, a missing required column)
+#' is an error in \code{\link{tales}} instead.
 #'
 #' "Odd" arrays are accepted by \code{\link{tales}} -- real TALE predictions are
 #' messy, and refusing to load them would force cleaning outside the package and

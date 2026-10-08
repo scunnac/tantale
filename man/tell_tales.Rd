@@ -55,7 +55,7 @@ consider the DNA hit as genuine}
 the DNA hit as genuine}
 
 \item{cterm_min_score}{Minimal nhmmer score cut_off value to
-consider the hit as genuine}
+consider the DNA hit as genuine}
 
 \item{terminus_max_evalue, terminus_min_cover}{What it takes for the
 segment AnnoTALE reports on either side of the repeats to be flagged as a

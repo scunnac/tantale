@@ -45,10 +45,12 @@ x
 #>   ROI_00004  NTERM NI HD NN NS NN NG HD NG HD NG NN NG HD NS HD NI NG HD H ...
 ```
 
-Every row is one *part* of one TALE *array* (the domains composing the
-full protein, ie the *array*): a repeat or a terminus.
-[`summary()`](https://rdrr.io/r/base/summary.html) gives the array-level
-view:
+Even though `tales` objects are printed in a standard ‘wide’ format,
+internally, the information about TALEs is stored as a long table. Every
+row is one *part* (individual domain) of one TALE *array*: a repeat or a
+terminus. `tales` objects can store an arbitrary number of *arrays*
+(full TALE proteins). [`summary()`](https://rdrr.io/r/base/summary.html)
+provides key array features:
 
 Code
 

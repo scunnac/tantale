@@ -49,8 +49,8 @@ x <- tales_from_telltales(example_dir)
 x
 ```
 
-Even though `tales` objects are printed in a standard 'wide' format, internally, the information about TALES is stored as a long table. Every row is one *part* (individual domain) of one TALE *array*: a repeat or a terminus. `tales` objects can store an arbitrary number of *arrays* (full TALE proteins). `summary()`
- provides key arrays features:
+Even though `tales` objects are printed in a standard 'wide' format, internally, the information about TALEs is stored as a long table. Every row is one *part* (individual domain) of one TALE *array*: a repeat or a terminus. `tales` objects can store an arbitrary number of *arrays* (full TALE proteins). `summary()`
+provides key array features:
 
 ```{r summary}
 summary(x)

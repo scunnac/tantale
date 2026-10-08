@@ -25,22 +25,15 @@ has an E-value of at most `terminus_max_evalue`, covers at least
 `terminus_min_cover` of the profile (0.9 by default) and reaches the end
 of the profile that adjoins the repeats. `"XXXXX"` marks any other
 segment. An array for which AnnoTALE reported no segment on one side has
-no terminus part on that side.
+no terminus part at the protein level on that side.
 
 A terminus can fail to be canonical in several ways, which
 `array_report.tsv` tells apart (its `*_aa_*` and `*_dna_*` columns, see
 [`tell_tales`](https://scunnac.github.io/tantale/reference/tell_tales.md)).
-The segment may be unrelated sequence, where the ORF starts or ends
-inside a frameshifted region. Its repeat-side part may be in another
-reading frame after a frameshift. Or it may be a TALE terminus that has
-lost a large part: the N-terminal region carries the type III secretion
-signal and, next to the repeats, the degenerate repeats that bind the
-thymine preceding the target; the C-terminal region carries the nuclear
-localisation signals and, at its far end, the transcription activation
-domain. The truncTALEs of *Xanthomonas oryzae* have lost the activation
-domain, and their C-termini are coded `"XXXXX"`. A smaller internal
-deletion, such as the one in the N-terminus of TalC, a major TALE of
-African *X. oryzae* pv. *oryzae*, leaves a terminus canonical.
+The truncTALEs of *Xanthomonas oryzae* have lost the activation domain,
+and their C-termini are coded `"XXXXX"`. A smaller internal deletion,
+such as the one in the N-terminus of TalC, a major TALE of African *X.
+oryzae* pv. *oryzae*, leaves a terminus canonical.
 
 These share the `rvd` column with real RVDs, so code that distinguishes
 repeats from termini by value should use this function rather than

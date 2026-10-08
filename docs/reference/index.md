@@ -198,7 +198,7 @@ Package-level documentation.
 
 ## External tool wrappers
 
-Wrappers around AnnoTALE and QueTAL.
+Wrappers around AnnoTALE programs.
 
 - [`run_annotale_assign()`](https://scunnac.github.io/tantale/reference/run_annotale_assign.md)
   : Assign TALEs to AnnoTALE's published classes

@@ -80,9 +80,8 @@ A plain data frame with the same columns is also accepted and coerced.</p></dd>
 
 
 <dt id="arg-plot-tree">plot_tree<a class="anchor" aria-label="anchor" href="#arg-plot-tree"></a></dt>
-<dd><p>Logical, whether to draw the dendrogram: colored by
-group, with a dashed line at the cut height. <code>FALSE</code> by default, so the
-<code>ggtree</code>/<code>tidytree</code> machinery only runs when a plot is actually wanted.</p></dd>
+<dd><p>Logical, whether to draw the <code>ggtree</code> dendrogram: colored by
+group, with a dashed line at the cut height. <code>FALSE</code> by default.</p></dd>
 
 </dl></div>
     <div class="section level2">
@@ -104,10 +103,7 @@ object is the kind of thing that fails much later and confusingly.</p>
 <code>unique(out[c("array_id", "group")])</code>.</p>
 <p>The tree is built directly on the distances
 (<code>stats::hclust(stats::as.dist(distMat))</code>), matching the original
-DisTAL clustering this package reimplements, so arrays that are close to
-each other end up together. (A Euclidean distance between the arrays'
-distance <em>profiles</em> would instead group arrays that relate to the rest of
-the population in the same way.) The tree is cut with
+DisTAL clustering this package reimplements. The tree is cut with
 <code>stats::cutree(tree, k = k)</code>, which always succeeds, including when
 a tie in merge heights would make a height-based cut ambiguous.</p>
     </div>

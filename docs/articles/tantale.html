@@ -101,7 +101,7 @@
 <span><span class="co">#&gt;   ROI_00004  NTERM NI HD NN NS NN NG HD NG HD NG NN NG HD NS HD NI NG HD H ...</span></span></code></pre></div>
 </details>
 </div>
-<p>Every row is one <em>part</em> of one TALE <em>array</em> (the domains composing the full protein, ie the <em>array</em>): a repeat or a terminus. <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> gives the array-level view:</p>
+<p>Even though <code>tales</code> objects are printed in a standard ‘wide’ format, internally, the information about TALEs is stored as a long table. Every row is one <em>part</em> (individual domain) of one TALE <em>array</em>: a repeat or a terminus. <code>tales</code> objects can store an arbitrary number of <em>arrays</em> (full TALE proteins). <code><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary()</a></code> provides key array features:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/summary.html" class="external-link">summary</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span></span>

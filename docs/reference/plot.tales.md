@@ -6,9 +6,7 @@ type and filled by part type and amino-acid length. Each repeat carries
 its RVD, each terminus the short name of its code (`N-`, `-C`, or `??`
 for a terminus that does not match its TALE domain profile; see
 [`tales_anchor_codes`](https://scunnac.github.io/tantale/reference/tales_anchor_codes.md)).
-Arrays are listed from the top in alphabetical order of `array_id`,
-compared byte by byte as in every projection of a `tales` object, so the
-order does not depend on the locale.
+Arrays are listed from the top in alphabetical order of `array_id`.
 
 The fill colours follow the role of each part. The canonical 34-aa
 repeat and the 20-aa half-repeat that ends every array get calm colours,

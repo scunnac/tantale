@@ -1,15 +1,26 @@
 # Report the biological anomalies in a tales object
 
-Lists the arrays whose content is biologically odd: missing sequence
-data, a structure other than that of a standard TALE (an N-terminus, one
-or more repeats and a C-terminus, both termini canonical TALE terminal
-domains), impossible domain-type arrangements, coordinate disagreements,
-an amino acid sequence paired with more than one RVD, or an attribute
-that varies within an array when it should not. Structurally broken
-input (a duplicated key, a missing required column) is an error in
+Lists the arrays whose content is biologically odd:
+
+- missing sequence data,
+
+- a structure other than that of a standard TALE (an N-terminus, one or
+  more repeats and a C-terminus, both termini canonical TALE terminal
+  domains),
+
+- impossible domain-type arrangements,
+
+- coordinate disagreements,
+
+- an amino acid sequence paired with more than one RVD,
+
+- an attribute that varies within an array when it should not.
+
+Structurally broken input (a duplicated key, a missing required column)
+is an error in
 [`tales`](https://scunnac.github.io/tantale/reference/tales.md) instead.
 
-Such arrays are accepted by
+"Odd" arrays are accepted by
 [`tales`](https://scunnac.github.io/tantale/reference/tales.md) – real
 TALE predictions are messy, and refusing to load them would force
 cleaning outside the package and destroy the diagnostic signal.

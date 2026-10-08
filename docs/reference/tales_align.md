@@ -29,8 +29,7 @@ tales_align(
 
 - residue_col:
 
-  Which layer to align on: `"rvd"` (default) or `"dom_code"`. It is
-  never guessed from the values.
+  Which layer to align on: `"rvd"` (default) or `"dom_code"`.
 
 - domain_distances:
 
@@ -59,12 +58,11 @@ tales_align(
 - mafft_path:
 
   Where to find MAFFT. `NULL`, the default, uses the `tantale` conda
-  environment, creating it on first use. Give the root of a standalone
-  MAFFT directory instead (one holding `mafft.bat` with the helpers
-  under `mafftdir/libexec`) to use your own copy – but note that the
-  version matters: MAFFT changed how it aligns text-mode sequences after
-  7.4x, and later releases leave the termini of a TALE alignment
-  unanchored.
+  environment, created on first use. Give the root of a standalone MAFFT
+  directory instead (one holding `mafft.bat` with the helpers under
+  `mafftdir/libexec`) to use your own copy – but note that the version
+  matters: MAFFT changed how it aligns text-mode sequences after 7.4x,
+  and later releases leave the termini of a TALE alignment unanchored.
 
 - mafft_verbose:
 

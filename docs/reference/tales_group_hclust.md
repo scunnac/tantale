@@ -34,10 +34,8 @@ tales_group_hclust(x, tale_distances, k = NULL, plot_tree = FALSE)
 
 - plot_tree:
 
-  Logical, whether to draw the dendrogram: colored by group, with a
-  dashed line at the cut height. `FALSE` by default, so the
-  `ggtree`/`tidytree` machinery only runs when a plot is actually
-  wanted.
+  Logical, whether to draw the `ggtree` dendrogram: colored by group,
+  with a dashed line at the cut height. `FALSE` by default.
 
 ## Value
 
@@ -63,10 +61,7 @@ The bare mapping is still one line away if you want it:
 
 The tree is built directly on the distances
 (`stats::hclust(stats::as.dist(distMat))`), matching the original DisTAL
-clustering this package reimplements, so arrays that are close to each
-other end up together. (A Euclidean distance between the arrays'
-distance *profiles* would instead group arrays that relate to the rest
-of the population in the same way.) The tree is cut with
+clustering this package reimplements. The tree is cut with
 `stats::cutree(tree, k = k)`, which always succeeds, including when a
 tie in merge heights would make a height-based cut ambiguous.
 

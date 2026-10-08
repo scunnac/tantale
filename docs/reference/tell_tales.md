@@ -3,7 +3,7 @@
 `tell_tales` has been primarily written to report on 'corrected' TALE
 RVD sequences in indels prone, noisy DNA sequences (suboptimally
 polished genomes assembly, raw reads of long read sequencing
-technologies such as PacBio or ONT) that would otherwise be missed by
+technologies such as PacBio or ONT) that may otherwise be missed by
 conventional tools (eg AnnoTALE).
 
 ## Usage
@@ -61,20 +61,20 @@ tell_tales(
 
 - nterm_min_score:
 
-  Minimal nhmmer score cut_off value to consider the hit as genuine
+  Minimal nhmmer score cut_off value to consider the DNA hit as genuine
 
 - repeat_min_score:
 
-  Minimal nhmmer score cut_off value to consider the hit as genuine
+  Minimal nhmmer score cut_off value to consider the DNA hit as genuine
 
 - cterm_min_score:
 
-  Minimal nhmmer score cut_off value to consider the hit as genuine
+  Minimal nhmmer score cut_off value to consider the DNA hit as genuine
 
 - terminus_max_evalue, terminus_min_cover:
 
   What it takes for the segment AnnoTALE reports on either side of the
-  repeats to be coded as a canonical TALE N- or C-terminus, `NTERM` or
+  repeats to be flagged as a canonical TALE N- or C-terminus, `NTERM` or
   `CTERM` rather than `XXXXX` (see
   [`tales_anchor_codes`](https://scunnac.github.io/tantale/reference/tales_anchor_codes.md)).
   The segment is searched with the TALE terminal-domain protein profile
@@ -113,8 +113,8 @@ tell_tales(
 
 - min_gap:
 
-  Minimum gap in base pairs between two tale domain hits for them to be
-  considered distinct. If the length of the gap is below this value,
+  Minimum gap in base pairs between two tale domain DNA hits for them to
+  be considered distinct. If the length of the gap is below this value,
   domains are considered "contiguous" and grouped in the same array.
 
 - extremity_codes:
@@ -158,10 +158,9 @@ tell_tales(
     diversity-sampled subset, for a smaller footprint.
 
   Both keep the pseudogenes. Their frameshifts came from high-quality
-  genomes and so are real biology, and correction is meant to recover a
+  genomes and so are assumed real. Correction is meant to recover a
   sequence as it exists in nature rather than reshape every array into
-  an intact TALE. A reference of only intact TALEs risks "repairing" a
-  genuine pseudogene into an ORF no strain carries.
+  an intact TALE.
 
 - max_comparisons:
 
@@ -170,11 +169,7 @@ tell_tales(
   takes. `NULL` allows all of them. It is passed to
   [`DECIPHER::CorrectFrameshifts()`](https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html),
   which ranks the references by a quick distance and aligns the array
-  against the closest `max_comparisons` of them. In our tests on the
-  genomes shipped with the package, 50 gave the same corrections as the
-  full search in a quarter of the time or less. See the [TALE mining
-  article](https://scunnac.github.io/tantale/articles/tale_mining.html#sec-max-comparisons)
-  for the measurements.
+  against the closest `max_comparisons` of them.
 
 - frameshift:
 
@@ -215,8 +210,8 @@ List of output files:
   - *array_seq*: DNA sequence of that span.
 
   - *nterm_dna_hit*, *cterm_dna_hit*: whether an nhmmer hit of the N-
-    (C-) terminus DNA profile is part of the array, anywhere in it. Only
-    hits scoring at least `nterm_min_score` (`cterm_min_score`) count.
+    (C-) terminus DNA profile is part of the array. Only hits scoring at
+    least `nterm_min_score` (`cterm_min_score`) count.
 
   - *rvd_string*: the RVDs AnnoTALE read, separated by `rvd_sep`, with
     the terminus codes described under *rvd_sequences.fas*. Empty when
@@ -354,7 +349,8 @@ The approach is first to use [HMMER](http://hmmer.org/) to find and
 categorize regions in the input DNA sequence that are related to the
 coding sequence of canonical TALE protein domains (N-Term, repeats,
 C-term). Hits that are (nearly – see the `min_gap` parameter) adjacent
-are grouped in "taleArrays" which are considered as potential tal genes.
+are grouped in "taleArrays" which are considered as potential *tal*
+genes.
 
 If the `correct_array` parameter is turned off, the longest predicted
 open reading frame (+extend_len) for each talArray is fed to
@@ -415,13 +411,13 @@ tell_tales(subject_file = subj, output_dir = out)
 #> Now running AnnoTALE analyze for ROI_00004
 #> #****************************************
 #> #**   tell_tales analysis done     **
-#> Current date:    Tue Oct  6 01:46:30 2026
+#> Current date:    Fri Oct  9 00:19:18 2026
 #> #_________Provided I/O parameters __________
 #> File of subject DNA sequences:   /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/bai3_sample_tal_genomic_regions.fasta
 #> TALE N-term CDS region detection HMM file:   /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Nterm_CDS_profile.hmm
 #> TALE repeat unit CDS detection HMM file: /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_repeat_CDS_profile.hmm
 #> TALE C-term CDS region detection HMM file:   /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Cterm_CDS_profile.hmm
-#> Output directory:    /tmp/Rtmp5hQVI7/tell_tales_example29a7c91f4e1f47
+#> Output directory:    /tmp/Rtmpa8Rb5w/tell_tales_example994ff19f0b023
 #> #____________Other parameters________________
 #> nterm_min_score: 300
 #> repeat_min_score:    20
