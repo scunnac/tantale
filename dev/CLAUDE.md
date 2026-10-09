@@ -237,18 +237,24 @@ before trusting any of it.*
 
 ### State
 
-- **2026-10-09 -- start here.** All work pushed. The maintainer's
+- **2026-10-09, second session -- start here.** All work pushed
+  (`main` at 7642d04, `claude-reviewed` on it). **Read first:** CI on
+  7642d04 (R-CMD-check Linux, test-coverage; macOS and pkgcheck only by
+  hand, last green on 7325ce2). Done (§61): Q231 `tales_align()` loses
+  `...`; Q232 prediction columns `tale_id`, `subj_seq_id`, `ebe_seq`;
+  Q233/Q239 `plot_target_preds()` score label and named legend levels
+  with square keys; Q224 active-voice rewrites as marked in
+  `dev/passive-review.md`; Q241 closed (the tell_tales log does report
+  arrays AnnoTALE could not parse). README.qmd had drifted from README.md
+  (Perl); fixed in the source. Nothing waits on the maintainer. No
+  answer from the #813 editors as of 2026-10-09. Last Q used: Q242.
+- **2026-10-09, first session.** The maintainer's
   `dev/notes_for_claude.md` of 2026-10-08 was triaged as Q219-Q238
   (ledger §61): column order of `talvez()`/`preditale()`,
   `tales_msa_params()` (new export), `talomes_heatmap(group_col =
-  "group")`, `?tantale-package` rewritten, several doc fixes. CI on
-  7325ce2 is green: R-CMD-check Linux and macOS, test-coverage, pkgcheck
-  (§61).
-  Q231-Q233 done in a second session, pushed as c47ba7a (`tales_align()` loses `...`,
-  snake_case prediction columns, `plot_target_preds()` labels; §61).
-  Q224 applied (§61); Q241 closed, no change. No answer from the #813 editors as of 2026-10-09.
-  Lesson: after changing what a function returns, run every test file
-  that calls it, not only the class's own. Last Q used: Q241.
+  "group")`, `?tantale-package` rewritten, several doc fixes. Lesson:
+  after changing what a function returns, run every test file that calls
+  it, not only the class's own.
 - **2026-10-06, fourth session -- start here.** All work pushed. The
   #813 reply was cut down to a short report of pkgcheck's results (draft
   in `../tantale_ropensci/813-reply-draft.md`) and **the maintainer posts
