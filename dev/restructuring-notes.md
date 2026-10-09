@@ -4509,3 +4509,25 @@ warnings of `test_target_predictions.R` (`gather()` with `all_of(cn)` in
 Q232 (snake_case prediction columns), Q233 (`plot_target_preds()` score
 label `"%05.2f"` shows 0.24 as "00.24"; legend 1-3 unexplained) were not
 answered. Last Q used: Q238.
+
+**CI on 7325ce2 green** (checked 2026-10-09): R-CMD-check Linux, macOS
+(`macos-15-intel`, run 37859255412, three R versions), test-coverage, and
+pkgcheck (run 37860607813). No new comment from the #813 editors since
+2026-10-06.
+
+**Q231-Q233 done (2026-10-09, second session).** Q231: `tales_align()`
+loses `...`. It forwarded to `.build_repeat_msa()` after a hard-coded
+`gap_symbol = NA`, so `gap_symbol` failed as matched twice and anything
+else as unused. Q232: the prediction columns `taleId`, `subjSeqId` and
+`ebeSeq` are now `tale_id`, `subj_seq_id` and `ebe_seq` (hard rename,
+NEWS). Q233: `plot_target_preds()` prints the score with `"%.2f"`; the
+fill legend is titled "RVD-base match" and names its levels, best first:
+preferred base, intermediate, least preferred base. The level is the
+rank of the base's weight in TALVEZ's `mat1` row for that RVD
+(`.compute_match_string()`), whichever tool made the prediction. Legend
+keys are squares (`key_glyph = "rect"`) instead of ggplot's boxed "a".
+The prose of `?plot_target_preds` is left to the Q224 pass, whose items
+2-3 quote it. Q239: square keys approved with the drafts. README re-rendered:
+its prediction output predated Q219, and `README.qmd` still listed Perl
+as a requirement (4cd7008 had edited only `README.md`); fixed in the
+source.

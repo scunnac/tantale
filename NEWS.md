@@ -2,10 +2,23 @@
 
 ## `talvez()` and `preditale()` return their columns in one order
 
-Both return `taleId`, `rvds`, `subjSeqId`, `start`, `end`, `strand`,
-`ebeSeq` and `score`, in that order, then their own column (`rank` for
+Both return `tale_id`, `rvds`, `subj_seq_id`, `start`, `end`, `strand`,
+`ebe_seq` and `score`, in that order, then their own column (`rank` for
 Talvez, `pval` for PrediTALE). `tales_predict_targets()` puts its `method`
-column before the tool's own.
+column before the tool's own. Three columns are renamed to follow the
+package's snake_case rule: `taleId` to `tale_id`, `subjSeqId` to
+`subj_seq_id` and `ebeSeq` to `ebe_seq`.
+
+## `plot_target_preds()` labels
+
+The score next to each TALE name is printed with two decimals and no
+leading zeros (PrediTALE's 0.24 used to read "00.24"). The legend names
+the three match levels: the RVD's preferred base, an intermediate one,
+and its least preferred.
+
+## `tales_align()` loses `...`
+
+Any argument passed through it made the call fail, `gap_symbol` included.
 
 ## A `tales_msa` keeps the settings it was aligned with
 

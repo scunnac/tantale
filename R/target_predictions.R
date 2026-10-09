@@ -5,8 +5,8 @@
 
 # The columns talvez() and preditale() share, in the order both return them;
 # each tool's own column (rank, pval) comes after these.
-PREDICTION_COLS <- c("taleId", "rvds", "subjSeqId", "start", "end", "strand",
-                     "ebeSeq", "score")
+PREDICTION_COLS <- c("tale_id", "rvds", "subj_seq_id", "start", "end", "strand",
+                     "ebe_seq", "score")
 
 
 #' Run TALE target predictions on DNA sequence(s) using PrediTale
@@ -48,8 +48,8 @@ PREDICTION_COLS <- c("taleId", "rvds", "subjSeqId", "start", "end", "strand",
 #' @return A tibble with one row per predicted EBE (effector binding
 #'   element), the columns renamed from the tool's own output so that
 #'   \code{\link{talvez}} and \code{\link{preditale}} return the same ones
-#'   in the same order: \code{taleId}, \code{rvds}, \code{subjSeqId},
-#'   \code{start}, \code{end}, \code{strand}, \code{ebeSeq} and
+#'   in the same order: \code{tale_id}, \code{rvds}, \code{subj_seq_id},
+#'   \code{start}, \code{end}, \code{strand}, \code{ebe_seq} and
 #'   \code{score}, followed by the tool's own column: \code{pval}, the
 #'   approximate p-value PrediTALE gives each site.
 #' @export
@@ -111,16 +111,16 @@ preditale <- function(rvd_seqs, subj_file, opt_param = "", output_dir = NULL,
     suppressMessages(readr::read_tsv(f, show_col_types = FALSE))
     }) %>%
     dplyr::bind_rows() %>%
-    dplyr::rename(subjSeqId = `# Seq-ID`,
+    dplyr::rename(subj_seq_id = `# Seq-ID`,
                   start = Position,
                   strand = Strand,
                   score = Score,
-                  ebeSeq = Sequence,
+                  ebe_seq = Sequence,
                   pval = `Approx. p-value`,
                   rvds = RVDs,
-                  taleId = TALE) %>%
+                  tale_id = TALE) %>%
     dplyr::mutate(start = start + 1) %>%
-    dplyr::mutate(end = nchar(ebeSeq) + (start - 1)) %>%
+    dplyr::mutate(end = nchar(ebe_seq) + (start - 1)) %>%
     dplyr::mutate_if(is.factor, as.character) %>%
     dplyr::select(dplyr::all_of(PREDICTION_COLS), pval)
   # Returning
@@ -169,8 +169,8 @@ preditale <- function(rvd_seqs, subj_file, opt_param = "", output_dir = NULL,
 #' @return A tibble with one row per predicted EBE (effector binding
 #'   element), the columns renamed from the tool's own output so that
 #'   \code{\link{talvez}} and \code{\link{preditale}} return the same ones
-#'   in the same order: \code{taleId}, \code{rvds}, \code{subjSeqId},
-#'   \code{start}, \code{end}, \code{strand}, \code{ebeSeq} and
+#'   in the same order: \code{tale_id}, \code{rvds}, \code{subj_seq_id},
+#'   \code{start}, \code{end}, \code{strand}, \code{ebe_seq} and
 #'   \code{score}, followed by the tool's own column: \code{rank}, the
 #'   site's rank among the TALE's predictions by score.
 #' @export
@@ -249,18 +249,18 @@ talvez <- function(rvd_seqs, subj_file, opt_param = "-t 0 -l 19", output_dir = N
   predictions <- suppressMessages(
     readr::read_tsv(file.path(tempOutDir, "output_complete"), show_col_types = FALSE)
     ) %>%
-  dplyr::rename(subjSeqId = `SEQ_ID`,
+  dplyr::rename(subj_seq_id = `SEQ_ID`,
                 start = TALBS_start,
                 end = TALBS_end,
                 strand = EBEstrand,
                 score = SCORE,
-                ebeSeq = TALBS_sequence,
+                ebe_seq = TALBS_sequence,
                 rank = RANK,
                 rvds = TAL_SEQ,
-                taleId = TAL_ID) %>%
+                tale_id = TAL_ID) %>%
     dplyr::mutate(
-      subjSeqId = gsub(pattern = "^>", "", subjSeqId),
-      taleId = gsub(pattern = "^>", "", taleId),
+      subj_seq_id = gsub(pattern = "^>", "", subj_seq_id),
+      tale_id = gsub(pattern = "^>", "", tale_id),
       strand = gsub(pattern = "strand$", "", strand),
       start = start + 1 # THIS SEEEMS TO BE NECESSARY TO EXTRACT EXACT EBE FROM SUBJ SEQ...
                   ) %>%
@@ -356,15 +356,15 @@ talvez <- function(rvd_seqs, subj_file, opt_param = "-t 0 -l 19", output_dir = N
 #' best <- preds[order(-preds$score), ][1, ]
 #' # The site with 10 bp on either side
 #' plot_target_preds(preds = best, subj_file = subj,
-#'                   filter_range = paste0(best$subjSeqId, ":",
+#'                   filter_range = paste0(best$subj_seq_id, ":",
 #'                                         best$start - 10, "-", best$end + 10))
 #' }
 plot_target_preds <- function(preds, subj_file, filter_range) {
   ######### Check and parse arguments
   subjDnaSeqs <- Biostrings::readDNAStringSet(subj_file)
   predsGr <- preds %>% #dplyr::filter(strand == "-") %>%
-    GenomicRanges::makeGRangesFromDataFrame(seqnames.field = "subjSeqId", keep.extra.columns = TRUE)
-  if (!all(as.character(BSgenome::getSeq(subjDnaSeqs, predsGr)) == predsGr$ebeSeq)) {
+    GenomicRanges::makeGRangesFromDataFrame(seqnames.field = "subj_seq_id", keep.extra.columns = TRUE)
+  if (!all(as.character(BSgenome::getSeq(subjDnaSeqs, predsGr)) == predsGr$ebe_seq)) {
     cli::cli_abort(
       c("The EBE sequences in the predictions do not match {.arg subjDnaSeqs}.",
         "i" = "The predictions were probably made against different sequences."),
@@ -409,14 +409,14 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
     filteredPreds <- IRanges::subsetByOverlaps(predsGr, filter_range, type = "within") %>%
       as.data.frame(optional = TRUE, stringsAsFactors = FALSE) %>%
       dplyr::as_tibble(.name_repair = "minimal") %>%
-      dplyr::rename(subjSeqId = seqnames) %>%
+      dplyr::rename(subj_seq_id = seqnames) %>%
       dplyr::mutate(width = NULL) #%>% print(n = Inf)
 
     relevantTidySubjSeqs <- grSubjSeqs %>%
       IRanges::subsetByOverlaps(filter_range, type = "within", ignore.strand = TRUE) %>%
       as.data.frame(optional = TRUE, stringsAsFactors = FALSE) %>%
       dplyr::as_tibble(.name_repair = "minimal") %>%
-      dplyr::rename(subjSeqId = seqnames, xPos = start) %>%
+      dplyr::rename(subj_seq_id = seqnames, xPos = start) %>%
       dplyr::mutate(width = NULL, start = NULL, end = NULL, strand = NULL) #%>% print(n = Inf)
   } else {
     filteredPreds <- predsGr
@@ -427,7 +427,7 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
   # Append RVD OO
   predsForPlot <- filteredPreds %>% dplyr::mutate(rvds = paste("OO", rvds, sep = "-"))
   # Create yPos
-  predsForPlot <- predsForPlot %>% dplyr::group_by(subjSeqId, strand) %>%
+  predsForPlot <- predsForPlot %>% dplyr::group_by(subj_seq_id, strand) %>%
     dplyr::mutate(
       yPos = dplyr::if_else(strand == "+",
                             rank(start, ties.method = "random"),
@@ -435,7 +435,7 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
       )
     ) %>%
     dplyr::ungroup() %>%
-    dplyr::arrange(subjSeqId, yPos) #%>% print(n = Inf)
+    dplyr::arrange(subj_seq_id, yPos) #%>% print(n = Inf)
 
   # Create rvd and xPos
   predsForPlot <- predsForPlot %>% dplyr::group_by_all() %>%
@@ -445,13 +445,13 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
         # runs from end to start, which pairs RVD 1 with the EBE's 5' base
         rvd = unlist(stringr::str_split(.y$rvds, pattern = stringr::fixed("-"))),
         xPos = if(.y$strand == "+") .y$start:.y$end else .y$end:.y$start,
-        rvd2ntMatchScore = .compute_match_string(rvd_seq = .y$rvds, ebe_seq = .y$ebeSeq)
+        rvd2ntMatchScore = .compute_match_string(rvd_seq = .y$rvds, ebe_seq = .y$ebe_seq)
       )
     }) %>%
     dplyr::mutate(rvd = vapply(strsplit(rvd, "", fixed = TRUE), paste, character(1), collapse = "\n"))
 
   # Create a derived tibble to add prediction scores and EBE box to the plot
-  predsForScoreAndEbe <- predsForPlot %>% dplyr::group_by(subjSeqId, taleId, ebeSeq, score, strand, yPos) %>%
+  predsForScoreAndEbe <- predsForPlot %>% dplyr::group_by(subj_seq_id, tale_id, ebe_seq, score, strand, yPos) %>%
     dplyr::summarise(n = dplyr::n(), start = min(start), end = max(end)) %>%
     dplyr::mutate(
       yPosOnSeq = dplyr::if_else(strand == "+",
@@ -493,13 +493,18 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
               size = 2.8,
               fontface = "bold",
               label.padding = ggplot2::unit(0.1, "lines"),
-              linewidth = 0) +
+              linewidth = 0,
+              key_glyph = "rect") +
     ggplot2::scale_color_identity() +
-    ggplot2::scale_fill_manual(name = "RVD-DNA base match score",
-                               values = matchFills) +
+    ggplot2::scale_fill_manual(name = "RVD-base match",
+                               values = matchFills,
+                               breaks = c("3", "2", "1"),
+                               labels = c(`3` = "preferred base",
+                                          `2` = "intermediate",
+                                          `1` = "least preferred base")) +
 
     ggplot2::geom_label(data = predsForScoreAndEbe, #<--------- Score
-                        mapping = ggplot2::aes(label = sprintf("%05.2f",score)),
+                        mapping = ggplot2::aes(label = sprintf("%.2f", score)),
                         x = min(relevantTidySubjSeqs$xPos)+ 1,
                         fill = "white",
                         size = 2.8,
@@ -509,7 +514,7 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
                         linewidth = 0.2) +
 
     ggplot2::scale_x_continuous( #<--------- x axis
-      name = paste0("Position on subject DNA sequence: '", unique(as.character(filteredPreds$subjSeqId)), "'"),
+      name = paste0("Position on subject DNA sequence: '", unique(as.character(filteredPreds$subj_seq_id)), "'"),
       na.value = 0,
       breaks = function(r) seq(round(floor(r[1]), -1), r[2], by = 10),
       minor_breaks = function(r) seq(round(floor(r[1]), -1), r[2], by = 1),
@@ -524,7 +529,7 @@ plot_target_preds <- function(preds, subj_file, filter_range) {
         vapply(brks, function(brk){
           if (brk == yposSenseStrd) return("5'")
           if (brk == yposAntisenseStrd) return("3'")
-          return(as.character(predsForPlot$taleId[match(brk, predsForPlot$yPos)]))
+          return(as.character(predsForPlot$tale_id[match(brk, predsForPlot$yPos)]))
         }, character(1))
       },
       expand = ggplot2::expansion(add = 0.5)

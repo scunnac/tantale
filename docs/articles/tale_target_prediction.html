@@ -86,7 +86,7 @@
 <span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://dplyr.tidyverse.org" class="external-link">dplyr</a></span><span class="op">)</span></span></code></pre></div>
 </details>
 </div>
-<p>tantale wraps two independent predictors that use this code differently enough to be worth contrasting: <a href="https://doi.org/10.1371/journal.pone.0068464" class="external-link">TALVEZ</a>, a position-weight-matrix scan, and <a href="https://doi.org/10.1371/journal.pcbi.1007206" class="external-link">PrediTALE</a>, which also models where a real EBE tends to sit relative to a transcription start site. Both are wrapped as <code><a href="../reference/talvez.html">talvez()</a></code> and <code><a href="../reference/preditale.html">preditale()</a></code>, which take the same inputs and return the same core columns in the same order (<code>taleId</code>, <code>rvds</code>, <code>subjSeqId</code>, <code>start</code>, <code>end</code>, <code>strand</code>, <code>ebeSeq</code>, <code>score</code>), so their predictions can be compared directly. Their scores are on different scales, though, and each adds its own column last: <code>rank</code> for TALVEZ, <code>pval</code> for PrediTALE.</p>
+<p>tantale wraps two independent predictors that use this code differently enough to be worth contrasting: <a href="https://doi.org/10.1371/journal.pone.0068464" class="external-link">TALVEZ</a>, a position-weight-matrix scan, and <a href="https://doi.org/10.1371/journal.pcbi.1007206" class="external-link">PrediTALE</a>, which also models where a real EBE tends to sit relative to a transcription start site. Both are wrapped as <code><a href="../reference/talvez.html">talvez()</a></code> and <code><a href="../reference/preditale.html">preditale()</a></code>, which take the same inputs and return the same core columns in the same order (<code>tale_id</code>, <code>rvds</code>, <code>subj_seq_id</code>, <code>start</code>, <code>end</code>, <code>strand</code>, <code>ebe_seq</code>, <code>score</code>), so their predictions can be compared directly. Their scores are on different scales, though, and each adds its own column last: <code>rank</code> for TALVEZ, <code>pval</code> for PrediTALE.</p>
 <section class="level2" data-number="1"><h2 data-number="1" id="getting-rvd-sequences-to-predict-with">
 <span class="header-section-number">1</span> Getting RVD sequences to predict with<a class="anchor" aria-label="anchor" href="#getting-rvd-sequences-to-predict-with"></a>
 </h2>
@@ -125,13 +125,13 @@
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">talvez_preds</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html" class="external-link">desc</a></span><span class="op">(</span><span class="va">score</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 5 × 9</span></span>
-<span><span class="co">#&gt;   taleId         rvds            subjSeqId start   end strand ebeSeq score  rank</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;          &lt;chr&gt;           &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 MAI1_ROI_00010 NN-HD-NN-HD-NG… SWEET14p…   430   448 +      TAAGC…  15.1     1</span></span>
-<span><span class="co">#&gt; 2 MAI1_ROI_00010 NN-HD-NN-HD-NG… SWEET14p…   426   444 +      TAAGC…  15.1     2</span></span>
-<span><span class="co">#&gt; 3 BAI3_ROI_00001 NS-NG-NS-HD-NI… SWEET14p…   346   368 +      CATGC…  15.0     1</span></span>
-<span><span class="co">#&gt; 4 BAI3_ROI_00001 NS-NG-NS-HD-NI… SWEET14p…   342   364 +      CATGC…  15.0     2</span></span>
-<span><span class="co">#&gt; 5 MAI1_ROI_00001 NS-NG-NS-HD-NI… SWEET14p…   346   368 +      CATGC…  15.0     1</span></span></code></pre></div>
+<span><span class="co">#&gt;   tale_id        rvds         subj_seq_id start   end strand ebe_seq score  rank</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;          &lt;chr&gt;        &lt;chr&gt;       &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;   &lt;dbl&gt; &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 MAI1_ROI_00010 NN-HD-NN-HD… SWEET14p_B…   430   448 +      TAAGCT…  15.1     1</span></span>
+<span><span class="co">#&gt; 2 MAI1_ROI_00010 NN-HD-NN-HD… SWEET14p_N…   426   444 +      TAAGCT…  15.1     2</span></span>
+<span><span class="co">#&gt; 3 BAI3_ROI_00001 NS-NG-NS-HD… SWEET14p_B…   346   368 +      CATGCA…  15.0     1</span></span>
+<span><span class="co">#&gt; 4 BAI3_ROI_00001 NS-NG-NS-HD… SWEET14p_N…   342   364 +      CATGCA…  15.0     2</span></span>
+<span><span class="co">#&gt; 5 MAI1_ROI_00001 NS-NG-NS-HD… SWEET14p_B…   346   368 +      CATGCA…  15.0     1</span></span></code></pre></div>
 </details>
 </div>
 </section><section class="level2" data-number="3"><h2 data-number="3" id="preditale">
@@ -148,13 +148,13 @@
 <span><span class="co">#&gt; [1] 23</span></span>
 <span><span class="va">preditale_preds</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html" class="external-link">desc</a></span><span class="op">(</span><span class="va">score</span><span class="op">)</span><span class="op">)</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="fl">5</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 5 × 9</span></span>
-<span><span class="co">#&gt;   taleId         rvds          subjSeqId start   end strand ebeSeq score    pval</span></span>
-<span><span class="co">#&gt;   &lt;chr&gt;          &lt;chr&gt;         &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;  &lt;dbl&gt;   &lt;dbl&gt;</span></span>
-<span><span class="co">#&gt; 1 MAI1_ROI_00010 NN-HD-NN-HD-… SWEET14p…   430   448 +      TAAGC… 0.520 1.04e-7</span></span>
-<span><span class="co">#&gt; 2 MAI1_ROI_00010 NN-HD-NN-HD-… SWEET14p…   426   444 +      TAAGC… 0.520 1.04e-7</span></span>
-<span><span class="co">#&gt; 3 BAI3_ROI_00001 NS-NG-NS-HD-… SWEET14p…   346   368 +      CATGC… 0.476 5.44e-9</span></span>
-<span><span class="co">#&gt; 4 BAI3_ROI_00001 NS-NG-NS-HD-… SWEET14p…   342   364 +      CATGC… 0.476 5.44e-9</span></span>
-<span><span class="co">#&gt; 5 MAI1_ROI_00001 NS-NG-NS-HD-… SWEET14p…   346   368 +      CATGC… 0.476 5.44e-9</span></span></code></pre></div>
+<span><span class="co">#&gt;   tale_id        rvds       subj_seq_id start   end strand ebe_seq score    pval</span></span>
+<span><span class="co">#&gt;   &lt;chr&gt;          &lt;chr&gt;      &lt;chr&gt;       &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;   &lt;dbl&gt;   &lt;dbl&gt;</span></span>
+<span><span class="co">#&gt; 1 MAI1_ROI_00010 NN-HD-NN-… SWEET14p_B…   430   448 +      TAAGCT… 0.520 1.04e-7</span></span>
+<span><span class="co">#&gt; 2 MAI1_ROI_00010 NN-HD-NN-… SWEET14p_N…   426   444 +      TAAGCT… 0.520 1.04e-7</span></span>
+<span><span class="co">#&gt; 3 BAI3_ROI_00001 NS-NG-NS-… SWEET14p_B…   346   368 +      CATGCA… 0.476 5.44e-9</span></span>
+<span><span class="co">#&gt; 4 BAI3_ROI_00001 NS-NG-NS-… SWEET14p_N…   342   364 +      CATGCA… 0.476 5.44e-9</span></span>
+<span><span class="co">#&gt; 5 MAI1_ROI_00001 NS-NG-NS-… SWEET14p_B…   346   368 +      CATGCA… 0.476 5.44e-9</span></span></code></pre></div>
 </details>
 </div>
 <div>
@@ -177,11 +177,11 @@
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb8"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">converging</span> <span class="op">&lt;-</span> <span class="va">preditale_preds</span> <span class="op">|&gt;</span></span>
-<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">taleId</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"BAI3_ROI_00008"</span>, <span class="st">"BAI3-1-1_ROI_00007"</span>, <span class="st">"MAI1_ROI_00008"</span><span class="op">)</span>,</span>
-<span>        <span class="va">subjSeqId</span> <span class="op">==</span> <span class="st">"SWEET14p_Nipponbare_Sense"</span><span class="op">)</span></span>
-<span><span class="va">converging</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">subjSeqId</span>, <span class="va">start</span>, <span class="va">end</span>, <span class="va">score</span>, <span class="va">taleId</span><span class="op">)</span></span>
+<span>  <span class="fu"><a href="https://dplyr.tidyverse.org/reference/filter.html" class="external-link">filter</a></span><span class="op">(</span><span class="va">tale_id</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"BAI3_ROI_00008"</span>, <span class="st">"BAI3-1-1_ROI_00007"</span>, <span class="st">"MAI1_ROI_00008"</span><span class="op">)</span>,</span>
+<span>        <span class="va">subj_seq_id</span> <span class="op">==</span> <span class="st">"SWEET14p_Nipponbare_Sense"</span><span class="op">)</span></span>
+<span><span class="va">converging</span> <span class="op">|&gt;</span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/select.html" class="external-link">select</a></span><span class="op">(</span><span class="va">subj_seq_id</span>, <span class="va">start</span>, <span class="va">end</span>, <span class="va">score</span>, <span class="va">tale_id</span><span class="op">)</span></span>
 <span><span class="co">#&gt; # A tibble: 3 × 5</span></span>
-<span><span class="co">#&gt;   subjSeqId                 start   end score taleId            </span></span>
+<span><span class="co">#&gt;   subj_seq_id               start   end score tale_id           </span></span>
 <span><span class="co">#&gt;   &lt;chr&gt;                     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;             </span></span>
 <span><span class="co">#&gt; 1 SWEET14p_Nipponbare_Sense   473   492 0.406 BAI3_ROI_00008    </span></span>
 <span><span class="co">#&gt; 2 SWEET14p_Nipponbare_Sense   473   492 0.406 BAI3-1-1_ROI_00007</span></span>
@@ -309,7 +309,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script><script>var lightboxQuarto = GLightbox({"loop":false,"descPosition":"bottom","closeEffect":"zoom","openEffect":"zoom","selector":".lightbox"});
+</script><script>var lightboxQuarto = GLightbox({"selector":".lightbox","loop":false,"descPosition":"bottom","closeEffect":"zoom","openEffect":"zoom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

@@ -80,20 +80,20 @@ subj <- system.file("extdata", "cladeIII_sweet_promoters.fasta",
 head(tales_predict_targets(x, subj_file = subj))
 #> Invoking Talvez using the following command:
 #> '/home/cunnac/mamba/envs/tantale/bin/perl' TALVEZ_3.2.pl -t 0 -l 19 -e mat1 -z
-#> mat2 'rvdSeqsTalvez_ae2b48ee07b3.tsv' 'cladeIII_sweet_promoters.fasta'
+#> mat2 'rvdSeqsTalvez_f737a6c1e8d61.tsv' 'cladeIII_sweet_promoters.fasta'
 #> # A tibble: 6 × 10
-#>   taleId    rvds          subjSeqId start   end strand ebeSeq score method  rank
-#>   <chr>     <chr>         <chr>     <dbl> <dbl> <chr>  <chr>  <dbl> <chr>  <dbl>
-#> 1 ROI_00001 NN-NG-NN-HD-… SWEET11p…   980  1006 -      TGTAC… 10.0  talvez     1
-#> 2 ROI_00001 NN-NG-NN-HD-… SWEET14p…   160   186 -      TGTTT…  6.35 talvez     2
-#> 3 ROI_00002 NN-HD-NI-NN-… SWEET11p…  1395  1409 +      TGTAC…  6.96 talvez     1
-#> 4 ROI_00002 NN-HD-NI-NN-… SWEET11p…  1489  1503 +      TCCAG…  6.66 talvez     2
-#> 5 ROI_00002 NN-HD-NI-NN-… SWEET11p…   135   149 +      TGCAT…  6.53 talvez     3
-#> 6 ROI_00002 NN-HD-NI-NN-… SWEET11p…   130   144 +      TGCAT…  6.53 talvez     4
+#>   tale_id   rvds       subj_seq_id start   end strand ebe_seq score method  rank
+#>   <chr>     <chr>      <chr>       <dbl> <dbl> <chr>  <chr>   <dbl> <chr>  <dbl>
+#> 1 ROI_00001 NN-NG-NN-… SWEET11p_9…   980  1006 -      TGTACC… 10.0  talvez     1
+#> 2 ROI_00001 NN-NG-NN-… SWEET14p_N…   160   186 -      TGTTTC…  6.35 talvez     2
+#> 3 ROI_00002 NN-HD-NI-… SWEET11p_9…  1395  1409 +      TGTACA…  6.96 talvez     1
+#> 4 ROI_00002 NN-HD-NI-… SWEET11p_9…  1489  1503 +      TCCAGC…  6.66 talvez     2
+#> 5 ROI_00002 NN-HD-NI-… SWEET11p_I…   135   149 +      TGCATC…  6.53 talvez     3
+#> 6 ROI_00002 NN-HD-NI-… SWEET11p_B…   130   144 +      TGCATC…  6.53 talvez     4
 head(tales_predict_targets(x, subj_file = subj, method = "preditale"))
 #> # A tibble: 1 × 10
-#>   taleId    rvds        subjSeqId start   end strand ebeSeq score method    pval
-#>   <chr>     <chr>       <chr>     <dbl> <dbl> <chr>  <chr>  <dbl> <chr>    <dbl>
-#> 1 ROI_00001 NN-NG-NN-H… SWEET11p…   210   236 +      TATAA… 0.242 predi… 5.86e-5
+#>   tale_id   rvds     subj_seq_id start   end strand ebe_seq score method    pval
+#>   <chr>     <chr>    <chr>       <dbl> <dbl> <chr>  <chr>   <dbl> <chr>    <dbl>
+#> 1 ROI_00001 NN-NG-N… SWEET11p_9…   210   236 +      TATAAA… 0.242 predi… 5.86e-5
 # }
 ```

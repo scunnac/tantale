@@ -35,7 +35,7 @@ position-weight-matrix scan, and
 models where a real EBE tends to sit relative to a transcription start
 site. Both are wrapped as `talvez()` and `preditale()`, which take the
 same inputs and return the same core columns in the same order
-(`taleId`, `rvds`, `subjSeqId`, `start`, `end`, `strand`, `ebeSeq`,
+(`tale_id`, `rvds`, `subj_seq_id`, `start`, `end`, `strand`, `ebe_seq`,
 `score`), so their predictions can be compared directly. Their scores are
 on different scales, though, and each adds its own column last: `rank`
 for TALVEZ, `pval` for PrediTALE.
@@ -134,9 +134,9 @@ predict the *same* site:
 
 ```{r best_predictions}
 converging <- preditale_preds |>
-  filter(taleId %in% c("BAI3_ROI_00008", "BAI3-1-1_ROI_00007", "MAI1_ROI_00008"),
-        subjSeqId == "SWEET14p_Nipponbare_Sense")
-converging |> select(subjSeqId, start, end, score, taleId)
+  filter(tale_id %in% c("BAI3_ROI_00008", "BAI3-1-1_ROI_00007", "MAI1_ROI_00008"),
+        subj_seq_id == "SWEET14p_Nipponbare_Sense")
+converging |> select(subj_seq_id, start, end, score, tale_id)
 ```
 
 ```{r}

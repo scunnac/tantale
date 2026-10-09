@@ -10,8 +10,7 @@ tales_align(
   domain_distances = NULL,
   mafft_opts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1",
   mafft_path = NULL,
-  mafft_verbose = FALSE,
-  ...
+  mafft_verbose = FALSE
 )
 }
 \arguments{
@@ -52,10 +51,6 @@ its banner, the strategy it chose and its progress through the sequences,
 which is dozens of lines per alignment and rarely what you want. With
 \code{FALSE}, that output is captured and replayed if the alignment
 fails, so nothing is lost for diagnosis.}
-
-\item{...}{Further arguments to the MAFFT runner, chiefly
-\code{gap_symbol}, the value gaps take in the returned matrix
-(\code{NA} by default).}
 }
 \value{
 A \code{tales_msa} object. The settings it was aligned with

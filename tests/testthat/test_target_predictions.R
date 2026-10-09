@@ -8,8 +8,8 @@ test_that("talvez output a tibble with the expected dims", {
                         opt_param = "-t 0 -l 19",
                         conda_bin = "auto")
   expect_identical(dim(talvezPreds), c(90L,9L))
-  expect_named(talvezPreds, c("taleId", "rvds", "subjSeqId", "start", "end",
-                              "strand", "ebeSeq", "score", "rank"))
+  expect_named(talvezPreds, c("tale_id", "rvds", "subj_seq_id", "start", "end",
+                              "strand", "ebe_seq", "score", "rank"))
 })
 
 
@@ -25,11 +25,11 @@ test_that("tales_predict_targets() accepts a tales object and records the method
     method = "talvez"
   )))
   expect_s3_class(preds, "tbl_df")
-  expect_named(preds, c("taleId", "rvds", "subjSeqId", "start", "end",
-                        "strand", "ebeSeq", "score", "method", "rank"))
+  expect_named(preds, c("tale_id", "rvds", "subj_seq_id", "start", "end",
+                        "strand", "ebe_seq", "score", "method", "rank"))
   expect_true(all(preds$method == "talvez"))
   # predictions are for the arrays we supplied
-  expect_true(all(preds$taleId %in% unique(x$array_id)))
+  expect_true(all(preds$tale_id %in% unique(x$array_id)))
 })
 
 test_that("tales_predict_targets() matches calling the backend directly", {
@@ -58,29 +58,29 @@ pt_preds <- suppressMessages(preditale(rvd_file, subj_file = sweet,
 
 test_that("preditale() returns the documented columns, one row per site", {
   expect_s3_class(pt_preds, "tbl_df")
-  expect_named(pt_preds, c("taleId", "rvds", "subjSeqId", "start", "end",
-                           "strand", "ebeSeq", "score", "pval"))
+  expect_named(pt_preds, c("tale_id", "rvds", "subj_seq_id", "start", "end",
+                           "strand", "ebe_seq", "score", "pval"))
   expect_gt(nrow(pt_preds), 0)
-  expect_true(all(pt_preds$taleId %in% names(Biostrings::readBStringSet(rvd_file))))
+  expect_true(all(pt_preds$tale_id %in% names(Biostrings::readBStringSet(rvd_file))))
 })
 
 test_that("each predicted site covers position 0 plus one base per RVD", {
   n_rvds <- lengths(strsplit(pt_preds$rvds, "-", fixed = TRUE))
   expect_identical(as.integer(pt_preds$end - pt_preds$start + 1L),
                    as.integer(n_rvds + 1L))
-  expect_identical(nchar(pt_preds$ebeSeq), as.integer(n_rvds + 1L))
+  expect_identical(nchar(pt_preds$ebe_seq), as.integer(n_rvds + 1L))
 })
 
 test_that("preditale()'s EBE sequences are the subject's bases at those coordinates", {
-  gr <- GenomicRanges::makeGRangesFromDataFrame(pt_preds, seqnames.field = "subjSeqId")
+  gr <- GenomicRanges::makeGRangesFromDataFrame(pt_preds, seqnames.field = "subj_seq_id")
   expect_identical(as.character(BSgenome::getSeq(Biostrings::readDNAStringSet(sweet), gr)),
-                   pt_preds$ebeSeq)
+                   pt_preds$ebe_seq)
 })
 
 test_that("preditale() gives the same sites from a file or from sequences", {
   from_set <- suppressMessages(preditale(Biostrings::readBStringSet(rvd_file),
                                          subj_file = sweet, output_dir = tempfile()))
-  key <- function(p) p[order(p$taleId, p$subjSeqId, p$start, p$strand), ]
+  key <- function(p) p[order(p$tale_id, p$subj_seq_id, p$start, p$strand), ]
   expect_equal(key(from_set), key(pt_preds), ignore_attr = TRUE)
 })
 
@@ -106,7 +106,7 @@ test_that("preditale() refuses an rvd_seqs of the wrong type", {
 })
 
 best <- pt_preds[order(-pt_preds$score), ][1, ]
-window <- paste0(best$subjSeqId, ":", best$start - 30, "-", best$end + 30)
+window <- paste0(best$subj_seq_id, ":", best$start - 30, "-", best$end + 30)
 
 test_that("plot_target_preds() draws one label per RVD and the DNA in the window", {
   p <- plot_target_preds(best, subj_file = sweet, filter_range = window)
@@ -123,7 +123,7 @@ test_that("plot_target_preds() draws one label per RVD and the DNA in the window
 
 test_that("plot_target_preds() refuses predictions made on other sequences", {
   wrong <- best
-  wrong$ebeSeq <- paste(rev(strsplit(wrong$ebeSeq, "", fixed = TRUE)[[1]]), collapse = "")
+  wrong$ebe_seq <- paste(rev(strsplit(wrong$ebe_seq, "", fixed = TRUE)[[1]]), collapse = "")
   expect_error(plot_target_preds(wrong, subj_file = sweet, filter_range = window),
                class = "tantale_error_ebe_mismatch")
 })

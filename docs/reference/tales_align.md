@@ -15,8 +15,7 @@ tales_align(
   domain_distances = NULL,
   mafft_opts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1",
   mafft_path = NULL,
-  mafft_verbose = FALSE,
-  ...
+  mafft_verbose = FALSE
 )
 ```
 
@@ -71,11 +70,6 @@ tales_align(
   dozens of lines per alignment and rarely what you want. With `FALSE`,
   that output is captured and replayed if the alignment fails, so
   nothing is lost for diagnosis.
-
-- ...:
-
-  Further arguments to the MAFFT runner, chiefly `gap_symbol`, the value
-  gaps take in the returned matrix (`NA` by default).
 
 ## Value
 

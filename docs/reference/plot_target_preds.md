@@ -80,7 +80,7 @@ preds <- preditale(rvd_seqs = rvds, subj_file = subj)
 best <- preds[order(-preds$score), ][1, ]
 # The site with 10 bp on either side
 plot_target_preds(preds = best, subj_file = subj,
-                  filter_range = paste0(best$subjSeqId, ":",
+                  filter_range = paste0(best$subj_seq_id, ":",
                                         best$start - 10, "-", best$end + 10))
 
 # }

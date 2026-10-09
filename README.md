@@ -148,18 +148,18 @@ promoters <- system.file("extdata", "cladeIII_sweet_promoters.fasta",
                          package = "tantale")
 tales_predict_targets(mai1, subj_file = promoters)
 #> # A tibble: 31 × 10
-#>    taleId    rvds         subjSeqId score strand start   end ebeSeq  rank method
-#>    <chr>     <chr>        <chr>     <dbl> <chr>  <dbl> <dbl> <chr>  <dbl> <chr> 
-#>  1 ROI_00001 NS-NG-NS-HD… SWEET14p… 15.0  +        346   368 CATGC…     1 talvez
-#>  2 ROI_00001 NS-NG-NS-HD… SWEET14p… 15.0  +        342   364 CATGC…     2 talvez
-#>  3 ROI_00001 NS-NG-NS-HD… SWEET11p…  8.56 -        262   284 TCTAC…     3 talvez
-#>  4 ROI_00001 NS-NG-NS-HD… SWEET11p…  7.97 -        505   527 TATAA…     4 talvez
-#>  5 ROI_00001 NS-NG-NS-HD… SWEET14p…  7.02 +        622   644 CTCTC…     5 talvez
-#>  6 ROI_00002 NN-N*-NN-HD… SWEET11p…  9.22 -        980  1006 TGTAC…     1 talvez
-#>  7 ROI_00003 NN-HD-NI-NS… SWEET11p…  9.00 +        135   149 TGCAT…     1 talvez
-#>  8 ROI_00003 NN-HD-NI-NS… SWEET11p…  9.00 +        130   144 TGCAT…     2 talvez
-#>  9 ROI_00003 NN-HD-NI-NS… SWEET11p…  9.00 +       1690  1704 TGCAT…     3 talvez
-#> 10 ROI_00003 NN-HD-NI-NS… SWEET11p…  9.00 +        128   142 TGCAT…     4 talvez
+#>    tale_id   rvds      subj_seq_id start   end strand ebe_seq score method  rank
+#>    <chr>     <chr>     <chr>       <dbl> <dbl> <chr>  <chr>   <dbl> <chr>  <dbl>
+#>  1 ROI_00001 NS-NG-NS… SWEET14p_B…   346   368 +      CATGCA… 15.0  talvez     1
+#>  2 ROI_00001 NS-NG-NS… SWEET14p_N…   342   364 +      CATGCA… 15.0  talvez     2
+#>  3 ROI_00001 NS-NG-NS… SWEET11p_9…   262   284 -      TCTACA…  8.56 talvez     3
+#>  4 ROI_00001 NS-NG-NS… SWEET11p_9…   505   527 -      TATAAC…  7.97 talvez     4
+#>  5 ROI_00001 NS-NG-NS… SWEET14p_B…   622   644 +      CTCTCA…  7.02 talvez     5
+#>  6 ROI_00002 NN-N*-NN… SWEET11p_9…   980  1006 -      TGTACC…  9.22 talvez     1
+#>  7 ROI_00003 NN-HD-NI… SWEET11p_I…   135   149 +      TGCATC…  9.00 talvez     1
+#>  8 ROI_00003 NN-HD-NI… SWEET11p_B…   130   144 +      TGCATC…  9.00 talvez     2
+#>  9 ROI_00003 NN-HD-NI… SWEET11p_9…  1690  1704 +      TGCATC…  9.00 talvez     3
+#> 10 ROI_00003 NN-HD-NI… SWEET11p_N…   128   142 +      TGCATC…  9.00 talvez     4
 #> # ℹ 21 more rows
 ```
 

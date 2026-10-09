@@ -52,8 +52,8 @@ runs out of memory on a large subject.}
 A tibble with one row per predicted EBE (effector binding
 element), the columns renamed from the tool's own output so that
 \code{\link{talvez}} and \code{\link{preditale}} return the same ones
-in the same order: \code{taleId}, \code{rvds}, \code{subjSeqId},
-\code{start}, \code{end}, \code{strand}, \code{ebeSeq} and
+in the same order: \code{tale_id}, \code{rvds}, \code{subj_seq_id},
+\code{start}, \code{end}, \code{strand}, \code{ebe_seq} and
 \code{score}, followed by the tool's own column: \code{pval}, the
 approximate p-value PrediTALE gives each site.
 }

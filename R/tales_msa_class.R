@@ -339,9 +339,6 @@ as.matrix.tales_msa <- function(x, value = NULL, gap = NA, ...) {
 #'   which is dozens of lines per alignment and rarely what you want. With
 #'   \code{FALSE}, that output is captured and replayed if the alignment
 #'   fails, so nothing is lost for diagnosis.
-#' @param ... Further arguments to the MAFFT runner, chiefly
-#'   \code{gap_symbol}, the value gaps take in the returned matrix
-#'   (\code{NA} by default).
 #' @return A \code{tales_msa} object. The settings it was aligned with
 #'   (\code{residue_col}, \code{domain_distances}, \code{mafft_opts}) are
 #'   kept with it; \code{\link{tales_msa_params}} returns them.
@@ -360,8 +357,7 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
                         domain_distances = NULL,
                         mafft_opts = "--localpair --maxiterate 1000 --reorder --op 0 --ep 5 --thread 1",
                         mafft_path = NULL,
-                        mafft_verbose = FALSE,
-                        ...) {
+                        mafft_verbose = FALSE) {
   residue_col <- match.arg(residue_col)
   if (!is_tales(x)) {
     cli::cli_abort("{.arg x} must be a {.cls tales} object.",
@@ -390,7 +386,7 @@ tales_align <- function(x, residue_col = c("rvd", "dom_code"),
                         residue_type = residue_col,
                         mafft_opts = mafft_opts, mafft_path = mafft_path,
                         mafft_verbose = mafft_verbose,
-                        gap_symbol = NA, ...)
+                        gap_symbol = NA)
 
   if (!setequal(rownames(m), unique(x$array_id))) {
     cli::cli_abort(

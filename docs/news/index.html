@@ -46,6 +46,31 @@
     <div class="section level2">
 <h2 class="pkg-version" data-toc-text="0.99.0.9000" id="tantale-09909000">tantale 0.99.0.9000<a class="anchor" aria-label="anchor" href="#tantale-09909000"></a></h2>
 <div class="section level3">
+<h3 id="talvez-and-preditale-return-their-columns-in-one-order-0-99-0-9000">
+<code>talvez()</code> and <code>preditale()</code> return their columns in one order<a class="anchor" aria-label="anchor" href="#talvez-and-preditale-return-their-columns-in-one-order-0-99-0-9000"></a></h3>
+<p>Both return <code>tale_id</code>, <code>rvds</code>, <code>subj_seq_id</code>, <code>start</code>, <code>end</code>, <code>strand</code>, <code>ebe_seq</code> and <code>score</code>, in that order, then their own column (<code>rank</code> for Talvez, <code>pval</code> for PrediTALE). <code><a href="../reference/tales_predict_targets.html">tales_predict_targets()</a></code> puts its <code>method</code> column before the tool’s own. Three columns are renamed to follow the package’s snake_case rule: <code>taleId</code> to <code>tale_id</code>, <code>subjSeqId</code> to <code>subj_seq_id</code> and <code>ebeSeq</code> to <code>ebe_seq</code>.</p>
+</div>
+<div class="section level3">
+<h3 id="plot_target_preds-labels-0-99-0-9000">
+<code>plot_target_preds()</code> labels<a class="anchor" aria-label="anchor" href="#plot_target_preds-labels-0-99-0-9000"></a></h3>
+<p>The score next to each TALE name is printed with two decimals and no leading zeros (PrediTALE’s 0.24 used to read “00.24”). The legend names the three match levels: the RVD’s preferred base, an intermediate one, and its least preferred.</p>
+</div>
+<div class="section level3">
+<h3 id="tales_align-loses--0-99-0-9000">
+<code>tales_align()</code> loses <code>...</code>
+<a class="anchor" aria-label="anchor" href="#tales_align-loses--0-99-0-9000"></a></h3>
+<p>Any argument passed through it made the call fail, <code>gap_symbol</code> included.</p>
+</div>
+<div class="section level3">
+<h3 id="a-tales_msa-keeps-the-settings-it-was-aligned-with-0-99-0-9000">A <code>tales_msa</code> keeps the settings it was aligned with<a class="anchor" aria-label="anchor" href="#a-tales_msa-keeps-the-settings-it-was-aligned-with-0-99-0-9000"></a></h3>
+<p><code><a href="../reference/tales_align.html">tales_align()</a></code> stores the column it aligned on (<code>residue_col</code>), the scoring it was given (<code>domain_distances</code>) and MAFFT’s options with the alignment. The new <code><a href="../reference/tales_msa_params.html">tales_msa_params()</a></code> returns them, so an alignment holding both <code>rvd</code> and <code>dom_code</code> says which one it was made from.</p>
+</div>
+<div class="section level3">
+<h3 id="talomes_heatmap-groups-on-group-by-default-0-99-0-9000">
+<code>talomes_heatmap()</code> groups on <code>group</code> by default<a class="anchor" aria-label="anchor" href="#talomes_heatmap-groups-on-group-by-default-0-99-0-9000"></a></h3>
+<p><code>group_col</code> defaults to <code>"group"</code>, the column <code><a href="../reference/tales_group_kmedoids.html">tales_group_kmedoids()</a></code> and <code><a href="../reference/tales_group_hclust.html">tales_group_hclust()</a></code> add.</p>
+</div>
+<div class="section level3">
 <h3 id="nterm-and-cterm-now-mean-a-canonical-terminus-0-99-0-9000">
 <code>NTERM</code> and <code>CTERM</code> now mean a canonical terminus<a class="anchor" aria-label="anchor" href="#nterm-and-cterm-now-mean-a-canonical-terminus-0-99-0-9000"></a></h3>
 <p>A terminus is coded <code>NTERM</code> or <code>CTERM</code> only when its protein segment matches the TALE terminal-domain profile over at least 90% of the profile (new argument <code>terminus_min_cover</code> of <code><a href="../reference/tell_tales.html">tell_tales()</a></code> and <code><a href="../reference/tales_from_annotale.html">tales_from_annotale()</a></code>), on top of the E-value and the requirement to reach the repeats. A truncated terminus, such as the C-terminus of a truncTALE, is now <code>XXXXX</code>. The threshold was set on the curated TALEs of <code>tale_annotations</code>: their canonical termini cover 0.93 of the profile or more, the truncTALE termini 0.84 or less. <code><a href="../reference/tales_anomalies.html">tales_anomalies()</a></code> reports such termini as <code>terminus_noncanonical</code> (formerly <code>terminus_unmatched</code>).</p>
@@ -59,6 +84,21 @@
 <h3 id="tell_tales-reports-more-about-each-terminus-0-99-0-9000">
 <code>tell_tales()</code> reports more about each terminus<a class="anchor" aria-label="anchor" href="#tell_tales-reports-more-about-each-terminus-0-99-0-9000"></a></h3>
 <p><code>array_report.tsv</code> now says, for each terminus, how much of the TALE terminal-domain profile its protein segment covers (<code>*_aa_cover</code>), how far the match stops from the far end of the profile (<code>*_aa_far_gap</code>), in how many pieces it matches (<code>*_aa_domains</code>) and its bit score (<code>*_aa_score</code>). At the DNA level, it reports the best nhmmer hit of the terminus profile next to the repeats even when it scores below <code>nterm_min_score</code> or <code>cterm_min_score</code> (<code>*_dna_score</code>, <code>*_dna_evalue</code>), the fraction of the profile those hits cover (<code>*_dna_cover</code>) and how many there are (<code>*_dna_pieces</code>). A truncated terminus, or one split by a deletion, can now be read from the report. <code>hits_report.tsv</code> and the two GFF files carry each hit’s score, E-value and profile positions.</p>
+</div>
+<div class="section level3">
+<h3 id="tell_tales-loses-merge_hits-0-99-0-9000">
+<code>tell_tales()</code> loses <code>merge_hits</code>
+<a class="anchor" aria-label="anchor" href="#tell_tales-loses-merge_hits-0-99-0-9000"></a></h3>
+<p><code><a href="../reference/tell_tales.html">tell_tales()</a></code> always merges overlapping nhmmer hits of the same domain type, and the <code>merge_hits</code> argument is gone. With <code>merge_hits = FALSE</code>, a repeat reported as two overlapping hits was counted twice in <code>n_dna_hits</code> and by <code>min_array_length</code>, with no other effect. The unmerged hits are still written to <code>all_ranges.gff</code>, beside the merged ranges.</p>
+</div>
+<div class="section level3">
+<h3 id="talomes_heatmap-labels-fit-the-figure-0-99-0-9000">
+<code>talomes_heatmap()</code> labels fit the figure<a class="anchor" aria-label="anchor" href="#talomes_heatmap-labels-fit-the-figure-0-99-0-9000"></a></h3>
+<p>With <code>plot_type = "all"</code> and the default <code>margins</code>, the strain names, the group names and the title get the room their text takes, whatever the size of the device, so they are no longer clipped or overlapped in a small figure. Images written with <code>save_path</code> are 300 dpi (formerly 1440).</p>
+</div>
+<div class="section level3">
+<h3 id="perl-is-no-longer-a-system-requirement-0-99-0-9000">Perl is no longer a system requirement<a class="anchor" aria-label="anchor" href="#perl-is-no-longer-a-system-requirement-0-99-0-9000"></a></h3>
+<p>Talvez, the only Perl program tantale runs, uses the Perl of tantale’s conda environment. <code><a href="../reference/tantale_setup.html">tantale_setup()</a></code> no longer looks for Perl on the PATH, and the README and <code>DESCRIPTION</code> no longer list it.</p>
 </div>
 <div class="section level3">
 <h3 id="a-missing-conda-installation-is-reported-as-such-0-99-0-9000">A missing conda installation is reported as such<a class="anchor" aria-label="anchor" href="#a-missing-conda-installation-is-reported-as-such-0-99-0-9000"></a></h3>

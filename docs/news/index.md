@@ -2,6 +2,46 @@
 
 ## tantale 0.99.0.9000
 
+### `talvez()` and `preditale()` return their columns in one order
+
+Both return `tale_id`, `rvds`, `subj_seq_id`, `start`, `end`, `strand`,
+`ebe_seq` and `score`, in that order, then their own column (`rank` for
+Talvez, `pval` for PrediTALE).
+[`tales_predict_targets()`](https://scunnac.github.io/tantale/reference/tales_predict_targets.md)
+puts its `method` column before the tool’s own. Three columns are
+renamed to follow the package’s snake_case rule: `taleId` to `tale_id`,
+`subjSeqId` to `subj_seq_id` and `ebeSeq` to `ebe_seq`.
+
+### `plot_target_preds()` labels
+
+The score next to each TALE name is printed with two decimals and no
+leading zeros (PrediTALE’s 0.24 used to read “00.24”). The legend names
+the three match levels: the RVD’s preferred base, an intermediate one,
+and its least preferred.
+
+### `tales_align()` loses `...`
+
+Any argument passed through it made the call fail, `gap_symbol`
+included.
+
+### A `tales_msa` keeps the settings it was aligned with
+
+[`tales_align()`](https://scunnac.github.io/tantale/reference/tales_align.md)
+stores the column it aligned on (`residue_col`), the scoring it was
+given (`domain_distances`) and MAFFT’s options with the alignment. The
+new
+[`tales_msa_params()`](https://scunnac.github.io/tantale/reference/tales_msa_params.md)
+returns them, so an alignment holding both `rvd` and `dom_code` says
+which one it was made from.
+
+### `talomes_heatmap()` groups on `group` by default
+
+`group_col` defaults to `"group"`, the column
+[`tales_group_kmedoids()`](https://scunnac.github.io/tantale/reference/tales_group_kmedoids.md)
+and
+[`tales_group_hclust()`](https://scunnac.github.io/tantale/reference/tales_group_hclust.md)
+add.
+
 ### `NTERM` and `CTERM` now mean a canonical terminus
 
 A terminus is coded `NTERM` or `CTERM` only when its protein segment
@@ -49,6 +89,31 @@ the fraction of the profile those hits cover (`*_dna_cover`) and how
 many there are (`*_dna_pieces`). A truncated terminus, or one split by a
 deletion, can now be read from the report. `hits_report.tsv` and the two
 GFF files carry each hit’s score, E-value and profile positions.
+
+### `tell_tales()` loses `merge_hits`
+
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
+always merges overlapping nhmmer hits of the same domain type, and the
+`merge_hits` argument is gone. With `merge_hits = FALSE`, a repeat
+reported as two overlapping hits was counted twice in `n_dna_hits` and
+by `min_array_length`, with no other effect. The unmerged hits are still
+written to `all_ranges.gff`, beside the merged ranges.
+
+### `talomes_heatmap()` labels fit the figure
+
+With `plot_type = "all"` and the default `margins`, the strain names,
+the group names and the title get the room their text takes, whatever
+the size of the device, so they are no longer clipped or overlapped in a
+small figure. Images written with `save_path` are 300 dpi (formerly
+1440).
+
+### Perl is no longer a system requirement
+
+Talvez, the only Perl program tantale runs, uses the Perl of tantale’s
+conda environment.
+[`tantale_setup()`](https://scunnac.github.io/tantale/reference/tantale_setup.md)
+no longer looks for Perl on the PATH, and the README and `DESCRIPTION`
+no longer list it.
 
 ### A missing conda installation is reported as such
 
