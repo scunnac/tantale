@@ -102,6 +102,8 @@ wording. Locations are the roxygen source, `file:line` on 2026-10-09.
     them out." (Checked: the tell_tales log does not report them;
     tales_from_telltales() does, naming the arrays. So the current
     sentence is also inaccurate.)
+    Correction (Q241): this check was wrong. The log does list them,
+    under "Noteworthy AnnoTale issues"; the sentence is accurate.
 **N** 15. `R/telltale.R:1396` (same page).
     Now: "A tal gene that spans the junction of a circular molecule ... is
     cut in two, and is reported, if at all, ..."

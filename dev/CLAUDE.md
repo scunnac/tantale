@@ -246,8 +246,7 @@ before trusting any of it.*
   (§61).
   Q231-Q233 done in a second session, pushed as c47ba7a (`tales_align()` loses `...`,
   snake_case prediction columns, `plot_target_preds()` labels; §61).
-  Q224 applied (§61). **Waiting for the maintainer:** Q241 (`?tell_tales`
-  sentence on unparsed arrays). No answer from the #813 editors as of 2026-10-09.
+  Q224 applied (§61); Q241 closed, no change. No answer from the #813 editors as of 2026-10-09.
   Lesson: after changing what a function returns, run every test file
   that calls it, not only the class's own. Last Q used: Q241.
 - **2026-10-06, fourth session -- start here.** All work pushed. The

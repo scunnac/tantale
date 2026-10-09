@@ -4491,9 +4491,7 @@ consumers" in Details became "MAFFT's text mode". Q223 done:
 functions; Q223b softened (`tell_tales()` works "much as AnnoTALE does");
 platform note now Linux and Intel macOS. Q224: candidate list with
 proposed rewrites in `dev/passive-review.md` (32 items from ~360 hits;
-the rest are fine), waiting for the maintainer's Y/N. Item 14 found an
-inaccuracy: `?tell_tales` says the log reports arrays AnnoTALE could not
-parse; it does not, `tales_from_telltales()` warns about them.
+the rest are fine), waiting for the maintainer's Y/N.
 
 **CI on e6016f1 failed** (R-CMD-check and test-coverage):
 `test_build_repeat_msa.R` compares alignments made with two spellings of
@@ -4538,6 +4536,9 @@ source.
 adaptations: item 6 folds the default's description into the same
 sentence; items 11 and 24 start with "It", since the sentence before
 names `tell_tales()` or the approach. Help pages, the five articles
-concerned and README re-rendered. Item 14 kept as written although it is
-inaccurate (the `tell_tales()` log does not report the arrays AnnoTALE
-could not parse; `tales_from_telltales()` warns about them): Q241.
+concerned and README re-rendered. Q241: the review list called item 14's
+sentence ("This should be detected and reported in the tell_tales log")
+inaccurate. Wrong: `.telltale_run_annotale()` collects "Annotale failed
+to parse TALE domains for <array>" for each such array, warns, and the log
+lists them under "Noteworthy AnnoTale issues" (seen in a real BAI3-1-1
+run). `tales_from_telltales()` warns about them as well. Sentence kept.
