@@ -70,12 +70,14 @@ bai3_sample
 #>   bai3_sample_tal_genomic_regions-tempTALE4  NTERM NI HD NN NS NN NG HD NG HD NG NN NG  ...
 ```
 
-Each terminal region is searched with the profile HMM of the TALE N- or
-C-terminal domain, and marked `NTERM` or `CTERM` when it is a canonical
-terminus, one that can be expected to do its usual job: the match must
-cover at least 90% of the profile (`XXXXX` otherwise). A terminus that
-has lost a large part, like the C-terminus of a truncTALE, is coded
-`XXXXX` even though it is related to a TALE terminus (see [Genuine
+[`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
+searches each terminal region with the profile HMM of the TALE N- or
+C-terminal domain, and marks it `NTERM` or `CTERM` when it is a
+canonical terminus, one that can be expected to do its usual job: the
+match must cover at least 90% of the profile (`XXXXX` otherwise). A
+terminus that has lost a large part, like the C-terminus of a truncTALE,
+is coded `XXXXX` even though it is related to a TALE terminus (see
+[Genuine
 truncTALEs](https://scunnac.github.io/tantale/articles/trunctale_correction.html#sec-two-trunctales)).
 On a whole genome, the same object comes from two calls (not run here,
 as `predict` takes a couple of minutes per genome):
@@ -105,10 +107,10 @@ and terminus alignments for inspection. The rest of this article uses
 
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
 searches a genome with `nhmmer`, using three profile HMMs tuned to the
-N-terminus, the repeat unit, and the C-terminus of a TALE CDS. Hits are
-merged, grouped into candidate arrays by proximity, and each array’s
-longest ORF is handed to AnnoTALE to split into parts and call its RVD
-sequence. Terminus codes are added at either end of the RVD string,
+N-terminus, the repeat unit, and the C-terminus of a TALE CDS. It merges
+the hits, groups them into candidate arrays by proximity and hands each
+array’s longest ORF to AnnoTALE to split into parts and call its RVD
+sequence. It then adds terminus codes at either end of the RVD string,
 `NTERM`/`CTERM` for a canonical terminus and `XXXXX` for any other, so a
 downstream alignment knows where an array actually starts and ends.
 
@@ -609,13 +611,13 @@ On this genome, correction inside
 gives the better result: 8 of 8 arrays come out as standard TALEs,
 against 6 of 8 after
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md).
-It is also about as fast: on the machine that built this page it took 70
+It is also about as fast: on the machine that built this page it took 62
 seconds. The Java route needs two steps,
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
 and then the
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
 run that finds the arrays in the corrected genome, and together they
-took 47 seconds. One genome is a limited sample, however.
+took 42 seconds. One genome is a limited sample, however.
 [`correct_tales()`](https://scunnac.github.io/tantale/reference/correct_tales.md)
 repairs the whole genome in one pass, and the corrected genome can serve
 other analyses as well. Furthermore,

@@ -23,7 +23,7 @@ Analyzing TALEs in *Xanthomonas* genomes (mostly) typically means coordinating s
 
 With `tantale`, we compiled and extended our previous code wrapping TALE analysis tools into an integrated R interface that further provides an extensive list of utilities for easy plotting. This enables a moderately proficient R programmer to perform entire analysis pipelines directly in R and access result objects for custom manipulations.
 
-Here is a snapshot of the topics that are covered:
+The package covers:
 
 - A TALE-oriented OOP framework:
   - `tales`/`tales_msa` S3 classes, with subsetting, coercion, and plotting methods – see [the `tales` class article](https://scunnac.github.io/tantale/articles/tales_class.html) and [the `tales_msa` class article](https://scunnac.github.io/tantale/articles/tales_msa_class.html)

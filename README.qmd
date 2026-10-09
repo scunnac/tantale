@@ -39,7 +39,7 @@ Analyzing TALEs in  *Xanthomonas* genomes (mostly) typically means coordinating 
 
 With `tantale`, we compiled and extended our previous code wrapping TALE analysis tools into an integrated R interface that further provides an extensive list of utilities for easy plotting. This enables a moderately proficient R programmer to perform entire analysis pipelines directly in R and access result objects for custom manipulations.
 
-Here is a snapshot of the topics that are covered:
+The package covers:
 
 
 - A TALE-oriented OOP framework:

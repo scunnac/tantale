@@ -131,9 +131,9 @@ locations, so two roots can each hold an environment named <code>tantale</code>.
 that happens, a rebuild can honestly report success while the package goes
 on using the other one. Everything here therefore works with the
 environment's prefix (its path), never its name.</p>
-<p><strong>Where the downloads go.</strong> Two archives, attached to releases of
-tantale's GitHub repository, are checked against a sha256 recorded in the
-package and unpacked into <code>tools::R_user_dir("tantale", "data")</code>
+<p><strong>Where the downloads go.</strong> The function checks two archives, attached
+to releases of tantale's GitHub repository, against a sha256 recorded in
+the package and unpacks them into <code>tools::R_user_dir("tantale", "data")</code>
 (<code>~/.local/share/R/tantale</code> on Linux), in one folder per archive
 version (<code>tools-1/</code>, <code>genomes-1/</code>). Set the environment variable
 <code>TANTALE_DATA_DIR</code> to use another directory, for instance one shared by

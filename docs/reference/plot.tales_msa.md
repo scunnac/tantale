@@ -103,9 +103,9 @@ A `tales_msa` carries every layer at once (`rvd`, `dom_code` and
 whatever else the object holds), so `fill` and `label` simply name two
 of them.
 
-Three things are decided independently, and it helps to read the figure
-that way: what each cell *says*, what colour that text is, and what
-colour the block behind it is.
+Three settings act independently, and it helps to read the figure that
+way: what each cell *says*, what colour that text is, and what colour
+the block behind it is.
 
 **Cell text** is whatever `label` names, or nothing when `label = NULL`.
 Termini are relabelled `N-` and `-C`; an unidentified terminus keeps its
@@ -146,11 +146,10 @@ preference and so no position on a specificity scale. The RVD similarity
 table is TALVEZ's and covers 17 RVDs; a rarer RVD (`NV`, say) scores 1
 where it is identical to the reference's RVD and is grey elsewhere.
 
-**The reference** matters for both similarity fills. `ref_pattern` is
-matched against the array names and must identify exactly one, otherwise
-the default is used with a warning; by default it is the array with the
-most non-gap parts, ties broken alphabetically. The reference row is
-marked with a trailing `_#`.
+**The reference** matters for both similarity fills. `ref_pattern` must
+match exactly one array name; otherwise the function warns and uses the
+default, which is the array with the most non-gap parts, ties broken
+alphabetically. The reference row is marked with a trailing `_#`.
 
 **Two panels may be attached.** Supplying `tale_distances` with more
 than one array adds a dendrogram panel on the left; `consensus = TRUE`

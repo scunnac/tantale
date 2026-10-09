@@ -85,10 +85,10 @@ The class itself does not require it.
 
 ## 2 The column contract
 
-Two columns are required outright, because without them a row cannot be
-located at all: `array_id` and `position_in_array`. A third requirement
-is looser: at least one of `rvd` or `dom_code` must be present, since a
-`tales` with neither has no residues to describe.
+A `tales` requires two columns outright, because without them a row
+cannot be located at all: `array_id` and `position_in_array`. A third
+requirement is looser: at least one of `rvd` or `dom_code` must be
+present, since a `tales` with neither has no residues to describe.
 
 Everything else is optional, but validated for shape when it is there:
 
@@ -103,9 +103,11 @@ Everything else is optional, but validated for shape when it is there:
 
 A `tales` built straight from a fasta of RVD sequences (below) has none
 of these beyond `rvd` itself, and that is a legitimate, if minimal,
-object. Any further column (a strain name, a clade, a host range) is
-preserved untouched and never warned about: metadata is expected to
-accumulate on this table via ordinary
+object.
+[`tales()`](https://scunnac.github.io/tantale/reference/tales.md) keeps
+any further column (a strain name, a clade, a host range) untouched and
+never warns about it: metadata is expected to accumulate on this table
+via ordinary
 [`mutate()`](https://dplyr.tidyverse.org/reference/mutate.html) calls.
 
 ## 3 Three ways to build one

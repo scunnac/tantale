@@ -27,9 +27,8 @@ the \code{\link{tales}} object the distances were computed from with the
 result attached as its \code{group} column.
 }
 \details{
-The clustering is computed from \code{tale_distances}, but the result belongs on the
-\code{tales} object the distances were computed from, so that is what comes
-back. \code{group} is a recognised \code{tales} column, validated as constant within
+The function clusters \code{tale_distances} but returns the \code{tales} object
+those distances came from, with the groups added. \code{group} is a recognised \code{tales} column, validated as constant within
 an array -- it is an array-level property, like \code{seqnames}.
 
 Taking \code{x} rather than returning a bare lookup table is what makes the

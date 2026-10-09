@@ -310,10 +310,10 @@ invisible(tell_tales(
 #> Finding the closest reference amino acid sequences:
 #> ================================================================================
 #> 
-#> Time difference of 9.25 secs
+#> Time difference of 5.68 secs
 #> ================================================================================
 #> 
-#> Time difference of 55.38 secs
+#> Time difference of 33.94 secs
 ```
 
 Code
@@ -341,7 +341,7 @@ found, and has no comparable template to work with for `ROI_00019`.
 
 > **`max_comparisons` does not change this**
 >
-> `max_comparisons = 20` is used above to keep this article’s build time
+> This article uses `max_comparisons = 20` to keep its build time
 > reasonable. The outcome is identical at every value tried, including
 > the default (50) and the full reference set of 494 sequences (measured
 > once, about 22 minutes, and not re-run here):

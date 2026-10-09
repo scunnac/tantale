@@ -1,10 +1,9 @@
 # Runs the "predict" and "analyze" steps of AnnoTALE on a fasta file
 
 An R wrapper around the [AnnoTALE](https://doi.org/10.1038/srep21077)
-'AnnoTALE.jar predict' and 'AnnoTALE.jar analyze' shell calls. The whole
-AnnoTALE workflow can be completed by a subsequent call to the
+'AnnoTALE.jar predict' and 'AnnoTALE.jar analyze' shell calls.
 [`run_annotale_build`](https://scunnac.github.io/tantale/reference/run_annotale_build.md)
-function.
+completes the AnnoTALE workflow.
 
 ## Usage
 
@@ -23,8 +22,8 @@ run_annotale_predict(
 
 - fasta_file:
 
-  Path to a fasta file containing DNA sequences (e.g. a genome assembly)
-  to be analyzed for TALE content.
+  Path to a fasta file of the DNA sequences (e.g. a genome assembly) to
+  search for TALEs.
 
 - output_dir:
 
@@ -88,13 +87,13 @@ run_annotale_predict(fasta, output_dir = out)
 #>   '/home/cunnac/snap/codium/495/.local/share/R/tantale/tools-1/AnnoTALEcli-1.5.jar'
 #>   predict Sensitive=false
 #>   g='/home/cunnac/snap/codium/495/.local/share/R/tantale/genomes-1/MAI1.fa'
-#>   s='MAI1' outdir='/tmp/Rtmp17aOMt/annotale_predict_example/Predict'
+#>   s='MAI1' outdir='/tmp/RtmpEQXqY1/annotale_predict_example/Predict'
 #> Running AnnoTALE analyze for "MAI1"
 #>   java -jar
 #>   '/home/cunnac/snap/codium/495/.local/share/R/tantale/tools-1/AnnoTALEcli-1.5.jar'
 #>   analyze
-#>   t='/tmp/Rtmp17aOMt/annotale_predict_example/Predict/TALE_DNA_sequences_(MAI1).fasta'
-#>   outdir='/tmp/Rtmp17aOMt/annotale_predict_example/Analyze'
+#>   t='/tmp/RtmpEQXqY1/annotale_predict_example/Predict/TALE_DNA_sequences_(MAI1).fasta'
+#>   outdir='/tmp/RtmpEQXqY1/annotale_predict_example/Analyze'
 list.files(file.path(out, "Predict"))
 #> [1] "GFF__TALE_predictions_(MAI1).gff3"   "Genbank__TALE_predictions_(MAI1).gb"
 #> [3] "TALE_DNA_sequences_(MAI1).fasta"     "TALE_protein_sequences_(MAI1).fasta"

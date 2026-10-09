@@ -76,8 +76,8 @@ preserved untouched.</p></dd>
 
 <dt id="arg-sanitize">sanitize<a class="anchor" aria-label="anchor" href="#arg-sanitize"></a></dt>
 <dd><p>Which arrays to remove, among those
-<code><a href="tales_anomalies.html">tales_anomalies</a></code> lists:</p><ul><li><p><code>FALSE</code> (default): none. The anomalies are warned about, so
-odd predictions can still be loaded and inspected.</p></li>
+<code><a href="tales_anomalies.html">tales_anomalies</a></code> lists:</p><ul><li><p><code>FALSE</code> (default): none. <code>tales()</code> warns about the
+anomalies, and the odd predictions stay in the object for inspection.</p></li>
 <li><p><code>TRUE</code>: the arrays whose data are inconsistent or incomplete
 (anomalies of kind <code>"integrity"</code>), with a warning naming them and
 why. Non-canonical TALEs, such as truncTALEs or TALEs lacking a

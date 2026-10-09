@@ -19,12 +19,11 @@
 #'
 #' An R wrapper around the
 #' \href{https://doi.org/10.1038/srep21077}{AnnoTALE} 'AnnoTALE.jar
-#' predict' and 'AnnoTALE.jar analyze' shell calls. The whole AnnoTALE workflow
-#' can be completed by a subsequent call to the \code{\link{run_annotale_build}}
-#' function.
+#' predict' and 'AnnoTALE.jar analyze' shell calls.
+#' \code{\link{run_annotale_build}} completes the AnnoTALE workflow.
 #'
-#' @param fasta_file Path to a fasta file containing DNA sequences (e.g. a
-#'   genome assembly) to be analyzed for TALE content.
+#' @param fasta_file Path to a fasta file of the DNA sequences (e.g. a
+#'   genome assembly) to search for TALEs.
 #' @param output_dir Directory where output will be written, created if it
 #'   does not exist. The default is a new directory under [tempdir()], which
 #'   R deletes when the session ends: give a path to keep the results.

@@ -6,8 +6,8 @@ group. A strain's talome is its whole complement of TALEs, so the plot
 shows at a glance which groups each strain has and where strains carry
 different variants of the same TALE.
 
-Within a group, variants are ranked by how many strains carry them, and
-the cell colour is that rank: the most common variant is the palest and
+Within a group, the cell colour gives each variant's rank by the number
+of strains that carry it: the most common variant is the palest and
 rarer ones are darker. The `#` after each group label counts its
 distinct variants. A white cell means the strain has no member in that
 group. A cell can hold several colours side by side when a strain

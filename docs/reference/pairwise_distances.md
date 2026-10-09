@@ -18,11 +18,12 @@ domain_distances(x, dom_code_namespace = NULL)
 
 - x:
 
-  A data frame with `id1`, `id2` and `dissim` columns. A similarity is
-  accepted and converted: a table carrying `sim` or `norm_arlem_score`
-  instead of a distance is folded into `dissim`, and those restatements
-  are then dropped so only one copy of the quantity is stored. Further
-  columns (`arlem_score`, `max_length`, or anything else) are preserved.
+  A data frame with `id1`, `id2` and `dissim` columns. The function also
+  accepts a similarity: it converts a table carrying `sim` or
+  `norm_arlem_score` instead of a distance into `dissim` and drops the
+  similarity columns, so that only one copy of the quantity remains. It
+  keeps any further column (`arlem_score`, `max_length`, or anything
+  else).
 
 - dom_code_namespace:
 

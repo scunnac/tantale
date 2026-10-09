@@ -149,7 +149,7 @@ and/or <code>consensus</code> add extra panels, an
     <p>A <code>tales_msa</code> carries every layer at once (<code>rvd</code>,
 <code>dom_code</code> and whatever else the object holds), so <code>fill</code> and
 <code>label</code> simply name two of them.</p>
-<p>Three things are decided independently, and it helps to read the figure
+<p>Three settings act independently, and it helps to read the figure
 that way: what each cell <em>says</em>, what colour that text is, and what colour
 the block behind it is.</p>
 <p><strong>Cell text</strong> is whatever <code>label</code> names, or nothing when
@@ -178,10 +178,10 @@ preference and so no position on a specificity scale. The RVD similarity
 table is TALVEZ's and covers 17 RVDs; a rarer RVD (<code>NV</code>, say) scores
 1 where it is identical to the reference's RVD and is grey elsewhere.</p>
 <p><strong>The reference</strong> matters for both similarity fills.
-<code>ref_pattern</code> is matched against the array names and must identify
-exactly one, otherwise the default is used with a warning; by default it is
-the array with the most non-gap parts, ties broken alphabetically. The
-reference row is marked with a trailing <code>_#</code>.</p>
+<code>ref_pattern</code> must match exactly one array name; otherwise the
+function warns and uses the default, which is the array with the most
+non-gap parts, ties broken alphabetically. The reference row is marked
+with a trailing <code>_#</code>.</p>
 <p><strong>Two panels may be attached.</strong> Supplying <code>tale_distances</code> with
 more than one array adds a dendrogram panel on the left; <code>consensus =
 TRUE</code> adds a consensus panel on top. When either is present the return

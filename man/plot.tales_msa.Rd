@@ -76,7 +76,7 @@ A \code{tales_msa} carries every layer at once (\code{rvd},
 \code{dom_code} and whatever else the object holds), so \code{fill} and
 \code{label} simply name two of them.
 
-Three things are decided independently, and it helps to read the figure
+Three settings act independently, and it helps to read the figure
 that way: what each cell \emph{says}, what colour that text is, and what colour
 the block behind it is.
 
@@ -119,10 +119,10 @@ table is TALVEZ's and covers 17 RVDs; a rarer RVD (\code{NV}, say) scores
 1 where it is identical to the reference's RVD and is grey elsewhere.
 
 \strong{The reference} matters for both similarity fills.
-\code{ref_pattern} is matched against the array names and must identify
-exactly one, otherwise the default is used with a warning; by default it is
-the array with the most non-gap parts, ties broken alphabetically. The
-reference row is marked with a trailing \code{_#}.
+\code{ref_pattern} must match exactly one array name; otherwise the
+function warns and uses the default, which is the array with the most
+non-gap parts, ties broken alphabetically. The reference row is marked
+with a trailing \code{_#}.
 
 \strong{Two panels may be attached.} Supplying \code{tale_distances} with
 more than one array adds a dendrogram panel on the left; \code{consensus =

@@ -30,8 +30,8 @@ tales(x, dom_code_namespace = NULL, sanitize = FALSE)
   [`tales_anomalies`](https://scunnac.github.io/tantale/reference/tales_anomalies.md)
   lists:
 
-  - `FALSE` (default): none. The anomalies are warned about, so odd
-    predictions can still be loaded and inspected.
+  - `FALSE` (default): none. `tales()` warns about the anomalies, and
+    the odd predictions stay in the object for inspection.
 
   - `TRUE`: the arrays whose data are inconsistent or incomplete
     (anomalies of kind `"integrity"`), with a warning naming them and

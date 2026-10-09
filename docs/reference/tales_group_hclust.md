@@ -43,11 +43,10 @@ tales_group_hclust(x, tale_distances, k = NULL, plot_tree = FALSE)
 
 ## Details
 
-The clustering is computed from `tale_distances`, but the result belongs
-on the `tales` object the distances were computed from, so that is what
-comes back. `group` is a recognised `tales` column, validated as
-constant within an array – it is an array-level property, like
-`seqnames`.
+The function clusters `tale_distances` but returns the `tales` object
+those distances came from, with the groups added. `group` is a
+recognised `tales` column, validated as constant within an array – it is
+an array-level property, like `seqnames`.
 
 Taking `x` rather than returning a bare lookup table is what makes the
 correspondence checkable: the array names in `tale_distances` must be

@@ -107,9 +107,8 @@ call, so the same candidate always clusters the same way.</p></dd>
     </div>
     <div class="section level2">
     <h2 id="details">Details<a class="anchor" aria-label="anchor" href="#details"></a></h2>
-    <p>The clustering is computed from <code>tale_distances</code>, but the result belongs on the
-<code>tales</code> object the distances were computed from, so that is what comes
-back. <code>group</code> is a recognised <code>tales</code> column, validated as constant within
+    <p>The function clusters <code>tale_distances</code> but returns the <code>tales</code> object
+those distances came from, with the groups added. <code>group</code> is a recognised <code>tales</code> column, validated as constant within
 an array – it is an array-level property, like <code>seqnames</code>.</p>
 <p>Taking <code>x</code> rather than returning a bare lookup table is what makes the
 correspondence checkable: the array names in <code>tale_distances</code> must be the array

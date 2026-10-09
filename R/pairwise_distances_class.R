@@ -72,11 +72,11 @@ is_pairwise_distances <- function(x) inherits(x, "pairwise_distances")
 #' structure, only meaning: every method is written once on the parent.
 #'
 #' @param x A data frame with \code{id1}, \code{id2} and \code{dissim} columns.
-#'   A similarity is accepted and converted: a table carrying \code{sim} or
-#'   \code{norm_arlem_score} instead of a distance
-#'   is folded into \code{dissim}, and those restatements are then dropped so
-#'   only one copy of the quantity is stored. Further columns
-#'   (\code{arlem_score}, \code{max_length}, or anything else) are preserved.
+#'   The function also accepts a similarity: it converts a table carrying
+#'   \code{sim} or \code{norm_arlem_score} instead of a distance into
+#'   \code{dissim} and drops the similarity columns, so that only one copy
+#'   of the quantity remains. It keeps any further column
+#'   (\code{arlem_score}, \code{max_length}, or anything else).
 #' @param dom_code_namespace Optional scalar string identifying the run whose
 #'   \code{dom_code} values this table is keyed by, see
 #'   \code{\link{tales_namespace}}. Relevant for \code{domain_distances()}, whose ids

@@ -13,8 +13,8 @@ tantale_genome(strain = c("MAI1", "BAI3", "BAI3-1-1", "PXO86"))
 The path of a FASTA file.
 }
 \description{
-Four \emph{Xanthomonas oryzae} pv. \emph{oryzae} genome assemblies are used
-throughout the articles and examples. They are not part of the package
+The articles and examples use four \emph{Xanthomonas oryzae} pv. \emph{oryzae}
+genome assemblies. They are not part of the package
 itself: \code{\link[=tantale_setup]{tantale_setup()}} downloads them, with the Java tools, when called
 with \code{install = TRUE}. This function returns where one of them is.
 }

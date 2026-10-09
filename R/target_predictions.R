@@ -331,7 +331,7 @@ talvez <- function(rvd_seqs, subj_file, opt_param = "-t 0 -l 19", output_dir = N
 #'
 #'RVDs sequences predicted to target an EBE on the sense strand of the DNA sequence are plotted on top of the double stranded DNA sequence in parallel to its cognate EBE which is highlighted on the corresponding strand of the DNA sequence. Those predicted to target an EBE on the opposite strand are displayed below.
 #'
-#'Individual RVDs are printed inside colored boxes. The color of the boxes indicates to which degree the RVD is predicted to have affinity with the corresponding nucleotide on the DNA sequence at that position relatively to other nucleotides. The RVDs labelled "OO" correspond to the first non-canonical repeat also called repeat zero in TALE protein sequences.
+#'Each RVD sits in a box whose colour says how strongly the RVD is expected to bind the base at that position, compared with the other three bases. The RVDs labelled "OO" correspond to the first non-canonical repeat also called repeat zero in TALE protein sequences.
 #'
 #'Numeric values inside the boxes located immediately to the right of the TALE labels reflect prediction scores.
 #'

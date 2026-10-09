@@ -63,9 +63,9 @@ that happens, a rebuild can honestly report success while the package goes
 on using the other one. Everything here therefore works with the
 environment's prefix (its path), never its name.
 
-\strong{Where the downloads go.} Two archives, attached to releases of
-tantale's GitHub repository, are checked against a sha256 recorded in the
-package and unpacked into \code{tools::R_user_dir("tantale", "data")}
+\strong{Where the downloads go.} The function checks two archives, attached
+to releases of tantale's GitHub repository, against a sha256 recorded in
+the package and unpacks them into \code{tools::R_user_dir("tantale", "data")}
 (\verb{~/.local/share/R/tantale} on Linux), in one folder per archive
 version (\verb{tools-1/}, \verb{genomes-1/}). Set the environment variable
 \code{TANTALE_DATA_DIR} to use another directory, for instance one shared by

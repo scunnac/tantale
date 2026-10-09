@@ -244,12 +244,12 @@ before trusting any of it.*
   "group")`, `?tantale-package` rewritten, several doc fixes. CI on
   7325ce2 is green: R-CMD-check Linux and macOS, test-coverage, pkgcheck
   (§61).
-  Q231-Q233 done in a second session, committed, not pushed (`tales_align()` loses `...`,
+  Q231-Q233 done in a second session, pushed as c47ba7a (`tales_align()` loses `...`,
   snake_case prediction columns, `plot_target_preds()` labels; §61).
-  **Waiting for the maintainer:** Y/N on `dev/passive-review.md` (Q224).
-  No answer from the #813 editors as of 2026-10-09.
+  Q224 applied (§61). **Waiting for the maintainer:** Q241 (`?tell_tales`
+  sentence on unparsed arrays). No answer from the #813 editors as of 2026-10-09.
   Lesson: after changing what a function returns, run every test file
-  that calls it, not only the class's own. Last Q used: Q239.
+  that calls it, not only the class's own. Last Q used: Q241.
 - **2026-10-06, fourth session -- start here.** All work pushed. The
   #813 reply was cut down to a short report of pkgcheck's results (draft
   in `../tantale_ropensci/813-reply-draft.md`) and **the maintainer posts

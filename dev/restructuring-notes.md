@@ -4531,3 +4531,13 @@ The prose of `?plot_target_preds` is left to the Q224 pass, whose items
 its prediction output predated Q219, and `README.qmd` still listed Perl
 as a requirement (4cd7008 had edited only `README.md`); fixed in the
 source.
+
+**Q224 applied (2026-10-09).** The maintainer marked
+`dev/passive-review.md`: Y on items 3, 5-13, 16, 18-25 and 27-32, N on
+1, 2, 4, 14, 15, 17 and 26. Rewrites as proposed, with three small
+adaptations: item 6 folds the default's description into the same
+sentence; items 11 and 24 start with "It", since the sentence before
+names `tell_tales()` or the approach. Help pages, the five articles
+concerned and README re-rendered. Item 14 kept as written although it is
+inaccurate (the `tell_tales()` log does not report the arrays AnnoTALE
+could not parse; `tales_from_telltales()` warns about them): Q241.

@@ -350,25 +350,24 @@ List of output files:
 The approach is first to use [HMMER](http://hmmer.org/) to find and
 categorize regions in the input DNA sequence that are related to the
 coding sequence of canonical TALE protein domains (N-Term, repeats,
-C-term). Hits that are (nearly – see the `min_gap` parameter) adjacent
-are grouped in "taleArrays" which are considered as potential *tal*
-genes.
+C-term). It then groups hits that are adjacent, or nearly so (see
+`min_gap`), into "taleArrays", each a potential *tal* gene.
 
-If the `correct_array` parameter is turned off, the longest predicted
-open reading frame (+extend_len) for each talArray is fed to
-[AnnoTALE](http://www.jstacs.de/index.php/AnnoTALE) to detect TALE
-domains in the predicted translation product. The Results should hence
-be very similar to what would be obtained with AnnoTALE, plus many
+With `correct_array = FALSE`, `tell_tales()` gives
+[AnnoTALE](http://www.jstacs.de/index.php/AnnoTALE) the longest open
+reading frame of each taleArray (extended by `extend_len`) to detect
+TALE domains in the predicted translation product. The Results should
+hence be very similar to what would be obtained with AnnoTALE, plus many
 additional informative output files such as tabular reports.
 
-If `correct_array` is turned on, these talearrays are passed to the
+With `correct_array = TRUE`,
 [`CorrectFrameshifts`](https://rdrr.io/pkg/DECIPHER/man/CorrectFrameshifts.html)
-function that attempts to 'correct' potential frameshifts in the
-taleArray sequences. This conveniently removes many artefactual indels
-but bear in mind that this may also **erroneously** 'correct' genuine
-frame shifts which can be highly relevant especially for truncTALEs or
-iTALEs. The resulting 'corrected' taleArray open reading frames are then
-passed to AnnoTALE.
+first tries to 'correct' potential frameshifts in the taleArray
+sequences. This conveniently removes many artefactual indels but bear in
+mind that this may also **erroneously** 'correct' genuine frame shifts
+which can be highly relevant especially for truncTALEs or iTALEs. The
+resulting 'corrected' taleArray open reading frames are then passed to
+AnnoTALE.
 
 Note that occasionally, when a putative open reading frame does not
 encode a canonical TALE protein (early frame shift, incomplete ORF,
@@ -413,13 +412,13 @@ tell_tales(subject_file = subj, output_dir = out)
 #> Now running AnnoTALE analyze for ROI_00004
 #> #****************************************
 #> #**   tell_tales analysis done     **
-#> Current date:    Fri Oct  9 01:11:33 2026
+#> Current date:    Fri Oct  9 14:30:36 2026
 #> #_________Provided I/O parameters __________
 #> File of subject DNA sequences:   /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/bai3_sample_tal_genomic_regions.fasta
 #> TALE N-term CDS region detection HMM file:   /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Nterm_CDS_profile.hmm
 #> TALE repeat unit CDS detection HMM file: /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_repeat_CDS_profile.hmm
 #> TALE C-term CDS region detection HMM file:   /home/cunnac/Lab-Related/MyScripts/tantale/inst/extdata/hmmProfile/Xo_TALE_Cterm_CDS_profile.hmm
-#> Output directory:    /tmp/Rtmp17aOMt/tell_tales_exampleae2b43e9a4994
+#> Output directory:    /tmp/RtmpEQXqY1/tell_tales_examplefeab14677a19a
 #> #____________Other parameters________________
 #> nterm_min_score: 300
 #> repeat_min_score:    20

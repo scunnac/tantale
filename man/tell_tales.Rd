@@ -273,20 +273,20 @@ that may otherwise be missed by conventional tools (eg AnnoTALE).
 \details{
 The approach is first to use \href{http://hmmer.org/}{HMMER} to find and
 categorize regions in the input DNA sequence that are related to the coding
-sequence of canonical TALE protein domains (N-Term, repeats, C-term). Hits
-that are (nearly -- see the \code{min_gap} parameter) adjacent are grouped in
-"taleArrays" which are considered as potential \emph{tal} genes.
+sequence of canonical TALE protein domains (N-Term, repeats, C-term). It
+then groups hits that are adjacent, or nearly so (see \code{min_gap}), into
+"taleArrays", each a potential \emph{tal} gene.
 
-If the \code{correct_array} parameter is turned off, the longest
-predicted open reading frame (+extend_len) for each talArray is fed to
-\href{http://www.jstacs.de/index.php/AnnoTALE}{AnnoTALE} to detect TALE
+With \code{correct_array = FALSE}, \code{tell_tales()} gives
+\href{http://www.jstacs.de/index.php/AnnoTALE}{AnnoTALE} the longest open
+reading frame of each taleArray (extended by \code{extend_len}) to detect TALE
 domains in the predicted translation product. The Results should hence be
 very similar to what would be obtained with AnnoTALE, plus many additional
 informative output files such as tabular reports.
 
-If \code{correct_array} is turned on, these talearrays are passed to the
-\code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}} function that
-attempts to 'correct' potential frameshifts in the taleArray sequences. This
+With \code{correct_array = TRUE},
+\code{\link[DECIPHER:CorrectFrameshifts]{CorrectFrameshifts}} first tries
+to 'correct' potential frameshifts in the taleArray sequences. This
 conveniently removes many artefactual indels but bear in mind that this may
 also \strong{erroneously} 'correct' genuine frame shifts which can be highly
 relevant especially for truncTALEs or iTALEs. The resulting 'corrected'

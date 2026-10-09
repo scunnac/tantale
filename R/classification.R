@@ -35,9 +35,8 @@
 #' result attached as its \code{group} column.
 #'
 #' @details
-#' The clustering is computed from `tale_distances`, but the result belongs on the
-#' `tales` object the distances were computed from, so that is what comes
-#' back. `group` is a recognised `tales` column, validated as constant within
+#' The function clusters `tale_distances` but returns the `tales` object
+#' those distances came from, with the groups added. `group` is a recognised `tales` column, validated as constant within
 #' an array -- it is an array-level property, like `seqnames`.
 #'
 #' Taking `x` rather than returning a bare lookup table is what makes the
@@ -149,9 +148,8 @@ tales_group_hclust <- function(x, tale_distances, k = NULL, plot_tree = FALSE) {
 #' result attached as its \code{group} column.
 #'
 #' @details
-#' The clustering is computed from `tale_distances`, but the result belongs on the
-#' `tales` object the distances were computed from, so that is what comes
-#' back. `group` is a recognised `tales` column, validated as constant within
+#' The function clusters `tale_distances` but returns the `tales` object
+#' those distances came from, with the groups added. `group` is a recognised `tales` column, validated as constant within
 #' an array -- it is an array-level property, like `seqnames`.
 #'
 #' Taking `x` rather than returning a bare lookup table is what makes the
@@ -355,8 +353,8 @@ tales_group_kmedoids <- function(x, tale_distances, k_range = NULL, k = NULL,
 #' shows at a glance which groups each strain has and where strains carry
 #' different variants of the same TALE.
 #'
-#' Within a group, variants are ranked by how many strains carry them, and
-#' the cell colour is that rank: the most common variant is the palest and
+#' Within a group, the cell colour gives each variant's rank by the number
+#' of strains that carry it: the most common variant is the palest and
 #' rarer ones are darker.
 #' The \code{#} after each group label counts its distinct
 #' variants. A white cell means the strain has no member in that group. A

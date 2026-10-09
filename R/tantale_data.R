@@ -140,8 +140,8 @@
 
 #' Path to one of the example genomes
 #'
-#' Four *Xanthomonas oryzae* pv. *oryzae* genome assemblies are used
-#' throughout the articles and examples. They are not part of the package
+#' The articles and examples use four *Xanthomonas oryzae* pv. *oryzae*
+#' genome assemblies. They are not part of the package
 #' itself: [tantale_setup()] downloads them, with the Java tools, when called
 #' with `install = TRUE`. This function returns where one of them is.
 #'

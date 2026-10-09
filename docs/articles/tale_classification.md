@@ -34,7 +34,7 @@ article](https://scunnac.github.io/tantale/articles/tale_mining.html#sec-best-co
 > cross-strain groups and PXO86-only paralog clusters, which illustrate
 > a different question from the one this article is asking.
 
-Discovery runs independently per genome, so it is written as one
+Discovery runs independently per genome, so the article writes it as one
 function applied to each genome name in turn:
 
 Code
@@ -79,8 +79,8 @@ if (fs::file_exists(discovery_cache)) {
 }
 ```
 
-`array_id` is prefixed by strain before the three objects are combined,
-since
+The code prefixes `array_id` with the strain before combining the three
+objects, since
 [`tell_tales()`](https://scunnac.github.io/tantale/reference/tell_tales.md)
 numbers regions independently within each genome: without the prefix,
 `MAI1`’s `ROI_00001` and `BAI3`’s `ROI_00001` would collide.

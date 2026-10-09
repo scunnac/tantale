@@ -174,8 +174,8 @@ plot_target_preds(preds = converging, subj_file = subj_file,
 Figure 1: Three orthologous TALEs, one from each strain, predicted to
 bind the exact same site in the SWEET14 promoter.
 
-Each RVD is printed in a box over the base it is predicted to contact;
-predictions on the sense strand are drawn above the sequence and those
+The plot puts each RVD in a box over the base it should contact, and
+draws the predictions on the sense strand above the sequence and those
 on the antisense strand below it, since a TALE can bind either strand of
 its target. The first box, `OO`, marks position 0: the base just before
 the first repeat’s target, where TALEs strongly prefer a T. All three

@@ -69,11 +69,11 @@ entities, larger for more different ones).</p>
 
 <dl><dt id="arg-x">x<a class="anchor" aria-label="anchor" href="#arg-x"></a></dt>
 <dd><p>A data frame with <code>id1</code>, <code>id2</code> and <code>dissim</code> columns.
-A similarity is accepted and converted: a table carrying <code>sim</code> or
-<code>norm_arlem_score</code> instead of a distance
-is folded into <code>dissim</code>, and those restatements are then dropped so
-only one copy of the quantity is stored. Further columns
-(<code>arlem_score</code>, <code>max_length</code>, or anything else) are preserved.</p></dd>
+The function also accepts a similarity: it converts a table carrying
+<code>sim</code> or <code>norm_arlem_score</code> instead of a distance into
+<code>dissim</code> and drops the similarity columns, so that only one copy
+of the quantity remains. It keeps any further column
+(<code>arlem_score</code>, <code>max_length</code>, or anything else).</p></dd>
 
 
 <dt id="arg-dom-code-namespace">dom_code_namespace<a class="anchor" aria-label="anchor" href="#arg-dom-code-namespace"></a></dt>

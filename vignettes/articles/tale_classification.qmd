@@ -57,8 +57,8 @@ groups and PXO86-only paralog clusters, which illustrate a different
 question from the one this article is asking.
 :::
 
-Discovery runs independently per genome, so it is written as one function
-applied to each genome name in turn:
+Discovery runs independently per genome, so the article writes it as one
+function applied to each genome name in turn:
 
 ```{r workdir}
 out <- fs::dir_create(file.path(tempdir(), "tale_classification"))
@@ -95,8 +95,8 @@ if (fs::file_exists(discovery_cache)) {
 }
 ```
 
-`array_id` is prefixed by strain before the three objects are combined,
-since `tell_tales()` numbers regions independently within each genome:
+The code prefixes `array_id` with the strain before combining the three
+objects, since `tell_tales()` numbers regions independently within each genome:
 without the prefix, `MAI1`'s `ROI_00001` and `BAI3`'s `ROI_00001` would
 collide.
 

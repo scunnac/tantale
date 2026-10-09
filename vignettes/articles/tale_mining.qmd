@@ -63,8 +63,8 @@ bai3_sample <- tales_from_annotale(annotale_example)
 bai3_sample
 ```
 
-Each terminal region is searched with the profile HMM of the TALE N- or
-C-terminal domain, and marked `NTERM` or `CTERM` when it is a canonical
+`tell_tales()` searches each terminal region with the profile HMM of the
+TALE N- or C-terminal domain, and marks it `NTERM` or `CTERM` when it is a canonical
 terminus, one that can be expected to do its usual job: the match must
 cover at least 90% of the profile (`XXXXX` otherwise). A terminus that
 has lost a large part, like the C-terminus of a truncTALE, is coded
@@ -94,9 +94,10 @@ inspection. The rest of this article uses `tell_tales()`.
 
 `tell_tales()` searches a genome with `nhmmer`, using three profile HMMs
 tuned to the N-terminus, the repeat unit, and the C-terminus of a TALE
-CDS. Hits are merged, grouped into candidate arrays by proximity, and each
-array's longest ORF is handed to AnnoTALE to split into parts and call its
-RVD sequence. Terminus codes are added at either end of the RVD string,
+CDS. It merges the hits, groups them into candidate arrays by proximity
+and hands each array's longest ORF to AnnoTALE to split into parts and
+call its RVD sequence. It then adds terminus codes at either end of the
+RVD string,
 `NTERM`/`CTERM` for a canonical terminus and `XXXXX` for any other, so a
 downstream alignment knows where an array actually starts and ends.
 

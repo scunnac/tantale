@@ -129,7 +129,7 @@
 </section><section class="section level2" data-number="2"><h2 data-number="2" id="the-column-contract">
 <span class="header-section-number">2</span> The column contract<a class="anchor" aria-label="anchor" href="#the-column-contract"></a>
 </h2>
-<p>Two columns are required outright, because without them a row cannot be located at all: <code>array_id</code> and <code>position_in_array</code>. A third requirement is looser: at least one of <code>rvd</code> or <code>dom_code</code> must be present, since a <code>tales</code> with neither has no residues to describe.</p>
+<p>A <code>tales</code> requires two columns outright, because without them a row cannot be located at all: <code>array_id</code> and <code>position_in_array</code>. A third requirement is looser: at least one of <code>rvd</code> or <code>dom_code</code> must be present, since a <code>tales</code> with neither has no residues to describe.</p>
 <p>Everything else is optional, but validated for shape when it is there:</p>
 <table class="table caption-top">
 <colgroup>
@@ -171,7 +171,7 @@
 </tr>
 </tbody>
 </table>
-<p>A <code>tales</code> built straight from a fasta of RVD sequences (below) has none of these beyond <code>rvd</code> itself, and that is a legitimate, if minimal, object. Any further column (a strain name, a clade, a host range) is preserved untouched and never warned about: metadata is expected to accumulate on this table via ordinary <code><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate()</a></code> calls.</p>
+<p>A <code>tales</code> built straight from a fasta of RVD sequences (below) has none of these beyond <code>rvd</code> itself, and that is a legitimate, if minimal, object. <code><a href="../reference/tales.html">tales()</a></code> keeps any further column (a strain name, a clade, a host range) untouched and never warns about it: metadata is expected to accumulate on this table via ordinary <code><a href="https://dplyr.tidyverse.org/reference/mutate.html" class="external-link">mutate()</a></code> calls.</p>
 </section><section class="section level2" data-number="3"><h2 data-number="3" id="three-ways-to-build-one">
 <span class="header-section-number">3</span> Three ways to build one<a class="anchor" aria-label="anchor" href="#three-ways-to-build-one"></a>
 </h2>

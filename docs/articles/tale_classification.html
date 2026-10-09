@@ -96,7 +96,7 @@
 <p>tantale ships a fourth sample genome, PXO86, a distantly related Asian outgroup strain. It is left out here deliberately: its TALE repertoire barely overlaps the African strains’ at all, so including it turns a clean set of one-locus-per-strain groups into a mix of real cross-strain groups and PXO86-only paralog clusters, which illustrate a different question from the one this article is asking.</p>
 </blockquote>
 </div>
-<p>Discovery runs independently per genome, so it is written as one function applied to each genome name in turn:</p>
+<p>Discovery runs independently per genome, so the article writes it as one function applied to each genome name in turn:</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb2"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">out</span> <span class="op">&lt;-</span> <span class="fu">fs</span><span class="fu">::</span><span class="fu"><a href="https://fs.r-lib.org/reference/create.html" class="external-link">dir_create</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/file.path.html" class="external-link">file.path</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/tempfile.html" class="external-link">tempdir</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"tale_classification"</span><span class="op">)</span><span class="op">)</span></span>
@@ -131,7 +131,7 @@
 <span><span class="op">}</span></span></code></pre></div>
 </details>
 </div>
-<p><code>array_id</code> is prefixed by strain before the three objects are combined, since <code><a href="../reference/tell_tales.html">tell_tales()</a></code> numbers regions independently within each genome: without the prefix, <code>MAI1</code>’s <code>ROI_00001</code> and <code>BAI3</code>’s <code>ROI_00001</code> would collide.</p>
+<p>The code prefixes <code>array_id</code> with the strain before combining the three objects, since <code><a href="../reference/tell_tales.html">tell_tales()</a></code> numbers regions independently within each genome: without the prefix, <code>MAI1</code>’s <code>ROI_00001</code> and <code>BAI3</code>’s <code>ROI_00001</code> would collide.</p>
 <div class="cell">
 <details open="" class="code-fold"><summary>Code</summary><div class="sourceCode cell-code" id="cb5"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">all_tales</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/tales.html">tales</a></span><span class="op">(</span><span class="va">all_tales</span>, sanitize <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
@@ -560,7 +560,7 @@ window.document.addEventListener("DOMContentLoaded", function (event) {
     }
   }
 });
-</script><script>var lightboxQuarto = GLightbox({"selector":".lightbox","loop":false,"openEffect":"zoom","descPosition":"bottom","closeEffect":"zoom"});
+</script><script>var lightboxQuarto = GLightbox({"loop":false,"openEffect":"zoom","descPosition":"bottom","selector":".lightbox","closeEffect":"zoom"});
 (function() {
   let previousOnload = window.onload;
   window.onload = () => {

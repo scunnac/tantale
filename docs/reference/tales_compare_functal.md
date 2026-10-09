@@ -3,9 +3,9 @@
 Quantifies how TALE arrays relate by the DNA sequence their repeats are
 predicted to bind.
 ([`tales_compare_distal`](https://scunnac.github.io/tantale/reference/tales_compare_distal.md)
-compares them by domain sequence instead.) Each array's repeats are
-turned into a position weight matrix (PWM) over the RVD-to-base
-specificity code, and PWMs are compared pairwise with
+compares them by domain sequence instead.) The function turns each
+array's repeats into a position weight matrix (PWM) of the bases its
+RVDs prefer, and compares the PWMs pairwise with
 [`compare_motifs`](https://rdrr.io/pkg/universalmotif/man/compare_motifs.html).
 
 ## Usage
@@ -95,13 +95,12 @@ Pearson correlation. `compare_motifs()` instead correlates matched
 columns individually and combines the column scores (`score.strat`); the
 two disagree on real data.
 
-The PWMs themselves are built by
 [`tales_to_universalmotif`](https://scunnac.github.io/tantale/reference/tales_to_universalmotif.md)
-– see its docs for exactly what drives them (only `rvd`, in repeat
-order, termini dropped) and how an RVD outside
-[`rvd_dna_specificity`](https://scunnac.github.io/tantale/reference/rvd_dna_specificity.md)
-is handled. That conversion is exposed on its own so it can be used with
-any `universalmotif` function.
+builds the PWMs (see its page for what drives them and how it treats an
+RVD missing from
+[`rvd_dna_specificity`](https://scunnac.github.io/tantale/reference/rvd_dna_specificity.md)).
+It is exported so that its output can go to any `universalmotif`
+function.
 
 Only a handful of
 [`compare_motifs`](https://rdrr.io/pkg/universalmotif/man/compare_motifs.html)'s

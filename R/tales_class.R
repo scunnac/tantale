@@ -191,8 +191,8 @@ tales_names <- function(x) {
 #' @param sanitize Which arrays to remove, among those
 #'   \code{\link{tales_anomalies}} lists:
 #'   \itemize{
-#'   \item \code{FALSE} (default): none. The anomalies are warned about, so
-#'   odd predictions can still be loaded and inspected.
+#'   \item \code{FALSE} (default): none. \code{tales()} warns about the
+#'   anomalies, and the odd predictions stay in the object for inspection.
 #'   \item \code{TRUE}: the arrays whose data are inconsistent or incomplete
 #'   (anomalies of kind \code{"integrity"}), with a warning naming them and
 #'   why. Non-canonical TALEs, such as truncTALEs or TALEs lacking a

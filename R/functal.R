@@ -112,9 +112,9 @@ tales_to_universalmotif <- function(x) {
 #' @description
 #' Quantifies how TALE arrays relate by the DNA sequence their repeats are
 #' predicted to bind. (\code{\link{tales_compare_distal}} compares them by
-#' domain sequence instead.) Each array's repeats are turned into
-#' a position weight matrix (PWM) over the RVD-to-base specificity code, and
-#' PWMs are compared pairwise with \code{\link[universalmotif]{compare_motifs}}.
+#' domain sequence instead.) The function turns each array's repeats into a
+#' position weight matrix (PWM) of the bases its RVDs prefer, and compares
+#' the PWMs pairwise with \code{\link[universalmotif]{compare_motifs}}.
 #'
 #' @details
 #' This is a reimplementation of QueTAL's FuncTAL comparison on
@@ -127,11 +127,10 @@ tales_to_universalmotif <- function(x) {
 #' matched columns individually and combines the column scores
 #' (\code{score.strat}); the two disagree on real data.
 #'
-#' The PWMs themselves are built by \code{\link{tales_to_universalmotif}} --
-#' see its docs for exactly what drives them (only \code{rvd}, in repeat
-#' order, termini dropped) and how an RVD outside
-#' \code{\link{rvd_dna_specificity}} is handled. That conversion is exposed
-#' on its own so it can be used with any \code{universalmotif} function.
+#' \code{\link{tales_to_universalmotif}} builds the PWMs (see its page for
+#' what drives them and how it treats an RVD missing from
+#' \code{\link{rvd_dna_specificity}}). It is exported so that its output
+#' can go to any \code{universalmotif} function.
 #'
 #' Only a handful of \code{\link[universalmotif]{compare_motifs}}'s many
 #' options are exposed here, chosen for what actually varies across TALE
