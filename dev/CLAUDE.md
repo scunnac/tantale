@@ -240,16 +240,18 @@ before trusting any of it.*
 - **2026-10-14 -- start here.** A new task is agreed and recorded, with
   no work begun: **enlarge the documented TALE target set** past the
   clade-III SWEET promoters to susceptibility and executor genes, from a
-  literature search seeded by review DOIs the maintainer is about to
-  send. The plan, the four settled questions and the eight steps are in
-  **ledger §62**; read it before touching anything. Shape: a superset
+  literature search seeded by three review DOIs, which the maintainer
+  has sent and which are recorded in the ledger. The plan, the five
+  settled questions and the eight steps are in **ledger §62**; read it
+  before touching anything. **Do not begin without the maintainer's
+  word:** they stopped the task on 2026-10-14 to save credits. Shape: a superset
   FASTA (`inst/extdata/tale_target_promoters.fasta`) replacing
   `cladeIII_sweet_promoters.fasta`, plus an exported `tale_targets`
   table built like `tale_annotations` (§57). There is no NCBI MCP tool
   here: sequences come from E-utilities via `rentrez`, scripted in
   `data-raw/`. Each row's identification needs the maintainer's
-  sign-off. Open: Q250 (identifiers for the new rows). CI on 7642d04 is
-  green (R-CMD-check Linux, test-coverage). Last Q used: Q250.
+  sign-off. CI on 7642d04 is green (R-CMD-check Linux,
+  test-coverage). Last Q used: Q250.
 - **2026-10-09, second session.** All work pushed
   (`main` at 7642d04, `claude-reviewed` on it). **Read first:** CI on
   7642d04 (R-CMD-check Linux, test-coverage; macOS and pkgcheck only by

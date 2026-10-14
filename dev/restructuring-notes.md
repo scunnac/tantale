@@ -4643,5 +4643,20 @@ the package itself never needs the network.
    `pkgdown::check_pkgdown()` and rebuild the reference pages, the
    article and the home page.
 
-Not started: the maintainer asked for the plan to be recorded and for no
-work to begin before the DOIs arrive. Last Q used: Q250.
+**The seed references (maintainer, 2026-10-14).** Three reviews, to be
+resolved and read as step 1. Recorded as given, with no titles claimed
+here, since resolving them is part of the work and was deliberately not
+done when they arrived:
+
+- <https://doi.org/10.3389/fpls.2019.00162>
+- <https://doi.org/10.1094/PHYTO-10-22-0365-KD>
+- <https://doi.org/10.1146/annurev-phyto-011325-014601>
+
+**Q250 settled (maintainer, 2026-10-14):** the nine inherited
+identifiers stay as they are and new rows read `<Gene>p_<cultivar>`
+with no `_Sense` suffix.
+
+Not started. The maintainer asked for the plan and the references to be
+recorded, and for no work to begin: they are low on credits and are
+keeping them for more pressing matters. Pick this up on their word.
+Last Q used: Q250.
