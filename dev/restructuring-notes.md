@@ -4570,7 +4570,78 @@ script carrying its decisions in the header, a documented `@format`
 list, `@source`, and a reference per row. The FASTA identifier is the
 join key between the two.
 
-Open: Q246 the review-article references; Q247 host scope (rice only or
-every documented host); Q248 how much sequence to take per target;
-Q249 whether the enlarged file supersedes the clade-III one. Last Q
-used: Q249.
+### Answers and the work plan (maintainer, 2026-10-14) **[A]**
+
+**Q246.** The maintainer supplies the DOIs of a few reviews. Everything
+past that is Claude's job: find the primary papers from the reviews, then
+the sequences and the metadata.
+
+**Q247.** Hosts past rice are welcome. Exhaustive coverage is not wanted,
+so the set stops where the evidence thins rather than chasing every
+report.
+
+**Q248.** One window per row, the same length for all of them, taken
+upstream of the annotated start codon (1 kb as the opening figure,
+extended for any row whose documented EBE falls outside it). The
+accession is the cultivar's own where a paper names one, which keeps the
+allelic contrasts the clade-III set carries. Each paper's own fragment
+coordinates go in the table.
+
+**Q249.** The enlarged file supersedes
+`inst/extdata/cladeIII_sweet_promoters.fasta`, which is deleted. The
+nine existing identifiers stay byte-identical inside the new file, so
+article prose and figure labels keep their meaning.
+
+**Q250 (open).** Identifiers for the new rows. The nine inherited ones
+read `SWEET11p_IR64_Sense`. Proposal: leave those nine untouched and
+give new rows `<Gene>p_<cultivar>` with no `_Sense` suffix, since every
+sequence in the file is sense. The alternative is to normalise all of
+them and rewrite the article prose and figure labels that quote them.
+
+**Tooling, checked 2026-10-14.** There is no NCBI or Entrez MCP tool or
+skill in this session, contrary to what was assumed when the task was
+set. What is available: the PubMed MCP server (search, metadata, full
+text, id conversion), `reference-lookup` and Consensus for finding and
+verifying papers, and `rentrez` (installed) plus NCBI's E-utilities over
+HTTP (reachable, checked with `einfo.fcgi`). The sequence fetch is
+therefore scripted with `rentrez` inside
+`data-raw/tale_target_promoters.R`; the fetched FASTA is committed, so
+the package itself never needs the network.
+
+**Steps.**
+
+1. Reviews to an inventory: one candidate target per row with the
+   primary-paper DOI that reports its EBE.
+2. Primary papers to metadata: gene id, host, cultivar, the TALE and its
+   AnnoTALE class, the EBE sequence and its position. Record every paper
+   or field that could not be retrieved; a gap is the state of the
+   curation, as in §57.
+3. Accession and coordinates per row, then the fetch. **Verify that the
+   documented EBE occurs in the fetched window**, on the expected strand,
+   and fail loudly where it does not: that check catches a wrong
+   accession, a wrong strand and an off-by-one window, and it is the one
+   step able to fail for the reason it tests.
+4. Draft `data-raw/ref_tale_targets.tsv`. **The maintainer signs off row
+   by row before it ships** -- general TALE biology can come from the
+   literature, calling a particular sequence the genuine promoter of a
+   particular gene cannot.
+5. Build `inst/extdata/tale_target_promoters.fasta` and
+   `data/tale_targets.rda`; document the dataset in `R/data.R` on the
+   `tale_annotations` model (`@format` item list, `@details` on the
+   gaps, `@source`, `@family TALE discovery`).
+6. Repoint everything named at the head of this section: four help pages
+   (`talvez`, `preditale`, `tales_predict_targets`,
+   `plot_target_preds`), `README.qmd` **and** `README.md`,
+   `vignettes/articles/tale_target_prediction.qmd`, and
+   `test_target_predictions.R`, whose `dim() == c(90L, 9L)` assertion
+   moves with the subject file.
+7. `inst/COPYRIGHTS`: a record for the sequence data with its
+   accessions. The current file has none.
+8. `NEWS.md` entry under the `# tantale 0.99.0.9000` heading. The
+   reference index is built from `has_concept()`, so a `@family` tag
+   places the new page without an `_pkgdown.yml` edit; run
+   `pkgdown::check_pkgdown()` and rebuild the reference pages, the
+   article and the home page.
+
+Not started: the maintainer asked for the plan to be recorded and for no
+work to begin before the DOIs arrive. Last Q used: Q250.
