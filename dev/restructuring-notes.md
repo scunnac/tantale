@@ -4542,3 +4542,35 @@ inaccurate. Wrong: `.telltale_run_annotale()` collects "Annotale failed
 to parse TALE domains for <array>" for each such array, warns, and the log
 lists them under "Noteworthy AnnoTale issues" (seen in a real BAI3-1-1
 run). `tales_from_telltales()` warns about them as well. Sentence kept.
+
+## 62. Enlarging the documented target set (2026-10-14) **[A]**
+
+The maintainer wants `inst/extdata/cladeIII_sweet_promoters.fasta`
+enlarged past the clade-III SWEET promoters to cover susceptibility genes
+and executor genes, with the identity of each sequence established by a
+literature search. References to review articles are to come from the
+maintainer.
+
+What the current file holds: nine sequences, `SWEET11p`/`SWEET13p`/
+`SWEET14p` of IR64, BT07, 93-11, Nipponbare, BT7 and IR24, 344 to
+2004 bp, headers of the form `SWEET11p_IR64_Sense`. Its provenance is
+recorded nowhere -- not in `inst/COPYRIGHTS`, not in `data-raw/`, not in
+this ledger. It is the subject file of every target-prediction example
+(`talvez()`, `preditale()`, `tales_predict_targets()`,
+`plot_target_preds()`, all four inside `\donttest{}`), of
+`vignettes/articles/tale_target_prediction.qmd`, of README, and of four
+tests in `test_target_predictions.R`, one of which asserts
+`dim() == c(90L, 9L)`. The golden baseline does not cover predictions.
+
+Agreed shape (Q245, maintainer 2026-10-14): the sequences stay a plain
+FASTA under `inst/extdata/`, because the prediction tools take a file
+path, and the biology goes into an exported table built the way
+`tale_annotations` was (§57) -- a curated TSV in `data-raw/`, a build
+script carrying its decisions in the header, a documented `@format`
+list, `@source`, and a reference per row. The FASTA identifier is the
+join key between the two.
+
+Open: Q246 the review-article references; Q247 host scope (rice only or
+every documented host); Q248 how much sequence to take per target;
+Q249 whether the enlarged file supersedes the clade-III one. Last Q
+used: Q249.
